@@ -4,10 +4,10 @@
 #include "audio_and_gb_emulator.h"
 #include "gb_player_launch.h"
 
-void func_811177D0(s32);
+void func_811177D0(s32 arg0); // PORT: matches GbAudio_SetMenuSoundMode
 void GbEmu_PauseEmulation(void);
-void func_81104B88(OSTime);
-void func_80008014(void*, s32, s32);
+void func_81104B88(OSTime arg0); // PORT: matches GbEmu_Delay
+void func_80008014(u16* frame_buf_ptr, u16 width, u16 height); // PORT: matches CrashScreen_SetDrawInfo
 extern GfxImage* D_81154C30[]; // PORT: the two frame buffer images (was s8*, read as *(s32*)(p + 8))
 extern s32 D_81154C3C;
 /**
@@ -37,7 +37,7 @@ extern u8 D_8111E3A8[];
 extern u8 D_8111E3CC[];
 extern u8 D_8111E3E0[];
 void GbEmu_DrawTextCommands(s8* arg0, u8* arg1);
-void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
+void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
 extern s32 D_8111C568;
 /**
  * Draws the GB Player menu (メニュー, "Menu") over the GB screen: ゲームをつづける ("Continue game"),
@@ -95,7 +95,7 @@ s32* GbEmu_GetButtonIcon(s32 index) {
 }
 
 s32* GbEmu_GetButtonIcon(s32);
-void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
+void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
 extern s32 D_8111DFA8;
 
 /*
@@ -250,7 +250,7 @@ void GbEmu_DrawButtonConfig(uintptr_t screen, s32 cursor, s32 slide) { // PORT: 
 
 void GbEmu_DrawPauseMenu(s8* arg0, u8 arg1);
 void GbEmu_DrawTextCommands(s8* arg0, u8* arg1);
-void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
+void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
 extern u8 D_8111E4BC[];
 extern s32 D_8111C568;
 
@@ -297,16 +297,16 @@ extern u8 D_81154C4D;
 extern u8 D_81154C4E;
 extern s8 D_81154C4F;
 extern u8 D_811565F0[];
-GfxImage* func_800051F0(s32, s32, s32, s32, s32); // PORT: GfxImage_Allocate
-uintptr_t func_800023C4(u32, s32, uintptr_t); // PORT: MainPool_Alloc returns an address
-void func_80003824(uintptr_t, uintptr_t, uintptr_t, s32); // PORT: Dma_WriteChunks
+GfxImage* func_800051F0(s32 fmt, s32 size, s32 width, s32 height, s32 side); // PORT: matches GfxImage_Allocate
+void* func_800023C4(u32 size, s32 side); // PORT: matches MainPool_Alloc
+void func_80003824(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3); // PORT: matches Dma_WriteChunks
 void func_800093E0(u8*, u8*);
 s32 func_80025BD8(void);
 void GbPak_StartIoThread(s32, s32, u8*);
 s32 GbEmu_LoadCartridge(uintptr_t, uintptr_t, s32, s32, GbPlayerEmuBlock*); // PORT: frame buffer and heap addresses
 void AudioLoad_Init(void);
 void func_811171DC(void);
-void func_81117288(u8*); // PORT: GbApu_Reset takes a pointer
+void func_81117288(u8* arg0); // PORT: matches GbApu_Reset
 /**
  * GB Player entry: allocates both framebuffers and the emulator heap, decompresses the emulator
  * data, inits the sound driver, the GB APU and the video mode, starts the Transfer Pak I/O thread
@@ -319,7 +319,7 @@ void GbEmu_Init(GbPlayerEmuBlock* params) { // PORT: the emulator thread block (
 
     D_81154C30[0] = func_800051F0(0, 2, 0x140, 0xF0, 1);
     D_81154C30[1] = func_800051F0(0, 2, 0x140, 0xF0, 1);
-    D_81154C38 = (u8*)(func_800023C4((u32)((uintptr_t) D_0015A9B0 - (uintptr_t) D_000DA9B0 + 0x158000), 0, (uintptr_t) D_000DA9B0));
+    D_81154C38 = (u8*)(func_800023C4((u32)((uintptr_t) D_0015A9B0 - (uintptr_t) D_000DA9B0 + 0x158000), 0)); // PORT: m2c passed a stale a2
     if (D_81154C38 == 0) {
         D_81154C4E = 1;
         D_81154C48 = 3;
@@ -387,9 +387,9 @@ void GbAudio_FrameStub(void);
 void GbAudio_RampToSilence(void);
 s32 GbPak_HasUnsavedSramBlocks(void);
 void GbEmu_BlackScreenAndFail(s32);
-void func_80004F34(void*, s32);
+void func_80004F34(SchedTask* arg0, s32 arg1); // PORT: matches Sched_SubmitTask
 void GbEmu_ClearStatusBar(void);
-void func_811177DC(s32);
+void func_811177DC(s32 arg0); // PORT: matches GbAudio_PlayMenuSound
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
 s32 GbPak_CheckConnectionBlocking(void);

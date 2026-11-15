@@ -28,16 +28,16 @@ uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK StageFade_Start(M2C_UNK);
-M2C_UNK func_80006998(M2C_UNK);
-void func_800199E4(DisplayObject*); // ModelRenderer_ClearDisplayObject
+void func_80006998(u16 color); // PORT: matches StageContext_SetClearColor
+void func_800199E4(DisplayObject* arg0); // PORT: matches ModelRenderer_ClearDisplayObject
 s32 func_80006828(u32 timer, s32 (*f)(u8)); // BgStage_RunUntilCondition
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AB6C();
-M2C_UNK func_8001ABBC();
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 s32 Save_GetGbPlayerSettings(s8 *arg0, s32 *arg1); // PORT: matches the definition
-s32 func_800023C4(M2C_UNK, M2C_UNK);
-GfxImage* func_800051F0(s32, s32, s32, s32, s32); // GfxImage_Allocate
+void* func_800023C4(u32 size, s32 side); // PORT: matches MainPool_Alloc
+GfxImage* func_800051F0(s32 fmt, s32 size, s32 width, s32 height, s32 side); // PORT: matches GfxImage_Allocate
 void MainPool_FinalizeAllocation(struct MemoryBlock* block);
 void Audio_StopMusic(s32);
 void Audio_StopSoundByCategory(s32, s32);

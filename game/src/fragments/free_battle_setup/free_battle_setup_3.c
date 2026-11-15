@@ -88,7 +88,7 @@ extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
-void func_80027FF8(void*, s32);
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 void* Util_Malloc(s32 size); // PORT: matches the definition
 void FreeBattle_InitBattleModeScreen(FreeBattleScreen* screen); // PORT: matches the definition
 void FreeBattle_CreateScreen(void);
@@ -124,8 +124,8 @@ void FreeBattle_LoadArchiveFiles(void);
 
 s32 Font_Init(s32 load_size, s32 side);
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
-u16* func_80018F2C(s32, s32, s32, s32, s32, s32, s32, s32);
-s32 func_80017FDC(s32, s32, s32, s32);
+PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
+PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: matches the definition
 void PokeIcon_OpenModelArchives(void);
 void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
@@ -133,9 +133,9 @@ u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: 
 uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 void FreeBattle_RestoreMenuState(FreeBattleScreen* screen); // PORT: matches the definition
 s32 StageFade_Start(s32);
-void func_80006828(s32, void*);
+s32 func_80006828(u32 timer, s32 (*f)(u8)); // PORT: matches BgStage_RunUntilCondition
 void Audio_PlayMusicIfChanged(s32);
-void func_80006998(s32);
+void func_80006998(u16 color); // PORT: matches StageContext_SetClearColor
 void Audio_StopMusic(s32);
 void StageLoader_WaitForRetrace(void);
 void StageLoader_UpdateSegments(void);
@@ -171,7 +171,7 @@ M2C_UNK FreeBattle_RunSetupScreen(void);
 
 M2C_UNK MainPool_PushState(M2C_UNK);                     /* extern */
 M2C_UNK MainPool_PopState(M2C_UNK);                     /* extern */
-M2C_UNK func_80025BA0(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, s32); /* extern */
+void func_80025BA0(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4); // PORT: matches Fragment_QueueCall
 M2C_UNK FreeBattle_RunSetupScreen();                            /* extern */
 M2C_UNK FreeBattle_SetupGbCartVersus();                            /* extern */
 extern s8 D_00235D70;
@@ -226,7 +226,7 @@ void FreeBattle_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags, s32*
  * the frame size.
  */
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-M2C_UNK func_80027804(void*, s32, s32, s32);         /* extern */
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 M2C_UNK Menu_Init(void*, void*, void*, void (*)(s32, s32, char *, s32, s32, s32 *), s32, s32); /* extern */
 /**
  * Sets up a titled menu window with item and description tables.
@@ -245,7 +245,7 @@ void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 
     window->descriptionLines = description_lines;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern Color_RGBA8 D_82009104;
 extern Color_RGBA8 D_82009108;
@@ -263,7 +263,7 @@ void FreeBattle_DrawMenuWindow(MenuWindow* window, s32 flags) {
     s32 sp38;
     s32 temp_s1;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         temp_s1 = (window->menu.items->count << 5) + 8;
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + temp_s1 + 5, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -363,7 +363,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
     window->window.frame.color = color;
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 // FAKE: permuter output (the new_var temp and the no-op test).
 /**
@@ -373,7 +373,7 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
 void FreeBattle_DrawPopupMenu(MenuWindow* window, s32 flags)
 {
   Menu *new_var; // FAKE: permuter temp
-  if (func_8002AE6C() == 0)
+  if (func_8002AE6C(&window->window) == 0) // PORT: m2c dropped a0 (the window)
   {
     if (window && window)
     {
@@ -548,7 +548,7 @@ void FreeBattle_DrawOpponentSelect(FreeBattleOpponentWindow* window) {
     s32 sp2C;
 
     sp2C = 0;
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 146, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(window->window.frame.x + 6, window->window.frame.y + 153, window->window.frame.width - 12, 112, *(Color82001CCC*)&D_82009100);
@@ -955,7 +955,7 @@ void FreeBattle_DrawBattleModeCard(s32 x, s32 y, s32* mode, s32 index, s32 flags
  * a local moves the compiler's spill of it from sp+0x34 to sp+0x30.
  */
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-M2C_UNK func_80027410(s8 *, s32, M2C_UNK, M2C_UNK, s32); /* extern */
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 M2C_UNK GridMenu_Init(s8 *, s8 *, s8 *, M2C_UNK *, s32, s32, s32); /* extern */
 
 /**
@@ -993,7 +993,7 @@ void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t a
  * every frame.
  */
 void FreeBattle_DrawBattleModeWindow(FreeBattleModeWindow* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedFrameDecal(window->window.frame.x + 14, window->window.frame.y + 14, 372, 204, D_800735C4);
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 225, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -1116,7 +1116,7 @@ void FreeBattle_InitCupSelect(FreeBattleCupWindow* window, s32 x, s32 y, s32 cup
     }
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -1124,7 +1124,7 @@ void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg
  * Seen in play: draws the 「カップせんたく」 window; only モンスターボールカップ is open on a new save.
  */
 void FreeBattle_DrawCupSelect(FreeBattleCupWindow* window, s32 flags) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Menu_DrawInlineItems(&window->menu, window->window.frame.x + 6, window->window.frame.y + 0xC, flags | 0xFFED, 0);
     }
 }
@@ -1213,7 +1213,7 @@ void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* window, s32 x, s32 y,
 extern Color82001CCC D_82009204[];
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
-void func_800189C0(s32, s32);
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
 s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
 
@@ -1229,7 +1229,7 @@ void FreeBattle_DrawUsableMonGrid(FreeBattleMonGridWindow* window, s32 flags) {
     s32 y0 = window->window.frame.y + 6;
     s8* entry;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         for (i = 0; i < 42; i++) {
             gSPDisplayList(gDisplayListHead++, D_80060270);
             func_80029028((i % 7) * 79 + x0, (i / 7) * 60 + y0, 79, 60, D_82009204[i & 1]);
@@ -1311,7 +1311,7 @@ extern char D_8200A0B0[];
  * えらんでください」 (two of the same Pokémon; pick one to send out).
  */
 void FreeBattle_DrawDuplicateWarning(FreeBattleDuplicateWarning* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -1322,7 +1322,7 @@ void FreeBattle_DrawDuplicateWarning(FreeBattleDuplicateWarning* window) {
 }
 
 void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern Color_RGBA8 D_82009218;
 extern char D_8200A104[];
 extern char D_8200A114[];
@@ -1378,7 +1378,7 @@ extern char D_8200A124[];
  * screen every frame while it was up.
  */
 void FreeBattle_DrawShortageWarning(FreeBattleShortageWarning* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 97, window->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(window->window.frame.x + 6, window->window.frame.y + 6, 296, 92, D_8200921C, D_82009220);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -1432,7 +1432,7 @@ extern char D_8200A178[];
 extern char D_8200A188[];
 extern char D_8200A190[];
 void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 /**
  * Initializes the FreeBattleLevelSumWarning window: calls
@@ -1485,7 +1485,7 @@ extern char D_8200A198[];
  * Seen in play (2026-11-14): drew the 155 level-sum warning with its はい / いいえ buttons.
  */
 void FreeBattle_DrawLevelSumWarning(FreeBattleLevelSumWarning* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 97, window->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(window->window.frame.x + 6, window->window.frame.y + 6, 296, 92, D_8200922C, D_82009230);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -1590,7 +1590,7 @@ extern char D_8200A208[];
  * Seen in play: draws 「このデータでエントリーします。」 with はい / いいえ.
  */
 void FreeBattle_DrawEntryConfirm(FreeBattleRentalConfirm* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 53, window->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(window->window.frame.x + 6, window->window.frame.y + 6, window->window.frame.width - 12, 48, D_82009238, D_8200923C);
         gSPDisplayList(gDisplayListHead++, D_80060270);

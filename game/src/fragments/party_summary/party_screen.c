@@ -20,12 +20,12 @@ extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
-s32 func_8001FA30(u8);
+s32 func_8001FA30(s32 arg0); // PORT: matches LabPC_StatusToIconIndex
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
-void func_8001A384(s32, s32);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-void func_8001AA9C(u8, u8, u8, u8);
-void func_8001AAE4(s32, s32, s32, s32);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
+void func_8001AAE4(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetPrimColor
 void func_8001AB6C(void);
 void func_8001ABBC(void);
 void func_8001ABE8(void);
@@ -145,7 +145,7 @@ extern Color_RGBA8 D_8A203354;
 extern char* D_8A203358;
 extern char* D_8A20335C;
 void Ui_FillRectPrimEnvColor(s32 x, s32 y, s32 w, s32 h, Color_RGBA8 prim, Color_RGBA8 env);
-void func_800189C0(s8*, s32);
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
 /**
  * Draws the てもち list window: footer bar, row backgrounds, the rows and the icons. `mode` is
@@ -225,7 +225,7 @@ void PartyScreen_DrawActionMenuRow(s32 x, s32 y, char* label, s32 index, s32 fla
 
 extern u8 D_8A203364[];
 s32 BattleMon_CountMoves(u8* arg0);
-void func_80027804(s8*, void*, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up the action menu window (180x132) for `mon`: つよさをみる / ならびかえ / やめる.
  * つよさをみる is disabled (item flag bit 0) for an invalid species or a Pokémon with no moves.
@@ -270,7 +270,7 @@ void PartyScreen_DrawActionMenu(PartyActionMenuWindow* window) {
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 s32 Menu_UpdateCursor(s8*);
-s32 func_8002BC14(s32);
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 /**
  * Action menu input: moves the cursor and returns the picked row + 1, -1 for B, else 0.
  * A disabled row (item flag bit 0) plays sound 8 and returns 0.

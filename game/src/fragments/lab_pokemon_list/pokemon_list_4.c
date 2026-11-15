@@ -10,16 +10,16 @@ M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_buffer, void* pc_buffer, void* cart_buffer); // PORT: matches the definition
 
 extern s32 D_8910A7F8[3];
-void func_80027410(void*, void*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
-void func_80027804(s8*, s8*, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void LabPCList_LoadAllBoxes(s8*);
-void func_80027D68(void*, s32);
+void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];
@@ -207,8 +207,8 @@ s32 LabPCList_ToggleFilterFlag(unk_func_89101D80* arg0, s32 flag) {
 
 extern s32 D_8910D990[];
 void ScrollList_SetItems(ScrollList*, PointerList*, u16*);
-void func_80027D94(void*, PointerList*, void*, void*);
-void func_80027D68(void*, s32);
+void func_80027D94(LabMonEntryList* arg0, LabMonEntryList* arg1, s32 (*arg2)(LabMonEntry*, s32*), s32* arg3); // PORT: matches PointerList_Filter
+void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 int LabPCList_FilterByLevelRange();
 s32 LabPCList_FilterByAnyType();
 s32 LabPCList_FilterByAnyMove();
@@ -299,7 +299,7 @@ void LabPCList_OpenColumnMenu(LabPCListScreen* screen) {
 }
 
 typedef struct Str891020F8 { char s[13]; } Str891020F8;
-void func_8000A460(s8*, s8*);
+char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -373,7 +373,7 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
     return ret;
 }
 
-void func_8000A460(s8 *, s8 *);
+char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -401,7 +401,7 @@ void LabPCList_InitSortMenu(LabPCListScreen *screen) {
     }
 }
 
-s32 func_8002B390(s32*);
+s32 func_8002B390(UiSelection* arg0); // PORT: matches Ui_HandleHorizontalSelectionInput
 
 /**
  * Handles input while the cursor is on the header buttons.
@@ -561,10 +561,10 @@ s32 LabPCList_GetChangedSaveFlags(screen) s8* screen; {
     return flags;
 }
 
-s32 func_8002207C(s32);                             /* extern */
-M2C_UNK func_80022118(s32);                         /* extern */
-M2C_UNK func_80022188(s32);                         /* extern */
-M2C_UNK func_800230C4(s32);                         /* extern */
+s32 func_8002207C(s32 arg0); // PORT: matches GbSave_RebuildAndWriteSave
+void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
+void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
+void func_800230C4(s32 arg0); // PORT: matches GbSave_RebuildHeldSpecies
 M2C_UNK Save_CommitPokemonRecords();                            /* extern */
 M2C_UNK GbSave_RunReportErrorLoop(s32);                         /* extern */
 void LabPCList_DrawListScreen(LabPCListScreen*);

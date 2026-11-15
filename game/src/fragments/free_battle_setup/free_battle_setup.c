@@ -272,7 +272,7 @@ typedef struct Rec82000594 {
 } Rec82000594;
 typedef struct List82000594 { Rec82000594* records; s32 unk04; s32 count; } List82000594;
 extern Src82000594* D_8200AD04;
-void func_8000A460(char*, void*);
+char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 /**
  * Appends the 8 preset teams in D_8200AD04 (type 4, six Pokemon each, named via Memmap_GetSegmentVaddr) to
@@ -370,7 +370,7 @@ extern char D_82009B80[];
 extern char D_82009B88[];
 extern s32 D_8200AC4C;
 void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 /**
  * Initializes the object window (size and layout not established); a sibling of
@@ -536,8 +536,8 @@ extern char D_82009C00[];
 extern char D_82009C04[];
 extern s32 D_8200AC48;
 void BgStage_DrawFrame(void);
-void func_80019008(s32, Mon82000C5C*, s32);
-u8* func_800196F8(s32);
+void func_80019008(PokeModelPreview* arg0, BattleMon* arg1, u16 arg2); // PORT: matches PokeIcon_SetPreviewMon
+u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
 void Gfx_SetPrimColor(u8, u8, u8, u8);
 void Font_EnableTwoCycleTexturing(void);
 void Font_DisableTwoCycleTexturing(void);
@@ -545,7 +545,7 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 void func_80029028(s32, s32, s32, s32, Color82001CCC);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
-s32 func_8002AE6C(Screen82000C5C*);
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Window_DrawLabeled(char*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition

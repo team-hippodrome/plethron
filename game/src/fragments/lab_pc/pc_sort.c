@@ -103,7 +103,7 @@ void PcSort_DisableRow(PcSortMenuWindow* win, s32 row) {
 }
 
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 extern Color_RGBA8 D_8900A5BC;
 extern Color_RGBA8 D_8900A730[];
 extern Color_RGBA8 D_800734B0[];
@@ -140,7 +140,7 @@ void PcSort_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up a menu window whose height fits `count` rows.
  * Seen in play (2026-11-12): opened the 13-row 「どこからいどうする？」 box list.
@@ -160,7 +160,7 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
     win->menu.options |= 0x10000;
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -168,13 +168,13 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
  * Seen in play (2026-11-12): drew that box list.
  */
 void PcSort_DrawMenu(PcSortMenuWindow* win) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
         Menu_DrawItems(&win->menu, win->window.frame.x + 6, win->window.frame.y + 10, 0xFFEF, 0);
     }
 }
 
 s32 Menu_UpdateCursorSkipDisabled(void*);
-s32 func_8002BC14(s32);
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
@@ -256,7 +256,7 @@ void PcSort_InitMonList(PcSortMonList* list, s32 x, s32 y, s32 table) {
 void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
-void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
+void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureIa8
 extern Gfx D_80073450[];
 extern u8 D_04011AB8[];
 /**
@@ -316,7 +316,7 @@ void PcSort_DrawOperationButton(s32 x, M2C_UNK y, M2C_UNK button, M2C_UNK index,
 }
 
 void GridMenu_Init(s8*, s8*, s8*, void*, s32, s32, s32);
-void func_80027410(s8*, s8*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 extern Color_RGBA8 D_8900A580[];
 extern Color_RGBA8 D_8900A750;
 extern Color_RGBA8 D_8900A754;
@@ -379,14 +379,14 @@ void PcSort_InitOrganizeWindow(PcSortOrganizeWindow* win, s32 x, s32 y, ByteMatr
     win->state = 1;
 }
 
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AB6C();
-M2C_UNK func_8001ABBC();
-void func_8001B884(s32, s32, s32, s32, void*, s32, s32);
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void Font_SetColorForFlags(s32);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
-s32 func_8002BC44(s32);
+s32 func_8002BC44(s32 arg0); // PORT: matches GbSave_GameToCategoryIndex
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 extern s32 D_8900A758[];
@@ -505,12 +505,12 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     gSPDisplayList(gDisplayListHead++, D_80060398);
 }
 
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);            /* extern */
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);              /* extern */
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void Font_SetLineHeight(s32 arg0);                     /* extern */
-M2C_UNK func_8001AB6C();                            /* extern */
-M2C_UNK func_8001ABBC();                            /* extern */
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 extern u8 D_800734A8[];
 
 /**
@@ -640,8 +640,8 @@ void PcSort_MoveSelectedMon(PcSortOrganizeWindow* win) {
     LabList_RemoveSelectedEntry(&win->leftList.list);
 }
 
-void func_80027654(ByteMatrix* matrix, u8* out, s32 row);
-void func_80027700(ByteMatrix* matrix, u8* in, s32 row);
+s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
+s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
 
 /**
  * Swaps the Pokémon picked first (swapIndex) with the selected one in the same list and
@@ -918,8 +918,8 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
 
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
 void PokeIcon_OpenModelArchives(void);
-s32 func_80018F2C(s8*, s32, s32, s32, s32, s32, s32, s32);
-void func_80027410(s8*, s8*, s32, s32, s32);
+PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void LabItem_ReadDeckEntries(s32, s32, s32, ByteMatrix*);
 void PcSort_InitOrganizeWindow(PcSortOrganizeWindow*, s32, s32, ByteMatrix*, s32*);
 extern u8 D_81000000[];
@@ -963,7 +963,7 @@ void PcSort_Init(PcSortScreen* screen, s32 title) {
     screen->state = 1;
 }
 
-M2C_UNK func_80002620(M2C_UNK);                     /* extern */
+u32 func_80002620(u32 arg); // PORT: matches MainPool_PopState
 
 /**
  * Pops the 'OTPC' pool state.
@@ -1027,10 +1027,10 @@ void PcSort_MarkListInPokedex(ByteMatrix* table) {
     }
 }
 
-void func_80022118(s32);
-void func_800230C4(s32);
-s32 func_8002207C(s32);
-void func_80022188(s32);
+void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
+void func_800230C4(s32 arg0); // PORT: matches GbSave_RebuildHeldSpecies
+s32 func_8002207C(s32 arg0); // PORT: matches GbSave_RebuildAndWriteSave
+void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
 void Save_CommitPokemonRecords(void);
 void GbSave_RunReportErrorLoop(s32);
 /**

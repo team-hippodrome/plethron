@@ -218,7 +218,7 @@ void FreeBattle_InitBattleModeScreen(FreeBattleScreen* screen) {
 
 void FreeBattle_AddPresetTeams(void*);
 void FreeBattle_LoadGbTeams(void*);
-void func_80027804(void*, void*, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void FreeBattle_AddRentalEntry(void* /* RecordList* */ list); // PORT: no prototype in the decomp
 void FreeBattle_BuildTeamPointers(s32* dest, s32* teams); // PORT: no prototype in the decomp
 void FreeBattle_InitEntrySelect(s8* entry, s32 x, s32 y, s32 teams, s32 picks, s32 rule_category); // PORT: no prototype in the decomp
@@ -333,7 +333,7 @@ typedef struct Blobs82004E9C {
     Blob82004E9C blobs[1];
 } Blobs82004E9C;
 
-void func_80027814(s8*, s8*, s32);
+void func_80027814(PointerList* arg0, char* arg1, s32 arg2); // PORT: matches PointerList_Insert
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 void Audio_PlaySystemSound(s32);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
@@ -620,7 +620,7 @@ extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
-void func_80027FF8(void*, s32);
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 void* Util_Malloc(s32 size); // PORT: matches the definition
 /**
  * Reads the GB save summary of the active port (if any), allocates the 0x5020-byte
@@ -651,7 +651,7 @@ extern M2C_UNK D_82009E10;
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 void BgStage_DrawFrame(void);
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32);
-void func_8002C8D8(Col8200579C*, Col8200579C, f32);
+Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
  * Fade callback: draws the stage, the GB summary bar and the screen background tinted by an
  * 8-step counter that counts up to 8 and then back down.
@@ -679,7 +679,7 @@ s32 FreeBattle_UpdateFade(FreeBattleScreen* screen) {
     }
     GbSave_DrawSummaryBar(0, var_a1, &D_82009E10, D_8200AD2C);
     n = D_820090D4;
-    func_8002C8D8(&sp2C, *(Col8200579C*)&D_82008F50, n / (f64)8.0f);
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_82008F50, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_820090D8 == 0) {
         n = D_820090D4;
@@ -761,8 +761,8 @@ void FreeBattle_LoadArchiveFiles(void) {
 
 s32 Font_Init(s32 load_size, s32 side);
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
-u16* func_80018F2C(s32, s32, s32, s32, s32, s32, s32, s32);
-s32 func_80017FDC(s32, s32, s32, s32);
+PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
+PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: matches the definition
 void PokeIcon_OpenModelArchives(void);
 void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
@@ -770,9 +770,9 @@ u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: 
 uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 void FreeBattle_RestoreMenuState(FreeBattleScreen*);
 s32 StageFade_Start(s32);
-void func_80006828(s32, void*);
+s32 func_80006828(u32 timer, s32 (*f)(u8)); // PORT: matches BgStage_RunUntilCondition
 void Audio_PlayMusicIfChanged(s32);
-void func_80006998(s32);
+void func_80006998(u16 color); // PORT: matches StageContext_SetClearColor
 void Audio_StopMusic(s32);
 void StageLoader_WaitForRetrace(void);
 void StageLoader_UpdateSegments(void);
@@ -861,7 +861,7 @@ M2C_UNK FreeBattle_RunSetupScreen(void) {
 
 M2C_UNK MainPool_PushState(M2C_UNK);                     /* extern */
 M2C_UNK MainPool_PopState(M2C_UNK);                     /* extern */
-M2C_UNK func_80025BA0(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, s32); /* extern */
+void func_80025BA0(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4); // PORT: matches Fragment_QueueCall
 M2C_UNK FreeBattle_RunSetupScreen();                            /* extern */
 M2C_UNK FreeBattle_SetupGbCartVersus();                            /* extern */
 extern s8 D_00235D70;

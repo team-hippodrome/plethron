@@ -48,10 +48,10 @@ void LabPC_WriteBoxEntries(s32 deck_type, s32 port, s32 index, PcBoxStorage* box
     }
 }
 
-s32 func_8002207C(s32);
-void func_80022118(s32);
-void func_80022188(s32);
-void func_800230C4(s32);
+s32 func_8002207C(s32 arg0); // PORT: matches GbSave_RebuildAndWriteSave
+void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
+void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
+void func_800230C4(s32 arg0); // PORT: matches GbSave_RebuildHeldSpecies
 void Save_CommitPokemonRecords(void);
 void GbSave_RunReportErrorLoop(s32);
 void PcBox_DrawScreen(PcBoxScreen* arg0);
@@ -185,7 +185,7 @@ s32 LabPC_AllBoxesEmpty(ByteMatrix* table) {
 
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void Window_InitLabeled(void* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern u8 D_8900A870[];
 extern char D_89018E60[];
@@ -235,9 +235,9 @@ typedef struct Entry80066AD8 {
 extern Entry80066AD8 D_80066AD8[];
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void func_8001AB6C(void);
-void func_8001A384(s32, s32);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void func_8001ABBC(void);
-void func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 
 typedef struct Entry8006A9D4 {
@@ -327,16 +327,16 @@ extern char D_89018EDC[];
 extern char D_89018EE0[];
 extern char D_89018EE4[];
 void BgStage_DrawFrame(void);
-void func_80019008(s32, BattleMon*, s32);
-u8* func_800196F8(s32);
-void func_8001AAE4(u8, u8, u8, u8);
+void func_80019008(PokeModelPreview* arg0, BattleMon* arg1, u16 arg2); // PORT: matches PokeIcon_SetPreviewMon
+u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
+void func_8001AAE4(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetPrimColor
 void func_8001ABE8(void);
 void func_8001AC3C(void);
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Window_DrawLabeled(void*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
@@ -465,10 +465,10 @@ extern Gfx D_80073450[];
 extern u8 D_04011A60[];
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
-void func_8001BCB4(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureIa8
 void Ui_DrawNumberUnpadded(s32, s32, u8);
 void Font_SetColorForFlags(s32);
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
 /**
  * Draws one cell of the box contents grid: the Pokémon's icon, L%d and nickname.
@@ -505,9 +505,9 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, s32 
 }
 
 typedef struct Str8900806C { char s[13]; } Str8900806C;
-char* func_8000A460(char*, const char*);
+char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 void PokeIcon_ResetSlots(PokeIconRenderer* arg0); // PORT: matches the definition
-void func_80027410(void*, s8*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void GridMenu_Init(void*, s8*, s8*, void*, s32, s32, s32);
 extern char D_89018EE8[];
 extern char D_89018EF0[];
@@ -545,8 +545,8 @@ void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box,
 }
 
 void BgStage_DrawFrame(void);                            /* extern */
-M2C_UNK func_800189C0(s32, M2C_UNK);                /* extern */
-s32 func_8002AE6C();                                /* extern */
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -554,7 +554,7 @@ void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t a
  * status window is open). Seen in play (2026-11-14).
  */
 void PcBox_DrawList(PcBoxListWindow* win, s32 flags) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
         if (!(flags & 0x10)) {
             func_800189C0(win->iconRenderer, 0);
             BgStage_DrawFrame();
@@ -564,7 +564,7 @@ void PcBox_DrawList(PcBoxListWindow* win, s32 flags) {
 }
 
 s32 GridMenu_UpdateCursor(void*);
-s32 func_8002BC14(s32);
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
@@ -602,7 +602,7 @@ extern u8 D_80073614[];
 extern u8 D_04011AB8[];
 extern Gfx D_80073450[];
 void Ui_DrawNumber(s32, s32, s32, s32);
-void func_8001BCB4(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureIa8
 /**
  * Draws one row of the GB cartridge column: ボックス%d, a Poké Ball icon when the box holds
  * Pokémon, and its %2d/30 count; empty boxes use the dim colors.
@@ -698,8 +698,8 @@ extern s32 D_89019114;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
-s32 func_8002BC44(s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
+s32 func_8002BC44(s32 arg0); // PORT: matches GbSave_GameToCategoryIndex
 void Font_SetColorForFlags(s32);
 /**
  * Draws ＧＢのカートリッジ (GB cartridge) or ６４のカセット (N64 cassette) for `kind`.
@@ -1002,7 +1002,7 @@ void PcBox_SetActiveLists(PcBoxOperationWindow* win, Menu* source, Menu* target)
     }
 }
 
-s32 func_8002B204();
+s32 func_8002B204(UiSelection* arg0, s32 arg1); // PORT: matches Ui_AdjustVerticalSelection
 /**
  * Steps the ボックスのなかをみる cursor over all 12 boxes (GB 1-8, then 64 1-4) with the
  * D-pad, skipping disabled (empty) boxes, and sets sourceMenu to the column it lands in.
@@ -1031,7 +1031,7 @@ s32 PcBox_StepViewCursorSkipEmpty(PcBoxOperationWindow* win, s32 buttons) {
 }
 
 s32 func_8000B30C(void);
-s32 func_8002B2B0(void*);
+s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(void*);
@@ -1285,10 +1285,10 @@ s32 PcBox_UpdateOperationWindow(PcBoxOperationWindow* win) {
 }
 
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
-s32 func_80017FDC(s8*, s32, s32, s32);
+PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 void PokeIcon_OpenModelArchives(void);
-s32 func_80018F2C(s8*, s32, s32, s32, s32, s32, s32, s32);
-void func_80027410(void*, s8*, s32, s32, s32);
+PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void PcBox_InitOperationWindow(PcBoxOperationWindow*, s32, s32, ByteMatrix*);
 extern u8 D_81000000[];
 extern u8 D_0015B1A0[];
@@ -1323,7 +1323,7 @@ void PcBox_Init(PcBoxScreen* screen) {
     screen->state = 1;
 }
 
-M2C_UNK func_80002620(M2C_UNK);                     /* extern */
+u32 func_80002620(u32 arg); // PORT: matches MainPool_PopState
 
 /**
  * Pops the 'PBOX' pool state.

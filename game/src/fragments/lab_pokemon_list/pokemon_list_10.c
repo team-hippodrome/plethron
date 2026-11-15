@@ -52,7 +52,7 @@ typedef struct unk_func_89109990 {
     /* 0x18 */ s32 unk_18;
 } unk_func_89109990;
 
-void func_80027804(void*, u8**, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up the box slots of one source and points each slot at its 0x58-byte entries.
  * Seen in play (2026-11-14) in いちらん: ran three times on entry, for てもち, the GB boxes and the 64 boxes.
@@ -236,13 +236,13 @@ void LabPCList_SaveDirtyBoxes(LabPCBoxList89109B60* sources) {
 }
 
 s32 func_80025BD8(void);
-void func_80027410(void*, void*, s32, s32, s32);
-void func_80027FF8(void*, s32);
-s32 func_800246A8(s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
+s32 func_800246A8(s32 arg0, s32 arg1); // PORT: matches Deck_IsSaveEntryPresent
 s32 Deck_GetSaveEntryTrainerId(s32, s32);
 s32 Deck_GetSaveEntryName(s32 arg0, s32 arg1, u8* arg2);
 s32 Deck_GetSaveEntryCount(s32, s32);
-s32 func_8000A4E8(char*, char*);
+size_t func_8000A4E8(char* dest, char* src); // PORT: matches HAL_Strcmp
 /**
  * Sets up the three item lists: the bag (deck 0x23, up to 20 rows), the GB cartridge's PC (deck 0x22,
  * up to 50 rows) and the Game Pak item box in the 64 cartridge (deck 0x12, up to 100 rows). The item box
@@ -472,7 +472,7 @@ s32 LabPCList_CanLearnMoveByLevelUp(s32 species, s32 tm_index) {
     return ((var_v1->tmHmLearnset[tm_index / 8] >> (tm_index % 8)) & 1) != 0;
 }
 
-s32 func_80020974(s32);
+u8 func_80020974(s32 tm_hm_index); // PORT: matches Move_GetIdFromTableIndex
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 

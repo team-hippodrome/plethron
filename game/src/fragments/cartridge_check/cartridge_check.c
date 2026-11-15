@@ -11,7 +11,7 @@
 #include "ui_graphics.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK func_8001B5F0();
+void func_8001B5F0(void); // PORT: matches Input_ResetRepeatState
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**

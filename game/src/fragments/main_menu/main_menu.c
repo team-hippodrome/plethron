@@ -52,7 +52,7 @@ void MainMenu_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags) {
 }
 
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 extern s8 D_88001FD4[];
 extern u8 D_88001FE0[];
@@ -80,7 +80,7 @@ M2C_UNK MainMenu_InitPromptWindow(MainMenuPromptWindow* prompt, s32 x, s32 y) {
     obj->menu.options |= 0x10000;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
 extern u8 D_8007356C[];
 extern Gfx D_80060270[];
@@ -98,7 +98,7 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
  * Seen in play (2026-11-14) with the continue flag poked on: the prompt drew over the main menu.
  */
 void MainMenu_DrawContinueTournamentPrompt(MainMenuPromptWindow* prompt) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&prompt->window) == 0) { // PORT: m2c dropped a0 (the window)
         Window_DrawFrame(&prompt->textFrame);
         Ui_DrawTexturedDivider(prompt->window.frame.x, prompt->window.frame.y + 141, prompt->window.frame.width, D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -220,7 +220,7 @@ extern u8 D_80073554[];
 void Ui_FillRectPrimColor(s32, s32, s32, s32, Color_RGBA8);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 void Font_BeginTranslucentTextRendering(void);
-void func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void Font_SetActive(s32, s32);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Font_EndTexturedTextRendering(void);
@@ -284,7 +284,7 @@ void MainMenu_DrawItem(s32 x, s32 y, s32 item, s32 index, s32 flags, f32* opacit
     }
 }
 
-void func_80027410(void*, void*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void GridMenu_Init(void*, void*, void*, void*, s32, s32, s32);
 s32 Deck_GetCount(s32, s32, s32);
 s32 GbSave_GetActivePort();
@@ -412,7 +412,7 @@ void func_88000FE0(void) {
 }
 
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern u8 D_8800222C[];
 extern char D_880023C0[];
 extern char D_880023C8[];
@@ -443,7 +443,7 @@ void MainMenu_InitMessageWindow(MainMenuMessageWindow* window, s32 x, s32 y, s32
     window->image = image;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
 extern u8 D_8007356C[];
 void Ui_DrawTexturedDivider(s32, s32, s32, u8 *);
@@ -456,7 +456,7 @@ void MainMenu_DrawImageWithAlpha(s32, s32, s32, s32, s32, u8*, s32);
 void MainMenu_DrawMessageWindow(MainMenuMessageWindow* window) {
     MainMenuImage* p;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 89, window->window.frame.width, D_8007356C);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
@@ -527,14 +527,14 @@ void MainMenu_InitTextWindow(MainMenuTextWindow* window, s32 x, s32 y, s32 title
     window->text = text;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
 /**
  * Draws the text window's text.
  * Seen in play: runs while the main menu shows the 「GBのカートリッジがない」 warning window at the top.
  */
 void MainMenu_DrawTextWindow(MainMenuTextWindow* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -709,12 +709,12 @@ s32 MainMenu_UpdateScreen(MainMenuScreen* screen) {
 }
 
 void* Util_Malloc(s32 size); // PORT: matches the definition
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 u8 GbSave_GetSaveState(s32 arg0);
 s32 GbSave_HasPokedex(s32);
 s32 GbSave_SavedAtPokemonCenter(s32);
 s32 GbSave_GetActivePort();
-M2C_UNK func_80027FF8(M2C_UNK *, s32);
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s32 D_80073400;
 extern s32 D_88002B00;
@@ -944,16 +944,16 @@ s32 MainMenu_DrawFrame(s32 fade_mode) {
 
 M2C_UNK MainPool_PushState(M2C_UNK);                     /* extern */
 M2C_UNK MainPool_PopState(M2C_UNK);                     /* extern */
-M2C_UNK func_80003EB8(u32, M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
+u8* func_80003EB8(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches Asset_LoadToSegment
 M2C_UNK StageFade_Start(M2C_UNK);                     /* extern */
-M2C_UNK func_80006724();                            /* extern */
-M2C_UNK func_8000675C();                            /* extern */
-s32 func_80006828(M2C_UNK, M2C_UNK *);              /* extern */
-M2C_UNK func_80006998(M2C_UNK);                     /* extern */
+void func_80006724(void); // PORT: matches StageLoader_WaitForRetrace
+void func_8000675C(void); // PORT: matches StageLoader_UpdateSegments
+s32 func_80006828(u32 timer, s32 (*f)(u8)); // PORT: matches BgStage_RunUntilCondition
+void func_80006998(u16 color); // PORT: matches StageContext_SetClearColor
 M2C_UNK Audio_PlayMusicIfChanged(M2C_UNK);                     /* extern */
 M2C_UNK Audio_StopMusic(M2C_UNK);                     /* extern */
 s32 Font_Init(s32 load_size, s32 side);            /* extern */
-M2C_UNK func_8001A360();                            /* extern */
+void func_8001A360(void); // PORT: matches Font_Free
 void MainMenu_LoadGbSaveSummary(void);                          /* extern */
 extern M2C_UNK D_002E0BE0;
 extern M2C_UNK D_002E2B90;

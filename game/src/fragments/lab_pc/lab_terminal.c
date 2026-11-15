@@ -23,15 +23,15 @@ s32 LabItem_ComputeMaxTransferQuantity(s32 arg0, ByteMatrix* arg1);
 s32 LabItem_FindOrAllocateGamePakBoxSlot(LabItemSaveSlot* arg0, s32 arg1, char* arg2);
 void LabItem_LoadGamePakBoxSlots(LabItemSaveSlot* arg0);
 void LabItem_ReadDeckEntries(s32 arg0, s32 arg1, s32 arg2, ByteMatrix* arg3);
-void func_800275E4(s32, s32);
+s32 func_800275E4(ByteMatrix* arg0, s32 arg1); // PORT: matches ByteMatrix_RemoveRow
 void ScrollList_SetCursorKeepOffset(s32*, s32);
-void func_800275E4(s32, s32);
-int func_800274E0();
+s32 func_800275E4(ByteMatrix* arg0, s32 arg1); // PORT: matches ByteMatrix_RemoveRow
+s32 func_800274E0(ByteMatrix* arg0, s8* arg1, s32 arg2); // PORT: matches ByteMatrix_InsertRow
 void ScrollList_SetCursorKeepOffset(s32*, s32);
 extern M2C_UNK D_8900A5B8;
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern Color_RGBA8 D_8900A5C0;
 extern char D_89018460[];
 extern char D_89018468[];
@@ -47,11 +47,11 @@ extern Gfx D_80060270[];
 extern Color_RGBA8 D_8900A5C4;
 extern Color_RGBA8 D_8900A5C8;
 extern Color_RGBA8 D_8900A5CC;
-s32 func_8002B390(s8*);
-s32 func_8002BC14(s32);
+s32 func_8002B390(UiSelection* arg0); // PORT: matches Ui_HandleHorizontalSelectionInput
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_8900A5BC;
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void Font_DrawCharAt(s32 x, s32 y, s32 chr);
 void Font_SetColorForFlags(s32);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
@@ -67,28 +67,28 @@ extern char D_89018470[];
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern M2C_UNK D_89018474;
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 extern Color_RGBA8 D_8900A5D4[];
 extern u8 D_800734A8[];
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 s32 Menu_UpdateCursorSkipDisabled(void*);
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8900A5E0;
 extern Color_RGBA8 D_8900A5E8;
 extern Color_RGBA8 D_8900A5EC[];
 extern char D_8901848C[];
-char* func_8001FDC8(u8, char*);
-s32 func_80031C24(u8);
-s32 func_80031CC8(u8);
+char* func_8001FDC8(s32 arg0, char* arg1); // PORT: matches Text_GetTmHmName
+s32 func_80031C24(s32 arg0); // PORT: matches LabItem_IsQuantitylessItem
+s32 func_80031CC8(s32 arg0); // PORT: matches LabItem_IsQuantitylessItemForOperation
 void Font_SetColorForFlags(s32);
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabItem_DrawItemCountRow(s32 x, s32 y, u8* row, s32 index, s32 flags); // PORT: matches the definition
 void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
-void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
+void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureIa8
 extern Gfx D_80073450[];
 extern u8 D_04011AB8[];
 s32 ScrollList_UpdateCursor(void*);
@@ -102,7 +102,7 @@ extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 void Font_SetColorForFlags(s32);
-s32 func_8002BC44(s32);
+s32 func_8002BC44(s32 arg0); // PORT: matches GbSave_GameToCategoryIndex
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 extern u8 D_800734A8[];
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
@@ -111,7 +111,7 @@ extern s32 D_8900A650[];
 extern char* D_8900A660[];
 extern char* D_8900A66C[];
 extern s8* D_8900A678[];
-s32 func_80031BC0(u8, char *);
+char* func_80031BC0(s32 item_id, char* dest); // PORT: matches func_8002E160_jp
 typedef struct LabItemGridZ {
     /* 0x00 */ u8* data;
     /* 0x04 */ s32 pad04[2];
@@ -123,10 +123,10 @@ typedef struct LabItemCursorZ {
     /* 0x08 */ s32 selected;
 } LabItemCursorZ;
 #define CURSOR(p) ((LabItemCursorZ*)((p) + 0x1E4))
-void func_80027654(s32* matrix, u8* out, s32 row);
-void func_80027700(s32* matrix, u8* in, s32 row);
-void func_80027654(s32* matrix, u8* out, s32 row);
-void func_80027700(s32* matrix, u8* in, s32 row);
+s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
+s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
+s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
+s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
 extern Color_RGBA8 D_8900A698;
 extern u8 D_8900A69C[];
 extern char D_89018660[];
@@ -139,7 +139,7 @@ extern char D_89018678[];
 void LabItem_DrawTrainerInfo(s32 x, s32 y, LabItemSaveSlot* slot, s32 index, s32 flags); // PORT: matches the definition
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-void func_80027410(s8*, s8*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
@@ -171,7 +171,7 @@ extern s8 *D_8900A6D8[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 extern u8 D_800735C4[];
 void Window_DrawFrame(void*);
-s32 func_8002B2B0(void *);
+s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 s32 LabItem_UpdateItemList(void *, u32);
 void BgStage_DrawFrame(void);
 
@@ -179,12 +179,12 @@ void BgStage_DrawFrame(void);
 extern s32 D_89019108;
 extern s32 D_89019118;
 extern u8 D_8901911C[];
-void func_80022118(s32);
-void func_80022188(s32);
-s32 func_8002207C(s32);
+void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
+void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
+s32 func_8002207C(s32 arg0); // PORT: matches GbSave_RebuildAndWriteSave
 void GbSave_RunReportErrorLoop(s32);
 void Save_CommitPokemonRecords(void);
-void func_800245E0(s32, s32);
+void func_800245E0(s32 arg0, s32 arg1); // PORT: matches Save_ResetAndCommitTypedRecord
 void LabItem_DrawScreen(LabItemScreen*);
 /**
  * Writes the changed item lists back to the save and flushes it.
@@ -381,7 +381,7 @@ void LabTerminal_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags, s32
     Font_EndTexturedTextRendering();
 }
 
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up a terminal menu window with its rows and title.
  * Seen in play (2026-11-12) in せいとん: ran on entry as the せいとん menu window appeared.
@@ -516,8 +516,8 @@ s32 LabTerminal_UpdateMainMenu(LabTerminalMenuWindow* win) {
 extern M2C_UNK D_89019110;
 extern LabTerminalMenuWindow D_89028950;
 extern s32 D_890289D4;
-s32 func_80025BD8();
-M2C_UNK func_80027FF8(M2C_UNK *, s32);
+s32 func_80025BD8(void); // PORT: matches GbSave_GetActivePort
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 
 /**
  * Picks the Game Boy cartridge (func_80025BD8) into D_89019108, loads its summary bar
@@ -545,7 +545,7 @@ extern s32 D_8900A720;
 extern s32 D_8900A71C_2;
 extern M2C_UNK D_8901890C;
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
-void func_8002C8D8(Col8900429C*, Col8900429C, f32);
+Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
  * BgStage callback for the fade into and out of せいとん: draws the background and summary
  * bar and steps the tint over 8 frames.
@@ -572,7 +572,7 @@ s32 LabTerminal_UpdateFade(s32 unused) {
     }
     GbSave_DrawSummaryBar(0, var_a1, &D_8901890C, D_89019108);
     n = D_8900A71C;
-    func_8002C8D8(&sp2C, *(Col8900429C*)&D_8900A5B8, n / (f64)8.0f);
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8900A5B8, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_8900A720 == 0) {
         n = D_8900A71C;

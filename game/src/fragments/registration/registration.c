@@ -106,7 +106,7 @@ void Registration_WriteAllTeams(PointerList* teams) {
 }
 
 s32 Deck_GetSaveEntryCount(s32, s32);
-void func_80027410(void*, void*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 s32 Deck_GetSaveEntryTrainerId(s32, s32);
 s32 Deck_GetSaveEntryName(s32 arg0, s32 arg1, u8* arg2);
 /**
@@ -188,7 +188,7 @@ void Registration_DrawMenuRow(s32 x, s32 y, char* label, s32 index, s32 flags, s
 
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 s32 Deck_GetCount(s32, s32, s32);
-void func_80027804(void*, void*, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 M2C_UNK Menu_Init(void*, void*, void*, M2C_UNK *, s32, s32);
 extern s32 D_88103078;
 
@@ -219,7 +219,7 @@ void Registration_InitMainMenu(MenuWindow* menu, s32 x, s32 y, s32 width, s32 he
     }
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color88100D9C);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color88100D9C, Color88100D9C);
@@ -238,7 +238,7 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
     s32 sp38;
     s32 h;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&menu->window) == 0) { // PORT: m2c dropped a0 (the window)
         h = (menu->menu.items->count << 5) + 8;
         Ui_DrawTexturedDivider(menu->window.frame.x, menu->window.frame.y + h + 5, menu->window.frame.width, D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -304,7 +304,7 @@ extern Color_RGBA8 D_88102DA4;
 extern char D_88102F14[];
 extern char D_88102F1C[];
 void Window_InitLabeled(void*, s32, s32, s32, Color_RGBA8, char*);
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 /**
  * Sets up the yes/no confirm window (372x102).
  * Seen in play (2026-11-12): opened 「このポケモンをとうろくする？」.
@@ -330,7 +330,7 @@ void Registration_InitConfirmWindow(RegistrationConfirmWindow* confirm, s32 x, s
 extern Gfx D_80060270[];
 void func_80029028(s32, s32, s32, s32, Color88100D9C);
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
 extern u8 D_8007356C[];
 extern Color88100D9C D_88102DA8;
@@ -344,7 +344,7 @@ void Window_DrawLabeled(void*, s32);
  * Seen in play (2026-11-12): 「このポケモンをとうろくする？」 with はい / いいえ.
  */
 void Registration_DrawConfirmWindow(RegistrationConfirmWindow* confirm) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&confirm->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(confirm->window.frame.x, confirm->window.frame.y + 53, confirm->window.frame.width, D_8007356C);
         Ui_FillRectPrimEnvColor(confirm->window.frame.x + 6, confirm->window.frame.y + 6, confirm->window.frame.width - 12, 48, D_88102DA8, D_88102DAC);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -405,7 +405,7 @@ void Registration_InitMessageWindow(RegistrationMessageWindow* message, s32 x, s
     message->text = text;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
 /**
  * Draws the message window text.
@@ -414,7 +414,7 @@ extern u8 D_800734A8[4];
 void Registration_DrawMessageWindow(RegistrationMessageWindow* message) {
     u8* c;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&message->window) == 0) { // PORT: m2c dropped a0 (the window)
         Font_BeginTranslucentTextRendering();
         c = D_800734A8;
         Gfx_SetEnvColor(c[0], c[1], c[2], c[3]);
@@ -843,7 +843,7 @@ void Registration_DrawCursorTeamRow(RegistrationTeamList* list) {
     Registration_DrawTeamRow(list->window.frame.x + 6, list->window.frame.y + 6, *entry, index, 0, 0);
 }
 
-void func_800189C0(s32, s32);
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
 void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 /**
@@ -907,7 +907,7 @@ extern char D_88102F6C[];
 extern char D_88102FC8[];
 s32 ScrollList_UpdateCursor(void*);
 void Audio_PlayMoveSound(s32, s32, s32);
-void func_80027868(s32, s32);
+void func_80027868(LabMonEntryList* arg0, s32 arg1); // PORT: matches PointerList_Remove
 
 /**
  * Runs the team list's state machine: pick, confirm, register or delete, messages.
@@ -1040,8 +1040,8 @@ void Registration_BuildTeamPointers(s32* pointers, s32* table) {
     pointers[2] = table[2];
 }
 
-void func_80027410(void*, void*, s32, s32, s32);
-void func_80027804(void*, void*, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 
 /**
  * Loads the registered teams and opens the list in view mode.
@@ -1056,8 +1056,8 @@ void Registration_OpenViewList(RegistrationScreen* screen) {
     Registration_InitTeamList(&screen->teamList, 48, 92, &screen->teamPointerList, 1);
 }
 
-void func_80027410(void*, void*, s32, s32, s32);
-void func_80027804(void*, void*, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 
 /**
  * Loads the registered teams and opens the list in delete mode.
@@ -1072,8 +1072,8 @@ void Registration_OpenDeleteList(RegistrationScreen* screen) {
     Registration_InitTeamList(&screen->teamList, 48, 92, &screen->teamPointerList, 2);
 }
 
-void func_80027410(void*, void*, s32, s32, s32);
-void func_80027804(void*, void*, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 
 /**
  * Loads the Game Boy teams and opens the list in register mode.
@@ -1088,7 +1088,7 @@ void Registration_OpenRegisterList(RegistrationScreen* screen) {
 }
 
 s32 GbSave_GetActivePort();
-M2C_UNK func_80027FF8(M2C_UNK *, s32);
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 extern M2C_UNK D_88102D84;
 extern M2C_UNK D_88102D90;
 extern M2C_UNK D_88103000;
@@ -1195,9 +1195,9 @@ extern s32 D_88102DD0;
 /* Second name for D_88102DCC; see PartyScreen_FadeFrame in party_summary/mon_summary.c. */
 extern s32 D_88102DCC_2;
 extern M2C_UNK D_88103018;
-void func_800189C0(s32, s32);
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
-void func_8002C8D8(Col88102A2C*, Col88102A2C, f32);
+Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
  * Draws the screen fade: the background tint fades in over 8 frames, and the second run fades it
  * out. Always returns 0, so BgStage_RunUntilCondition runs it for its full 8 frames.
@@ -1226,7 +1226,7 @@ s32 Registration_UpdateFade(s32 fade_mode) {
     }
     GbSave_DrawSummaryBar(0, var_a1, &D_88103018, D_88103078);
     n = D_88102DCC;
-    func_8002C8D8(&sp2C, *(Col88102A2C*)D_88102D70, n / (f64)8.0f);
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)D_88102D70, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_88102DD0 == 0) {
         n = D_88102DCC;
@@ -1269,12 +1269,12 @@ M2C_UNK MainPool_PushState(M2C_UNK);
 M2C_UNK MainPool_PopState(M2C_UNK);
 u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
 void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
-M2C_UNK func_80006724();
-M2C_UNK func_8000675C();
-M2C_UNK func_80006828(M2C_UNK, void*);
+void func_80006724(void); // PORT: matches StageLoader_WaitForRetrace
+void func_8000675C(void); // PORT: matches StageLoader_UpdateSegments
+s32 func_80006828(u32 timer, s32 (*f)(u8)); // PORT: matches BgStage_RunUntilCondition
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
 M2C_UNK PokeIcon_OpenModelArchives();
-s32 func_80017FDC(s32, M2C_UNK, M2C_UNK, M2C_UNK);
+PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 s32 Font_Init(s32 load_size, s32 side);
 extern M2C_UNK D_0015B1A0;
 extern M2C_UNK D_0015E220;

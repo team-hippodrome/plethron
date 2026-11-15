@@ -152,11 +152,11 @@ typedef struct Entry80066AD8 {
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
 s32 Pokemon_GetTypeIndex(u8*, s32);
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);
-M2C_UNK func_8001AB6C();
-M2C_UNK func_8001ABBC();
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 
 /**
  * Draws the colored type icon for type slot `type_slot` of Pokemon `mon`.
@@ -210,12 +210,12 @@ void LabPCList_DrawMoveName(s32 x, s32 y, s32 mon, s32 slot) {
     }
 }
 
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);            /* extern */
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Font_DrawCharAt(s32 x, s32 y, s32 chr);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);              /* extern */
-M2C_UNK func_8001AB6C();                            /* extern */
-M2C_UNK func_8001ABBC();                            /* extern */
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 extern u8 D_800734A8[];
 extern M2C_UNK D_8910DBB4;
 extern M2C_UNK D_8910DBBC;

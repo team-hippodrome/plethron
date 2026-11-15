@@ -23,7 +23,7 @@ typedef struct unk_func_88313894 {
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 Window_DrawAnimatedFrame(Window* arg0);
 
-void func_8001A384(s32, s32);
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void func_8001AB6C(void);
 void func_8001ABBC(void);
@@ -54,7 +54,7 @@ void LabTextMenu_DrawRow(s32 x, s32 y, char* text, s32 index, s32 flags, s32* wi
 
 typedef struct Str89104D14 { s8 c[4]; } Str89104D14;
 extern Str89104D14 D_8910A914;
-void func_80027804(s8 *, s32 *, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void LabTextMenu_DrawRow();
@@ -87,15 +87,13 @@ void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) 
     M2C_FIELD(menu, Str89104D14 *, 0x18) = D_8910A914;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
+// PORT: a Window followed by its Menu (was x, y, w, pad and the menu at N64 offset 0x2C)
 typedef struct Box89104E38 {
-    s32 x;
-    s32 y;
-    s32 w;
-    char padC[0x20];
-    s8 label[1];
+    /* 0x00 */ Window window;
+    /* 0x2C */ Menu menu;
 } Box89104E38;
 
 /**
@@ -104,14 +102,11 @@ typedef struct Box89104E38 {
  * @unverified Name guessed from the code.
  */
 void LabTextMenu_Draw(Box89104E38* menu) {
-    s32 label;
-
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&menu->window) == 0) { // PORT: m2c dropped a0 (the window)
         s32 sp2C[4];
 
-        sp2C[0] = menu->w - 12;
-        label = (uintptr_t)menu->label;
-        Menu_DrawItems(label, menu->x + 6, menu->y + 10, 0xFFEF, (intptr_t)((s8*)sp2C));
+        sp2C[0] = menu->window.frame.width - 12;
+        Menu_DrawItems(&menu->menu, menu->window.frame.x + 6, menu->window.frame.y + 10, 0xFFEF, (intptr_t)((s8*)sp2C)); // PORT: typed fields
     }
     /* Empty test kept from the permuter: it keeps menu in $s0 as in the ROM. */
     if (menu) {  // karodo
@@ -125,8 +120,8 @@ s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
  * No callers: no jal, j, address word or lui/addiu pair in any built fragment or the resident code reaches it (2026-11-14 scan), so it never runs.
  * @unverified Name guessed from the code.
  */
-void LabTextMenu_Update(s32 menu) {
-    Menu_UpdateCursor(menu + 0x2C);
+void LabTextMenu_Update(Box89104E38* menu) { // PORT: typed (was s32 and offset 0x2C)
+    Menu_UpdateCursor(&menu->menu);
 }
 
 typedef struct Entry891078E0 {
@@ -180,7 +175,7 @@ typedef struct Str89104FC0 { s8 c[4]; } Str89104FC0;
 extern Str89104FC0 D_8910A91C;
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
-void func_80027410(void*, void*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void LabMoveSelect_DrawMoveRow();
 
 /**
@@ -233,7 +228,7 @@ void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg
 void LabMoveSelect_Draw(LabMoveSelectWindow* window) {
     Menu* label;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         s32 sp2C[4];
 
         sp2C[0] = window->window.frame.width - 12;
@@ -255,7 +250,7 @@ s32 LabMoveSelect_DrawLearnAnimation(LabMoveSelectWindow* window) {
     s32 color; // not a color: the item draw-flags mask for Menu_DrawInlineItems
     s32 params[4]; // only params[0] (alpha) is set here, as in LabMoveSelect_Draw
 
-    if (func_8002AE6C() != 0) {
+    if (func_8002AE6C(&window->window) != 0) { // PORT: m2c dropped a0 (the window)
         return 0;
     }
     if (window->learnTimer > 0) {
@@ -380,7 +375,7 @@ void LabBoxList_ApplyChecks(LabBoxListWindow* box_list) {
 
 void Ui_DrawImageInStrips(void*, s32, s32);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 extern u8 D_80073614[];
 extern u8 D_80073624[];
 extern Color_RGBA8 D_80073520;
@@ -605,7 +600,7 @@ void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags) {
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags);
 void LabSourceSelect_UpdateItemFlags(u8* widget);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_8910A93C;
 extern Color_RGBA8 D_8910A940;
@@ -647,7 +642,7 @@ void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, s8* sourc
     window->openBoxList = 0;
 }
 
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawLabeled(s8 *, s32);
 extern u8 D_8007356C[];
@@ -697,7 +692,7 @@ void LabSourceSelect_Draw(LabSourceSelectWindow* window, s32 flags) {
     }
 }
 
-s32 func_8002B2B0(s8*);
+s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 
 /**
  * Handles the source rows and ＯＫ: A toggles a source with all its boxes, D-Right opens its box list, A on ＯＫ applies the checks (returns 1), B returns -1.
@@ -882,7 +877,7 @@ void LabPCList_PlacePopup(LabPopupMenu* popup) {
     popup->window.animTimer = 0;
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 /**
  * Draws a popup menu's items.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): drew that popup's four rows.
@@ -890,7 +885,7 @@ s32 func_8002AE6C();                                /* extern */
 void LabPCList_DrawPopupMenu(LabPopupMenu* popup, s32 flags)
 {
   s8 *new_var; // FAKE: permuter temp
-  if (func_8002AE6C() == 0)
+  if (func_8002AE6C(&popup->window) == 0) // PORT: m2c dropped a0 (the window)
   {
     new_var = (s8 *) popup; // FAKE: permuter temp
     if ((popup && popup) && popup) // FAKE: empty if on a repeated test
@@ -1016,7 +1011,7 @@ extern char D_8910E094[];
  * D_8910E094 is から ("from"), not "Empty".
  */
 void LabPCList_DrawLevelInputWindow(LabLevelInputWindow* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         func_8001AB6C();
         func_8001A384(4, 0);
         Gfx_SetEnvColor(0xC8, 0xC8, 0xFF, 0xFF); // #C8C8FFFF
@@ -1029,11 +1024,11 @@ void LabPCList_DrawLevelInputWindow(LabLevelInputWindow* window) {
     }
 }
 
-s32 func_8000B30C();                                /* extern */
-M2C_UNK func_8002B204(s8 *, s32, s8 *);         /* extern */
-M2C_UNK func_8002B2E4(s32, s32, s8 *);            /* extern */
-M2C_UNK func_8002B4B4(s8 *, s32, s8 *);         /* extern */
-s32 func_8002BC14(s32, s32, s8 *);                /* extern */
+s32 func_8000B30C(void); // PORT: matches Input_GetRepeatedDPad
+s32 func_8002B204(UiSelection* arg0, s32 arg1); // PORT: matches Ui_AdjustVerticalSelection
+s32 func_8002B2E4(UiSelection* arg0, s32 arg1); // PORT: matches Ui_AdjustHorizontalSelection
+s32 func_8002B4B4(UiNumberInput* arg0, s32 arg1); // PORT: matches Ui_AdjustNumericSelection
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
@@ -1052,7 +1047,7 @@ s32 LabPCList_UpdateLevelInput(LabLevelInputWindow* window) {
     sp1C = 0;
     temp_v1 = func_8000B30C() & 0xFFFF;
     if (temp_v1 & 0x300) {
-        func_8002B2E4((s8*)&window->unk_D8, temp_v1, window);
+        func_8002B2E4((s8*)&window->unk_D8, temp_v1); // PORT: m2c passed a stale a2
         temp_v1_2 = window->column;
         if (temp_v1_2 < 3) {
             window->focus = 0;
@@ -1068,17 +1063,17 @@ s32 LabPCList_UpdateLevelInput(LabLevelInputWindow* window) {
         temp_v0 = window->focus;
         switch (temp_v0) {                          /* irregular */
         case 0:
-            func_8002B4B4((s8*)&window->minLevel, temp_v1, window);
+            func_8002B4B4((s8*)&window->minLevel, temp_v1); // PORT: m2c passed a stale a2
             break;
         case 1:
-            func_8002B4B4((s8*)&window->maxLevel, temp_v1, window);
+            func_8002B4B4((s8*)&window->maxLevel, temp_v1); // PORT: m2c passed a stale a2
             break;
         case 2:
-            func_8002B204((s8*)&window->cursor, temp_v1, window);
+            func_8002B204((s8*)&window->cursor, temp_v1); // PORT: m2c passed a stale a2
             break;
         }
     } else if (temp_v1 == 0) {
-        temp_v0_2 = func_8002BC14(D_800603C0, temp_v1, window);
+        temp_v0_2 = func_8002BC14(D_800603C0); // PORT: m2c passed stale a1, a2
         if (temp_v0_2 == -1) {
             Audio_PlaySystemSound(3);
             sp1C = -1;
@@ -1125,7 +1120,7 @@ typedef struct Win89106E64 {
 } Win89106E64;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 /**
  * Draws a two-state image toggle, each end lit by flag 8.
  * No callers: no jal, j, address word or lui/addiu pair in any built fragment or the resident code reaches it (2026-11-14 scan), so it never runs.
@@ -1216,7 +1211,7 @@ typedef struct Entry891071A4 {
 
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern Entry891071A4 D_80066AD8[];
 extern Color_RGBA8 D_8910A974;
 extern char D_8910E09C[];
@@ -1284,7 +1279,7 @@ void LabPCList_DrawTypeFilter(LabTypeFilterWindow* window) {
     s32 hl;
     s32 mask;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         hl = (window->mode == 0) ? 2 : 0x10;
         for (i = 0; i < 2; i++) {
             Window_DrawLabeled(&window->slots[i].button, (i == window->cursor.cursor) ? hl : 0);
@@ -1421,7 +1416,7 @@ void LabPCList_DrawMoveFilterRow(s32 x, s32 y, u8* move, s32 index, s32 flags) {
 
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern u8 D_8910A978[];
 extern u8 D_8910AA1C[];
 extern Color_RGBA8 D_8910AACC;
@@ -1485,7 +1480,7 @@ void LabPCList_DrawMoveFilter(LabMoveFilterWindow* window) {
     s32 hl;
     s32 mask;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         hl = (window->mode == 0) ? 2 : 0x10;
         for (i = 0; i < 4; i++) {
             Window_DrawLabeled(&window->slots[i].button, (i == window->cursor.cursor) ? hl : 0);
@@ -1603,8 +1598,8 @@ extern char D_8910E110[];
 extern char D_8910E118[];
 extern Gfx D_80060270[];
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
-char* func_8001FDC8(u8, char*);
-s32 func_80031CC8(u8);
+char* func_8001FDC8(s32 arg0, char* arg1); // PORT: matches Text_GetTmHmName
+s32 func_80031CC8(s32 arg0); // PORT: matches LabItem_IsQuantitylessItemForOperation
 /**
  * Draws an item row with パソコン (PC) / てもち (Party) and ×%02d.
  * Seen in play (2026-11-14) in いちらん: drew マックスアップ ×05 てもち ... わざマシン06 ×01 てもち in 「フシギダネがつかえるどうぐ」.
@@ -1692,7 +1687,7 @@ extern s8 D_89119BD0[];
 extern u8 D_8910E120[];
 extern u8 D_8910AAE0[];
 extern u8 D_8910AAE4[];
-void func_8000A460(s8*, s8*);
+char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabPCList_DrawItemRow();
 /**
@@ -1724,7 +1719,7 @@ extern Color_RGBA8 D_800734B8[];
 extern char D_8910E134[];
 extern char D_8910E150[];
 extern char D_8910E16C[];
-char* func_80031BC0(u8, char*);
+char* func_80031BC0(s32 item_id, char* dest); // PORT: matches func_8002E160_jp
 /**
  * Draws このどうぐをつかいますか？ (Use this item?), どの わざに つかいますか？ (On which move?) or どの わざを わすれさせたい？ (Which move should it forget?).
  * Seen in play (2026-11-14) in いちらん: drew the item list with このどうぐをつかいますか？, どの わざに つかいますか？ and どの わざを わすれさせたい？, and the move list and learn animation under them.
@@ -1791,7 +1786,7 @@ void LabPCList_DrawItemWindow(LabItemWindow* window) {
 extern u8 D_8910AAE8[];
 extern Rgba891084B4 D_8910AAEC;
 s32 ScrollList_UpdateCursor(s8 *);
-s32 func_80020974(s32);
+u8 func_80020974(s32 tm_hm_index); // PORT: matches Move_GetIdFromTableIndex
 /**
  * Handles the item window. Returns 1 for a vitamin, 2 for PP Up, 3 for a TM or HM.
  * Seen in play (2026-11-14) in いちらん: ran マックスアップ (HP 21 -> 21), ポイントアップ (たいあたりのPP 35 -> 42) and わざマシン06 on フシギダネ (learned in slot 3) and on ゼニガメ (たいあたり forgotten).
@@ -2024,7 +2019,7 @@ extern char D_8910E1B0[];
 void LabPCList_DrawMessageWindow(LabMessageWindow* window) {
     LabItemResult* entry;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFFFF
         Font_SetActive(0x10, 0);
