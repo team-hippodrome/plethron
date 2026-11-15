@@ -5,10 +5,10 @@
 #include "free_battle_setup.h"
 
 /* Unprototyped on purpose: different callers in this file pass one or two arguments. */
-s32 Menu_UpdateCursor();
-M2C_UNK GridMenu_UpdateCursor();
-s32 Menu_UpdateCursorSkipDisabled();
-void FreeBattle_SetScreenState(s32, s32, s32);
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
+s32 GridMenu_UpdateCursor(GridMenu* arg0); // PORT: matches the definition
+s32 Menu_UpdateCursorSkipDisabled(Menu* arg0); // PORT: matches the definition
+void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags); // PORT: matches the definition
 
 /**
  * FreeBattle_ClearIndices
@@ -29,9 +29,9 @@ void FreeBattle_ClearIndices(s32* indices, s32 start, s32 count) {
     }
 }
 
-s32 Deck_Open(s32, s32, s32, s32);
-s32 Deck_ReadEntries(void*, s32, s32);
-void Deck_CloseAndFlush(s32);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 void Pokemon_PrepareBattleMon(u8*);
 extern u8 D_80065D00[];
 
@@ -415,7 +415,7 @@ typedef struct Entry80066AD8 {
     Color82000BC4 color;
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void Font_BeginTranslucentTextRendering(void);
 void Font_SetActive(s32, s32);
 void Font_EndTexturedTextRendering(void);
@@ -635,8 +635,8 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
     }
 }
 
-s32 Ui_HandleHorizontalSelectionInput(s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 
 /**

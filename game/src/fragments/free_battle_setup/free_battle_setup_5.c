@@ -18,7 +18,7 @@ typedef struct List82004518 {
     /* 0x08 */ s32 unk8;
 } List82004518;
 void FreeBattle_InitBattleModeWindow(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void FreeBattle_InitMenuWindow(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9);
+void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 height, s32 items, s32 item_count, char** descriptions, s32 description_lines, char* title); // PORT: matches the definition
 void FreeBattle_InitCupSelect(s8* arg0, s32 arg1, s32 arg2, s32 arg3);
 void FreeBattle_InitOpponentSelect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
 void FreeBattle_InitEntryScreen(FreeBattleScreen* arg0);
@@ -334,7 +334,7 @@ typedef struct Blobs82004E9C {
 } Blobs82004E9C;
 
 void func_80027814(s8*, s8*, s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 void Audio_PlaySystemSound(s32);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
 void FreeBattle_ClearIndices(void*, s32, s32);
@@ -621,7 +621,7 @@ extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
 void func_80027FF8(void*, s32);
-s32 Util_Malloc(s32);
+void* Util_Malloc(s32 size); // PORT: matches the definition
 /**
  * Reads the GB save summary of the active port (if any), allocates the 0x5020-byte
  * FreeBattleScreen (D_8200AD28) and opens it on the battle mode window.
@@ -730,7 +730,7 @@ s32 FreeBattle_DrawScreenWithSummary(FreeBattleScreen* screen) {
     return 0;
 }
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern s32 D_8200AD28;
 
 /**
@@ -744,7 +744,7 @@ void FreeBattle_FreeScreen(void) {
 extern s32 D_8200AD08[8];
 extern s32 D_8200AC40;
 extern s32 D_820090DC[8];
-s32 BinArchive_GetFile(s32, s32);
+void* BinArchive_GetFile(void* archive, s32 file_number); // PORT: matches the definition
 
 /**
  * Loads the eight files listed in D_820090DC from the archive D_8200AC40 into D_8200AD08.
@@ -763,10 +763,10 @@ s32 Font_Init(s32 load_size, s32 side);
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
 u16* func_80018F2C(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_80017FDC(s32, s32, s32, s32);
-s32 BinArchive_Open(u8*, u8*, s32, s32);
+void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: matches the definition
 void PokeIcon_OpenModelArchives(void);
-void Fragment_Load(s32, u8*, u8*);
-void Asset_LoadToSegment(s32, u8*, u8*, s32);
+void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
 s32 Memmap_GetSegmentVaddr(u8*);
 void FreeBattle_RestoreMenuState(FreeBattleScreen*);
 s32 StageFade_Start(s32);

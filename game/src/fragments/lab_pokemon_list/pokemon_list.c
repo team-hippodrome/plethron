@@ -7,7 +7,7 @@
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 
-M2C_UNK LabPCList_InitDeckCategories(s32, s32, s32, s32);          /* extern */
+void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_buffer, void* pc_buffer, void* cart_buffer); // PORT: matches the definition
 /**
  * Sets up the three item decks (Game Boy bag, Game Boy PC, 64 cartridge) and reads each one that exists.
  * Seen in play (2026-11-14) in いちらん: ran on entry; the どうぐをつかう window later listed the bag's items (マックスアップ ×5 ...).
@@ -129,7 +129,7 @@ void func_80027804(s8*, s8*, s32, s32);
 void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(s32, s32);
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
-void LabPCList_DrawMonRow();
+void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];

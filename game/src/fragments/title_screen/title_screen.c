@@ -368,19 +368,19 @@ s32 TitleScreen_Update(s32 fade_mode) {
     return result;
 }
 
-s32 MainPool_Alloc(u32 size, s32 side);
+void* MainPool_Alloc(u32 size, s32 side); // PORT: matches the definition
 u32 MainPool_PushState(u32 arg);
 u32 MainPool_PopState(u32 arg);
 void Gfx_InitDisplayListBuffers(u32 buffer_size, s32 pool_side);
 void Gfx_FreeDisplayListBuffers(void);
-s32 StageContext_Allocate(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
-M2C_UNK StageContext_Activate(s32);
+void* StageContext_Allocate(s8 zoom, s8 arg1, s8 render_target_count, s8 has_depth_buffer, s8 arg4, s32 allocate_render_targets); // PORT: matches the definition
+void StageContext_Activate(void* arg0); // PORT: matches the definition
 M2C_UNK StageContext_Deactivate();
 s32 BgStage_WaitForCondition(M2C_UNK *, M2C_UNK, M2C_UNK);
 M2C_UNK Audio_WaitForIdle(M2C_UNK);
 s32 Font_Init(s32 load_size, s32 side);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
-M2C_UNK Audio_LoadWaveTablesAndMusic(s32);
+s32 Audio_LoadWaveTablesAndMusic(u8* arg0); // PORT: matches the definition
 M2C_UNK Audio_ClearWaveDataLoaded();
 extern M2C_UNK D_002E0BE0;
 extern M2C_UNK D_002E2B90;

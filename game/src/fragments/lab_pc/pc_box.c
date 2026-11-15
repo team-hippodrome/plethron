@@ -233,7 +233,7 @@ typedef struct Entry80066AD8 {
     Color890075E0 color;
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void func_8001AB6C(void);
 void func_8001A384(s32, s32);
 void func_8001ABBC(void);
@@ -506,7 +506,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, s32 
 
 typedef struct Str8900806C { char s[13]; } Str8900806C;
 char* func_8000A460(char*, const char*);
-void PokeIcon_ResetSlots(s32);
+void PokeIcon_ResetSlots(PokeIconRenderer* arg0); // PORT: matches the definition
 void func_80027410(void*, s8*, s32, s32, s32);
 void GridMenu_Init(void*, s8*, s8*, void*, s32, s32, s32);
 extern char D_89018EE8[];
@@ -738,7 +738,7 @@ void PcBox_DrawStorageLabel(s32 x, s32 y, s32 flags, s32 kind) {
     Font_EndTexturedTextRendering();
 }
 
-void Menu_Init(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 extern Color_RGBA8 D_8900A91C;
 extern Color_RGBA8 D_8900A920;
 extern Color_RGBA8 D_8900A580[];
@@ -800,7 +800,7 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
 
 extern s32 D_8900A924[];
 extern s32 D_8900A93C[];
-void LabItem_DrawTitleText(s32, s32, s32, s32);
+void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
 /**
  * Draws the selected operation's caption while the operation column has the cursor.
  * Seen in play (2026-11-14): 「６４へボックスをいどうする」, 「ＧＢへボックスをいどうする」,

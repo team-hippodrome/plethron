@@ -31,7 +31,7 @@ typedef struct {
     /* 0x04 */ u16* flags;
 } SlotFlags;
 
-M2C_UNK GridMenu_UpdateCursor();
+s32 GridMenu_UpdateCursor(GridMenu* arg0); // PORT: matches the definition
 void FreeBattle_SetScreenState(FreeBattleScreen*, s32, s32);
 extern s32 D_8200AC58[];
 void Font_BeginTranslucentTextRendering(void);
@@ -201,10 +201,10 @@ extern s32 D_8200ACFC;
 extern s32 D_8200AD00;
 extern s32 D_8200AC58[];
 extern M2C_UNK D_82009C98;
-void FreeBattle_DrawMonCell();
+void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, s32 icon_cache); // PORT: matches the definition
 extern M2C_UNK FreeBattle_DrawTeamRow;
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-M2C_UNK ScrollList_Init(s8*, s32, s8*, M2C_UNK, M2C_UNK*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 M2C_UNK ScrollGrid_Init(s8*, s8*, s8*, M2C_UNK, s32, M2C_UNK*, s32, s32);
 M2C_UNK func_80027410(s8*, s32, M2C_UNK, M2C_UNK, s32);
 void PokeIcon_ResetSlots(s8* arg0);
@@ -589,7 +589,7 @@ typedef struct Blk820038B0 {
     s32 w[0x85];
 } Blk820038B0;
 extern u8 D_82009D04[];
-void FreeBattle_DrawSlotCell();
+void FreeBattle_DrawSlotCell(s32 x, s32 y, s32* slot, s32 index, s32 flags, s32 icon_cache); // PORT: matches the definition
 
 s32 Audio_PlaySystemSound(s32 sound_id); // PORT: no prototype in the decomp
 void FreeBattle_EnableNonDuplicateRows(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp

@@ -16,7 +16,7 @@ void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b);
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
-void ScrollList_SetItems(s8*, s32, s8*);
+void ScrollList_SetItems(ScrollList* arg0, ByteMatrix* arg1, u16* arg2); // PORT: matches the definition
 void LabItem_Unused(void);
 s32 LabItem_ComputeRemainingCapacity(s32 arg0, ByteMatrix* arg1);
 s32 LabItem_ComputeMaxTransferQuantity(s32 arg0, ByteMatrix* arg1);
@@ -71,7 +71,7 @@ M2C_UNK func_8001AA9C(u8, u8, u8, u8);
 extern Color_RGBA8 D_8900A5D4[];
 extern u8 D_800734A8[];
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK func_80027804();
 s32 Menu_UpdateCursorSkipDisabled(void*);
 extern Gfx D_80060270[];
@@ -83,8 +83,8 @@ char* func_8001FDC8(u8, char*);
 s32 func_80031C24(u8);
 s32 func_80031CC8(u8);
 void Font_SetColorForFlags(s32);
-void ScrollList_Init(s8*, s32, s8*, s32, void*, s32, s32);
-void LabItem_DrawItemCountRow();
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
+void LabItem_DrawItemCountRow(s32 x, s32 y, u8* row, s32 index, s32 flags); // PORT: matches the definition
 void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
 void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
@@ -136,9 +136,9 @@ void Font_SetColorForFlags(s32);
 extern Color_RGBA8 D_8900A6AC;
 extern Color_RGBA8 D_8900A6B0;
 extern char D_89018678[];
-void LabItem_DrawTrainerInfo();
+void LabItem_DrawTrainerInfo(s32 x, s32 y, LabItemSaveSlot* slot, s32 index, s32 flags); // PORT: matches the definition
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void func_80027410(s8*, s8*, s32, s32, s32);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);

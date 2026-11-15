@@ -53,7 +53,7 @@ void MainMenu_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags) {
 
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 M2C_UNK func_80027804();
-M2C_UNK Menu_Init();
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 extern s8 D_88001FD4[];
 extern u8 D_88001FE0[];
 extern u8 D_88001FE4[];
@@ -120,7 +120,7 @@ void MainMenu_DrawContinueTournamentPrompt(MainMenuPromptWindow* prompt) {
 }
 
 s32 Menu_UpdateCursor(s8*);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 extern s32 D_800603C0;
 
 /**
@@ -473,7 +473,7 @@ void MainMenu_DrawMessageWindow(MainMenuMessageWindow* window) {
 }
 
 s32 Ui_HandleHorizontalSelectionInput(s8*);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 extern s32 D_800603C0;
 
 /**
@@ -708,7 +708,7 @@ s32 MainMenu_UpdateScreen(MainMenuScreen* screen) {
     return ret;
 }
 
-s32 Util_Malloc(M2C_UNK);
+void* Util_Malloc(s32 size); // PORT: matches the definition
 M2C_UNK func_8000B2F4(s32);
 u8 GbSave_GetSaveState(s32 arg0);
 s32 GbSave_HasPokedex(s32);
@@ -919,7 +919,7 @@ s32 MainMenu_RunFrame(s32 fade_mode) {
     return sp1C;
 }
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern MainMenuScreen* D_88002B20;
 
 /**

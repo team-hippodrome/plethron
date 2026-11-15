@@ -40,7 +40,7 @@ typedef struct unk_D_88218070 {
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Menu_ClearItemFlags(Menu* arg0);
-void ScrollList_SetItems(s8*, s32, s8*);
+void ScrollList_SetItems(ScrollList* arg0, ByteMatrix* arg1, u16* arg2); // PORT: matches the definition
 
 void LabItem_Unused(void);
 s32 LabItem_ComputeRemainingCapacity(s32 arg0, ByteMatrix* arg1);
@@ -615,7 +615,7 @@ void LabItem_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 }
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK func_80027804();
 /**
  * Sets up a menu window whose height fits `count` rows.
@@ -725,7 +725,7 @@ void LabItem_SetItemList(LabItemList* list, s32 table) {
     ScrollList_SetItems((s8*)&list->list, table, (s8*)list->itemFlags);
 }
 
-void ScrollList_Init(s8*, s32, s8*, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabItem_DrawItemCountRow();
 
 /**
@@ -1417,7 +1417,7 @@ extern Color_RGBA8 D_8900A6B0;
 extern char D_89018678[];
 void LabItem_DrawTrainerInfo();
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void func_80027410(s8*, s8*, s32, s32, s32);
 /**
  * Sets up the データをけす window over the four 64 item saves, with

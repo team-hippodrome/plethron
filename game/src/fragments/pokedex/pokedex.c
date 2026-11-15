@@ -311,7 +311,7 @@ void Pokedex_DrawActionMenu(PokedexMenuWindow* menu_window, s32 flags) {
 }
 
 s32 func_8002BC14(s32);                             /* extern */
-s32 Menu_UpdateCursor(s32);                             /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the action menu cursor; without a move returns Ui_GetSelectionDirection's result (1 for A, -1 for B).
@@ -462,7 +462,7 @@ void Pokedex_DrawEntryDescription(s32 x, s32 y) {
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 s32 Ui_DrawFrameLeftCorners(s32, s32, s32, void*);
 s32 Ui_DrawImageInStrips(void*, s32, s32);
-s32 Window_DrawAnimatedFrame();
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 extern u8 D_8007356C;
 extern u8 D_8A11FC18;
 
@@ -475,7 +475,7 @@ extern u8 D_8A11FC18;
 void Pokedex_DrawEntryWindow(Window* window, s32 preview, s32 progress) {
     s32 temp_v0;
 
-    if ((window->state != 2) && (Window_DrawAnimatedFrame() == 0)) {
+    if ((window->state != 2) && (Window_DrawAnimatedFrame(window /* PORT: m2c dropped the argument left in a0 */) == 0)) {
         Ui_DrawTexturedDivider(window->frame.x, window->frame.y + 215, window->frame.width, &D_8007356C);
         Ui_DrawFrameLeftCorners(window->frame.x + 249, window->frame.y, 222, &D_8007356C);
         Pokedex_DrawEntryInfo(window->frame.x + 0x100, window->frame.y + 6);
@@ -833,7 +833,7 @@ s32 Pokedex_PlayCry(void) {
     return 2;
 }
 
-M2C_UNK Pokedex_LoadAreaMap(s32 species, s32 pool, M2C_UNK pool_size, s32 load_buffer, s32 load_buffer_size); /* extern */
+void Pokedex_LoadAreaMap(s32 species, MainPoolState* pool, s32 pool_size, PERSSZP* load_buffer, s32 load_buffer_size); // PORT: matches the definition
 extern s32 sAreaMapPool;
 extern s32 sAreaMapLoadBuffer;
 extern s32 sSelectedDexIndex;

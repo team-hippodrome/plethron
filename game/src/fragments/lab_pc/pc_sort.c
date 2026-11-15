@@ -11,7 +11,7 @@
 extern u8 D_8910D7D0[];
 
 #include "m2c_macros.h"
-void ScrollList_SetItems(void*, s32, void*);
+void ScrollList_SetItems(ScrollList* arg0, ByteMatrix* arg1, u16* arg2); // PORT: matches the definition
 
 void PcSort_Unused1(void);
 void PcSort_Unused2(void);
@@ -139,7 +139,7 @@ void PcSort_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 }
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK func_80027804();
 /**
  * Sets up a menu window whose height fits `count` rows.
@@ -239,7 +239,7 @@ void PcSort_SetMonList(PcSortMonList* list, s32 table) {
     ScrollList_SetItems(&list->list, table, list->itemFlags);
 }
 
-void ScrollList_Init(void*, s32, void*, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void PcSort_DrawMonRow(s32, s32, u8*, s32, s32);
 
 /**
@@ -530,7 +530,7 @@ extern s32 D_8900A7EC[];
 extern s32 D_8900A804[];
 extern s32 D_8900A81C[];
 extern s32 D_8900A834[];
-void LabItem_DrawTitleText(s32, s32, s32, s32);
+void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
 void PcSort_DrawMonStats();
 
 /**

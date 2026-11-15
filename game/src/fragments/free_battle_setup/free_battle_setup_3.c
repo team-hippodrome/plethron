@@ -13,9 +13,9 @@ void Ui_DrawTexturedFrameDecal(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4)
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 Menu_UpdateCursor(Menu* arg0);
 s32 Menu_UpdateCursorSkipDisabled(Menu* arg0);
-s32 Deck_Open(s32, s32, s32, s32);
-s32 Deck_ReadEntries(void*, s32, s32);
-void Deck_CloseAndFlush(s32);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 void Pokemon_PrepareBattleMon(u8*);
 extern u8 D_80065D00[];
 
@@ -29,7 +29,7 @@ typedef struct Entry80066AD8 {
     Color82000BC4 color;
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void Font_BeginTranslucentTextRendering(void);
 void Font_SetActive(s32, s32);
 void Font_EndTexturedTextRendering(void);
@@ -51,8 +51,8 @@ void FreeBattle_DrawMoveName(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 void FreeBattle_DrawTypeName(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
-s32 Ui_HandleHorizontalSelectionInput(s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 
 s32 FreeBattle_UpdateRentalConfirmChoice(s8* arg0);
@@ -64,7 +64,7 @@ extern Gfx D_80060270[];
 void func_80029028(s32, s32, s32, s32, Color82001CCC);
 void FreeBattle_DrawRowBorders(s32 arg0, s32 arg1, Color82001CCC arg2);
 
-M2C_UNK FreeBattle_EnterEntryScreenState();                            /* extern */
+void FreeBattle_EnterEntryScreenState(s8* arg0); // PORT: matches the definition
 
 void FreeBattle_SetEntryScreenState(s8 *arg0, s32 arg1, s32 arg2);
 
@@ -74,7 +74,7 @@ void FreeBattle_DrawTeamWindowPanels(s8* arg0);
 
 void FreeBattle_DrawRentalTeamPanels(s8* arg0);
 
-M2C_UNK GridMenu_UpdateCursor();                            /* extern */
+s32 GridMenu_UpdateCursor(GridMenu* arg0); // PORT: matches the definition
 extern char D_800735C4[];
 
 void FreeBattle_UpdateTeamSlotCursor(s32 arg0);
@@ -89,28 +89,28 @@ extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
 void func_80027FF8(void*, s32);
-s32 Util_Malloc(s32);
-void FreeBattle_InitBattleModeScreen(s32);
+void* Util_Malloc(s32 size); // PORT: matches the definition
+void FreeBattle_InitBattleModeScreen(FreeBattleScreen* screen); // PORT: matches the definition
 void FreeBattle_CreateScreen(void);
 
 void Cont_StartReadInputs(void);                            /* extern */
 void Cont_ReadInputs(void);                            /* extern */
-M2C_UNK FreeBattle_DrawScreen(s32);                         /* extern */
-M2C_UNK FreeBattle_UpdateScreen(s32);                         /* extern */
+M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
+s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen); // PORT: matches the definition
 extern s32 D_8200AD28;
 
-void FreeBattle_RunFrame(s32 arg0);
+void FreeBattle_RunFrame(FreeBattleScreen* screen); // PORT: matches the definition
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
-M2C_UNK FreeBattle_DrawScreen(s32);                         /* extern */
+M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
 extern M2C_UNK D_82009E18;
 extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 
-s32 FreeBattle_DrawScreenWithSummary(s32 arg0);
+s32 FreeBattle_DrawScreenWithSummary(FreeBattleScreen* screen); // PORT: matches the definition
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern s32 D_8200AD28;
 
 void FreeBattle_FreeScreen(void);
@@ -118,7 +118,7 @@ void FreeBattle_FreeScreen(void);
 extern s32 D_8200AD08[8];
 extern s32 D_8200AC40;
 extern s32 D_820090DC[8];
-s32 BinArchive_GetFile(s32, s32);
+void* BinArchive_GetFile(void* archive, s32 file_number); // PORT: matches the definition
 
 void FreeBattle_LoadArchiveFiles(void);
 
@@ -126,12 +126,12 @@ s32 Font_Init(s32 load_size, s32 side);
 s8 *PokeIcon_AllocFramebuffers(s32 arg0);
 u16* func_80018F2C(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_80017FDC(s32, s32, s32, s32);
-s32 BinArchive_Open(u8*, u8*, s32, s32);
+void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: matches the definition
 void PokeIcon_OpenModelArchives(void);
-void Fragment_Load(s32, u8*, u8*);
-void Asset_LoadToSegment(s32, u8*, u8*, s32);
+void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
 s32 Memmap_GetSegmentVaddr(u8*);
-void FreeBattle_RestoreMenuState(s32);
+void FreeBattle_RestoreMenuState(FreeBattleScreen* screen); // PORT: matches the definition
 s32 StageFade_Start(s32);
 void func_80006828(s32, void*);
 void Audio_PlayMusicIfChanged(s32);
@@ -139,7 +139,7 @@ void func_80006998(s32);
 void Audio_StopMusic(s32);
 void StageLoader_WaitForRetrace(void);
 void StageLoader_UpdateSegments(void);
-s32 FreeBattle_UpdateFade(s32);
+s32 FreeBattle_UpdateFade(FreeBattleScreen* screen); // PORT: matches the definition
 extern u8 D_81000000[];
 extern u8 D_0015B1A0[];
 extern u8 D_0015E220[];
@@ -382,7 +382,7 @@ void FreeBattle_DrawPopupMenu(MenuWindow* window, s32 flags)
   }
 }
 
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 extern s32 D_800603C0;
 /**
@@ -1394,8 +1394,8 @@ void FreeBattle_DrawShortageWarning(FreeBattleShortageWarning* window) {
     }
 }
 
-s32 Ui_HandleHorizontalSelectionInput(s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 
 /**
@@ -1501,8 +1501,8 @@ void FreeBattle_DrawLevelSumWarning(FreeBattleLevelSumWarning* window) {
     }
 }
 
-s32 Ui_HandleHorizontalSelectionInput(s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 
 /**
@@ -1608,8 +1608,8 @@ void FreeBattle_DrawEntryConfirm(FreeBattleRentalConfirm* window) {
     }
 }
 
-s32 Ui_HandleHorizontalSelectionInput(s32);                             /* extern */
-s32 Ui_GetSelectionDirection(s32);                             /* extern */
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
 
 /**

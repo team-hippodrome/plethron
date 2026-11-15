@@ -56,7 +56,7 @@ typedef struct Str89104D14 { s8 c[4]; } Str89104D14;
 extern Str89104D14 D_8910A914;
 void func_80027804(s8 *, s32 *, s32, s32);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
-void Menu_Init(s8 *, s8 *, s32, void *, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void LabTextMenu_DrawRow();
 /**
  * Sets up a plain popup menu of text rows sized to its longest row.
@@ -118,7 +118,7 @@ void LabTextMenu_Draw(Box89104E38* menu) {
     }
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the cursor of a plain popup menu.
@@ -291,7 +291,7 @@ void LabMoveSelect_StartLearnAnimation(LabMoveSelectWindow* window, s32 slot, s3
     window->menu.itemFlags[slot] |= 0x300;
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the cursor of the move list.
@@ -903,7 +903,7 @@ void LabPCList_DrawPopupMenu(LabPopupMenu* popup, s32 flags)
   }
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves a popup menu's cursor.
@@ -1214,7 +1214,7 @@ typedef struct Entry891071A4 {
     u8 color[4];
 } Entry891071A4;
 
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void func_8000B2F4(s32);
 extern Entry891071A4 D_80066AD8[];
@@ -1419,7 +1419,7 @@ void LabPCList_DrawMoveFilterRow(s32 x, s32 y, u8* move, s32 index, s32 flags) {
 }
 
 
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void func_8000B2F4(s32);
 extern u8 D_8910A978[];
@@ -1693,7 +1693,7 @@ extern u8 D_8910E120[];
 extern u8 D_8910AAE0[];
 extern u8 D_8910AAE4[];
 void func_8000A460(s8*, s8*);
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabPCList_DrawItemRow();
 /**
  * Sets up the window that uses an item on the selected Pokemon.

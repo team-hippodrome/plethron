@@ -29,9 +29,9 @@ loop_1:
     goto loop_1; // FAKE: goto loop kept from m2c output
 }
 
-s32 Deck_Open(s32, s32, s32, s32);
-s32 Deck_ReadEntries(void*, s32, s32);
-M2C_UNK Deck_CloseAndFlush(s32);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 /**
  * Reads up to six Pokémon of deck `deck` (0x10 the Stadium save, 0x20 a Game Boy cartridge), Transfer Pak
  * `pak` and slot `slot` into `mons` and stores the count.
@@ -53,9 +53,9 @@ void Registration_ReadTeam(s32 deck, s32 pak, s32 slot, ByteMatrix* mons) {
     mons->count = i;
 }
 
-s32 Deck_OpenAndSetName(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s8 *, s32); /* extern */
-M2C_UNK Deck_CloseAndFlush(s32);                         /* extern */
-s32 Deck_WriteEntries(s32, M2C_UNK, s32);               /* extern */
+void* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
+s32 Deck_WriteEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
 /**
  * Writes `team` into registered slot `slot` of the Stadium save (deck 0x10).
  * Seen in play (2026-11-12): 「このポケモンをとうろくする？」 > はい stored the party in slot 01.
@@ -256,7 +256,7 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
 }
 
 s32 Menu_UpdateCursor(void*);
-M2C_UNK Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 extern s32 D_800603C0;
 
@@ -360,7 +360,7 @@ void Registration_DrawConfirmWindow(RegistrationConfirmWindow* confirm) {
 }
 
 s32 Ui_HandleHorizontalSelectionInput(void*);
-M2C_UNK Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 extern s32 D_800603C0;
 /**
  * Handles the confirm window. Returns 1 for yes, -1 for no or cancel.
@@ -425,7 +425,7 @@ void Registration_DrawMessageWindow(RegistrationMessageWindow* message) {
     }
 }
 
-M2C_UNK Ui_GetSelectionDirection(s32);                         /* extern */
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 extern s32 D_800603C0;
 
 /**
@@ -811,7 +811,7 @@ void Registration_SetListMode(RegistrationTeamList* list, s32 mode) {
 
 extern M2C_UNK D_88102D84;
 extern s32 D_88103098[];
-M2C_UNK ScrollList_Init();
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 /**
  * Sets up the team list window (544x344) in `mode` (0 register, 1 view, 2 delete).
  * Seen in play (2026-11-12): opened the team list.
@@ -1172,7 +1172,7 @@ s32 Registration_UpdateScreen(RegistrationScreen* screen) {
     return done;
 }
 
-s32 Util_Malloc(s32);
+void* Util_Malloc(s32 size); // PORT: matches the definition
 extern s32 D_88103074;
 extern RegistrationScreen* D_881030F8;
 
@@ -1253,7 +1253,7 @@ void Registration_RunFrame(s32 fade_mode) {
     Registration_UpdateScreen(D_881030F8);
 }
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern RegistrationScreen* D_881030F8;
 
 /**
@@ -1267,8 +1267,8 @@ void Registration_FreeScreen(void) {
 
 M2C_UNK MainPool_PushState(M2C_UNK);
 M2C_UNK MainPool_PopState(M2C_UNK);
-M2C_UNK Asset_LoadToSegment(u32, M2C_UNK *, M2C_UNK *, M2C_UNK);
-M2C_UNK Fragment_Load(s32, M2C_UNK *, M2C_UNK *);
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
+void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
 M2C_UNK func_80006724();
 M2C_UNK func_8000675C();
 M2C_UNK func_80006828(M2C_UNK, void*);

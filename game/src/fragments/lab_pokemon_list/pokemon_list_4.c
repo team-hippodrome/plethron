@@ -7,7 +7,7 @@
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 
-M2C_UNK LabPCList_InitDeckCategories(s32, s32, s32, s32);
+void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_buffer, void* pc_buffer, void* cart_buffer); // PORT: matches the definition
 
 extern s32 D_8910A7F8[3];
 void func_80027410(void*, void*, s32, s32, s32);
@@ -21,7 +21,7 @@ void func_80027804(s8*, s8*, s32, s32);
 void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(void*, s32);
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
-void LabPCList_DrawMonRow();
+void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
@@ -214,7 +214,7 @@ s32 LabPCList_FilterByAnyType();
 s32 LabPCList_FilterByAnyMove();
 s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
-s32 LabPCList_FilterByBattleEligible();
+s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused); // PORT: matches the definition
 /**
  * Rebuilds the visible list from the source boxes using the active filter flags.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): ran when OK was pressed on
@@ -569,7 +569,7 @@ M2C_UNK Save_CommitPokemonRecords();                            /* extern */
 M2C_UNK GbSave_RunReportErrorLoop(s32);                         /* extern */
 void LabPCList_DrawListScreen(LabPCListScreen*);
 s32 LabPCList_GetChangedSaveFlags(s8* screen);                              /* extern */
-M2C_UNK LabPCList_SaveDirtyBoxes(s32);                         /* extern */
+void LabPCList_SaveDirtyBoxes(void* sources); // PORT: matches the definition
 extern s32 D_8910E37C;
 
 /**
