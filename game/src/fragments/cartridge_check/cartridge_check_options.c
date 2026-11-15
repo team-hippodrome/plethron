@@ -28,27 +28,28 @@ uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK StageFade_Start(M2C_UNK);
-M2C_UNK func_80006828(M2C_UNK, M2C_UNK *);
 M2C_UNK func_80006998(M2C_UNK);
-M2C_UNK func_800199E4(M2C_UNK *);
+void func_800199E4(DisplayObject*); // ModelRenderer_ClearDisplayObject
+s32 func_80006828(u32 timer, s32 (*f)(u8)); // BgStage_RunUntilCondition
 M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 M2C_UNK func_8001AB6C();
 M2C_UNK func_8001ABBC();
 s32 Save_GetGbPlayerSettings(s8 *arg0, s32 *arg1); // PORT: matches the definition
 s32 func_800023C4(M2C_UNK, M2C_UNK);
-s32 func_800051F0(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
-s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
+GfxImage* func_800051F0(s32, s32, s32, s32, s32); // GfxImage_Allocate
 void MainPool_FinalizeAllocation(struct MemoryBlock* block);
 void Audio_StopMusic(s32);
 void Audio_StopSoundByCategory(s32, s32);
 
-extern M2C_UNK D_88402E40;
-extern M2C_UNK D_88402E5C;
-extern s8 D_88402D98;
-extern s8 D_88402DB4;
-extern s8 D_88402E78;
-extern s8 D_88402E94;
+// PORT: typed here, not in game_state.h, while vs_scene.c still declares an s8* version
+s32 BezierPath_Step(Obj80027168* path, Vec3f* out);
+extern Key80027168 D_88402E40[]; // PORT: Bezier path keys (was M2C_UNK)
+extern Key80027168 D_88402E5C[]; // PORT: Bezier path keys (was M2C_UNK)
+extern Key80027168 D_88402D98[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402DB4[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402E78[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402E94[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
 /**
  * Opens the message window: grows it over 8 frames from 32x20 to 192x48 around (160, 60).
@@ -125,7 +126,7 @@ void CartridgeCheck_DrawNextArrow(s16 x, s16 y) {
  * the cursor sound and remembers the text for CartridgeCheck_ScrollToNextMessage.
  * Seen in play (2026-11-14): each gift message stayed up until A.
  */
-void CartridgeCheck_ShowMessageUntilA(s32 text) {
+void CartridgeCheck_ShowMessageUntilA(s8* text) { // PORT: text is a pointer (was s32)
     D_88403364 = 0x10;
     do {
         CartridgeCheck_DrawFrame(0);
@@ -164,13 +165,13 @@ void CartridgeCheck_ScrollToNextMessage(s8* text) {
         Font_BeginTranslucentTextRendering();
         Font_SetActive(4, -1);
         Font_SetLineHeight(20);
-        Font_Printf(46, y1 - i * 4, (s8*)D_88402D70);
+        Font_Printf(46, y1 - i * 4, D_88402D70);
         Font_Printf(46, 80 - i * 4, text);
         Font_EndTexturedTextRendering();
         BgStage_AdvanceFrame();
     }
 
-    D_88402D70 = (uintptr_t)text;
+    D_88402D70 = text;
 }
 
 /**
@@ -185,30 +186,27 @@ void CartridgeCheck_ScrollToNextMessage(s8* text) {
  */
 void CartridgeCheck_RunGameBoyGiftEvent(void) {
     Audio_PlayMusicIfChanged(0xC);
-    M2C_FIELD(&D_884034E0, u8 *, 1) = (u8) (M2C_FIELD(&D_884034E0, u8 *, 1) | 1);
+    D_884034E0.node.flags = (u8) (D_884034E0.node.flags | 1);
     func_80006828(115, &CartridgeCheck_DrawFrame);
-    M2C_FIELD(&D_884034E0, u8 *, 2) = (u8) (M2C_FIELD(&D_884034E0, u8 *, 2) & 0xFFDF);
+    D_884034E0.node.renderFlags = (u8) (D_884034E0.node.renderFlags & 0xFFDF);
     CartridgeCheck_OpenMessageWindow();
     Audio_PlayCommand(0x51, 0, 0);
     if (gSessionContext.transitionFlags & 8) {
         CartridgeCheck_ShowMessageUntilA(D_88402D88);
         CartridgeCheck_ScrollToNextMessage(D_88402D8C);
-        CartridgeCheck_ShowMessageUntilA((uintptr_t) D_88402D8C);
+        CartridgeCheck_ShowMessageUntilA(D_88402D8C);
     } else {
         CartridgeCheck_ShowMessageUntilA(D_88402D90);
         CartridgeCheck_ScrollToNextMessage(D_88402D94);
-        CartridgeCheck_ShowMessageUntilA((uintptr_t) D_88402D94);
+        CartridgeCheck_ShowMessageUntilA(D_88402D94);
     }
     CartridgeCheck_CloseMessageWindow();
-    M2C_FIELD(&D_884034E0, u8 *, 2) = (u8) (M2C_FIELD(&D_884034E0, u8 *, 2) | 0x20);
+    D_884034E0.node.renderFlags = (u8) (D_884034E0.node.renderFlags | 0x20);
     func_80006828(45, &CartridgeCheck_DrawFrame);
 }
 
-void BezierPath_InitEased(s8* arg0, s32 arg1);
-s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
-extern M2C_UNK D_88403648;
-extern s8 D_88402D98;
-extern s8 D_88402DB4;
+extern Key80027168 D_88402D98[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402DB4[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 /**
  * Camera move that opens the scene after the title screen: follows the eye/target paths
@@ -216,35 +214,32 @@ M2C_UNK Audio_PlaySystemSound(M2C_UNK);
  * Seen in play (2026-11-14): ran between Start on the title and the cartridge check screen.
  */
 void CartridgeCheck_PlayBootIntro(void) {
-    s8 sp8C[0x3C];
-    s8 sp50[0x3C];
+    Obj80027168 sp8C; // PORT: was s8[0x3C]; the host struct is larger
+    Obj80027168 sp50; // PORT: was s8[0x3C]; the host struct is larger
     s32 i = 0;
-    s32 rec;
+    CameraNode* rec; // PORT: the scene camera (was s32)
     s32 pad; // FAKE: stack padding
 
-    rec = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp8C, (uintptr_t) &D_88402DB4);
-    BezierPath_InitEased(sp50, (uintptr_t) &D_88402D98);
-    if (BezierPath_Step(sp8C, rec + 0xA8) != 0) {
+    rec = D_88403370->children;
+    BezierPath_InitEased(&sp8C, D_88402DB4);
+    BezierPath_InitEased(&sp50, D_88402D98);
+    if (BezierPath_Step(&sp8C, &rec->view.eyePosition) != 0) {
         do {
             if (i++ == 42) {
-                M2C_FIELD(&D_88403648, s32 *, 0x14) = 1;
+                D_88403648.node.callbackArg = 1;
                 Audio_PlaySystemSound(0x10);
-                M2C_FIELD(&D_88403648, u8 *, 2) |= 0x20;
+                D_88403648.node.renderFlags |= 0x20;
             }
-            BezierPath_Step(sp50, rec + 0xB4);
+            BezierPath_Step(&sp50, &rec->view.targetPosition);
             CartridgeCheck_DrawFrame(0);
             BgStage_AdvanceFrame();
-        } while (BezierPath_Step(sp8C, rec + 0xA8) != 0);
+        } while (BezierPath_Step(&sp8C, &rec->view.eyePosition) != 0);
     }
     func_80006828(25, &CartridgeCheck_DrawFrame);
 }
 
-void BezierPath_InitEased(s8* arg0, s32 arg1);
-s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
-extern M2C_UNK D_88403648;
-extern s8 D_88402DD0;
-extern s8 D_88402DEC;
+extern Key80027168 D_88402DD0[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402DEC[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 /**
@@ -257,29 +252,29 @@ M2C_UNK Audio_PlaySystemSound(M2C_UNK);
  * real cup win was not played.
  */
 void CartridgeCheck_PlayCupWinIntro(void) {
-    s8 sp8C[0x3C];
-    s8 sp50[0x3C];
+    Obj80027168 sp8C; // PORT: was s8[0x3C]; the host struct is larger
+    Obj80027168 sp50; // PORT: was s8[0x3C]; the host struct is larger
     s32 i = 0;
-    s32 rec;
+    CameraNode* rec; // PORT: the scene camera (was s32)
     s32 pad; // FAKE: stack padding
 
-    rec = M2C_FIELD(D_88403370, s32 *, 0xC);
+    rec = D_88403370->children;
     if (gSessionContext.transitionFlags & 0x18) {
         CartridgeCheck_RunGameBoyGiftEvent();
     }
-    BezierPath_InitEased(sp8C, (uintptr_t) &D_88402DEC);
-    BezierPath_InitEased(sp50, (uintptr_t) &D_88402DD0);
-    if (BezierPath_Step(sp8C, rec + 0xA8) != 0) {
+    BezierPath_InitEased(&sp8C, D_88402DEC);
+    BezierPath_InitEased(&sp50, D_88402DD0);
+    if (BezierPath_Step(&sp8C, &rec->view.eyePosition) != 0) {
         do {
             if (i++ == 10) {
-                M2C_FIELD(&D_88403648, s32 *, 0x14) = 1;
-                M2C_FIELD(&D_88403648, u8 *, 2) |= 0x20;
+                D_88403648.node.callbackArg = 1;
+                D_88403648.node.renderFlags |= 0x20;
                 Audio_PlaySystemSound(0x10);
             }
-            BezierPath_Step(sp50, rec + 0xB4);
+            BezierPath_Step(&sp50, &rec->view.targetPosition);
             CartridgeCheck_DrawFrame(0);
             BgStage_AdvanceFrame();
-        } while (BezierPath_Step(sp8C, rec + 0xA8) != 0);
+        } while (BezierPath_Step(&sp8C, &rec->view.eyePosition) != 0);
     }
     func_80006828(25, &CartridgeCheck_DrawFrame);
 }
@@ -620,23 +615,23 @@ s32 CartridgeCheck_RunScreen(void) {
  * Seen in play (2026-11-14): B on the screen ran this, then the title screen came back.
  */
 void CartridgeCheck_PlayExitToTitle(void) {
-    s8 sp74[0x3C];
-    s8 sp38[0x3C];
-    s32 sp34;
+    Obj80027168 sp74; // PORT: was s8[0x3C]; the host struct is larger
+    Obj80027168 sp38; // PORT: was s8[0x3C]; the host struct is larger
+    CameraNode* sp34; // PORT: the scene camera (was s32)
 
-    sp34 = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp74, (uintptr_t)&D_88402E24);
-    BezierPath_InitEased(sp38, (uintptr_t)&D_88402E08);
+    sp34 = D_88403370->children;
+    BezierPath_InitEased(&sp74, D_88402E24);
+    BezierPath_InitEased(&sp38, D_88402E08);
     ModelAnim_SetSpeed(&D_88403648, 0xFFFF0000);
     ModelAnim_SetFrame(&D_88403648, 0x2E);
-    M2C_FIELD(&D_88403648, u8 *, 2) |= 0x20;
+    D_88403648.node.renderFlags |= 0x20;
     func_80006998(0xFFFF);
     StageFade_Start(30);
     Audio_StopMusic(60);
     Audio_StopSoundByCategory(0x46, 0x3C);
     Audio_PlaySystemSound(0x23);
-    while (BezierPath_Step(sp74, sp34 + 0xA8)) {
-        BezierPath_Step(sp38, sp34 + 0xB4);
+    while (BezierPath_Step(&sp74, &sp34->view.eyePosition)) {
+        BezierPath_Step(&sp38, &sp34->view.targetPosition);
         CartridgeCheck_DrawFrame(0);
         BgStage_AdvanceFrame();
     }
@@ -656,14 +651,14 @@ void CartridgeCheck_PlaySetCartridgeAnimation(void) {
     ModelAnim_BindEventTrack(&D_88403648, 1, &D_8F4889B8);
     ModelAnim_BindTransformCurve(&D_88403648, 1, &D_8F4014CC, 0x10000);
     ModelAnim_SetFrame(&D_88403648, 0x2E);
-    M2C_FIELD(&D_88403648, u8 *, 2) = (u8) (M2C_FIELD(&D_88403648, u8 *, 2) | 0x20);
+    D_88403648.node.renderFlags = (u8) (D_88403648.node.renderFlags | 0x20);
     if (D_88403358 >= 0) {
-        Model_InitDisplayObject(&D_88403378, 0, 0, *((M2C_UNK*)((u8*)&D_884037B0 + (sp1F * 4)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        ModelAnim_BindTransformCurve(&D_88403378, 1, *((M2C_UNK*)((u8*)&D_88402D74 + (sp1F * 4))), 0x10000); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        Model_InitDisplayObject(&D_88403378, 0, 0, (ModelNodeView*)D_884037B0[sp1F]); // PORT: was a FAKE raw-offset read of D_884037B0 + i * 4
+        ModelAnim_BindTransformCurve(&D_88403378, 1, D_88402D74[sp1F], 0x10000); // PORT: was a FAKE raw-offset read of D_88402D74 + i * 4
         ModelAnim_SetFrame(&D_88403378, 0x2E);
     }
     Audio_PlaySystemSound(0xB);
-    func_80006828(20, (s32 *) CartridgeCheck_DrawFrame);
+    func_80006828(20, &CartridgeCheck_DrawFrame);
 }
 
 /**
@@ -675,7 +670,7 @@ void CartridgeCheck_PlaySetCartridgeAnimation(void) {
 void CartridgeCheck_PlayLowerMonitor(void) {
     func_80006998(0xFFFF);
     func_80006828(19, &CartridgeCheck_DrawFrame);
-    M2C_FIELD(&D_88403648, u8 *, 2) = (u8) (M2C_FIELD(&D_88403648, u8 *, 2) & 0xFFDF);
+    D_88403648.node.renderFlags = (u8) (D_88403648.node.renderFlags & 0xFFDF);
     if (D_88403358 >= 0) {
         func_800199E4(&D_88403378);
     }
@@ -687,30 +682,28 @@ void CartridgeCheck_PlayLowerMonitor(void) {
  * Seen in play (2026-11-14): ran after the Game Boy dropped in, until the main menu.
  */
 void CartridgeCheck_PlayZoomIntoMonitor(void) {
-    s8 sp7C[0x3C];
-    s8 sp40[0x3C];
-    s32 temp_s0;
+    Obj80027168 sp7C; // PORT: was s8[0x3C]; the host struct is larger
+    Obj80027168 sp40; // PORT: was s8[0x3C]; the host struct is larger
+    CameraNode* temp_s0; // PORT: the scene camera (was s32)
 
-    temp_s0 = M2C_FIELD(D_88403370, s32 *, 0xC);
+    temp_s0 = D_88403370->children;
     Audio_StopMusic(50);
-    BezierPath_InitEased(sp7C, (uintptr_t) &D_88402E5C);
-    BezierPath_InitEased(sp40, (uintptr_t) &D_88402E40);
-    if (BezierPath_Step(sp7C, temp_s0 + 0xA8) != 0) {
+    BezierPath_InitEased(&sp7C, D_88402E5C);
+    BezierPath_InitEased(&sp40, D_88402E40);
+    if (BezierPath_Step(&sp7C, &temp_s0->view.eyePosition) != 0) {
         do {
-            BezierPath_Step(sp40, temp_s0 + 0xB4);
+            BezierPath_Step(&sp40, &temp_s0->view.targetPosition);
             if (D_88403360 < 25) {
                 D_88403360 += 1;
             }
             CartridgeCheck_DrawFrame(0);
             BgStage_AdvanceFrame();
-        } while (BezierPath_Step(sp7C, temp_s0 + 0xA8) != 0);
+        } while (BezierPath_Step(&sp7C, &temp_s0->view.eyePosition) != 0);
     }
 }
 
-extern M2C_UNK D_88403378;
-extern M2C_UNK D_88403648;
-extern s8 D_88402E78;
-extern s8 D_88402E94;
+extern Key80027168 D_88402E78[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
+extern Key80027168 D_88402E94[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 /**
  * First part of coming back from the main menu: the camera moves along D_88402E94/D_88402E78
@@ -718,28 +711,28 @@ M2C_UNK Audio_PlaySystemSound(M2C_UNK);
  * Seen in play (2026-11-14): ran after OFF > はい on the main menu.
  */
 void CartridgeCheck_PlayZoomOutOfMonitor(void) {
-    s8 sp94[0x3C];
-    s8 sp58[0x3C];
+    Obj80027168 sp94; // PORT: was s8[0x3C]; the host struct is larger
+    Obj80027168 sp58; // PORT: was s8[0x3C]; the host struct is larger
     s32 i = 0;
-    s32 temp_s1;
+    CameraNode* temp_s1; // PORT: the scene camera (was s32)
     s32 pad; // FAKE: stack padding
 
-    temp_s1 = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp94, (uintptr_t) &D_88402E94);
-    BezierPath_InitEased(sp58, (uintptr_t) &D_88402E78);
-    if (BezierPath_Step(sp94, temp_s1 + 0xA8) != 0) {
+    temp_s1 = D_88403370->children;
+    BezierPath_InitEased(&sp94, D_88402E94);
+    BezierPath_InitEased(&sp58, D_88402E78);
+    if (BezierPath_Step(&sp94, &temp_s1->view.eyePosition) != 0) {
         do {
             if (i++ == 0xF) {
-                M2C_FIELD(&D_88403648, u8 *, 2) |= 0x20;
+                D_88403648.node.renderFlags |= 0x20;
                 if (D_88403358 >= 0) {
-                    M2C_FIELD(&D_88403378, u8 *, 2) |= 0x20;
+                    D_88403378.node.renderFlags |= 0x20;
                 }
                 Audio_PlaySystemSound(0x11);
             }
-            BezierPath_Step(sp58, temp_s1 + 0xB4);
+            BezierPath_Step(&sp58, &temp_s1->view.targetPosition);
             CartridgeCheck_DrawFrame(0);
             BgStage_AdvanceFrame();
-        } while (BezierPath_Step(sp94, temp_s1 + 0xA8) != 0);
+        } while (BezierPath_Step(&sp94, &temp_s1->view.eyePosition) != 0);
     }
 }
 
@@ -771,17 +764,17 @@ void CartridgeCheck_TransitionToMainMenu(void) {
  */
 s32 CartridgeCheck_EnterFromBoot(void) {
     s32 sp1C;
-    s32 sp18;
+    CameraNode* sp18; // PORT: the scene camera (was s32)
     s32 temp_v0;
 
-    sp18 = M2C_FIELD(D_88403370, s32 *, 0xC);
+    sp18 = D_88403370->children;
     D_88403360 = 0;
     CartridgeCheck_ReadInputs();
     StageLoader_RunFrames(1);
     Audio_PlayMusicIfChanged(0xA);
     StageFade_Start(30);
-    Vec3f_FromVec3s(sp18 + 0xB4, &D_88402D98 + 2);
-    Vec3f_FromVec3s(sp18 + 0xA8, &D_88402DB4 + 2);
+    Vec3f_FromVec3s(&sp18->view.targetPosition, &D_88402D98[0].a);
+    Vec3f_FromVec3s(&sp18->view.eyePosition, &D_88402DB4[0].a);
     func_80006828(5, &CartridgeCheck_DrawFrame);
     CartridgeCheck_PlayBootIntro();
     temp_v0 = CartridgeCheck_RunScreen();
@@ -804,16 +797,16 @@ s32 CartridgeCheck_EnterFromBoot(void) {
  * reach here; a real cup win was not played.
  */
 s32 CartridgeCheck_EnterAfterCupWin(void) {
-    s32 sp1C;
+    CameraNode* sp1C; // PORT: was s32
 
-    sp1C = M2C_FIELD(D_88403370, s32 *, 0xC);
+    sp1C = D_88403370->children;
     GbSave_SetActivePort(D_88403358);
     D_88403360 = 0;
     CartridgeCheck_ReadInputs();
     StageLoader_RunFrames(1);
     StageFade_Start(30);
-    Vec3f_FromVec3s(sp1C + 0xB4, &D_88402DD0 + 2);
-    Vec3f_FromVec3s(sp1C + 0xA8, &D_88402DEC + 2);
+    Vec3f_FromVec3s(&sp1C->view.targetPosition, &D_88402DD0[0].a);
+    Vec3f_FromVec3s(&sp1C->view.eyePosition, &D_88402DEC[0].a);
     func_80006828(5, &CartridgeCheck_DrawFrame);
     CartridgeCheck_PlayCupWinIntro();
     CartridgeCheck_TransitionToMainMenu();
@@ -827,16 +820,16 @@ s32 CartridgeCheck_EnterAfterCupWin(void) {
  */
 s32 CartridgeCheck_EnterFromMainMenu(void) {
     s32 sp1C;
-    s32 sp18;
+    CameraNode* sp18; // PORT: the scene camera (was s32)
     s32 temp_v0;
 
-    sp18 = M2C_FIELD(D_88403370, s32 *, 0xC);
+    sp18 = D_88403370->children;
     D_88403360 = 0;
     CartridgeCheck_ReadInputs();
     Audio_StopMusic(60);
     StageLoader_RunFrames(1);
-    Vec3f_FromVec3s(sp18 + 0xB4, &D_88402E78 + 2);
-    Vec3f_FromVec3s(sp18 + 0xA8, &D_88402E94 + 2);
+    Vec3f_FromVec3s(&sp18->view.targetPosition, &D_88402E78[0].a);
+    Vec3f_FromVec3s(&sp18->view.eyePosition, &D_88402E94[0].a);
     CartridgeCheck_PlayZoomOutOfMonitor();
     CartridgeCheck_PlayLowerMonitor();
     temp_v0 = CartridgeCheck_RunScreen();
@@ -898,8 +891,6 @@ extern M2C_UNK D_8E902B64;
 extern M2C_UNK D_8F4014B0;
 extern Vec3f D_88403504;
 extern Vec3f D_88403510;
-extern s32 D_884037B4;
-extern s32 D_884037B8;
 extern s32 D_8840365C;
 /**
  * Builds the scene's models: the stage, the console, the three Game Boy models (plain, Doduo,
@@ -916,42 +907,42 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_88403648);
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_88403378);
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_884034E0);
-    D_88403370 = (uintptr_t)GeoLayout_Process(sp20, D_88402EB0);
-    D_884037B0 = (uintptr_t)GeoLayout_Process(sp20, D_8F4A4240);
-    D_884037B4 = (uintptr_t)GeoLayout_Process(sp20, D_8F4B2AF0);
-    D_884037B8 = (uintptr_t)GeoLayout_Process(sp20, D_8F4959C8);
+    D_88403370 = GeoLayout_Process(sp20, D_88402EB0);
+    D_884037B0[0] = GeoLayout_Process(sp20, D_8F4A4240);
+    D_884037B0[1] = GeoLayout_Process(sp20, D_8F4B2AF0);
+    D_884037B0[2] = GeoLayout_Process(sp20, D_8F4959C8);
     Model_InitDisplayObject(&D_88403648, 0, 0, GeoLayout_Process(sp20, D_8F4886F8));
     if (gSessionContext.transitionFlags & 8) {
         // Doduo Game Boy prize model (fragment039, seen in play 2026-11-14).
         Model_InitDisplayObject(&D_884034E0, 1, 0, GeoLayout_Process(sp20, D_8E825FE8));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E802B64, 0x10000);
-        M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
+        D_884034E0.node.flags &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     } else if (gSessionContext.transitionFlags & 0x10) {
         // Dodrio Game Boy prize model (fragment040, seen in play 2026-11-14).
         Model_InitDisplayObject(&D_884034E0, 0, 0, GeoLayout_Process(sp20, D_8E924770));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E902B64, 0x10000);
-        M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
+        D_884034E0.node.flags &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     }
     MainPool_FinalizeAllocation(sp20);
     if (from_main_menu == 0) {
         ModelAnim_BindTransformCurve(&D_88403648, 1, &D_8F4014B0, 0x10000);
-        M2C_FIELD(&D_88403648, s32 *, 0x14) = 0;
-        M2C_FIELD(&D_88403648, u8 *, 2) &= ~0x20;
+        D_88403648.node.callbackArg = 0;
+        D_88403648.node.renderFlags &= ~0x20;
         return;
     }
     ModelAnim_BindTransformCurve(&D_88403648, 1, &D_8F4014CC, 0xFFFF0000);
     ModelAnim_SetFrame(&D_88403648, 0x4A);
-    M2C_FIELD(&D_88403648, u8 *, 2) &= ~0x20;
+    D_88403648.node.renderFlags &= ~0x20;
     if (D_88403358 >= 0) {
         Save_GetGbPlayerSettings(&sp27, 0);
-        Model_InitDisplayObject(&D_88403378, 0, 0, *((M2C_UNK*)((u8*)&D_884037B0 + (sp27 * 4)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        ModelAnim_BindTransformCurve(&D_88403378, 1, *((M2C_UNK**)((u8*)&D_88402D74 + (sp27 * 4))), 0xFFFF0000); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        Model_InitDisplayObject(&D_88403378, 0, 0, (ModelNodeView*)D_884037B0[sp27]); // PORT: was a FAKE raw-offset read of D_884037B0 + i * 4
+        ModelAnim_BindTransformCurve(&D_88403378, 1, D_88402D74[sp27], 0xFFFF0000); // PORT: was a FAKE raw-offset read of D_88402D74 + i * 4
         ModelAnim_SetFrame(&D_88403378, 0x4A);
-        M2C_FIELD(&D_88403378, u8 *, 2) &= ~0x20;
+        D_88403378.node.renderFlags &= ~0x20;
     }
     D_8840365C = 1;
 }
@@ -963,15 +954,16 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
  * @unverified What the two 0x10-byte allocations hold was not checked.
  */
 void CartridgeCheck_InitRenderTargets(void) {
-    s32 sp2C;
+    GfxImage* sp2C;
 
     sp2C = func_800051F0(0, 2, 320, 240, 0);
-    M2C_FIELD(D_8840336C, s32 *, 0x18) = func_800023C4(0x10, 0);
-    M2C_FIELD(D_8840336C, s32 *, 0x1C) = func_800023C4(0x10, 0);
-    GfxImage_Initialize(M2C_FIELD(D_8840336C, s32 *, 0x18), 0, 2, 0x140, 0xF0, M2C_FIELD(M2C_FIELD(D_88403368, s8 **, 0x18), s32 *, 8));
-    GfxImage_Initialize(M2C_FIELD(D_8840336C, s32 *, 0x1C), 0, 2, 0x140, 0xF0, M2C_FIELD(M2C_FIELD(D_88403368, s8 **, 0x1C), s32 *, 8));
-    GfxImage_AttachDepthBuffer(M2C_FIELD(D_8840336C, s32 *, 0x18), sp2C);
-    GfxImage_AttachDepthBuffer(M2C_FIELD(D_8840336C, s32 *, 0x1C), sp2C);
+    // PORT: render targets by name (were raw N64 offsets 0x18/0x1C and GfxImage +8)
+    D_8840336C->renderTargets[0] = MainPool_Alloc(sizeof(GfxImage), 0); // PORT: host size (0x10 on the N64)
+    D_8840336C->renderTargets[1] = MainPool_Alloc(sizeof(GfxImage), 0);
+    GfxImage_Initialize(D_8840336C->renderTargets[0], 0, 2, 0x140, 0xF0, (uintptr_t)D_88403368->renderTargets[0]->img_p);
+    GfxImage_Initialize(D_8840336C->renderTargets[1], 0, 2, 0x140, 0xF0, (uintptr_t)D_88403368->renderTargets[1]->img_p);
+    GfxImage_AttachDepthBuffer(D_8840336C->renderTargets[0], sp2C);
+    GfxImage_AttachDepthBuffer(D_8840336C->renderTargets[1], sp2C);
 }
 
 /**
@@ -990,18 +982,18 @@ s32 CartridgeCheck_Main(s32 from_main_menu, s32 arg1) {
 
     MainPool_PushState('BCMP');
 
-    D_88403368 = (s8*)StageContext_GetCurrent();
-    D_8840336C = (s8*)StageContext_Allocate(0, 1, 2, 1, 2, 0);
+    D_88403368 = StageContext_GetCurrent();
+    D_8840336C = StageContext_Allocate(0, 1, 2, 1, 2, 0);
     CartridgeCheck_InitRenderTargets();
 
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
-    Fragment_Load(((((u32)D_8F400000) & 0x0FF00000) >> 0x14) - 0x10, D_0038A540, D_003C5200);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
+    Fragment_Load(((((uintptr_t)D_8F400000) & 0x0FF00000) >> 0x14) - 0x10, D_0038A540, D_003C5200);
     if (gSessionContext.transitionFlags & 8) {
-        Fragment_Load(((((u32)D_8E800000) & 0x0FF00000) >> 0x14) - 0x10, D_003C5200, D_003CE090);
+        Fragment_Load(((((uintptr_t)D_8E800000) & 0x0FF00000) >> 0x14) - 0x10, D_003C5200, D_003CE090);
     }
     if (gSessionContext.transitionFlags & 0x10) {
-        Fragment_Load(((((u32)D_8E900000) & 0x0FF00000) >> 0x14) - 0x10, D_003CE090, D_003D64A0);
+        Fragment_Load(((((uintptr_t)D_8E900000) & 0x0FF00000) >> 0x14) - 0x10, D_003CE090, D_003D64A0);
     }
 
     Font_Init(0xF, 0);
@@ -1030,7 +1022,7 @@ s32 CartridgeCheck_Main(s32 from_main_menu, s32 arg1) {
     MainPool_PopState('BCMP');
 
     if (result == 1) {
-        Fragment_QueueCall(((((u32)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 1, arg1);
+        Fragment_QueueCall(((((uintptr_t)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 1, arg1);
         ret = 0x8040;
     } else {
         ret = 0x8010;
