@@ -391,6 +391,42 @@ int ZLift_IsRaw(const void* host) {
     return 0;
 }
 
+void* ZLift_FindFunc(uint32_t addr) {
+    return findFunc(addr);
+}
+
+void* ZLift_ResolveCode(uint32_t addr) {
+    void* fn = findFunc(addr);
+    if (fn == NULL && findPart(addr) != NULL) {
+        // handwritten jump stubs (fragment 001's callback slots): `j target; nop`
+        const uint8_t* code = resolve(addr, -1);
+        if (code != NULL && (uintptr_t)code > 0xFFFFFFFFu) {
+            uint32_t w = be32(code);
+            if ((w >> 26) == 2) {
+                fn = findFunc((addr & 0xF0000000u) | ((w & 0x3FFFFFFu) << 2));
+            }
+        }
+    }
+    return fn;
+}
+
+int ZLift_IsLifted(const void* host) {
+    const uint8_t* h = host;
+    for (uint32_t i = 0; i < sLazyCount; i++) {
+        if (h >= sLazy[i].host && h < sLazy[i].host + sLazy[i].hostSize) {
+            return 1;
+        }
+    }
+    for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* sy = &gZLiftSyms[i];
+        size_t hs = (size_t)gZLiftTypes[sy->type].hostSize * sy->count;
+        if (sy->host != NULL && h >= (const uint8_t*)sy->host && h < (const uint8_t*)sy->host + hs) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 uint32_t ZLift_N64Addr(const void* host) {
     const uint8_t* h = host;
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {

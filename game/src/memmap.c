@@ -180,6 +180,253 @@ u32 Port_RelocateDataBlob(struct Fragment* f) {
 }
 
 
+// PORT (from stadion): some data archives (the model archive) hold relocatable fragments whose entry point is a small MIPS function the
+// game calls to look up its data (e.g. "return &geoLayout[arg0]"). Their code was never decompiled, so it is run
+// here by a minimal interpreter for leaf functions: integer ALU ops, branches, loads from the blob itself; no calls.
+// Link addresses in the result are returned as the blob's pseudo address, like the pointers inside the blob.
+static u32 Port_BlobLoad32(struct Fragment* f, u32 link, u32 addr, int* ok) {
+    u8* p = (u8*)f + (addr - link);
+    if (addr < link || addr + 4 > link + f->sizeInRam) {
+        *ok = 0;
+        return 0;
+    }
+    return Port_ReadBE32(p);
+}
+
+uintptr_t Port_CallBlobEntry(void* frag, s32 a0, s32 a1) {
+    static int sTraceBlob = -1;
+    struct Fragment* f = (struct Fragment*)frag;
+    u32 r[32] = { 0 };
+    u32 insn0, link, pc, next, size;
+    int steps, ok = 1;
+
+    if (f == NULL) {
+        return 0;
+    }
+    if (sTraceBlob < 0) {
+        sTraceBlob = getenv("PORT_TRACE_BLOB") != NULL; // debug: one line per interpreted instruction
+    }
+    insn0 = PORT_BE32(f->inst[0]);
+    link = (((insn0 & 0x03FFFFFF) << 2) | 0x80000000) & 0xFFF00000;
+    pc = ((insn0 & 0x03FFFFFF) << 2) | (link & 0xF0000000);
+    size = f->sizeInRam;
+    r[4] = (u32)a0;
+    r[5] = (u32)a1;
+    r[29] = 0xFFFFFF00; // stack writes are ignored
+    r[31] = 0xDEAD0000;
+    next = pc + 4;
+    for (steps = 0; steps < 100000; steps++) {
+        u32 in = Port_BlobLoad32(f, link, pc, &ok);
+        u32 op = in >> 26, rs = (in >> 21) & 31, rt = (in >> 16) & 31, rd = (in >> 11) & 31, sa = (in >> 6) & 31;
+        s32 imm = (s16)(in & 0xFFFF);
+        u32 target = next;
+        int branch = 0;
+
+        if (!ok) {
+            break;
+        }
+        if (sTraceBlob)
+            fprintf(stderr, "[blob] %08x: %08x  a0=%08x v0=%08x v1=%08x at=%08x t6=%08x\n", pc, in, r[4], r[2], r[3],
+                    r[1], r[14]);
+        switch (op) {
+            case 0x00:
+                switch (in & 0x3F) {
+                    case 0x00:
+                        r[rd] = r[rt] << sa;
+                        break;
+                    case 0x02:
+                        r[rd] = r[rt] >> sa;
+                        break;
+                    case 0x03:
+                        r[rd] = (u32)((s32)r[rt] >> sa);
+                        break;
+                    case 0x04:
+                        r[rd] = r[rt] << (r[rs] & 31);
+                        break;
+                    case 0x06:
+                        r[rd] = r[rt] >> (r[rs] & 31);
+                        break;
+                    case 0x08:
+                        target = r[rs];
+                        branch = 1;
+                        break; // jr
+                    case 0x21:
+                    case 0x20:
+                        r[rd] = r[rs] + r[rt];
+                        break;
+                    case 0x23:
+                    case 0x22:
+                        r[rd] = r[rs] - r[rt];
+                        break;
+                    case 0x24:
+                        r[rd] = r[rs] & r[rt];
+                        break;
+                    case 0x25:
+                        r[rd] = r[rs] | r[rt];
+                        break;
+                    case 0x26:
+                        r[rd] = r[rs] ^ r[rt];
+                        break;
+                    case 0x27:
+                        r[rd] = ~(r[rs] | r[rt]);
+                        break;
+                    case 0x2A:
+                        r[rd] = (s32)r[rs] < (s32)r[rt];
+                        break;
+                    case 0x2B:
+                        r[rd] = r[rs] < r[rt];
+                        break;
+                    default:
+                        ok = 0;
+                        break;
+                }
+                break;
+            case 0x01: // bltz / bgez
+                if ((rt == 0 && (s32)r[rs] < 0) || (rt == 1 && (s32)r[rs] >= 0))
+                    target = next + (imm << 2);
+                if (rt > 1)
+                    ok = 0;
+                branch = 1;
+                break;
+            case 0x02:
+                target = (next & 0xF0000000) | ((in & 0x03FFFFFF) << 2);
+                branch = 1;
+                break; // j
+            case 0x04:
+                if (r[rs] == r[rt])
+                    target = next + (imm << 2);
+                branch = 1;
+                break;
+            case 0x05:
+                if (r[rs] != r[rt])
+                    target = next + (imm << 2);
+                branch = 1;
+                break;
+            case 0x06:
+                if ((s32)r[rs] <= 0)
+                    target = next + (imm << 2);
+                branch = 1;
+                break;
+            case 0x07:
+                if ((s32)r[rs] > 0)
+                    target = next + (imm << 2);
+                branch = 1;
+                break;
+            case 0x08:
+            case 0x09:
+                r[rt] = r[rs] + imm;
+                break;
+            case 0x0A:
+                r[rt] = (s32)r[rs] < imm;
+                break;
+            case 0x0B:
+                r[rt] = r[rs] < (u32)imm;
+                break;
+            case 0x0C:
+                r[rt] = r[rs] & (in & 0xFFFF);
+                break;
+            case 0x0D:
+                r[rt] = r[rs] | (in & 0xFFFF);
+                break;
+            case 0x0E:
+                r[rt] = r[rs] ^ (in & 0xFFFF);
+                break;
+            case 0x0F:
+                r[rt] = (in & 0xFFFF) << 16;
+                break;
+            case 0x23:
+                r[rt] = Port_BlobLoad32(f, link, r[rs] + imm, &ok);
+                break; // lw
+            case 0x20:
+            case 0x24:
+            case 0x21:
+            case 0x25: { // lb lbu lh lhu
+                u32 a = r[rs] + imm;
+                u32 w = Port_BlobLoad32(f, link, a & ~3u, &ok);
+                u32 v =
+                    (op == 0x20 || op == 0x24) ? (w >> (24 - 8 * (a & 3))) & 0xFF : (w >> (16 - 8 * (a & 2))) & 0xFFFF;
+                if (op == 0x20)
+                    v = (u32)(s8)v;
+                if (op == 0x21)
+                    v = (u32)(s16)v;
+                r[rt] = v;
+                break;
+            }
+            case 0x2B:
+            case 0x29:
+            case 0x28: // stores: only to the stack
+                if (rs != 29)
+                    ok = 0;
+                break;
+            default:
+                ok = 0;
+                break;
+        }
+        r[0] = 0;
+        if (!ok) {
+            break;
+        }
+        if (branch) { // execute the delay slot, then jump
+            u32 ds = Port_BlobLoad32(f, link, next, &ok);
+            u32 dop = ds >> 26, drs = (ds >> 21) & 31, drt = (ds >> 16) & 31, drd = (ds >> 11) & 31;
+            s32 dimm = (s16)(ds & 0xFFFF);
+            switch (dop) {
+                case 0x00:
+                    if ((ds & 0x3F) == 0x25)
+                        r[drd] = r[drs] | r[drt];
+                    else if ((ds & 0x3F) == 0x21)
+                        r[drd] = r[drs] + r[drt];
+                    else if (ds != 0)
+                        ok = 0;
+                    break;
+                case 0x09:
+                    r[drt] = r[drs] + dimm;
+                    break;
+                case 0x0D:
+                    r[drt] = r[drs] | (ds & 0xFFFF);
+                    break;
+                case 0x0F:
+                    r[drt] = (ds & 0xFFFF) << 16;
+                    break;
+                case 0x2B:
+                    if (drs != 29)
+                        ok = 0;
+                    break;
+                case 0x23:
+                    r[drt] = Port_BlobLoad32(f, link, r[drs] + dimm, &ok);
+                    break;
+                default:
+                    ok = 0;
+                    break;
+            }
+            r[0] = 0;
+            if (!ok) {
+                break;
+            }
+            if (target == 0xDEAD0000) {
+                u32 v = r[2];
+                if (v >= link && v < link + size) {
+                    return Port_VAddrOfLink(f, v);
+                }
+                return v;
+            }
+            // jump tables inside the blob hold its pseudo addresses (Port_RelocateDataBlob rewrote them): map back
+            if ((target < link || target >= link + size) &&
+                (target & 0xFFF00000) == (Port_VAddrOfLink(f, link) & 0xFFF00000)) {
+                target = link | (target & 0xFFFFF);
+            }
+            pc = target;
+            next = pc + 4;
+            continue;
+        }
+        pc = next;
+        next = pc + 4;
+    }
+    fprintf(stderr, "[blob-entry] cannot run fragment code at 0x%08x (insn 0x%08x, arg %d)\n", pc,
+            Port_BlobLoad32(f, link, pc, &ok), a0);
+    return 0;
+}
+
 /*
  * Set the base virtual address and size of the specified segment memmap.
  */
@@ -334,6 +581,10 @@ void Memmap_RelocateFragment(u32 id, struct Fragment* fragment) {
  * Set the base virtual address and size of the specified fragment memmap.
  */
 void Memmap_SetFragmentMap(u32 id, uintptr_t vaddr, size_t size) {
+    if (id >= 240) { // PORT: an out-of-range slot id was seen once (0xFFFFFFFD, not reproduced); ignore it
+        fprintf(stderr, "[memmap] SetFragmentMap: bad slot id %d ignored\n", (int)id);
+        return;
+    }
     gFragments[id].vaddr = vaddr;
     gFragments[id].size = size;
 }

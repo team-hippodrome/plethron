@@ -123,7 +123,7 @@ void* BinArchive_GetFile(void* archive, s32 file_number); // PORT: matches the d
 void FreeBattle_LoadArchiveFiles(void);
 
 s32 Font_Init(s32 load_size, s32 side);
-s8 *PokeIcon_AllocFramebuffers(s32 arg0);
+ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
 PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
 PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: matches the definition
@@ -158,7 +158,7 @@ extern u8 D_004199E0[];
 extern u8 D_0042C4A0[];
 extern u8 D_002F5940[];
 extern u8 D_003139C0[];
-extern s32 D_8200AC44;
+extern ModelLoadContext* D_8200AC44;
 extern u16* D_8200AC48;
 extern s32 D_8200AC4C;
 extern s32 D_8200AC50;

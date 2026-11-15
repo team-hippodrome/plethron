@@ -157,7 +157,7 @@ typedef struct BattleSide {
     /* 0x1C */ u8 unk_1C;
     /* 0x1D */ u8 backgroundLoadFlags; // @unverified: as modelFlags, for the background load (PokeIcon_RequestBackgroundForObject)
     /* 0x1E */ u8 unk_1E;
-    /* 0x20 */ s32 backgroundFileList; // @unverified: file list passed to PokeIcon_RequestBackgroundLoad
+    /* 0x20 */ s16* backgroundFileList; // @unverified: file list passed to PokeIcon_RequestBackgroundLoad
     /* 0x24 */ arg1_func_80019420* background; // @unverified: buffer passed to PokeIcon_RequestBackgroundLoad, then modelLoadContext->loadedBackground
 } BattleSide; // size = 0x28
 

@@ -85,6 +85,12 @@ void* ZLift_Resolve(uint32_t addr);
 // Whether a host pointer lies in lifted data that kept its N64 (big-endian byte) form: byte-typed symbols and unnamed
 // data. Display lists and geo layouts there are read as raw ROM-format data.
 int ZLift_IsRaw(const void* host);
+// The statically linked host function for an N64 function address (NULL if none).
+void* ZLift_FindFunc(uint32_t addr);
+// As ZLift_FindFunc, and also follows a `j target` jump stub at addr.
+void* ZLift_ResolveCode(uint32_t addr);
+// Whether a host pointer lies in any lifted data (raw or typed).
+int ZLift_IsLifted(const void* host);
 // N64 address of a host pointer into lifted data or a known function (0 if none).
 uint32_t ZLift_N64Addr(const void* host);
 

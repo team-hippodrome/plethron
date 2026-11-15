@@ -4,6 +4,7 @@
 
 #include "global.h"
 #include "geo_node.h"
+#include "port_endian.h"
 
 #define GEO_CMD_FLAGS_RESET 0
 
@@ -15,20 +16,31 @@
 
 #define CMD_PROCESS_OFFSET(offset) (((offset) & 3) | (((offset) & ~3) << CMD_SIZE_SHIFT))
 
-#define cur_geo_cmd_u8(offset) \
-    (gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)])
+// PORT: layouts come in three forms (from stadion, plus Zero's lifted words). gGeoPacked says which:
+//   0: slot form, arrays compiled into the executable: one pointer-sized slot per original 32-bit word, each holding
+//      the word's numeric value, so fields are decoded by shifting.
+//   1: packed big-endian: ROM blobs and byte-typed lifted data, the original words with 32-bit link addresses.
+//   2: packed native: lifted data typed as words: the original words byte-swapped to the host, link addresses kept.
+// Packed pointers are returned as the raw 32-bit link address; consumers translate them (Util_ConvertAddrToVirtAddr
+// for data; display lists are resolved by the graphics translator). See GeoSetCmd in geo_layout.c.
+extern int gGeoPacked;
+#define GL_WORD(offset)                                                                                   \
+    (gGeoPacked == 1   ? PORT_BE32(*(u32*)&gGeoLayoutCommand[(offset) & ~3])                              \
+     : gGeoPacked == 2 ? (*(u32*)&gGeoLayoutCommand[(offset) & ~3])                                       \
+                       : (*(u32*)&gGeoLayoutCommand[CMD_PROCESS_OFFSET((offset) & ~3)]))
+#define GL_U8(offset) ((u8)((GL_WORD(offset) >> (24 - 8 * ((offset) & 3))) & 0xFF))
+#define GL_S16(offset) ((s16)(GL_WORD(offset) >> (16 - 8 * ((offset) & 2))))
+#define GL_U32(offset) GL_WORD(offset)
+#define GL_PTR(offset) \
+    (gGeoPacked ? (void*)(uintptr_t)GL_WORD(offset) : (*(void**)&gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)]))
+#define GL_CMDSIZE(origSize) (gGeoPacked ? (((origSize) + 3) & ~3) : CMD_PROCESS_OFFSET(((origSize) + 3) & ~3))
+#define GL_VEC3S(offset) (&(Vec3s){ GL_S16(offset), GL_S16((offset) + 2), GL_S16((offset) + 4) })
 
-#define cur_geo_cmd_s16(offset) \
-    (*(s16 *) &gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)])
-
-#define cur_geo_cmd_s32(offset) \
-    (*(s32 *) &gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)])
-
-#define cur_geo_cmd_u32(offset) \
-    (*(u32 *) &gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)])
-
-#define cur_geo_cmd_ptr(offset) \
-    (*(void **) &gGeoLayoutCommand[CMD_PROCESS_OFFSET(offset)])
+#define cur_geo_cmd_u8(offset) GL_U8(offset)
+#define cur_geo_cmd_s16(offset) GL_S16(offset)
+#define cur_geo_cmd_s32(offset) ((s32)GL_U32(offset))
+#define cur_geo_cmd_u32(offset) GL_U32(offset)
+#define cur_geo_cmd_ptr(offset) GL_PTR(offset)
 
 typedef void (*GeoLayoutCommandProc)(void);
 

@@ -49,12 +49,12 @@ typedef struct ModelLoadContext {
     /* 0x00 */ u8 flags;
     /* 0x01 */ u8 pendingLoads;
     /* 0x02 */ u8 bufferIndex;
-    /* 0x04 */ s32 modelBuffers[2];
-    /* 0x0C */ s32 backgroundBuffer;
+    /* 0x04 */ void* modelBuffers[2]; // PORT: pointers (were s32)
+    /* 0x0C */ void* backgroundBuffer;
     /* 0x10 */ s32 modelSize;
     /* 0x14 */ s32 backgroundSize;
     /* 0x18 */ ModelLoadResult* loadedModel;
-    /* 0x1C */ s32 loadedBackground;
+    /* 0x1C */ void* loadedBackground; // PORT: was s32
     /* 0x20 */ arg1_func_80010CA8 colorVariant;
     /* 0x24 */ OSMesgQueue modelQueue;
     /* 0x3C */ OSMesg modelMessage;
@@ -472,7 +472,7 @@ typedef struct GeoTextureBankNode {
 
 // Are unk_D_86002F30 and unk_D_800AC840 the same?
 typedef struct unk_D_86002F30 {
-    /* 0x00 */ char unk00[0x8];
+    /* 0x00 */ char unk00[2 * sizeof(void*)]; // PORT: two pointer-sized slots, as in ModelNodeView (was 0x8)
     /* 0x08 */ ModelNodeView* unk_08;
 } unk_D_86002F30; // size = 0x18 ??
 

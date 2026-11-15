@@ -43,7 +43,7 @@ extern M2C_UNK D_8A21DE10;
 
 s32 Display_IsFrameReady(void);
 void* func_80002BA4(struct MainPoolState* block, s32 size); // PORT: matches MainPool_InitState
-Fragment* func_80017304(MainPoolState* arg0, BinArchive* arg1, s32 arg2, u32 arg3, s32 arg4); // PORT: matches BinArchive_LoadFileToPool
+Fragment* func_80017304(MainPoolState* arg0, BinArchive* arg1, s32 arg2, PERSSZP* arg3, s32 arg4); // PORT: matches BinArchive_LoadFileToPool
 s32 Type_ToTableIndex(s32);
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndexChecked();

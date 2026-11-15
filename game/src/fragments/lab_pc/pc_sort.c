@@ -916,7 +916,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
     return ret;
 }
 
-s8 *PokeIcon_AllocFramebuffers(s32 arg0);
+ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
 void PokeIcon_OpenModelArchives(void);
 PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize

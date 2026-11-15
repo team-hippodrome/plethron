@@ -1,6 +1,8 @@
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/geo_node.c, src/model_animation.c, src/model_animation_events.c. */
 
+#include "zero_lift.h"
+#include <stdio.h>
 #include "global.h"
 #include "geo_node.h"
 #include "matrix.h"
@@ -86,9 +88,24 @@ void GeoNode_Init(GraphNode* arg0, u8 arg1) {
  * Sets the callback and its argument on a graph node, converting the callback
  * address to a virtual address.
  */
+// PORT: callbacks in ROM-format layouts are 32-bit link addresses of functions. They map to the statically linked
+// host functions; code that has no host counterpart (MIPS in a loaded blob) is dropped with a note.
+static GraphNodeCallback Port_ResolveGeoCallback(uintptr_t addr) {
+    void* fn;
+
+    if (addr > 0xFFFFFFFFu) {
+        return (GraphNodeCallback)addr; // already a host function
+    }
+    fn = ZLift_ResolveCode((u32)addr);
+    if (fn == NULL) {
+        fprintf(stderr, "[geo] callback 0x%08X has no host function; dropped\n", (u32)addr);
+    }
+    return (GraphNodeCallback)fn;
+}
+
 void GeoNode_SetCallback(GraphNode* arg0, GraphNodeCallback arg1, void* arg2) {
     if (arg1 != NULL) {
-        arg1 = Util_ConvertAddrToVirtAddr(arg1);
+        arg1 = Port_ResolveGeoCallback((uintptr_t)arg1);
     }
 
     if (arg0 != NULL) {

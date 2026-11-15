@@ -208,11 +208,11 @@ void* MainPool_Realloc(void* addr, size_t size) {
     return newaddr;
 }
 
-extern s32 D_800A94BC;
-
 /** Returns the free space left in the main pool. */
 s32 MainPool_GetAvailable(void) {
-    return D_800A94BC - 0x10;
+    // PORT: D_800A94BC is sMemPool.available on the N64 (a field, not its own variable), and the block header is
+    // larger on the host.
+    return (s32)(sMemPool.available - sizeof(MainPoolBlock));
 }
 
 /**

@@ -119,7 +119,7 @@ typedef struct PcBoxScreen {
     /* 0x74D8 */ LabPCBoxEntry stadiumBoxEntries[4]; // {&stadiumBoxes[i], dirty}, the rows of stadiumBoxTable
     /* 0x74F8 */ ByteMatrix gbBoxTable; // rows = gbBoxEntries (count 8, rowSize 8); items of operationWindow.gbBoxMenu
     /* 0x7508 */ ByteMatrix stadiumBoxTable; // rows = stadiumBoxEntries (count 4); items of operationWindow.stadiumBoxMenu
-    /* 0x7518 */ s8* iconFramebuffers; // @unverified: PokeIcon_AllocFramebuffers
+    /* 0x7518 */ ModelLoadContext* iconFramebuffers; // @unverified: PokeIcon_AllocFramebuffers
     /* 0x751C */ u16* monRenderer; // @unverified: func_80018F2C; the anim of statusWindow
     /* 0x7520 */ s32 iconRenderer; // @unverified: func_80017FDC; the icons of listWindow
 } PcBoxScreen; // size = 0x7524
@@ -277,7 +277,7 @@ typedef struct PcSortOrganizeWindow {
 /* The ポケモンを いどうする screen (PcSort_Init, PcSort_UpdateScreen, PcSort_DrawScreen). */
 typedef struct PcSortScreen {
     /* 0x0000 */ s32 state; // @unverified: PcSort_UpdateScreen
-    /* 0x0004 */ s8* iconFramebuffers; // @unverified: PokeIcon_AllocFramebuffers
+    /* 0x0004 */ ModelLoadContext* iconFramebuffers; // @unverified: PokeIcon_AllocFramebuffers
     /* 0x0008 */ u16* monRenderer; // @unverified: func_80018F2C; the anim of statusWindow
     /* 0x000C */ s32 title; // PcSort_Init's title: LabTerminal_RunFrame passes the ポケモンのせいり string D_89018918 (seen 2026-11-14); never read
     /* 0x0010 */ PcSortOrganizeWindow organizeWindow; // the ポケモンのせいり window

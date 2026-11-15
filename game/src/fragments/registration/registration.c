@@ -1272,7 +1272,7 @@ void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the 
 void func_80006724(void); // PORT: matches StageLoader_WaitForRetrace
 void func_8000675C(void); // PORT: matches StageLoader_UpdateSegments
 s32 func_80006828(u32 timer, s32 (*f)(u8)); // PORT: matches BgStage_RunUntilCondition
-s8 *PokeIcon_AllocFramebuffers(s32 arg0);
+ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
 M2C_UNK PokeIcon_OpenModelArchives();
 PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 s32 Font_Init(s32 load_size, s32 side);
@@ -1291,7 +1291,7 @@ extern M2C_UNK D_04000000;
 extern M2C_UNK D_05000000;
 extern M2C_UNK D_81000000;
 extern M2C_UNK D_88000000;
-extern s8* D_88103070; // PORT: a pointer (was s32)
+extern ModelLoadContext* D_88103070; // PORT: a pointer (was s32)
 extern PokeIconRenderer* D_88103074; // PORT: a pointer (was s32)
 /**
  * Entry point of the とうろく (registration) fragment: pushes the 'REGS' pool, loads the font, icons

@@ -10,8 +10,8 @@
 #include "lib/ultralib/include/PR/leo.h"
 
 // PORT: from stadion (defined below)
-void Port_FixPersHeader(PERSSZP* h);
-void Port_FixPresJpegHeader(PRESJPEG* h);
+void Port_FixPersHeader(void* h);
+void Port_FixPresJpegHeader(void* h);
 extern int gPortRelocateDataBlob;
 typedef enum {
     JPEG_MARKER_START_OF_FRAME = 0xC0,
@@ -415,7 +415,7 @@ void* Fragment_LoadByLbaRange(s32 arg0, s32 arg1, s32 arg2) {
 
 // PORT: header words of PERS-SZP / PRESJPEG assets are big-endian; swap them in place once, right after the file is
 // read (from stadion).
-void Port_FixPersHeader(PERSSZP* h) {
+void Port_FixPersHeader(void* h) {
     u32* w = (u32*)h;
     w[2] = PORT_BE32(w[2]);
     w[3] = PORT_BE32(w[3]);
@@ -423,7 +423,7 @@ void Port_FixPersHeader(PERSSZP* h) {
     w[5] = PORT_BE32(w[5]);
 }
 
-void Port_FixPresJpegHeader(PRESJPEG* h) {
+void Port_FixPresJpegHeader(void* h) {
     u32* w = (u32*)h;
     w[2] = PORT_BE32(w[2]);
     w[3] = PORT_BE32(w[3]);

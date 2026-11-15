@@ -1284,7 +1284,7 @@ s32 PcBox_UpdateOperationWindow(PcBoxOperationWindow* win) {
     return ret;
 }
 
-s8 *PokeIcon_AllocFramebuffers(s32 arg0);
+ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
 PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 void PokeIcon_OpenModelArchives(void);
 PokeModelPreview* func_80018F2C(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, u8* arg7); // PORT: matches PokeIcon_CreateModelPreview

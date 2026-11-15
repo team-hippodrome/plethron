@@ -19,9 +19,9 @@ typedef struct ModelLoadRequest {
 
 typedef struct ModelLoaderArchives {
     /* 0x00 */ BinArchive* modelArchive; // @unverified: archive of the Pokémon models (Model_LoadByArchiveIndex)
-    /* 0x04 */ s32 resourceArchive; // @unverified: archive of the battle resource tables (BattleAnim_LoadResourceTable)
-    /* 0x08 */ s32 scratchBuffer; // @unverified: load buffer passed to BinArchive_LoadFileToPool
-    /* 0x0C */ s32 previewGeoNode; // @unverified: geo node saved by PokeIcon_CaptureGeoNode
+    /* 0x04 */ BinArchive* resourceArchive; // PORT: was s32 // @unverified: archive of the battle resource tables (BattleAnim_LoadResourceTable)
+    /* 0x08 */ void* scratchBuffer; // PORT: was s32 // @unverified: load buffer passed to BinArchive_LoadFileToPool
+    /* 0x0C */ GraphNode* previewGeoNode; // PORT: was s32 // @unverified: geo node saved by PokeIcon_CaptureGeoNode
     /* 0x10 */ BinArchive* unk_10;
 } ModelLoaderArchives; // size >= 0x14
 
@@ -48,23 +48,24 @@ Fragment* Asset_AllocAndCopyFragment(MainPoolState* arg0, PERSSZP* arg1, s32 arg
 Fragment* Fragment_LoadFromRomRange(MainPoolState* arg0, s32 start, s32 end, PERSSZP* arg3, s32 arg4);
 Fragment* Fragment_LoadFromLbaRange(MainPoolState* arg0, StorageLbaRange* arg1, PERSSZP* arg2, u32 arg3);
 void Fragment_RelocateAndCommit(MainPoolState* arg0, u32 arg1, Fragment* arg2);
-Fragment* BinArchive_LoadFileFromRomRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4);
-Fragment* BinArchive_LoadFileFromLbaRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4);
-Fragment* BinArchive_LoadFileToPool(MainPoolState* arg0, BinArchive* arg1, s32 arg2, u32 arg3, s32 arg4);
-s32 Fragment_ProcessGeoLayout(MemoryBlock* arg0, Fragment* arg1, arg1_func_80010CA8 arg2);
+Fragment* BinArchive_LoadFileFromRomRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, PERSSZP* arg3, s32 arg4);
+Fragment* BinArchive_LoadFileFromLbaRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, PERSSZP* arg3, s32 arg4);
+Fragment* BinArchive_LoadFileToPool(MainPoolState* arg0, BinArchive* arg1, s32 arg2, PERSSZP* arg3, s32 arg4);
+struct unk_func_80017428* Fragment_ProcessGeoLayout(MemoryBlock* arg0, Fragment* arg1, arg1_func_80010CA8 arg2);
+arg1_func_80019420* Port_ConvertResourceTable(MainPoolState* pool, const void* data);
 void Fragment_ProcessGeoLayoutList(MemoryBlock* arg0, arg1_func_80019420* arg1);
 void PokeIcon_LoadModelArchive(ModelLoadRequest* arg0);
 void PokeIcon_LoadMultipleModels(ModelLoadRequest* arg0);
 void PokeIcon_ThreadMain(UNUSED void* arg0);
 void PokeIcon_StartThread(void);
-s8 *PokeIcon_AllocFramebuffers(s32 arg0);
+ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
 void PokeIcon_OpenModelArchives(void);
 s32 PokeIcon_RequestFrameLoad(ModelLoadContext* arg0, u16 arg1, arg1_func_80010CA8 arg2);
-s32 PokeIcon_RequestBackgroundLoad(ModelLoadContext* arg0, s32 arg1, s32 arg2);
+s32 PokeIcon_RequestBackgroundLoad(ModelLoadContext* arg0, s16* arg1, void* arg2);
 s32 PokeIcon_ApplyLoadResult(ModelLoadContext* arg0, ModelLoadRequest* arg1);
 s32 PokeIcon_PollFrameLoad(ModelLoadContext* arg0);
 s32 PokeIcon_PollBackgroundLoad(ModelLoadContext* arg0);
-void PokeIcon_WaitBackgroundLoad(s32 arg0);
+void PokeIcon_WaitBackgroundLoad(ModelLoadContext* arg0);
 unk_D_86002F30* Model_LoadByArchiveIndex(s32 arg0);
 unk_D_86002F30* Model_LoadForPokemon(BattleMon* arg0);
 arg1_func_80019420* BattleAnim_LoadResourceTable(s32 arg0);

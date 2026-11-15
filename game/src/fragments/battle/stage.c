@@ -656,13 +656,7 @@ void BattleScene_InitializeParticipantPresentation(BattleSide* side, unk_D_86002
     BattleSide_RequestModelLoad(side);
 }
 
-typedef struct Unit82101324 {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ ModelLoadContext* framebuffers;
-    /* 0x14 */ char unk14[0x14];
-} Unit82101324; // size = 0x28
-
-extern Unit82101324* D_82198D14;
+extern BattleSide* D_82198D14; // PORT: the session's two sides (was a 0x28-byte stand-in struct)
 extern s32 D_82198D1C;
 extern s32 D_82198D20;
 extern s32 D_82198D18;
@@ -728,8 +722,8 @@ s32 BattleScene_Init(StageContext* arg0) { // PORT: was s32* // FAKE: s32 return
     } else {
         Font_Init(3, 0);
     }
-    D_82198D14[0].framebuffers = PokeIcon_AllocFramebuffers(3);
-    D_82198D14[1].framebuffers = PokeIcon_AllocFramebuffers(3);
+    D_82198D14[0].modelLoadContext = PokeIcon_AllocFramebuffers(3);
+    D_82198D14[1].modelLoadContext = PokeIcon_AllocFramebuffers(3);
     PokeIcon_OpenModelArchives();
     D_82198CFC = MainPool_Alloc(0x10, 0);
     GfxImage_Initialize(D_82198CFC, 0, 2, 0x4C, 0x4C, (uintptr_t)arg0->renderTargets[0]->depth_p->img_p); // PORT: was ((s32**)((s32**)arg0)[6])[3][2], N64 strides

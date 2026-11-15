@@ -216,6 +216,14 @@ void Port_BattleBootFinished(void);
 size_t Port_PoolBlockSize(void* data);
 // The host pointer for a virtual N64 address, and whether p is raw ROM-loaded data (game/src/memmap.c).
 void* Port_VResolve(uintptr_t addr);
+uint32_t Port_VLinkOf(uintptr_t addr);
+uint32_t Port_RelocateDataBlob(struct Fragment* f);
+// Runs a model blob's MIPS entry function (a leaf) in a small interpreter; returns its v0 (a blob pseudo address).
+uintptr_t Port_CallBlobEntry(void* frag, int32_t a0, int32_t a1);
+uint32_t Port_PtrToHandle(void* p);
+void* Port_HandleToPtr(uint32_t h);
+void Port_FixPersHeader(void* h); // PERSSZP*
+void Port_FixPresJpegHeader(void* h); // PRESJPEG*
 int Port_VIsRaw(const void* p);
 // Reseeds guRandom (game/lib/ultralib/src/gu/random.c), for the battle cross-check.
 void Port_GuRandomSeed(unsigned int seed);

@@ -9,6 +9,8 @@
 #include "geo_render.h"
 #include "hal_libc.h"
 #include "matrix.h"
+#include "util.h"
+#include "StadionPort.h"
 extern struct DisplayNodeHeader D_800AD1D0;
 extern struct DisplayNodeHeader D_800AD1E8;
 
@@ -82,15 +84,55 @@ void ModelRenderer_ClearDisplayObject(DisplayObject* arg0) {
     arg0->node.flags &= ~1;
 }
 
+// PORT (from stadion): a model's animation bank is returned by the function stored in its root node
+// (GeoTextureBankNode.unk_28). For a model loaded from ROM that is the blob's MIPS entry point, run by
+// Port_CallBlobEntry; the bank it returns is the blob's big-endian model table (u8 transform count at +4, event-track
+// count at +5, u32 addresses of the transform / event-track address arrays at +0xC / +0x10). ModelAssetNode's
+// getAnimationBank is not at the root node's host offset of that field, so the root is read through its real type.
+static const u8* Port_ModelAnimBank(DisplayObject* obj, s32 arg, s32* raw) {
+    GeoTextureBankNode* root = (GeoTextureBankNode*)obj->node.children;
+    void* fn;
+
+    *raw = 0;
+    if (root == NULL || (fn = (void*)root->unk_28) == NULL) {
+        return NULL;
+    }
+    if (Port_VIsRaw(fn)) {
+        uintptr_t a = Port_CallBlobEntry(fn, arg, 0);
+        *raw = 1;
+        return (a != 0) ? (const u8*)Util_ConvertAddrToVirtAddr(a) : NULL;
+    }
+    return (const u8*)((ModelAnimationBank * (*)(s32, s32)) fn)(arg, 0);
+}
+
+// Address of entry 'idx' of the bank's transform (which = 0) or event-track (which = 1) list, and the list's length.
+static uintptr_t Port_ModelAnimTrack(const u8* bank, s32 raw, s32 which, s32 idx, s32* count) {
+    if (raw) {
+        u32 list = PORT_BE32(*(const u32*)(bank + 0xC + which * 4));
+        const u8* arr = (const u8*)Util_ConvertAddrToVirtAddr(list);
+        *count = bank[4 + which];
+        return (arr != NULL && idx < *count) ? PORT_BE32(*(const u32*)(arr + idx * 4)) : 0;
+    } else {
+        const ModelAnimationBank* b = (const ModelAnimationBank*)bank;
+        *count = which ? b->eventTrackCount : b->transformCount;
+        return (idx < *count) ? (uintptr_t)(which ? (void**)b->eventTracks : (void**)b->transformTracks)[idx] : 0;
+    }
+}
+
 /** Binds the animation with the given id from the object's model asset. */
 s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id) {
-    ModelAssetNode* asset_node = display_object->node.children;
-    ModelAnimationBank* animation_bank = asset_node->getAnimationBank(0, 0);
+    s32 raw;
+    s32 count;
+    const u8* bank = Port_ModelAnimBank(display_object, 0, &raw);
+    uintptr_t track;
 
+    if (bank == NULL) {
+        return 0;
+    }
     if (id == -1) {
         ModelAnim_ClearTransformChannel(display_object);
-    } else if (id < animation_bank->transformCount) {
-        ModelAnim_BindTransformCurve(display_object, id, animation_bank->transformTracks[id], 0x10000);
+    } else if ((track = Port_ModelAnimTrack(bank, raw, 0, id, &count)) != 0 && id < count) {
+        ModelAnim_BindTransformCurve(display_object, id, (void*)track, 0x10000);
         return 1;
     }
 
@@ -99,13 +141,18 @@ s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id) {
 
 /** Binds the event track with the given id from the object's model asset. */
 s32 ModelAnim_SetEventTrack(DisplayObject* display_object, s32 track_id) {
-    ModelAssetNode* asset_node = display_object->node.children;
-    ModelAnimationBank* animation_bank = asset_node->getAnimationBank(0, 0);
+    s32 raw;
+    s32 count;
+    const u8* bank = Port_ModelAnimBank(display_object, 0, &raw);
+    uintptr_t track;
 
+    if (bank == NULL) {
+        return 0;
+    }
     if (track_id == -1) {
         ModelAnim_ClearEventTrack(display_object);
-    } else if (track_id < animation_bank->eventTrackCount) {
-        ModelAnim_BindEventTrack(display_object, track_id, animation_bank->eventTracks[track_id]);
+    } else if ((track = Port_ModelAnimTrack(bank, raw, 1, track_id, &count)) != 0 && track_id < count) {
+        ModelAnim_BindEventTrack(display_object, track_id, (s32)track);
         return 1;
     }
 
@@ -135,19 +182,13 @@ void Model_SetMaterialTextureMode(DisplayObject* display_object, u8 texture_mode
  * Returns the animation bank record with the given index for a display object.
  */
 ModelAnimationBank* ModelAnim_GetAnimationRecord(DisplayObject* arg0, s32 arg1) {
-    ModelAnimationBank* var_v1 = NULL;
+    // PORT: returns the bank as stored (big-endian for ROM models)
+    s32 raw;
 
     if (arg0 == NULL) {
         arg0 = D_8006049C;
     }
-
-    if (arg0 != NULL) {
-        ModelAssetNode* tmp = arg0->node.children;
-
-        var_v1 = tmp->getAnimationBank(arg1, 0);
-    }
-
-    return var_v1;
+    return (arg0 != NULL) ? (ModelAnimationBank*)Port_ModelAnimBank(arg0, arg1, &raw) : NULL;
 }
 
 extern SpeciesInfo D_80064C5C[];
@@ -248,7 +289,7 @@ void PokeIcon_WaitFrameLoadForObject(BattleSide* arg0) {
 /** Requests a side's background load. */
 void PokeIcon_RequestBackgroundForObject(BattleSide* arg0) {
     if (!(arg0->backgroundLoadFlags & 0x40) && (arg0->backgroundLoadFlags & 0x80)) {
-        PokeIcon_RequestBackgroundLoad(arg0->modelLoadContext, arg0->backgroundFileList, (uintptr_t)arg0->background);
+        PokeIcon_RequestBackgroundLoad(arg0->modelLoadContext, arg0->backgroundFileList, arg0->background);
         arg0->backgroundLoadFlags |= 0x40;
         arg0->backgroundLoadFlags &= ~0x10;
         if (arg0->backgroundLoadFlags & 0x20) {
