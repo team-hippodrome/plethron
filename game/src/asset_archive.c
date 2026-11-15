@@ -8,6 +8,11 @@
 #include "stage_loader.h"
 #include "util.h"
 #include "lib/ultralib/include/PR/leo.h"
+
+// PORT: from stadion (defined below)
+void Port_FixPersHeader(PERSSZP* h);
+void Port_FixPresJpegHeader(PRESJPEG* h);
+extern int gPortRelocateDataBlob;
 typedef enum {
     JPEG_MARKER_START_OF_FRAME = 0xC0,
     JPEG_MARKER_HUFFMAN_TABLE = 0xC4,
@@ -28,17 +33,17 @@ void Dma_InitializeCompletionQueue(void);
 void Yay0_DecompressAndRelocate(u8* in_header, u8* memory);
 void Sram_TransferChunked(u8* arg0, s32 arg1, s32 arg2, s32 arg3);
 void* Jpeg_LoadDecodedImage(u8* addr, PRESJPEG* arg1, s32 side);
-s32 Yay0_LoadDecompressedAsset(s32 arg0, PERSSZP* arg1, s32 side);
+void* Yay0_LoadDecompressedAsset(void* arg0, PERSSZP* arg1, s32 side);
 u32* Asset_CopyUncompressed(u8* arg0, s32 arg1, u32 arg2, s32 arg3);
 void* Asset_LoadCompressed(u8* romStart, u8* romEnd, s32 arg2, s32 arg3);
 void* Storage_LoadAssetByLbaRange(StorageLbaRange* arg0, s32 arg1);
 StorageLbaRange* Storage_SetLbaRange(StorageLbaRange* arg0, s32 arg1, s32 arg2);
 StorageLbaRange* Storage_SetByteRange(StorageLbaRange* arg0, u32 arg1, u32 offset, u32 size);
 void Storage_PrefetchLbaRange(s32 arg0, s32 arg1, s32 arg2);
-void Memmap_ClearSegmentOnBlockFree(u32 block_addr, u32 addr);
+void Memmap_ClearSegmentOnBlockFree(uintptr_t block_addr, u32 addr);
 u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3);
 MainPoolBlock* Asset_LoadToSegmentByLbaRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void Fragment_FreeCallback(u32 base_addr, u32 addr);
+void Fragment_FreeCallback(uintptr_t base_addr, u32 addr);
 void Fragment_Register(s32 arg0, Fragment* addr);
 ret_func_80004454 Fragment_Load(s32 arg0, u8* romStart, u8* romEnd);
 // PORT: statically linked fragments (port_fragments.c)
@@ -52,10 +57,10 @@ void BinArchive_Free(void* arg0);
 Fragment* BinArchive_LoadFileFromRom(BinArchive* arg0, BinArchiveFile* arg1);
 void* BinArchive_LoadFileBuffered(BinArchive* arg0, BinArchiveFile* arg1);
 void* BinArchive_GetFile(BinArchive* archive, s32 file_number);
-s32 BinArchive_GetCachedFile(BinArchive* archive, s32 file_number);
+void* BinArchive_GetCachedFile(BinArchive* archive, s32 file_number);
 
-s32 Jpeg_DecodeImage(u32 addr, s32 arg1, u8* arg2);
-void Dma_WriteChunks(u32 write_start, u32 buffer_start, u32 buffer_end, s32 arg3);
+s32 Jpeg_DecodeImage(uintptr_t addr, s32 arg1, u8* arg2);
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3);
 
 /** Creates the message queue used to wait for DMA completion. */
 void Dma_InitializeCompletionQueue(void) {
@@ -112,7 +117,7 @@ void Sram_TransferChunked(u8* arg0, s32 arg1, s32 arg2, s32 arg3) {
  * Writes a buffer to the cartridge in chunks, waiting for each DMA to
  * complete.
  */
-void Dma_WriteChunks(u32 write_start, u32 buffer_start, u32 buffer_end, s32 arg3) {
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3) { // PORT: addresses are pointer-sized
     s32 chunk_size;
     s32 buffer;
     OSMesgQueue* mesq = &D_800A96F0;
@@ -134,7 +139,7 @@ void Dma_WriteChunks(u32 write_start, u32 buffer_start, u32 buffer_end, s32 arg3
 
 /** Allocates memory for and decodes a JPEG image. */
 void* Jpeg_LoadDecodedImage(u8* addr, PRESJPEG* arg1, s32 side) {
-    s32 new_addr = MainPool_Alloc(arg1->decodedSize + 0x100, side);
+    void* new_addr = MainPool_Alloc(arg1->decodedSize + 0x100, side);
 
     if (new_addr != NULL) {
         s32 size = Jpeg_DecodeImage(new_addr, arg1->decodedSize + 0x100, (uintptr_t)arg1 + arg1->dataOffset);
@@ -153,8 +158,8 @@ void* Jpeg_LoadDecodedImage(u8* addr, PRESJPEG* arg1, s32 side) {
 }
 
 /** Allocates memory for and decompresses a Yay0 asset. */
-s32 Yay0_LoadDecompressedAsset(s32 arg0, PERSSZP* arg1, s32 side) {
-    s32 vaddr = MainPool_Alloc(arg1->decompressed_size2, side);
+void* Yay0_LoadDecompressedAsset(void* arg0, PERSSZP* arg1, s32 side) {
+    void* vaddr = MainPool_Alloc(arg1->decompressed_size2, side);
 
     if (vaddr != NULL) {
         Yay0_DecompressAndRelocate(arg1, vaddr);
@@ -190,24 +195,27 @@ void* Asset_LoadCompressed(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
     addr = MainPool_Alloc(0x18, side);
 
     if (addr != NULL) {
-        Dma_WriteChunks(addr, rom_start, rom_start + 0x18, arg3);
-        if ((addr[0] == 'PERS') && (addr[1] == '-SZP')) {
+        Dma_WriteChunks((uintptr_t)addr, (uintptr_t)rom_start, (uintptr_t)rom_start + 0x18, arg3);
+        // PORT: the tags and header words are big-endian
+        if ((PORT_BE32(addr[0]) == 'PERS') && (PORT_BE32(addr[1]) == '-SZP')) {
             newaddr = MainPool_Alloc(ALIGN16(rom_end - rom_start), side);
             if (newaddr != NULL) {
-                Dma_WriteChunks(newaddr, rom_start, rom_end, arg3);
-                ret = Yay0_LoadDecompressedAsset(newaddr, newaddr, arg2);
+                Dma_WriteChunks((uintptr_t)newaddr, (uintptr_t)rom_start, (uintptr_t)rom_end, arg3);
+                Port_FixPersHeader((PERSSZP*)newaddr);
+                ret = Yay0_LoadDecompressedAsset(newaddr, (PERSSZP*)newaddr, arg2);
             }
-        } else if ((addr[0] == 'PRES') && (addr[1] == 'JPEG')) {
+        } else if ((PORT_BE32(addr[0]) == 'PRES') && (PORT_BE32(addr[1]) == 'JPEG')) {
             newaddr = MainPool_Alloc(ALIGN16(rom_end - rom_start), side);
             if (newaddr != NULL) {
-                Dma_WriteChunks(newaddr, rom_start, rom_end, arg3);
-                ret = Jpeg_LoadDecodedImage(newaddr, newaddr, arg2);
+                Dma_WriteChunks((uintptr_t)newaddr, (uintptr_t)rom_start, (uintptr_t)rom_end, arg3);
+                Port_FixPresJpegHeader((PRESJPEG*)newaddr);
+                ret = Jpeg_LoadDecodedImage((u8*)newaddr, (PRESJPEG*)newaddr, arg2);
             }
         } else {
             newaddr = MainPool_Alloc(ALIGN16(rom_end - rom_start), arg2);
             ret = newaddr;
             if (newaddr != NULL) {
-                Dma_WriteChunks(ret, rom_start, rom_end, arg3);
+                Dma_WriteChunks((uintptr_t)ret, (uintptr_t)rom_start, (uintptr_t)rom_end, arg3);
             }
         }
         MainPool_TryFree(addr);
@@ -241,9 +249,9 @@ void* Storage_LoadAssetByLbaRange(StorageLbaRange* arg0, s32 arg1) {
         Storage_QueueDiskTransfer(0, temp_v0, arg0->startLba, arg0->lbaCount, &D_800A96F0, 0);
         osRecvMesg(&D_800A96F0, NULL, 1);
 
-        if (((u32*)temp_s0->magic)[0] == 'PERS' && (((u32*)temp_s0->magic)[1] == '-SZP')) {
+        if (PORT_BE32(((u32*)temp_s0->magic)[0]) == 'PERS' && (PORT_BE32(((u32*)temp_s0->magic)[1]) == '-SZP')) {
             sp40 = Yay0_LoadDecompressedAsset(temp_v0, temp_s0, arg1);
-        } else if (((u32*)temp_s0->magic)[0] == 'PRES' && (((u32*)temp_s0->magic)[1] == 'JPEG')) {
+        } else if (PORT_BE32(((u32*)temp_s0->magic)[0]) == 'PRES' && (PORT_BE32(((u32*)temp_s0->magic)[1]) == 'JPEG')) {
             sp40 = Jpeg_LoadDecodedImage(temp_v0, temp_s0, arg1);
         } else {
             sp40 = Asset_CopyUncompressed(temp_v0, arg0->dataOffset, arg0->size, arg1);
@@ -298,7 +306,7 @@ void Storage_PrefetchLbaRange(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 /** Clears the segment base entry when its memory block is freed. */
-void Memmap_ClearSegmentOnBlockFree(u32 block_addr, u32 addr) {
+void Memmap_ClearSegmentOnBlockFree(uintptr_t block_addr, u32 addr) { // PORT: block address is pointer-sized
     u32 base = addr & 0xFF000000;
     u32 sp1C = addr & 0xFFFFFF;
 
@@ -333,8 +341,10 @@ MainPoolBlock* Asset_LoadToSegmentByLbaRange(s32 arg0, s32 arg1, s32 arg2, s32 a
 }
 
 /** Callback run when a fragment's memory block is freed. */
-void Fragment_FreeCallback(u32 base_addr, u32 addr) {
+void Fragment_FreeCallback(uintptr_t base_addr, u32 addr) { // PORT: block address is pointer-sized
     u32 sp1C;
+
+    Port_VFree((void*)base_addr);
     u32 temp_a0;
 
     if ((addr & 0xFF000000) == 0x81000000) {
@@ -344,6 +354,10 @@ void Fragment_FreeCallback(u32 base_addr, u32 addr) {
         }
     }
 }
+
+// PORT: set while registering a data blob from an archive, so its pointers are moved into the virtual address space
+// before the relocation table (which lies past sizeInRam) is released by the shrink below.
+int gPortRelocateDataBlob;
 
 /** Registers a loaded fragment so it is freed with its block. */
 void Fragment_Register(s32 arg0, Fragment* addr) {
@@ -358,8 +372,14 @@ void Fragment_Register(s32 arg0, Fragment* addr) {
     if (sp20 < addr->sizeInRam) {
         MainPool_Realloc(addr, addr->sizeInRam);
         Memmap_RelocateFragment(arg0, addr);
+        if (gPortRelocateDataBlob) {
+            Port_RelocateDataBlob(addr);
+        }
     } else {
         Memmap_RelocateFragment(arg0, addr);
+        if (gPortRelocateDataBlob) {
+            Port_RelocateDataBlob(addr);
+        }
         MainPool_Realloc(addr, addr->sizeInRam);
     }
 }
@@ -393,6 +413,62 @@ void* Fragment_LoadByLbaRange(s32 arg0, s32 arg1, s32 arg2) {
     return sp2C;
 }
 
+// PORT: header words of PERS-SZP / PRESJPEG assets are big-endian; swap them in place once, right after the file is
+// read (from stadion).
+void Port_FixPersHeader(PERSSZP* h) {
+    u32* w = (u32*)h;
+    w[2] = PORT_BE32(w[2]);
+    w[3] = PORT_BE32(w[3]);
+    w[4] = PORT_BE32(w[4]);
+    w[5] = PORT_BE32(w[5]);
+}
+
+void Port_FixPresJpegHeader(PRESJPEG* h) {
+    u32* w = (u32*)h;
+    w[2] = PORT_BE32(w[2]);
+    w[3] = PORT_BE32(w[3]);
+}
+
+// PORT: an archive's file table keeps the loaded copy of each file in a 32-bit word: host pointers go through handles.
+#define PORT_HANDLE_MAX 0x10000
+static void* sPortHandlePtrs[PORT_HANDLE_MAX];
+static u32 sPortHandleCount = 1;
+
+u32 Port_PtrToHandle(void* p) {
+    u32 i;
+    if (p == NULL) {
+        return 0;
+    }
+    for (i = 1; i < sPortHandleCount; i++) {
+        if (sPortHandlePtrs[i] == p) {
+            return i;
+        }
+    }
+    if (sPortHandleCount >= PORT_HANDLE_MAX) {
+        return 0;
+    }
+    sPortHandlePtrs[sPortHandleCount] = p;
+    return sPortHandleCount++;
+}
+
+void* Port_HandleToPtr(u32 h) {
+    return (h != 0 && h < sPortHandleCount) ? sPortHandlePtrs[h] : NULL;
+}
+
+// PORT: archive headers and file tables are big-endian words (the first word holds two u16: flags, fragment id).
+static void BinArchive_SwapHeader(BinArchive* a) {
+    u8* b = (u8*)a;
+    u16 flags = (u16)((b[0] << 8) | b[1]);
+    u16 id = (u16)((b[2] << 8) | b[3]);
+    a->flags = flags;
+    a->fragmentId = id;
+    Port_SwapWords((u32*)a + 1, 3);
+}
+
+static void BinArchive_SwapTable(BinArchive* a) {
+    Port_SwapWords((u32*)a + 4, a->num_files * 4); // header already swapped by the caller
+}
+
 /** Loads a bin archive's header from a ROM range. */
 BinArchive* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
     BinArchive* ret = NULL;
@@ -405,6 +481,8 @@ BinArchive* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
             newaddr = Asset_LoadCompressed(rom_start, rom_end, 0, 0);
             ret = newaddr;
             if (newaddr != NULL) {
+                BinArchive_SwapHeader(ret);
+                BinArchive_SwapTable(ret);
                 newaddr[0] |= 1;
             }
             break;
@@ -413,11 +491,14 @@ BinArchive* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
             newaddr = Asset_LoadCompressed(rom_start, rom_start + 0x20, 0, 0);
             ret = newaddr;
             if (newaddr != NULL) {
+                BinArchive_SwapHeader(ret);
                 sp28 = (ret->num_files * 0x10) + 0x10;
                 MainPool_TryFree(ret);
                 newaddr = Asset_LoadCompressed(rom_start, rom_start + sp28, 0, 0);
                 ret = newaddr;
                 if (newaddr != NULL) {
+                    BinArchive_SwapHeader(ret);
+                    BinArchive_SwapTable(ret);
                     *newaddr |= 2;
                     if (arg3 == 1) {
                         *newaddr |= 4;
@@ -430,10 +511,15 @@ BinArchive* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
             newaddr = Asset_LoadCompressed(rom_start, rom_start + 0x20, 1, 0);
             ret = newaddr;
             if (newaddr != NULL) {
+                BinArchive_SwapHeader(ret);
                 sp28_2 = (ret->num_files * 0x10) + 0x10;
                 MainPool_TryFree(ret);
                 newaddr = Asset_LoadCompressed(rom_start, rom_start + sp28_2, 1, 0);
                 ret = newaddr;
+                if (newaddr != NULL) {
+                    BinArchive_SwapHeader(ret);
+                    BinArchive_SwapTable(ret);
+                }
                 if ((newaddr != NULL) && (arg3 == 1)) {
                     *newaddr |= 4;
                 }
@@ -442,7 +528,7 @@ BinArchive* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3) {
     }
 
     if (ret != NULL) {
-        ret->source = rom_start;
+        ret->source = (uintptr_t)rom_start; // PORT: ROM offsets are small absolute addresses
     }
 
     return ret;
@@ -502,7 +588,7 @@ void BinArchive_Free(void* arg0) {
 
 /** Loads one archive file directly from the ROM. */
 Fragment* BinArchive_LoadFileFromRom(BinArchive* arg0, BinArchiveFile* arg1) {
-    u8* temp_a0 = arg0->source + arg1->offset;
+    u8* temp_a0 = (u8*)(uintptr_t)arg0->source + arg1->offset;
 
     return Asset_LoadCompressed(temp_a0, arg1->size + temp_a0, 0, 0);
 }
@@ -521,11 +607,15 @@ void* BinArchive_GetFile(BinArchive* archive, s32 file_number) {
     UNUSED s32 pad; // FAKE: stack padding
     BinArchiveFile* sp18 = (u8*)archive + sizeof(BinArchive) + (file_number * sizeof(BinArchiveFile));
 
+    if (archive == NULL) {
+        return NULL; // PORT: archive failed to open
+    }
+
     if (file_number < archive->num_files) {
         if (archive->flags & 1) {
             var_a2 = (u8*)archive + sp18->offset;
-        } else if (!(archive->flags & 4) && (sp18->cached != NULL)) {
-            var_a2 = sp18->cached;
+        } else if (!(archive->flags & 4) && (sp18->cached != 0)) {
+            var_a2 = Port_HandleToPtr(sp18->cached); // PORT: a handle, see Port_PtrToHandle
         } else {
             if (archive->flags & 0x80) {
                 var_a2 = BinArchive_LoadFileBuffered(archive, sp18);
@@ -534,11 +624,13 @@ void* BinArchive_GetFile(BinArchive* archive, s32 file_number) {
             }
 
             if (var_a2 != NULL) {
-                if ((((u32*)var_a2->magic)[0] == 'FRAG') && (((u32*)var_a2->magic)[1] == 'MENT')) {
+                if ((PORT_BE32(((u32*)var_a2->magic)[0]) == 'FRAG') && (PORT_BE32(((u32*)var_a2->magic)[1]) == 'MENT')) {
+                    gPortRelocateDataBlob = 1; // PORT: a data blob: its pointers move to a pseudo address range
                     Fragment_Register(archive->fragmentId, var_a2);
+                    gPortRelocateDataBlob = 0;
                 }
 
-                sp18->cached = var_a2;
+                sp18->cached = Port_PtrToHandle(var_a2);
             }
         }
     }
@@ -547,12 +639,12 @@ void* BinArchive_GetFile(BinArchive* archive, s32 file_number) {
 }
 
 /** Returns the cached copy of an archive file, if there is one. */
-s32 BinArchive_GetCachedFile(BinArchive* archive, s32 file_number) {
+void* BinArchive_GetCachedFile(BinArchive* archive, s32 file_number) {
     BinArchiveFile* sp18 = (u8*)archive + sizeof(BinArchive) + (file_number * sizeof(BinArchiveFile));
-    s32 var_v1 = 0;
+    void* var_v1 = NULL;
 
     if (file_number < archive->num_files) {
-        var_v1 = sp18->cached;
+        var_v1 = Port_HandleToPtr(sp18->cached);
     }
     return var_v1;
 }

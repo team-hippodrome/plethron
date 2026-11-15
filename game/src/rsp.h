@@ -13,7 +13,7 @@ typedef struct StorageRequest {
     /* 0x1C */ s32 devAddr; // @unverified: ROM or SRAM address, or 64DD LBA
     /* 0x20 */ void* dramAddr; // @unverified: passed as the DMA RAM address
     /* 0x24 */ s32 size; // @unverified: bytes, or the number of LBAs on the 64DD
-    /* 0x28 */ s32 replyQueue; // @unverified: OSMesgQueue* that gets the result, or 0
+    /* 0x28 */ OSMesgQueue* replyQueue; // PORT: a pointer (was s32); // @unverified: OSMesgQueue* that gets the result, or 0
 } StorageRequest; // size = 0x2C
 
 // The StorageRequest of the 64DD commands that take a LEOCmd.

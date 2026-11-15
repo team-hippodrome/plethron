@@ -7,9 +7,9 @@
 
 
 // dma.c
-s32 Storage_QueueRomRead(s32 arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-s32 Storage_QueueSramTransfer(s32 arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-s32 Storage_QueueDiskTransfer(s32 arg0, void *arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+s32 Storage_QueueRomRead(s32 arg0, void *arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
+s32 Storage_QueueSramTransfer(s32 arg0, void *arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
+s32 Storage_QueueDiskTransfer(s32 arg0, void *arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
 s32 Storage_QueueDiskIdRead(s32 arg0, s32 arg1);
 s32 Storage_QueueDiskSeek(s32 arg0, s32 arg1, s32 arg2);
 s32 Storage_QueueDiskMotorOff(s32 arg0, s32 arg1);

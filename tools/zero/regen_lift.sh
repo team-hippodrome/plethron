@@ -11,7 +11,15 @@ python3 "$root/tools/zero/read_maps.py" "$1" "$tmp/syms.json"
 nm "$root/build/libstadium_game.a" > "$tmp/nm.txt"
 awk 'NF==2 && $1=="U"{print $2}' "$tmp/nm.txt" | sort -u > "$tmp/u.txt"
 awk 'NF==3 && $2 ~ /[TDBRCSVW]/{print $3}' "$tmp/nm.txt" | sort -u > "$tmp/d.txt"
-comm -23 "$tmp/u.txt" "$tmp/d.txt" > "$tmp/undef.txt"
+# Also every ROM symbol the sources name: a reference the optimizer drops at one -O level is kept at another
+grep -rhowE '[A-Za-z_][A-Za-z0-9_]*' "$root/game/src" "$root/game/include" 2>/dev/null | sort -u > "$tmp/ids.txt"
+python3 -c "
+import json,sys
+d=json.load(open(sys.argv[1])); names=set()
+for v in d.values(): names.update(v.get('defined',{})); names.update(v.get('provided',{}))
+ids=set(open(sys.argv[2]).read().split())
+print('\\n'.join(sorted(names & ids)))" "$tmp/syms.json" "$tmp/ids.txt" > "$tmp/named.txt"
+sort -u "$tmp/u.txt" "$tmp/named.txt" | comm -23 - "$tmp/d.txt" > "$tmp/undef.txt"
 # names the rest of the host already defines (everything but the generated storage)
 ( cd "$root/build" && nm libport_os.a libultraship/src/libultraship.a libultraship/libImGui.a \
     $(find CMakeFiles/pokestadium.dir -name '*.o' ! -name 'zero_lift_data.c.o') libstadium_game.a 2>/dev/null ) |

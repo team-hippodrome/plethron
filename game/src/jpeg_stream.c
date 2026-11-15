@@ -144,9 +144,9 @@ void Jpeg_BuildDspOutput(JpegTaskParams* arg0, u8(arg1)[2][0x80], JpegStreamInfo
     arg0->address = 0;
     arg0->mode = arg2->mode;
     arg0->mbCount = 1;
-    arg0->qTableYPtr = (uintptr_t)&arg1[0] & 0x1FFFFFFF;
-    arg0->qTableUPtr = (uintptr_t)&arg1[1] & 0x1FFFFFFF;
-    arg0->qTableVPtr = (uintptr_t)&arg1[1] & 0x1FFFFFFF;
+    arg0->qTableYPtr = (uintptr_t)&arg1[0]; // PORT: host pointers, unmasked
+    arg0->qTableUPtr = (uintptr_t)&arg1[1];
+    arg0->qTableVPtr = (uintptr_t)&arg1[1];
 }
 
 /**
@@ -167,7 +167,7 @@ void Jpeg_WaitForControllerReady(void) {
 }
 
 /** Decodes a JPEG image to the given address. */
-s32 Jpeg_DecodeImage(u32 addr, s32 arg1, u8* arg2) {
+s32 Jpeg_DecodeImage(uintptr_t addr, s32 arg1, u8* arg2) {
     SchedTask sp318;
     JpegStreamInfo sp300;
     u8 sp200[2][0x80];
@@ -208,7 +208,7 @@ s32 Jpeg_DecodeImage(u32 addr, s32 arg1, u8* arg2) {
                 return 0;
             }
 
-            sp90.address = addr & 0x1FFFFFFF;
+            sp90.address = addr; // PORT: host pointer, unmasked
             Sched_SubmitTask(&sp318, 1);
             var_s4 = 1;
             Sched_WaitForTaskMessage(&sp318);

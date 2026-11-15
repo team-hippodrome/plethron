@@ -31,13 +31,13 @@ typedef struct JpegStreamInfo {
 
 // The NJPEG task data of Jpeg_DecodeImage: the first six fields of JpegTaskData (jpeg_decoder.h), in a 0x18-byte stack slot.
 typedef struct JpegTaskParams {
-    /* 0x00 */ s32 address; // @unverified: physical address of the MCU buffer, set per 16x16 block (Jpeg_DecodeImage); JpegTaskData.address
-    /* 0x04 */ s32 mbCount; // @unverified: 1 (Jpeg_BuildDspOutput); JpegTaskData.mbCount
-    /* 0x08 */ s32 mode; // @unverified: JpegStreamInfo.mode; JpegTaskData.mode
-    /* 0x0C */ s32 qTableYPtr; // @unverified: JpegTaskData.qTableYPtr
-    /* 0x10 */ s32 qTableUPtr; // @unverified: JpegTaskData.qTableUPtr
-    /* 0x14 */ s32 qTableVPtr; // @unverified: same table as qTableUPtr; JpegTaskData.qTableVPtr
-} JpegTaskParams; // size = 0x18
+    /* 0x00 */ uintptr_t address; // @unverified: physical address of the MCU buffer, set per 16x16 block (Jpeg_DecodeImage); JpegTaskData.address
+    /* 0x04 */ uintptr_t mbCount; // @unverified: 1 (Jpeg_BuildDspOutput); JpegTaskData.mbCount
+    /* 0x08 */ uintptr_t mode; // @unverified: JpegStreamInfo.mode; JpegTaskData.mode
+    /* 0x0C */ uintptr_t qTableYPtr; // @unverified: JpegTaskData.qTableYPtr
+    /* 0x10 */ uintptr_t qTableUPtr; // @unverified: JpegTaskData.qTableUPtr
+    /* 0x14 */ uintptr_t qTableVPtr; // @unverified: same table as qTableUPtr; JpegTaskData.qTableVPtr
+} JpegTaskParams; // size = 0x18 on the N64; PORT: pointer-sized fields, as the host JPEG task (src/port/jpeg_task.cpp) reads them
 
 #include "scheduler.h"
 
@@ -50,6 +50,6 @@ void Jpeg_ParseStreamMarkers(JpegStreamInfo* arg0, u8* arg1);
 void Jpeg_InitializeDspTask(SchedTask* arg0, JpegTaskParams* arg1);
 void Jpeg_BuildDspInput(struct JpegDecoder* arg0, struct JpegHuffmanTable* arg1, JpegStreamInfo* arg2);
 void Jpeg_BuildDspOutput(JpegTaskParams* arg0, u8(arg1)[2][0x80], JpegStreamInfo* arg2);
-s32 Jpeg_DecodeImage(u32 addr, s32 arg1, u8* arg2);
+s32 Jpeg_DecodeImage(uintptr_t addr, s32 arg1, u8* arg2);
 
 #endif // JPEG_STREAM_H

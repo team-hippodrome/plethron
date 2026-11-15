@@ -235,8 +235,8 @@ void Storage_ThreadEntry(UNUSED void* arg) {
                 break;
         }
 
-        if ((OSMesgQueue*)INT2VOID(sp2C->replyQueue) != NULL) {
-            osSendMesg(INT2VOID(sp2C->replyQueue), var_v0, 0);
+        if (sp2C->replyQueue != NULL) {
+            osSendMesg(sp2C->replyQueue, var_v0, 0);
         }
 
         Util_Free(sp2C);

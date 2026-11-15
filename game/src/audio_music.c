@@ -1,9 +1,11 @@
+#include <stdlib.h>
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/DDC0.c. */
 
 #include <PR/os_internal_reg.h>
 #include "global.h"
 #include "audio_music.h"
+#include "scheduler.h"
 #include "audio_sound_state.h"
 #include "fragments/battle/battle.h"
 #include "rom_device.h"
@@ -95,8 +97,7 @@ M2C_UNK Audio_SetOutputMode(M2C_UNK);                     /* extern */
 M2C_UNK Audio_LoadSoundData();                            /* extern */
 void Audio_SetChannelVolume(s32 arg0, u32 arg1);            /* extern */
 extern s32 D_800AAE30;
-extern s8 D_800AAE38;
-extern s8 D_800AAE48;
+extern SchedClient D_800AAE38; // PORT: typed (was s8): its queue is D_800AAE48, at another host offset
 extern s8 D_800AAE68;
 extern s8 D_800AAE6C;
 extern s8 D_800AAED0;
@@ -109,7 +110,7 @@ extern s32 D_800AAF3C;
  * the console is not about to reset.
  */
 void Audio_ThreadEntry(s32 arg0) {
-    osCreateMesgQueue(&D_800AAE48, &D_800AAE38, 1);
+    osCreateMesgQueue(&D_800AAE38.queue, D_800AAE38.mesgBuf, 1);
     Sched_AddClient(&D_800AAE38);
     D_800AAE30 = 1;
     D_800AAF3C = -1;
@@ -118,6 +119,12 @@ void Audio_ThreadEntry(s32 arg0) {
     osCreateMesgQueue(&D_800AAED4, &D_800AAED0, 1);
     osSendMesg(&D_800AAE6C, 0x444F4E45, 0); // 'DONE'
     osSendMesg(&D_800AAED4, 0x444F4E45, 0); // 'DONE'
+    // PORT: PORT_NO_AUDIO=1 runs the game without the sound driver (while its 64-bit port is in progress)
+    if (getenv("PORT_NO_AUDIO") != NULL) {
+        for (;;) {
+            SchedClient_WaitMessage(&D_800AAE38);
+        }
+    }
     Audio_LoadSoundData();
     Audio_SetOutputMode(1);
     Audio_SetChannelVolume(3, 4);

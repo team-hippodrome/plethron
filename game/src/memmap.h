@@ -43,6 +43,12 @@ void Memmap_ClearSegmentMemmap(u32 id);
 void Memmap_SetSegments(Gfx** gfxDl);
 void Memmap_RelocateFragment(u32 id, struct Fragment* fragment);
 void Memmap_NormalizeFragmentHeader(struct Fragment* f); // PORT: memmap.c
+// PORT: data blobs (models, ...) in a pseudo 32-bit address space (memmap.c, from stadion)
+u32 Port_RelocateDataBlob(struct Fragment* f);
+void Port_VFree(void* host);
+u32 Port_VAlloc(void* host, u32 size, u32 link);
+u32 Port_VLinkOf(uintptr_t addr);
+u32 Port_VAddrOfLink(void* host, u32 linkAddr);
 void Memmap_SetFragmentMap(u32 id, uintptr_t vaddr, size_t size);
 uintptr_t Memmap_GetFragmentBaseVaddr(u32 id);
 uintptr_t Memmap_GetFragmentVaddr(void* addr);

@@ -9,9 +9,9 @@
 void* Util_Malloc(s32 size);
 extern s16 D_8008704C;
 
-s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
+s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
+s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5);
 s32 Storage_QueueDiskIdRead(s32 arg0, s32 arg1);
 s32 Storage_QueueDiskSeek(s32 arg0, s32 arg1, s32 arg2);
 s32 Storage_QueueDiskMotorOff(s32 arg0, s32 arg1);
@@ -21,7 +21,7 @@ s16 Storage_GetDiskStatus(void);
 s32 Storage_QueueRtcRead(void* arg0, s32 arg1, s32 arg2);
 
 /** Queues a ROM read request for the storage thread. */
-s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
     temp_v0 = Util_Malloc(0x2C);
@@ -41,7 +41,7 @@ s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32
 }
 
 /** Queues an SRAM read or write request for the storage thread. */
-s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
     temp_v0 = Util_Malloc(0x2C);
@@ -61,7 +61,7 @@ s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4
 }
 
 /** Queues a 64DD disk read or write request for the storage thread. */
-s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
     temp_v0 = Util_Malloc(0x2C);
@@ -88,7 +88,7 @@ s32 Storage_QueueDiskIdRead(s32 arg0, s32 arg1) {
     if (temp_v0 != NULL) {
         temp_v0->command = 0xC;
         temp_v0->dramAddr = &D_80084D10;
-        temp_v0->replyQueue = arg0;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg0; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg1);
     }
     return temp_v0 == NULL;
@@ -102,7 +102,7 @@ s32 Storage_QueueDiskSeek(s32 arg0, s32 arg1, s32 arg2) {
     if (temp_v0 != NULL) {
         temp_v0->command = 7;
         temp_v0->devAddr = arg0;
-        temp_v0->replyQueue = arg1;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg1; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg2);
     }
     return temp_v0 == NULL;
@@ -116,7 +116,7 @@ s32 Storage_QueueDiskMotorOff(s32 arg0, s32 arg1) {
     if (temp_v0 != NULL) {
         temp_v0->command = 8;
         temp_v0->devAddr = 0;
-        temp_v0->replyQueue = arg0;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg0; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg1);
     }
     return temp_v0 == NULL;
@@ -130,7 +130,7 @@ s32 Storage_QueueDiskReset(s32 arg0, s32 arg1) {
     if (temp_v0 != NULL) {
         temp_v0->command = 8;
         temp_v0->devAddr = 4;
-        temp_v0->replyQueue = arg0;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg0; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg1);
     }
     return temp_v0 == NULL;
@@ -144,7 +144,7 @@ s32 Storage_QueueRtcWrite(void* arg0, s32 arg1, s32 arg2) {
     if (temp_v0 != NULL) {
         temp_v0->command = 0xE;
         temp_v0->dramAddr = arg0;
-        temp_v0->replyQueue = arg1;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg1; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg2);
     }
     return temp_v0 == NULL;
@@ -163,7 +163,7 @@ s32 Storage_QueueRtcRead(void* arg0, s32 arg1, s32 arg2) {
     if (temp_v0 != NULL) {
         temp_v0->command = 0xD;
         temp_v0->dramAddr = arg0;
-        temp_v0->replyQueue = arg1;
+        temp_v0->replyQueue = (OSMesgQueue*)(intptr_t)arg1; // PORT: 64DD path (not used on the host)
         Storage_QueueRequest(temp_v0, arg2);
     }
     return temp_v0 == NULL;
