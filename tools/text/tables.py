@@ -5,7 +5,7 @@ import re
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TDIR = os.path.join(ROOT, "translations")
-LANGS = ["ja", "en", "es", "de", "pt", "ko", "ru", "ar", "hi"]
+LANGS = ["ja", "en", "es", "de", "pt", "ko"]
 HEADER = ["md5"] + LANGS + ["note"]
 MD5_RE = re.compile(r"^[0-9a-f]{32}$")
 # printf conversions the game uses (%s, %d, %3d, %02d, %c, %%, %1$s ...)

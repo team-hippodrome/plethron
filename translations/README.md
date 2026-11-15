@@ -15,7 +15,7 @@ at runtime by key; nothing here contains the original game text.
 UTF-8, RFC 4180 quoting, one header row, identical columns in both files:
 
 ```
-md5,ja,en,es,de,pt,ko,ru,ar,hi,note
+md5,ja,en,es,de,pt,ko,note
 ```
 
 - `md5` is the lowercase hex md5 of the original string's raw bytes as the game
@@ -24,15 +24,13 @@ md5,ja,en,es,de,pt,ko,ru,ar,hi,note
 - `ja` is Japanese with kanji. The kana original needs no column: it's the ROM. Strings with
   nothing to convert (katakana names, people's names, nicknames, debug text) are left
   empty on purpose and fall through to the original.
-- `en` … `hi` are the translations. A line break is a real newline inside a quoted
+- `en` … `ko` are the translations. A line break is a real newline inside a quoted
   cell. A non-printing byte is written `\xNN`.
 - `note` is context for translators (where the string appears, what `%s` stands
   for). It never holds the original text.
 - An empty cell falls through: `human.csv`, then `ai.csv`, then the original.
-- `ru`, `ar` and `hi` are there mainly to prove Cyrillic, right-to-left and Devanagari
-  text work. Menus, rules, battle messages, types and species names (transliterated)
-  are translated. Pokédex entries, move and item descriptions, move and item names and
-  categories are copied from `en` for now, so those columns never fall through to kana.
+- Keep `ai.csv` under 512 KB so GitHub can still render it as a table. A new language
+  is a new column added before `note`.
 
 The runtime hooks the game's printf-style text calls. It looks up the format string
 by its md5 and every `%s` argument separately by its own md5, so a Pokémon or move
