@@ -186,7 +186,7 @@ s32 Pokedex_UpdateListCursor(PokedexListWindow* list_window) {
     menu = (unk_func_8820BE14_02C_038*)&list_window->list;
     result = ScrollList_UpdateCursor(menu);
     if (result == 0) {
-        value = *(u16*)(D_800603C0 + 8);
+        value = D_800603C0->buttonPressed;
         if (value & 1) {
             Audio_PlaySoundEffectById(2);
             WidgetTree_SetScrollableGridIndexPreserveScroll(menu, 0);
