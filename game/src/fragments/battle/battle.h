@@ -1565,8 +1565,6 @@ extern ActivePokemon* gBattleAnimSecondaryOwner;
 
 extern ActivePokemon* gBattleAnimTertiaryOwner;
 
-extern s32 D_811842A0;
-
 extern s32 D_8219A830;
 
 extern func_D_84390300 gBattleAnimEffectUpdateFuncs[8];
