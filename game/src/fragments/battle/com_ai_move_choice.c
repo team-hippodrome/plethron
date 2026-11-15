@@ -296,26 +296,22 @@ s32 BattleAi_ChooseMove(void)
  */
 s32 BattleAi_FindSlotWithPp(s32 arg0) {
     s32 i;
-    u8* base;
-    u8* cur;
-    u8* me;
+    ComBattler* base;
     u8 v;
 
+    // PORT: was a u8* per move slot reading 0x2B (mon.moves) and 0x3E (mon.pp) of the battler
     base = D_821CF29C;
-    me = base + arg0;
     i = 0;
-    if (!(me[0x3E] & 0x3F)) {
-        cur = base;
+    if (!(base->mon.pp[arg0] & 0x3F)) {
         do {
-            v = cur[0x2B];
+            v = base->mon.moves[i];
             if (v == 0) {
                 break;
             }
-            if ((i != arg0) && (v != 0) && (v == me[0x2B]) && (cur[0x3E] & 0x3F)) {
+            if ((i != arg0) && (v != 0) && (v == base->mon.moves[arg0]) && (base->mon.pp[i] & 0x3F)) {
                 return i;
             }
             i++;
-            cur++;
         } while (i != 4);
     }
     return arg0;

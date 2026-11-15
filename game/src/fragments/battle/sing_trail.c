@@ -310,7 +310,7 @@ extern s32 D_821A8B80;
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 void Trail40Variant_SetupCameraTransform(void) {
-    s8* temp_v0;
+    CameraNode* temp_v0; // PORT: was s8*
     f32 tmp1;
     f32 tmp2;
     f32 tmp3;
@@ -325,15 +325,15 @@ void Trail40Variant_SetupCameraTransform(void) {
     D_821A8B80 = func_8000515C(0x40);
     temp_v0 = BattleAnim_GetCameraContext();
 
-    tmp4 = *(f32*)(temp_v0 + 0xB4);
-    tmp5 = *(f32*)(temp_v0 + 0xB8);
-    tmp6 = *(f32*)(temp_v0 + 0xBC);
+    tmp4 = temp_v0->view.targetPosition.x;
+    tmp5 = temp_v0->view.targetPosition.y;
+    tmp6 = temp_v0->view.targetPosition.z;
 
-    tmp1 = *(f32*)(temp_v0 + 0xA8);
-    tmp2 = *(f32*)(temp_v0 + 0xAC);
-    tmp3 = *(f32*)(temp_v0 + 0xB0);
+    tmp1 = temp_v0->view.eyePosition.x;
+    tmp2 = temp_v0->view.eyePosition.y;
+    tmp3 = temp_v0->view.eyePosition.z;
 
-    sp5C = *(f32*)(temp_v0 + 0x2C);
+    sp5C = temp_v0->perspective.verticalFieldOfView;
     sp68 = tmp4 - tmp1;
     sp64 = tmp5 - tmp2;
     sp60 = tmp6 - tmp3;

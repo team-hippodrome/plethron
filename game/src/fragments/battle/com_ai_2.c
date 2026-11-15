@@ -239,13 +239,13 @@ s32 BattleAi_SpeciesCanLearnMove(ComBattler*, s32);
  */
 s32 BattleAi_MayKnowMove(ComBattler* arg0, s32 arg1) {
     s32 i;
-    u8* slot;
 
-    for (i = 0, slot = (u8*)arg0; i < 4; i++, slot++) {
-        if (slot[0x2B] == 0) {
+    // PORT: was a u8* stepping one byte from arg0, reading 0x2B (mon.moves) and 0x3E (mon.pp)
+    for (i = 0; i < 4; i++) {
+        if (arg0->mon.moves[i] == 0) {
             break;
         }
-        if ((arg1 == slot[0x2B]) && (slot[0x3E] != 0)) {
+        if ((arg1 == arg0->mon.moves[i]) && (arg0->mon.pp[i] != 0)) {
             return arg1;
         }
     }
@@ -693,16 +693,15 @@ s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1) { // PORT: ar
     s32 i;
     s32 t;
     s32 pad; // FAKE: stack padding
-    u8 *p;
+    // PORT: p was a u8* stepping one byte per move slot from arg0; reads of 0x2B are mon.moves[i]
 
     if (BattleAi_IsFoeWithoutSubstitute() != 0) {
         i = 0;
-        p = arg0;
         if (!(D_821CF2A0->mon.volatileStatusFlags & 2)) {
         loop:
-            if (p[0x2B] == 0) goto end; // FAKE
-            if (BattleAi_CanUseMove((s8 *)arg0, p[0x2B]) != 0) {
-                switch (p[0x2B]) {
+            if (arg0->mon.moves[i] == 0) goto end; // FAKE
+            if (BattleAi_CanUseMove((s8 *)arg0, arg0->mon.moves[i]) != 0) {
+                switch (arg0->mon.moves[i]) {
                     case SAND_ATTACK:
                     case TAIL_WHIP:
                     case LEER:
@@ -712,7 +711,7 @@ s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1) { // PORT: ar
                     case SMOKESCREEN:
                     case KINESIS:
                     case FLASH:
-                        t = D_8006B18B[p[0x2B] * 6];
+                        t = D_8006B18B[arg0->mon.moves[i] * 6];
                         if (t >= 0x44) {
                             t -= 0x44;
                         } else {
@@ -722,14 +721,13 @@ s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1) { // PORT: ar
                             }
                         }
                         t &= 7;
-                        if ((D_821CF2A0->mon.statStages[t] >= 6) && (arg0->lastMoves[0] != p[0x2B])) {
+                        if ((D_821CF2A0->mon.statStages[t] >= 6) && (arg0->lastMoves[0] != arg0->mon.moves[i])) {
                             return i;
                         }
                         break;
                 }
             }
             i++;
-            p++;
             if (i != 4) goto loop; // FAKE
         }
     }
@@ -1489,7 +1487,7 @@ s32 BattleAi_PickNextPokemon(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 }
 
 s32 BattleAi_PickNextPokemon(u8 *, s32, s32, s32);
-extern u8 D_821CF2B8[];
+extern ComBattler D_821CF2B8[6]; // PORT: was u8[], indexed in N64 ComBattler strides of 0x90
 /**
  * Picks arg0 Pokemon for the COM team, then sometimes moves the one with the best
  * damage ratio against the opponent's team into the lead.
@@ -1554,12 +1552,12 @@ s32 BattleAi_PickTeam(s32 arg0)
 
   for (i = 0; i < D_821CF288; i++)
   {
-    bcopy(&D_821CF294->battlers[D_821CF280[i]], (s8 *) &D_821CF2B8[i * 0x90], 0x90);
+    bcopy(&D_821CF294->battlers[D_821CF280[i]], &D_821CF2B8[i], sizeof(ComBattler)); // PORT: was 0x90
   }
 
   for (i = 0; i < D_821CF288; i++)
   {
-    bcopy((s8 *) &D_821CF2B8[i * 0x90], &D_821CF294->battlers[i], 0x90);
+    bcopy(&D_821CF2B8[i], &D_821CF294->battlers[i], sizeof(ComBattler)); // PORT: was 0x90
     D_821CF294->battlers[i].partyBit = 1 << i;
   }
 

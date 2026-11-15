@@ -623,8 +623,8 @@ void BattleScene_UpdateActiveOwnerPointers(void) {
  * Phase 0 of BattleScene_UpdatePhase: sets up the scene for a new turn, then the turn moves on to phase 1.
  */
 void BattleScene_InitTurnPresentation(CameraNode* arg0) { // PORT: was s32 arg0
-    s8 *sp34;
-    s8 *sp30;
+    ActivePokemon* sp34; // PORT: was s8*
+    ActivePokemon* sp30; // PORT: was s8*
 
     sp34 = sActingPokemon;
     sp30 = sOtherPokemon;
@@ -638,7 +638,7 @@ void BattleScene_InitTurnPresentation(CameraNode* arg0) { // PORT: was s32 arg0
     sBattleScene.scene->actionPass = 0;
     func_821224F4();
     func_82125570();
-    if ((M2C_FIELD(sp34, f32 *, 0x28) > 100.0f) && (M2C_FIELD(sp30, f32 *, 0x28) > 100.0f)) {
+    if ((sp34->displayObject.position.y > 100.0f) && (sp30->displayObject.position.y > 100.0f)) {
         func_821218AC(arg0, M2C_FIELD(&D_8218B630, s32 *, 0), M2C_FIELD(&D_8218B630, f32 *, 4) + 200.0f, M2C_FIELD(&D_8218B630, s32 *, 8), sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
     } else {
         func_821218AC(arg0, M2C_FIELD(&D_8218B630, s32 *, 0), M2C_FIELD(&D_8218B630, f32 *, 4), M2C_FIELD(&D_8218B630, s32 *, 8), sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
@@ -1058,8 +1058,8 @@ void func_8210C104(s16*, s16, s16);
  * @unverified Name guessed from the code.
  */
 void BattleScene_CommandCameraPullBackStep(CameraNode* camera) {
-    s8* sp34 = (s8*)sActingPokemon;
-    s8* sp30 = (s8*)sOtherPokemon;
+    ActivePokemon* sp34 = sActingPokemon; // PORT: was s8*
+    ActivePokemon* sp30 = sOtherPokemon; // PORT: was s8*
 
     if (sBattleScene.scene->mode == 0xA) {
         sBattleScene.scene->easeRampRates.z = func_8000F23C(sBattleScene.scene->easeRampRates.z, 0.05f, 0.03f, 0.03f);
@@ -1073,7 +1073,7 @@ void BattleScene_CommandCameraPullBackStep(CameraNode* camera) {
         }
     } else {
         BattleScene_SetCameraClipMaskBothSides(0x2E36);
-        if ((M2C_FIELD(sp34, f32*, 0x28) > 100.0f) && (M2C_FIELD(sp30, f32*, 0x28) > 100.0f)) {
+        if ((sp34->displayObject.position.y > 100.0f) && (sp30->displayObject.position.y > 100.0f)) {
             sBattleScene.scene->easeRampRates.z = func_8000F23C(sBattleScene.scene->easeRampRates.z, 0.1f, 0.1f, 0.1f);
             func_8210C1A8(&sBattleScene.scene->orbitDistance, 120.0f, sBattleScene.scene->easeRampRates.z);
             func_8210C104(&sBattleScene.scene->rotationX, 0xE38, sBattleScene.scene->orbitDistance);

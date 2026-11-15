@@ -42,7 +42,7 @@ void BattleMenu_ResetCommandTimer(void) {
  * @unverified Name guessed from the code.
  */
 s32 BattleScene_ApplyForcedActionDelay(ActivePokemon* active_pokemon) {
-    s8 *temp_v1;
+    ActivePokemonState* temp_v1; // PORT: was s8*
 
     temp_v1 = &active_pokemon->state;
     if (active_pokemon->state.selectedCommandOption == 3) {
@@ -233,7 +233,7 @@ s32 BattleMenu_TryConfirmMove(ActivePokemon*);
  */
 void BattleMenu_HandleMoveButtons(ActivePokemon* arg0) {
     s32 buttons;
-    s8* ctrl;
+    Controller* ctrl; // PORT: was s8*
 
     ctrl = arg0->state.controller;
     buttons = M2C_FIELD(ctrl, u16*, 8);
@@ -288,7 +288,7 @@ M2C_UNK func_82134D80(s8 *);                        /* extern */
  */
 void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
     ActivePokemonState* temp_v0;
-    void *temp_v1;
+    Controller* temp_v1; // PORT: was void*
     UNUSED s32 pad; // FAKE: stack padding
 
     temp_v1 = arg0->state.controller;
@@ -394,7 +394,7 @@ s32 BattleScene_ValidateSelectedPartyMember(ActivePokemon* arg0) {
  * B opened the Pokémon menu.
  * @unverified Name and comment guessed from the code.
  */
-void BattleMenu_TakeControlOnBPress(ActivePokemon* arg0, u8* arg1, u8* arg2, s32 arg3) {
+void BattleMenu_TakeControlOnBPress(ActivePokemon* arg0, Controller* arg1, Controller* arg2, s32 arg3) { // PORT: arg1, arg2 were u8*
     ActivePokemonState* state = &arg0->state;
     u16 mask;
     s32 m; // FAKE
@@ -406,21 +406,21 @@ void BattleMenu_TakeControlOnBPress(ActivePokemon* arg0, u8* arg1, u8* arg2, s32
         mask = 0x4000;
     }
     if (arg3 == 1) {
-        if (*(u16*)(arg1 + 8) & mask) {
+        if (arg1->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg1);
-        } else if (*(u16*)(arg2 + 8) & mask) {
+        } else if (arg2->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg2);
         }
     } else {
-        if (*(u16*)(arg1 + 8) & mask) {
+        if (arg1->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg1);
-        } else if (*(u16*)(arg2 + 8) & mask) {
+        } else if (arg2->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 1;
             ActivePokemon_SetController(arg0, arg2);
@@ -435,7 +435,7 @@ void BattleMenu_TakeControlOnBPress(ActivePokemon* arg0, u8* arg1, u8* arg2, s32
  * turns): ran.
  * @unverified Name and comment guessed from the code.
  */
-void BattleMenu_TakeControlOnCButtonPress(ActivePokemon* arg0, u8* arg1, u8* arg2, s32 arg3) {
+void BattleMenu_TakeControlOnCButtonPress(ActivePokemon* arg0, Controller* arg1, Controller* arg2, s32 arg3) { // PORT: arg1, arg2 were u8*
     ActivePokemonState* state = &arg0->state;
     u16 mask;
 
@@ -445,21 +445,21 @@ void BattleMenu_TakeControlOnCButtonPress(ActivePokemon* arg0, u8* arg1, u8* arg
         mask = 0xC00F;
     }
     if (arg3 == 1) {
-        if (*(u16*)(arg1 + 8) & mask) {
+        if (arg1->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg1);
-        } else if (*(u16*)(arg2 + 8) & mask) {
+        } else if (arg2->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg2);
         }
     } else {
-        if (*(u16*)(arg1 + 8) & mask) {
+        if (arg1->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 0;
             ActivePokemon_SetController(arg0, arg1);
-        } else if (*(u16*)(arg2 + 8) & mask) {
+        } else if (arg2->buttonPressed & mask) {
             state->prevMenuTeamMemberIndex = state->menuTeamMemberIndex;
             state->menuTeamMemberIndex = 1;
             ActivePokemon_SetController(arg0, arg2);
@@ -582,27 +582,25 @@ void BattleMenu_UpdateSwitchMenu(ActivePokemon* arg0) {
     }
 }
 
-extern u8 D_800AAF50[];
 void BattleMenu_UpdateSwitchMenu(ActivePokemon* active_pokemon);
-void BattleMenu_TakeControlOnCButtonPress(ActivePokemon*, u8*, u8*, s32);
 /**
  * When the player's Pokemon has fainted (state 0x10 at +0x2E), runs the forced
  * Pokemon menu (no L to go back) for its replacement and returns 1; returns 0
  * otherwise, so the normal command menu runs.
  */
 s32 BattleScene_HandlePlayerFaintedSwitch(ActivePokemon* arg0, ActivePokemon* arg1) {
-    u8* c1;
-    u8* c2;
-    s8* team;
+    Controller* c1; // PORT: was u8* into D_800AAF50 (gControllers) with the N64 stride 0x24
+    Controller* c2;
+    BattleSide* team; // PORT: was s8*
     ActivePokemonState* state = &arg0->state;
     ActivePokemonState* other = &arg1->state;
 
     if (arg0->side->tagTeamSize == 1) {
-        c1 = c2 = &D_800AAF50[M2C_FIELD(arg0->side->teamMember[0], u8*, 1) * 0x24];
+        c1 = c2 = &gControllers[arg0->side->teamMember[0]->controllerPort];
     } else {
         team = arg0->side;
-        c1 = &D_800AAF50[M2C_FIELD(M2C_FIELD(team, s8**, 8), u8*, 1) * 0x24];
-        c2 = &D_800AAF50[M2C_FIELD(M2C_FIELD(team, s8**, 0xC), u8*, 1) * 0x24];
+        c1 = &gControllers[team->teamMember[0]->controllerPort];
+        c2 = &gControllers[team->teamMember[1]->controllerPort];
     }
     if ((state->faintState == 0x10) && (other->faintState == 0x10)) {
         if (state->selectedCommandOption == 3) {
@@ -681,8 +679,6 @@ void BattleMenu_UpdateSurrenderPrompt(ActivePokemon* arg0) {
     }
 }
 
-extern u8 D_800AAF50[];
-void BattleMenu_TakeControlOnBPress(ActivePokemon*, u8*, u8*, s32);
 void func_82134D60(void);
 
 /**
@@ -694,20 +690,20 @@ void func_82134D60(void);
 void BattleMenu_ReadCommandButtons(ActivePokemon* active_pokemon) {
     ActivePokemonState* state = &active_pokemon->state;
     ActivePokemonState* other = &sActivePokemon[BattleScene_GetParticipantSideIndex(active_pokemon) == 0]->state;
-    u8* c1;
-    u8* c2;
-    s8* team;
+    Controller* c1; // PORT: was u8* into D_800AAF50 (gControllers) with the N64 stride 0x24
+    Controller* c2;
+    BattleSide* team; // PORT: was s8*
     s32 buttons;
 
     if (M2C_FIELD(state, s32*, 0x10) != 0) {
         return;
     }
     if (active_pokemon->side->tagTeamSize == 1U) {
-        c1 = c2 = &D_800AAF50[M2C_FIELD(active_pokemon->side->teamMember[0], u8*, 1) * 0x24];
+        c1 = c2 = &gControllers[active_pokemon->side->teamMember[0]->controllerPort];
     } else {
         team = active_pokemon->side;
-        c1 = &D_800AAF50[M2C_FIELD(M2C_FIELD(team, s8**, 8), u8*, 1) * 0x24];
-        c2 = &D_800AAF50[M2C_FIELD(M2C_FIELD(team, s8**, 0xC), u8*, 1) * 0x24];
+        c1 = &gControllers[team->teamMember[0]->controllerPort];
+        c2 = &gControllers[team->teamMember[1]->controllerPort];
     }
     if (M2C_FIELD(state->controller, u16*, 8) & 0x8000) {
         M2C_FIELD(state, s32*, 4) = 1;
@@ -1104,42 +1100,32 @@ s32 BattleScene_CollectCpuAction(ActivePokemon* arg0, ActivePokemon* arg1) {
     return 0;
 }
 
-extern s8 D_82199DE0;
 /**
  * Sets bit 0 of both Pokemon's thumbnail flag bytes (0x865 and the byte at 0x9CC + 1).
+ * PORT: rewritten with fields (the decomp's raw N64 offsets and 4-byte pointer strides are wrong on the host).
  * @unverified Name guessed from the code.
  */
-void BattleDebug_SetThumbnailFlagBothSides(void)
-{
-  s8 *temp_v1;
-  s8 **new_var; // FAKE: permuter temp
-  s8 *temp_a1;
-  int pad; // FAKE: stack padding
-  temp_a1 = (s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x9CC))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  temp_v1 = *((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x9CC)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (temp_a1 + 1)) = (u8) ((*((u8 *) (((s8 *) temp_v1) + 1))) | 1); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x865)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x865))) | 1); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  new_var = (s8 **) (((s8 *) (&D_82199DE0)) + 4); // FAKE
-  ; // FAKE: empty statement
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x9CC)))) + 1)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x9CC)))) + 1))) | 1); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) (*new_var)) + 0x865)) = (u8) ((*((u8 *) (((s8 *) (*new_var)) + 0x865))) | 1); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+void BattleDebug_SetThumbnailFlagBothSides(void) {
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        ((u8*)sActivePokemon[i]->thumbnail.camera)[1] |= 1;
+        sActivePokemon[i]->thumbnail.displayObject.node.flags |= 1;
+    }
 }
 
-extern s8 D_82199DE0;
 /**
  * Clears bit 0 of both Pokemon's thumbnail flag bytes (0x865 and the byte at 0x9CC + 1).
+ * PORT: rewritten with fields, as above.
  * @unverified Name guessed from the code.
  */
-void BattleDebug_ClearThumbnailFlagBothSides(void)
-{
-  s8 *temp_a1;
-  s8 *temp_v1;
-  ;
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x9CC)))) + 1)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x9CC)))) + 1))) & 0xFFFE); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x865)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 0)))) + 0x865))) & 0xFFFE); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  ;
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x9CC)))) + 1)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x9CC)))) + 1))) & 0xFFFE); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x865)) = (u8) ((*((u8 *) (((s8 *) (*((s8 **) (((s8 *) (&D_82199DE0)) + 4)))) + 0x865))) & 0xFFFE); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+void BattleDebug_ClearThumbnailFlagBothSides(void) {
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        ((u8*)sActivePokemon[i]->thumbnail.camera)[1] &= ~1;
+        sActivePokemon[i]->thumbnail.displayObject.node.flags &= ~1;
+    }
 }
 
 typedef struct DemoInput8210E3C0 {

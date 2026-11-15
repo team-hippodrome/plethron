@@ -185,19 +185,19 @@ s32 BattleAi_GetHpPercent(ComBattler* arg0)
  */
 s32 BattleAi_CountUnfainted(ComSide* arg0) {
     s32 count;
-    u8 *p;
+    ComBattler* p; // PORT: was a u8* stepping 0x90 (the N64 size of ComBattler)
     s32 n;
 
     count = 0;
-    p = (u8*)arg0;
+    p = arg0->battlers;
     n = arg0->roster->numberOfPokemonBrought;
     if (n > 0) {
         do {
-            if (M2C_FIELD(p, u16 *, 0x1C) != 0) {
+            if (p->mon.hp != 0) {
                 count++;
             }
-            p += 0x90;
-        } while (p < n * 0x90 + (u8*)arg0);
+            p++;
+        } while (p < arg0->battlers + n);
     }
     return count;
 }
@@ -711,14 +711,14 @@ s32 BattleAi_GetTypeMultiplier(ComBattler* arg0, ComBattler* arg1, s32 move) {
  */
 s32 BattleAi_CanUseMove(ComBattler* arg0, s32 arg1) {
     s32 i;
-    u8 *p = (u8 *)arg0;
+    // PORT: p was a u8* over arg0 read at 0x2B (mon.moves), 0x3E (mon.pp) and 0x63 (mon.disabledMove)
 
     if (arg1 != 0) {
         for (i = 0; i < 4; i++) {
-            if (p[0x2B + i] == 0) {
+            if (arg0->mon.moves[i] == 0) {
                 return 0;
             }
-            if ((arg1 == p[0x2B + i]) && (p[0x3E + i] & 0x3F) && (arg1 != p[0x63])) {
+            if ((arg1 == arg0->mon.moves[i]) && (arg0->mon.pp[i] & 0x3F) && (arg1 != arg0->mon.disabledMove)) {
                 return arg1;
             }
         }

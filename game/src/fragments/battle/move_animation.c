@@ -661,12 +661,12 @@ void BattleScene_TickMoveUseEnd(ActivePokemon* active_pokemon) {
 void BattleScene_EnterConfusedRow(ActivePokemon* active_pokemon) {
     UNUSED s32 pad[3]; // FAKE: stack padding
     s16 species;
-    u8* cues;
+    PokemonBattleCues* cues; // PORT: was u8*
     ActivePokemonState* state;
 
     state = &active_pokemon->state;
     species = active_pokemon->displayObject.objectType - 1;
-    cues = (u8*)sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)];
+    cues = sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)];
     if (!(state->flags & ACTIVE_FREEZE)) {
         active_pokemon->animationTimer = 0;
         if ((state->flags & ACTIVE_UNDERGROUND) && (species == DUGTRIO - 1)) {
@@ -674,7 +674,7 @@ void BattleScene_EnterConfusedRow(ActivePokemon* active_pokemon) {
             active_pokemon->displayObject.node.renderFlags |= 0x20;
             Battle_ClearRuntimeFlags(active_pokemon, ACTIVE_UNDERGROUND);
         }
-        ModelAnim_SetAnimation(&active_pokemon->displayObject, cues[0]);
+        ModelAnim_SetAnimation(&active_pokemon->displayObject, cues->moveCues[0].id);
         ModelAnim_SetFrame(&active_pokemon->displayObject, 0);
         BattleAnim_SetModelEventTrackFromRow(active_pokemon, 4);
     }
@@ -689,9 +689,9 @@ void BattleScene_EnterConfusedRow(ActivePokemon* active_pokemon) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void BattleScene_TickRow22PlaySpeciesSound(ActivePokemon* active_pokemon) {
-    s8* cue = (s8*)sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)];
+    PokemonBattleCues* cue = sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)]; // PORT: was s8*
 
-    if ((M2C_FIELD(cue, u8*, 4) + 1) == active_pokemon->animationTimer) {
+    if ((cue->moveCues[0].animationDuration + 1) == active_pokemon->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             Audio_PlayMoveSound(1, active_pokemon->displayObject.objectType, 0);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
@@ -1879,7 +1879,7 @@ void BattleScene_ResetAndEnterRow6(s32 active_pokemon) {
  * @unverified Name guessed from the code.
  */
 void BattleScene_SetMoveAndEnterRow3(ActivePokemon* active_pokemon, s32 move) {
-    ((u8*)active_pokemon)[0x820] = move;
+    active_pokemon->state.runtime.usedMove = move; // PORT: was the N64 byte offset 0x820
     BattleScene_EnterStateRow(active_pokemon, 3);
 }
 
@@ -1890,7 +1890,7 @@ void BattleScene_SetMoveAndEnterRow3(ActivePokemon* active_pokemon, s32 move) {
  * @unverified Name guessed from the code.
  */
 void BattleScene_SetMoveAndEnterRow4(ActivePokemon* active_pokemon, s32 move) {
-    ((u8*)active_pokemon)[0x820] = move;
+    active_pokemon->state.runtime.usedMove = move; // PORT: was the N64 byte offset 0x820
     BattleScene_EnterStateRow(active_pokemon, 4);
 }
 
@@ -1995,9 +1995,9 @@ s32 func_8001101C(ActivePokemon*, s32);
  * @unverified Name guessed from the code.
  */
 s32 BattleScene_IsModelAnimationDone(ActivePokemon* active_pokemon, s32 frame_limit) {
-    u8* p = (u8*)&active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
+    BattleMon* p = &active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
 
-    if ((*(volatile u16*)&active_pokemon->state.flags & 2) || (p[5] & 7) ||
+    if ((*(volatile u16*)&active_pokemon->state.flags & 2) || (p->statusCondition & 7) ||
         ((active_pokemon->state.flags & 0x200) && !(active_pokemon->state.flags & 0x400)) ||
         (active_pokemon->state.flags & 0x4000)) {
         if (func_821217DC(frame_limit) != 0) {
@@ -2641,14 +2641,14 @@ void BattleScene_UpdateParticipantVisuals(ActivePokemon *active_pokemon)
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartFreezeEffectIfFrozen(ActivePokemon* active_pokemon) {
-    u8* p = (u8*)&active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
+    BattleMon* p = &active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
 
-    if (p[5] & 0x20) {
-        ((u8*)active_pokemon)[2] &= ~0x20;
+    if (p->statusCondition & 0x20) {
+        active_pokemon->displayObject.node.renderFlags &= ~0x20; // PORT: was byte 2
     }
-    if (p[5] & 0x20) {
+    if (p->statusCondition & 0x20) {
         BattleAnim_QueueEffectList(1, active_pokemon);
-        ((u8*)active_pokemon)[2] &= ~0x20;
+        active_pokemon->displayObject.node.renderFlags &= ~0x20; // PORT: was byte 2
         ActivePokemon_SetStateFlags((s8*)active_pokemon, ACTIVE_FREEZE);
     }
 }
@@ -2664,9 +2664,9 @@ void BattleAnim_QueueEffectList(u8 arg0, s32 arg1);
  * @unverified Name from Stadium 1.
  */
 void BattleAnim_ResetFreezeStatusAndRestoreAnimation(ActivePokemon* arg0) {
-    u8* ptr = (u8*)&arg0->teamRoster->pokemonPicked[arg0->thumbnail.shownRosterIndex];
+    BattleMon* ptr = &arg0->teamRoster->pokemonPicked[arg0->thumbnail.shownRosterIndex]; // PORT: was u8*
 
-    if (!(arg0->state.flags & ACTIVE_FREEZE) && (ptr[5] & 0x20)) {
+    if (!(arg0->state.flags & ACTIVE_FREEZE) && (ptr->statusCondition & 0x20)) {
         BattleAnim_QueueEffectList(1, arg0);
         arg0->displayObject.node.renderFlags &= ~0x20;
         ActivePokemon_SetStateFlags((s8*)arg0, ACTIVE_FREEZE);
@@ -2739,7 +2739,6 @@ void BattleScene_AllocateParticipants(BattleSide* battle_teams) {
     sSide2ActivePokemon = sActivePokemon[1];
 }
 
-extern u8 D_800AAF50[];
 void ActivePokemon_SelectTeamRoster(ActivePokemon*, s32);
 void ActivePokemon_SetTeamMemberIndex(ActivePokemon*, s32);
 void ActivePokemon_SetReplacementState(ActivePokemon*, s32);
@@ -2750,7 +2749,7 @@ void ActivePokemon_SetReplacementState(ActivePokemon*, s32);
  * @unverified Name was previously used only by callers of this address; the definition was still func_. Comment from Stadium 1.
  */
 void BattleScene_InitializeParticipantController(ActivePokemon* arg0) {
-    u8* sp24 = &D_800AAF50[arg0->side->teamMember[0]->controllerPort * 0x24];
+    Controller* sp24 = &gControllers[arg0->side->teamMember[0]->controllerPort]; // PORT: was u8* into D_800AAF50 with the N64 stride 0x24
     ActivePokemonState* state = &arg0->state;
 
     ActivePokemon_SelectTeamRoster(arg0, 0);

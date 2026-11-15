@@ -143,14 +143,14 @@ s16 func_8000F1FC(s16, M2C_UNK, M2C_UNK, M2C_UNK);  /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK speed) {
-    s8 *temp_v1;
-    s8 *temp_v1_2;
+    CameraNode* temp_v1; // PORT: was s8*
+    CameraNode* temp_v1_2; // PORT: was s8*
 
     if (active_pokemon->thumbnail.side == 1) {
         active_pokemon->thumbnail.status = 0;
         active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, -0x48, speed, speed);
         temp_v1 = active_pokemon->thumbnail.camera;
-        if (M2C_FIELD(temp_v1, s16 *, 0x1C) == -0x48) {
+        if (temp_v1->viewport.x == -0x48) {
             M2C_FIELD(temp_v1, u8 *, 1) = (u8) (M2C_FIELD(temp_v1, u8 *, 1) & 0xFFFE);
             active_pokemon->thumbnail.displayObject.node.flags = (u8) (active_pokemon->thumbnail.displayObject.node.flags & 0xFFFE);
         }
@@ -158,7 +158,7 @@ void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK sp
         active_pokemon->thumbnail.status = 0;
         active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, 0x15F, speed, speed);
         temp_v1_2 = active_pokemon->thumbnail.camera;
-        if (M2C_FIELD(temp_v1_2, s16 *, 0x1C) == 0x15F) {
+        if (temp_v1_2->viewport.x == 0x15F) {
             M2C_FIELD(temp_v1_2, u8 *, 1) = (u8) (M2C_FIELD(temp_v1_2, u8 *, 1) & 0xFFFE);
             active_pokemon->thumbnail.displayObject.node.flags = (u8) (active_pokemon->thumbnail.displayObject.node.flags & 0xFFFE);
         }

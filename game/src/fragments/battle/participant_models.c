@@ -537,7 +537,7 @@ extern f32 D_FLT_82196810;
  * @unverified Name guessed from the code.
  */
 void BattleCamera_EaseTargetFromSavedEye(ActivePokemon* active_pokemon, CameraNode* camera) {
-    u8* ptr = (u8*)&active_pokemon->modelTransform;
+    SwayState* ptr = &active_pokemon->modelTransform; // PORT: was u8*
     Vec3f sp58;
     Vec3f sp4C;
     UNUSED s32 pad[3]; // FAKE: stack padding
@@ -760,7 +760,7 @@ extern f32 D_FLT_82196814;
  * @unverified Name guessed from the code.
  */
 void BattleCamera_EaseTargetToOrbitIfFar(ActivePokemon* active_pokemon, CameraNode* camera) {
-    u8* ptr = (u8*)&active_pokemon->modelTransform;
+    SwayState* ptr = &active_pokemon->modelTransform; // PORT: was u8*
     Vec3f sp58;
     Vec3f sp4C;
     UNUSED s32 pad[3]; // FAKE: stack padding

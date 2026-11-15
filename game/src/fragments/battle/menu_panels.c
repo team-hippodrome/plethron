@@ -1425,22 +1425,22 @@ extern s32 D_8219A760;
  */
 void BattleDebug_DrawPokeBallViewer(s16 arg0, s16 arg1) {
     char buf[16];
-    u8* mon = (u8*)&sActivePokemon[D_8219A760]->state.runtime; // PORT: typed (was the N64 offset 0x7C6 on an s32)
+    BattleMonRuntime* mon = &sActivePokemon[D_8219A760]->state.runtime; // PORT: typed (was the N64 offset 0x7C6 on an s32)
 
     Ui_DrawPrimColorRect(arg0, arg1, 120, 60, 0, 0, 0, 0x3C); // #000000
     func_8001AB6C();
     func_8001A384(1, 0);
     Font_Printf(arg0 + 3, arg1 + 4, D_82195FC4);
-    if (mon[0xB] >= 0x98) {
+    if (mon->species >= 0x98) {
         Font_Printf(arg0 + 60, arg1 + 4, D_82195FD0);
     } else {
-        Font_Printf(arg0 + 60, arg1 + 4, D_80064C5C[mon[0xB] - 1].name);
+        Font_Printf(arg0 + 60, arg1 + 4, D_80064C5C[mon->species - 1].name);
     }
     Font_Printf(arg0 + 3, arg1 + 0x10, D_82195FD8);
     Font_Printf(arg0 + 3, arg1 + 28, D_82195FE4);
     Font_Printf(arg0 + 60, arg1 + 28, sActivePokemon[D_8219A760]->teamRoster->trainerName);
     func_8001ABBC();
-    sprintf(buf, D_82195FF0, mon[0xB]);
+    sprintf(buf, D_82195FF0, mon->species);
     BattleHud_DrawSmallDigits(buf, arg0 + 60, arg1 + 18);
 }
 
