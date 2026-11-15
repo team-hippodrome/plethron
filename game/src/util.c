@@ -17,6 +17,8 @@ s32 StageContext_IsHighResolution(void);
 s32 HAL_Printf(s16 x, s16 y, const char* fmt, ...);
 
 uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
+void* Port_VResolve(uintptr_t addr);
+void* ZLift_Resolve(u32 addr);
 void Util_Memcpy(u32* dest, u32* src, int size);
 void* Util_Malloc(s32 size);
 void Util_Free(void* ptr);
@@ -26,10 +28,17 @@ void Util_DrawRect(Gfx** dlist, s32 ulx, s32 lrx, u16 color);
  * Convert any valid address to its virtual (KSEG0) counterpart.
  */
 uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr) {
-    uintptr_t retaddr = NULL; // any invalid cases are treated as NULL return.
+    uintptr_t retaddr = 0; // any invalid cases are treated as NULL return.
 
-    // convert physical (in installed memory range) to virtual.
-    if (addr < osMemSize) {
+    // PORT: a host pointer (>= 4 GB) is already a valid address.
+    if (addr >= 0x100000000ULL) {
+        retaddr = addr;
+    } else if (Port_VResolve(addr) != NULL) {
+        retaddr = (uintptr_t)Port_VResolve(addr); // PORT: pseudo address of a relocated data blob
+    } else if ((addr >= 0x80000000U) && ((uintptr_t)ZLift_Resolve(addr) >= 0x100000000ULL)) {
+        retaddr = (uintptr_t)ZLift_Resolve(addr); // PORT: link address in lifted data (src/port/zero_lift.c)
+        // convert physical (in installed memory range) to virtual.
+    } else if (addr < osMemSize) {
         retaddr = addr | 0x80000000;
         // convert segmented to virtual.
     } else if (addr < 0x10000000U) {

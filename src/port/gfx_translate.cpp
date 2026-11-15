@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include <vector>
 #include "StadionPort.h"
+#include "zero_lift.h"
 
 extern "C" {
 struct PortMemoryMap {
@@ -76,6 +77,7 @@ bool MtxLog() {
 bool InRaw(const void* p) {
     uintptr_t a = (uintptr_t)p;
     if (Port_VIsRaw(p)) return true;
+    if (ZLift_IsRaw(p)) return true; // Stadium Zero: lifted data kept in N64 byte form (zero_lift.c)
     // segment 0 is the identity map of RDRAM (0x80000000..): game-owned memory, not ROM-format data
     for (int i = 1; i < 16; i++) {
         if (gSegments[i].vaddr < 0x100000000ull || a < gSegments[i].vaddr) continue; // vaddr may hold a non-host (N64) value
@@ -126,6 +128,13 @@ const void* ResolveRaw0(uint32_t addr, bool* resolved) {
     if (void* v = Port_VResolve(addr)) {
         *resolved = true;
         return v;
+    }
+    if (addr >= 0x80000000u) { // Stadium Zero: a link address in lifted data
+        void* z = ZLift_Resolve(addr);
+        if ((uintptr_t)z >= 0x100000000ull) {
+            *resolved = true;
+            return z;
+        }
     }
     if (addr >= 0x81000000 && addr < 0x90000000) {
         uintptr_t r = Memmap_GetFragmentVaddr((void*)(uintptr_t)addr);

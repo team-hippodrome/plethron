@@ -269,6 +269,7 @@ void Memmap_RelocateFragment(u32 id, struct Fragment* fragment) {
     u32* reg_val_p;
     UNUSED s32 pad; // FAKE: stack padding
 
+    Memmap_NormalizeFragmentHeader(fragment); // PORT: header words are big-endian until swapped once
     reloc_offset = fragment->relocOffset;
     reloc_size = fragment->sizeInRam - fragment->relocOffset;
     reloc_info = (struct RelocTable*)((uintptr_t)fragment->relocOffset + (uintptr_t)fragment);

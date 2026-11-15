@@ -82,6 +82,9 @@ int ZLift_ImageOfAddr(uint32_t addr);
 // Host address of an N64 address in lifted data or code (NULL if unknown). Unnamed data is lifted on first use as
 // bytes.
 void* ZLift_Resolve(uint32_t addr);
+// Whether a host pointer lies in lifted data that kept its N64 (big-endian byte) form: byte-typed symbols and unnamed
+// data. Display lists and geo layouts there are read as raw ROM-format data.
+int ZLift_IsRaw(const void* host);
 // N64 address of a host pointer into lifted data or a known function (0 if none).
 uint32_t ZLift_N64Addr(const void* host);
 

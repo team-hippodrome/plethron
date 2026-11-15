@@ -354,6 +354,43 @@ void* ZLift_Resolve(uint32_t addr) {
     return resolve(addr, -1);
 }
 
+// A type kept in its N64 byte form: same size on both sides and nothing but single bytes or raw copies.
+static int typeIsBytes(int type) {
+    const ZLiftType* t = &gZLiftTypes[type];
+    if (t->n64Size != t->hostSize) {
+        return 0;
+    }
+    for (uint32_t i = 0; i < t->opCount; i++) {
+        const ZLiftOp* o = &gZLiftOps[t->opStart + i];
+        if (o->kind == ZLIFT_RAW || (o->kind == ZLIFT_SCALAR && o->size == 1)) {
+            continue;
+        }
+        if (o->kind == ZLIFT_REC && typeIsBytes(o->sub)) {
+            continue;
+        }
+        return 0;
+    }
+    return 1;
+}
+
+int ZLift_IsRaw(const void* host) {
+    const uint8_t* h = host;
+    for (uint32_t i = 0; i < sLazyCount; i++) {
+        const LazyBlock* b = &sLazy[i];
+        if (h >= b->host && h < b->host + b->hostSize) {
+            return b->type < 0 || typeIsBytes(b->type);
+        }
+    }
+    for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* sy = &gZLiftSyms[i];
+        size_t hs = (size_t)gZLiftTypes[sy->type].hostSize * sy->count;
+        if (sy->host != NULL && h >= (const uint8_t*)sy->host && h < (const uint8_t*)sy->host + hs) {
+            return typeIsBytes(sy->type);
+        }
+    }
+    return 0;
+}
+
 uint32_t ZLift_N64Addr(const void* host) {
     const uint8_t* h = host;
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {
