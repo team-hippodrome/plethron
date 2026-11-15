@@ -1275,7 +1275,7 @@ void Particle_ApplyMotionStepXY(Particle* arg0) {
  */
 void Particle_ApplyMotionStepX(Particle* particle) // PORT: was s8*
 {
-  *((f32 *) (((s8 *) particle) + 0x4C)) = (f32) ((*((f32 *) (((s8 *) particle) + 0x78))) + (*((f32 *) (((s8 *) particle) + 0x4C)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  particle->motionOffset.x = (f32) ((particle->motionStep.x) + (particle->motionOffset.x)); // PORT: was raw N64 offsets
 }
 
 /**
@@ -1351,7 +1351,7 @@ void Particle_MotionStep_SetVecFromRotationXZ(Particle* arg0);
  * Sets motionStep from rotation.x and rotation.z and adds it to motionOffset.
  * @unverified Name guessed from the code.
  */
-void Particle_MoveAlongRotationXZ(s32 particle) {
+void Particle_MoveAlongRotationXZ(Particle* particle) { // PORT: particle was s32
     Particle_MotionStep_SetVecFromRotationXZ((Particle*)particle);
     Particle_ApplyMotionStep(particle);
 }
@@ -1822,7 +1822,7 @@ void Particle_ApplyRotationStep(Particle* arg0) {
 void Particle_ApplyRotationStepX(Particle* arg0) // PORT: was s8*
 {
   s16 *new_var; // FAKE: permuter temp
-  *((s16 *) (((0, (s8 *) arg0)) + 0x90)) = (s16) ((*(new_var = (s16 *) (((s8 *) arg0) + 0x96))) + (*((s16 *) (((s8 *) arg0) + 0x90)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  arg0->rotation.x = (s16) ((*(new_var = &arg0->rotationStep.x)) + (arg0->rotation.x)); // PORT: was raw N64 offsets
 }
 
 /**
@@ -1830,7 +1830,7 @@ void Particle_ApplyRotationStepX(Particle* arg0) // PORT: was s8*
  */
 void Particle_ApplyRotationStepY(Particle* arg0) // PORT: was s8*
 {
-  *((s16 *) (((s8 *) arg0) + 0x92)) = (s16) ((*((s16 *) (((s8 *) arg0) + 0x98))) + (*((s16 *) (((s8 *) arg0) + 0x92)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  arg0->rotation.y = (s16) ((arg0->rotationStep.y) + (arg0->rotation.y)); // PORT: was raw N64 offsets
  if (0) { }  // karodo
 }
 
@@ -2908,13 +2908,9 @@ void Particle_ApproachEnvGreen(Particle* arg0, s32 arg1, s32 arg2) {
 /**
  * Sets the particle's prim alpha (+0xC0) to arg1.
  */
-void Particle_SetPrimAlpha(s8 *arg0, char arg1)
+void Particle_SetPrimAlpha(Particle* arg0, char arg1) // PORT: arg0 was s8*
 {
-  s8 *new_var; // FAKE: permuter temp
-  s8 *new_var2; // FAKE: permuter temp
-  new_var2 = arg0; // FAKE
-  new_var = (s8 *) new_var2; // FAKE
-  *((s8 *) (new_var + 0xC0)) = arg1; // FAKE
+  arg0->prim_a = arg1; // PORT: was the N64 offset 0xC0 through permuter temps
 }
 
 s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
@@ -3088,7 +3084,7 @@ void Particle_SetEffectList(Particle* particle, int effect_list) // PORT: was s8
 {
   int *new_var; // FAKE: permuter temp
   new_var = &effect_list; // FAKE
-  *((s8 *) (((s8 *) particle) + 0xC6)) = *new_var; // FAKE
+  particle->effectList = *new_var; // FAKE
 }
 
 /**
@@ -3106,7 +3102,7 @@ void Particle_SetSpawnIndex(Particle* arg0, s16 arg1) {
 void Particle_SetByteParam1(Particle* particle, unsigned char value) // PORT: was s8*
 {
   s8 *new_var; // FAKE: permuter temp
-  new_var = (s8 *) (((s8 *) particle) + 0xCB); // FAKE
+  new_var = &particle->byteParam1; // FAKE
   *new_var = value; // FAKE
 }
 
@@ -3119,7 +3115,7 @@ void Particle_SetByteParam1(Particle* particle, unsigned char value) // PORT: wa
 void Particle_SetByteParam1Copy(Particle* particle, unsigned char value) // PORT: was s8*
 {
   s8 *new_var; // FAKE: permuter temp
-  new_var = ((s8 *) particle) + 0xCB; // FAKE
+  new_var = (s8*)&particle->byteParam1; // FAKE
   *((s8 *) new_var) = value; // FAKE
 }
 
@@ -3130,7 +3126,7 @@ void Particle_SetByteParam1Copy(Particle* particle, unsigned char value) // PORT
  */
 void Particle_SetAnchorMode(Particle* arg0, unsigned short arg1) // PORT: was s8*
 {
-  *((s8 *) (((s8 *) arg0) + 0xC8)) = arg1; // FAKE
+  arg0->anchorMode = arg1; // FAKE
 }
 
 /**

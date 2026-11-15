@@ -53,7 +53,7 @@ void BattleAnim_EffectEndNop(void) {
 
 void Battle_LoadMoveCache(void); // PORT: signature from the definition (fragments/battle/damage.c)
 void Battle_RefundSelectedMovePp(void); // PORT: signature from the definition (fragments/battle/damage.c)
-extern s32 D_8218C784;
+extern s8* D_8218C784; // PORT: was s32, holds a pointer
 extern s8 *D_8219A3C0;
 extern s8 *D_8219A3C4;
 
@@ -256,21 +256,21 @@ s32 Battle_CheckForDisobedience(void) {
 }
 
 
-extern s32 D_8218C718;
-extern s32 D_8218C71C;
-extern s32 D_8218C720;
-extern s32 D_8218C724;
-extern s32 D_8218C728;
-extern s32 D_8218C72C;
-extern s32 D_8218C730;
-extern s32 D_8218C734;
-extern s32 D_8218C738;
-extern s32 D_8218C73C;
-extern s32 D_8218C740;
-extern s32 D_8218C744;
-extern s32 D_8218C748;
-extern s32 D_8218C74C;
-extern s32 D_8218C750;
+extern s8* D_8218C718; // PORT: was s32, holds a pointer
+extern s8* D_8218C71C; // PORT: was s32, holds a pointer
+extern s8* D_8218C720; // PORT: was s32, holds a pointer
+extern s8* D_8218C724; // PORT: was s32, holds a pointer
+extern s8* D_8218C728; // PORT: was s32, holds a pointer
+extern s8* D_8218C72C; // PORT: was s32, holds a pointer
+extern s8* D_8218C730; // PORT: was s32, holds a pointer
+extern s8* D_8218C734; // PORT: was s32, holds a pointer
+extern s8* D_8218C738; // PORT: was s32, holds a pointer
+extern s8* D_8218C73C; // PORT: was s32, holds a pointer
+extern s8* D_8218C740; // PORT: was s32, holds a pointer
+extern s8* D_8218C744; // PORT: was s32, holds a pointer
+extern s8* D_8218C748; // PORT: was s32, holds a pointer
+extern s8* D_8218C74C; // PORT: was s32, holds a pointer
+extern s8* D_8218C750; // PORT: was s32, holds a pointer
 extern MoveNameView D_8006A9CC[];
 
 /**
@@ -450,7 +450,7 @@ extern u8 D_8218AD60[];
 extern u8 D_8218AD64[];
 extern u8 D_8218AD80[];
 extern u8 D_8218AD8C[];
-extern s32 D_8218C714;
+extern s8* D_8218C714; // PORT: was s32, holds a pointer
 /* "%d". It sits in the middle of this TU's debug strings, away from the jump
    table that is this file's placed .rodata, so it is referenced by address. */
 extern char D_8219574C[];
@@ -607,7 +607,7 @@ void Battle_ProcessTurn(void) {
 
 s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void Battle_FormatDamageComment(ActivePokemon*);
-extern s32 D_8218C710;
+extern s8* D_8218C710; // PORT: was s32, holds a pointer
 /**
  * Mark fainting, clear continuation state and remove temporary effects from the opponent.
  * Seen in play (2026-11-12): in the per-move sweep (each of the 165 moves used once) it ran only

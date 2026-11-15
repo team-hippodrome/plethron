@@ -497,7 +497,7 @@ void BattleAnim_SetupSmallSand(Particle* arg0) { // PORT: was s8*
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     sp24 = Particle_GetByteParam1(arg0);
     Particle_SetScaleScaled(arg0, 0.25f /* PORT: was 0x3E800000 */); // 0.25f
-    M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
+    arg0->motionTarget.y = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
     Particle_AddRotationY(arg0, (s16) (0x1800 - ((0x3000 / Particle_GetParam1(arg0)) * sp26)));
     Particle_SetStepMagnitudeScaled(arg0, (2.0f * MathUtil_Random_ZeroOne()) + 3.0f);
     ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, sp24);
@@ -549,7 +549,7 @@ void BattleAnim_SetupLargeSand(Particle* arg0) { // PORT: was s8*
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     sp24 = Particle_GetByteParam1(arg0);
     Particle_SetScaleScaled(arg0, 0.5f /* PORT: was 0x3F000000 */); // 0.5f
-    M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
+    arg0->motionTarget.y = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
     Particle_AddRotationY(arg0, (s16) (0x1800 - ((0x3000 / Particle_GetParam1(arg0)) * sp26)));
     Particle_SetStepMagnitudeScaled(arg0, (MathUtil_Random_ZeroOne() * 2.5f) + 3.0f);
     ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, sp24);
@@ -646,7 +646,7 @@ void BattleAnim_InitSpreadingParticle(Particle* arg0) { // PORT: was s8*
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     Particle_SetScaleScaled(arg0, 0.4f /* PORT: was 0x3ECCCCCD */); // 0.4f
     Particle_SetRandomVelocityXYZ(arg0, 0, 0, 0xA);
-    M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
+    arg0->motionTarget.y = (f32) ((MathUtil_Random_ZeroOne() * 0.5f) + 0.25f);
     Particle_AddRotationY(arg0, (s16) (0x2000 - ((0x4000 / Particle_GetParam1(arg0)) * sp26)));
     Particle_SetStepMagnitudeScaled(arg0, MathUtil_Random_ZeroOne() + 1.0f);
     ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, 0xA);
@@ -2289,7 +2289,7 @@ void BattleAnim_AcidArmorParticleUpdateB(Particle* arg0) {
 void BattleAnim_AcidArmorParticleUpdateA(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_AcidArmorParticleUpdateB(arg0);

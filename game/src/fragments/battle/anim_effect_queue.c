@@ -411,7 +411,7 @@ void BattleAnim_UpdateEffectCallbacks(UNUSED CameraNode* arg0);
 void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0);
 
 void BattleAnim_SetQueuedEffectList(u8 effect_list_index); // PORT: signature from the definition (fragments/battle/participant_models.c)
-void BattleAnim_QueueMoveEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4);
+void BattleAnim_QueueMoveEffect(s32 arg0, ActivePokemon* arg1, ActivePokemon* arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 
 /**
  * Returns the effect list being queued.
@@ -456,7 +456,7 @@ extern s32 D_8219A7D8;
 extern s16 D_8219A80C;
 extern s16 D_8219A80E;
 extern s32 D_8219A810;
-extern s32 D_8219A814;
+extern ActivePokemon* D_8219A814; // PORT: was s32, holds a pointer
 extern s32 D_8219A818;
 
 /**
@@ -465,7 +465,7 @@ extern s32 D_8219A818;
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (159 of the moves).
  * @unverified Name from Stadium 1.
  */
-void BattleAnim_QueueMoveEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4) {
+void BattleAnim_QueueMoveEffect(s32 arg0, ActivePokemon* arg1, ActivePokemon* arg2, s16 arg3, s16 arg4) { // PORT: arg1 was s32 PORT: arg2 was s32
     D_8219A7D8 = 1;
     D_8219A7D4 = arg0;
     D_8219A7CC = 0;
@@ -586,7 +586,7 @@ extern s32 D_8219A810;
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (16 of the moves).
  * @unverified Name from Stadium 1.
  */
-void BattleAnim_QueueEffectList(u8 arg0, s32 arg1) {
+void BattleAnim_QueueEffectList(u8 arg0, ActivePokemon* arg1) { // PORT: arg1 was s32
     D_8219A7E8 = 1;
     BattleAnim_SetQueuedResourceListId(arg0);
     D_8219A810 = arg1;

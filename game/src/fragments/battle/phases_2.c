@@ -9,7 +9,7 @@ M2C_UNK ActivePokemon_SetModelTransform(ActivePokemon*, M2C_UNK, M2C_UNK);
 void Battle_ClearMessageCursor(void); // PORT: signature from the definition (fragments/battle/message.c)
 M2C_UNK BattleScene_BeginCameraReturnTransition();
 void BattleAnim_QueueEffectList3(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternative_anchor); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
-extern M2C_UNK D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was M2C_UNK, holds a pointer
 extern Vec3f D_8218B630;
 s32 ModelAnim_IsAnimationDone(DisplayObject* display_object); // PORT: signature from the definition (geo_node.c)
 s32 BattleAnim_TryRegisterAssetTables(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
@@ -588,7 +588,7 @@ void BattleScene_SetCameraEyeFromPosition(CameraNode* arg0, Vec3f arg1, s16 arg2
  * Ball landing (model transform 2, effect list 11).
  * Seen in play: the camera then shows the field with the landing ball's shadow.
  */
-void BattleScene_OpeningStepLandSide0Ball(void* arg0) {
+void BattleScene_OpeningStepLandSide0Ball(CameraNode* arg0) { // PORT: arg0 was void*
     Vec3f sp34;
 
     sp34.y = 0.0f;
@@ -598,7 +598,7 @@ void BattleScene_OpeningStepLandSide0Ball(void* arg0) {
     sActivePokemon[1]->displayObject.node.flags = (u8) (sActivePokemon[1]->displayObject.node.flags & 0xFFFE);
     if (sActivePokemon[1]->pokeBall.position.y == 0) {
         if (sBattleScene.scene->mode == 4) {
-            M2C_FIELD(arg0, f32 *, 0x2C) = sBattleScene.scene->verticalFieldOfView;
+            arg0->perspective.verticalFieldOfView = sBattleScene.scene->verticalFieldOfView; // PORT: was the N64 offset 0x2C
         }
         BattleScene_SetCameraAtFromAnchor(sActivePokemon[0], arg0, sp34, 0, 0, 0.0f, 0.0f);
         ActivePokemon_SetModelTransform(sActivePokemon[0], 2, 0);

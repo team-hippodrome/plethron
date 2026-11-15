@@ -313,13 +313,13 @@ void BattleAnim_SetupBackgroundRecolor(Particle* arg0); // PORT: signature from 
 void BattleAnim_CallbackGlobalTintColorFadeDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupBackgroundRecolor(arg0);
         break;
     case 2:
-        if (ParticleGfx_ApproachPrimPalette(arg0, M2C_FIELD(arg0, u8 *, 0xCB), Particle_GetParam1(arg0) & 0xFF) != 0) {
+        if (ParticleGfx_ApproachPrimPalette(arg0, arg0->byteParam1, Particle_GetParam1(arg0) & 0xFF) != 0) {
             Particle_AdvanceLifecycle(arg0);
         }
         break;
@@ -362,13 +362,13 @@ void BattleAnim_SetupTargetHueChange(Particle* arg0); // PORT: signature from th
 void BattleAnim_CallbackOwnerTintRampDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupTargetHueChange(arg0);
         break;
     case 2:
-        if (Particle_ApproachScratchA(arg0, M2C_FIELD(arg0, u8 *, 0xC9), M2C_FIELD(arg0, s16 *, 0xA6)) != 0) {
+        if (Particle_ApproachScratchA(arg0, arg0->byteParam0, arg0->param1) != 0) {
             Particle_AdvanceLifecycle(arg0);
         }
         break;
@@ -377,7 +377,7 @@ void BattleAnim_CallbackOwnerTintRampDetach(Particle* arg0) { // PORT: was s8*
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
     }
 }
 
@@ -457,7 +457,7 @@ void BattleAnim_SetupUserHueChange(Particle* arg0); // PORT: signature from the 
 void BattleAnim_CallbackOwnerTintHoldFadeDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupUserHueChange(arg0);
@@ -466,7 +466,7 @@ void BattleAnim_CallbackOwnerTintHoldFadeDetach(Particle* arg0) { // PORT: was s
         Particle_DecrementParam0ToZeroThenAdvance(arg0);
         break;
     case 3:
-        if (Particle_ApproachScratchA(arg0, 0, M2C_FIELD(arg0, s16 *, 0xA6)) != 0) {
+        if (Particle_ApproachScratchA(arg0, 0, arg0->param1) != 0) {
             Particle_AdvanceLifecycle(arg0);
         }
         break;
@@ -475,7 +475,7 @@ void BattleAnim_CallbackOwnerTintHoldFadeDetach(Particle* arg0) { // PORT: was s
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
     }
 }
 
@@ -509,13 +509,13 @@ M2C_UNK Particle_SetScratchA(s8 *, M2C_UNK);             /* extern */
 void BattleAnim_CallbackOwnerTintPaletteApproachStop(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupOwnerTintPaletteApproach(arg0);
         break;
     case 2:
-        if (ParticleGfx_ApproachPrimPalette(arg0, M2C_FIELD(arg0, u8 *, 0xC9), M2C_FIELD(arg0, u8 *, 0xA7)) != 0) {
+        if (ParticleGfx_ApproachPrimPalette(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte, was the N64 offset 0xA7 */) != 0) {
             Particle_SetScratchA(arg0, 0);
             Particle_AdvanceLifecycle(arg0);
         }
@@ -525,7 +525,7 @@ void BattleAnim_CallbackOwnerTintPaletteApproachStop(Particle* arg0) { // PORT: 
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
     }
 }
 
@@ -552,13 +552,13 @@ void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the defi
 void BattleAnim_CallbackOwnerTintPaletteApproachHold(Particle* particle) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(particle, s16 *, 0xAE);
+    temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupOwnerTintPaletteHold(particle);
         break;
     case 2:
-        if (ParticleGfx_ApproachPrimPalette(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
+        if (ParticleGfx_ApproachPrimPalette(particle, particle->byteParam0, (u8)particle->param1 /* PORT: low byte, was the N64 offset 0xA7 */) != 0) {
             Particle_AdvanceLifecycle(particle);
         }
         break;
@@ -567,7 +567,7 @@ void BattleAnim_CallbackOwnerTintPaletteApproachHold(Particle* particle) { // PO
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        Model_SetMaterialColor(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
+        Model_SetMaterialColor(((uintptr_t)particle->pokemon), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->scratchA);
     }
 }
 
@@ -641,24 +641,24 @@ s32 Particle_ApproachScratchAThenAdvance(Particle* arg0, s16 arg1, s16 arg2); //
 void BattleAnim_CallbackOwnerTintPaletteApproachFade(Particle* particle) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(particle, s16 *, 0xAE);
+    temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupOwnerTintPaletteFade(particle);
         break;
     case 2:
-        if (ParticleGfx_ApproachPrimPalette(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
+        if (ParticleGfx_ApproachPrimPalette(particle, particle->byteParam0, (u8)particle->param1 /* PORT: low byte, was the N64 offset 0xA7 */) != 0) {
             Particle_AdvanceLifecycle(particle);
         }
         break;
     case 3:
-        Particle_ApproachScratchAThenAdvance(particle, 0, M2C_FIELD(particle, u8 *, 0xCA));
+        Particle_ApproachScratchAThenAdvance(particle, 0, particle->byteParam2);
         break;
     case 4:
         Particle_MarkInactive(particle);
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        Model_SetMaterialColor(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
+        Model_SetMaterialColor(((uintptr_t)particle->pokemon), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->scratchA);
     }
 }

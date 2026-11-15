@@ -36,7 +36,7 @@ void DemoBattle_CopyHpToFirstMember(ActivePokemon* arg0) {
  * code (a word-sized stack spill and no halfword mask on the argument).
  */
 void BattleScene_SetCameraSubstate(s32 arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/scene_camera.c)
-extern M2C_UNK D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was M2C_UNK, holds a pointer
 
 /**
  * Sets up the scene mode 11 demo battle: switches the camera to mode 0 for both sides, runs
@@ -83,12 +83,12 @@ void DemoBattle_SetupDemoMove(void) {
 
     idx = sBattleScene.scene->actingSide;
     self = ((s8**)&D_82199DE0)[idx];
-    other = ((s8**)&D_82199DE0)[idx == 0] + 0x7C6;
+    other = (s8*)&sActivePokemon[idx == 0]->state.runtime; // PORT: was the N64 offset 0x7C6
     D_82199F31 = 0;
     D_82199F78 = 0x14;
-    M2C_FIELD(self, s16*, 0x7D2) = 900;
+    ((ActivePokemon*)self)->state.runtime.hp = 900; // PORT: was the N64 offset 0x7D2
     M2C_FIELD(other, s16*, 0xC) = 900;
-    self += 0x7C6;
+    self = (s8*)&((ActivePokemon*)self)->state.runtime; // PORT: was self += 0x7C6
     DemoBattle_CopyHpToFirstMember(((s8**)&D_82199DE0)[(idx == 0) * 0]); // FAKE: keeps idx == 0 live
     DemoBattle_CopyHpToFirstMember(((s8**)&D_82199DE0)[1]);
     D_82199FCC = 1;
@@ -247,10 +247,10 @@ void BattleScene_SetCameraModeAndStep(s32, s32);
  * @unverified Name guessed from the code.
  */
 void DemoBattle_Update(void) {
-    s8* rt0 = ((s8**)&D_82199DE0)[0] + 0x78C;
-    s8* rt1 = ((s8**)&D_82199DE0)[1] + 0x78C;
-    s8* other0 = ((s8**)&D_82199DE0)[0] + 0x7C6;
-    s8* other1 = ((s8**)&D_82199DE0)[1] + 0x7C6;
+    s8* rt0 = (s8*)&sActivePokemon[0]->state; // PORT: was the N64 offset 0x78C
+    s8* rt1 = (s8*)&sActivePokemon[1]->state;
+    s8* other0 = (s8*)&sActivePokemon[0]->state.runtime; // PORT: was the N64 offset 0x7C6
+    s8* other1 = (s8*)&sActivePokemon[1]->state.runtime;
     UNUSED s32 pad; // FAKE
     s8** mons; // FAKE
     s32 side = 1; // FAKE: constant side index kept in a variable
@@ -315,7 +315,7 @@ void DemoBattle_Update(void) {
                 if (D_8219A4F0.index == 4) {
                     ((ActivePokemon*)((s8**)&D_82199DE0)[0])->side->displayModel = 0x96;
                 } else {
-                    M2C_FIELD(M2C_FIELD(mons[0], u8**, 0x85C), s16*, 2) = D_8218B5D0[D_8219A4F0.index + 1].unk0A;
+                    M2C_FIELD(((ActivePokemon*)mons[0])->side, s16*, 2) /* PORT: side was the N64 offset 0x85C */ = D_8218B5D0[D_8219A4F0.index + 1].unk0A;
                 }
                 ((ActivePokemon*)((s8**)&D_82199DE0)[0])->side->modelFlags |= 0x80;
                 D_8219A4F0.flags |= 2;

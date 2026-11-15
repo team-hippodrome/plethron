@@ -58,7 +58,7 @@ void BattleAnim_CallbackDescriptor26BurstChild(Particle* arg0) {
  * palette 8 and env palette 0x33.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0) {
+void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(Particle* arg0) { // PORT: arg0 was s32
     s16 sp26;
 
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0

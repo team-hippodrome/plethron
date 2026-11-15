@@ -23,8 +23,8 @@ void ParticleGfx_LoadTextureIa8(u8* texture, s32 width, s32 height); // PORT: si
  * Texture callback: loads 32x32 IA8 frame (byte 0xC3) of the texture at arg1.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackIa8FrameC3_32x32(Particle* particle, s32 texture) { // PORT: was s8*
-    ParticleGfx_LoadTextureIa8((M2C_FIELD(particle, s8 *, 0xC3) << 0xA) + texture, 0x20, 0x20);
+void ParticleGfx_LoadTexCallbackIa8FrameC3_32x32(Particle* particle, u8* texture) { // PORT: particle was s8*, texture was s32
+    ParticleGfx_LoadTextureIa8((particle->textureFrame << 0xA) + texture, 0x20, 0x20);
 }
 
 /**
@@ -43,8 +43,8 @@ void ParticleGfx_LoadTextureIa8(u8* texture, s32 width, s32 height); // PORT: si
  * Texture callback: loads 32x64 IA8 frame (byte 0xC3) of the texture at arg1.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackIa8FrameC3_32x64(Particle* particle, s32 texture) { // PORT: was s8*
-    ParticleGfx_LoadTextureIa8((M2C_FIELD(particle, s8 *, 0xC3) << 0xB) + texture, 0x20, 0x40);
+void ParticleGfx_LoadTexCallbackIa8FrameC3_32x64(Particle* particle, u8* texture) { // PORT: particle was s8*, texture was s32
+    ParticleGfx_LoadTextureIa8((particle->textureFrame << 0xB) + texture, 0x20, 0x40);
 }
 
 /**
@@ -62,8 +62,8 @@ void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height); // PORT
  * Texture callback: loads 32x32 I4 frame (byte 0xC3) of the texture at arg1.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackI4FrameC3_32x32(Particle* particle, s32 texture) { // PORT: was s8*
-    ParticleGfx_LoadTextureI4Alias((M2C_FIELD(particle, s8 *, 0xC3) << 9) + texture, 0x20, 0x20);
+void ParticleGfx_LoadTexCallbackI4FrameC3_32x32(Particle* particle, u8* texture) { // PORT: particle was s8*, texture was s32
+    ParticleGfx_LoadTextureI4Alias((particle->textureFrame << 9) + texture, 0x20, 0x20);
 }
 
 /**

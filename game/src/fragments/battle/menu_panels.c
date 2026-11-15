@@ -1241,8 +1241,8 @@ void BattleDebug_DrawStepMenu(s16 arg0, s16 arg1) {
 extern s32 D_8219A740;
 extern s32 D_8219A74C;
 extern s32 D_8219A750;
-extern s32 D_8218B218[];
-extern s32 D_8218B204[];
+extern char* D_8218B218[]; // PORT: was s32[], holds string pointers
+extern char* D_8218B204[]; // PORT: was s32[], holds string pointers
 extern char D_82195E04[];
 extern char D_82195E10[];
 extern char D_82195E20[];
@@ -1315,7 +1315,7 @@ void BattleDebug_DrawMoveEffectViewer(s16 arg0, s16 arg1) {
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 102);
 }
 
-extern s32 D_8218B228[];
+extern char* D_8218B228[]; // PORT: was s32[], holds string pointers
 extern char D_82195EF0[];
 extern char D_82195EFC[];
 extern char D_82195F0C[];

@@ -98,7 +98,7 @@ void BattleAnim_PokeBallThrowContinue(ActivePokemon* owner, ActivePokemon* anima
  * send-out threw the Poké Balls, before 「ゆけっ！ ゲンガー」 "Go! Gengar!".
  * @unverified Name and comment guessed from the code.
  */
-void BattleAnim_PokeBallThrow(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_PokeBallThrow(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     s32 temp_v0;
 
     temp_v0 = arg1->modelTransformTimer;
@@ -165,7 +165,7 @@ void BattleAnim_PokeBallLandContinue(ActivePokemon* owner, ActivePokemon* animat
  * first one fainted.
  * @unverified Name and comment guessed from the code.
  */
-void BattleAnim_PokeBallLand(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_PokeBallLand(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     s32 temp_v0;
 
     temp_v0 = arg1->modelTransformTimer;
@@ -299,7 +299,7 @@ void BattleAnim_StepSwayTransformUntilGrounded(ActivePokemon* owner, ActivePokem
  * (BattleAnim_StepSwayTransformUntilGrounded).
  * @unverified Name guessed from the code.
  */
-void BattleAnim_RunSwayTransform(s32 owner, ActivePokemon* animated_pokemon) {
+void BattleAnim_RunSwayTransform(ActivePokemon* owner, ActivePokemon* animated_pokemon) { // PORT: owner was s32
     s32 temp_v0;
 
     temp_v0 = animated_pokemon->modelTransformTimer;
@@ -338,7 +338,7 @@ s32 BattleAnim_ApproachAngleAndCheckThreshold(ActivePokemon* pokemon, s16 phase,
 /**
  * Submission: resets the oscillation and the phase counter.
  */
-void BattleAnim_SubmissionStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_SubmissionStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     BattleScene_ShowSecondaryModelsStaggeredFrame(arg1);
     arg1->oscillationPhase = 0;
     arg1->oscillationVelocityEasePhase = 0;
@@ -349,7 +349,7 @@ void BattleAnim_SubmissionStart(s32 arg0, ActivePokemon* arg1) {
 /**
  * Submission: spins the model and counts three turns before the end step.
  */
-void BattleAnim_SubmissionContinue(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_SubmissionContinue(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->oscillationPhase = Math_StepToS32(arg1->oscillationPhase, 0x3330, 0x16C, 0x16C);
     if (BattleAnim_ApproachAngleAndCheckThreshold(arg0, arg1->oscillationPhase, (s16) (arg1->facingDirection << 0xE)) != 0) {
         arg1->animationState = (s32) (arg1->animationState + 1);
@@ -415,7 +415,7 @@ void BattleAnim_Submission(ActivePokemon* owner, ActivePokemon* animated_pokemon
 /**
  * Dig: resets the oscillation and the phase counter.
  */
-void BattleAnim_DigStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_DigStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     BattleScene_ShowSecondaryModelsStaggeredFrame(arg1);
     arg1->oscillationPhase = 0;
     arg1->oscillationVelocityEasePhase = 0;
@@ -426,7 +426,7 @@ void BattleAnim_DigStart(s32 arg0, ActivePokemon* arg1) {
 /**
  * Dig: spins the model and counts three turns before it sinks.
  */
-void BattleAnim_DigContinue(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_DigContinue(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->oscillationPhase = Math_StepToS32(arg1->oscillationPhase, 0x3FFC, 0x16C, 0x16C);
     if (BattleAnim_ApproachAngleAndCheckThreshold(arg0, arg1->oscillationPhase, (s16) (arg1->facingDirection << 0xE)) != 0) {
         arg1->animationState = (s32) (arg1->animationState + 1);
@@ -443,7 +443,7 @@ void BattleAnim_DigContinue(s32 arg0, ActivePokemon* arg1) {
  * Seen in play (2026-11-14) (Metronome bench, 1P Onix vs Pinsir, exec breakpoint + screenshots):
  * Dig: first ran at sample 277, the frame where rocks fly up and Onix sinks into the hole.
  */
-void BattleAnim_DigSinkUnderground(s32 transform, ActivePokemon* active_pokemon) {
+void BattleAnim_DigSinkUnderground(ActivePokemon* transform, ActivePokemon* active_pokemon) { // PORT: transform was s32
     BattleAnim_ApproachAngleAndCheckThreshold(transform, active_pokemon->oscillationPhase, (s16)(active_pokemon->facingDirection << 0xE));
     BattleScene_UpdateSecondaryModelTrailPosition(active_pokemon, active_pokemon->oscillationPhase);
     BattleAnim_ApproachF((f32*)(transform + 0x28), -(BattleScene_GetParticipantHeight(active_pokemon) * 2.6), 0.04f);
@@ -475,7 +475,7 @@ void BattleAnim_Dig(ActivePokemon* owner, ActivePokemon* animated_pokemon) {
 /**
  * Agility: resets the oscillation, the facing and the transform.
  */
-void BattleAnim_AgilityStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_AgilityStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->oscillationPhase = 0;
     arg1->oscillationVelocityEasePhase = 0;
     arg1->animationState = 0;
@@ -562,7 +562,7 @@ void BattleAnim_Agility(ActivePokemon* owner, ActivePokemon* animated_pokemon) {
 /**
  * Double Team: shows the secondary models at the main transform and resets the orbit timer.
  */
-void BattleAnim_DoubleTeamStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_DoubleTeamStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     BattleScene_ShowSecondaryModelsAtMainTransform(arg1);
     arg1->doubleTeamTimer = 0;
     BattleScene_PositionParticipantModel(arg1);
@@ -623,7 +623,7 @@ void BattleAnim_ResetOwnerFacingAndExitStatusIdle(ActivePokemon* arg0) {
 /**
  * Seismic Toss: resets the oscillation and facing.
  */
-void BattleAnim_SeismicTossStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_SeismicTossStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->oscillationPhase = 0;
     arg1->oscillationAngularVelocity = 0;
     arg1->oscillationVelocityEasePhase = 0;
@@ -705,7 +705,7 @@ void BattleAnim_MinimizeStart(DisplayObject* arg0, ActivePokemon* arg1) {
 /**
  * Minimize: eases the model scale toward 0.65.
  */
-void BattleAnim_MinimizeContinue(s32 arg0, s32 arg1) {
+void BattleAnim_MinimizeContinue(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32 PORT: arg1 was s32
     BattleAnim_ApproachF(arg0 + 0x30, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
     BattleAnim_ApproachF(arg0 + 0x34, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
     BattleAnim_ApproachF(arg0 + 0x38, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
@@ -732,7 +732,7 @@ void BattleAnim_Minimize(ActivePokemon* owner, ActivePokemon* animated_pokemon) 
 /**
  * Withdraw: advances straight to the continue step.
  */
-void BattleAnim_WithdrawStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_WithdrawStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->modelTransformTimer = (s32) (arg1->modelTransformTimer + 1);
 }
 
@@ -1000,7 +1000,7 @@ void BattleAnim_BindHitReactionContinue(ActivePokemon* owner, ActivePokemon* ani
  * Hit reaction of the target of Bind, Wrap or Constrict (transform case 16;
  * Stadium 1 called it the lasso reaction). Seen in game for all three moves.
  */
-void BattleAnim_BindHitReaction(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_BindHitReaction(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     s32 temp_v0;
 
     temp_v0 = arg1->modelTransformTimer;
@@ -1017,7 +1017,7 @@ void BattleAnim_BindHitReaction(s32 arg0, ActivePokemon* arg1) {
 /**
  * Surf: resets the animation counter.
  */
-void BattleAnim_SurfStart(s32 arg0, ActivePokemon* arg1) {
+void BattleAnim_SurfStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32
     arg1->animationState = 0;
     arg1->modelTransformTimer = (s32) (arg1->modelTransformTimer + 1);
 }

@@ -1882,7 +1882,7 @@ void BattleAnim_SetupHydroPumpColorShiftFade(Particle* arg0); // PORT: signature
 void BattleAnim_RunHydroPumpColorShiftFade(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupHydroPumpColorShiftFade(arg0);

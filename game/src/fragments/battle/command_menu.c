@@ -69,7 +69,7 @@ void BattleScene_SelectActiveController(ActivePokemon* arg0) {
 s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleScene_SelectActiveController(ActivePokemon* arg0); // PORT: signature from the definition (fragments/battle/command_menu.c)
 void BattleAnim_PlaySoundEffect3(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
-extern s8 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s8, holds a pointer
 
 /**
  * While the command menu option is 3, waits for L on the Pokemon's controller (unless the
@@ -122,7 +122,7 @@ void BattleMenu_CommitMoveSelection(ActivePokemon* arg0) {
     }
 }
 
-extern s32 D_8218C6F0;
+extern s8* D_8218C6F0; // PORT: was s32, holds a pointer
 /**
  * Fight menu check for a Pokemon with no usable PP: shows 「…は だすことの
  * できる わざが ない」 ("has no moves it can use"), then A confirms Struggle
@@ -187,8 +187,8 @@ s32 BattleMenu_HandleNoUsableMoves(arg0) ActivePokemon *arg0;
   return 0;
 }
 
-extern s32 D_8218C6F4;
-extern s32 D_8218C6F8;
+extern s8* D_8218C6F4; // PORT: was s32, holds a pointer
+extern s8* D_8218C6F8; // PORT: was s32, holds a pointer
 
 typedef struct BattleMoveCheck8210CA24 {
     /* 0x000 */ char unk000[0x7A0];
@@ -327,14 +327,14 @@ void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
  * breakpoint): ran only for Bide, Bind, Clamp, Fire Spin, Wrap.
  * @unverified Name guessed from the code.
  */
-s32 BattleScene_HandlePlayerMoveSelectionLocked(ActivePokemon* active_pokemon, M2C_UNK unused) // PORT: was s8*
+s32 BattleScene_HandlePlayerMoveSelectionLocked(ActivePokemon* active_pokemon, Controller* unused) // PORT: was s8* PORT: unused was M2C_UNK
 {
-  *((s8 *) (((s8 *) active_pokemon) + 0x7B6)) = 1; // FAKE
+  active_pokemon->state.moveSelectionLocked = 1; // FAKE
   if (1) // FAKE
   {
-    *((s8 *) (((s8 *) active_pokemon) + 0x7B6)) = 1; // FAKE
+    active_pokemon->state.moveSelectionLocked = 1; // FAKE
     BattleMenu_UpdateMoveMenu(active_pokemon);
-    *((s8 *) (((s8 *) active_pokemon) + 0x7B6)) = 1; // FAKE
+    active_pokemon->state.moveSelectionLocked = 1; // FAKE
   }
   return 0;
 }
@@ -368,7 +368,7 @@ void BattleMenu_CommitSwitchSelection(ActivePokemon* arg0) {
     }
 }
 
-extern s32 D_8218C6FC;
+extern s8* D_8218C6FC; // PORT: was s32, holds a pointer
 
 /**
  * Returns 1 if the chosen party member has HP left; otherwise plays the error sound,
@@ -467,7 +467,7 @@ void BattleMenu_TakeControlOnCButtonPress(ActivePokemon* arg0, Controller* arg1,
     }
 }
 
-extern s32 D_8218C700;
+extern s8* D_8218C700; // PORT: was s32, holds a pointer
 
 /**
  * Clears the caption state and shows caption D_8218C700 with the Pokemon's nickname.
@@ -1024,7 +1024,7 @@ extern s32 D_82199EBC;
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (11 of the moves).
  * @unverified Name from Stadium 1.
  */
-void BattleScene_TriggerCpuChoice(s32 arg0, s32 arg1, s8* arg2, s8* arg3, ActivePokemon* arg4) {
+void BattleScene_TriggerCpuChoice(BattleMonRuntime* arg0, BattleMonRuntime* arg1, s8* arg2, s8* arg3, ActivePokemon* arg4) { // PORT: arg0 was s32 PORT: arg1 was s32
     if (D_FLT_82199EB0 == 1.0f) {
         if (D_82199EBC == 0) {
             D_82199EBC = 1;

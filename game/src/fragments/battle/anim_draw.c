@@ -575,5 +575,5 @@ void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3); 
  * @unverified Name guessed from the code.
  */
 void ParticleGfx_DrawFullScreenColorOverlay(Particle* arg0, M2C_UNK arg1) { // PORT: was s8*
-    BattleAnim_DrawFullScreenColorOverlay(M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), M2C_FIELD(arg0, u8 *, 0xC0));
+    BattleAnim_DrawFullScreenColorOverlay(arg0->prim_r, arg0->prim_g, arg0->prim_b, arg0->prim_a);
 }

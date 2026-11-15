@@ -54,10 +54,10 @@ extern u8 D_300C2D0[];
 
 extern u8* D_82202C1C[];
 extern u8* D_82202C3C[];
-extern u8 D_82202C60[];
-extern u8 D_82202C7C[];
-extern u8 D_82202CD0[];
-extern u8 D_82202CEC[];
+extern Key80027168 D_82202C60[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202C7C[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202CD0[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202CEC[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
 extern u8 D_82202D40[];
 extern u8 D_82202DDC[];
 extern u8 D_82202E9C[];
@@ -75,7 +75,7 @@ extern ModelNodeView* D_82203250;
 extern ModelNodeView* D_82203254;
 extern ModelNodeView* D_82203258;
 extern BinArchive* D_8220325C;
-extern s32 D_82203264;
+extern PokeIconRenderer* D_82203264; // PORT: was s32, holds a pointer
 extern DisplayObject D_82203268;
 extern DisplayObject D_822033D0;
 extern s16 D_822033E8;
@@ -142,7 +142,7 @@ void VsScene_StoreNodeCallback(s32 phase, s8 *node)
   s8 **new_var; // FAKE: permuter temp
   if (phase == 0)
   {
-    new_var = *((s8 ***) (((s8 *) node) + 0x14)); // FAKE: permuter temp
+    new_var = (s8**)((GraphNode*)node)->callbackArg; // PORT: was the N64 offset 0x14
     *new_var = node; // FAKE: permuter temp
   }
 }
@@ -275,7 +275,7 @@ s32 VsScene_DrawFrame(s32 unused) {
 }
 
 M2C_UNK BgStage_AdvanceFrame();                            /* extern */
-s32 BezierPath_Step(s8 *, s32);                       /* extern */
+s32 BezierPath_Step(Obj80027168* path, Vec3f* out); // PORT: signature from the definition (game_state.c)
 
 /*
  * VsScene_ZoomIntoScreen
@@ -304,23 +304,23 @@ s32 BezierPath_Step(s8 *, s32);                       /* extern */
  * flames.
  */
 void VsScene_ZoomIntoScreen(void) {
-    s8 sp7C[0x3C];
-    s8 sp40[0x3C];
-    s32 sp3C;
+    Obj80027168 sp7C; // PORT: was s8[0x3C], the path is larger on the host
+    Obj80027168 sp40; // PORT: was s8[0x3C], the path is larger on the host
+    CameraNode* sp3C; // PORT: was s32
     s32 temp_s0_2;
 
-    sp3C = (uintptr_t)D_82203240->children;
+    sp3C = D_82203240->children;
     if (D_822036A4->mode == 0) {
-        BezierPath_InitEased(sp7C, (uintptr_t) &D_82202CD0);
-        BezierPath_InitEased(sp40, (uintptr_t) &D_82202CEC);
+        BezierPath_InitEased(&sp7C, D_82202CD0);
+        BezierPath_InitEased(&sp40, D_82202CEC);
     } else {
-        BezierPath_InitEased(sp7C, (uintptr_t) &D_82202C60);
-        BezierPath_InitEased(sp40, (uintptr_t) &D_82202C7C);
+        BezierPath_InitEased(&sp7C, D_82202C60);
+        BezierPath_InitEased(&sp40, D_82202C7C);
     }
     do {  // karodo
     } while (0); // karodo
-    while (BezierPath_Step(sp7C, sp3C + 0xA8) != 0) {
-        BezierPath_Step(sp40, sp3C + 0xB4);
+    while (BezierPath_Step(&sp7C, &sp3C->view.eyePosition) != 0) {
+        BezierPath_Step(&sp40, &sp3C->view.targetPosition);
         temp_s0_2 = VsScene_DrawFrameToImage(0);
         BgStage_AdvanceFrame();
         if (temp_s0_2 != 0) {
@@ -329,10 +329,10 @@ void VsScene_ZoomIntoScreen(void) {
     }
 }
 
-extern s8 D_82202C98;
-extern s8 D_82202CB4;
-extern s8 D_82202D08;
-extern s8 D_82202D24;
+extern Key80027168 D_82202C98[]; // PORT: was s8, Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202CB4[]; // PORT: was s8, Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202D08[]; // PORT: was s8, Bezier keys the lifter must swap as s16
+extern Key80027168 D_82202D24[]; // PORT: was s8, Bezier keys the lifter must swap as s16
 s32 StageFade_Start(s32 duration); // PORT: signature from the definition (stage_loader.c)
 M2C_UNK Audio_StopMusic(M2C_UNK);
 /**
@@ -344,28 +344,28 @@ M2C_UNK Audio_StopMusic(M2C_UNK);
  * next-round panels: the camera pulls back out of the screen to the field, then the screen fades.
  */
 void VsScene_ZoomOutOfScreen(void) {
-    s8 sp8C[0x3C];
-    s8 sp50[0x3C];
+    Obj80027168 sp8C; // PORT: was s8[0x3C], the path is larger on the host
+    Obj80027168 sp50; // PORT: was s8[0x3C], the path is larger on the host
     s32 i = 0;
-    s32 rec;
+    CameraNode* rec; // PORT: was s32
     s32 done;
 
-    rec = (uintptr_t)D_82203240->children;
+    rec = D_82203240->children;
     if (D_822036A4->mode == 0) {
-        BezierPath_InitEased(sp8C, (uintptr_t) &D_82202D08);
-        BezierPath_InitEased(sp50, (uintptr_t) &D_82202D24);
+        BezierPath_InitEased(&sp8C, D_82202D08);
+        BezierPath_InitEased(&sp50, D_82202D24);
     } else {
-        BezierPath_InitEased(sp8C, (uintptr_t) &D_82202C98);
-        BezierPath_InitEased(sp50, (uintptr_t) &D_82202CB4);
+        BezierPath_InitEased(&sp8C, D_82202C98);
+        BezierPath_InitEased(&sp50, D_82202CB4);
     }
     do {  // karodo
     } while (0); // karodo
-    while (BezierPath_Step(sp8C, rec + 0xA8) != 0) {
+    while (BezierPath_Step(&sp8C, &rec->view.eyePosition) != 0) {
         if (i++ == 20) {
             StageFade_Start(0x20);
             Audio_StopMusic(60);
         }
-        BezierPath_Step(sp50, rec + 0xB4);
+        BezierPath_Step(&sp50, &rec->view.targetPosition);
         done = VsScene_DrawFrameToImage(0);
         BgStage_AdvanceFrame();
         if (done != 0) {
@@ -526,11 +526,11 @@ void VsScene_Play(void) {
     VsScene_LoadTeamIcons(&D_82203170[0], 0);
     VsScene_LoadTeamIcons(&D_82203170[1], 1);
     if (D_822036A4->mode == 0) {
-        Vec3f_FromVec3s(&camera->view.targetPosition, (Vec3s*)(D_82202CEC + 2));
-        Vec3f_FromVec3s(&camera->view.eyePosition, (Vec3s*)(D_82202CD0 + 2));
+        Vec3f_FromVec3s(&camera->view.targetPosition, &D_82202CEC[0].a);
+        Vec3f_FromVec3s(&camera->view.eyePosition, &D_82202CD0[0].a);
     } else {
-        Vec3f_FromVec3s(&camera->view.targetPosition, (Vec3s*)(D_82202C7C + 2));
-        Vec3f_FromVec3s(&camera->view.eyePosition, (Vec3s*)(D_82202C60 + 2));
+        Vec3f_FromVec3s(&camera->view.targetPosition, &D_82202C7C[0].a);
+        Vec3f_FromVec3s(&camera->view.eyePosition, &D_82202C60[0].a);
     }
     StageLoader_RunFrames(2);
     StageFade_Start(0x80);

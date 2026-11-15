@@ -39,7 +39,7 @@ void SceneMode11_UnusedNop(void) {
  * high target shot, 1-3 BattleScene_FrameParticipantFromAboveThunk/830/874).
  * @unverified Name guessed from the code.
  */
-void SceneMode11_FrameDemoPokemon(s32 active_pokemon, s32 camera, s32 framing) {
+void SceneMode11_FrameDemoPokemon(ActivePokemon* active_pokemon, CameraNode* camera, s32 framing) { // PORT: active_pokemon was s32 PORT: camera was s32
     switch (framing) {
         case 0:
             BattleScene_CameraShotTargetHighThunk(camera, active_pokemon);
@@ -63,7 +63,7 @@ void BattleScene_SetCameraEyeFromPosition(CameraNode* arg0, Vec3f arg1, s16 arg2
  * angles (rotation_x, rotation_y) and the distance.
  * @unverified Name guessed from the code.
  */
-void SceneMode11_FrameFromAimPoint(s32 camera, s32 active_pokemon, f32 distance, f32 zoom, s16 rotation_x, s16 rotation_y) {
+void SceneMode11_FrameFromAimPoint(CameraNode* camera, ActivePokemon* active_pokemon, f32 distance, f32 zoom, s16 rotation_x, s16 rotation_y) { // PORT: active_pokemon was s32 PORT: camera was s32
     BattleScene_GetParticipantAimPoint(active_pokemon, &sBattleScene.scene->anchorPosition);
     BattleScene_SetCameraAtFromAnchor(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, 0x4000, zoom, 0.0f);
     BattleScene_SetCameraEyeFromPosition(camera, sBattleScene.scene->anchorPosition, rotation_x, rotation_y, distance, 0.0f);
@@ -241,7 +241,7 @@ void SceneMode11_StepHoldCut(CameraNode* camera) {
     D_8219A594 = 0xFF;
     if (D_8219A50C == 5) {
         BattleCamera_StepDemoPath(camera, D_8219A590);
-        if (((s32) M2C_FIELD(D_8219A590, s32 *, 0x48) >> 0x10) == 0x26) {
+        if (((s32) ((ActivePokemon*)D_8219A590)->displayObject.transformAnim.frameFixed /* PORT: was the N64 offset 0x48 */ >> 0x10) == 0x26) {
             Audio_PlayMoveSound(0x38, 9, 0);
         }
         if (BattleScene_AdvanceCameraFrameCounter(55) != 0) {
@@ -301,7 +301,7 @@ extern u8 D_8219A594;
  * restarts the demo cut at full alpha and sets phase step 2.
  * @unverified Name guessed from the code.
  */
-void SceneMode11_StepWaitModelReload(s32 camera) {
+void SceneMode11_StepWaitModelReload(CameraNode* camera) { // PORT: camera was s32
     u8 *temp_v0;
 
     if (((ActivePokemon*)D_8219A590)->side->modelFlags & 0x10) {

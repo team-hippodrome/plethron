@@ -48,10 +48,10 @@ void Battle_ComputePokemonStat(s32 arg0, BattleMon* arg1);
 void TurnOrder_UnusedNopA(void) {
 }
 
-extern s32 D_8218C788;
-extern s32 D_8218C78C;
-extern s32 D_8218C790;
-extern s32 D_8218C794;
+extern s8* D_8218C788; // PORT: was s32, holds a pointer
+extern s8* D_8218C78C; // PORT: was s32, holds a pointer
+extern s8* D_8218C790; // PORT: was s32, holds a pointer
+extern s8* D_8218C794; // PORT: was s32, holds a pointer
 /**
  * Save the target's current HP and queue an HP-band message for the acting participant.
  * Seen in play (2026-11-13) in a Free Battle switch (1P switched to its second Pokémon) it ran when
@@ -111,10 +111,10 @@ void Battle_ResetTransientRuntimeState(s32 arg0, s32 arg1) {
     D_82199F30 = 1;
 }
 
-extern s32 D_8218C798;
-extern s32 D_8218C79C;
-extern s32 D_8218C7A0;
-extern s32 D_8218C7A4;
+extern s8* D_8218C798; // PORT: was s32, holds a pointer
+extern s8* D_8218C79C; // PORT: was s32, holds a pointer
+extern s8* D_8218C7A0; // PORT: was s32, holds a pointer
+extern s8* D_8218C7A4; // PORT: was s32, holds a pointer
 extern char D_8219544C[];
 /**
  * Formats the comment on the hit that just landed from the share of the target's max HP lost

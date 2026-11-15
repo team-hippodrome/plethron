@@ -2,7 +2,7 @@
 #include "battle.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-void BattleScene_OpeningStepLandSide0Ball(CameraNode* arg0);
+void BattleScene_OpeningStepLandSide0Ball(CameraNode* arg0); // PORT: signature from the definition (fragments/battle/phases_2.c)
 
 /**
  * Battle opening phase: steps through the intro camera shots and both send-outs.

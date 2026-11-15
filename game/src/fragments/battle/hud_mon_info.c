@@ -112,7 +112,7 @@ void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
  * trainer's name, the string "1P" at 0x800AE8FC, which is the label in the top-left box. Was
  * BattleHud_DrawSpeciesNameLabel, but it draws the trainer name, not the species.
  */
-void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, const char* arg3, s32 arg4) { // PORT: arg3 was s32
     u32 sp24;
     s32 temp_v0;
 
@@ -133,7 +133,7 @@ void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, s32 arg3, s32 
  * trainer's name, fullwidth "ＣＯＭ" at 0x800AED04, the label in the COM side's box. Was
  * BattleHud_DrawSpeciesNameLabelBlink.
  */
-void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, s32 arg3, u16 arg4, s32 arg5) {
+void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, const char* arg3, u16 arg4, s32 arg5) { // PORT: arg3 was s32
     UNUSED s32 pad; // FAKE: stack padding
     s16 wave;
     s16 alpha;

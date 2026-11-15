@@ -489,7 +489,7 @@ void BattleScene_PhaseSecondAction(CameraNode* arg0) {
  * breakpoint): ran only for Conversion, Double Team, Growth, Harden, Hyper Beam, Mimic, Minimize.
  * @unverified Name guessed from the code.
  */
-void BattleCamera_PlayRandomUserShot3(s32 camera)
+void BattleCamera_PlayRandomUserShot3(CameraNode* camera) // PORT: camera was s32
 {
   s32 temp_v0;
   s32 var_v1;
@@ -517,7 +517,7 @@ void BattleCamera_PlayRandomUserShot3(s32 camera)
  * Plays one of the user's camera shots 0-3, picked at random (the pick is kept in D_8219A568).
  * @unverified Name guessed from the code.
  */
-void BattleCamera_PlayRandomUserShot4(s32 camera)
+void BattleCamera_PlayRandomUserShot4(CameraNode* camera) // PORT: camera was s32
 {
   s32 temp_v0;
   s32 var_v1;
@@ -561,7 +561,7 @@ void BattleCamera_PlayRandomUserShot4(s32 camera)
  * breakpoint): ran only for Bide, Explosion, Selfdestruct, Swords Dance.
  * @unverified Name guessed from the code.
  */
-void BattleCamera_PlayRandomUserShotWith4(s32 camera)
+void BattleCamera_PlayRandomUserShotWith4(CameraNode* camera) // PORT: camera was s32
 {
   s32 temp_v0;
   s32 var_v1;
@@ -604,7 +604,7 @@ void BattleCamera_PlayRandomUserShotWith4(s32 camera)
  * turns): ran.
  * @unverified Name from the code.
  */
-void BattleCamera_PlayUserShot(s32 arg0, s32 arg1) {
+void BattleCamera_PlayUserShot(CameraNode* arg0, s32 arg1) { // PORT: arg0 was s32
     switch (arg1) {
         case 0:
             BattleCamera_PlayShot(sActingPokemon, arg0, 0);
@@ -659,7 +659,7 @@ void BattleCamera_PlayTargetShot(ActivePokemon* arg0, CameraNode* arg1, s32 arg2
  * 5, 6 and 7 use their own setups, and shot 4 also sets scene+0x54.
  * @unverified Name guessed from the code.
  */
-void BattleCamera_PlayMoveUserShot(s32 camera) {
+void BattleCamera_PlayMoveUserShot(CameraNode* camera) { // PORT: camera was s32
     BattleMonRuntime* runtime;
 
     runtime = &(sActingPokemon)->state.runtime;
@@ -2075,7 +2075,7 @@ void BattleScene_PhaseResidualDamageAfterMove(CameraNode* arg0) {
 void BattleScene_CleanupParticipantEffectMode(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
 s32 BattleScene_ReloadModelForFlag2000(ActivePokemon*);
 void Battle_ResetModelToIdleAnim(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
-void BattleAnim_QueueEffectList(u8 arg0, s32 arg1);
+void BattleAnim_QueueEffectList(u8 arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleScene_SetCameraOwnerWideShot(CameraNode*, ActivePokemon*);
 void BattleScene_EaseCameraToRecoilFraming(CameraNode*, ActivePokemon*);
 void BattleAnim_PlayBattleSequenceById(ActivePokemon*, s32);
