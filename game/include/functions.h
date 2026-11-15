@@ -7,7 +7,7 @@
 
 
 // 517A0.s
-void D_80048010(s32, void*);
+void D_80048010(void*, void*); // PORT: the source was s32 (a host pointer now; src/port/zero_asm.c)
 
 // bcopy.s
 void _bcopy(void* src, void* dst, s32);
