@@ -196,7 +196,7 @@ extern char D_89018E68[];
  * Seen in play (2026-11-14): ポケモンをみる (no prompt) and ポケモンをにがす (「ほんとうにいいの？」) in
  * ポケモンのせいり, and A on a Pokémon in ボックスのなかをみる.
  */
-void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* win, s32 x, s32 y, s32 mon, s32 prompt, s32 controller, u16* renderer) {
+void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* win, s32 x, s32 y, BattleMon* mon, char* prompt, Controller* controller, u16* renderer) { // PORT: typed (were s32)
     Window_SetRect((s8*)&win->window, x, y, 430, 292);
     win->window.animTimer = 0;
     win->window.title = NULL;
@@ -210,10 +210,10 @@ void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* win, s32 x, s32 y, s32 mon, s
     win->choice.cursor = 0;
     win->choice.controller = (Controller*)D_800603C0;
     func_8000B2F4(D_800603C0);
-    win->choice.controller = (Controller*)controller;
+    win->choice.controller = controller;
     func_8000B2F4(controller);
-    win->title = (char*)prompt;
-    win->mon = (BattleMon*)mon;
+    win->title = prompt;
+    win->mon = mon;
     win->animLoaded = 0;
     win->anim = renderer;
     if (prompt != 0) {
@@ -281,7 +281,7 @@ void PcBox_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
  * Seen in play (2026-11-13) in the せいとん > ポケモンをにがす confirm it drew くさ and どく for フシギダネ, and ほのお
  * with no type 2 for ヒトカゲ.
  */
-void PcBox_DrawTypeName(s32 x, s32 y, s32 mon, s32 type_slot) {
+void PcBox_DrawTypeName(s32 x, s32 y, BattleMon* mon, s32 type_slot) { // PORT: mon typed (was s32)
     Color890075E0 c;
     s32 idx = Pokemon_GetTypeIndex(mon, type_slot);
 
@@ -391,8 +391,8 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
             PcBox_DrawMoveName(D_8900A884[i].x + x, D_8900A884[i].y + y, BattleMon_GetMoveIndex(win->mon, i), D_8900A884[i].centered);
         }
         func_8001ABBC();
-        PcBox_DrawTypeName(x + 156, y + 0x40, (uintptr_t)win->mon, 0);
-        PcBox_DrawTypeName(x + 156, y + 124, (uintptr_t)win->mon, 1);
+        PcBox_DrawTypeName(x + 156, y + 0x40, win->mon, 0);
+        PcBox_DrawTypeName(x + 156, y + 124, win->mon, 1);
         gSPDisplayList(gDisplayListHead++, D_80060290);
         for (i = 0; i < count; i++) {
             func_8001B884(D_8900A884[i].iconX + x, D_8900A884[i].y + y, 20, 20, (u8*)D_8900A884[i].icon, 0x14, 0x200000);
@@ -409,9 +409,9 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         }
         if (win->animLoaded == 0) {
             win->animLoaded = 1;
-            func_80019008((uintptr_t)win->anim, win->mon, 0x416D);
+            func_80019008((PokeModelPreview*)win->anim, win->mon, 0x416D);
         }
-        tex = func_800196F8((uintptr_t)win->anim);
+        tex = func_800196F8((PokeModelPreview*)win->anim);
         BgStage_DrawFrame();
         gSPDisplayList(gDisplayListHead++, D_80060290);
         gDPSetAlphaCompare(gDisplayListHead++, G_AC_NONE);
@@ -474,7 +474,7 @@ s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
  * Draws one cell of the box contents grid: the Pokémon's icon, L%d and nickname.
  * Seen in play (2026-11-14): ホ L6 and タ L4 in GBのボックス2 and 64のボックス1.
  */
-void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, s32 renderer) {
+void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, PokeIconRenderer* renderer) { // PORT: renderer typed (was s32)
     s32 pad[4]; // FAKE
 
     gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -499,7 +499,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, s32 
         Font_Printf(x + 5, y + 48, (char*)mon->nickname);
         func_8001ABBC();
         gSPDisplayList(gDisplayListHead++, D_80073408);
-        func_8001B884(x + 44, y + 4, 40, 40, PokeIcon_GetImage(renderer, index), 0x28, 0x200000);
+        func_8001B884(x + 44, y + 4, 40, 40, PokeIcon_GetImage((s8*)renderer, index), 0x28, 0x200000); // PORT: PokeIcon_GetImage still returns s32 (resident)
         gSPDisplayList(gDisplayListHead++, D_80073438);
     }
 }
@@ -519,7 +519,7 @@ void PcBox_DrawListCell();
  * prefix, `box_index` the digit) with a 6 x 5 icon grid of the box's Pokémon.
  * Seen in play (2026-11-14): ボックスのなかをみる opened 「64のボックス1」 and 「GBのボックス2」.
  */
-void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box, s32 renderer, s32 is_stadium, s32 box_index) {
+void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box, PokeIconRenderer* renderer, s32 is_stadium, s32 box_index) { // PORT: renderer typed (was s32)
     UNUSED s32 pad[2]; // FAKE: stack padding
     s32 i;
     u8* p;
@@ -539,7 +539,7 @@ void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box,
     for (p = (u8*)box, i = 0; i < box->count; i++, p += 0x50) {
         Color_RGBA8 c = D_8900A5BC;
 
-        PokeIcon_SetMonSlot((PokeIconRenderer*)renderer, i, (BattleMon*)p, GPACK_RGBA5551(c.r, c.g, c.b, 1));
+        PokeIcon_SetMonSlot(renderer, i, (BattleMon*)p, GPACK_RGBA5551(c.r, c.g, c.b, 1));
     }
     win->iconRenderer = renderer;
 }
@@ -559,7 +559,7 @@ void PcBox_DrawList(PcBoxListWindow* win, s32 flags) {
             func_800189C0(win->iconRenderer, 0);
             BgStage_DrawFrame();
         }
-        GridMenu_DrawInlineItems((s8*)&win->menu, win->window.frame.x + 6, win->window.frame.y + 6, flags | 0xFFED, win->iconRenderer);
+        GridMenu_DrawInlineItems((s8*)&win->menu, win->window.frame.x + 6, win->window.frame.y + 6, flags | 0xFFED, (intptr_t)win->iconRenderer);
     }
 }
 
@@ -791,16 +791,16 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = (Controller*)D_800603C0;
     func_8000B2F4(D_800603C0);
-    Menu_Init(&win->gbBoxMenu, gb_box_table, win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
+    Menu_Init(&win->gbBoxMenu, gb_box_table, win->gbBoxFlags, (MenuDrawItemFunc)PcBox_DrawGbBoxRow, 206, 28);
     win->gbBoxMenu.options |= 0x10000;
-    Menu_Init(&win->stadiumBoxMenu, (gb_box_table + 1), win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
+    Menu_Init(&win->stadiumBoxMenu, (gb_box_table + 1), win->stadiumBoxFlags, (MenuDrawItemFunc)PcBox_DrawStadiumBoxRow, 260, 56);
     win->stadiumBoxMenu.options |= 0x10000;
     win->state = 1;
 }
 
-extern s32 D_8900A924[];
-extern s32 D_8900A93C[];
-void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
+extern char* D_8900A924[]; // PORT: a table of string pointers (was s32)
+extern PrimEnvColor* D_8900A93C[]; // PORT: a table of color pointers (was s32)
+void LabItem_DrawTitleText(s32 x, s32 y, char* text, PrimEnvColor* colors); // PORT: matches the definition
 /**
  * Draws the selected operation's caption while the operation column has the cursor.
  * Seen in play (2026-11-14): 「６４へボックスをいどうする」, 「ＧＢへボックスをいどうする」,
@@ -1391,8 +1391,8 @@ void Save_DrawReportingWindow(SavePrompt*);
 s32 SavePrompt_Update(SavePrompt*);
 s32 PcBox_HasUnsavedChanges(PcBoxScreen* arg0);
 void PcBox_SaveChanges(PcBoxScreen* arg0);
-void PcBox_InitListWindow(PcBoxListWindow* arg0, s32 arg1, s32 arg2, PcBoxStorage* arg3, s32 arg4, s32 arg5, s32 arg6);
-void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u16* arg6);
+void PcBox_InitListWindow(PcBoxListWindow* arg0, s32 arg1, s32 arg2, PcBoxStorage* arg3, PokeIconRenderer* arg4, s32 arg5, s32 arg6); // PORT: matches the definition
+void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* arg0, s32 arg1, s32 arg2, BattleMon* arg3, char* arg4, Controller* arg5, u16* arg6); // PORT: matches the definition
 /**
  * Runs the PC box screen's state machine for one frame.
  * Seen in play (2026-11-12): ran ボックスのそうさ.
@@ -1449,7 +1449,7 @@ s32 PcBox_UpdateScreen(PcBoxScreen* screen) {
                 } else {
                     Audio_PlaySystemSound(2);
                     screen->state = 3;
-                    PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)entry, 0, D_800603C0, screen->monRenderer);
+                    PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (BattleMon*)entry, NULL, D_800603C0, screen->monRenderer);
                 }
             }
             break;

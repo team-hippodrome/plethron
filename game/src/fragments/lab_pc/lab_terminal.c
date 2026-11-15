@@ -107,7 +107,7 @@ void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 extern u8 D_800734A8[];
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 extern u8 D_800734A8[];
-extern s32 D_8900A650[];
+extern char* D_8900A650[]; // PORT: a table of string pointers (was s32)
 extern char* D_8900A660[];
 extern char* D_8900A66C[];
 extern s8* D_8900A678[];
@@ -128,7 +128,7 @@ s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatr
 s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
 s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
 extern Color_RGBA8 D_8900A698;
-extern u8 D_8900A69C[];
+extern LabPcImage D_8900A69C; // PORT: an image header (was u8[])
 extern char D_89018660[];
 extern char D_8901866C[];
 void Ui_DrawImageInStrips(void*, s32, s32);
@@ -166,7 +166,7 @@ extern char D_890186C0[];
 extern char D_890186CC[];
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 void Font_SetColorForFlags(s32);
-extern s32 D_8900A6CC[];
+extern char* D_8900A6CC[]; // PORT: a table of string pointers (was s32)
 extern s8 *D_8900A6D8[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 extern u8 D_800735C4[];
@@ -386,16 +386,16 @@ void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT:
  * Sets up a terminal menu window with its rows and title.
  * Seen in play (2026-11-12) in せいとん: ran on entry as the せいとん menu window appeared.
  */
-void LabTerminal_InitMenuWindow(LabTerminalMenuWindow* win, s32 x, s32 y, s32 width, s32 height, char* names, s32 count, char* descriptions, s32 description_lines, char* title) {
+void LabTerminal_InitMenuWindow(LabTerminalMenuWindow* win, s32 x, s32 y, s32 width, s32 height, char** names, s32 count, char** descriptions, s32 description_lines, char* title) { // PORT: names and descriptions typed (were char*)
 
     Window_SetRect((s8*)&win->window, x, y, width, height);
     win->window.state = 0;
     win->window.animTimer = 0;
     win->window.frame.style = 0x801;
     win->window.title = title;
-    func_80027804(&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)LabTerminal_DrawMenuRow, width - 12, 0x20);
-    win->descriptions = (char**)descriptions;
+    func_80027804(&win->items, (void**)names, count, count);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (MenuDrawItemFunc)LabTerminal_DrawMenuRow, width - 12, 0x20);
+    win->descriptions = descriptions;
     win->descriptionLines = description_lines;
 }
 
@@ -453,10 +453,10 @@ s32 LabTerminal_UpdateMenuWindow(LabTerminalMenuWindow* win) {
     return ret;
 }
 
-extern char D_8900A704[];
-extern char D_8900A710[];
+extern char* D_8900A704[]; // PORT: a table of string pointers (was char)
+extern char* D_8900A710[]; // PORT: a table of string pointers (was char)
 extern char D_890188F4[];
-void LabTerminal_InitMenuWindow(LabTerminalMenuWindow*, s32, s32, s32, s32, char*, s32, char*, s32, char*);
+void LabTerminal_InitMenuWindow(LabTerminalMenuWindow*, s32, s32, s32, s32, char**, s32, char**, s32, char*); // PORT: matches the definition
 
 /**
  * Sets up the せいとん menu window at (0x30, 0x5C), 0x170 x 0xCE: ポケモンを いどうする,
@@ -551,7 +551,7 @@ Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_In
  * bar and steps the tint over 8 frames.
  * Seen in play (2026-11-14): ran for the frames before the せいとん menu appeared.
  */
-s32 LabTerminal_UpdateFade(s32 unused) {
+s32 LabTerminal_UpdateFade(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     Col8900429C sp2C;
     M2C_UNK *var_a1;
     s32 n;
@@ -605,7 +605,7 @@ extern s32 D_890289D4;
  * One frame of the lab terminal.
  * Seen in play (2026-11-12): ran every frame of せいとん.
  */
-s32 LabTerminal_RunFrame(s32 unused) {
+s32 LabTerminal_RunFrame(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     s32 sp1C;
     s32 temp_v0;
 
@@ -668,7 +668,7 @@ extern u8 D_88000000[];
 extern u8 D_00235D70[];
 extern u8 D_00238BD0[];
 void LabTerminal_InitScreen(void);
-s32 LabTerminal_UpdateFade(s32);
+s32 LabTerminal_UpdateFade(u8);
 
 /**
  * LabTerminal_Init

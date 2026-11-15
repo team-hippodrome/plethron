@@ -30,7 +30,7 @@ typedef struct Label89100FC4 {
 
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
-extern s32 D_8910A7F8[3];
+extern char* D_8910A7F8[3]; // PORT: the source names (was s32)
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
@@ -707,7 +707,7 @@ Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_In
  * Steps the screen fade; returns once eight frames have passed.
  * Seen in play (2026-11-13) ran on the frames the いちらん (list) screen faded in from the main menu.
  */
-s32 LabPCList_UpdateFade(UNUSED s32 unused) {
+s32 LabPCList_UpdateFade(UNUSED u8 unused) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     Col891049E8 sp2C;
     M2C_UNK *var_a1;
     s32 n;
@@ -746,11 +746,11 @@ extern LabPCList D_8910E3D0;
  * One frame of the Pokemon list screen.
  * Seen in play (2026-11-12): ran every frame of いちらん.
  */
-void LabPCList_RunFrame(UNUSED s32 unused) {
+s32 LabPCList_RunFrame(UNUSED u8 unused) { // PORT: was void; on the N64 UpdateScreen's result stayed in v0 and ended the loop
     Cont_StartReadInputs();
     Cont_ReadInputs();
     LabPCList_DrawScreen(&D_8910E3D0);
-    LabPCList_UpdateScreen(&D_8910E3D0);
+    return LabPCList_UpdateScreen(&D_8910E3D0);
 }
 
 extern u8 D_01000000[];
@@ -762,7 +762,7 @@ extern u8 D_004076E0[];
 extern u8 D_88000000[];
 extern u8 D_00235D70[];
 extern u8 D_00238BD0[];
-s32 LabPCList_UpdateFade(s32);
+s32 LabPCList_UpdateFade(u8);
 
 /**
  * LabPCList_Init

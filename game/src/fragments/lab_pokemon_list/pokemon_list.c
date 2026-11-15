@@ -38,7 +38,7 @@ void LabPCList_SaveDirtyItemDecks(LabPCListScreen* screen) { // PORT: typed (was
     }
 }
 
-extern s32 D_8910A7F8[3];
+extern char* D_8910A7F8[3]; // PORT: the source names (was s32)
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 
 /**

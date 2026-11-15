@@ -51,6 +51,6 @@ void PikachuReward_TeachSurfToPikachu(s32 move_slot);
 void PikachuReward_RunSequence(void);
 void PikachuReward_SetupQuestionMarkModel(DisplayObject* mark, s16 x, s16 y, s16 rotation_z);
 void PikachuReward_SetupScene(void);
-s32 Stadium_BonusPikachuReward(UNUSED s32 arg0, s32 session);
+s32 Stadium_BonusPikachuReward(UNUSED s32 arg0, intptr_t session);
 
 #endif // FRAGMENT_PIKACHU_REWARD_H

@@ -838,7 +838,7 @@ void Registration_InitTeamList(RegistrationTeamList* list, s32 x, s32 y, s8 *tea
  */
 void Registration_DrawCursorTeamRow(RegistrationTeamList* list) {
     s32 index = list->list.cursor;
-    s32* entry = &((s32*)list->list.items->rows)[index];
+    u8** entry = &((u8**)list->list.items->rows)[index]; // PORT: the rows are pointers
 
     Registration_DrawTeamRow(list->window.frame.x + 6, list->window.frame.y + 6, *entry, index, 0, 0);
 }
@@ -1204,7 +1204,7 @@ Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_In
  * Seen in play (2026-11-13) ran on the frames the registration screen faded in from the main menu.
  * Seen in play (2026-11-14): also ran when B left for the main menu.
  */
-s32 Registration_UpdateFade(s32 fade_mode) {
+s32 Registration_UpdateFade(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     Col88102A2C sp2C;
     M2C_UNK *var_a1;
     s32 n;
@@ -1246,11 +1246,11 @@ extern RegistrationScreen* D_881030F8;
  * leaves the menu.
  * Seen in play (2026-11-12): ran every frame of the とうろく screen.
  */
-void Registration_RunFrame(s32 fade_mode) {
+s32 Registration_RunFrame(u8 fade_mode) { // PORT: was void; on the N64 UpdateScreen's result stayed in v0 and ended the loop
     Cont_StartReadInputs();
     Cont_ReadInputs();
     Registration_DrawScreen(D_881030F8);
-    Registration_UpdateScreen(D_881030F8);
+    return Registration_UpdateScreen(D_881030F8);
 }
 
 void Util_Free(void* ptr); // PORT: matches the definition

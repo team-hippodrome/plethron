@@ -324,7 +324,7 @@ s32 Leo_RunBootStateMachine(LeoBootDescriptor* arg0); // PORT: no prototype in t
  * lobby (clear color 0xFFFF); boot state poked to 10 faded to black (clear color 1); left idle,
  * the demo battle started.
  */
-s32 TitleScreen_Update(s32 fade_mode) {
+s32 TitleScreen_Update(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     s32 result;
     s32 boot_status;
     s32 temp_v0;
@@ -387,7 +387,7 @@ extern M2C_UNK D_002F0A50;
 extern M2C_UNK D_01000000;
 extern M2C_UNK D_02000000;
 extern u8* sTitleBackgroundImage; // PORT: was s32
-extern s32 sTitleAudioHeap;
+extern u8* sTitleAudioHeap; // PORT: was s32 (holds a pointer)
 extern s32 sPushStartBlinkTimer;
 
 void Leo_AbortPendingBootRequest(void); // PORT: no prototype in the decomp
