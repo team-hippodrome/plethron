@@ -88,22 +88,17 @@ void Audio_Enable(void) {
     D_800AAE30 = 1;
 }
 
-M2C_UNK SchedClient_WaitMessage(M2C_UNK *);                   /* extern */
-M2C_UNK Sched_AddClient(M2C_UNK *);                   /* extern */
-M2C_UNK func_80004F34(s8 *, M2C_UNK);             /* extern */
-M2C_UNK func_800082D0();                            /* extern */
-M2C_UNK __amHandleFrame(s8 *);                      /* extern */
-M2C_UNK Audio_SetOutputMode(M2C_UNK);                     /* extern */
-M2C_UNK Audio_LoadSoundData();                            /* extern */
-void Audio_SetChannelVolume(s32 arg0, u32 arg1);            /* extern */
-extern s32 D_800AAE30;
+void SchedClient_WaitMessage(SchedClient*); // PORT: typed prototypes (were M2C_UNK)
+void Sched_AddClient(SchedClient*);
+void Profiler_LogThread4Time(void);
+OSTask* __amHandleFrame(OSTask*);
+void Audio_SetOutputMode(s32);
+void Audio_LoadSoundData(void);
+void Audio_SetChannelVolume(s32 arg0, u32 arg1);
 extern SchedClient D_800AAE38; // PORT: typed (was s8): its queue is D_800AAE48, at another host offset
-extern s8 D_800AAE68;
-extern s8 D_800AAE6C;
-extern s8 D_800AAED0;
-extern s8 D_800AAED4;
+// PORT: typed (was s8 D_800AAE68, D_800AAE6C, D_800AAED0, D_800AAED4 and raw 0x68 strides): the two audio frame tasks
+extern SchedTask D_800AAE68[2];
 extern s32 D_800AAF38;
-extern s32 D_800AAF3C;
 /**
  * Audio thread (id 4, started by Idle_ThreadEntry): sets up its queues, registers as a scheduler client,
  * loads the sound data, then each retrace builds and sends an audio frame task (__amHandleFrame) while
@@ -115,10 +110,10 @@ void Audio_ThreadEntry(s32 arg0) {
     D_800AAE30 = 1;
     D_800AAF3C = -1;
     D_800AAF38 = 0;
-    osCreateMesgQueue(&D_800AAE6C, &D_800AAE68, 1);
-    osCreateMesgQueue(&D_800AAED4, &D_800AAED0, 1);
-    osSendMesg(&D_800AAE6C, 0x444F4E45, 0); // 'DONE'
-    osSendMesg(&D_800AAED4, 0x444F4E45, 0); // 'DONE'
+    osCreateMesgQueue(&D_800AAE68[0].queue, &D_800AAE68[0].mesg, 1);
+    osCreateMesgQueue(&D_800AAE68[1].queue, &D_800AAE68[1].mesg, 1);
+    osSendMesg(&D_800AAE68[0].queue, OS_MESG_32(0x444F4E45), 0); // 'DONE'
+    osSendMesg(&D_800AAE68[1].queue, OS_MESG_32(0x444F4E45), 0); // 'DONE'
     // PORT: PORT_NO_AUDIO=1 runs the game without the sound driver (while its 64-bit port is in progress)
     if (getenv("PORT_NO_AUDIO") != NULL) {
         for (;;) {
@@ -130,12 +125,12 @@ void Audio_ThreadEntry(s32 arg0) {
     Audio_SetChannelVolume(3, 4);
 loop_1:
     SchedClient_WaitMessage(&D_800AAE38);
-    func_800082D0();
+    Profiler_LogThread4Time();
     if ((D_800AAE30 != 0) && (D_800A9710.preNmiFrames < 21)) {
-        __amHandleFrame(&D_800AAE68 + (D_800AAF38 * 0x68) + 0x20);
-        func_80004F34(&D_800AAE68 + (D_800AAF38 * 0x68), 0);
+        __amHandleFrame(&D_800AAE68[D_800AAF38].task);
+        Sched_SubmitTask(&D_800AAE68[D_800AAF38], 0);
     }
     D_800AAF38 ^= 1;
-    func_800082D0();
+    Profiler_LogThread4Time();
     goto loop_1; // FAKE: goto loop
 }

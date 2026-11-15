@@ -37,7 +37,7 @@ Acmd* n_alAdpcmPull(N_PVoice* filter, s16* outp, s32 outCount, Acmd* p) {
 
     inp = N_AL_DECODER_IN;
 
-    aLoadADPCM(ptr++, f->dc_bookSize, K0_TO_PHYS(f->dc_table->waveInfo.adpcmWave.book->book));
+    aLoadADPCM(ptr++, f->dc_bookSize, osVirtualToPhysical(f->dc_table->waveInfo.adpcmWave.book->book)); // PORT: was K0_TO_PHYS
 
     looped = (outCount + f->dc_sample > f->dc_loop.end) && (f->dc_loop.count != 0);
     if (looped) {
@@ -136,7 +136,7 @@ Acmd* n_alAdpcmPull(N_PVoice* filter, s16* outp, s32 outCount, Acmd* p) {
      * overFlow is the number of bytes past the end
      * of the bitstream I try to generate
      */
-    overFlow = f->dc_memin + nbytes - ((uintptr_t)f->dc_table->base + f->dc_table->len);
+    overFlow = (s32)(f->dc_memin + nbytes - ((uintptr_t)f->dc_table->base + f->dc_table->len)); // PORT: cast
     if (overFlow < 0) {
         overFlow = 0;
     }
@@ -248,22 +248,23 @@ s32 n_alLoadParam(N_PVoice* filter, s32 paramID, void* param) {
 }
 
 Acmd* _decodeChunk(Acmd* ptr, N_PVoice* f, s32 tsam, s32 nbytes, s16 outp, s16 inp, u32 flags) {
-    s32 dramAlign, dramLoc;
+    s32 dramAlign;
+    intptr_t dramLoc; // PORT: a host pointer (was s32)
 
     if (nbytes > 0) {
         dramLoc = (f->dc_dma)(f->dc_memin, nbytes, f->dc_dmaState);
         dramAlign = dramLoc & 0x7;
         nbytes += dramAlign;
-        n_aLoadBuffer(ptr++, nbytes + 8 - (nbytes & 0x7), inp, dramLoc - dramAlign);
+        n_aLoadBufferKind(ptr++, nbytes + 8 - (nbytes & 0x7), inp, dramLoc - dramAlign, PORT_ACMD_BE); // PORT: sample data in N64 byte order
     } else {
         dramAlign = 0;
     }
 
     if (flags & A_LOOP) {
-        aSetLoop(ptr++, K0_TO_PHYS(f->dc_lstate));
+        aSetLoop(ptr++, osVirtualToPhysical(f->dc_lstate)); // PORT: was K0_TO_PHYS
     }
 
-    n_aADPCMdec(ptr++, K0_TO_PHYS(f->dc_state), flags, tsam << 1, dramAlign, outp);
+    n_aADPCMdec(ptr++, osVirtualToPhysical(f->dc_state), flags, tsam << 1, dramAlign, outp); // PORT: was K0_TO_PHYS
     f->dc_first = 0;
     return ptr;
 }

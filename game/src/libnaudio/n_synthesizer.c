@@ -44,7 +44,7 @@ void n_alSynNew(ALSynConfig* c) {
     n_syn->dma = (ALDMANew)c->dmaproc;
 
     /******* save new *******************************/
-    n_syn->sv_dramout = 0;
+    n_syn->sv_dramout = NULL; // PORT: a pointer (was 0)
     n_syn->sv_first = 1;
 
     /******* aux new *******************************/
@@ -157,7 +157,7 @@ Acmd* n_alAudioFrame(Acmd* cmd_list, s32* cmd_len, s16* out_buf, s32 outLen) {
          * the head of the filter chain.
          */
         cmd_ptr = cmdl_end;
-        n_syn->sv_dramout = (uintptr_t)l_out_buf;
+        n_syn->sv_dramout = l_out_buf; // PORT: was cast to s32
         cmdl_end = n_alSavePull(n_syn->curSamples, cmd_ptr);
 
         outLen -= n_out;
