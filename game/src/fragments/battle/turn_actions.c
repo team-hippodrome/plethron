@@ -11,7 +11,7 @@ void Battle_ResetModelToIdleAnim(ActivePokemon* active_pokemon); // PORT: signat
 void BattleScene_SetCameraClipPlanes(CameraNode* camera_node, f32 near_plane, f32 far_plane); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 void BattleScene_ClearCameraOffsetVectors(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 void BattleScene_ResetAnimationStep(void); // PORT: signature from the definition (fragments/battle/owner_animation.c)
-extern M2C_UNK D_8218B630;
+extern Vec3f D_8218B630; // PORT: was M2C_UNK, its floats were passed as int bits
 extern f32 D_FLT_82189354[][4];
 extern s32 D_82199DE0;
 extern s32 D_82199DE4;
@@ -629,7 +629,7 @@ void BattleScene_InitTurnPresentation(CameraNode* arg0) { // PORT: was s32 arg0
     sp34 = sActingPokemon;
     sp30 = sOtherPokemon;
     Announcer_SetActive(0);
-    BattleScene_SetCameraClipPlanes(arg0, 0x41A00000, 0x457A0000);
+    BattleScene_SetCameraClipPlanes(arg0, 20.0f /* PORT: was 0x41A00000 */, 4000.0f /* PORT: was 0x457A0000 */);
     BattleScene_ResetAnimationStep();
     sBattleScene.scene->stepFrameTimer = 0;
     sBattleScene.scene->rotationX = 0;
@@ -639,9 +639,9 @@ void BattleScene_InitTurnPresentation(CameraNode* arg0) { // PORT: was s32 arg0
     BattleScene_ClearCameraOffsetVectors();
     BattleScene_ClearPhaseFlag();
     if ((sp34->displayObject.position.y > 100.0f) && (sp30->displayObject.position.y > 100.0f)) {
-        BattleScene_SetCameraAtAndEyeFromAngles(arg0, M2C_FIELD(&D_8218B630, s32 *, 0), M2C_FIELD(&D_8218B630, f32 *, 4) + 200.0f, M2C_FIELD(&D_8218B630, s32 *, 8), sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
+        BattleScene_SetCameraAtAndEyeFromAngles(arg0, D_8218B630.x, D_8218B630.y + 200.0f, D_8218B630.z, sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
     } else {
-        BattleScene_SetCameraAtAndEyeFromAngles(arg0, M2C_FIELD(&D_8218B630, s32 *, 0), M2C_FIELD(&D_8218B630, f32 *, 4), M2C_FIELD(&D_8218B630, s32 *, 8), sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
+        BattleScene_SetCameraAtAndEyeFromAngles(arg0, D_8218B630.x, D_8218B630.y, D_8218B630.z, sBattleScene.scene->distance, (s32) sBattleScene.scene->rotationX, (s32) sBattleScene.scene->rotationY);
     }
     Battle_ResetModelToIdleAnim(D_82199DE0);
     Battle_ResetModelToIdleAnim(D_82199DE4);

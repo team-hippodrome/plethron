@@ -385,7 +385,7 @@ void BattleAnim_CallbackFireSmokeParticle(Particle* particle) {
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 2, 0);
         Particle_ApproachPrimAlpha(particle, 0x20, 4);
-        Particle_ApproachScale(particle, 0x3F400000, 0x3D4CCCCD); // 0.75f, 0.05f
+        Particle_ApproachScale(particle, 0.75f /* PORT: was 0x3F400000 */, 0.05f /* PORT: was 0x3D4CCCCD */); // 0.75f, 0.05f
         break;
     case 4:
         Particle_MarkInactive(particle);
@@ -716,9 +716,9 @@ void BattleAnim_RunOscillatingFlameUnderneathPokemon(Particle* arg0) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, -1);
-        Particle_ApproachScale(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
-        Particle_AddMotionOffsetYScaled(arg0, 0x40000000); // 2.0f
-        Particle_UpdateRotatingVelocityXZ(arg0, 0x41200000, 0x800); // 10.0f
+        Particle_ApproachScale(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.0f, 0.1f
+        Particle_AddMotionOffsetYScaled(arg0, 2.0f /* PORT: was 0x40000000 */); // 2.0f
+        Particle_UpdateRotatingVelocityXZ(arg0, 10.0f /* PORT: was 0x41200000 */, 0x800); // 10.0f
         Particle_ApproachPrimGreen(arg0, 0, 4);
         Particle_ApproachEnvRed(arg0, 0, 4);
         if ((Particle_DecrementParam0ToZero(arg0) != 0) && (Particle_ApproachPrimAlpha(arg0, 0, 0x18) != 0)) {
@@ -778,11 +778,11 @@ void BattleAnim_FireSpinParticleUpdate(Particle* arg0) {
         }
         break;
     case 3:
-        Particle_ApproachScale(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
+        Particle_ApproachScale(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.0f, 0.1f
         break;
     }
     if (Particle_IsRenderingEnabled(arg0) != 0) {
-        Particle_UpdateRotatingVelocityXZ(arg0, 0x42480000, 0); // 50.0f
+        Particle_UpdateRotatingVelocityXZ(arg0, 50.0f /* PORT: was 0x42480000 */, 0); // 50.0f
     }
 }
 
@@ -881,7 +881,7 @@ void BattleAnim_EmberParticleUpdateB(Particle* arg0) {
         Particle_DisableAndDetach(arg0);
         break;
     }
-    Particle_ApproachScale(arg0, 0x3F19999A, 0x3D4CCCCD); // 0.6f, 0.05f
+    Particle_ApproachScale(arg0, 0.6f /* PORT: was 0x3F19999A */, 0.05f /* PORT: was 0x3D4CCCCD */); // 0.6f, 0.05f
 }
 
 /**
@@ -979,7 +979,7 @@ void BattleAnim_EmberParticleUpdateA(Particle* arg0) {
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 3, 1, 2, 0);
         Particle_AddVelocityXZFromRotationYPlusHalfTurn(arg0);
         ParticleGfx_ApproachPrimEnvPalettePair(arg0, 0, 0x20);
-        Particle_ApproachScale(arg0, 0x3FC00000, 0x3DCCCCCD); // 1.5f, 0.1f
+        Particle_ApproachScale(arg0, 1.5f /* PORT: was 0x3FC00000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.5f, 0.1f
         return;
     case 4:
         Particle_MarkInactive(arg0);
@@ -1337,7 +1337,7 @@ void BattleAnim_CallbackEnd40Desc48SpreadScaleAlphaFade(Particle* arg0) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 2, 7, 1, 1, 0);
-        Particle_ApproachScale(arg0, 0x3F99999A, 0x3D4CCCCD); // 1.2f, 0.05f
+        Particle_ApproachScale(arg0, 1.2f /* PORT: was 0x3F99999A */, 0.05f /* PORT: was 0x3D4CCCCD */); // 1.2f, 0.05f
         Particle_ApproachPrimAlpha(arg0, 0x64, 0x10);
         Particle_AddVelocityFromRotationTemplate1(arg0);
         return;
@@ -1410,11 +1410,11 @@ void BattleAnim_RunSecondaryBombExplosion(Particle* arg0) {
         }
         return;
     case 3:
-        Particle_ApproachScale(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
+        Particle_ApproachScale(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.0f, 0.1f
         Particle_ApproachPrimRed(arg0, 0, 0xC);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
         Particle_AddVelocityFromRotationTemplate1(arg0);
-        Particle_AddPosOffsetYScaled(arg0, 0x3ECCCCCD); // 0.4f
+        Particle_AddPosOffsetYScaled(arg0, 0.4f /* PORT: was 0x3ECCCCCD */); // 0.4f
         BattleAnim_FirePunchEmberEggBombColorChange(arg0);
         if ((Particle_DecrementParam0ToZero(arg0) != 0) && (Particle_ApproachPrimAlpha(arg0, 0x20, 0x10) != 0)) {
             Particle_AdvanceLifecycle(arg0);
@@ -1489,7 +1489,7 @@ void BattleAnim_CallbackEnd56Desc46RisingScaleAlphaFade(Particle* arg0) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 2, 7, 1, 1, 0);
-        Particle_ApproachScale(arg0, 0x3EE66667, 0x3D99999A); // 0.45f, 0.075f
+        Particle_ApproachScale(arg0, 0.45000002f /* PORT: was 0x3EE66667 */, 0.075f /* PORT: was 0x3D99999A */); // 0.45f, 0.075f
         Particle_ApproachPrimAlpha(arg0, 0x64, 0x10);
         Particle_AddVelocityFromRotationTemplate1(arg0);
         return;
@@ -1552,7 +1552,7 @@ void BattleAnim_EmberSpreadScaleAlphaRise(Particle* arg0) {
             Particle_ApproachStepMagnitude(arg0, 0.5, 0.5f);
             Particle_AddVelocityFromRotationTemplate1(arg0);
             if (Particle_DecrementParam0ToZero(arg0) != 0) {
-                Particle_AddMotionOffsetYScaled(arg0, 0x3F000000); // 0.5f
+                Particle_AddMotionOffsetYScaled(arg0, 0.5f /* PORT: was 0x3F000000 */); // 0.5f
                 Particle_PrimAlpha_Approach_0BC2C(arg0, 0x64, 0x10);
             }
             break;
@@ -1628,10 +1628,10 @@ void BattleAnim_RunFirePunchLingeringHitSpark(Particle* arg0) {
     case 3:
         Particle_ApproachPrimRed(arg0, 0, 0xC);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
-        Particle_ApproachScale(arg0, 0x3FC00000, 0x3E19999A); // 1.5f, 0.15f
+        Particle_ApproachScale(arg0, 1.5f /* PORT: was 0x3FC00000 */, 0.15f /* PORT: was 0x3E19999A */); // 1.5f, 0.15f
         BattleAnim_FirePunchEmberEggBombColorChange(arg0);
         Particle_AddVelocityFromRotationTemplate1(arg0);
-        Particle_AddPosOffsetYScaled(arg0, 0x3ECCCCCD); // 0.4f
+        Particle_AddPosOffsetYScaled(arg0, 0.4f /* PORT: was 0x3ECCCCCD */); // 0.4f
         if ((Particle_DecrementParam0ToZero(arg0) != 0) && (Particle_ApproachPrimAlpha(arg0, 0x20, 0x10) != 0)) {
             Particle_AdvanceLifecycle(arg0);
             return;
@@ -1704,7 +1704,7 @@ void BattleAnim_RunAfterImpactSmoke(Particle* arg0) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 2, 7, 1, 1, 0);
-        Particle_ApproachScale(arg0, 0x3E99999A, 0x3D4CCCCD); // 0.3f, 0.05f
+        Particle_ApproachScale(arg0, 0.3f /* PORT: was 0x3E99999A */, 0.05f /* PORT: was 0x3D4CCCCD */); // 0.3f, 0.05f
         Particle_ApproachPrimAlpha(arg0, 0x64, 0x10);
         return;
     case 4:
@@ -1775,7 +1775,7 @@ void BattleAnim_RunFirePunchHitEffect(Particle* arg0) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 1, 0);
-        Particle_ApproachScale(arg0, 0x3F800000, 0x3CA3D70A); // 1.0f, 0.02f
+        Particle_ApproachScale(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.02f /* PORT: was 0x3CA3D70A */); // 1.0f, 0.02f
         Particle_ApproachPrimBlue(arg0, 0, 0x20);
         Particle_ApproachEnvGreen(arg0, 0, 0x20);
         if (arg0->textureFrame >= 6) {
@@ -2005,7 +2005,7 @@ void BattleAnim_CallbackEnd15And22And59Desc3DSpinFade(Particle* particle) {
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 2, 0);
         Particle_ApproachPrimAlpha(particle, 0x20, 4);
-        Particle_ApproachScale(particle, 0x3F99999A, 0x3DCCCCCD); // 1.2f, 0.1f
+        Particle_ApproachScale(particle, 1.2f /* PORT: was 0x3F99999A */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.2f, 0.1f
         break;
     case 4:
         Particle_MarkInactive(particle);
@@ -2211,7 +2211,7 @@ void BattleAnim_RunDaimonjiColoration(Particle* arg0) {
         break;
     }
     if (Particle_IsRenderingEnabled(arg0) != 0) {
-        Particle_ApproachScale(arg0, 0x3F800000, 0x3CCCCCCD); // 1.0f, 0.025f
+        Particle_ApproachScale(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.025f /* PORT: was 0x3CCCCCCD */); // 1.0f, 0.025f
         Particle_AnimateFramesForwardLooped(arg0, 0, 7, 1, 2, 0);
     }
 }

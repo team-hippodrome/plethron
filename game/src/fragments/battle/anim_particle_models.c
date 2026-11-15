@@ -763,7 +763,7 @@ void BattleAnim_CallbackMove86StartDescriptor24(Particle* particle) {
         Particle_DisableAndDetach(particle);
         break;
     }
-    Particle_ApproachScale(particle, 0x41200000, 0x3D4CCCCD); // 10.0f, 0.05f
+    Particle_ApproachScale(particle, 10.0f /* PORT: was 0x41200000 */, 0.05f /* PORT: was 0x3D4CCCCD */); // 10.0f, 0.05f
     Particle_MoveXZAlongRotationY(particle);
 }
 

@@ -164,7 +164,7 @@ void BattleAnim_InitStartEffect135ExpandingFlash(Particle* arg0) // PORT: arg0 w
 {
   u16 sp26;
   sp26 = Particle_GetByteParam1(arg0); // PORT: the argument was passed through a0
-  Particle_SetScaleScaled(arg0, 0x3F286BCA); // 0.657895f
+  Particle_SetScaleScaled(arg0, 0.65789473f /* PORT: was 0x3F286BCA */); // 0.657895f
   ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, sp26);
   if (!arg0)
   {
@@ -307,7 +307,7 @@ void BattleAnim_CallbackStartEffect137RiseFade(Particle* particle) {
         BattleAnim_InitStartEffect139Descriptor22SpinFade(particle);
         return;
     case 2:
-        Particle_ApproachScale(particle, 0x3DCCCCCD, 0x3C23D70A); // 0.1f, 0.01f
+        Particle_ApproachScale(particle, 0.1f /* PORT: was 0x3DCCCCCD */, 0.01f /* PORT: was 0x3C23D70A */); // 0.1f, 0.01f
         Particle_ApproachPrimAlpha(particle, 0, 8);
         Particle_AddVelocityFromRotationTemplate1(particle);
         Particle_DecrementParam0ToZeroThenAdvance(particle);

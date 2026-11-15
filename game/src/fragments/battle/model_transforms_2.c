@@ -706,9 +706,9 @@ void BattleAnim_MinimizeStart(DisplayObject* arg0, ActivePokemon* arg1) {
  * Minimize: eases the model scale toward 0.65.
  */
 void BattleAnim_MinimizeContinue(s32 arg0, s32 arg1) {
-    BattleAnim_ApproachF(arg0 + 0x30, 0x3F266666, 0x3D23D70A);
-    BattleAnim_ApproachF(arg0 + 0x34, 0x3F266666, 0x3D23D70A);
-    BattleAnim_ApproachF(arg0 + 0x38, 0x3F266666, 0x3D23D70A);
+    BattleAnim_ApproachF(arg0 + 0x30, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
+    BattleAnim_ApproachF(arg0 + 0x34, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
+    BattleAnim_ApproachF(arg0 + 0x38, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
     if (BattleAnim_StepMinimizeAfterimages(arg1) != 0) {
         BattleScene_ResetParticipantModelFlags(arg1);
         BattleScene_HideParticipantSecondaryModels(arg1);

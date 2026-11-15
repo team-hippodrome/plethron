@@ -326,7 +326,7 @@ void BattleAnim_RunSplashOfWater(Particle* arg0) {
         Particle_AnimateFramesForwardLooped(arg0, 0, 7, 1, 2, 0);
         Particle_ApproachPrimAlpha(arg0, 0x40, 2);
         Particle_AccelerateFall(arg0);
-        Particle_StepBackwardAlongRotationY(arg0, 0x41200000); // 10.0f
+        Particle_StepBackwardAlongRotationY(arg0, 10.0f /* PORT: was 0x41200000 */); // 10.0f
         Particle_DecrementParam0ToZeroThenAdvance(arg0);
         break;
     case 4:                                         /* switch 1 */
@@ -336,15 +336,15 @@ void BattleAnim_RunSplashOfWater(Particle* arg0) {
     temp_v0_2 = arg0->phase;
     switch (temp_v0_2) {                            /* switch 2; irregular */
     case 1:                                         /* switch 2 */
-        Particle_MagnitudeStep_Approach_0ADBC(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
+        Particle_MagnitudeStep_Approach_0ADBC(arg0, 1.0f /* PORT: was 0x3F800000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // 1.0f, 0.1f
         if (Particle_TickPhaseTimer(arg0, 4) != 0) {
             Particle_IncrementPhase(arg0);
-            Particle_SetMagnitudeStepScaled(arg0, 0x3E4CCCCD); // 0.2f
+            Particle_SetMagnitudeStepScaled(arg0, 0.2f /* PORT: was 0x3E4CCCCD */); // 0.2f
             return;
         }
         return;
     case 2:                                         /* switch 2 */
-        Particle_MagnitudeStep_Approach_0ADBC(arg0, 0xBF000000, 0x3E4CCCCD); // -0.5f, 0.2f
+        Particle_MagnitudeStep_Approach_0ADBC(arg0, -0.5f /* PORT: was 0xBF000000 */, 0.2f /* PORT: was 0x3E4CCCCD */); // -0.5f, 0.2f
         break;
     }
 }
@@ -379,7 +379,7 @@ void BattleAnim_RunDigHitDust(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, 0xC0000000, 0x3E99999A); // -2.0f, 0.3f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, -2.0f /* PORT: was 0xC0000000 */, 0.3f /* PORT: was 0x3E99999A */); // -2.0f, 0.3f
         Particle_ApplyMotionStep(arg0);
     }
 }
@@ -412,7 +412,7 @@ void BattleAnim_RunDigHitRocks(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, 0xC1200000, 0x3F4CCCCD); // -10.0f, 0.8f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, -10.0f /* PORT: was 0xC1200000 */, 0.8f /* PORT: was 0x3F4CCCCD */); // -10.0f, 0.8f
         Particle_ApplyMotionStep(arg0);
     }
 }
@@ -511,7 +511,7 @@ void BattleAnim_CallbackDescriptor50BurstChild(Particle* particle) {
     }
     if (Particle_IsRunning(particle) != 0) {
         Particle_ApproachScaleTarget(particle);
-        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, 0xBFC00000, 0x3DCCCCCD); // -1.5f, 0.1f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, -1.5f /* PORT: was 0xBFC00000 */, 0.1f /* PORT: was 0x3DCCCCCD */); // -1.5f, 0.1f
         Particle_ApplyMotionStep(particle);
     }
 }
@@ -603,7 +603,7 @@ void BattleAnim_CallbackVerticalFadeBurstChild(Particle* particle) {
     }
     if (Particle_IsRunning(particle) != 0) {
         Particle_ApproachScaleTarget(particle);
-        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, 0xBFC00000, 0x3E4CCCCD); // -1.5f, 0.2f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, -1.5f /* PORT: was 0xBFC00000 */, 0.2f /* PORT: was 0x3E4CCCCD */); // -1.5f, 0.2f
         Particle_ApplyMotionStep(particle);
     }
 }

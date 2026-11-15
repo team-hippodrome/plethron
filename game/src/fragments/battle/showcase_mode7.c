@@ -49,7 +49,7 @@ void SceneMode7_StepInit(s32 camera) {
 
     sp1C = D_82199DE0 + 0x78C;
     sBattleScene.scene->cameraPresetId = 0;
-    BattleScene_SetCameraClipPlanes(camera, 0x41A00000, 0x457A0000);
+    BattleScene_SetCameraClipPlanes(camera, 20.0f /* PORT: was 0x41A00000 */, 4000.0f /* PORT: was 0x457A0000 */);
     BattleScene_ResetCameraFrameCounter();
     sBattleScene.scene->actingSide = 0U;
     D_8219A580 = (&D_82199DE0)[sBattleScene.scene->actingSide];

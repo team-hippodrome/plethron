@@ -62,8 +62,8 @@ void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0) {
     s16 sp26;
 
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
-    Particle_SetScaleScaled(arg0, 0x3F000000); // 0.5f
-    Particle_SetVelocityRandomDirection(arg0, 0x42C80000); // 100.0f
+    Particle_SetScaleScaled(arg0, 0.5f /* PORT: was 0x3F000000 */); // 0.5f
+    Particle_SetVelocityRandomDirection(arg0, 100.0f /* PORT: was 0x42C80000 */); // 100.0f
     Particle_SetParam0(arg0, (s16) (sp26 + 1));
     ParticleGfx_RecolorPrim(arg0, 8);
     ParticleGfx_RecolorEnv(arg0, 0x33);

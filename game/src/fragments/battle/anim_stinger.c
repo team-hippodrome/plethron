@@ -55,7 +55,7 @@ void BattleAnim_UpdateNeedleBlueFadeGrow(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Particle_ApproachScale(arg0, 0x3F000000, 0x3D4CCCCD); // 0.5f, 0.05f
+        Particle_ApproachScale(arg0, 0.5f /* PORT: was 0x3F000000 */, 0.05f /* PORT: was 0x3D4CCCCD */); // 0.5f, 0.05f
     }
 }
 
@@ -86,7 +86,7 @@ void BattleAnim_UpdateSecondaryOwnerParticleBlueGrow(Particle* arg0) {
         BattleAnim_InitStingerTrailColorDuplicate(arg0); // PORT: the argument was passed through a0
     }
     if (Particle_IsRunning(arg0) != 0) {
-        Particle_ApproachScale(arg0, 0x3F4CCCCD, 0x3DA3D70A); // 0.8f, 0.08f
+        Particle_ApproachScale(arg0, 0.8f /* PORT: was 0x3F4CCCCD */, 0.08f /* PORT: was 0x3DA3D70A */); // 0.8f, 0.08f
     }
 }
 

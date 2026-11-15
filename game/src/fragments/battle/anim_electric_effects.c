@@ -80,7 +80,7 @@ void BattleAnim_CallbackStart18And73Desc11ScatterRise(Particle* particle) {
         Particle_DisableAndDetach(particle);
         break;
     }
-    Particle_ApproachScale(particle, 0x3F800000, 0x3D4CCCCD); // 1.0f, 0.05f
+    Particle_ApproachScale(particle, 1.0f /* PORT: was 0x3F800000 */, 0.05f /* PORT: was 0x3D4CCCCD */); // 1.0f, 0.05f
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -334,7 +334,7 @@ void BattleAnim_CallbackSharedDirectionalSprayFade(Particle* particle) {
         BattleAnim_SetupSharedDirectionalSprayFade(particle);
         break;
     case 2:
-        Particle_ApproachScale(particle, 0x40000000, 0x3E4CCCCD); // 2.0f, 0.2f
+        Particle_ApproachScale(particle, 2.0f /* PORT: was 0x40000000 */, 0.2f /* PORT: was 0x3E4CCCCD */); // 2.0f, 0.2f
         Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
