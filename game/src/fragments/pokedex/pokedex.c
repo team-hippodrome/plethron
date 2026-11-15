@@ -276,7 +276,7 @@ void Pokedex_DrawActionMenuRow(s32 x, s32 y, char* label, s32 row, s32 flags) {
     Font_EndTexturedTextRendering();
 }
 
-extern M2C_UNK D_8A1057E8;
+extern char* D_8A1057E8[]; // PORT: the four menu strings (was M2C_UNK)
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up the action menu window, 180x168 at (x, y), with the 4 rows of D_8A1057E8 (データをみる "view data",
@@ -292,7 +292,7 @@ void Pokedex_InitActionMenuWindow(PokedexMenuWindow* menu_window, s32 x, s32 y) 
     menu_window->window.state = 0;
     menu_window->window.frame.style = 0x1000;
     menu_window->window.frame.color = D_8A1057D4;
-    func_80027804((s8*)&menu_window->items, &D_8A1057E8, 4, 4);
+    func_80027804((s8*)&menu_window->items, (void**)D_8A1057E8, 4, 4);
     Menu_Init((s8*)&menu_window->menu, (s8*)&menu_window->items, (s8*)menu_window->itemFlags, &Pokedex_DrawActionMenuRow, 168, 36);
     menu_window->menu.options |= 0x10000;
 }
@@ -464,7 +464,15 @@ s32 Ui_DrawFrameLeftCorners(s32, s32, s32, void*);
 s32 Ui_DrawImageInStrips(void*, s32, s32);
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 extern u8 D_8007356C;
-extern u8 D_8A11FC18;
+// PORT: an image header for Ui_DrawImageInStrips followed by its pixels (was u8), typed so the lifter widens the pointer
+typedef struct PokedexPreviewFrame {
+    /* 0x00 */ s32 stride;
+    /* 0x04 */ s32 height;
+    /* 0x08 */ s32 width;
+    /* 0x0C */ u8* pixels;
+    /* 0x10 */ u8 data[0xAE0];
+} PokedexPreviewFrame; // size = 0xAF0
+extern PokedexPreviewFrame D_8A11FC18;
 
 /**
  * Draws the データをみる page window: its frame, Pokedex_DrawEntryInfo and Pokedex_DrawEntryDescription, and

@@ -145,7 +145,7 @@ void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT:
  * Sets up a menu window whose height fits `count` rows.
  * Seen in play (2026-11-12): opened the 13-row 「どこからいどうする？」 box list.
  */
-void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 count, s32 cursor) {
+void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, char** names, s32 count, s32 cursor) { // PORT: names typed (was s32)
     s32 pad[2]; // FAKE: stack padding
 
     Window_SetRect((s8*)&win->window, x, y, 188, (count * 28) + 20);
@@ -154,8 +154,8 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
     win->window.animTimer = 0;
     win->window.frame.style = 0;
     win->window.frame.color = D_8900A5BC;
-    func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
+    func_80027804(&win->items, (void**)names, count, count);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (MenuDrawItemFunc)PcSort_DrawMenuRow, 176, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -235,7 +235,7 @@ void PcSort_DrawMonRow(s32 x, s32 y, u8* row, s32 index, s32 flags) {
  * Points the Pokemon list at a new set of entries.
  * Seen in play (2026-11-12): switched the right-hand list to the picked box.
  */
-void PcSort_SetMonList(PcSortMonList* list, s32 table) {
+void PcSort_SetMonList(PcSortMonList* list, ByteMatrix* table) { // PORT: table typed (was s32)
     ScrollList_SetItems(&list->list, table, list->itemFlags);
 }
 
@@ -246,7 +246,7 @@ void PcSort_DrawMonRow(s32, s32, u8*, s32, s32);
  * Sets up the scrolling Pokemon list at (`x`, `y`) with PcSort_DrawMonRow rows.
  * Seen in play (2026-11-12): set up the てもち and GBのボックス1 lists.
  */
-void PcSort_InitMonList(PcSortMonList* list, s32 x, s32 y, s32 table) {
+void PcSort_InitMonList(PcSortMonList* list, s32 x, s32 y, ByteMatrix* table) { // PORT: table typed (was s32)
     list->x = x;
     list->y = y;
     ScrollList_Init(&list->list, table, list->itemFlags, 6, PcSort_DrawMonRow, 204, 28);
@@ -311,7 +311,7 @@ s32 PcSort_UpdateMonList(PcSortMonList* menu, u32 flags) {
  * Grid menu callback that draws one of the six operation buttons of ポケモンのせいり.
  * Seen in play (2026-11-14): drew the いどうする, メニューへもどる, いれかえる, ならべかえる, みる and にがす buttons.
  */
-void PcSort_DrawOperationButton(s32 x, M2C_UNK y, M2C_UNK button, M2C_UNK index, s32 flags) {
+void PcSort_DrawOperationButton(s32 x, s32 y, ImageButton* button, s32 index, s32 flags) { // PORT: button typed (was M2C_UNK)
     ImageButton_Draw(button, flags);
 }
 
@@ -371,8 +371,8 @@ void PcSort_InitOrganizeWindow(PcSortOrganizeWindow* win, s32 x, s32 y, ByteMatr
     GridMenu_Init(&win->operationMenu, &win->buttonTable, &win->operationFlags, PcSort_DrawOperationButton, 2, 0, 0);
     win->rightBox = 1;
     win->leftBox = 0;
-    PcSort_InitMonList(&win->leftList, win->window.frame.x + 14, win->window.frame.y + 44, (uintptr_t)tables);
-    PcSort_InitMonList(&win->rightList, win->window.frame.x + 346, win->window.frame.y + 44, (uintptr_t)(tables + win->rightBox));
+    PcSort_InitMonList(&win->leftList, win->window.frame.x + 14, win->window.frame.y + 44, tables);
+    PcSort_InitMonList(&win->rightList, win->window.frame.x + 346, win->window.frame.y + 44, tables + win->rightBox);
     win->boxTables = tables;
     win->dirty = dirty;
     func_80027410(&win->partyView, tables->rows, 0x50, tables->capacity, 0);
@@ -389,7 +389,7 @@ void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002BC44(s32 arg0); // PORT: matches GbSave_GameToCategoryIndex
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
-extern s32 D_8900A758[];
+extern char* D_8900A758[]; // PORT: a table of string pointers (was s32)
 extern Color_RGBA8 D_8900A78C[2];
 extern Color_RGBA8 D_8900A794[2];
 extern void* D_89017A80[];
@@ -517,7 +517,7 @@ extern u8 D_800734A8[];
  * Draws `text` in the small font.
  * Seen in play (2026-11-12): the small 03/06 and 00/30 counts.
  */
-void PcSort_DrawSmallText(s32 x, s32 y, s32 text) {
+void PcSort_DrawSmallText(s32 x, s32 y, char* text) { // PORT: text typed (was s32)
     func_8001AB6C();
     func_8001A384(0x10, 0);
     func_8001AA9C(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
@@ -526,40 +526,40 @@ void PcSort_DrawSmallText(s32 x, s32 y, s32 text) {
     func_8001ABBC();
 }
 
-extern s32 D_8900A7EC[];
-extern s32 D_8900A804[];
-extern s32 D_8900A81C[];
-extern s32 D_8900A834[];
-void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
-void PcSort_DrawMonStats();
+extern char* D_8900A7EC[]; // PORT: a table of string pointers (was s32)
+extern char* D_8900A804[]; // PORT: a table of string pointers (was s32)
+extern char* D_8900A81C[]; // PORT: a table of string pointers (was s32)
+extern PrimEnvColor* D_8900A834[]; // PORT: a table of color pointers (was s32)
+void LabItem_DrawTitleText(s32 x, s32 y, char* text, PrimEnvColor* colors); // PORT: matches the definition
+void PcSort_DrawMonStats(s32 x, s32 y, u8* mon); // PORT: matches the definition
 
 /**
  * Draws the help line for the organize window's current state.
  * Seen in play (2026-11-12): 「ポケモンをいどうする」, 「どこからいどうする？」 and 「どこへいどうする？」.
  */
-void PcSort_DrawHelpText(s32* win) {
-    s32 idx = win[0x170 / 4];
-    s32** list;
+void PcSort_DrawHelpText(PcSortOrganizeWindow* win) { // PORT: typed (was s32* and N64 word indices)
+    s32 idx = win->operationMenu.cursor;
+    ScrollList* list;
 
-    switch (win[0]) {
+    switch (win->state) {
         case 1:
-            LabItem_DrawTitleText(win[48 / 4] + 88, win[52 / 4] + 26, D_8900A7EC[idx], D_8900A834[idx]);
+            LabItem_DrawTitleText(win->footerFrame.x + 88, win->footerFrame.y + 26, D_8900A7EC[idx], D_8900A834[idx]);
             break;
         case 2:
-            PcSort_DrawSmallText(win[48 / 4], win[52 / 4], D_8900A804[idx]);
+            PcSort_DrawSmallText(win->footerFrame.x, win->footerFrame.y, D_8900A804[idx]);
             break;
         case 3:
-            PcSort_DrawSmallText(win[48 / 4], win[52 / 4], D_8900A81C[idx]);
+            PcSort_DrawSmallText(win->footerFrame.x, win->footerFrame.y, D_8900A81C[idx]);
             break;
         case 4:
         case 6:
         case 7:
-            if (win[0] == 7) {
-                list = (s32**)&win[0x31C / 4];
+            if (win->state == 7) {
+                list = &win->rightList.list;
             } else {
-                list = (s32**)&win[0x294 / 4];
+                list = &win->leftList.list;
             }
-            PcSort_DrawMonStats(win[48 / 4], win[52 / 4], ((s32*)list)[2] * 0x50 + *list[0]);
+            PcSort_DrawMonStats(win->footerFrame.x, win->footerFrame.y, list->cursor * 0x50 + list->items->rows);
             break;
     }
 }
@@ -619,7 +619,7 @@ void PcSort_DrawOrganizeWindow(PcSortOrganizeWindow* win) {
         if ((win->state == 3) || (win->state == 11)) {
             PcSort_DrawMenu(&win->targetBoxWindow);
         }
-        PcSort_DrawHelpText((s32*)win);
+        PcSort_DrawHelpText(win);
         if ((win->state == 10) || (win->state == 11) || (win->state == 12) || (win->state == 13)) {
             TextBox_Draw(&win->textBox);
         }
@@ -698,7 +698,7 @@ void PcSort_OpenBox(PcSortOrganizeWindow* win) {
     temp_v0 = win->targetBoxWindow.menu.cursor;
     temp_a0 = &win->rightList;
     win->rightBox = temp_v0;
-    PcSort_SetMonList(temp_a0, (uintptr_t)(win->boxTables + temp_v0));
+    PcSort_SetMonList(temp_a0, win->boxTables + temp_v0);
     win->state = 4;
 }
 
@@ -741,7 +741,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                         Audio_PlaySystemSound(2);
                         next = 2;
                         if ((win->operationMenu.cursor == 3) || (win->operationMenu.cursor == 4) || (win->operationMenu.cursor == 5)) {
-                            PcSort_SetMonList(&win->rightList, (uintptr_t)(&win->partyView));
+                            PcSort_SetMonList(&win->rightList, &win->partyView);
                             win->rightBox = -1;
                         }
                     }
@@ -765,7 +765,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                 } else {
                     Audio_PlaySystemSound(2);
                     win->leftBox = win->sourceBoxWindow.menu.cursor;
-                    PcSort_SetMonList(&win->leftList, (uintptr_t)(win->boxTables + win->sourceBoxWindow.menu.cursor));
+                    PcSort_SetMonList(&win->leftList, win->boxTables + win->sourceBoxWindow.menu.cursor);
                     if ((win->operationMenu.cursor == 3) || (win->operationMenu.cursor == 4) || (win->operationMenu.cursor == 5)) {
                         win->state = 4;
                     } else {
@@ -892,7 +892,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
         switch (next) {
             case 2:
                 PcSort_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 37, win->window.frame.y - 20,
-                              (uintptr_t)D_8900A758, 0xD, win->leftBox);
+                              D_8900A758, 0xD, win->leftBox);
                 PcSort_DisableEmptyBoxes(&win->sourceBoxWindow, win->boxTables);
                 if ((win->operationMenu.cursor == 0) || (win->operationMenu.cursor == 5)) {
                     PcSort_DisableIfSingleMon(&win->sourceBoxWindow, win->boxTables);
@@ -900,7 +900,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                 break;
             case 3:
                 PcSort_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 371, win->window.frame.y - 20,
-                              (uintptr_t)D_8900A758, 0xD, win->rightBox);
+                              D_8900A758, 0xD, win->rightBox);
                 if (win->operationMenu.cursor == 0) {
                     PcSort_DisableFullBoxes(&win->targetBoxWindow, win->boxTables);
                 } else if (win->operationMenu.cursor == 2) {
@@ -1130,13 +1130,13 @@ s32 PcSort_UpdateScreen(PcSortScreen* screen) {
             } else if (res == 2) {
                 mon = screen->organizeWindow.leftList.list.cursor * 0x50 + *(u8**)screen->organizeWindow.leftList.list.items;
                 screen->state = 3;
-                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)mon, 0,
+                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (BattleMon*)mon, NULL,
                               D_800603C0, screen->monRenderer);
             } else if (res == 3) {
                 mon = screen->organizeWindow.leftList.list.cursor * 0x50 + *(u8**)screen->organizeWindow.leftList.list.items;
                 screen->state = 4;
-                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)mon,
-                              (uintptr_t)D_89018DBC, D_800603C0, screen->monRenderer);
+                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (BattleMon*)mon,
+                              (char*)D_89018DBC, D_800603C0, screen->monRenderer);
                 screen->statusWindow.choice.cursor = 1;
             }
             break;

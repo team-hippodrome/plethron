@@ -37,6 +37,15 @@ typedef struct LabItemCountSelector {
     /* 0x48 */ TextBox textBox; // @unverified: typed from the function it is passed to
 } LabItemCountSelector; // size = 0x80
 
+/* An image header for Ui_DrawImageInStrips (Img8002A3F8 in gb_save.c).
+ * PORT: typed so the lifter widens the pixels pointer (the images were declared as raw bytes). */
+typedef struct LabPcImage {
+    /* 0x00 */ s32 stride;
+    /* 0x04 */ s32 height;
+    /* 0x08 */ s32 width;
+    /* 0x0C */ u8* pixels;
+} LabPcImage; // size = 0x10
+
 /* A yes/no question in the Lab item screens (LabItem_InitConfirmWindow). */
 typedef struct LabItemConfirmWindow {
     /* 0x00 */ Window window;
@@ -78,7 +87,7 @@ typedef struct PcBoxListWindow {
     /* 0x00 */ Window window; // 552x342 at (44, 95), the ＧＢのボックス１ grid
     /* 0x2C */ GridMenu menu; // the 6x5 grid of the box: columns 6, cells 90x66
     /* 0x54 */ u16 itemFlags[30]; // @unverified: itemFlags of menu
-    /* 0x90 */ s32 iconRenderer; // @unverified: PokeIconRenderer for the icons (PokeIcon_SetMonSlot, func_800189C0)
+    /* 0x90 */ PokeIconRenderer* iconRenderer; // PORT: was s32; // @unverified: PokeIconRenderer for the icons (PokeIcon_SetMonSlot, func_800189C0)
     /* 0x94 */ ByteMatrix mons; // rows over the box's mons, 0x50 bytes each: rows = gbBoxes[0].mons, count 1
 } PcBoxListWindow; // size = 0xA4
 
@@ -121,7 +130,7 @@ typedef struct PcBoxScreen {
     /* 0x7508 */ ByteMatrix stadiumBoxTable; // rows = stadiumBoxEntries (count 4); items of operationWindow.stadiumBoxMenu
     /* 0x7518 */ ModelLoadContext* iconFramebuffers; // @unverified: PokeIcon_AllocFramebuffers
     /* 0x751C */ u16* monRenderer; // @unverified: func_80018F2C; the anim of statusWindow
-    /* 0x7520 */ s32 iconRenderer; // @unverified: func_80017FDC; the icons of listWindow
+    /* 0x7520 */ PokeIconRenderer* iconRenderer; // PORT: was s32; // @unverified: func_80017FDC; the icons of listWindow
 } PcBoxScreen; // size = 0x7524
 
 /* A box picker of the ポケモンを いどうする screen (PcSort_InitMenuWindow) over the box names D_8900A758.
@@ -292,7 +301,7 @@ typedef struct PcSortScreen {
     /* 0x785C */ s32 dirty[13]; // set when a table changed: [1] (GB box 1) and [12] (64 box 4) after moving ハナ; PcSort_SaveChanges writes those back
 } PcSortScreen; // size = 0x7890
 
-void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, u16* arg6);
+void PcBox_InitMonStatusWindow(PcBoxConfirmWindow* arg0, s32 arg1, s32 arg2, BattleMon* arg3, char* arg4, Controller* arg5, u16* arg6);
 s32 PcBox_UpdateConfirmCursor(PcBoxConfirmWindow* arg0);
 void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* arg0);
 

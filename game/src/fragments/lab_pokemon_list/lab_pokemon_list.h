@@ -204,7 +204,7 @@ typedef struct TmEntry8910A21C {
 } TmEntry8910A21C; // size = 0x14
 
 typedef struct Entry89100140 {
-    /* 0x00 */ s32 unk_00;
+    /* 0x00 */ char* unk_00; // PORT: was s32; the source's name (D_8910A7F8), the label LabSourceSelect_DrawRow prints
     /* 0x04 */ s32 unk_04;
     /* 0x08 */ s32 unk_08;
     /* 0x0C */ s32 unk_0C;

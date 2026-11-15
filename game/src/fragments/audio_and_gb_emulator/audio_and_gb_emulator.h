@@ -568,7 +568,7 @@ typedef struct GbAudioStream {
     /* 0x4 */ s32 pos;
 } GbAudioStream;
 
-#define GB_AUDIO_STREAM_DATA ((s8**)D_8115265C)
+#define GB_AUDIO_STREAM_DATA (D_8115265C) // PORT: D_8115265C is typed as pointers
 
 #define GB_AUDIO_STREAM_SIZE ((s32*)D_81152680)
 
@@ -1010,7 +1010,7 @@ extern GbAudioStream D_81138B8C;
 
 extern GbAudioStream D_81138B94;
 
-extern u8 D_8115265C[0x24];
+extern s8* D_8115265C[9]; // PORT: stream pointers (was u8[0x24])
 
 extern u8 D_81152680[0x24];
 

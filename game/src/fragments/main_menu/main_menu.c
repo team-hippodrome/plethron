@@ -54,7 +54,7 @@ void MainMenu_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags) {
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-extern s8 D_88001FD4[];
+extern char* D_88001FD4[]; // PORT: the three item strings (was s8[])
 extern u8 D_88001FE0[];
 extern u8 D_88001FE4[];
 /**
@@ -75,7 +75,7 @@ M2C_UNK MainMenu_InitPromptWindow(MainMenuPromptWindow* prompt, s32 x, s32 y) {
     obj->textFrame.style = 6;
     obj->textFrame.color = *(Color_RGBA8 *)D_88001FE0;
     obj->textFrame.color2 = *(Color_RGBA8 *)D_88001FE4;
-    func_80027804(&obj->itemList, D_88001FD4, 3, 3);
+    func_80027804(&obj->itemList, (void**)D_88001FD4, 3, 3);
     Menu_Init(&obj->menu, &obj->itemList, obj->itemFlags, MainMenu_DrawMenuRow, 360, 36);
     obj->menu.options |= 0x10000;
 }

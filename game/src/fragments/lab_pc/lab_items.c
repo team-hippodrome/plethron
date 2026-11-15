@@ -90,7 +90,7 @@ void ScrollList_SetCursorKeepOffset(s32*, s32);
  * list.
  */
 void LabList_RemoveSelectedEntry(ScrollList* list) {
-    func_800275E4((uintptr_t)list->items, list->cursor);
+    func_800275E4(list->items, list->cursor);
     if (list->cursor >= list->items->count) {
         list->cursor -= 1;
     }
@@ -108,37 +108,37 @@ void ScrollList_SetCursorKeepOffset(s32*, s32);
  * Seen in play (2026-11-14) in どうぐをいどうする: moving 2 of キズぐすり ×03 into サトシのパソコン put a
  * キズぐすり ×02 row at the picked position.
  */
-void LabItem_InsertItemStacks(s32* list, s32 item_id, s32 quantity) {
+void LabItem_InsertItemStacks(ScrollList* list, s32 item_id, s32 quantity) { // PORT: typed (was s32* with N64 word indices)
     s32 i;
     s32 var_s3;
     s32 var_v0;
-    s32* temp_s4;
+    ByteMatrix* temp_s4;
     u8 sp3C[2];
     u8* var_s2;
     u8* temp_v1;
 
-    temp_s4 = (s32*)list[0];
-    temp_v1 = (u8*)temp_s4[0];
+    temp_s4 = list->items;
+    temp_v1 = temp_s4->rows;
     i = 0;
 
-    if (temp_s4[2] > 0) {
+    if (temp_s4->count > 0) {
         var_s2 = temp_v1;
         do {
             if (item_id == var_s2[0]) {
                 quantity += var_s2[1];
-                func_800275E4(list[0], i);
-                if (i < list[2]) {
-                    list[2]--;
+                func_800275E4(list->items, i);
+                if (i < list->cursor) {
+                    list->cursor--;
                 }
             } else {
                 i++;
                 var_s2 += 2;
             }
-        } while (i < temp_s4[2]);
+        } while (i < temp_s4->count);
     }
 
     sp3C[0] = item_id;
-    var_s3 = list[2];
+    var_s3 = list->cursor;
 
     while (quantity > 0) {
         if (quantity < 99) {
@@ -148,10 +148,10 @@ void LabItem_InsertItemStacks(s32* list, s32 item_id, s32 quantity) {
         }
         quantity -= var_v0;
         sp3C[1] = var_v0;
-        ByteMatrix_InsertRow(temp_s4, sp3C, var_s3++);
+        ByteMatrix_InsertRow(temp_s4, (s8*)sp3C, var_s3++);
     }
 
-    ScrollList_SetCursorKeepOffset(list, list[2]);
+    ScrollList_SetCursorKeepOffset((s32*)list, list->cursor);
 }
 
 /**
@@ -303,7 +303,7 @@ extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
  * Seen in play (2026-11-14): 「ちゅうい！ ６４カセットに あきが ありません どれかけしますか？」 when the
  * 64 cassette had no free save, and 「このデータをすてますか？」.
  */
-void LabItem_InitConfirmWindow(LabItemConfirmWindow* win, s32 x, s32 y, char *title, s32 text) {
+void LabItem_InitConfirmWindow(LabItemConfirmWindow* win, s32 x, s32 y, char *title, char* text) { // PORT: text typed (was s32)
     Window_SetRect(win, x, y, 268, 146);
     win->window.animTimer = 0;
     win->window.state = 0;
@@ -442,22 +442,23 @@ void LabItem_DrawCountSelector(LabItemCountSelector* sel) {
     UNUSED s32 pad[1]; // FAKE: stack padding
     s32 x;
     s32 v;
+    u8* img; // PORT: the arrow image addresses went through the s32 v
 
     if (func_8002AE6C(&sel->window) == 0) {
         x = sel->window.frame.x - sel->count.digit * 22 + 54;
         gSPDisplayList(gDisplayListHead++, D_80073408);
         if (((u16*)D_800603C0)[3] & 0x800) {
-            v = (uintptr_t)D_04002340;
+            img = D_04002340;
         } else {
-            v = (uintptr_t)D_04002130;
+            img = D_04002130;
         }
-        func_8001B884(x + 3, sel->window.frame.y + 6, 14, 8, (u8*)v, 0x10, 0x200000);
+        func_8001B884(x + 3, sel->window.frame.y + 6, 14, 8, img, 0x10, 0x200000);
         if (((u16*)D_800603C0)[3] & 0x400) {
-            v = (uintptr_t)D_04002448;
+            img = D_04002448;
         } else {
-            v = (uintptr_t)D_04002238;
+            img = D_04002238;
         }
-        func_8001B884(x + 3, sel->window.frame.y + 38, 14, 8, (u8*)v, 0x10, 0x200000);
+        func_8001B884(x + 3, sel->window.frame.y + 38, 14, 8, img, 0x10, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
         Ui_DrawRoundedFrame(x - 3, sel->window.frame.y + 13, 26, 26, D_80073520);
         Font_BeginTranslucentTextRendering();
@@ -622,7 +623,7 @@ void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT:
  * Seen in play (2026-11-13) in せいとん > どうぐを いどうする, A opened the three-row source window (てもちの どうぐ,
  * サトシの パソコン, 64の カセット) and this ran once as it appeared.
  */
-void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32 count, s32 cursor) {
+void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, char** names, s32 count, s32 cursor) { // PORT: names typed (was s32)
     s32 pad[2]; // FAKE: stack padding
 
     Window_SetRect((s8*)&win->window, x, y, 228, (count * 28) + 20);
@@ -631,8 +632,8 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
     win->window.animTimer = 0;
     win->window.frame.style = 0;
     *(Color_RGBA8*)&win->window.frame.color = D_8900A5BC;
-    func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
+    func_80027804(&win->items, (void**)names, count, count);
+    Menu_Init(&win->menu, (ByteMatrix*)&win->items, win->itemFlags, (MenuDrawItemFunc)LabItem_DrawMenuRow, 216, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -721,7 +722,7 @@ void LabItem_DrawItemCountRow(s32 x, s32 y, u8* row, s32 index, s32 flags) {
  * Seen in play (2026-11-14): switched the left list to the picked source and the right list to the picked
  * destination (サトシのパソコン, 64の カセット).
  */
-void LabItem_SetItemList(LabItemList* list, s32 table) {
+void LabItem_SetItemList(LabItemList* list, ByteMatrix* table) { // PORT: table typed (was s32)
     ScrollList_SetItems((s8*)&list->list, table, (s8*)list->itemFlags);
 }
 
@@ -732,7 +733,7 @@ void LabItem_DrawItemCountRow();
  * Sets up the scrolling item list at (`x`, `y`) with LabItem_DrawItemCountRow rows.
  * Seen in play (2026-11-12): set up the てもちの どうぐ and サトシのパソコン lists.
  */
-void LabItem_InitItemList(LabItemList* list, s32 x, s32 y, s32 table) {
+void LabItem_InitItemList(LabItemList* list, s32 x, s32 y, ByteMatrix* table) { // PORT: table typed (was s32)
     list->x = x;
     list->y = y;
     ScrollList_Init((s8*)&list->list, table, (s8*)list->itemFlags, 8, LabItem_DrawItemCountRow, 236, 28);
@@ -848,8 +849,8 @@ void LabItem_InitOrganizeWindow(LabItemOrganizeWindow* win, s32 x, s32 y, ByteMa
     win->tables = tables;
     win->dirty = dirty;
     win->gamePakSlot = game_pak_slot;
-    LabItem_InitItemList(&win->leftList, win->window.frame.x + 12, win->window.frame.y + 42, (uintptr_t)&tables[win->leftBox]);
-    LabItem_InitItemList(&win->rightList, win->window.frame.x + 316, win->window.frame.y + 42, (uintptr_t)&tables[win->rightBox]);
+    LabItem_InitItemList(&win->leftList, win->window.frame.x + 12, win->window.frame.y + 42, &tables[win->leftBox]);
+    LabItem_InitItemList(&win->rightList, win->window.frame.x + 316, win->window.frame.y + 42, &tables[win->rightBox]);
     func_80027410((s8*)&win->reorderView, (s8*)win->tables->rows, 2, win->tables->capacity, 0);
 }
 
@@ -912,7 +913,7 @@ void func_8001AC3C(void); // PORT: matches Font_DisableTwoCycleTexturing
  * Draws title text with the two-color (prim/env) font style from `colors`.
  * Seen in play (2026-11-12): the ポケモンのせいり / どうぐのせいり titles.
  */
-void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors) {
+void LabItem_DrawTitleText(s32 x, s32 y, char* text, PrimEnvColor* colors) {
     func_8001AB6C();
     func_8001A384(0x20, 0);
     func_8001AA9C(colors->prim.r, colors->prim.g, colors->prim.b, colors->prim.a);
@@ -950,7 +951,7 @@ extern u8 D_800734A8[];
  * Draws `text` in the small font in the help area.
  * Seen in play (2026-11-14): the item descriptions (「たたかいで うしなった HPを 20かいふく する。」).
  */
-void LabItem_DrawSmallText(s32 x, s32 y, s32 text) {
+void LabItem_DrawSmallText(s32 x, s32 y, char* text) {
     func_8001AB6C();
     func_8001A384(8, 0);
     func_8001AA9C(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
@@ -959,7 +960,7 @@ void LabItem_DrawSmallText(s32 x, s32 y, s32 text) {
     func_8001ABBC();
 }
 
-extern s32 D_8900A650[];
+extern char* D_8900A650[]; // PORT: a table of string pointers (was s32)
 extern char* D_8900A660[];
 extern char* D_8900A66C[];
 extern PrimEnvColor* D_8900A678[];
@@ -1061,7 +1062,7 @@ void LabItem_MoveSelectedItem(LabItemOrganizeWindow* win) {
         LabList_InsertRowAtCursor((LabMonEntryList*)&win->rightList, (void*)(win->leftList.list.items->rows + win->leftList.list.items->rowSize * win->leftList.list.cursor));
         LabList_RemoveSelectedEntry(&win->leftList.list);
     } else {
-        LabItem_InsertItemStacks((s32*)&win->rightList, item[0], win->countSelector.count.value);
+        LabItem_InsertItemStacks(&win->rightList.list, item[0], win->countSelector.count.value);
         LabItem_DecreaseSelectedCount((ScrollList*)&win->leftList, win->countSelector.count.value);
     }
 }
@@ -1116,14 +1117,14 @@ void LabItem_OpenTargetList(LabItemOrganizeWindow* win) {
     temp_v0 = win->targetBoxWindow.menu.cursor;
     temp_a0 = &win->rightList;
     win->rightBox = temp_v0;
-    LabItem_SetItemList(temp_a0, (uintptr_t)&win->tables[temp_v0]);
+    LabItem_SetItemList(temp_a0, &win->tables[temp_v0]);
     win->state = 4;
 }
 
 s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 s32 Menu_SkipDisabledForward(Menu*);
-extern s32 D_8900A688[];
-extern s32 D_8900A694;
+extern char* D_8900A688[]; // PORT: a table of string pointers (was s32)
+extern char* D_8900A694; // PORT: a string pointer (was s32)
 extern s8 D_89018648[];
 
 typedef struct Pair89002318 { u8 unk0; u8 unk1; } Pair89002318;
@@ -1180,14 +1181,14 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             }
             if (win->sourceBoxWindow.menu.itemFlags[win->sourceBoxWindow.menu.cursor] & 0x100) {
                 win->state = 9;
-                TextBox_Init(&win->textBox, (void*)D_8900A688[win->operationCursor.cursor], 0, 1, 0);
+                TextBox_Init(&win->textBox, D_8900A688[win->operationCursor.cursor], 0, 1, 0);
                 Audio_PlaySystemSound(8);
                 break;
             }
             Audio_PlaySystemSound(2);
             idx = win->sourceBoxWindow.menu.cursor;
             win->leftBox = idx;
-            LabItem_SetItemList(&win->leftList, (uintptr_t)&win->tables[idx]);
+            LabItem_SetItemList(&win->leftList, &win->tables[idx]);
             if (win->operationCursor.cursor == 1) {
                 win->state = 4;
                 break;
@@ -1207,7 +1208,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             if (win->targetBoxWindow.menu.itemFlags[win->targetBoxWindow.menu.cursor] & 0x100) {
                 Audio_PlaySystemSound(8);
                 win->state = 10;
-                TextBox_Init(&win->textBox, (void*)D_8900A688[win->operationCursor.cursor], 0, 1, 0);
+                TextBox_Init(&win->textBox, D_8900A688[win->operationCursor.cursor], 0, 1, 0);
                 break;
             }
             Audio_PlaySystemSound(2);
@@ -1233,7 +1234,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             if (win->operationCursor.cursor == 0) {
                 if (func_80031C24(*ptr) != 0 && win->rightBox == 2) {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init(&win->textBox, (void*)D_8900A694, 1, 2, 0xC);
+                    TextBox_Init(&win->textBox, D_8900A694, 1, 2, 0xC);
                     win->state = 11;
                     break;
                 }
@@ -1258,7 +1259,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             if (win->operationCursor.cursor == 2) {
                 if (func_80031C24(*ptr) != 0 && win->rightBox == 2) {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init(&win->textBox, (void*)D_8900A694, 1, 2, 0xC);
+                    TextBox_Init(&win->textBox, D_8900A694, 1, 2, 0xC);
                     win->state = 11;
                     break;
                 }
@@ -1330,7 +1331,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             if (func_80031C24(*ptr2) != 0 &&
                 win->leftBox == 2) {
                 Audio_PlaySystemSound(8);
-                TextBox_Init(&win->textBox, (void*)D_8900A694, 1, 2, 0xC);
+                TextBox_Init(&win->textBox, D_8900A694, 1, 2, 0xC);
                 win->state = 12;
                 break;
             }
@@ -1364,12 +1365,12 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
     if (next > 0) {
         switch (next) {
             case 2:
-                LabItem_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 0x1F, win->window.frame.y + 41, (uintptr_t)win->boxNames,
+                LabItem_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 0x1F, win->window.frame.y + 41, win->boxNames,
                               win->boxCount, win->leftBox);
                 LabItem_DisableEmptyLists(&win->sourceBoxWindow, win->tables);
                 break;
             case 3:
-                LabItem_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 335, win->window.frame.y + 41, (uintptr_t)win->boxNames,
+                LabItem_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 335, win->window.frame.y + 41, win->boxNames,
                               win->boxCount, win->rightBox);
                 if (win->operationCursor.cursor == 2) {
                     LabItem_DisableEmptyLists(&win->targetBoxWindow, win->tables);
@@ -1385,7 +1386,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
 }
 
 extern Color_RGBA8 D_8900A698;
-extern u8 D_8900A69C[];
+extern LabPcImage D_8900A69C; // PORT: an image header (was u8[])
 extern char D_89018660[];
 extern char D_8901866C[];
 void Ui_DrawImageInStrips(void*, s32, s32);
@@ -1402,7 +1403,7 @@ void LabItem_DrawTrainerInfo(s32 x, s32 y, LabItemSaveSlot* slot, s32 index, s32
     if (flags & 0x10) {
         Ui_FillRectHighlighted(x + 3, y + 3, 310, 56, D_8900A5BC);
     }
-    Ui_DrawImageInStrips(D_8900A69C, x + 11, y + 11);
+    Ui_DrawImageInStrips(&D_8900A69C, x + 11, y + 11);
     Font_BeginTranslucentTextRendering();
     Font_SetColorForFlags(flags);
     Font_SetActive(0x10, 0);
@@ -1436,7 +1437,7 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
     win->footerFrame.color = D_8900A6AC;
     win->footerFrame.color2 = D_8900A6B0;
     func_80027410((s8*)&win->slotTable, (s8*)slots, 0x14, 4, 4);
-    Menu_Init((s8*)&win->menu, &win->slotTable, win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
+    Menu_Init((s8*)&win->menu, &win->slotTable, win->itemFlags, (MenuDrawItemFunc)LabItem_DrawTrainerInfo, 316, 62);
     win->menu.options |= 0x10000;
 }
 
@@ -1533,7 +1534,7 @@ void LabItem_InitSaveDataWindow(LabItemSaveDataWindow* win, s32 x, s32 y, LabIte
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = D_800603C0;
     func_8000B2F4(D_800603C0);
-    LabItem_InitItemList(&win->itemList, win->window.frame.x + 136, win->window.frame.y + 54, (uintptr_t)items);
+    LabItem_InitItemList(&win->itemList, win->window.frame.x + 136, win->window.frame.y + 54, items);
     win->slot = slot;
     win->state = 1;
 }
@@ -1572,7 +1573,7 @@ void LabItem_DrawSaveDataOwner(s32 x, s32 y, LabItemSaveSlot* slot, s32 flags) {
     Font_EndTexturedTextRendering();
 }
 
-extern s32 D_8900A6CC[];
+extern char* D_8900A6CC[]; // PORT: a table of string pointers (was s32)
 extern PrimEnvColor* D_8900A6D8[];
 /**
  * Draws the save data window's help line: the selected button's caption, or the

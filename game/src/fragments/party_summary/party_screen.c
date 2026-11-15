@@ -223,7 +223,7 @@ void PartyScreen_DrawActionMenuRow(s32 x, s32 y, char* label, s32 index, s32 fla
     Font_EndTexturedTextRendering();
 }
 
-extern u8 D_8A203364[];
+extern char* D_8A203364[]; // PORT: the three menu strings (was u8[])
 s32 BattleMon_CountMoves(u8* arg0);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**

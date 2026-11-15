@@ -30,7 +30,7 @@ typedef struct Label89100FC4 {
 
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
-extern s32 D_8910A7F8[3];
+extern char* D_8910A7F8[3]; // PORT: the source names (was s32)
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
