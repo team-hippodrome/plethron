@@ -37,7 +37,7 @@ extern u8 D_8111E3A8[];
 extern u8 D_8111E3CC[];
 extern u8 D_8111E3E0[];
 void GbEmu_DrawTextCommands(s8* arg0, u8* arg1);
-void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 extern s32 D_8111C568;
 /**
  * Draws the GB Player menu (メニュー, "Menu") over the GB screen: ゲームをつづける ("Continue game"),
@@ -95,7 +95,7 @@ s32* GbEmu_GetButtonIcon(s32 index) {
 }
 
 s32* GbEmu_GetButtonIcon(s32);
-void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 extern s32 D_8111DFA8;
 
 /*
@@ -250,7 +250,7 @@ void GbEmu_DrawButtonConfig(uintptr_t screen, s32 cursor, s32 slide) { // PORT: 
 
 void GbEmu_DrawPauseMenu(s8* arg0, u8 arg1);
 void GbEmu_DrawTextCommands(s8* arg0, u8* arg1);
-void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 extern u8 D_8111E4BC[];
 extern s32 D_8111C568;
 

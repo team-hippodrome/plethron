@@ -876,7 +876,7 @@ extern u8 D_811220D0[];
 extern u8 D_81122010[];
 extern u8 D_81122070[];
 extern u8 D_81121DA0[];
-void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 
 /**
  * Draws the speed-up indicator in the status bar: the speed lamps 1, 2 (and 3 when two levels are

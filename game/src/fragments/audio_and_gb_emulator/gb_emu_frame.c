@@ -26,7 +26,7 @@ extern OSMesgQueue D_81156458;
 s32 GbPak_WriteBackDirtySramBlock(s32 arg0);
 extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 extern u8 D_8111E308;
-void func_81103C40(u16* dst, u16* src, s32 mode, s32 width, s32 height); // PORT: matches GbEmu_BlitWithPixelOp
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 extern u8 D_811565A2;
 extern GbEmuState D_81156540;
 extern u8 D_811565A0;
