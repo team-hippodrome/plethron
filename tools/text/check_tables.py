@@ -5,12 +5,12 @@
   python3 tools/text/check_tables.py --rom X.z64  also check keys and printf
                                                   specifiers against your ROM
 
-Format checks: exact header, one row per key, keys are lowercase 32-hex md5s
-or names from tables.SPLIT (shared bytes with several meanings), every
+Format checks: exact header, one row per id, ids are [A-Z][A-Z0-9_]*, md5s
+are lowercase 32-hex, addr is space-separated 8-hex-digit addresses, every
 language cell in a row uses the same printf conversions in the same order
 (positional %1$s forms excepted, as long as the same set is used).
-ROM checks: every key exists in the ROM, and each translation's conversions
-match the original string's.
+ROM checks: every md5 exists in the ROM, every human.csv id is in ai.csv with
+the same md5, and each translation's conversions match the original string's.
 """
 import argparse
 import os
@@ -54,19 +54,25 @@ def main():
         found = romtext.extract(rom)
         for name, rows in data.items():
             for key, row in rows.items():
-                md5 = tables.NAME_SOURCE.get(key, key)
+                md5 = row["md5"]
                 if md5 not in found:
-                    problems.append("%s.csv %s: key not found in the ROM" % (name, key))
+                    problems.append("%s.csv %s: md5 not found in the ROM" % (name, key))
                     continue
                 orig = found[md5][2].decode("euc-jp")
                 for l in tables.LANGS:
                     if row[l] and not same_specs(orig, row[l]):
                         problems.append("%s.csv %s %s: printf conversions differ from the original" % (name, key, l))
         ai = data["ai"]
+        for key, row in data["human"].items():
+            if key not in ai:
+                problems.append("human.csv %s: id not in ai.csv" % key)
+            elif ai[key]["md5"] != row["md5"]:
+                problems.append("human.csv %s: md5 differs from ai.csv" % key)
+        ids = tables.by_md5(ai)
         print("coverage vs ROM (%d strings):" % len(found))
         for l in tables.LANGS:
             n = sum(1 for m in found
-                    if all(tables.effective(k, l, data["human"], ai)[0] for k in tables.keys_for(m)))
+                    if m in ids and all(tables.effective(k, l, data["human"], ai)[0] for k in ids[m]))
             print("  %s %4d / %d" % (l, n, len(found)))
     for p in problems:
         print("error:", p)

@@ -4,7 +4,7 @@
 Reads YOUR ROM and writes into translations/rom-text/ (gitignored, never commit it):
 
   kana.csv     md5, where, kana              every string the game prints
-  review.csv   md5, where, kana, ja..hi, from, note
+  review.csv   id, md5, addr, where, kana, ja..ko, from, note
                the translation the port will show for each language
                (human.csv wins over ai.csv), and which table it came from
   index.html   the same table in a browser, with a search box
@@ -46,13 +46,13 @@ def main():
         f.write("# Text dumped from your own ROM. Never commit it.\n*\n")
 
     records = []
+    ids = tables.by_md5(ai)
     for md5, (src, off, raw) in found.items():
         kana = romtext.to_cell(raw.decode("euc-jp"))
-        for key in tables.keys_for(md5):
-            where = "%s+%06X" % (src, off) if src != "rom" else "%06X" % off
-            if key in tables.NAME_SOURCE:
-                where = "%06X (%s)" % tables.SPLIT[md5][key]
-            rec = {"md5": key, "where": where, "kana": kana}
+        where = "%s+%06X" % (src, off) if src != "rom" else "%06X" % off
+        for key in ids.get(md5, [""]):
+            addr = (ai.get(key) or human.get(key) or {}).get("addr", "")
+            rec = {"id": key, "md5": md5, "addr": addr, "where": where, "kana": kana}
             sources = []
             for lang in tables.LANGS:
                 text, is_human = tables.effective(key, lang, human, ai)
@@ -67,8 +67,9 @@ def main():
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["md5", "where", "kana"])
         for r in records:
-            w.writerow([r["md5"], r["where"], r["kana"]])
-    cols = ["md5", "where", "kana"] + tables.LANGS + ["from", "note"]
+            if r["id"] == (ids.get(r["md5"]) or [""])[0]:
+                w.writerow([r["md5"], r["where"], r["kana"]])
+    cols = ["id", "md5", "addr", "where", "kana"] + tables.LANGS + ["from", "note"]
     with open(os.path.join(OUT, "review.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(cols)
@@ -76,12 +77,11 @@ def main():
             w.writerow([r[c] for c in cols])
     write_html(os.path.join(OUT, "index.html"), cols, records)
 
-    known = set(ai) | set(human)
-    has = lambda table, m: all(k in table for k in tables.keys_for(m))
-    missing = sum(1 for m in found if not all(k in known for k in tables.keys_for(m)))
+    hmd5 = tables.by_md5(human)
     print("%d strings from the ROM -> %s" % (len(found), OUT))
     print("  in ai.csv: %d   in human.csv: %d   in neither: %d" % (
-        sum(1 for m in found if has(ai, m)), sum(1 for m in found if has(human, m)), missing))
+        sum(1 for m in found if m in ids), sum(1 for m in found if m in hmd5),
+        sum(1 for m in found if m not in ids and m not in hmd5)))
 
 
 def write_html(p, cols, records):
@@ -93,11 +93,11 @@ body{font:14px system-ui,sans-serif;margin:16px;background:#fff;color:#111}
 @media (prefers-color-scheme:dark){body{background:#151515;color:#eee}td,th{border-color:#444!important}}
 input{width:100%%;padding:6px;font-size:15px;margin-bottom:8px;box-sizing:border-box}
 table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:3px 6px;vertical-align:top;white-space:pre-wrap}
-th{position:sticky;top:0;background:inherit}td:nth-child(1){font:11px monospace}
+th{position:sticky;top:0;background:inherit}td:nth-child(-n+2){font:11px monospace}
 td[dir=rtl]{text-align:right}
 </style>
 <p>Text from your own ROM. Translations shown are what the port uses (human.csv before ai.csv). Do not share or commit this file.</p>
-<input id=q placeholder="Search any column (kana, English, md5…)" autofocus>
+<input id=q placeholder="Search any column (kana, English, id…)" autofocus>
 <table><thead><tr>%s</tr></thead><tbody id=b></tbody></table>
 <script>
 const C=%s,R=%s,b=document.getElementById('b');
