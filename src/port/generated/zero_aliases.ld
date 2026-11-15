@@ -434,6 +434,7 @@ sCompletionGate = D_82198D30;
 D_82199DE0 = sActivePokemon;
 D_82199DE4 = sActivePokemon + 8;
 D_82199DFC = D_82199DF0 + 12;
+D_82199E0C = D_82199DF0 + 28;
 D_FLT_82199EB0 = D_82199EB0;
 D_82199ED0 = D_82199EC8 + 8;
 sBattleMoveFailed = D_82199F31;

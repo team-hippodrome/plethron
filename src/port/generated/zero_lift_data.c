@@ -1617,8 +1617,7 @@ ZLIFT_STORAGE(D_82198D30, 4272);
 ZLIFT_STORAGE(sActivePokemon, 16);
 ZLIFT_STORAGE(sSide1ActivePokemon, 8);
 ZLIFT_STORAGE(sSide2ActivePokemon, 8);
-ZLIFT_STORAGE(D_82199DF0, 16);
-ZLIFT_STORAGE(D_82199E0C, 4);
+ZLIFT_STORAGE(D_82199DF0, 32);
 ZLIFT_STORAGE(sBattleSceneStateTickSlots, 112);
 ZLIFT_STORAGE(sBattleSceneStateTickSlotIndex, 104);
 ZLIFT_STORAGE(D_82199EB0, 4);
@@ -6845,8 +6844,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82199DE0, 0x8, 2, 5, 13, 0, 0x99DE0, sActivePokemon }, // sActivePokemon
     { 0x82199DE8, 0x4, 1, 5, 13, 0, 0x99DE8, sSide1ActivePokemon }, // sSide1ActivePokemon
     { 0x82199DEC, 0x4, 1, 5, 13, 0, 0x99DEC, sSide2ActivePokemon }, // sSide2ActivePokemon
-    { 0x82199DF0, 0x10, 1, 76, 13, 0, 0x99DF0, D_82199DF0 }, // D_82199DF0
-    { 0x82199E0C, 0x4, 4, 3, 13, 0, 0x99E0C, D_82199E0C }, // D_82199E0C
+    { 0x82199DF0, 0x20, 2, 76, 13, 0, 0x99DF0, D_82199DF0 }, // D_82199DF0
     { 0x82199E10, 0x38, 7, 233, 13, 0, 0x99E10, sBattleSceneStateTickSlots }, // sBattleSceneStateTickSlots
     { 0x82199E48, 0x68, 26, 0, 13, 0, 0x99E48, sBattleSceneStateTickSlotIndex }, // sBattleSceneStateTickSlotIndex
     { 0x82199EB0, 0x4, 1, 32, 13, 0, 0x99EB0, D_82199EB0 }, // D_82199EB0
@@ -7853,7 +7851,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8FB00000, 0x8F70, 36720, 3, 29, 0, 0x0, D_8FB00000 }, // D_8FB00000
     { 0x8FC00000, 0x1260, 4704, 3, 42, 0, 0x0, D_8FC00000 }, // D_8FC00000
 };
-const uint32_t gZLiftSymCount = 2620;
+const uint32_t gZLiftSymCount = 2619;
 
 const ZLiftImage gZLiftImages[] = {
     { "resident", 0x7FFFF400, 0x0 },

@@ -510,7 +510,7 @@ void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, Po
     }
 }
 
-extern f32 D_82199DF0[][4];
+extern f32 D_82199DF0[2][4]; // PORT: one row per side
 Vec3f* Vec3f_SetComponentsDuplicate(Vec3f* dest, f32 x, f32 y, f32 z); // PORT: signature from the definition (matrix.c)
 void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon*);
 /**

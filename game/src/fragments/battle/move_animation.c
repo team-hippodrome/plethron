@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/fragments/battle_engine/battle_engine_move_animation.c, src/fragments/battle_engine/battle_engine_thumbnail.c. */
 
 #include "battle.h"
+#include "port_endian.h"
 #include "audio_commands.h"
 #include "geo_node.h"
 #include "matrix.h"
@@ -408,7 +409,7 @@ extern u8* D_82189180[];
 extern s8* D_82189188[];
 extern u8 D_0004EDA8[][0x20];
 extern u8 D_00050228[][0x10];
-extern f32 D_82199DF0[][4];
+extern f32 D_82199DF0[2][4]; // PORT: one row per side (declared [][4], which lifted only row 0)
 /**
  * Loads the species' model, animation and texture data for the Pokemon's side into its slots. Ran
  * in play when 1P switched and when 1P used Substitute (the doll model).
@@ -438,11 +439,13 @@ void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon* arg0) {
 
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
         Dma_WriteChunks(*p, src, src + 0x20, 0);
-        if (M2C_FIELD(*p, s16*, 0x10) != 0xFF) {
-            saved = M2C_FIELD(*p, s16*, 0x10);
-            src = (s8*)(((uintptr_t)D_0004EDA8[M2C_FIELD(*p, s16*, 0x10) - 2] & 0xFFFFFF) + (u32)base);
+        // PORT: the record is big-endian ROM data, read and restore its halfword at 0x10 in that order
+        if ((s16)Port_ReadBE16(*p + 0x10) != 0xFF) {
+            saved = (s16)Port_ReadBE16(*p + 0x10);
+            src = (s8*)(((uintptr_t)D_0004EDA8[saved - 2] & 0xFFFFFF) + (u32)base);
             Dma_WriteChunks(*p, src, src + 0x20, 0);
-            M2C_FIELD(*p, s16*, 0x10) = saved;
+            (*p)[0x10] = (u16)saved >> 8;
+            (*p)[0x11] = (u8)saved;
         }
     } else {
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
@@ -450,6 +453,7 @@ void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon* arg0) {
     }
     src = (s8*)((u32)base + ((uintptr_t)D_00050228[type] & 0xFFFFFF));
     Dma_WriteChunks(D_82199DF0[side], src, src + 0x10, 0);
+    Port_SwapWords(D_82199DF0[side], 4); // PORT: big-endian floats in ROM
 }
 
 /**
