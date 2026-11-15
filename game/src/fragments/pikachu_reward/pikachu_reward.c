@@ -262,7 +262,7 @@ void PikachuReward_DrawTextBoxPanel(s16 x, s16 y, s16 width, s16 height) {
 void PikachuReward_DrawSelectionCursor(s16 x, s16 y) {
     gSPDisplayList(gDisplayListHead++, D_80060290);
 
-    Gfx_DrawTextureRgba16(x, y, 24, 14, Util_ConvertAddrToVirtAddr(D_8FC00090), 24, 0x200000);
+    Gfx_DrawTextureRgba16(x, y, 24, 14, (u8*)Util_ConvertAddrToVirtAddr((uintptr_t)D_8FC00090), 24, 0x200000);
 
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
 }
@@ -876,7 +876,7 @@ s32 Font_Init(s32 load_size, s32 side);
  * Fragment entry: `session` is gSessionContext. Runs the reward scene when VsScene set
  * transitionFlags 0x20 and the cartridge in teamGbPort has a Pikachu in its party.
  */
-s32 Stadium_BonusPikachuReward(UNUSED s32 arg0, s32 session) {
+s32 Stadium_BonusPikachuReward(UNUSED s32 arg0, intptr_t session) { // PORT: FragmentEntry, session is a pointer
     UNUSED s32 pad; // FAKE: stack padding
     StageContext* stage;
 

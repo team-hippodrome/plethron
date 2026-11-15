@@ -551,7 +551,7 @@ Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_In
  * bar and steps the tint over 8 frames.
  * Seen in play (2026-11-14): ran for the frames before the せいとん menu appeared.
  */
-s32 LabTerminal_UpdateFade(s32 unused) {
+s32 LabTerminal_UpdateFade(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     Col8900429C sp2C;
     M2C_UNK *var_a1;
     s32 n;
@@ -605,7 +605,7 @@ extern s32 D_890289D4;
  * One frame of the lab terminal.
  * Seen in play (2026-11-12): ran every frame of せいとん.
  */
-s32 LabTerminal_RunFrame(s32 unused) {
+s32 LabTerminal_RunFrame(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     s32 sp1C;
     s32 temp_v0;
 
@@ -668,7 +668,7 @@ extern u8 D_88000000[];
 extern u8 D_00235D70[];
 extern u8 D_00238BD0[];
 void LabTerminal_InitScreen(void);
-s32 LabTerminal_UpdateFade(s32);
+s32 LabTerminal_UpdateFade(u8);
 
 /**
  * LabTerminal_Init

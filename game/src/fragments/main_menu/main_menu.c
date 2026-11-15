@@ -789,7 +789,7 @@ extern s32 D_880022C4;
  * Draws the background, brightening it a little more each call (20 frames on the first entry).
  * Seen in play (2026-11-14): the screen was black three frames into it, then the background rose.
  */
-s32 MainMenu_DrawFadeInBackground(s32 fade_mode) {
+s32 MainMenu_DrawFadeInBackground(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     Color_RGBA8 sp24;
 
     if (fade_mode == 1) {
@@ -812,7 +812,7 @@ extern M2C_UNK D_88002254;
  * Draws the tinted main menu background (2 frames after the fade-in on the first entry).
  * Seen in play (2026-11-14): ran between MainMenu_DrawFadeInBackground and the summary bar slide-in.
  */
-s32 MainMenu_DrawBackground(s32 fade_mode) {
+s32 MainMenu_DrawBackground(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     BgStage_DrawFrame();
     Ui_DrawTintedScreenBackground(0, 480, M2C_FIELD(&D_88002254, u8 *, 0), M2C_FIELD(&D_88002254, u8 *, 1), (s32) M2C_FIELD(&D_88002254, u8 *, 2));
     return 0;
@@ -826,7 +826,7 @@ extern M2C_UNK D_88002A8C;
  * Seen in play (2026-11-14): three frames in, the bar was still above the screen; once it ended,
  * the bar (1P シトシ IDNo/12345 メインメニュー) sat at the top.
  */
-s32 MainMenu_DrawSummaryBarSlideIn(UNUSED s32 fade_mode) {
+s32 MainMenu_DrawSummaryBarSlideIn(UNUSED u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     static s32 D_880022C8;
     s32 sp1C;
     M2C_UNK *var_a1;
@@ -853,7 +853,7 @@ extern M2C_UNK D_88002B08;
  * Draws the GB save summary bar at rest (2 frames after the slide-in on the first entry).
  * Seen in play (2026-11-14): ran right after MainMenu_DrawSummaryBarSlideIn, before MainMenu_RunFrame.
  */
-s32 MainMenu_DrawSummaryBar(s32 fade_mode) {
+s32 MainMenu_DrawSummaryBar(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     M2C_UNK *var_a1;
 
     BgStage_DrawFrame();
@@ -881,7 +881,7 @@ extern MainMenuScreen* D_88002B20;
  * Seen in play (2026-11-13) ran when the main menu came back with its top bar (1P サトシ IDNo/12345)
  * over the background.
  */
-s32 MainMenu_DrawSummaryBarAndBackground(s32 fade_mode) {
+s32 MainMenu_DrawSummaryBarAndBackground(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     M2C_UNK *var_a1;
 
     if (fade_mode == 1) {
@@ -909,7 +909,7 @@ extern MainMenuScreen* D_88002B20;
  * One frame: reads the controllers, draws the main menu and, when `fade_mode` is 0 (no fade running), updates it.
  * Seen in play: runs every frame on the メインメニュー screen (ずかん, バトル, てもち, GB, とうろく, OFF).
  */
-s32 MainMenu_RunFrame(s32 fade_mode) {
+s32 MainMenu_RunFrame(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     s32 sp1C;
 
     sp1C = 0;
@@ -941,7 +941,7 @@ extern MainMenuScreen* D_88002B20;
  * Seen in play (2026-11-14): after はい on GB (result 0x8060) it ran with fade_mode 3 while the
  * screen faded out, and MainMenu_Free followed.
  */
-s32 MainMenu_DrawFrame(s32 fade_mode) {
+s32 MainMenu_DrawFrame(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     MainMenu_DrawScreen(D_88002B20);
     return 0;
 }
@@ -968,8 +968,8 @@ extern M2C_UNK D_01000000;
 extern M2C_UNK D_04000000;
 extern M2C_UNK D_05000000;
 extern s32 D_80073400;
-s32 MainMenu_DrawFadeInBackground(s32 arg0);
-s32 MainMenu_DrawSummaryBarSlideIn(s32 arg0);
+s32 MainMenu_DrawFadeInBackground(u8 arg0);
+s32 MainMenu_DrawSummaryBarSlideIn(u8 arg0);
 
 /**
  * Entry point: pushes the 'COMP' pool state, loads the font and segments, and sets up the screen.

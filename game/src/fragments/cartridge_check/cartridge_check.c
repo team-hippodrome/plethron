@@ -83,7 +83,7 @@ void CartridgeCheck_UnusedNoop2(void) {
  * this fragment calls it once per frame, and it is the callback passed to BgStage_RunUntilCondition.
  * Seen in play (2026-11-14): runs every frame on every screen of the fragment.
  */
-s32 CartridgeCheck_DrawFrame(s32 arg0) {
+s32 CartridgeCheck_DrawFrame(u8 arg0) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     CartridgeCheck_ReadInputs();
     GeoRender_AdvanceFrameCounter();
     BgStage_DrawFrame();

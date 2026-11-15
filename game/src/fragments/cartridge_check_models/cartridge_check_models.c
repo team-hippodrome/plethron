@@ -17,7 +17,7 @@
  * (pressing A no longer reached the "P-OS version 1.0 NOW LOADING" screen).
  * Stadium 1's counterpart is Pak_CheckPiIntegrity.
  */
-s32 CartridgeCheckModels_CheckBootCode(s32 value) {
+intptr_t CartridgeCheckModels_CheckBootCode(intptr_t value) { // PORT: the value is a child-list pointer
     OSIntMask prev_mask;
 
     prev_mask = osSetIntMask(OS_IM_NONE);

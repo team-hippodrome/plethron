@@ -129,8 +129,8 @@ void Registration_InitScreen(RegistrationScreen* arg0);
 M2C_UNK Registration_DrawScreen(RegistrationScreen* arg0);
 s32 Registration_UpdateScreen(RegistrationScreen* arg0);
 void Registration_AllocScreen(void);
-s32 Registration_UpdateFade(s32 fade_mode);
-void Registration_RunFrame(s32 fade_mode);
+s32 Registration_UpdateFade(u8 fade_mode);
+s32 Registration_RunFrame(u8 fade_mode);
 void Registration_FreeScreen(void);
 s32 Registration_Init(s32 unused0, s32 unused1);
 

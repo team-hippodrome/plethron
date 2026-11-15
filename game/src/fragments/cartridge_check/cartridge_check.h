@@ -111,7 +111,7 @@ void CartridgeCheck_UnusedNoop1(void);
 s32 CartridgeCheck_LightAngleCallback(s32 event, GeoLightNode* light);
 s32 CartridgeCheck_ReadInputs(void);
 void CartridgeCheck_UnusedNoop2(void);
-s32 CartridgeCheck_DrawFrame(s32 arg0);
+s32 CartridgeCheck_DrawFrame(u8 arg0);
 void CartridgeCheck_DrawGameBoyIcon(s32 x, s32 y, s32 port, s32 game);
 void CartridgeCheck_DrawPortPanel(s32 port, s32 x, s32 y);
 s32 CartridgeCheck_MoveCursor(s32 cursor);
