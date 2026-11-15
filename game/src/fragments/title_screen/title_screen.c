@@ -177,14 +177,14 @@ void TitleScreen_DrawBackground(void) {
     gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
     gDPSetTexturePersp(gDisplayListHead++, G_TP_NONE);
     gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, 320, 240);
-    gDPSetCombine(gDisplayListHead++, 0x17FE2F, 0x77FCF87C);
-    gDPSetTextureConvert(gDisplayListHead++, G_TC_CONV);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGB, G_CC_DECALRGB); // PORT: the host JPEG task writes RGBA16, not YUV (src/port/jpeg_task.cpp)
+    gDPSetTextureConvert(gDisplayListHead++, G_TC_FILT); // PORT: RGBA16, no YUV conversion
     gDPSetConvert(gDisplayListHead++, G_CV_K0, G_CV_K1, G_CV_K2, G_CV_K3, G_CV_K4, G_CV_K5);
     gDPPipeSync(gDisplayListHead++);
 
     for (y = 0; y < 240; y += 16) {
         for (x = 0; x < 320; x += 16) {
-            gDPLoadTextureBlockYuv(gDisplayListHead++, image, G_IM_FMT_YUV, G_IM_SIZ_16b, 16, 16, 0,
+            gDPLoadTextureBlock(gDisplayListHead++, image, G_IM_FMT_RGBA, /* PORT: was YUV */ G_IM_SIZ_16b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
             gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + 16) << 2, (y + 16) << 2, G_TX_RENDERTILE,

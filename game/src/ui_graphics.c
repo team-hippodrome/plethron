@@ -277,8 +277,8 @@ void Ui_DrawFramedYuvImage(s32 x, s32 y, u8* image) {
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
     gDPSetRenderMode(gDisplayListHead++, 0x0F0A4000, 0);
     gDPSetTexturePersp(gDisplayListHead++, G_TP_NONE);
-    gDPSetCombine(gDisplayListHead++, 0x17FE2F, 0x77FCF87C);
-    gDPSetTextureConvert(gDisplayListHead++, G_TC_CONV);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGB, G_CC_DECALRGB); // PORT: the host JPEG task writes RGBA16, not YUV (src/port/jpeg_task.cpp)
+    gDPSetTextureConvert(gDisplayListHead++, G_TC_FILT); // PORT: RGBA16, no YUV conversion
     gDPSetConvert(gDisplayListHead++, G_CV_K0, G_CV_K1, G_CV_K2, G_CV_K3, G_CV_K4, G_CV_K5);
     gDPPipeSync(gDisplayListHead++);
 
@@ -296,7 +296,7 @@ void Ui_DrawFramedYuvImage(s32 x, s32 y, u8* image) {
             top = (y + i + 6) << 2;
             right = (x + j + w + 6) << 2;
             bottom = (y + i + h + 6) << 2;
-            gDPLoadTextureBlockYuv(gDisplayListHead++, image, G_IM_FMT_YUV, G_IM_SIZ_16b, 16, 16, 0,
+            gDPLoadTextureBlock(gDisplayListHead++, image, G_IM_FMT_RGBA, /* PORT: was YUV */ G_IM_SIZ_16b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
             gSPTextureRectangle(gDisplayListHead++, left, top, right, bottom, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
