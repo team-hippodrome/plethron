@@ -32,7 +32,7 @@ void Model_AddSkinBone(StadiumModel* model, s16 maxDist, f32 radius, f32 ax, f32
 void Model_AssignNearestBones(StadiumModel* model);
 void Model_ApplySkinBone(ModelSegment* segment, StadiumTransform* xf, s32 index, ModelVertex* vertices);
 void Model_ApplyVertexTransforms(StadiumModel* model);
-void Model_ApplySkinBoneInRange(u32 modelSegment, StadiumTransform* xf, s32 index, ModelVertex* vertices);
+void Model_ApplySkinBoneInRange(uintptr_t modelSegment, StadiumTransform* xf, s32 index, ModelVertex* vertices);
 void Model_TransformPoint(MtxF* mtx, Vec3f* out, s16 (*in)[3]);
 
 f32 Math_FAbs(f32 value);
@@ -89,7 +89,7 @@ void Model_BuildVertexRuntimeData(StadiumModel* model, MtxF* mtx) {
     segment = Memmap_GetSegmentVaddr(model->modelSegment);
     base = &model->mvtx;
     mvtx = base;
-    vtx = Memmap_GetSegmentVaddr(segment->vertexSegment);
+    vtx = Memmap_GetSegmentVaddr((uintptr_t)segment->vertexSegment);
 
     for (var_a0 = 0; var_a0 < segment->vertexCount; var_a0++) {
 
@@ -117,7 +117,7 @@ void Model_BuildVertexRuntimeData(StadiumModel* model, MtxF* mtx) {
     var_s3 = 0;
     i = 0;
     while (var_s3 < 0x10) {
-        temp_s2 = Memmap_GetSegmentVaddr(segment->tableSegment);
+        temp_s2 = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
         for (i = 0; i < segment->vertexCount; i++) {
             u16 temp_v0 = Model_GetVertexJoint(temp_s2, i);
             if (var_s3 == temp_v0) {
@@ -130,7 +130,7 @@ void Model_BuildVertexRuntimeData(StadiumModel* model, MtxF* mtx) {
 
     mvtx = base;
     var_a1 = 0;
-    index_table = Memmap_GetSegmentVaddr(segment->neighborSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->neighborSegment);
     for (i = 0; i < segment->vertexCount; i++) {
         mvtx->childIndex = var_a1;
         do {
@@ -339,7 +339,7 @@ void Model_AssignNearestBones(StadiumModel* model) {
     ModelBlendWeight* var_a0;
 
     segment = Memmap_GetSegmentVaddr(model->modelSegment);
-    index_table = Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     temp_a1 = &model->mvtx;
     var_a2 = temp_a1;
     for(i = 0; i < segment->vertexCount; i++) {
@@ -391,8 +391,8 @@ void Model_ComputeVertexNormals(ModelSegment* segment, ModelVertex* vertices) {
 
     triangle_count = segment->triangleCount;
     vertex_count = segment->vertexCount;
-    indices = Memmap_GetSegmentVaddr(segment->indexSegment);
-    remap = Memmap_GetSegmentVaddr(segment->remapSegment);
+    indices = Memmap_GetSegmentVaddr((uintptr_t)segment->indexSegment);
+    remap = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     counter = D_800B32C0;
     for (i = 0; i < vertex_count; i++) {
         counter->x = 0.0f;
@@ -488,8 +488,8 @@ void Model_ApplySkinBone(ModelSegment* segment, StadiumTransform* bone, s32 inde
     PosBlend* temp_v0_2;
 
     temp_s6 = segment->vertexCount;
-    spA0 = Memmap_GetSegmentVaddr(segment->remapSegment);
-    temp_v0 = Memmap_GetSegmentVaddr(segment->tableSegment);
+    spA0 = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
+    temp_v0 = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
     x0 = bone->x0;
     y0 = bone->y0;
     z0 = bone->z0;
@@ -568,7 +568,7 @@ void Model_ApplyVertexTransforms(StadiumModel* model) {
  * out of range drop the bone.
  * @unverified Name read from the code.
  */
-void Model_ApplySkinBoneInRange(u32 model_segment, StadiumTransform* bone, s32 index, ModelVertex* vertices) {
+void Model_ApplySkinBoneInRange(uintptr_t model_segment, StadiumTransform* bone, s32 index, ModelVertex* vertices) {
     ModelBlendWeight* wt;
     ModelVertex* vtx;
     s32 pad0[3]; // FAKE: stack padding
@@ -622,8 +622,8 @@ void Model_ApplySkinBoneInRange(u32 model_segment, StadiumTransform* bone, s32 i
 
     temp_v0 = Memmap_GetSegmentVaddr(model_segment);
     spCA = temp_v0->vertexCount;
-    temp_s1 = Memmap_GetSegmentVaddr(temp_v0->remapSegment);
-    spC0 = Memmap_GetSegmentVaddr(temp_v0->tableSegment);
+    temp_s1 = Memmap_GetSegmentVaddr((uintptr_t)temp_v0->remapSegment);
+    spC0 = Memmap_GetSegmentVaddr((uintptr_t)temp_v0->tableSegment);
     mtx = bone->mtx;
     guMtxXFMF(mtx->mf, bone->x0, bone->y0, bone->z0, &sp180, &sp17C, &sp178);
     guMtxXFMF(mtx->mf, bone->x1, bone->y1, bone->z1, &sp174, &sp170, &sp16C);

@@ -451,13 +451,13 @@ void ModelCallback_Particles(s32 phase, DisplayListState* state) {
     Gfx* gfx;
     s32 pad4[1]; // FAKE
 
-    sp4C = state->addresses;
+    sp4C = ModelCallback_HostAddresses(state->addresses, 16); // PORT: big-endian table in model data
     if (phase == 0) { // karodo
     } else if (phase == 2) {
         if (sModelParticleCallbackCount == 0) {
-            state->gfx = Gfx_AllocDisplayList(1048);
+            state->gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 131); // PORT: was 1048 (131 N64 commands)
         } else {
-            state->gfx = Gfx_AllocDisplayList(8);
+            state->gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 1); // PORT: was 8 (1 N64 commands)
         }
         gfx = state->gfx;
         temp_v1 = D_8006049C->effectSlot;

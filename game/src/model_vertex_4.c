@@ -57,9 +57,9 @@ void Model_InitializeVertexPositionsAlt(ModelSegment* segment, MtxF* mtx, ModelV
     s16* var_s7;
     s32 i;
     s16* temp_s5;
-    temp_s5 = Memmap_GetSegmentVaddr(segment->tableSegment);
-    vtx = Memmap_GetSegmentVaddr(segment->vertexSegment);
-    var_s7 = Memmap_GetSegmentVaddr(segment->remapSegment);
+    temp_s5 = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    vtx = Memmap_GetSegmentVaddr((uintptr_t)segment->vertexSegment);
+    var_s7 = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     tmp = mvtx;
 
     for(i = 0; i < segment->vertexCount; i++) {

@@ -38,8 +38,8 @@ void ModelCallback_IndexedTexture(s32 phase, DisplayListState* state) {
     DisplayListAddresses* addresses;
 
     if (phase == 2) {
-        addresses = state->addresses;
-        gfx = Gfx_AllocDisplayList(80);
+        addresses = ModelCallback_HostAddresses(state->addresses, 16); // PORT: big-endian table in model data
+        gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 10); // PORT: was 80 (10 N64 commands)
         state->gfx = gfx;
         ModelCallback_BuildIndexedTextureList(gfx, addresses, D_80060484 & 7);
     }
@@ -71,8 +71,8 @@ void ModelCallback_FlameTexture(s32 phase, DisplayListState* state) {
     DisplayListAddresses* addresses;
 
     if (phase == 2) {
-        addresses = state->addresses;
-        gfx = Gfx_AllocDisplayList(320);
+        addresses = ModelCallback_HostAddresses(state->addresses, 16); // PORT: big-endian table in model data
+        gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 40); // PORT: was 320 (40 N64 commands)
         state->gfx = gfx;
         ModelCallback_BuildFlameTextureList(gfx, addresses, (D_80060484 + D_800AFB28 * 3) % 8);
     }

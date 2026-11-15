@@ -37,7 +37,7 @@ s16 Model_GetVertexJoint(s16* arg0, s32 arg1);
 s16 Model_GetVertexHeightClass(s16* arg0, s32 arg1);
 void Model_ComputeVertexNormals(ModelSegment* segment, ModelVertex* vertices);
 void Model_ApplyVertexTransforms(StadiumModel* model);
-void Model_ApplySkinBoneInRange(u32 modelSegment, StadiumTransform* xf, s32 index, ModelVertex* vertices);
+void Model_ApplySkinBoneInRange(uintptr_t modelSegment, StadiumTransform* xf, s32 index, ModelVertex* vertices);
 void Model_InitializeVertexPositionsAlt(ModelSegment* segment, MtxF* mtx, ModelVertex* mvtx);
 f32 Model_ComputeScaledDistance(Vec3f* a, Vec3f* b, Vec3f* scale);
 f32 Model_ComputeDistance(s16 (*a)[3], s16 (*b)[3]);
@@ -115,10 +115,10 @@ void Model_BuildVertexLinks(StadiumModel* model) {
 
     segment = Memmap_GetSegmentVaddr(model->modelSegment);
     sp40 = segment;
-    temp_s3 = Memmap_GetSegmentVaddr(segment->tableSegment);
-    sp70 = Memmap_GetSegmentVaddr(sp40->remapSegment);
-    temp_fp = Memmap_GetSegmentVaddr(sp40->vertexSegment);
-    sp68 = Memmap_GetSegmentVaddr(sp40->neighborSegment);
+    temp_s3 = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    sp70 = Memmap_GetSegmentVaddr((uintptr_t)sp40->remapSegment);
+    temp_fp = Memmap_GetSegmentVaddr((uintptr_t)sp40->vertexSegment);
+    sp68 = Memmap_GetSegmentVaddr((uintptr_t)sp40->neighborSegment);
     mvtx = &model->mvtx;
     sp48 = mvtx;
     for (i = 0; i < sp40->vertexCount; i++) {
@@ -173,7 +173,7 @@ void Model_ApplyTransformCommands(ModelSegment* segment, ModelVertex* vertices, 
     ModelVertex* temp_v0_2;
     ModelVertex* var_s2;
 
-    Memmap_GetSegmentVaddr(segment->remapSegment);
+    Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     var_s2 = vertices;
 
     while (1) {
@@ -224,8 +224,8 @@ void Model_ApplyVertexLinks(ModelSegment* segment, ModelVertex* vertices, Stadiu
     ModelVertex* temp_v0_2;
     ModelVertex* var_s2;
 
-    Memmap_GetSegmentVaddr(segment->tableSegment);
-    Memmap_GetSegmentVaddr(segment->remapSegment);
+    Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     var_s2 = vertices;
     while (1) {
         temp_v0 = &var_s2->cmd;
@@ -262,8 +262,8 @@ void Model_OffsetVertexHeights(ModelSegment* segment, ModelVertex* vertices, f32
     s32 i;
     ModelVertex* tmp;
 
-    index_table = Memmap_GetSegmentVaddr(segment->tableSegment);
-    remap = Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    remap = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     tmp = vertices;
     for(i = 0; i < segment->vertexCount; i++) {
         if ((Model_GetVertexClass(index_table, i) != 0) && (i == *remap)) {
@@ -286,8 +286,8 @@ void Model_RaiseTopVertices(ModelSegment* segment, ModelVertex* vertices, f32 y_
     s32 i;
     PosBlend* temp_v0_2;
 
-    index_table = Memmap_GetSegmentVaddr(segment->tableSegment);
-    var_s2 = Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    var_s2 = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     tmp = vertices;
     for(i = 0; i < segment->vertexCount; i++) {
         if ((Model_GetVertexClass(index_table, i) != 0) && (i == *var_s2)) {
@@ -322,8 +322,8 @@ void Model_RaiseTopVerticesFixed(ModelSegment* segment, ModelVertex* vertices, f
     f32 one = 1.0f;
     f32 quarter = 0.25f;
 
-    index_table = Memmap_GetSegmentVaddr(segment->tableSegment);
-    remap = Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    remap = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     vertex = vertices;
     for (i = 0; i < segment->vertexCount; i++) {
         if ((Model_GetVertexClass(index_table, i) != 0) && (i == *remap)) {
@@ -361,8 +361,8 @@ void Model_ApplyVertexOffsets(ModelSegment* segment, ModelVertex* vertices) {
     ModelVertex* vertex;
 
     vertex = vertices;
-    index_table = Memmap_GetSegmentVaddr(segment->tableSegment);
-    remap = Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    remap = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     for (i = 0; i < segment->vertexCount; i++) {
         position = &vertex->position;
         if ((Model_GetVertexClass(index_table, i) != 0) && (i == *remap)) {
@@ -470,7 +470,7 @@ void Model_UpdateVertexPositions(StadiumModel* model, MtxF* mtx) {
         return;
     }
     {
-        s16* var_a0 = Memmap_GetSegmentVaddr(segment->remapSegment);
+        s16* var_a0 = Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
         for(var_v1 = 0; var_v1 < segment->vertexCount; var_v1++) {
             s16 segment_2 = *var_a0;
             if (segment_2 != var_v1) {

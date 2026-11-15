@@ -40,7 +40,7 @@ Gfx* FireFx_BuildFlickerOverlayDisplayList(Gfx* gfx, s32 frame, Gfx* mesh) {
  */
 void FireFx_FlickerOverlayGeoCallback(s32 context, GeoDisplayListNode* node) {
     if (context == 2) {
-        node->displayList = Gfx_AllocDisplayList(80);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 10); // PORT: was 80 (10 N64 commands)
         FireFx_BuildFlickerOverlayDisplayList(node->displayList, D_80060484 & 7, (Gfx*)node->node.callbackArg);
     }
 }
@@ -76,7 +76,7 @@ Gfx* FireFx_BuildScrollOverlayDisplayList(Gfx* gfx, Gfx* mesh) {
  */
 void FireFx_ScrollOverlayGeoCallback(s32 context, GeoDisplayListNode* node) {
     if (context == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         FireFx_BuildScrollOverlayDisplayList(node->displayList, (Gfx*)node->node.callbackArg);
     }
 }
@@ -114,7 +114,7 @@ void FireFx_ScrollMaterialGeoCallback(s32 context, GeoDisplayListNode* node) {
     Gfx* gfx;
 
     if (context == 2) {
-        gfx = (Gfx*)Gfx_AllocDisplayList(80);
+        gfx = (Gfx*)Gfx_AllocDisplayList(sizeof(Gfx) * 10); // PORT: was 80 (10 N64 commands)
         node->displayList = gfx;
         FireFx_BuildScrollMaterialDisplayList(gfx);
     }

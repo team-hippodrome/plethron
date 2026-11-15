@@ -65,9 +65,9 @@ void Model_InitializeVertexPositions(ModelSegment* segment, MtxF* mtx, ModelVert
     PosBlend* position;
     ModelVertex* tmp;
 
-    index_table = Memmap_GetSegmentVaddr(segment->tableSegment);
-    vtx = Memmap_GetSegmentVaddr(segment->vertexSegment);
-    Memmap_GetSegmentVaddr(segment->remapSegment);
+    index_table = Memmap_GetSegmentVaddr((uintptr_t)segment->tableSegment);
+    vtx = Memmap_GetSegmentVaddr((uintptr_t)segment->vertexSegment);
+    Memmap_GetSegmentVaddr((uintptr_t)segment->remapSegment);
     tmp = mvtx;
     
     for(i = 0; i < segment->vertexCount; i++) {

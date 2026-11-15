@@ -68,7 +68,7 @@ extern u16 sRedBadgeRingTex[];
  */
 void BadgeCap_DrawRedBadgeRing(s32 event, GeoDisplayListNode* node) {
     if (event == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sRedBadgeRingTex, 1, 1,
                                      0x1F40, 0x1F40);
     }
@@ -83,7 +83,7 @@ extern u16 sRedBadgeEdgeTex[];
  */
 void BadgeCap_DrawRedBadgeEdge(s32 event, GeoDisplayListNode* node) {
     if (event == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sRedBadgeEdgeTex, 1, 1,
                                      0x1F40, 0x1F40);
     }
@@ -98,7 +98,7 @@ extern u16 sSilverBadgeRingTex[];
  */
 void BadgeCap_DrawSilverBadgeRing(s32 event, GeoDisplayListNode* node) {
     if (event == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sSilverBadgeRingTex, 0, 0xF,
                                      0x1F40, 0x206C);
     }
@@ -112,7 +112,7 @@ extern u16 sSilverBadgeEdgeTex[];
  */
 void BadgeCap_DrawSilverBadgeEdge(s32 event, GeoDisplayListNode* node) {
     if (event == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sSilverBadgeEdgeTex, 0, 1,
                                      0xFA0, 0xFA0);
     }
@@ -127,7 +127,7 @@ extern u16 sGoldBadgeRingTex[];
  */
 void BadgeCap_DrawGoldBadgeRing(s32 event, GeoDisplayListNode* node) {
     if (event == 2) {
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sGoldBadgeRingTex, 2, 0xE,
                                      0xFA0, 0xFA0);
     }
@@ -146,7 +146,7 @@ void BadgeCap_DrawGoldBadgeEdge(s32 event, GeoDisplayListNode* node) {
         if (sBadgeTextureScroll < 0) {
             sBadgeTextureScroll = 0x7F;
         }
-        node->displayList = Gfx_AllocDisplayList(88);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 11); // PORT: was 88 (11 N64 commands)
         BadgeCap_BuildBadgeTextureDL(node->displayList, (Gfx*)node->node.callbackArg, sGoldBadgeEdgeTex, 1, 1,
                                      0x1F40, 0x1F40);
     }

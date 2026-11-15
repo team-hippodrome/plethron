@@ -293,6 +293,19 @@ def main():
     for im in image_names:
         for name, a in images[im]['provided'].items():
             if provided.setdefault(name, a) != a: report['conflicting address ' + name] += 1
+    # Names the port gives to data inside an asm blob symbol (D_<address>, not in the decomp's maps): their address is in
+    # the name. They split the blob at that address so each piece gets its own C type (e.g. the skinned templates).
+    for name in sorted(undef):
+        m = re.match(r'^D_([0-9A-F]{8})$', name)
+        if not m or name in provided: continue
+        a = int(m.group(1), 16)
+        im = owner(a)
+        if im is None or loaded_part(im, a) is None: continue
+        provided[name] = a
+        images[im]['defined'].setdefault(name, a)
+        defined_at.setdefault(a, name); defined_names_at[a].append(name)
+        bisect.insort(bounds[im], a)
+        report['port-named split of asm data'] += 1
     by_image = collections.defaultdict(list)
     for name, a in provided.items():
         by_image[owner(a) or ('-' if a >= 0x10000000 else 'abs')].append((name, a))

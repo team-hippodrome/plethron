@@ -46,8 +46,8 @@ void ModelCallback_ScrollStrip(s32 phase, ModelScrollStripState* state) {
     ModelScrollStrip* strip;
 
     if (phase == 2) {
-        strip = state->strip;
-        gfx = Gfx_AllocDisplayList(80);
+        strip = ModelCallback_HostScrollStrip(state->strip); // PORT: big-endian table in model data
+        gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 10); // PORT: was 80 (10 N64 commands)
         state->gfx = gfx;
         ModelCallback_BuildScrollStripList(gfx, strip);
     }
@@ -74,8 +74,8 @@ void ModelCallback_SelectedTexture(s32 phase, TextureState* state) {
     u32* textures;
 
     if (phase == 2) {
-        textures = state->textures;
-        state->gfx = (Gfx*)Gfx_AllocDisplayList(80);
+        textures = (u32*)ModelCallback_HostAddresses((DisplayListAddresses*)state->textures, 16); // PORT: big-endian table
+        state->gfx = (Gfx*)Gfx_AllocDisplayList(sizeof(Gfx) * 10); // PORT: was 80 (10 N64 commands)
         if (D_8006049C->objectType == GRIMER) {
             index = (s32)D_8006049C->transformAnim.frameFixed >> 0x10;
             if (index >= 66) {

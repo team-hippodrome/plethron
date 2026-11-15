@@ -77,19 +77,20 @@ typedef struct ModelSegment {
     /* 0x02 */ u16 nodeCount;
     /* 0x04 */ u16 vertexCount;
     /* 0x06 */ u16 triangleCount;
-    /* 0x08 */ u32 indexSegment;
-    /* 0x0C */ u32 neighborSegment; // @unverified: per-vertex index lists ending in -1, walked in Model_BuildVertexRuntimeData
-    /* 0x10 */ u32 tableSegment;
-    /* 0x14 */ u32 remapSegment;
-    /* 0x18 */ u32 vertexSegment;
+    // PORT: typed pointers (were u32 addresses) so the lifter converts the template tables to host data
+    /* 0x08 */ s16* indexSegment;
+    /* 0x0C */ s16* neighborSegment; // @unverified: per-vertex index lists ending in -1, walked in Model_BuildVertexRuntimeData
+    /* 0x10 */ s16* tableSegment;
+    /* 0x14 */ s16* remapSegment;
+    /* 0x18 */ Vtx_t* vertexSegment;
     /* 0x1C */ Gfx* displayList;
-} ModelSegment; // size = 20
+} ModelSegment; // size = 0x20
 
 typedef struct StadiumModel {
     /* 0x00 */  s16 isActive;       // @unverified: set to 1 in Model_InitSkinned, cleared by ModelRenderer_ClearSlotModels
     /* 0x02 */  s16 transformCount; // @unverified: used entries of transforms[], Model_AddSkinBone appends one
     /* 0x04 */  StadiumTransform transforms[5];
-    /* 0x130 */ u32 modelSegment;
+    /* 0x130 */ uintptr_t modelSegment; // PORT: holds a pointer (was u32)
     /* 0x134 */ s8 pad134[0x4];
     /* 0x138 */ ModelSegment segment; // @unverified: Model_InitSkinned copies the model's segment header here
     /* 0x158 */ Vec3f scale;          // @unverified: axis lengths of the model matrix (Model_InitSkinned), fed to Model_ComputeScaledDistance

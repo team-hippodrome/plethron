@@ -75,7 +75,7 @@ void VsResults_PortraitCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->displayList = Gfx_AllocDisplayList(0x10);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
         VsResults_WritePortraitGfx(node->displayList, teams[(uintptr_t)node->node.callbackArg].trainerFile);
         node->displayList = (Gfx*)VsResults_CheckBootCode((uintptr_t)node->displayList);
     }
@@ -188,7 +188,7 @@ void VsResults_RowIconCallback(s32 event, DemoGeoNode *node)
     slot = ((uintptr_t) node->node.callbackArg) & 0xFFFF;
     if (slot < teams[team].teamMember[0]->numberOfPokemonBrought)
     {
-      node->displayList = Gfx_AllocDisplayList(0x10);
+      node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
       VsResults_WriteRowIconGfx(node->displayList, teams[team].iconImages[slot]);
     }
     else
@@ -232,13 +232,13 @@ void VsResults_GridIconCallback(s32 event, DemoGeoNode* node) {
         slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (teams[team].teamLayout == 2) {
             if (slot % 3 < teams[team].teamMember[slot / 3]->numberOfPokemonBrought) {
-                node->displayList = Gfx_AllocDisplayList(0x10);
+                node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
                 VsResults_WriteGridIconGfx(node->displayList, teams[team].iconImages[slot]);
             } else {
                 node->displayList = NULL;
             }
         } else if (slot < teams[team].teamMember[0]->numberOfPokemonBrought) {
-            node->displayList = Gfx_AllocDisplayList(0x10);
+            node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
             VsResults_WriteGridIconGfx(node->displayList, teams[team].iconImages[slot]);
         } else {
             node->displayList = NULL;
@@ -277,13 +277,13 @@ void VsResults_HpBarCallback(s32 event, DemoGeoNode* node) {
         slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (teams[team].teamLayout == 2) {
             if (slot % 3 < teams[team].teamMember[slot / 3]->numberOfPokemonBrought) {
-                node->displayList = Gfx_AllocDisplayList(0x10);
+                node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
                 VsResults_WriteHpBarGfx(node->displayList, teams[team].hpBarImages[slot]);
             } else {
                 node->displayList = NULL;
             }
         } else if (slot < teams[team].teamMember[0]->numberOfPokemonBrought) {
-            node->displayList = Gfx_AllocDisplayList(0x10);
+            node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
             VsResults_WriteHpBarGfx(node->displayList, teams[team].hpBarImages[slot]);
         } else {
             node->displayList = NULL;

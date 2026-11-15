@@ -398,11 +398,15 @@ void* ZLift_FindFunc(uint32_t addr) {
 
 void* ZLift_ResolveCode(uint32_t addr) {
     void* fn = findFunc(addr);
-    if (fn == NULL && findPart(addr) != NULL) {
-        // handwritten jump stubs (fragment 001's callback slots): `j target; nop`
-        const uint8_t* code = resolve(addr, -1);
-        if (code != NULL && (uintptr_t)code > 0xFFFFFFFFu) {
-            uint32_t w = be32(code);
+    const ZLiftPart* part = fn == NULL ? findPart(addr) : NULL;
+    if (part != NULL) {
+        // handwritten jump stubs (fragment 001's callback slots): `j target; nop`, read straight from the image (the
+        // stubs are code, so resolve() could hand back a lifted block that does not hold the original words)
+        size_t size = 0;
+        const uint8_t* img = imageBytes(part->image, &size);
+        size_t at = part->rom + (addr - part->vram);
+        if (img != NULL && at + 4 <= size) {
+            uint32_t w = be32(img + at);
             if ((w >> 26) == 2) {
                 fn = findFunc((addr & 0xF0000000u) | ((w & 0x3FFFFFFu) << 2));
             }

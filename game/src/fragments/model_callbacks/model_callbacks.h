@@ -2,6 +2,7 @@
 #ifndef FRAGMENT_MODEL_CALLBACKS_H
 #define FRAGMENT_MODEL_CALLBACKS_H
 
+#include <stddef.h>
 #include "global.h"
 #include "m2c_macros.h"
 
@@ -19,8 +20,12 @@ typedef struct DisplayListAddresses {
     /* 0x08 */ u32 textures[1];
 } DisplayListAddresses; // size = 0xC
 
+// PORT: the callback states are the graph node itself: the address table is its callbackArg and the built display
+// list goes in the node field that follows the GraphNode (the node's displayList). Host offsets come from GraphNode.
+#define MODEL_CALLBACK_STATE_HEAD char unk00[offsetof(GraphNode, callbackArg)]
+
 typedef struct DisplayListState {
-    /* 0x00 */ char unk00[0x14];
+    /* 0x00 */ MODEL_CALLBACK_STATE_HEAD;
     /* 0x14 */ DisplayListAddresses* addresses;
     /* 0x18 */ Gfx* gfx;
 } DisplayListState; // size = 0x1C
@@ -33,13 +38,13 @@ typedef struct ModelScrollStrip {
 } ModelScrollStrip; // size = 0x1C
 
 typedef struct ModelScrollStripState {
-    /* 0x00 */ char unk00[0x14];
+    /* 0x00 */ MODEL_CALLBACK_STATE_HEAD;
     /* 0x14 */ ModelScrollStrip* strip;
     /* 0x18 */ Gfx* gfx;
 } ModelScrollStripState; // size = 0x1C
 
 typedef struct TextureState {
-    /* 0x00 */ char unk00[0x14];
+    /* 0x00 */ MODEL_CALLBACK_STATE_HEAD;
     /* 0x14 */ u32* textures;
     /* 0x18 */ Gfx* gfx;
 } TextureState; // size = 0x1C
@@ -66,6 +71,12 @@ typedef struct ModelSmokeSpawnFrames {
 } ModelSmokeSpawnFrames; // size = 0xC
 
 extern u8 D_81000000[];
+
+// PORT: a callback's table lives in the model data. In a model loaded from ROM it is big-endian and the node may hold
+// its 32-bit link address; these return a host copy in native byte order (the values stay link addresses, which the
+// display-list translation resolves).
+DisplayListAddresses* ModelCallback_HostAddresses(DisplayListAddresses* table, s32 count);
+ModelScrollStrip* ModelCallback_HostScrollStrip(ModelScrollStrip* strip);
 
 Gfx* ModelCallback_BuildIndexedTextureList(Gfx* gfx, DisplayListAddresses* addresses, s32 index);
 void ModelCallback_IndexedTexture(s32 phase, DisplayListState* state);

@@ -118,8 +118,28 @@ void ModelRenderer_ClearSlotModels(s32 arg0) {
 
 extern s16 D_800AFB28;
 extern unk_D_800B2EA8 D_800B3218[];
-extern u8 D_80075C10[];
-extern u8 D_80075A68[];
+// PORT: the two skinned flame templates (Charizard's tail and Moltres; the 0x92 one is Moltres) and their tables,
+// declared with their types so the lifter converts them to host data (they were bytes, left big-endian).
+extern u32 D_800758D4[3];
+extern Vtx_t D_800758E0[10];
+extern s16 D_80075980[12];
+extern u8 D_80075998[0x30]; // Gfx[6]: display list, kept in N64 form for the display-list translation
+extern s16 D_800759C8[24];
+extern s16 D_800759F8[44];
+extern s16 D_80075A50[12];
+extern ModelSegment D_80075A68;
+extern Vtx_t D_80075A88[10];
+extern s16 D_80075B28[12];
+extern u8 D_80075B40[0x30]; // Gfx[6]
+extern s16 D_80075B70[24];
+extern s16 D_80075BA0[44];
+extern s16 D_80075BF8[12];
+extern ModelSegment D_80075C10;
+// Referenced so the host links (and the lifter places) every table.
+void* const gPortSkinnedTemplateTables[] = {
+    D_800758D4, D_800758E0, D_80075980, D_80075998, D_800759C8, D_800759F8, D_80075A50, &D_80075A68,
+    D_80075A88, D_80075B28, D_80075B40, D_80075B70, D_80075BA0, D_80075BF8, &D_80075C10,
+};
 
 /** Updates the model of the current slot. */
 void ModelRenderer_UpdateSlotModel(void) {
@@ -134,10 +154,10 @@ void ModelRenderer_UpdateSlotModel(void) {
         ModelRenderer_ApplySlotScale(index);
 
         if (D_8006049C->objectType == 0x92) {
-            Model_InitSkinned(&D_800B0338[index][D_800AFB28].model, D_800B3218, D_800AFB38[index].mtx, D_80075C10);
+            Model_InitSkinned(&D_800B0338[index][D_800AFB28].model, D_800B3218, D_800AFB38[index].mtx, &D_80075C10);
             return;
         }
-        Model_InitSkinned(&D_800B0338[index][D_800AFB28].model, D_800B3218, D_800AFB38[index].mtx, D_80075A68);
+        Model_InitSkinned(&D_800B0338[index][D_800AFB28].model, D_800B3218, D_800AFB38[index].mtx, &D_80075A68);
     }
 }
 
@@ -213,7 +233,7 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
             gfx = ModelRenderer_SetSlotModelColor(gfx);
             {
                 ModelSegment* segment = &D_800B0338[mode][D_800AFB28].model.segment;
-                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDB060038;    _gfx->words.w1 = (s32) segment->vertexSegment;    }
+                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDB060038;    _gfx->words.w1 = (uintptr_t) segment->vertexSegment; /* PORT: was (s32) */    }
                 {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) segment->displayList;    }
                 {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) D_800744C0;    }
             }

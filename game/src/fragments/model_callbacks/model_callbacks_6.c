@@ -29,8 +29,8 @@ void ModelCallback_DualScrollTexture(s32 phase, DisplayListState* state) {
     DisplayListAddresses* addresses;
 
     if (phase == 2) {
-        addresses = state->addresses;
-        gfx = Gfx_AllocDisplayList(240);
+        addresses = ModelCallback_HostAddresses(state->addresses, 16); // PORT: big-endian table in model data
+        gfx = Gfx_AllocDisplayList(sizeof(Gfx) * 30); // PORT: was 240 (30 N64 commands)
         state->gfx = gfx;
         func_81001CE0(gfx, addresses);
     }
