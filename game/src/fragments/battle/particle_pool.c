@@ -90,9 +90,9 @@ void* MainPool_Alloc(u32 size, s32 side); // PORT: signature from the definition
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 void BattleAnim_InitParticleSystem(void) {
-    gBattleAnimEffectSlots = (void*)MainPool_Alloc(0x20D0, 0);
+    gBattleAnimEffectSlots = (void*)MainPool_Alloc(sizeof(BattleAnimEffectSlot) * 300, 0); // PORT: was 0x20D0 (300 N64 slots)
     gParticlePool = (Particle*)MainPool_Alloc(sizeof(Particle) * 300, 0);
-    bzero(gBattleAnimEffectSlots, 0x20D0);
+    bzero(gBattleAnimEffectSlots, sizeof(BattleAnimEffectSlot) * 300);
     bzero(gParticlePool, sizeof(Particle) * 300);
     gBattleAnimEffectSlotIndex = 0;
     gParticlePoolIndex = 0;

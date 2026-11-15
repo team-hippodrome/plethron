@@ -4,6 +4,7 @@
 #include "battle.h"
 #include "matrix.h"
 #include "math.h"
+#include "port_endian.h"
 /* Spline camera path state (scene spline block pointer, keyframe buffer) and helper shared by the func_82135xxx camera path functions. */
 extern s8 D_FLT_8219A5B0;
 // FAKE: sBattleScene.scene under a second symbol at the same address, so IDO does not
@@ -444,13 +445,16 @@ void BattleCamera_LoadSpeciesPathPoints(ActivePokemon* active_pokemon) {
     sp18 = (s8*)((D_8218A544[temp_a2] & 0xFFFFFF) + (uintptr_t)&D_00434C00);
     if (sBattleScene.scene->mode == 9) {
         Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+        Port_SwapWords(&D_FLT_8219A5B0, 0x168 / 4); // PORT: camera path floats are big-endian in ROM
         return;
     }
     if (BattleAnim_RandomRange(0x64) >= 0x33) {
         Dma_WriteChunks(&D_FLT_8219A5B0, sp18, sp18 + 0x168, 0);
+        Port_SwapWords(&D_FLT_8219A5B0, 0x168 / 4); // PORT: camera path floats are big-endian in ROM
         return;
     }
     Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+    Port_SwapWords(&D_FLT_8219A5B0, 0x168 / 4); // PORT: camera path floats are big-endian in ROM
 }
 
 /**
@@ -702,6 +706,7 @@ void BattleCamera_LoadDemoPathPoints(s32 unused) {
 
     temp_a1 = (D_8218A2D4 & 0xFFFFFF) + &D_00434C00;
     Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+    Port_SwapWords(&D_FLT_8219A5B0, 0x168 / 4); // PORT: camera path floats are big-endian in ROM
 }
 
 extern u8 D_8219A4F4;

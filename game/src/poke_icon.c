@@ -52,7 +52,7 @@ PokeIconRenderer* PokeIcon_CreateRenderList(ModelLoadContext* arg0, s16 arg1, s1
     s32 var_s0;
     GfxImage* temp_a1;
     s32 i;
-    PokeIconRenderer* temp_v0 = MainPool_Alloc(0x18, 0);
+    PokeIconRenderer* temp_v0 = MainPool_Alloc(sizeof(PokeIconRenderer), 0); // PORT: was 0x18 (the N64 size; unk_18 is never written)
 
     if (temp_v0 != NULL) {
         temp_v0->flags = 0;

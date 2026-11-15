@@ -401,7 +401,7 @@ typedef struct BattleSceneStateRow {
 } BattleSceneStateRow; // size = 0x2C
 
 typedef struct BattleSceneStateTickSlot {
-    /* 0x00 */ s32 pokemon; // @unverified: ActivePokemon passed to callback
+    /* 0x00 */ ActivePokemon* pokemon; // @unverified: ActivePokemon passed to callback (PORT: was s32)
     /* 0x04 */ BattleSceneStateCallback callback;
 } BattleSceneStateTickSlot; // size = 0x8
 
@@ -927,7 +927,7 @@ typedef void (*func_unk_D_8140E724)(struct Particle*);
 typedef struct BattleAnimEffectSlot {
     /* 0x00 */ func_unk_D_8140E724 updateCallback; // @unverified: copied to Particle.updateCallback at spawn
     /* 0x04 */ ParticleDescriptor* descriptor; // @unverified: copied to Particle.descriptor at spawn
-    /* 0x08 */ struct ActivePokemon* pokemon; // @unverified: owner, passed to BattleAnim_InitializeParticleFromEffect
+    /* 0x08 */ ActivePokemon* pokemon; // @unverified: owner, passed to BattleAnim_InitializeParticleFromEffect
     /* 0x0C */ s16 repeatInterval; // reloads delayTimer after each emission (BattleAnim_TickEffectSlots); 3 for a Body Slam slot in play
     /* 0x0E */ s16 delayTimer; // frames until the next emission: counted 39 down to 0 a frame in play, then reloaded to repeatInterval
     /* 0x10 */ s16 param0; // @unverified: copied to Particle.param0

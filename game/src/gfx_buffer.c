@@ -29,8 +29,9 @@ s32 Gfx_GetDisplayListRemaining(void);
 void Gfx_InitDisplayListBuffers(u32 buffer_size, s32 pool_side) {
     D_800AA158.current = 0;
     D_800AA158.bufferSize = buffer_size;
-    D_800AA158.buffers[0] = MainPool_AllocWithFunc(buffer_size, pool_side, 'DYN0', NULL);
-    D_800AA158.buffers[1] = MainPool_AllocWithFunc(buffer_size, pool_side, 'DYN1', NULL);
+    // PORT: twice the requested size, because a host Gfx command is 16 bytes (N64: 8); as in stadion
+    D_800AA158.buffers[0] = MainPool_AllocWithFunc(buffer_size * 2, pool_side, 'DYN0', NULL);
+    D_800AA158.buffers[1] = MainPool_AllocWithFunc(buffer_size * 2, pool_side, 'DYN1', NULL);
     Gfx_SwapDisplayListBuffer();
 }
 
@@ -47,7 +48,7 @@ void Gfx_SwapDisplayListBuffer(void) {
     D_800AA158.current ^= 1;
     buf = D_800AA158.buffers[D_800AA158.current];
 
-    D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize;
+    D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize * 2; // PORT: see Gfx_InitDisplayListBuffers
     gDisplayListHead = (Gfx*)buf;
 }
 

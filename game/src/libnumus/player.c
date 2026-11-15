@@ -1302,6 +1302,9 @@ extern audio_voice_t D_800B3670[45];
 s32 Audio_GetActivityScore(void) {
     s32 i;
 
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet): nothing plays
+        return 0;
+    }
     if (Audio_IsSoundPlaying(3) != 0) {
         return 1;
     }

@@ -725,7 +725,7 @@ s32 BattleScene_Init(StageContext* arg0) { // PORT: was s32* // FAKE: s32 return
     D_82198D14[0].modelLoadContext = PokeIcon_AllocFramebuffers(3);
     D_82198D14[1].modelLoadContext = PokeIcon_AllocFramebuffers(3);
     PokeIcon_OpenModelArchives();
-    D_82198CFC = MainPool_Alloc(0x10, 0);
+    D_82198CFC = MainPool_Alloc(sizeof(GfxImage), 0); // PORT: was 0x10 (the N64 size)
     GfxImage_Initialize(D_82198CFC, 0, 2, 0x4C, 0x4C, (uintptr_t)arg0->renderTargets[0]->depth_p->img_p); // PORT: was ((s32**)((s32**)arg0)[6])[3][2], N64 strides
     D_82198D00 = GfxImage_Allocate(0, 2, 0x4C, 0x4C, 0);
     D_82198D04 = GfxImage_Allocate(0, 2, 0x4C, 0x4C, 0);
