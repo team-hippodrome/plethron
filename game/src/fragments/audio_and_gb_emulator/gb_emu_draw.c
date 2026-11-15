@@ -74,7 +74,7 @@ s32 GbPak_InitializeCartridgeMapper(unk_D_8122B2C0* arg0);
  * `(x << 1) << 4` because a single `<< 5` (or `* 0x20`) uses one temporary
  * register fewer and does not match.
  */
-s32 func_81102344(u8*, s32);
+s32 func_81102344(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRamBank
 extern M2C_UNK D_811564A0;
 extern M2C_UNK D_811564C0;
 s32 GbPak_VerifyProbeBlock(void *arg0);
@@ -82,7 +82,7 @@ s32 GbPak_VerifyProbeBlock(void *arg0);
 
 s32 GbPak_CheckCartInserted(s8 *arg0);
 
-s32 func_81101FE8(s8 *);                            /* extern */
+s32 func_81101FE8(unk_D_8122B2C0* arg0); // PORT: matches GbPak_InitializeCartridgeMapper
 s32 GbPak_WriteVerifiedSramBlock(s32, s32, s32);                     /* extern */
 
 /*
@@ -115,12 +115,12 @@ GbPakChannel D_811561C8[4];
 s32 GbPak_CheckTransferStatus(OSPfs* arg0);
 
 s32 GbPak_ProbeCartridge(u8*);
-s32 func_81102280(u8*, s32);
+s32 func_81102280(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRomAddress
 s32 GbPak_CheckTransferStatus(OSPfs*);
 s32 GbPak_ReadRomSummed(u8* arg0);
 
 s32 GbPak_ProbeCartridge(u8*);
-s32 func_81102344(u8*, s32);
+s32 func_81102344(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRamBank
 s32 GbPak_CheckTransferStatus(OSPfs*);
 
 s32 GbPak_TransferBankedRam(u8* arg0, s32 arg1);
@@ -247,7 +247,7 @@ void GbPak_PrepareProbeBlock(u32* arg0, s32 arg1) {
     }
 }
 
-void func_81102EB0(u8*, s32);
+void func_81102EB0(u32* arg0, s32 arg1); // PORT: matches GbPak_PrepareProbeBlock
 
 /**
  * Selects the SRAM bank for the address, then writes a 0x20-byte block at 0xA000 + offset and
@@ -294,7 +294,7 @@ extern OSPfs D_81156018[];
 extern u8 D_81155E18[];
 extern u8 D_81155F18[];
 extern volatile u8 D_81156474;
-s32 func_81102690(GbPakChannel*, s32);
+s32 func_81102690(u8* arg0, s32 arg1); // PORT: matches GbPak_TransferBankedRam
 s32 GbPak_CheckGen1SaveChecksum(s8*);
 
 /**
@@ -876,7 +876,7 @@ extern u8 D_811220D0[];
 extern u8 D_81122010[];
 extern u8 D_81122070[];
 extern u8 D_81121DA0[];
-void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 
 /**
  * Draws the speed-up indicator in the status bar: the speed lamps 1, 2 (and 3 when two levels are

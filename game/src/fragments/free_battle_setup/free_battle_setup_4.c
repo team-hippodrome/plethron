@@ -206,7 +206,7 @@ extern M2C_UNK FreeBattle_DrawTeamRow;
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 M2C_UNK ScrollGrid_Init(s8*, s8*, s8*, M2C_UNK, s32, M2C_UNK*, s32, s32);
-M2C_UNK func_80027410(s8*, s32, M2C_UNK, M2C_UNK, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void PokeIcon_ResetSlots(s8* arg0);
 void FreeBattle_InitEntryListCursor(s8*);
 
@@ -380,8 +380,8 @@ void FreeBattle_DrawRentalTeamPanels(s8* entry) {
     func_80029028(M2C_FIELD(entry, s32*, 20) + 142, M2C_FIELD(entry, s32*, 24) + 106, 396, 30, D_82008F58);
 }
 
-s32 func_8002AE6C(s8*);
-void func_800189C0(s32, s32);
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
+s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
 void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void FreeBattle_DrawRentalListWindow(s8*, s32);

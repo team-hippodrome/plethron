@@ -257,7 +257,24 @@ void Game_UnusedStub(void);
 void Game_ShutdownAndLoadFragment(s32 arg0, s32 arg1);
 void Game_ResetStorageDevice(void);
 void ImageGrid_Clear(void);
-void BezierPath_InitEased(s8* arg0, s32 arg1);
+// PORT: a Bezier camera path (0x3C bytes on the N64, larger on the host: callers declare an Obj80027168, not s8[0x3C])
+typedef struct Key80027168 {
+    s16 n;
+    Vec3s a;
+    Vec3s b;
+} Key80027168;
+typedef struct Obj80027168 {
+    s32 unk_00;
+    Key80027168* keys;
+    Vec3f unk_08;
+    Vec3f unk_14;
+    Vec3f unk_20;
+    Vec3f unk_2C;
+    s16 unk_38;
+    s16 unk_3A;
+} Obj80027168;
+void BezierPath_InitLinear(Obj80027168* path, Key80027168* keys);
+void BezierPath_InitEased(Obj80027168* path, Key80027168* keys);
 M2C_UNK func_80025BE4(s32);                         /* extern */
 
 #endif // GAME_STATE_H

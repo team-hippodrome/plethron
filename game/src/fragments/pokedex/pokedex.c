@@ -109,7 +109,7 @@ void Pokedex_DrawListRow(s32 x, s32 y, char* item, s32 row, s32 flags, s32* sort
     Font_EndTexturedTextRendering();
 }
 
-M2C_UNK func_80027410(s8 *, M2C_UNK *, M2C_UNK, M2C_UNK, s32); /* extern */
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 M2C_UNK ScrollList_Init(s8 *, s8 *, s8 *, M2C_UNK, M2C_UNK *, s32, s32); /* extern */
 extern M2C_UNK D_8A12FC38;
 
@@ -131,7 +131,7 @@ void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
     list_window->list.options |= 0x10000;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
@@ -153,7 +153,7 @@ extern char D_8A12FC5C[];
 void Pokedex_DrawListWindow(PokedexListWindow* list_window, u32 flags) {
     char* str;
 
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&list_window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(list_window->window.frame.x, list_window->window.frame.y + 325, list_window->window.frame.width, &D_8007356C);
         ScrollList_DrawInlineItems(&list_window->list, list_window->window.frame.x + 6, list_window->window.frame.y + 22, flags | 0xFFED, (uintptr_t)&list_window->sortByKana);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -223,7 +223,7 @@ void Pokedex_InitCountsWindow(Window* window, s32 x, s32 y) {
     *(Rgba8A100620*)&window->frame.color2 = D_8A1057E4;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 s32 GbSave_CountSeenSpecies(s32);
 s32 GbSave_CountOwnedSpecies(s32);
 s32 GbSave_CountHeldSpecies(s32);
@@ -240,7 +240,7 @@ extern char D_8A12FCA4[];
  * Seen in play (2026-11-14): 20 / 5 / 1 for a save with 20 seen, 5 caught and Bulbasaur in the party.
  */
 void Pokedex_DrawCounts(Window* window) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(window) == 0) { // PORT: m2c dropped a0 (the window)
         Font_BeginTranslucentTextRendering();
         Font_SetActive(8, 0);
         Gfx_SetEnvColor(0x9C, 0xCC, 0x98, 0xFF); // #9CCC98FF
@@ -277,7 +277,7 @@ void Pokedex_DrawActionMenuRow(s32 x, s32 y, char* label, s32 row, s32 flags) {
 }
 
 extern M2C_UNK D_8A1057E8;
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up the action menu window, 180x168 at (x, y), with the 4 rows of D_8A1057E8 (データをみる "view data",
  * なきごえ "cry", ぶんぷをみる "view habitat", やめる "quit") drawn by Pokedex_DrawActionMenuRow.
@@ -297,7 +297,7 @@ void Pokedex_InitActionMenuWindow(PokedexMenuWindow* menu_window, s32 x, s32 y) 
     menu_window->menu.options |= 0x10000;
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -305,12 +305,12 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
  * Seen in play (2026-11-14): データをみる / なきごえ / ぶんぷをみる / やめる beside the list.
  */
 void Pokedex_DrawActionMenu(PokedexMenuWindow* menu_window, s32 flags) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&menu_window->window) == 0) { // PORT: m2c dropped a0 (the window)
         Menu_DrawItems((s8*)&menu_window->menu, menu_window->window.frame.x + 6, menu_window->window.frame.y + 12, flags | 0xFFED, 0);
     }
 }
 
-s32 func_8002BC14(s32);                             /* extern */
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
@@ -554,7 +554,7 @@ void Pokedex_DrawListWindow(PokedexListWindow*, u32);
 s32 Audio_PlaySystemSound(s32);
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 /**
  * Pokédex screen 1, the ずかんもくじ list: runs frames until A on a seen species (returns 2, the action
  * menu) or B closes the windows (returns 0, quit). A on an unseen row only plays sound 8.
@@ -656,7 +656,7 @@ s32 Pokedex_HandleActionMenuResult(s32 menu_result, s32 *next_screen) {
  */
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
-M2C_UNK func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 s32 Pokedex_HandleActionMenuResult(s32 menu_result, s32* next_screen);
 
 /**
@@ -709,7 +709,7 @@ s32 Pokedex_RunActionMenu(void) {
 
 extern s32 sModelPreview;
 extern u8 sEntryWindow[];
-s32 func_800196F8(s32);
+u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
 s32 Window_UpdateAnimation(Window* arg0);
 void Pokedex_DrawEntryWindow(Window*, s32, s32);
 
@@ -767,7 +767,7 @@ void Pokedex_CreateModelPreview(s32 framebuffers, s32 species) {
     PokeIcon_SetPreviewSpecies((PokeModelPreview*)sModelPreview, species, 0x108D);
 }
 
-M2C_UNK func_800199E4(M2C_UNK *);                   /* extern */
+void func_800199E4(DisplayObject* arg0); // PORT: matches ModelRenderer_ClearDisplayObject
 extern M2C_UNK D_8A12FE30;
 
 /**
@@ -907,7 +907,7 @@ extern s32 sFadingOut;
 extern s32 D_8A105800_2;
 extern M2C_UNK D_8A12FD3C;
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
-void func_8002C8D8(Col8A101B30*, Col8A101B30, f32);
+Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
  * BgStage_RunUntilCondition callback that fades the Pokédex background from gray to its green tint over 8
  * frames (sFadeTimer counting up), and on the next run back to gray (counting down, sFadingOut), with the
@@ -935,7 +935,7 @@ s32 Pokedex_DrawFadeFrame(UNUSED u8 unused) {
     }
     GbSave_DrawSummaryBar(0, var_a1, &D_8A12FD3C, sSummaryPort);
     n = sFadeTimer;
-    func_8002C8D8(&sp2C, *(Col8A101B30*)&D_8A1057D0, n / (f64)8.0f);
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8A1057D0, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (sFadingOut == 0) {
         n = sFadeTimer;
@@ -1023,7 +1023,7 @@ void Pokedex_InitFramebuffers(void) {
     GfxImage_AttachDepthBuffer(sAreaMapStageContext->renderTargets[1], sp28);
 }
 
-void func_80027FF8(void*, s32);
+void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_BuildPortSummary
 void Pokedex_InitIndexWindows(PokedexIndexScreen*);
 
 /**

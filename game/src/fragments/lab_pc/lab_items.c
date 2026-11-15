@@ -59,7 +59,7 @@ void LabList_InsertRowAtCursor(LabMonEntryList* list, s32 (*row)(s32, s32)) {
     ByteMatrix_InsertRow(list->items, row, list->count);
 }
 
-void func_800275E4(s32, s32);
+s32 func_800275E4(ByteMatrix* arg0, s32 arg1); // PORT: matches ByteMatrix_RemoveRow
 void ScrollList_SetCursorKeepOffset(s32*, s32);
 
 /**
@@ -97,7 +97,7 @@ void LabList_RemoveSelectedEntry(ScrollList* list) {
     ScrollList_SetCursorKeepOffset((s32*)list, list->cursor);
 }
 
-void func_800275E4(s32, s32);
+s32 func_800275E4(ByteMatrix* arg0, s32 arg1); // PORT: matches ByteMatrix_RemoveRow
 int ByteMatrix_InsertRow();
 void ScrollList_SetCursorKeepOffset(s32*, s32);
 
@@ -293,7 +293,7 @@ void LabItem_DrawBackground(void) {
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern Color_RGBA8 D_8900A5C0;
 extern char D_89018460[];
 extern char D_89018468[];
@@ -320,13 +320,13 @@ void LabItem_InitConfirmWindow(LabItemConfirmWindow* win, s32 x, s32 y, char *ti
     win->text = text;
 }
 
-s32 func_8002AE6C();                                /* extern */
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);            /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);              /* extern */
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void Font_SetLineHeight(s32 arg0);                     /* extern */
-M2C_UNK func_8001AB6C();                            /* extern */
-M2C_UNK func_8001ABBC();                            /* extern */
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
@@ -343,7 +343,7 @@ extern Color_RGBA8 D_8900A5CC;
  * Seen in play (2026-11-14): drew both ちゅうい！ questions above.
  */
 void LabItem_DrawConfirmWindow(LabItemConfirmWindow* win) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 97, win->window.frame.width, D_8007356C);
         Ui_FillRectPrimEnvColor(win->window.frame.x + 6, win->window.frame.y + 6, win->window.frame.width - 12, 92, D_8900A5C4, D_8900A5C8);
         gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -361,8 +361,8 @@ void LabItem_DrawConfirmWindow(LabItemConfirmWindow* win) {
     }
 }
 
-s32 func_8002B390(s8*);
-s32 func_8002BC14(s32);
+s32 func_8002B390(UiSelection* arg0); // PORT: matches Ui_HandleHorizontalSelectionInput
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
@@ -419,7 +419,7 @@ void LabItem_InitCountSelector(LabItemCountSelector* sel, s32 x, s32 y, s32 max,
     sel->state = 0;
 }
 
-void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
+void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void Font_DrawCharAt(s32 x, s32 y, s32 chr);
 void Font_SetColorForFlags(s32);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
@@ -486,8 +486,8 @@ void LabItem_DrawCountSelector(LabItemCountSelector* sel) {
     }
 }
 
-s32 func_8002B638(s8 *);                          /* extern */
-s32 func_8002BC14(s32);                             /* extern */
+s32 func_8002B638(UiNumberInput* arg0); // PORT: matches Ui_HandleNumericSelectionInput
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
@@ -584,7 +584,7 @@ void LabItem_DisableRow(LabItemMenuWindow* win, s32 row) {
  * color tables.)
  */
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 extern Color_RGBA8 D_8900A5D4[];
 extern u8 D_800734A8[];
 /**
@@ -616,7 +616,7 @@ void LabItem_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-M2C_UNK func_80027804();
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up a menu window whose height fits `count` rows.
  * Seen in play (2026-11-13) in せいとん > どうぐを いどうする, A opened the three-row source window (てもちの どうぐ,
@@ -637,7 +637,7 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
     win->menu.options |= 0x10000;
 }
 
-s32 func_8002AE6C();                                /* extern */
+s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -646,7 +646,7 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
  * item sort screen.
  */
 void LabItem_DrawMenu(LabItemMenuWindow* win) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
         Menu_DrawItems((s8*)&win->menu, win->window.frame.x + 6, win->window.frame.y + 10, 0xFFEF, 0);
     }
 }
@@ -678,9 +678,9 @@ extern Color_RGBA8 D_8900A5E0;
 extern Color_RGBA8 D_8900A5E8;
 extern Color_RGBA8 D_8900A5EC[];
 extern char D_8901848C[];
-char* func_8001FDC8(u8, char*);
-s32 func_80031C24(u8);
-s32 func_80031CC8(u8);
+char* func_8001FDC8(s32 arg0, char* arg1); // PORT: matches Text_GetTmHmName
+s32 func_80031C24(s32 arg0); // PORT: matches LabItem_IsQuantitylessItem
+s32 func_80031CC8(s32 arg0); // PORT: matches LabItem_IsQuantitylessItemForOperation
 void Font_SetColorForFlags(s32);
 /**
  * Draws one item row: the item name, and ×count unless the item has no quantity.
@@ -742,7 +742,7 @@ void LabItem_InitItemList(LabItemList* list, s32 x, s32 y, s32 table) {
 void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
-void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
+void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureIa8
 extern Gfx D_80073450[];
 extern u8 D_04011AB8[];
 /**
@@ -792,7 +792,7 @@ s32 LabItem_UpdateItemList(void* menu, u32 flags) {
     return result;
 }
 
-void func_80027410(s8*, s8*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 extern Color_RGBA8 D_8900A600;
 extern Color_RGBA8 D_8900A604;
 extern u8 D_8900A580[];
@@ -863,7 +863,7 @@ extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 void Font_SetColorForFlags(s32);
-s32 func_8002BC44(s32);
+s32 func_8002BC44(s32 arg0); // PORT: matches GbSave_GameToCategoryIndex
 
 /**
  * Draws the tab above an item list: the list's icon and name from `win->boxNames`
@@ -899,14 +899,14 @@ void LabItem_DrawListTab(LabItemOrganizeWindow* win, s32 x, s32 y, s32 flags, s3
     }
 }
 
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);            /* extern */
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);              /* extern */
-M2C_UNK func_8001AAE4(u8, u8, u8, u8);              /* extern */
-M2C_UNK func_8001AB6C();                            /* extern */
-M2C_UNK func_8001ABBC();                            /* extern */
-M2C_UNK func_8001ABE8();                            /* extern */
-M2C_UNK func_8001AC3C();                            /* extern */
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
+void func_8001AAE4(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetPrimColor
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
+void func_8001ABE8(void); // PORT: matches Font_EnableTwoCycleTexturing
+void func_8001AC3C(void); // PORT: matches Font_DisableTwoCycleTexturing
 
 /**
  * Draws title text with the two-color (prim/env) font style from `colors`.
@@ -938,12 +938,12 @@ void LabItem_DrawCenteredText(s32 x, s32 y, char* text) {
     Font_EndTexturedTextRendering();
 }
 
-M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);            /* extern */
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AA9C(u8, u8, u8, u8);              /* extern */
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void Font_SetLineHeight(s32 arg0);                     /* extern */
-M2C_UNK func_8001AB6C();                            /* extern */
-M2C_UNK func_8001ABBC();                            /* extern */
+void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
+void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
 extern u8 D_800734A8[];
 
 /**
@@ -963,7 +963,7 @@ extern s32 D_8900A650[];
 extern char* D_8900A660[];
 extern char* D_8900A66C[];
 extern PrimEnvColor* D_8900A678[];
-s32 func_80031BC0(u8, char *);
+char* func_80031BC0(s32 item_id, char* dest); // PORT: matches func_8002E160_jp
 /**
  * Draws the help line for the organize window's current state.
  * Seen in play (2026-11-12): 「どうぐをいどうする」.
@@ -1066,8 +1066,8 @@ void LabItem_MoveSelectedItem(LabItemOrganizeWindow* win) {
     }
 }
 
-void func_80027654(ByteMatrix* matrix, u8* out, s32 row);
-void func_80027700(ByteMatrix* matrix, u8* in, s32 row);
+s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
+s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
 
 /**
  * Swaps the selected rows of the left and right item lists and marks both changed.
@@ -1086,8 +1086,8 @@ void LabItem_SwapBetweenLists(LabItemOrganizeWindow* win) {
     win->dirty[win->leftBox] = win->dirty[win->rightBox];
 }
 
-void func_80027654(ByteMatrix* matrix, u8* out, s32 row);
-void func_80027700(ByteMatrix* matrix, u8* in, s32 row);
+s32 func_80027654(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRow
+s32 func_80027700(ByteMatrix* arg0, s8* a1, s32 arg2); // PORT: matches ByteMatrix_CopyRowAt
 
 /**
  * Swaps the row picked first (swapIndex) with the selected row of the same list and marks it
@@ -1120,7 +1120,7 @@ void LabItem_OpenTargetList(LabItemOrganizeWindow* win) {
     win->state = 4;
 }
 
-s32 func_8002B2B0(void *);
+s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 s32 Menu_SkipDisabledForward(Menu*);
 extern s32 D_8900A688[];
 extern s32 D_8900A694;
@@ -1418,7 +1418,7 @@ extern char D_89018678[];
 void LabItem_DrawTrainerInfo();
 void Window_SetRect(s8*, s32, s32, s32, s32);
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
-void func_80027410(s8*, s8*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 /**
  * Sets up the データをけす window over the four 64 item saves, with
  * 「セーブは４つぶんだけです けすデータをえらんでください」.
@@ -1449,7 +1449,7 @@ extern u8 D_89018688[];
  * Draws the データをけす window. Seen in play (2026-11-14).
  */
 void LabItem_DrawDeleteDataWindow(LabItemDeleteDataWindow* win, s32 flags) {
-    if (func_8002AE6C() == 0) {
+    if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
         Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, D_8007356C);
         Window_DrawFrame(&win->footerFrame);
         Menu_DrawInlineItems(&win->menu, win->window.frame.x + 6, win->window.frame.y + 6, 0xFFEF, 0);
@@ -1623,7 +1623,7 @@ void LabItem_DrawSaveDataWindow(LabItemSaveDataWindow* win) {
     }
 }
 
-s32 func_8002B2B0(void *);
+s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
 s32 LabItem_UpdateItemList(void *, u32);
 /**
  * Runs the save data window. Returns 1 for このデータをすてる, -1 for B or

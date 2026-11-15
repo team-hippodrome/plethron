@@ -6,6 +6,9 @@
 #include "stdarg.h"
 #include "moves.h"
 #include "m2c_macros.h"
+#include "game_state.h"
+#include "stage_loader.h"
+
 
 #define U64_NOP(x) ((u32)((u64)(x) | 0ULL))
 
@@ -25,24 +28,24 @@ extern s32 D_88403358;
 
 extern CameraNode* D_80060488;
 
-extern M2C_UNK D_800AA150;
+extern Gfx* D_800AA150; // gDisplayListHead
 
-extern s32 D_88403370;
+extern GraphNode* D_88403370; // PORT: the scene root (was s32)
 
 extern s32 D_88403364;
 
-extern s32 D_88402D70;
+extern s8* D_88402D70; // PORT: the current message (was s32)
 
 
-extern s32 D_88402D88;
+extern s8* D_88402D88; // PORT: message text (was s32)
 
 extern s8 *D_88402D8C;
 
-extern s32 D_88402D90;
+extern s8* D_88402D90; // PORT: message text (was s32)
 
 extern s8 *D_88402D94;
 
-extern M2C_UNK D_884034E0;
+extern DisplayObject D_884034E0; // PORT: was M2C_UNK
 
 extern char D_884032A8[];
 
@@ -54,29 +57,29 @@ extern char D_884032FC[];
 
 extern char D_88403304[];
 
-extern M2C_UNK D_88403648;
+extern DisplayObject D_88403648; // PORT: was M2C_UNK
 
-extern s8 D_88402E24;
+extern Key80027168 D_88402E24[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
-extern s8 D_88402E08;
+extern Key80027168 D_88402E08[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
-extern M2C_UNK D_88402D74;
+extern void* D_88402D74[3]; // PORT: transform curves of the three Game Boy models (was M2C_UNK)
 
-extern M2C_UNK D_884037B0;
+extern GraphNode* D_884037B0[3]; // PORT: the three Game Boy models (D_884037B0/B4/B8; was M2C_UNK)
 
-extern M2C_UNK D_88403378;
+extern DisplayObject D_88403378; // PORT: was M2C_UNK
 
-extern s8 D_88402DD0;
+extern Key80027168 D_88402DD0[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
-extern s8 D_88402DEC;
+extern Key80027168 D_88402DEC[]; // PORT: Bezier path keys (was s8), so the lifter swaps the s16s
 
 extern s32 D_88403360;
 
 extern GbPortSummaryZ D_88403310[4];
 
-extern s8 *D_88403368;
+extern StageContext* D_88403368; // PORT: was s8*
 
-extern s8 *D_8840336C;
+extern StageContext* D_8840336C; // PORT: was s8*
 
 extern u8 D_01000000[];
 
@@ -118,7 +121,7 @@ void CartridgeCheck_DrawMessageWindow(s16 x, s16 y, s16 width, s16 height);
 void CartridgeCheck_OpenMessageWindow(void);
 void CartridgeCheck_CloseMessageWindow(void);
 void CartridgeCheck_DrawNextArrow(s16 x, s16 y);
-void CartridgeCheck_ShowMessageUntilA(s32 text);
+void CartridgeCheck_ShowMessageUntilA(s8* text);
 void CartridgeCheck_ScrollToNextMessage(s8* text);
 void CartridgeCheck_RunGameBoyGiftEvent(void);
 void CartridgeCheck_PlayBootIntro(void);

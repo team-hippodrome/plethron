@@ -19,22 +19,22 @@ void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32);
-M2C_UNK func_80019008(s32, s32, M2C_UNK);
-M2C_UNK func_8001B5F0();
+void func_80019008(PokeModelPreview* arg0, BattleMon* arg1, u16 arg2); // PORT: matches PokeIcon_SetPreviewMon
+void func_8001B5F0(void); // PORT: matches Input_ResetRepeatState
 M2C_UNK Ui_DrawFrameLeftCorners(s32, s32, s32, M2C_UNK *);
 extern M2C_UNK D_800734A8;
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
-s32 func_80020CE4(s32, s32, s32);
-u8* func_800196F8(s32);
-void func_8001A384(s32, s32);
+s32 func_80020CE4(u8* arg0, s32 arg1, DeckHandle* arg2); // PORT: matches Deck_ReadEntries
+u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
+void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-void func_8001AA9C(u8, u8, u8, u8);
+void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void func_8001AB6C(void);
 void func_8001ABBC(void);
-void func_80022118(s32);
-void func_80022188(s32);
+void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
+void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void GbSave_RunReportErrorLoop(s32);
 
@@ -42,8 +42,8 @@ extern s32 D_8A21DE08;
 extern M2C_UNK D_8A21DE10;
 
 s32 Display_IsFrameReady(void);
-s32 func_80002BA4(void*, s32);
-s32 func_80017304(s32, BinArchive*, s32, void*, s32);
+void* func_80002BA4(struct MainPoolState* block, s32 size); // PORT: matches MainPool_InitState
+Fragment* func_80017304(MainPoolState* arg0, BinArchive* arg1, s32 arg2, u32 arg3, s32 arg4); // PORT: matches BinArchive_LoadFileToPool
 s32 Type_ToTableIndex(s32);
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndexChecked();
@@ -382,8 +382,8 @@ void PartyScreen_WriteParty(s32* mon_list, s32 screen) {
     func_80022188(sPartyGbPort);
 }
 
-void func_80027410(s8 *, s8 *, s32, s32, s32);
-void func_80027804(s8 *, s8 *, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Starts the てもち screen at state 1: reads the party, builds the list and the icons.
  * Seen in play (2026-11-14): ran once as the screen opened.
@@ -491,7 +491,7 @@ void PartyScreen_CloseWindow(PartyScreen* screen, s32 next_state, s32 next_windo
 }
 
 s32 Menu_UpdateCursor(s8*);
-s32 func_8002BC14(s32);
+s32 func_8002BC14(Controller* arg0); // PORT: matches Ui_GetSelectionDirection
 void SavePrompt_Init(s8*, s32, s32);
 void Menu_ClearItemFlags(s8*);
 s32 SavePrompt_Update(s8*);
@@ -682,7 +682,7 @@ extern s32 D_8A20342C;
 extern s32 D_8A203428_2;
 extern M2C_UNK D_8A21D9E4;
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
-void func_8002C8D8(ColF50*, ColF50, f32);
+Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
  * Fade frame for BgStage_RunUntilCondition: steps the background tint counter up to 8, then
  * back down, and draws the pak summary bar on top.
@@ -709,7 +709,7 @@ s32 PartyScreen_FadeFrame(u8 unused) {
     }
     GbSave_DrawSummaryBar(0, var_a1, &D_8A21D9E4, D_8A21DE08);
     n = D_8A203428;
-    func_8002C8D8(&sp2C, *(ColF50*)&D_8A203300, n / (f64)8.0f);
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8A203300, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_8A20342C == 0) {
         n = D_8A203428;

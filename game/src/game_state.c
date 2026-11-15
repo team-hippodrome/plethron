@@ -947,21 +947,6 @@ volatile long long ImageGrid_GeoCallback(s32 stage, s8 *node) // FAKE: volatile 
   }
 }
 
-typedef struct Key80027168 {
-    s16 n;
-    Vec3s a;
-    Vec3s b;
-} Key80027168;
-typedef struct Obj80027168 {
-    s32 unk_00;
-    Key80027168* keys;
-    Vec3f unk_08;
-    Vec3f unk_14;
-    Vec3f unk_20;
-    Vec3f unk_2C;
-    s16 unk_38;
-    s16 unk_3A;
-} Obj80027168;
 Vec3f* Vec3f_FromVec3s(Vec3f* float_vector, Vec3s* int_vector);
 Vec3s* Vec3s_Add(Vec3s* dest, Vec3s* a, Vec3s* b);
 Vec3s* Vec3s_Subtract(Vec3s* dest, Vec3s* a, Vec3s* subtrahend);
@@ -1032,9 +1017,9 @@ M2C_UNK BezierPath_LoadNextSegment(Obj80027168* path); // PORT: prototyped
  * Starts a Bezier path over the keys at `keys` with linear time.
  * @unverified Name read from the code.
  */
-void BezierPath_InitLinear(s8 *path, s32 keys) {
-    M2C_FIELD(path, s32 *, 4) = keys;
-    M2C_FIELD(path, s32 *, 0) = 0;
+void BezierPath_InitLinear(Obj80027168* path, Key80027168* keys) { // PORT: typed (was s8*, s32 and raw offsets)
+    path->keys = keys;
+    path->unk_00 = 0;
     BezierPath_LoadNextSegment((Obj80027168*)path); // PORT: was implicit a0
 }
 
@@ -1043,8 +1028,8 @@ M2C_UNK BezierPath_LoadNextSegment(Obj80027168* path); // PORT: prototyped
  * Starts a Bezier path over the keys at `keys` with eased (smoothstep) time.
  * @unverified Name read from the code.
  */
-void BezierPath_InitEased(s8 *path, s32 keys) {
-    M2C_FIELD(path, s32 *, 4) = keys;
-    M2C_FIELD(path, s32 *, 0) = 1;
+void BezierPath_InitEased(Obj80027168* path, Key80027168* keys) { // PORT: typed (was s8*, s32 and raw offsets)
+    path->keys = keys;
+    path->unk_00 = 1;
     BezierPath_LoadNextSegment((Obj80027168*)path); // PORT: was implicit a0
 }

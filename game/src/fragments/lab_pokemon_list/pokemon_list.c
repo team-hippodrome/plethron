@@ -47,7 +47,7 @@ void LabPCList_SaveDirtyItemDecks(s32 screen) {
 }
 
 extern s32 D_8910A7F8[3];
-void func_80027410(void*, void*, s32, s32, s32);
+void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
 /**
@@ -82,7 +82,7 @@ void LabPCList_InitSources(LabPCListScreen* screen) {
 }
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-void func_8000B2F4(s32);
+void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 /**
  * Sets the header cursor's range for the current detail page (1/3: six columns, 2/3: the move block, 3/3: six stat columns).
  * Seen in play (2026-11-14) in いちらん: ran on entry and on every C-Left/C-Right page turn (ページおくり1/3 -> 2/3 -> 3/3).
@@ -125,9 +125,9 @@ void LabPCList_ResetFilterState(LabPCListScreen* state) {
 }
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
-void func_80027804(s8*, s8*, s32, s32);
+void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void LabPCList_LoadAllBoxes(s8*);
-void func_80027D68(s32, s32);
+void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];

@@ -103,7 +103,7 @@ s32 GbPak_InitializeCartridgeMapper(unk_D_8122B2C0* arg0) {
  * `(x << 1) << 4` because a single `<< 5` (or `* 0x20`) uses one temporary
  * register fewer and does not match.
  */
-s32 func_81102344(u8*, s32);
+s32 func_81102344(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRamBank
 extern M2C_UNK D_811564A0;
 extern M2C_UNK D_811564C0;
 /**
@@ -163,7 +163,7 @@ s32 GbPak_CheckCartInserted(s8 *arg0) {
     return 0;
 }
 
-s32 func_81101FE8(s8 *);                            /* extern */
+s32 func_81101FE8(unk_D_8122B2C0* arg0); // PORT: matches GbPak_InitializeCartridgeMapper
 s32 GbPak_WriteVerifiedSramBlock(s32, s32, s32);                     /* extern */
 
 /**
@@ -282,7 +282,7 @@ s32 GbPak_CheckTransferStatus(OSPfs* arg0) {
 }
 
 s32 GbPak_ProbeCartridge(u8*);
-s32 func_81102280(u8*, s32);
+s32 func_81102280(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRomAddress
 s32 GbPak_CheckTransferStatus(OSPfs*);
 /**
  * Reads size bytes of cartridge ROM at addr into buf through the Transfer Pak, selecting the MBC
@@ -350,7 +350,7 @@ s32 GbPak_ReadRomSummed(u8* arg0) {
 }
 
 s32 GbPak_ProbeCartridge(u8*);
-s32 func_81102344(u8*, s32);
+s32 func_81102344(unk_D_8122B2C0* arg0, s32 arg1); // PORT: matches GbPak_SelectRamBank
 s32 GbPak_CheckTransferStatus(OSPfs*);
 
 /**

@@ -26,7 +26,7 @@ extern OSMesgQueue D_81156458;
 s32 GbPak_WriteBackDirtySramBlock(s32 arg0);
 extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 extern u8 D_8111E308;
-void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp (u16* dst, u16* src); callers pass dst as a buffer address
 extern u8 D_811565A2;
 extern GbEmuState D_81156540;
 extern u8 D_811565A0;
@@ -79,7 +79,7 @@ void GbPak_QueueNextBankLoad(GbPakChannel*);
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
 u8 GbCpu_Run(void*, s32);
-void func_811177D0(s32);
+void func_811177D0(s32 arg0); // PORT: matches GbAudio_SetMenuSoundMode
 
 /**
  * Runs one frame of the GB Player emulator (Stadium 1's GbEmu_UpdateFrame).
