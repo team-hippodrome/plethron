@@ -29,9 +29,9 @@ loop_1:
     goto loop_1; // FAKE: goto loop kept from m2c output
 }
 
-s32 Deck_Open(s32, s32, s32, s32);
-s32 Deck_ReadEntries(void*, s32, s32);
-M2C_UNK Deck_CloseAndFlush(s32);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 /**
  * Reads up to six Pokémon of deck `deck` (0x10 the Stadium save, 0x20 a Game Boy cartridge), Transfer Pak
  * `pak` and slot `slot` into `mons` and stores the count.
@@ -53,9 +53,9 @@ void Registration_ReadTeam(s32 deck, s32 pak, s32 slot, ByteMatrix* mons) {
     mons->count = i;
 }
 
-s32 Deck_OpenAndSetName(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s8 *, s32); /* extern */
-M2C_UNK Deck_CloseAndFlush(s32);                         /* extern */
-s32 Deck_WriteEntries(s32, M2C_UNK, s32);               /* extern */
+void* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
+s32 Deck_WriteEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
 /**
  * Writes `team` into registered slot `slot` of the Stadium save (deck 0x10).
  * Seen in play (2026-11-12): 「このポケモンをとうろくする？」 > はい stored the party in slot 01.
@@ -67,7 +67,7 @@ void Registration_WriteTeam(s8* arg0, M2C_UNK arg1) {
 
     handle = Deck_OpenAndSetName(0x10, 0, arg1, 0, arg0 + 8, M2C_FIELD(arg0, s32*, 4));
     for (i = 0; i < M2C_FIELD(arg0, s32*, 0x20); i++, entry++) {
-        if (Deck_WriteEntries((uintptr_t)&entry->mon, 1, handle) == 0) {
+        if (Deck_WriteEntries(&entry->mon, 1, handle) == 0) {
             break;
         }
     }
@@ -139,7 +139,7 @@ void Registration_LoadRegisteredTeams(ByteMatrix* table) {
 
 s32 GbSave_EnsureMainDataLoaded(s32);
 s32 GbSave_GetTrainerId(s32 arg0);
-void GbSave_GetPlayerName(s32, u8*);
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 /**
  * Reads the party of each Game Boy cartridge in the four Transfer Paks (deck 0x20).
  * Seen in play (2026-11-12): ポケモンを とうろくする listed the 1P cartridge's party.
@@ -223,7 +223,7 @@ s32 func_8002AE6C();
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color88100D9C);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color88100D9C, Color88100D9C);
-void Menu_DrawItems(void*, s32, s32, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern u8 D_800734A8[4];
 extern Gfx D_80060270[];
@@ -256,9 +256,9 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
 }
 
 s32 Menu_UpdateCursor(void*);
-M2C_UNK Ui_GetSelectionDirection(s32);
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Menu-list input handler (same pattern as PartyScreen_UpdateActionMenu and FreeBattle_UpdatePopupMenu). Returns 0
@@ -299,7 +299,7 @@ s32 Registration_UpdateMainMenu(MenuWindow* menu) {
 }
 
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_88102DA4;
 extern char D_88102F14[];
 extern char D_88102F1C[];
@@ -360,8 +360,8 @@ void Registration_DrawConfirmWindow(RegistrationConfirmWindow* confirm) {
 }
 
 s32 Ui_HandleHorizontalSelectionInput(void*);
-M2C_UNK Ui_GetSelectionDirection(s32);
-extern s32 D_800603C0;
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Handles the confirm window. Returns 1 for yes, -1 for no or cancel.
  * Seen in play (2026-11-12): はい confirmed the registration.
@@ -425,8 +425,8 @@ void Registration_DrawMessageWindow(RegistrationMessageWindow* message) {
     }
 }
 
-M2C_UNK Ui_GetSelectionDirection(s32);                         /* extern */
-extern s32 D_800603C0;
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Returns the confirm/cancel input while the message window is open.
@@ -811,7 +811,7 @@ void Registration_SetListMode(RegistrationTeamList* list, s32 mode) {
 
 extern M2C_UNK D_88102D84;
 extern s32 D_88103098[];
-M2C_UNK ScrollList_Init();
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 /**
  * Sets up the team list window (544x344) in `mode` (0 register, 1 view, 2 delete).
  * Seen in play (2026-11-12): opened the team list.
@@ -845,7 +845,7 @@ void Registration_DrawCursorTeamRow(RegistrationTeamList* list) {
 
 void func_800189C0(s32, s32);
 void BgStage_DrawFrame(void);
-void ScrollList_DrawItems(void*, s32, s32, s32, s32);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 /**
  * Draws the team list window for its current state.
  * Seen in play (2026-11-12): the ポケモンを とうろくする list window.
@@ -957,7 +957,7 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
             }
             break;
         case 3:
-            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 0;
@@ -986,7 +986,7 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
             }
             break;
         case 6:
-            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 2;
@@ -1172,7 +1172,7 @@ s32 Registration_UpdateScreen(RegistrationScreen* screen) {
     return done;
 }
 
-s32 Util_Malloc(s32);
+void* Util_Malloc(s32 size); // PORT: matches the definition
 extern s32 D_88103074;
 extern RegistrationScreen* D_881030F8;
 
@@ -1253,7 +1253,7 @@ void Registration_RunFrame(s32 fade_mode) {
     Registration_UpdateScreen(D_881030F8);
 }
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern RegistrationScreen* D_881030F8;
 
 /**
@@ -1267,8 +1267,8 @@ void Registration_FreeScreen(void) {
 
 M2C_UNK MainPool_PushState(M2C_UNK);
 M2C_UNK MainPool_PopState(M2C_UNK);
-M2C_UNK Asset_LoadToSegment(u32, M2C_UNK *, M2C_UNK *, M2C_UNK);
-M2C_UNK Fragment_Load(s32, M2C_UNK *, M2C_UNK *);
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
+void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
 M2C_UNK func_80006724();
 M2C_UNK func_8000675C();
 M2C_UNK func_80006828(M2C_UNK, void*);

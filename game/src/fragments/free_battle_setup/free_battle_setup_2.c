@@ -8,12 +8,12 @@
 typedef struct { u8 b[9]; } Bytes9;
 extern u8 D_8200AC30[];
 s32 GbSave_GetTrainerId(s32 arg0);
-s32 Deck_Open(s32, s32, s32, s32);
-u8 Deck_ReadEntries(void*, s32, s32);
-void Deck_CloseAndFlush(s32);
-void GbSave_GetPlayerName(s32, void*);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 void _bcopy(void*, void*, s32);
-void HAL_Strcpy(void*, void*);
+char* HAL_Strcpy(char* dest, char* src); // PORT: matches the definition
 
 /**
  * Fills the trainer slot `slot` and its roster info `info` for a human player on controller

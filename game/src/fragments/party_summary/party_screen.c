@@ -11,15 +11,15 @@
 void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32);
-M2C_UNK Menu_Init(s8 *, s32, s8 *, M2C_UNK *, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 extern Entry80066AA0 D_80066AA0[];
 extern M2C_UNK D_800734A8;
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
-s32 Window_DrawAnimatedFrame();
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 s32 func_8001FA30(u8);
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
 void func_8001A384(s32, s32);
@@ -159,7 +159,7 @@ void PartyScreen_DrawList(PartyListWindow* window, s32 mode) {
     s32 x;
     s32 y;
 
-    if ((window->window.state != 2) && (Window_DrawAnimatedFrame() == 0)) {
+    if ((window->window.state != 2) && (Window_DrawAnimatedFrame(&window->window /* PORT: m2c dropped the argument left in a0 */) == 0)) {
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 311, window->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(window->window.frame.x + 6, window->window.frame.y + 318, window->window.frame.width - 12, 36, D_8A203350, D_8A203354);
         func_8001AB6C();
@@ -262,12 +262,12 @@ void PartyScreen_InitActionMenu(PartyActionMenuWindow* window, s32 x, s32 y, u8*
  * Seen in play (2026-11-14): drew the つよさをみる / ならびかえ / やめる menu.
  */
 void PartyScreen_DrawActionMenu(PartyActionMenuWindow* window) {
-    if (Window_DrawAnimatedFrame() == 0) {
+    if (Window_DrawAnimatedFrame(&window->window /* PORT: m2c dropped the argument left in a0 */) == 0) {
         Menu_DrawItems((s8*)&window->menu, window->window.frame.x + 6, window->window.frame.y + 12, 0xFEF, 0);
     }
 }
 
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 s32 Menu_UpdateCursor(s8*);
 s32 func_8002BC14(s32);
@@ -461,9 +461,9 @@ extern Color_RGBA8 D_8A203378;
 extern Color_RGBA8 D_8A20337C;
 extern char D_8A21D980[];
 extern char D_8A21D990[];
-void Ui_DrawImageInStrips(s32, s32, s32);
+void Ui_DrawImageInStrips(void*arg0, s32 x, s32 y); // PORT: matches the definition
 
-s32 BattleMon_GetMoveIndex(u8*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws the moves page's move list: each move name in its type color with PP cur/max,
  * laid out by the C button that picks it, and a frame on `selected_slot`. Max PP adds
@@ -549,7 +549,7 @@ void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon) {
     func_8001A384(4, 0);
     Font_Printf(x + 9, y + 60, "タイプ"); // "Type"
     Font_Printf(x + 79, y + 60, "1/");
-    if (Pokemon_GetTypeIndex((uintptr_t)mon, 1) != -1) {
+    if (Pokemon_GetTypeIndex(mon, 1) != -1) {
         Font_Printf(x + 185, y + 60, "2/");
     }
     MonSummary_DrawTypeName(x + 111, y + 60, 4, (uintptr_t)mon, 0);

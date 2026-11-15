@@ -35,10 +35,10 @@ M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 M2C_UNK func_8001AB6C();
 M2C_UNK func_8001ABBC();
-M2C_UNK Save_GetGbPlayerSettings(s8 *, M2C_UNK);
+s32 Save_GetGbPlayerSettings(s8 *arg0, s32 *arg1); // PORT: matches the definition
 s32 func_800023C4(M2C_UNK, M2C_UNK);
 s32 func_800051F0(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32);
-s32 BezierPath_Step(s8*, s32);
+s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
 void MainPool_FinalizeAllocation(struct MemoryBlock* block);
 void Audio_StopMusic(s32);
 void Audio_StopSoundByCategory(s32, s32);
@@ -205,7 +205,7 @@ void CartridgeCheck_RunGameBoyGiftEvent(void) {
 }
 
 void BezierPath_InitEased(s8* arg0, s32 arg1);
-s32 BezierPath_Step(s8*, s32);
+s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
 extern M2C_UNK D_88403648;
 extern s8 D_88402D98;
 extern s8 D_88402DB4;
@@ -241,7 +241,7 @@ void CartridgeCheck_PlayBootIntro(void) {
 }
 
 void BezierPath_InitEased(s8* arg0, s32 arg1);
-s32 BezierPath_Step(s8*, s32);
+s32 BezierPath_Step(void* path, Vec3f* out); // PORT: matches the definition
 extern M2C_UNK D_88403648;
 extern s8 D_88402DD0;
 extern s8 D_88402DEC;
@@ -920,17 +920,17 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     D_884037B0 = (uintptr_t)GeoLayout_Process(sp20, D_8F4A4240);
     D_884037B4 = (uintptr_t)GeoLayout_Process(sp20, D_8F4B2AF0);
     D_884037B8 = (uintptr_t)GeoLayout_Process(sp20, D_8F4959C8);
-    Model_InitDisplayObject(&D_88403648, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8F4886F8));
+    Model_InitDisplayObject(&D_88403648, 0, 0, GeoLayout_Process(sp20, D_8F4886F8));
     if (gSessionContext.transitionFlags & 8) {
         // Doduo Game Boy prize model (fragment039, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 1, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E825FE8));
+        Model_InitDisplayObject(&D_884034E0, 1, 0, GeoLayout_Process(sp20, D_8E825FE8));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E802B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     } else if (gSessionContext.transitionFlags & 0x10) {
         // Dodrio Game Boy prize model (fragment040, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E924770));
+        Model_InitDisplayObject(&D_884034E0, 0, 0, GeoLayout_Process(sp20, D_8E924770));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E902B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);

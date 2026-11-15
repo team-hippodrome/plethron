@@ -316,8 +316,8 @@ ZLIFT_STORAGE(D_800AAED0, 4);
 ZLIFT_STORAGE(D_800AAED4, 100);
 ZLIFT_STORAGE(D_800AAF38, 4);
 ZLIFT_STORAGE(D_800AAF3C, 4);
-ZLIFT_STORAGE(D_800AAF40, 4);
-ZLIFT_STORAGE(D_800AAF44, 4);
+ZLIFT_STORAGE(D_800AAF40, 8);
+ZLIFT_STORAGE(D_800AAF44, 8);
 ZLIFT_STORAGE(D_800AAF48, 8);
 ZLIFT_STORAGE(gControllers, 192);
 ZLIFT_STORAGE(gSIEventMesgQueue, 40);
@@ -713,10 +713,10 @@ ZLIFT_STORAGE(D_81152760, 32);
 ZLIFT_STORAGE(D_811541F0, 12);
 ZLIFT_STORAGE(D_811541FC, 8);
 ZLIFT_STORAGE(D_FLT_81154254, 4);
-ZLIFT_STORAGE(D_81154B20, 256);
-ZLIFT_STORAGE(D_81154BF0, 72);
+ZLIFT_STORAGE(D_81154B20, 320);
+ZLIFT_STORAGE(D_81154BF0, 96);
 ZLIFT_STORAGE(D_81154C30, 16);
-ZLIFT_STORAGE(D_81154C38, 4);
+ZLIFT_STORAGE(D_81154C38, 8);
 ZLIFT_STORAGE(D_81154C3C, 4);
 ZLIFT_STORAGE(D_81154C40, 4);
 ZLIFT_STORAGE(D_81154C44, 4);
@@ -730,8 +730,6 @@ ZLIFT_STORAGE(D_81155E18, 256);
 ZLIFT_STORAGE(D_81155F18, 256);
 ZLIFT_STORAGE(D_81156018, 448);
 ZLIFT_STORAGE(D_811561B8, 32);
-ZLIFT_STORAGE(D_8115623C, 36);
-ZLIFT_STORAGE(D_81156261, 503);
 ZLIFT_STORAGE(D_81156458, 40);
 ZLIFT_STORAGE(D_81156470, 4);
 ZLIFT_STORAGE(D_81156474, 1);
@@ -753,13 +751,13 @@ ZLIFT_STORAGE(D_811565A3, 1);
 ZLIFT_STORAGE(D_811565A4, 1);
 ZLIFT_STORAGE(D_811565A5, 3);
 ZLIFT_STORAGE(D_811565A8, 8);
-ZLIFT_STORAGE(D_811565AC, 4);
-ZLIFT_STORAGE(D_811565B0, 4);
+ZLIFT_STORAGE(D_811565AC, 8);
+ZLIFT_STORAGE(D_811565B0, 8);
 ZLIFT_STORAGE(D_811565B4, 4);
 ZLIFT_STORAGE(D_811565B8, 1);
 ZLIFT_STORAGE(D_811565B9, 7);
-ZLIFT_STORAGE(D_811565C0, 4);
-ZLIFT_STORAGE(D_811565C4, 4);
+ZLIFT_STORAGE(D_811565C0, 8);
+ZLIFT_STORAGE(D_811565C4, 8);
 ZLIFT_STORAGE(D_811565C8, 4);
 ZLIFT_STORAGE(D_811565CC, 4);
 ZLIFT_STORAGE(D_811565D0, 8);
@@ -2786,166 +2784,166 @@ const ZLiftType gZLiftTypes[] = {
     { 928, 928, 654, 1 }, // as1u[928]
     { 16, 24, 655, 4 }, // r:block_param_form@internal.h:19
     { 4, 4, 659, 1 }, // r:LEOVersion@leo.h:33
-    { 24, 32, 660, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:799
-    { 8, 8, 677, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:490
+    { 24, 32, 660, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:825
+    { 8, 8, 677, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:516
     { 48, 56, 678, 5 }, // r:struct AudioSpec@audio_and_gb_emulator.h:129
     { 18, 18, 683, 4 }, // r:struct ReverbSettings@audio_and_gb_emulator.h:116
     { 32, 32, 687, 6 }, // r:struct AudioTable@audio_and_gb_emulator.h:185
-    { 104, 128, 693, 12 }, // r:struct GbPlayerTask@gb_emu_screen.c:270
-    { 60, 72, 705, 11 }, // r:struct GbEmuTask@gb_emu_frame.c:42
-    { 88, 120, 716, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:408
-    { 216, 328, 732, 2 }, // r:struct SlowLoads8110E500@audio_load_2.c:321
-    { 104, 160, 734, 23 }, // r:struct AudioSlowLoad@audio_and_gb_emulator.h:195
-    { 80, 80, 757, 17 }, // r:struct GbApuChannelState@audio_and_gb_emulator.h:279
-    { 4, 4, 774, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:395
-    { 4, 4, 776, 1 }, // r:struct GbApuStatusOverride@audio_and_gb_emulator.h:318
-    { 344, 528, 777, 26 }, // r:struct SynthesisReverb@audio_and_gb_emulator.h:226
-    { 100, 160, 803, 1 }, // ar:struct ReverbRingBufferItem@audio_and_gb_emulator.h:216[5]
-    { 20, 32, 804, 5 }, // r:struct ReverbRingBufferItem@audio_and_gb_emulator.h:216
-    { 16, 32, 809, 8 }, // r:struct Sample@audio_and_gb_emulator.h:153
-    { 28, 40, 817, 6 }, // r:struct AudioPermanentCache@audio_and_gb_emulator.h:109
-    { 40, 56, 823, 7 }, // r:struct SampleCache8110BA8C@audio_load.c:219
-    { 16, 16, 830, 1 }, // r:struct AudioSessionPoolSplit@audio_and_gb_emulator.h:260
-    { 8, 8, 831, 1 }, // r:struct AudioCachePoolSplit@audio_and_gb_emulator.h:267
-    { 12, 12, 832, 1 }, // r:struct AudioCommonPoolSplit@audio_and_gb_emulator.h:272
-    { 348, 512, 833, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:582
-    { 212, 352, 873, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:623
-    { 204, 272, 921, 57 }, // r:struct Note@audio_and_gb_emulator.h:825
-    { 16, 32, 978, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:505
-    { 64, 128, 982, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:524
-    { 132, 192, 998, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:687
-    { 4, 4, 1034, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:540
-    { 8, 16, 1035, 2 }, // r:struct SoundFontSound@audio_and_gb_emulator.h:211
-    { 348, 348, 1037, 2 }, // r:struct SequencePlayerFromSkipTicks@audio_load.c:1105
-    { 20, 32, 1039, 4 }, // r:struct AudioPreloadReq@audio_and_gb_emulator.h:165
-    { 84, 112, 1043, 10 }, // r:struct Entry8110EABC@audio_load_2.c:518
-    { 56, 56, 1053, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:470
-    { 12, 12, 1057, 2 }, // r:struct ModelSmokeSpawnFrames@model_callbacks.h:61
-    { 440, 440, 1059, 1 }, // ar:struct ModelParticle@model_callbacks.h:48[10]
-    { 44, 44, 1060, 5 }, // r:struct ModelParticle@model_callbacks.h:48
-    { 80, 80, 1065, 13 }, // r:struct BattleMon@game_state.h:34
-    { 12, 24, 1078, 1 }, // ap[3]
-    { 16, 16, 1079, 3 }, // r:struct OrderSidebarIcons@battle_order_select.h:8
-    { 32, 40, 1082, 6 }, // r:struct OrderSelectPanel@battle_order_select.h:17
-    { 516, 536, 1088, 7 }, // r:struct TeamRoster@game_state.h:135
-    { 520, 520, 1095, 5 }, // r:struct ExtendedRosterInfo@game_state.h:126
-    { 18, 18, 1100, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:12
-    { 4, 4, 1103, 1 }, // r:struct Color82001CCC@free_battle_setup.c:480
-    { 16, 24, 1104, 2 }, // r:struct Img82001E20@free_battle_setup.c:991
-    { 20, 20, 1106, 1 }, // r:struct Slot82000C5C@free_battle_setup.c:506
-    { 4, 4, 1107, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
-    { 8, 8, 1108, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:432
-    { 12, 24, 1109, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:102
-    { 4, 4, 1112, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
-    { 12, 16, 1113, 3 }, // r:struct List82004518@free_battle_setup_5.c:15
-    { 4, 4, 1116, 1 }, // r:struct Color88100D9C@registration.h:70
-    { 496, 512, 1117, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
-    { 360, 408, 1122, 23 }, // r:struct DisplayObject@global.h:141
-    { 16, 16, 1145, 3 }, // r:struct ModelAnchor@global.h:134
-    { 512, 512, 1148, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
-    { 16, 16, 1150, 1 }, // r:struct unk_D_84390028@battle.h:418
-    { 24, 24, 1151, 3 }, // r:struct unk_D_843847BC@battle.h:430
-    { 8, 16, 1154, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
-    { 44, 80, 1157, 3 }, // r:struct BattleSceneStateRow@battle.h:395
-    { 6, 6, 1160, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1145
-    { 3, 3, 1161, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
-    { 2, 2, 1162, 1 }, // r:struct StatStageMultiplier@battle.h:881
-    { 48, 48, 1163, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
-    { 7, 7, 1164, 1 }, // r:struct Arr82133534@demo_mode11.c:259
-    { 396, 792, 1165, 1 }, // ap[99]
-    { 6, 6, 1166, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
-    { 14, 14, 1167, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
-    { 20, 20, 1170, 2 }, // r:struct S0Learnset@damage_estimate.c:310
-    { 8, 16, 1172, 2 }, // r:struct ParticleDescriptor@battle.h:646
-    { 16, 32, 1174, 4 }, // r:struct ParticleDescriptorChild@battle.h:631
-    { 8, 16, 1178, 1 }, // ap[2]
-    { 20, 40, 1179, 1 }, // ap[5]
-    { 3, 3, 1180, 1 }, // as1u[3]
-    { 16, 16, 1181, 3 }, // r:union Vtx@gbi.h:1046
-    { 8, 8, 1184, 1 }, // f8
-    { 240, 304, 1185, 22 }, // r:struct CameraNode@global.h:253
-    { 24, 48, 1207, 6 }, // r:struct GraphNode@global.h:177
-    { 32, 32, 1213, 1 }, // r:LookAt@gbi.h:1374
-    { 16, 16, 1214, 4 }, // r:Light@gbi.h:1318
-    { 4, 4, 1218, 1 }, // r:union Color_RGBA8_u32@color.h:29
-    { 8, 16, 1219, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:403
-    { 36, 36, 1221, 1 }, // as2u[18]
-    { 100, 100, 1222, 16 }, // r:struct BattleMonRuntime@game_state.h:71
-    { 36, 36, 1238, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
-    { 64, 72, 1243, 2 }, // r:struct unk_D_84390240@battle.h:388
-    { 208, 216, 1245, 21 }, // r:struct BattleScene@battle.h:339
-    { 12, 12, 1266, 1 }, // r:struct ParticleRenderContext@battle.h:961
-    { 24, 24, 1267, 3 }, // r:struct unk_D_84392040@battle.h:57
-    { 2808, 2808, 1270, 6 }, // r:struct RibbonMesh@battle.h:475
-    { 28, 28, 1276, 4 }, // r:struct RibbonMeshVertexState@battle.h:466
-    { 9232, 9240, 1280, 6 }, // r:struct SurfWaterGrid@battle.h:89
-    { 320, 320, 1286, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
-    { 20, 20, 1287, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
-    { 40, 40, 1289, 2 }, // r:struct CameraFacingQuad@battle.h:499
-    { 1504, 1512, 1291, 7 }, // r:struct Radial20@battle.h:516
-    { 72, 72, 1298, 4 }, // r:struct Radial20Node@battle.h:506
-    { 7188, 7200, 1302, 5 }, // r:struct Trail40@battle.h:538
-    { 448, 448, 1307, 1 }, // ar:struct Trail40Node@battle.h:531[16]
-    { 28, 28, 1308, 2 }, // r:struct Trail40Node@battle.h:531
-    { 8212, 8224, 1310, 5 }, // r:struct Trail40Variant@battle.h:556
-    { 512, 512, 1315, 1 }, // ar:struct Trail40VariantNode@battle.h:548[16]
-    { 32, 32, 1316, 3 }, // r:struct Trail40VariantNode@battle.h:548
-    { 856, 864, 1319, 6 }, // r:struct TexturedRibbonSheet@battle.h:576
-    { 80, 80, 1325, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:566
-    { 1072, 1080, 1329, 7 }, // r:struct FourStreamTrail@battle.h:602
-    { 68, 68, 1336, 2 }, // r:struct FourStreamTrailNode@battle.h:590
-    { 1076, 1088, 1338, 8 }, // r:struct OwnerLinkedFourStream@battle.h:716
-    { 208, 232, 1346, 15 }, // r:struct Particle@battle.h:660
-    { 2892, 3208, 1361, 124 }, // r:struct ActivePokemon@battle.h:259
-    { 368, 416, 1485, 26 }, // r:struct PokemonAfterimage@battle.h:174
-    { 40, 72, 1511, 10 }, // r:struct BattleSide@game_state.h:148
-    { 8, 16, 1521, 3 }, // r:struct arg1_func_80019420@game_state.h:14
-    { 32, 32, 1524, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
-    { 1048, 1064, 1527, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:733
-    { 864, 872, 1533, 8 }, // r:struct Trail50Effect@battle.h:759
-    { 80, 80, 1541, 2 }, // r:struct Trail50EffectNode@battle.h:746
-    { 576, 584, 1543, 10 }, // r:struct DoubleTextureTrail@battle.h:810
-    { 40, 40, 1553, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:776
-    { 884, 888, 1556, 10 }, // r:struct BeamTrail@battle.h:858
-    { 36, 36, 1566, 1 }, // r:struct BeamTrailSegment@battle.h:850
-    { 484, 484, 1567, 3 }, // r:struct AuxiliaryEffect@battle.h:844
-    { 24, 24, 1570, 2 }, // r:struct AuxiliaryEffectNode@battle.h:835
-    { 896, 952, 1572, 5 }, // r:struct ComSide@battle.h:142
-    { 144, 152, 1577, 22 }, // r:struct ComBattler@battle.h:122
-    { 72, 144, 1599, 7 }, // r:struct VsSceneSide@vs_scene.h:10
-    { 24, 24, 1606, 1 }, // as1u[24]
-    { 16, 16, 1607, 1 }, // r:struct MainMenuRect@main_menu.c:211
-    { 16, 24, 1608, 2 }, // r:struct MainMenuLabel@main_menu.c:213
-    { 8, 8, 1610, 1 }, // r:struct PrimEnvColor@lab_pc.h:658
-    { 20, 24, 1611, 2 }, // r:struct Slot890056A4@pc_sort.c:442
-    { 20, 20, 1613, 1 }, // r:struct Slot89007678@pc_box.c:298
-    { 8, 8, 1614, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
-    { 2672, 3016, 1615, 173 }, // r:struct LabItemScreen@lab_pc.h:233
-    { 16, 24, 1788, 2 }, // r:struct ByteMatrix@table_view.h:26
-    { 20, 20, 1790, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:162
-    { 132, 168, 1792, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:223
-    { 8, 8, 1807, 1 }, // ar:Color_RGBA8@color.h:15[2]
-    { 4, 4, 1808, 1 }, // r:struct Str89104D14@popup_menus.c:55
-    { 4, 4, 1809, 1 }, // r:struct Str89104FC0@popup_menus.c:179
-    { 4, 4, 1810, 1 }, // r:struct Rgba891084B4@popup_menus.c:1688
-    { 8, 16, 1811, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:254
-    { 47092, 51488, 1813, 253 }, // r:struct LabPCList@lab_pokemon_list.h:399
-    { 36, 48, 2066, 4 }, // r:struct Entry89100140@lab_pokemon_list.h:173
-    { 64, 72, 2070, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:311
-    { 28, 28, 2075, 2 }, // r:struct Slot89102930@lab_pokemon_list.h:224
-    { 16, 32, 2077, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:297
-    { 4, 4, 2081, 1 }, // r:struct Rgba8A100620@pokedex.c:205
-    { 64, 64, 2082, 1 }, // ar:union Vtx@gbi.h:1046[4]
-    { 18, 18, 2083, 1 }, // as1u[18]
-    { 20, 20, 2084, 1 }, // as1u[20]
-    { 12, 12, 2085, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
-    { 4, 4, 2087, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
-    { 624, 696, 2088, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
-    { 28, 56, 2124, 7 }, // r:struct GeoDisplayListNode@global.h:313
-    { 48, 48, 2131, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
-    { 36, 64, 2133, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
-    { 8, 8, 2136, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
-    { 40, 40, 2137, 1 }, // r:struct Entry8A203384@party_screen.c:447
+    { 100, 160, 693, 22 }, // r:struct GbPlayerTask@gb_emu_screen.c:272
+    { 60, 96, 715, 15 }, // r:struct GbEmuTask@audio_and_gb_emulator.h:473
+    { 88, 120, 730, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:408
+    { 216, 328, 746, 2 }, // r:struct SlowLoads8110E500@audio_load_2.c:321
+    { 104, 160, 748, 23 }, // r:struct AudioSlowLoad@audio_and_gb_emulator.h:195
+    { 80, 80, 771, 17 }, // r:struct GbApuChannelState@audio_and_gb_emulator.h:279
+    { 4, 4, 788, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:395
+    { 4, 4, 790, 1 }, // r:struct GbApuStatusOverride@audio_and_gb_emulator.h:318
+    { 344, 528, 791, 26 }, // r:struct SynthesisReverb@audio_and_gb_emulator.h:226
+    { 100, 160, 817, 1 }, // ar:struct ReverbRingBufferItem@audio_and_gb_emulator.h:216[5]
+    { 20, 32, 818, 5 }, // r:struct ReverbRingBufferItem@audio_and_gb_emulator.h:216
+    { 16, 32, 823, 8 }, // r:struct Sample@audio_and_gb_emulator.h:153
+    { 28, 40, 831, 6 }, // r:struct AudioPermanentCache@audio_and_gb_emulator.h:109
+    { 40, 56, 837, 7 }, // r:struct SampleCache8110BA8C@audio_load.c:219
+    { 16, 16, 844, 1 }, // r:struct AudioSessionPoolSplit@audio_and_gb_emulator.h:260
+    { 8, 8, 845, 1 }, // r:struct AudioCachePoolSplit@audio_and_gb_emulator.h:267
+    { 12, 12, 846, 1 }, // r:struct AudioCommonPoolSplit@audio_and_gb_emulator.h:272
+    { 348, 512, 847, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:608
+    { 212, 352, 887, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:649
+    { 204, 272, 935, 57 }, // r:struct Note@audio_and_gb_emulator.h:851
+    { 16, 32, 992, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:531
+    { 64, 128, 996, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:550
+    { 132, 192, 1012, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:713
+    { 4, 4, 1048, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:566
+    { 8, 16, 1049, 2 }, // r:struct SoundFontSound@audio_and_gb_emulator.h:211
+    { 348, 348, 1051, 2 }, // r:struct SequencePlayerFromSkipTicks@audio_load.c:1105
+    { 20, 32, 1053, 4 }, // r:struct AudioPreloadReq@audio_and_gb_emulator.h:165
+    { 84, 112, 1057, 10 }, // r:struct Entry8110EABC@audio_load_2.c:518
+    { 56, 56, 1067, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:496
+    { 12, 12, 1071, 2 }, // r:struct ModelSmokeSpawnFrames@model_callbacks.h:61
+    { 440, 440, 1073, 1 }, // ar:struct ModelParticle@model_callbacks.h:48[10]
+    { 44, 44, 1074, 5 }, // r:struct ModelParticle@model_callbacks.h:48
+    { 80, 80, 1079, 13 }, // r:struct BattleMon@game_state.h:34
+    { 12, 24, 1092, 1 }, // ap[3]
+    { 16, 16, 1093, 3 }, // r:struct OrderSidebarIcons@battle_order_select.h:8
+    { 32, 40, 1096, 6 }, // r:struct OrderSelectPanel@battle_order_select.h:17
+    { 516, 536, 1102, 7 }, // r:struct TeamRoster@game_state.h:135
+    { 520, 520, 1109, 5 }, // r:struct ExtendedRosterInfo@game_state.h:126
+    { 18, 18, 1114, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:12
+    { 4, 4, 1117, 1 }, // r:struct Color82001CCC@free_battle_setup.c:480
+    { 16, 24, 1118, 2 }, // r:struct Img82001E20@free_battle_setup.c:991
+    { 20, 20, 1120, 1 }, // r:struct Slot82000C5C@free_battle_setup.c:506
+    { 4, 4, 1121, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
+    { 8, 8, 1122, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:432
+    { 12, 24, 1123, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:102
+    { 4, 4, 1126, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
+    { 12, 16, 1127, 3 }, // r:struct List82004518@free_battle_setup_5.c:15
+    { 4, 4, 1130, 1 }, // r:struct Color88100D9C@registration.h:70
+    { 496, 512, 1131, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
+    { 360, 408, 1136, 23 }, // r:struct DisplayObject@global.h:141
+    { 16, 16, 1159, 3 }, // r:struct ModelAnchor@global.h:134
+    { 512, 512, 1162, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
+    { 16, 16, 1164, 1 }, // r:struct unk_D_84390028@battle.h:418
+    { 24, 24, 1165, 3 }, // r:struct unk_D_843847BC@battle.h:430
+    { 8, 16, 1168, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
+    { 44, 80, 1171, 3 }, // r:struct BattleSceneStateRow@battle.h:395
+    { 6, 6, 1174, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1145
+    { 3, 3, 1175, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
+    { 2, 2, 1176, 1 }, // r:struct StatStageMultiplier@battle.h:881
+    { 48, 48, 1177, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
+    { 7, 7, 1178, 1 }, // r:struct Arr82133534@demo_mode11.c:259
+    { 396, 792, 1179, 1 }, // ap[99]
+    { 6, 6, 1180, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
+    { 14, 14, 1181, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
+    { 20, 20, 1184, 2 }, // r:struct S0Learnset@damage_estimate.c:310
+    { 8, 16, 1186, 2 }, // r:struct ParticleDescriptor@battle.h:646
+    { 16, 32, 1188, 4 }, // r:struct ParticleDescriptorChild@battle.h:631
+    { 8, 16, 1192, 1 }, // ap[2]
+    { 20, 40, 1193, 1 }, // ap[5]
+    { 3, 3, 1194, 1 }, // as1u[3]
+    { 16, 16, 1195, 3 }, // r:union Vtx@gbi.h:1046
+    { 8, 8, 1198, 1 }, // f8
+    { 240, 304, 1199, 22 }, // r:struct CameraNode@global.h:253
+    { 24, 48, 1221, 6 }, // r:struct GraphNode@global.h:177
+    { 32, 32, 1227, 1 }, // r:LookAt@gbi.h:1374
+    { 16, 16, 1228, 4 }, // r:Light@gbi.h:1318
+    { 4, 4, 1232, 1 }, // r:union Color_RGBA8_u32@color.h:29
+    { 8, 16, 1233, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:403
+    { 36, 36, 1235, 1 }, // as2u[18]
+    { 100, 100, 1236, 16 }, // r:struct BattleMonRuntime@game_state.h:71
+    { 36, 36, 1252, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
+    { 64, 72, 1257, 2 }, // r:struct unk_D_84390240@battle.h:388
+    { 208, 216, 1259, 21 }, // r:struct BattleScene@battle.h:339
+    { 12, 12, 1280, 1 }, // r:struct ParticleRenderContext@battle.h:961
+    { 24, 24, 1281, 3 }, // r:struct unk_D_84392040@battle.h:57
+    { 2808, 2808, 1284, 6 }, // r:struct RibbonMesh@battle.h:475
+    { 28, 28, 1290, 4 }, // r:struct RibbonMeshVertexState@battle.h:466
+    { 9232, 9240, 1294, 6 }, // r:struct SurfWaterGrid@battle.h:89
+    { 320, 320, 1300, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
+    { 20, 20, 1301, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
+    { 40, 40, 1303, 2 }, // r:struct CameraFacingQuad@battle.h:499
+    { 1504, 1512, 1305, 7 }, // r:struct Radial20@battle.h:516
+    { 72, 72, 1312, 4 }, // r:struct Radial20Node@battle.h:506
+    { 7188, 7200, 1316, 5 }, // r:struct Trail40@battle.h:538
+    { 448, 448, 1321, 1 }, // ar:struct Trail40Node@battle.h:531[16]
+    { 28, 28, 1322, 2 }, // r:struct Trail40Node@battle.h:531
+    { 8212, 8224, 1324, 5 }, // r:struct Trail40Variant@battle.h:556
+    { 512, 512, 1329, 1 }, // ar:struct Trail40VariantNode@battle.h:548[16]
+    { 32, 32, 1330, 3 }, // r:struct Trail40VariantNode@battle.h:548
+    { 856, 864, 1333, 6 }, // r:struct TexturedRibbonSheet@battle.h:576
+    { 80, 80, 1339, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:566
+    { 1072, 1080, 1343, 7 }, // r:struct FourStreamTrail@battle.h:602
+    { 68, 68, 1350, 2 }, // r:struct FourStreamTrailNode@battle.h:590
+    { 1076, 1088, 1352, 8 }, // r:struct OwnerLinkedFourStream@battle.h:716
+    { 208, 232, 1360, 15 }, // r:struct Particle@battle.h:660
+    { 2892, 3208, 1375, 124 }, // r:struct ActivePokemon@battle.h:259
+    { 368, 416, 1499, 26 }, // r:struct PokemonAfterimage@battle.h:174
+    { 40, 72, 1525, 10 }, // r:struct BattleSide@game_state.h:148
+    { 8, 16, 1535, 3 }, // r:struct arg1_func_80019420@game_state.h:14
+    { 32, 32, 1538, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
+    { 1048, 1064, 1541, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:733
+    { 864, 872, 1547, 8 }, // r:struct Trail50Effect@battle.h:759
+    { 80, 80, 1555, 2 }, // r:struct Trail50EffectNode@battle.h:746
+    { 576, 584, 1557, 10 }, // r:struct DoubleTextureTrail@battle.h:810
+    { 40, 40, 1567, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:776
+    { 884, 888, 1570, 10 }, // r:struct BeamTrail@battle.h:858
+    { 36, 36, 1580, 1 }, // r:struct BeamTrailSegment@battle.h:850
+    { 484, 484, 1581, 3 }, // r:struct AuxiliaryEffect@battle.h:844
+    { 24, 24, 1584, 2 }, // r:struct AuxiliaryEffectNode@battle.h:835
+    { 896, 952, 1586, 5 }, // r:struct ComSide@battle.h:142
+    { 144, 152, 1591, 22 }, // r:struct ComBattler@battle.h:122
+    { 72, 144, 1613, 7 }, // r:struct VsSceneSide@vs_scene.h:10
+    { 24, 24, 1620, 1 }, // as1u[24]
+    { 16, 16, 1621, 1 }, // r:struct MainMenuRect@main_menu.c:211
+    { 16, 24, 1622, 2 }, // r:struct MainMenuLabel@main_menu.c:213
+    { 8, 8, 1624, 1 }, // r:struct PrimEnvColor@lab_pc.h:658
+    { 20, 24, 1625, 2 }, // r:struct Slot890056A4@pc_sort.c:442
+    { 20, 20, 1627, 1 }, // r:struct Slot89007678@pc_box.c:298
+    { 8, 8, 1628, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
+    { 2672, 3016, 1629, 173 }, // r:struct LabItemScreen@lab_pc.h:233
+    { 16, 24, 1802, 2 }, // r:struct ByteMatrix@table_view.h:26
+    { 20, 20, 1804, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:162
+    { 132, 168, 1806, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:223
+    { 8, 8, 1821, 1 }, // ar:Color_RGBA8@color.h:15[2]
+    { 4, 4, 1822, 1 }, // r:struct Str89104D14@popup_menus.c:55
+    { 4, 4, 1823, 1 }, // r:struct Str89104FC0@popup_menus.c:179
+    { 4, 4, 1824, 1 }, // r:struct Rgba891084B4@popup_menus.c:1688
+    { 8, 16, 1825, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:254
+    { 47092, 51488, 1827, 253 }, // r:struct LabPCList@lab_pokemon_list.h:399
+    { 36, 48, 2080, 4 }, // r:struct Entry89100140@lab_pokemon_list.h:173
+    { 64, 72, 2084, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:311
+    { 28, 28, 2089, 2 }, // r:struct Slot89102930@lab_pokemon_list.h:224
+    { 16, 32, 2091, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:297
+    { 4, 4, 2095, 1 }, // r:struct Rgba8A100620@pokedex.c:205
+    { 64, 64, 2096, 1 }, // ar:union Vtx@gbi.h:1046[4]
+    { 18, 18, 2097, 1 }, // as1u[18]
+    { 20, 20, 2098, 1 }, // as1u[20]
+    { 12, 12, 2099, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
+    { 4, 4, 2101, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
+    { 624, 696, 2102, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
+    { 28, 56, 2138, 7 }, // r:struct GeoDisplayListNode@global.h:313
+    { 48, 48, 2145, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
+    { 36, 64, 2147, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
+    { 8, 8, 2150, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
+    { 40, 40, 2151, 1 }, // r:struct Entry8A203384@party_screen.c:447
 };
 const uint32_t gZLiftTypeCount = 300;
 
@@ -3649,23 +3647,37 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 12, 24, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 24, 40, 4, 1, 4, 8, 46, 0, 0, 0, 0 },
     { 0, 28, 48, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 32, 52, 1, 20, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 52, 72, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 60, 80, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 64, 84, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 72, 92, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 0, 76, 96, 1, 28, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 32, 56, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 40, 64, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
+    { 0, 44, 72, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 48, 80, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 52, 88, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 54, 90, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 56, 96, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 60, 104, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 64, 112, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 68, 120, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 72, 128, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 76, 136, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 80, 140, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 84, 144, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 88, 148, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 92, 152, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 8, 8, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 0, 12, 16, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 0, 16, 20, 1, 6, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 22, 26, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 24, 32, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
-    { 0, 28, 40, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 0, 36, 48, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 48, 60, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 0, 52, 64, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 56, 68, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 16, 24, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 20, 32, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 22, 34, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 24, 40, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 28, 48, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 32, 56, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 36, 64, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 40, 72, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
+    { 0, 44, 80, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 48, 84, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 52, 88, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 56, 92, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
@@ -3679,7 +3691,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 56, 68, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 68, 80, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
     { 1, 72, 88, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
-    { 0, 76, 96, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 76, 96, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
     { 1, 80, 104, 4, 1, 4, 8, 3, 0, 0, 0, 0 },
     { 0, 84, 112, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -5403,8 +5415,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x800AAED4, 0x64, 100, 30, 0, 1, 0x0, D_800AAED4 }, // D_800AAED4
     { 0x800AAF38, 0x4, 1, 0, 0, 1, 0x0, D_800AAF38 }, // D_800AAF38
     { 0x800AAF3C, 0x4, 1, 0, 0, 1, 0x0, D_800AAF3C }, // D_800AAF3C
-    { 0x800AAF40, 0x4, 1, 0, 0, 1, 0x0, D_800AAF40 }, // D_800AAF40
-    { 0x800AAF44, 0x4, 1, 0, 0, 1, 0x0, D_800AAF44 }, // D_800AAF44
+    { 0x800AAF40, 0x4, 1, 5, 0, 1, 0x0, D_800AAF40 }, // D_800AAF40
+    { 0x800AAF44, 0x4, 1, 5, 0, 1, 0x0, D_800AAF44 }, // D_800AAF44
     { 0x800AAF48, 0x8, 8, 3, 0, 1, 0x0, D_800AAF48 }, // D_800AAF48
     { 0x800AAF50, 0x90, 4, 68, 0, 1, 0x0, gControllers }, // gControllers
     { 0x800AAFE0, 0x18, 1, 43, 0, 1, 0x0, gSIEventMesgQueue }, // gSIEventMesgQueue
@@ -5800,10 +5812,10 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x811541F0, 0xC, 12, 3, 1, 0, 0x541F0, D_811541F0 }, // D_811541F0
     { 0x811541FC, 0x8, 8, 3, 1, 0, 0x541FC, D_811541FC }, // D_811541FC
     { 0x81154254, 0x4, 1, 32, 1, 0, 0x54254, D_FLT_81154254 }, // D_FLT_81154254
-    { 0x81154B20, 0xD0, 2, 145, 1, 0, 0x54B20, D_81154B20 }, // D_81154B20
+    { 0x81154B20, 0xC8, 2, 145, 1, 0, 0x54B20, D_81154B20 }, // D_81154B20
     { 0x81154BF0, 0x3C, 1, 146, 1, 0, 0x54BF0, D_81154BF0 }, // D_81154BF0
     { 0x81154C30, 0x8, 2, 5, 1, 0, 0x54C30, D_81154C30 }, // D_81154C30
-    { 0x81154C38, 0x4, 1, 0, 1, 0, 0x54C38, D_81154C38 }, // D_81154C38
+    { 0x81154C38, 0x4, 1, 5, 1, 0, 0x54C38, D_81154C38 }, // D_81154C38
     { 0x81154C3C, 0x4, 1, 0, 1, 0, 0x54C3C, D_81154C3C }, // D_81154C3C
     { 0x81154C40, 0x4, 1, 0, 1, 0, 0x54C40, D_81154C40 }, // D_81154C40
     { 0x81154C44, 0x4, 1, 0, 1, 0, 0x54C44, D_81154C44 }, // D_81154C44
@@ -5817,8 +5829,6 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x81155F18, 0x100, 256, 3, 1, 0, 0x55F18, D_81155F18 }, // D_81155F18
     { 0x81156018, 0x1A0, 4, 71, 1, 0, 0x56018, D_81156018 }, // D_81156018
     { 0x811561B8, 0x10, 4, 5, 1, 0, 0x561B8, D_811561B8 }, // D_811561B8
-    { 0x8115623C, 0x24, 9, 0, 1, 0, 0x5623C, D_8115623C }, // D_8115623C
-    { 0x81156261, 0x1F7, 503, 3, 1, 0, 0x56261, D_81156261 }, // D_81156261
     { 0x81156458, 0x18, 1, 43, 1, 0, 0x56458, D_81156458 }, // D_81156458
     { 0x81156470, 0x4, 1, 0, 1, 0, 0x56470, D_81156470 }, // D_81156470
     { 0x81156474, 0x1, 1, 3, 1, 0, 0x56474, D_81156474 }, // D_81156474
@@ -5840,13 +5850,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x811565A4, 0x1, 1, 3, 1, 0, 0x565A4, D_811565A4 }, // D_811565A4
     { 0x811565A5, 0x3, 3, 3, 1, 0, 0x565A5, D_811565A5 }, // D_811565A5
     { 0x811565A8, 0x4, 1, 5, 1, 0, 0x565A8, D_811565A8 }, // D_811565A8
-    { 0x811565AC, 0x4, 1, 1, 1, 0, 0x565AC, D_811565AC }, // D_811565AC
-    { 0x811565B0, 0x4, 1, 1, 1, 0, 0x565B0, D_811565B0 }, // D_811565B0
+    { 0x811565AC, 0x4, 1, 5, 1, 0, 0x565AC, D_811565AC }, // D_811565AC
+    { 0x811565B0, 0x4, 1, 5, 1, 0, 0x565B0, D_811565B0 }, // D_811565B0
     { 0x811565B4, 0x4, 1, 0, 1, 0, 0x565B4, D_811565B4 }, // D_811565B4
     { 0x811565B8, 0x1, 1, 3, 1, 0, 0x565B8, D_811565B8 }, // D_811565B8
     { 0x811565B9, 0x7, 7, 3, 1, 0, 0x565B9, D_811565B9 }, // D_811565B9
-    { 0x811565C0, 0x4, 1, 0, 1, 0, 0x565C0, D_811565C0 }, // D_811565C0
-    { 0x811565C4, 0x4, 1, 0, 1, 0, 0x565C4, D_811565C4 }, // D_811565C4
+    { 0x811565C0, 0x4, 1, 5, 1, 0, 0x565C0, D_811565C0 }, // D_811565C0
+    { 0x811565C4, 0x4, 1, 5, 1, 0, 0x565C4, D_811565C4 }, // D_811565C4
     { 0x811565C8, 0x4, 1, 1, 1, 0, 0x565C8, D_811565C8 }, // D_811565C8
     { 0x811565CC, 0x4, 1, 1, 1, 0, 0x565CC, D_811565CC }, // D_811565CC
     { 0x811565D0, 0x4, 1, 5, 1, 0, 0x565D0, D_811565D0 }, // D_811565D0
@@ -7732,7 +7742,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8FB00000, 0x8F70, 36720, 3, 29, 0, 0x0, D_8FB00000 }, // D_8FB00000
     { 0x8FC00000, 0x1260, 4704, 3, 42, 0, 0x0, D_8FC00000 }, // D_8FC00000
 };
-const uint32_t gZLiftSymCount = 2640;
+const uint32_t gZLiftSymCount = 2638;
 
 const ZLiftImage gZLiftImages[] = {
     { "resident", 0x7FFFF400, 0x0 },

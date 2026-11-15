@@ -1310,7 +1310,7 @@ void SavePrompt_Init(SavePrompt* arg0, s32 arg1, s32 arg2) {
 
 s32 func_8002AE6C();
 void Ui_DrawTexturedDivider(s32, s32, s32, FrameTextures*);
-void Menu_DrawItems(s8*, s32, s32, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern Color_RGBA8 D_800736B8;
 extern Color_RGBA8 D_800736BC;
@@ -1441,7 +1441,7 @@ extern u8 D_800736EC[];
  * Seen in play (2026-11-13) ran once when A was pressed on a Free Battle entry row whose Pokémon
  * were all ineligible; a text box sized to 「エントリーできる ポケモンが いません」 then appeared.
  */
-void TextBox_Init(TextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4) {
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4) { // PORT: arg1 is the text (was s32)
     u32 len;
     s32 w;
     s32 h;
@@ -1496,7 +1496,7 @@ void TextBox_Draw(TextBox* arg0) {
  * screens while a prompt was open; it returned 0 on frames without A or B.
  * @unverified Name and comment guessed from the code.
  */
-s32 Ui_CheckConfirmPressed(UNUSED s32 arg0) {
+s32 Ui_CheckConfirmPressed(UNUSED void* arg0) { // PORT: callers pass a pointer (was s32)
     s32 ret = 0;
 
     if (gPlayer1Controller->buttonPressed & (BTN_A | BTN_B)) {
@@ -1586,8 +1586,8 @@ s32 BattleMon_CountMoves(u8* arg0) {
  * Seen in play (2026-11-12) in いちらん page 2/3: フシギダネ's たいあたり (33) gave 32 and なきごえ (45)
  * 44; ヒトカゲ's ひっかく (10) gave 9.
  */
-s32 BattleMon_GetMoveIndex(s32 arg0, s32 arg1) {
-    u8* p = (u8*)(arg0 + arg1);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1) { // PORT: arg0 is a pointer (was s32)
+    u8* p = arg0 + arg1;
     s32 id = p[9];
     s32 r;
 
@@ -1600,7 +1600,7 @@ s32 BattleMon_GetMoveIndex(s32 arg0, s32 arg1) {
 }
 
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);                        /* extern */
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 
 /**
  * Returns -1 for a slot past the filled moves, otherwise BattleMon_GetMoveIndex.

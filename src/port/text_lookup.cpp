@@ -111,9 +111,9 @@ struct Md5 {
     }
 };
 
-const char* const kColumns[PORT_LANG_COUNT] = { "", "ja", "en", "es", "de", "pt", "ko", "ru", "ar", "hi" };
+const char* const kColumns[PORT_LANG_COUNT] = { "", "ja", "en", "es", "de", "pt", "ko" };
 const char* const kNames[PORT_LANG_COUNT] = {
-    "にほんご", "日本語", "English", "Español", "Deutsch", "Português", "한국어", "Русский", "العربية", "हिन्दी",
+    "にほんご", "日本語", "English", "Español", "Deutsch", "Português", "한국어",
 };
 
 struct Tables {

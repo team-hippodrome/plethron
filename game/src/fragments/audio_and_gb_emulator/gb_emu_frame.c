@@ -9,7 +9,7 @@
 #include "m2c_macros.h"
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
-s32 GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1);
+u8* GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1); // PORT: returns an address
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void GbAudio_UpdateFrame();
@@ -24,9 +24,9 @@ extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern OSMesgQueue D_81156458;
 s32 GbPak_WriteBackDirtySramBlock(s32 arg0);
-extern s32 D_81156550;
+extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 extern u8 D_8111E308;
-void func_81103C40(s32, u8*, s32, s32, s32);
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
 extern u8 D_811565A2;
 extern GbEmuState D_81156540;
 extern u8 D_811565A0;
@@ -34,31 +34,11 @@ extern s32 D_81154C48;
 
 void GbEmu_ClearStatusBar(void);
 void GbEmu_DrawAccessIcon(u16* arg0, s32 arg1, s32 arg2);
-void GbEmu_DrawSpeedIndicator(s32 arg0);
+void GbEmu_DrawSpeedIndicator(uintptr_t arg0); // PORT: a buffer address
 void GbEmu_DrawAccessOverlay(s32 arg0);
 void GbEmu_DrawStatusBar(void);
 
 
-typedef struct GbEmuTask {
-    /* 0x00 */ u32 type;
-    /* 0x04 */ u32 flags;
-    /* 0x08 */ void* ucode;
-    /* 0x0C */ s32 ucodeSize;
-    /* 0x10 */ u8 unk_10[4];
-    /* 0x14 */ u8 unk_14;
-    /* 0x15 */ u8 unk_15;
-    /* 0x16 */ u8 unk_16[2];
-    /* 0x18 */ u8* unk_18;
-    /* 0x1C */ union {
-        s32 word;
-        u8 bytes[4];
-    } unk_1C;
-    /* 0x20 */ s32 unk_20;
-    /* 0x24 */ u8 unk_24[0xC];
-    /* 0x30 */ s32 unk_30;
-    /* 0x34 */ u8 unk_34[4];
-    /* 0x38 */ s32 unk_38;
-} GbEmuTask;
 
 #define GB_RUN (&D_81156540)
 #define GB_MEM (GB_RUN->mem)
@@ -80,10 +60,10 @@ extern u16 D_8111E310;
 extern u16 D_811228B4;
 extern u8 D_811228B8;
 extern s32 D_81154C48;
-extern u8 D_81154C0F;
+#define D_81154C0F (D_81154BF0.unk_1C.bytes[3]) // PORT: a byte inside D_81154BF0 (fade alpha); the lifter maps a union by its start
 extern u8 D_81154C4F;
 extern GbEmuTask D_81154BF0;
-extern u8* D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern u8 D_8112AF3C[];
 extern u8 D_81130024[];
 extern u8 D_811565F0[];
@@ -174,7 +154,7 @@ s32 GbEmu_UpdateFrame(void) {
             Cont_ReadInputs();
             if ((++*timer & 3) == 0) {
                 D_811561C8[D_811565A0].request = 8;
-                osSendMesg(&D_81156458, D_811565A0, 1);
+                osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
             }
             remap_a = (gPlayer1Controller->buttonDown & D_8111E30C) ? 0x1000 : 0;
             remap_b = (gPlayer1Controller->buttonDown & D_8111E310) ? 0x2000 : 0;
@@ -198,7 +178,7 @@ s32 GbEmu_UpdateFrame(void) {
                             break;
                     }
                     GB_MEM[0x101B9] = j;
-                    GbEmu_DrawSpeedIndicator(GB_RUN->framebuffer);
+                    GbEmu_DrawSpeedIndicator((uintptr_t)(GB_RUN->framebuffer));
                 }
             }
         } else if (D_811561C8[D_811565A0].error != 0) {
@@ -448,7 +428,7 @@ s32 GbPak_CheckConnectionBlocking(void) {
         return -1;
     }
     chan[0x99] = 8;
-    osSendMesg(&D_81156458, (OSMesg)(u32)D_811565A0, OS_MESG_BLOCK);
+    osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
     while (chan[0x99] != 0) {
     }
     if (chan[0x9A] != 0) {
@@ -470,7 +450,7 @@ s32 GbPak_ReidentifyCartridge(void) {
 
     ch->request = 0x80;
     ch->error = 0;
-    osSendMesg(&D_81156458, D_811565A0, 1);
+    osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
     while (D_81156475 != 0) {
     }
 
@@ -495,13 +475,12 @@ s32 GbPak_IsCartridgeInserted(void) {
 
     ch->status = 0;
     ch->request = 8;
-    osSendMesg(&D_81156458, idx, 1);
+    osSendMesg(&D_81156458, (OSMesg)(intptr_t)idx, 1); // PORT: OSMesg value
     while (D_81156475 != 0) {
     }
     return D_811561C8[D_811565A0].status & 0x80;
 }
 
-extern M2C_UNK D_8115623C;
 extern u8 D_811565A1;
 
 /**
@@ -518,7 +497,7 @@ s32 GbPak_HasUnsavedSramBlocks(void) {
     if (D_811565A1 != 0) {
         return 1;
     }
-    var_v1 = *((M2C_UNK*)((u8*)&D_8115623C + (D_811565A0 * 0xA4))); // FAKE: cast chain
+    var_v1 = D_811561C8[D_811565A0].blockState; // PORT: was a cast chain off D_8115623C (&D_811561C8[0].blockState) with the N64 stride 0xA4
 loop_3:
     var_v0 += 4;
     if (M2C_FIELD(var_v1, u8 *, 0) == 0) {
@@ -540,7 +519,6 @@ loop_3:
     goto loop_3; // FAKE: m2c loop
 }
 
-extern u8 D_81156261[];
 extern OSMesgQueue D_81156458;
 extern volatile u8 D_81156475;
 
@@ -550,8 +528,8 @@ extern volatile u8 D_81156475;
  * removal faked by stubbing GbPak_IsCartridgeInserted); called from GbEmu_RunFrame.
  */
 void GbPak_PowerOff(void) {
-    D_81156261[D_811565A0 * 0xA4] = 4;
-    osSendMesg(&D_81156458, (OSMesg)(u32)D_811565A0, OS_MESG_BLOCK);
+    D_811561C8[D_811565A0].request = 4; // PORT: was D_81156261 (&D_811561C8[0].request) with the N64 stride 0xA4
+    osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
     while (D_81156475 != 0) {
     }
 }
@@ -572,7 +550,7 @@ extern s16 D_82608544;
 extern s16 D_8260854C;
 extern s16 D_8260854E;
 extern s16 D_800AA148;
-extern s32 D_81156550;
+extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 void GbAudio_UpdateFrame(void);
 /**
  * Per-frame tail of the GB Player emulator: unless emulation is paused (D_81156546) or
@@ -582,10 +560,10 @@ void GbAudio_UpdateFrame(void);
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbPlayer_OutputThreadEntry.
  */
-void GbEmu_UpdateAudioOrBlankVideo(UNUSED s32 arg0) {
+void GbEmu_UpdateAudioOrBlankVideo(UNUSED void* arg0) { // PORT: gets the output thread block (was s32)
     if ((*(u8*)&D_81156546 == 0) && (D_800AA148 == 0)) {
         GbAudio_UpdateFrame();
-        ((u8*)D_81156550)[0xFF26] = GbMem_ReadIoRegister(0xFF26);
+        D_81156550[0xFF26] = GbMem_ReadIoRegister(0xFF26);
     }
     if (D_800AA148 != 0) {
         osViBlack(1);
@@ -644,7 +622,7 @@ extern u8 D_811565E1;
  * menu, button config, speed-up, recovery, quit).
  * @unverified Name from the code and Stadium 1.
  */
-void GbEmu_DrawTransferAnimation(s32 addr, s32 frame) {
+void GbEmu_DrawTransferAnimation(uintptr_t addr, s32 frame) { // PORT: addr is a buffer address
     s32 i;
 
     for (i = 0; i < 6; i++) {
@@ -686,8 +664,8 @@ void GbEmu_DrawTransferAnimation(s32 addr, s32 frame) {
     func_81103C40(addr, (u8*)D_81129638, 0, 8, 8);
 }
 
-extern s32 D_811565C0;
-extern s32 D_811565C4;
+extern u8* D_811565C0; // PORT: buffer addresses (were s32)
+extern u8* D_811565C4;
 extern u32 D_811565C8;
 extern u32 D_811565CC;
 extern u16* D_811565D0;
@@ -722,7 +700,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
     s32 step;
     s32 i;
 
-    D_811565C0 = (uintptr_t)dst;
+    D_811565C0 = (u8*)((uintptr_t)dst);
     step = 0x5000;
     for (y = 0; y < 0x14000; y += step) {
         row = dst + y;
@@ -764,16 +742,16 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     switch (port) {
         case 1:
-            D_811565C4 = (uintptr_t)((u8*)dst + 2);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 2));
             break;
         case 2:
-            D_811565C4 = (uintptr_t)((u8*)dst + 4);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 4));
             break;
         case 3:
-            D_811565C4 = (uintptr_t)((u8*)dst + 6);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 6));
             break;
         default:
-            D_811565C4 = (uintptr_t)dst;
+            D_811565C4 = (u8*)((uintptr_t)dst);
             break;
     }
 
@@ -796,7 +774,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
     }
 
     D_811565E1 = port;
-    GbEmu_DrawTransferAnimation(D_811565C4 + 0x87BA, 0);
+    GbEmu_DrawTransferAnimation((uintptr_t)(D_811565C4 + 0x87BA), 0);
     osWritebackDCacheAll();
     D_811565E0 = 0;
     D_811565D8 = 0x800000;
@@ -840,13 +818,13 @@ void GbEmu_BlendScrollingLayer(u16* arg0, u16* arg1, s16* arg2, s32 arg3, s32 ar
 extern u32 D_811565DC;
 extern u32 D_811565D8;
 extern u8 D_811565E0;
-extern s32 D_811565C4;
+extern u8* D_811565C4; // PORT: a buffer address (was s32)
 extern u32 D_811565C8;
 extern u32 D_811565CC;
-extern s32 D_811565C0;
+extern u8* D_811565C0; // PORT: a buffer address (was s32)
 extern u16* D_811565D4;
 extern u16* D_811565D0;
-void GbEmu_DrawTransferAnimation(s32, s32);
+void GbEmu_DrawTransferAnimation(uintptr_t, s32);
 /**
  * Advances the loading-screen cable animation one step when its timer runs out.
  * Not reached in play (2026-11-14): it did not run in the GB Player with JP Green (boot, intro,
@@ -857,7 +835,7 @@ void GbEmu_AnimateLoadingScreen(void) {
     if ((osGetCount() - D_811565DC) > D_811565D8) {
         D_811565DC = osGetCount();
         D_811565E0 = (D_811565E0 + 1) & 7;
-        GbEmu_DrawTransferAnimation(D_811565C4 + 0x87BA, D_811565E0);
+        GbEmu_DrawTransferAnimation((uintptr_t)(D_811565C4 + 0x87BA), D_811565E0);
         if (D_811565D8 > 0x80000) {
             D_811565D8 -= D_811565D8 >> 8;
         }

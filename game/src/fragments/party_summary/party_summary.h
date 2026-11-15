@@ -165,7 +165,7 @@ void PartyScreen_DrawActionMenu(PartyActionMenuWindow* window);
 void MonSummary_DrawTypeName(s32 x, s32 y, s32 fontSize, s32 mon, s32 typeSlot);
 void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon);
 void MonSummary_DrawStats(s32 x, s32 y, BattleMon* mon);
-void MonSummary_DrawHeader();
+void MonSummary_DrawHeader(s32 x, s32 y, BattleMon* mon); // PORT: matches the definition
 void MonSummary_DrawTrainerInfo(s32 x, s32 y, s32 mon);
 void MonSummary_DrawMoveList(s32 baseX, s32 baseY, s32 mon, s32 selectedSlot);
 

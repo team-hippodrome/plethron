@@ -5,10 +5,10 @@
 #include "free_battle_setup.h"
 
 /* Unprototyped on purpose: different callers in this file pass one or two arguments. */
-s32 Menu_UpdateCursor();
-M2C_UNK GridMenu_UpdateCursor();
-s32 Menu_UpdateCursorSkipDisabled();
-void FreeBattle_SetScreenState(s32, s32, s32);
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
+s32 GridMenu_UpdateCursor(GridMenu* arg0); // PORT: matches the definition
+s32 Menu_UpdateCursorSkipDisabled(Menu* arg0); // PORT: matches the definition
+void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags); // PORT: matches the definition
 
 /**
  * FreeBattle_ClearIndices
@@ -29,9 +29,9 @@ void FreeBattle_ClearIndices(s32* indices, s32 start, s32 count) {
     }
 }
 
-s32 Deck_Open(s32, s32, s32, s32);
-s32 Deck_ReadEntries(void*, s32, s32);
-void Deck_CloseAndFlush(s32);
+void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
+s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
+s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 void Pokemon_PrepareBattleMon(u8*);
 extern u8 D_80065D00[];
 
@@ -189,7 +189,7 @@ typedef struct {
 
 s32 GbSave_EnsureMainDataLoaded(s32);
 s32 GbSave_GetTrainerId(s32 arg0);
-s32 GbSave_GetPlayerName(s32, void*);
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 s32 Deck_IsSaveEntryPresent(s32, s32);
 s32 Deck_GetSaveEntryTrainerId(s32, s32);
 s32 Deck_GetSaveEntryName(s32 arg0, s32 arg1, u8* arg2);
@@ -273,7 +273,7 @@ typedef struct Rec82000594 {
 typedef struct List82000594 { Rec82000594* records; s32 unk04; s32 count; } List82000594;
 extern Src82000594* D_8200AD04;
 void func_8000A460(char*, void*);
-void* Memmap_GetSegmentVaddr(s32);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 /**
  * Appends the 8 preset teams in D_8200AD04 (type 4, six Pokemon each, named via Memmap_GetSegmentVaddr) to
  * the entry list.
@@ -363,7 +363,7 @@ void FreeBattle_InitNamedTeam(SlotList* team, s32 name_index) {
     team->slotCount = 6;
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern Color_RGBA8 D_8200902C;
 extern char D_82009B80[];
@@ -415,7 +415,7 @@ typedef struct Entry80066AD8 {
     Color82000BC4 color;
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void Font_BeginTranslucentTextRendering(void);
 void Font_SetActive(s32, s32);
 void Font_EndTexturedTextRendering(void);
@@ -548,7 +548,7 @@ void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002AE6C(Screen82000C5C*);
 void Window_DrawLabeled(char*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(Mon82000C5C*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws a Pokemon's status window: LV, HP, Type 1/2, Attack, Defense, Speed, Special.
  * Seen in play: draws the rental status window (name, LV 50, HP, タイプ1/タイプ2, こうげき/ぼうぎょ/すばやさ/とくしゅ,
@@ -590,7 +590,7 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
         Font_Printf(x + 178, y + 5, D_82009BA8, window->mon->level);
         Font_Printf(x + 320, y + 5, D_82009BAC, window->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_82009BB0);
-        if (Pokemon_GetTypeIndex((uintptr_t)window->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex(window->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_82009BBC);
         }
         Font_Printf(x + 258, y + 40, D_82009BC8);
@@ -635,8 +635,8 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
     }
 }
 
-s32 Ui_HandleHorizontalSelectionInput(s32);
-s32 Ui_GetSelectionDirection(s32);
+s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 
 /**
@@ -1239,7 +1239,7 @@ typedef struct MenuDef8200288C {
 } MenuDef8200288C;
 extern s32 D_8200AC58[];
 extern Color82001CCC D_82008F60;
-void GridMenu_DrawInlineItems(void*, s32, s32, s32, MenuDef8200288C*);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 // FAKE: decomp slop. Raw pointer-offset casts stand in for struct fields.
 /**
  * Draws the rental Pokemon list window; `cursorStyle` picks the cursor style.
@@ -1272,6 +1272,6 @@ void FreeBattle_DrawRentalListWindow(s8 *entry, s32 cursor_style)
 
   }
 
-  GridMenu_DrawInlineItems(entry + 0x2F8, x + 136, y, mode, &def);
+  GridMenu_DrawInlineItems(entry + 0x2F8, x + 136, y, mode, (intptr_t)(&def));
   FreeBattle_DrawRowBorders(x, y, D_82008F60);
 }

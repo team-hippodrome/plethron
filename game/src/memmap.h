@@ -37,7 +37,7 @@ typedef struct Fragment {
 // memmap.c
 void Memmap_SetSegmentMap(u32 id, uintptr_t vaddr, size_t size);
 uintptr_t Memmap_GetSegmentBaseVaddr(u32 id);
-uintptr_t Memmap_GetSegmentVaddr(u32 mask);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 u32 Memmap_GetSegmentVaddrMask(u32 i, uintptr_t addr);
 void Memmap_ClearSegmentMemmap(u32 id);
 void Memmap_SetSegments(Gfx** gfxDl);

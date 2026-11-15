@@ -23,9 +23,9 @@ M2C_UNK func_80019008(s32, s32, M2C_UNK);
 M2C_UNK func_8001B5F0();
 M2C_UNK Ui_DrawFrameLeftCorners(s32, s32, s32, M2C_UNK *);
 extern M2C_UNK D_800734A8;
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
-s32 Window_DrawAnimatedFrame();
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 func_80020CE4(s32, s32, s32);
 u8* func_800196F8(s32);
 void func_8001A384(s32, s32);
@@ -227,7 +227,7 @@ void MonSummary_InitPageWindow(MonSummaryWindow* window, s32 x, s32 y, s32 mon) 
 void MonSummary_DrawPage(MonSummaryWindow* window, s32 page)
 {
   s32 temp_v0;
-  if (((window->window.state) != 2) && (Window_DrawAnimatedFrame() == 0))
+  if (((window->window.state) != 2) && (Window_DrawAnimatedFrame(&window->window /* PORT: m2c dropped the argument left in a0 */) == 0))
   {
     if (page == 0)
     {

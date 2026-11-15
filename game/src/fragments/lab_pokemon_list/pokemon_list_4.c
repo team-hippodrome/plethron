@@ -7,13 +7,13 @@
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 
-M2C_UNK LabPCList_InitDeckCategories(s32, s32, s32, s32);
+void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_buffer, void* pc_buffer, void* cart_buffer); // PORT: matches the definition
 
 extern s32 D_8910A7F8[3];
 void func_80027410(void*, void*, s32, s32, s32);
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(s32);
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -21,7 +21,7 @@ void func_80027804(s8*, s8*, s32, s32);
 void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(void*, s32);
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
-void LabPCList_DrawMonRow();
+void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
@@ -57,7 +57,7 @@ void Window_DrawHeaderStripe(s32, s32, s32);
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void ScrollList_DrawScrollArrows(s8*, s32, s32, s32, s32);
-void ScrollList_DrawItems(s8*, s32, s32, s32, s8*);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void LabPCList_DrawDetailColumns(s8*, s32, s32, s32);
 void LabPCList_DrawPopupMenu(LabPopupMenu*, s32);
 void LabPCList_DrawLevelInputWindow(LabLevelInputWindow*);
@@ -93,7 +93,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     } else {
         flags[0] = 0;
     }
-    ScrollList_DrawItems((s8*)&screen->list, screen->listFrame.x, y, flags[0] | 0xFFED, screen);
+    ScrollList_DrawItems((s8*)&screen->list, screen->listFrame.x, y, flags[0] | 0xFFED, (intptr_t)(screen));
     sel = (screen->focus == 1) ? (((screen->state != 0) ? 0x10 : 0) | 2) : 0;
     LabPCList_DrawDetailColumns(screen, screen->listFrame.x, screen->listFrame.y, sel);
     gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -214,7 +214,7 @@ s32 LabPCList_FilterByAnyType();
 s32 LabPCList_FilterByAnyMove();
 s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
-s32 LabPCList_FilterByBattleEligible();
+s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused); // PORT: matches the definition
 /**
  * Rebuilds the visible list from the source boxes using the active filter flags.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): ran when OK was pressed on
@@ -569,7 +569,7 @@ M2C_UNK Save_CommitPokemonRecords();                            /* extern */
 M2C_UNK GbSave_RunReportErrorLoop(s32);                         /* extern */
 void LabPCList_DrawListScreen(LabPCListScreen*);
 s32 LabPCList_GetChangedSaveFlags(s8* screen);                              /* extern */
-M2C_UNK LabPCList_SaveDirtyBoxes(s32);                         /* extern */
+void LabPCList_SaveDirtyBoxes(void* sources); // PORT: matches the definition
 extern s32 D_8910E37C;
 
 /**

@@ -12,7 +12,7 @@ extern struct MemoryMap gFragments[240];
 
 void Memmap_SetSegmentMap(u32 id, uintptr_t vaddr, size_t size);
 uintptr_t Memmap_GetSegmentBaseVaddr(u32 id);
-uintptr_t Memmap_GetSegmentVaddr(u32 mask);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 u32 Memmap_GetSegmentVaddrMask(u32 i, uintptr_t addr);
 void Memmap_ClearSegmentMemmap(u32 id);
 void Memmap_SetSegments(Gfx** gfxDl);
@@ -204,7 +204,7 @@ uintptr_t Memmap_GetSegmentBaseVaddr(u32 id) {
  * Y: Segment number.
  * Z: Segment offset.
  */
-uintptr_t Memmap_GetSegmentVaddr(u32 mask) {
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask) { // PORT: callers pass host pointers (was u32)
     if ((mask >> 0x1C) == 0) {
         u32 id = (mask & 0x0F000000) >> 0x18;
         u32 value = (mask & 0x00FFFFFF) >> 0x00;

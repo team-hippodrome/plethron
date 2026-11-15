@@ -56,7 +56,7 @@ typedef struct Str89104D14 { s8 c[4]; } Str89104D14;
 extern Str89104D14 D_8910A914;
 void func_80027804(s8 *, s32 *, s32, s32);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
-void Menu_Init(s8 *, s8 *, s32, void *, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void LabTextMenu_DrawRow();
 /**
  * Sets up a plain popup menu of text rows sized to its longest row.
@@ -88,7 +88,7 @@ void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) 
 }
 
 s32 func_8002AE6C();
-M2C_UNK Menu_DrawItems(s32, s32, s32, s32, s8*);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 typedef struct Box89104E38 {
     s32 x;
@@ -111,14 +111,14 @@ void LabTextMenu_Draw(Box89104E38* menu) {
 
         sp2C[0] = menu->w - 12;
         label = (uintptr_t)menu->label;
-        Menu_DrawItems(label, menu->x + 6, menu->y + 10, 0xFFEF, (s8*)sp2C);
+        Menu_DrawItems(label, menu->x + 6, menu->y + 10, 0xFFEF, (intptr_t)((s8*)sp2C));
     }
     /* Empty test kept from the permuter: it keeps menu in $s0 as in the ROM. */
     if (menu) {  // karodo
     }
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the cursor of a plain popup menu.
@@ -179,7 +179,7 @@ void LabMoveSelect_DrawMoveRow(s32 x, s32 y, s32* move, s32 index, s32 flags, s3
 typedef struct Str89104FC0 { s8 c[4]; } Str89104FC0;
 extern Str89104FC0 D_8910A91C;
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 void func_80027410(void*, void*, s32, s32, s32);
 void LabMoveSelect_DrawMoveRow();
 
@@ -192,13 +192,13 @@ void LabMoveSelect_Init(LabMoveSelectWindow* window, s32 x, s32 y, u8* mon) {
     s32 i;
 
     for (i = 0; i < n; i++) {
-        window->moves[i] = BattleMon_GetMoveIndex((uintptr_t)mon, i);
+        window->moves[i] = BattleMon_GetMoveIndex(mon, i);
     }
     for (i = n; i < 4; i++) {
         window->moves[i] = -1;
     }
     func_80027410(&window->moveMatrix, window->moves, 4, 4, 4);
-    Menu_Init(&window->menu, &window->moveMatrix, (uintptr_t)window->itemFlags, LabMoveSelect_DrawMoveRow, 156, 28);
+    Menu_Init(&window->menu, &window->moveMatrix, window->itemFlags, LabMoveSelect_DrawMoveRow, 156, 28);
     window->menu.options |= 0x10000;
     Window_SetRect(&window->window, x, y, 168, 132);
     window->window.animTimer = 0;
@@ -224,7 +224,7 @@ void LabMoveSelect_DisableHmMoves(LabMoveSelectWindow* window) {
     }
 }
 
-M2C_UNK Menu_DrawInlineItems(s8*, s32, s32, s32, s8*);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the move list.
@@ -238,7 +238,7 @@ void LabMoveSelect_Draw(LabMoveSelectWindow* window) {
 
         sp2C[0] = window->window.frame.width - 12;
         label = &window->menu;
-        Menu_DrawInlineItems(label, window->window.frame.x + 6, window->window.frame.y + 10, 0xFFEF, (s8*)sp2C);
+        Menu_DrawInlineItems(label, window->window.frame.x + 6, window->window.frame.y + 10, 0xFFEF, (intptr_t)((s8*)sp2C));
     }
     /* Empty test kept from the permuter: it keeps window in $s0 as in the ROM. */
     if (window) {  // karodo
@@ -272,7 +272,7 @@ s32 LabMoveSelect_DrawLearnAnimation(LabMoveSelectWindow* window) {
         color = 0xFEED;
         params[0] = ((30 - window->learnTimer) * 0xFF) / 30;
     }
-    Menu_DrawInlineItems(&window->menu, window->window.frame.x + 6, window->window.frame.y + 10, color, (s8*)params);
+    Menu_DrawInlineItems(&window->menu, window->window.frame.x + 6, window->window.frame.y + 10, color, (intptr_t)((s8*)params));
     return window->learnTimer == 0;
 }
 
@@ -291,7 +291,7 @@ void LabMoveSelect_StartLearnAnimation(LabMoveSelectWindow* window, s32 slot, s3
     window->menu.itemFlags[slot] |= 0x300;
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the cursor of the move list.
@@ -440,7 +440,7 @@ void LabBoxList_Init(LabBoxListWindow* box_list, s32 x, s32 y, ByteMatrix* boxes
 
 M2C_UNK Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, M2C_UNK *); /* extern */
 M2C_UNK Window_DrawFrame(s8 *);                      /* extern */
-M2C_UNK Menu_DrawInlineItems(s8 *, s32, s32, s32, s8 *); /* extern */
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern M2C_UNK D_80073554;
 
 /**
@@ -450,11 +450,11 @@ extern M2C_UNK D_80073554;
 void LabBoxList_Draw(LabBoxListWindow* box_list, s32 flags) {
     Ui_DrawTexturedFrameDecal(box_list->frame.x - 6, box_list->frame.y - 6, box_list->frame.width + 12, box_list->frame.height + 12, &D_80073554);
     Window_DrawFrame(&box_list->frame);
-    Menu_DrawInlineItems(&box_list->menu, box_list->frame.x, box_list->frame.y + 4, flags | 0xFFED, box_list);
+    Menu_DrawInlineItems(&box_list->menu, box_list->frame.x, box_list->frame.y + 4, flags | 0xFFED, (intptr_t)(box_list));
 }
 
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Handles a box list: A toggles the box (returns 1), B returns -1, D-Left goes back to the sources (returns 2).
@@ -606,7 +606,7 @@ void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4
 void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags);
 void LabSourceSelect_UpdateItemFlags(u8* widget);
 void func_8000B2F4(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_8910A93C;
 extern Color_RGBA8 D_8910A940;
 extern char D_8910E024[];
@@ -637,7 +637,7 @@ void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, s8* sourc
     list = *(s32*)sources;
     LabBoxList_Init(&window->gbBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 28, (ByteMatrix*)(list + 0x34), (uintptr_t)(&window->gbBoxFlags), color);
     LabBoxList_Init(&window->cartBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 56, (ByteMatrix*)(list + 0x58), (uintptr_t)(&window->cartBoxFlags), color);
-    Menu_Init(&window->menu, sources, (uintptr_t)(&window->itemFlags), LabSourceSelect_DrawRow, 296, 28);
+    Menu_Init(&window->menu, sources, (&window->itemFlags), LabSourceSelect_DrawRow, 296, 28);
     LabSourceSelect_UpdateItemFlags((u8*)window);
     window->cursor.count = 4;
     window->cursor.cursor = 0;
@@ -687,7 +687,7 @@ void LabSourceSelect_Draw(LabSourceSelectWindow* window, s32 flags) {
                 }
             }
         }
-        Menu_DrawInlineItems(&window->menu, window->listFrame.x, window->listFrame.y + 4, sp38, window);
+        Menu_DrawInlineItems(&window->menu, window->listFrame.x, window->listFrame.y + 4, sp38, (intptr_t)(window));
         Window_DrawLabeled(&window->okButton, sp34);
         if (window->cursor.cursor == 1) {
             LabBoxList_Draw(&window->gbBoxes, (window->openBoxList == 1) ? 2 : 0);
@@ -896,14 +896,14 @@ void LabPCList_DrawPopupMenu(LabPopupMenu* popup, s32 flags)
     if ((popup && popup) && popup) // FAKE: empty if on a repeated test
     {
     }
-    Menu_DrawItems((s8*)&popup->menu, (*((s32 *) (((s8 *) popup) + 0))) + 6, (*((s32 *) (new_var + 4))) + 10, flags | 0xFFED, popup); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+    Menu_DrawItems((s8*)&popup->menu, (*((s32 *) (((s8 *) popup) + 0))) + 6, (*((s32 *) (new_var + 4))) + 10, flags | 0xFFED, (intptr_t)(popup)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
     if (flags) // karodo
     {
     }
   }
 }
 
-M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves a popup menu's cursor.
@@ -911,7 +911,7 @@ M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
  * cursor from フシギダネをあつめる to いどうする.
  */
 s32 LabPCList_UpdatePopupMenu(LabPopupMenu* popup) {
-    return Menu_UpdateCursor((uintptr_t)&popup->menu);
+    return Menu_UpdateCursor(&popup->menu);
 }
 
 extern char D_8910E064[];
@@ -1035,7 +1035,7 @@ M2C_UNK func_8002B2E4(s32, s32, s8 *);            /* extern */
 M2C_UNK func_8002B4B4(s8 *, s32, s8 *);         /* extern */
 s32 func_8002BC14(s32, s32, s8 *);                /* extern */
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Handles the level input digits.
@@ -1214,7 +1214,7 @@ typedef struct Entry891071A4 {
     u8 color[4];
 } Entry891071A4;
 
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void func_8000B2F4(s32);
 extern Entry891071A4 D_80066AD8[];
@@ -1244,7 +1244,7 @@ void LabPCList_InitTypeFilter(LabTypeFilterWindow* window, s32 x, s32 y, s32* fi
     for (i = 0; i < 0xF; i++) {
         window->names[i] = (s8*)&D_80066AD8[i + ((i < 6) ? 0 : 1)];
     }
-    ScrollList_Init(&window->list, (uintptr_t)&window->typeList, (uintptr_t)window->typeFlags, 8, LabPCList_DrawTypeFilterRow, 174, 28);
+    ScrollList_Init(&window->list, &window->typeList, window->typeFlags, 8, LabPCList_DrawTypeFilterRow, 174, 28);
     window->list.options |= 0x10000;
     for (i = 0; i < *filter; i++) {
         window->slots[i].index = LabPCList_TypeIdToListIndex(((u8*)filter)[4 + i]);
@@ -1273,7 +1273,7 @@ void LabPCList_InitTypeFilter(LabTypeFilterWindow* window, s32 x, s32 y, s32* fi
 }
 
 extern u8 D_800735C4[];
-void ScrollList_DrawItems(s8*, s32, s32, s32, s32);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the type filter window.
@@ -1419,7 +1419,7 @@ void LabPCList_DrawMoveFilterRow(s32 x, s32 y, u8* move, s32 index, s32 flags) {
 }
 
 
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void func_8000B2F4(s32);
 extern u8 D_8910A978[];
@@ -1446,7 +1446,7 @@ void LabPCList_InitMoveFilter(LabMoveFilterWindow* window, s32 x, s32 y, u8* fil
     window->window.frame.color = D_8910AACC;
     window->window.title = D_8910E0D0;
     func_80027410(&window->moveMatrix, D_8910A978, 1, 0xA4, 0xA4);
-    ScrollList_Init(&window->list, (uintptr_t)&window->moveMatrix, (uintptr_t)window->moveFlags, 8, LabPCList_DrawMoveFilterRow, 212, 28);
+    ScrollList_Init(&window->list, &window->moveMatrix, window->moveFlags, 8, LabPCList_DrawMoveFilterRow, 212, 28);
     window->list.options |= 0x10000;
     for (i = 0; i < M2C_FIELD(filter, s32*, 4); i++) {
         window->slots[i].index = D_8910AA1C[filter[i] - 1];
@@ -1474,7 +1474,7 @@ void LabPCList_InitMoveFilter(LabMoveFilterWindow* window, s32 x, s32 y, u8* fil
     window->mode = 0;
 }
 
-void ScrollList_DrawInlineItems(s8*, s32, s32, s32, s32);
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the move filter window.
@@ -1693,7 +1693,7 @@ extern u8 D_8910E120[];
 extern u8 D_8910AAE0[];
 extern u8 D_8910AAE4[];
 void func_8000A460(s8*, s8*);
-void ScrollList_Init(s8*, s32, s32, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabPCList_DrawItemRow();
 /**
  * Sets up the window that uses an item on the selected Pokemon.
@@ -1707,7 +1707,7 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, s32 items, s3
     window->window.state = 0;
     window->window.frame.style = 0x801;
     func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon[8] - 1].name);
-    *(Str891084B4*)(strlen((uintptr_t)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
+    *(Str891084B4*)(strlen(D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;

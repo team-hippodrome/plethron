@@ -186,7 +186,7 @@ s32 LabPC_AllBoxesEmpty(ByteMatrix* table) {
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void Window_InitLabeled(void* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 M2C_UNK func_8000B2F4(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern u8 D_8900A870[];
 extern char D_89018E60[];
 extern char D_89018E68[];
@@ -233,7 +233,7 @@ typedef struct Entry80066AD8 {
     Color890075E0 color;
 } Entry80066AD8;
 extern Entry80066AD8 D_80066AD8[];
-s32 Pokemon_GetTypeIndex(s32, s32);
+s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void func_8001AB6C(void);
 void func_8001A384(s32, s32);
 void func_8001ABBC(void);
@@ -339,7 +339,7 @@ void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002AE6C();
 void Window_DrawLabeled(void*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(BattleMon*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws a Pokemon's status window: LV, HP, Type 1/2, Attack, Defense, Speed, Special.
  * Seen in play (2026-11-13) in the せいとん > ポケモンをにがす confirm it drew フシギダネ's window (LV 10, HP 30,
@@ -376,7 +376,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         Font_Printf(x + 178, y + 5, D_89018E88, win->mon->level);
         Font_Printf(x + 320, y + 5, D_89018E8C, win->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_89018E90);
-        if (Pokemon_GetTypeIndex((uintptr_t)win->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex(win->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_89018E9C);
         }
         Font_Printf(x + 258, y + 40, D_89018EA8);
@@ -506,7 +506,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, s32 
 
 typedef struct Str8900806C { char s[13]; } Str8900806C;
 char* func_8000A460(char*, const char*);
-void PokeIcon_ResetSlots(s32);
+void PokeIcon_ResetSlots(PokeIconRenderer* arg0); // PORT: matches the definition
 void func_80027410(void*, s8*, s32, s32, s32);
 void GridMenu_Init(void*, s8*, s8*, void*, s32, s32, s32);
 extern char D_89018EE8[];
@@ -547,7 +547,7 @@ void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box,
 void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK func_800189C0(s32, M2C_UNK);                /* extern */
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK GridMenu_DrawInlineItems(void*, s32, s32, s32, s32);  /* extern */
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the box contents grid, refreshing the icons unless flag 0x10 is set (it is while the
@@ -566,7 +566,7 @@ void PcBox_DrawList(PcBoxListWindow* win, s32 flags) {
 s32 GridMenu_UpdateCursor(void*);
 s32 func_8002BC14(s32);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Moves the box contents cursor. Returns -1 on cancel, the 1-based cell on confirm,
  * otherwise 0. Seen in play (2026-11-14): A on ホ opened its status window.
@@ -738,7 +738,7 @@ void PcBox_DrawStorageLabel(s32 x, s32 y, s32 flags, s32 kind) {
     Font_EndTexturedTextRendering();
 }
 
-void Menu_Init(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 extern Color_RGBA8 D_8900A91C;
 extern Color_RGBA8 D_8900A920;
 extern Color_RGBA8 D_8900A580[];
@@ -791,16 +791,16 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = (Controller*)D_800603C0;
     func_8000B2F4(D_800603C0);
-    Menu_Init(&win->gbBoxMenu, (uintptr_t)gb_box_table, (uintptr_t)win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
+    Menu_Init(&win->gbBoxMenu, gb_box_table, win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
     win->gbBoxMenu.options |= 0x10000;
-    Menu_Init(&win->stadiumBoxMenu, (uintptr_t)(gb_box_table + 1), (uintptr_t)win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
+    Menu_Init(&win->stadiumBoxMenu, (gb_box_table + 1), win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
     win->stadiumBoxMenu.options |= 0x10000;
     win->state = 1;
 }
 
 extern s32 D_8900A924[];
 extern s32 D_8900A93C[];
-void LabItem_DrawTitleText(s32, s32, s32, s32);
+void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
 /**
  * Draws the selected operation's caption while the operation column has the cursor.
  * Seen in play (2026-11-14): 「６４へボックスをいどうする」, 「ＧＢへボックスをいどうする」,
@@ -816,7 +816,7 @@ void PcBox_DrawHelpText(PcBoxOperationWindow* win) {
 void Window_DrawFrame(void*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
-void Menu_DrawInlineItems(void*, s32, s32, s32, s32);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
 extern u8 D_8007356C[];
 extern u8 D_800735C4[];
@@ -1032,8 +1032,8 @@ s32 PcBox_StepViewCursorSkipEmpty(PcBoxOperationWindow* win, s32 buttons) {
 
 s32 func_8000B30C(void);
 s32 func_8002B2B0(void*);
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(void*);
 extern void* D_8900A954[];
 extern u8 D_8900A96C[];

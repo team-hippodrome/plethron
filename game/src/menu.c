@@ -74,7 +74,7 @@ void Menu_DrawCursor(Menu* arg0, s32 arg1, s32 arg2) {
  * Draws a menu's items from its definition, one row per item.
  * Seen in play (2026-11-12) in いちらん (List): drew the sort menu rows every frame while it was open.
  */
-void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     s32 i;
     s32 y = arg2;
     s32 count = arg0->items->count;
@@ -100,7 +100,7 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
  * Lab PC box screen.
  * @unverified Name and comment guessed from the code.
  */
-void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     s32 i;
     s32 y = arg2;
     ByteMatrix* def = arg0->items;
@@ -288,7 +288,7 @@ void GridMenu_DrawCursor(GridMenu* menu, s32 x, s32 y) {
  * no pointer word, no lui/addiu pair in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
-void GridMenu_DrawItems(GridMenu* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void GridMenu_DrawItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     ByteMatrix* def = menu->items;
     s32 i;
     u8** items = (u8**)def->rows;
@@ -314,7 +314,7 @@ void GridMenu_DrawCursor(GridMenu*, s32, s32);
  * Seen in play (2026-11-12): drew the main menu's 3 x 3 item grid (せいとん (Organize), いちらん (List), ずかん (Pokédex), バトル (Battle), てもち (Party), GB,
  * OFF, とうろく (Register)) every frame.
  */
-void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     ByteMatrix* def = menu->items;
     s32 i;
     u8* items = def->rows;
@@ -720,7 +720,7 @@ void ScrollList_DrawCursor(ScrollList* arg0, s32 arg1, s32 arg2) {
  * list agree.
  * Seen in play (2026-11-12) in いちらん: drew the main list's rows (フシギダネ (Bulbasaur), ヒトカゲ (Charmander), ゼニガメ (Squirtle)) every frame.
  */
-void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     s32 height = menu->cellHeight * menu->visibleRows;
     s32 i;
     s32 row_y;
@@ -763,7 +763,7 @@ void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, s32 arg4) {
  * Seen in play (2026-11-12) in せいとん > ポケモンのせいり (Organize Pokémon): drew the left (てもち (Party), x 0x34) and right (GBのボックス1 (GB Box 1),
  * x 0x180) Pokémon lists every frame.
  */
-void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     ByteMatrix* def = menu->items;
     u8* items = def->rows;
     s32 height = menu->cellHeight * menu->visibleRows;
@@ -807,7 +807,7 @@ void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, s32 ar
  * first, then each visible item with its flags (cursor row gets 0x12) masked by `mask`, then the scroll
  * arrows and cursor when enabled. Used by the Lab item and PC sort lists.
  */
-void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     ByteMatrix* def = menu->items;
     u8* items = def->rows;
     s32 pad[2]; // FAKE: stack padding
@@ -1328,7 +1328,7 @@ void ScrollGrid_DrawScrollArrows(ScrollGrid*, s32, s32);
  * bit 2 is set and option bit 0x10000 is set.
  * Seen in play (2026-11-13) drew the tournament's レンタルポケモン (Rental Pokémon) grid every frame.
  */
-void ScrollGrid_DrawItems(ScrollGrid* menu, s32 x, s32 y, s32 mask, s32 arg4) {
+void ScrollGrid_DrawItems(ScrollGrid* menu, s32 x, s32 y, s32 mask, intptr_t arg4) { // PORT: arg4 is passed to drawItem and is often a pointer
     s32 width = menu->cellWidth * menu->columns;
     ByteMatrix* def = menu->items;
     u8* items = def->rows;

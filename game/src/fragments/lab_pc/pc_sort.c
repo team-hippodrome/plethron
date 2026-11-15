@@ -11,7 +11,7 @@
 extern u8 D_8910D7D0[];
 
 #include "m2c_macros.h"
-void ScrollList_SetItems(void*, s32, void*);
+void ScrollList_SetItems(ScrollList* arg0, ByteMatrix* arg1, u16* arg2); // PORT: matches the definition
 
 void PcSort_Unused1(void);
 void PcSort_Unused2(void);
@@ -139,7 +139,7 @@ void PcSort_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 }
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK func_80027804();
 /**
  * Sets up a menu window whose height fits `count` rows.
@@ -155,13 +155,13 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
     win->window.frame.style = 0;
     win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32); /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the menu window's items.
@@ -176,7 +176,7 @@ void PcSort_DrawMenu(PcSortMenuWindow* win) {
 s32 Menu_UpdateCursorSkipDisabled(void*);
 s32 func_8002BC14(s32);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Moves the menu cursor. Returns -1 on cancel, the 1-based row on confirm, otherwise 0.
  * Seen in play (2026-11-12): picked GBのボックス1 as the destination.
@@ -239,7 +239,7 @@ void PcSort_SetMonList(PcSortMonList* list, s32 table) {
     ScrollList_SetItems(&list->list, table, list->itemFlags);
 }
 
-void ScrollList_Init(void*, s32, void*, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void PcSort_DrawMonRow(s32, s32, u8*, s32, s32);
 
 /**
@@ -253,8 +253,8 @@ void PcSort_InitMonList(PcSortMonList* list, s32 x, s32 y, s32 table) {
     list->list.options |= 0x10000;
 }
 
-void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
-void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
 extern Gfx D_80073450[];
@@ -447,7 +447,7 @@ typedef struct Slot890056A4 {
     void* tex;
 } Slot890056A4;
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 void PcBox_DrawMoveName(s32, s32, s32, s32);
 extern Slot890056A4 D_8900A79C[];
 extern char D_89018AC4[];
@@ -495,7 +495,7 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     Font_Printf(x + 348, y + 84, D_89018B10, *(u16*)(mon + 0x2C));
     Font_Printf(x + 487, y + 84, D_89018B14, *(u16*)(mon + 0x2E));
     for (i = 0; i < count; i++) {
-        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex((uintptr_t)mon, i), D_8900A79C[i].type);
+        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex(mon, i), D_8900A79C[i].type);
     }
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, D_80060290);
@@ -530,7 +530,7 @@ extern s32 D_8900A7EC[];
 extern s32 D_8900A804[];
 extern s32 D_8900A81C[];
 extern s32 D_8900A834[];
-void LabItem_DrawTitleText(s32, s32, s32, s32);
+void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors); // PORT: matches the definition
 void PcSort_DrawMonStats();
 
 /**
@@ -567,7 +567,7 @@ void PcSort_DrawHelpText(s32* win) {
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, void*);
-void GridMenu_DrawInlineItems(s8*, s32, s32, s32, s32);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
 extern u8 D_8007356C[];
 extern u8 D_800735C4[];
@@ -702,8 +702,8 @@ void PcSort_OpenBox(PcSortOrganizeWindow* win) {
     win->state = 4;
 }
 
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(s8*);
 void Menu_SkipDisabledForward(s8*);
 s32 GridMenu_UpdateCursor(s8*);

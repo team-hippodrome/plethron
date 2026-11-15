@@ -134,7 +134,7 @@ void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
 s32 func_8002AE6C();
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
-void ScrollList_DrawInlineItems(void*, s32, s32, s32, s32);
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C;
 extern u8 D_800734A8[];
 extern Gfx D_80060270[];
@@ -169,7 +169,7 @@ void Pokedex_DrawListWindow(PokedexListWindow* list_window, u32 flags) {
     }
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 s32 ScrollList_UpdateCursor(unk_func_8820BE14_02C_038*);
 
 /**
@@ -298,7 +298,7 @@ void Pokedex_InitActionMenuWindow(PokedexMenuWindow* menu_window, s32 x, s32 y) 
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, s32, s32);  /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the action menu's rows; `flags` is ORed into the row flags (2 while it has focus).
@@ -311,7 +311,7 @@ void Pokedex_DrawActionMenu(PokedexMenuWindow* menu_window, s32 flags) {
 }
 
 s32 func_8002BC14(s32);                             /* extern */
-s32 Menu_UpdateCursor(s32);                             /* extern */
+s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
 
 /**
  * Moves the action menu cursor; without a move returns Ui_GetSelectionDirection's result (1 for A, -1 for B).
@@ -462,7 +462,7 @@ void Pokedex_DrawEntryDescription(s32 x, s32 y) {
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 s32 Ui_DrawFrameLeftCorners(s32, s32, s32, void*);
 s32 Ui_DrawImageInStrips(void*, s32, s32);
-s32 Window_DrawAnimatedFrame();
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 extern u8 D_8007356C;
 extern u8 D_8A11FC18;
 
@@ -475,7 +475,7 @@ extern u8 D_8A11FC18;
 void Pokedex_DrawEntryWindow(Window* window, s32 preview, s32 progress) {
     s32 temp_v0;
 
-    if ((window->state != 2) && (Window_DrawAnimatedFrame() == 0)) {
+    if ((window->state != 2) && (Window_DrawAnimatedFrame(window /* PORT: m2c dropped the argument left in a0 */) == 0)) {
         Ui_DrawTexturedDivider(window->frame.x, window->frame.y + 215, window->frame.width, &D_8007356C);
         Ui_DrawFrameLeftCorners(window->frame.x + 249, window->frame.y, 222, &D_8007356C);
         Pokedex_DrawEntryInfo(window->frame.x + 0x100, window->frame.y + 6);
@@ -681,7 +681,7 @@ s32 Pokedex_RunActionMenu(void) {
         Cont_ReadInputs();
         Input_ResetRepeatState();
         if ((sIndexScreen.menuWindow.window.state == 1) || (sIndexScreen.menuWindow.window.state == 2)) {
-            temp_v0 = Pokedex_UpdateActionMenuCursor((uintptr_t) &sActionMenuWindow);
+            temp_v0 = Pokedex_UpdateActionMenuCursor(&sActionMenuWindow);
             if (temp_v0 != 0) {
                 temp_v0_2 = Pokedex_HandleActionMenuResult(temp_v0, &sp50);
                 if (temp_v0_2 == 1) {
@@ -833,7 +833,7 @@ s32 Pokedex_PlayCry(void) {
     return 2;
 }
 
-M2C_UNK Pokedex_LoadAreaMap(s32 species, s32 pool, M2C_UNK pool_size, s32 load_buffer, s32 load_buffer_size); /* extern */
+void Pokedex_LoadAreaMap(s32 species, MainPoolState* pool, s32 pool_size, PERSSZP* load_buffer, s32 load_buffer_size); // PORT: matches the definition
 extern s32 sAreaMapPool;
 extern s32 sAreaMapLoadBuffer;
 extern s32 sSelectedDexIndex;

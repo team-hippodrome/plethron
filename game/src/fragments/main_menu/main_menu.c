@@ -53,7 +53,7 @@ void MainMenu_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags) {
 
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 M2C_UNK func_80027804();
-M2C_UNK Menu_Init();
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 extern s8 D_88001FD4[];
 extern u8 D_88001FE0[];
 extern u8 D_88001FE4[];
@@ -90,7 +90,7 @@ extern char D_88002328[];
 void Ui_DrawTexturedDivider(s32, s32, s32, u8 *);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Window_DrawFrame(void*);
-void Menu_DrawItems(s8 *, s32, s32, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 /**
  * Draws トーナメントのつづきをする？ (Continue the tournament?) with its note
  * 「たいせんちゅうに ゲームを やめると 1かいせんから やりなおしに なります！」 (If you quit
@@ -120,8 +120,8 @@ void MainMenu_DrawContinueTournamentPrompt(MainMenuPromptWindow* prompt) {
 }
 
 s32 Menu_UpdateCursor(s8*);
-s32 Ui_GetSelectionDirection(s32);
-extern s32 D_800603C0;
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Moves the prompt cursor while the window is open. Returns the 1-based choice on confirm, otherwise 0.
@@ -366,7 +366,7 @@ s32 MainMenu_StepItemFade(MainMenuItemList* item_list) {
 }
 
 extern u8 D_05018868[];
-void GridMenu_DrawInlineItems(void*, s32, s32, s32, f32*);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the main menu items with the current fade. `cursor_flags` (2) is OR'd into the item flags
@@ -399,7 +399,7 @@ s32 MainMenu_DrawItemList(MainMenuItemList* item_list, s32 cursor_flags) {
             color = cursor_flags | 0xFFED;
             break;
     }
-    GridMenu_DrawInlineItems(&item_list->menu, 0, 0, color, &alpha);
+    GridMenu_DrawInlineItems(&item_list->menu, 0, 0, color, (intptr_t)(&alpha));
     MainMenu_DrawImageWithAlpha(230, 86, 200, 100, 200, D_05018868, 255.0f * alpha);
     return ret;
 }
@@ -473,8 +473,8 @@ void MainMenu_DrawMessageWindow(MainMenuMessageWindow* window) {
 }
 
 s32 Ui_HandleHorizontalSelectionInput(s8*);
-s32 Ui_GetSelectionDirection(s32);
-extern s32 D_800603C0;
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Handles input on the message window while it is open.
@@ -708,14 +708,14 @@ s32 MainMenu_UpdateScreen(MainMenuScreen* screen) {
     return ret;
 }
 
-s32 Util_Malloc(M2C_UNK);
+void* Util_Malloc(s32 size); // PORT: matches the definition
 M2C_UNK func_8000B2F4(s32);
 u8 GbSave_GetSaveState(s32 arg0);
 s32 GbSave_HasPokedex(s32);
 s32 GbSave_SavedAtPokemonCenter(s32);
 s32 GbSave_GetActivePort();
 M2C_UNK func_80027FF8(M2C_UNK *, s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s32 D_80073400;
 extern s32 D_88002B00;
 extern M2C_UNK D_88002B08;
@@ -919,7 +919,7 @@ s32 MainMenu_RunFrame(s32 fade_mode) {
     return sp1C;
 }
 
-M2C_UNK Util_Free(s32);                         /* extern */
+void Util_Free(void* ptr); // PORT: matches the definition
 extern MainMenuScreen* D_88002B20;
 
 /**

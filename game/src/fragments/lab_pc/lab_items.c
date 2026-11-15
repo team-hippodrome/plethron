@@ -40,7 +40,7 @@ typedef struct unk_D_88218070 {
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Menu_ClearItemFlags(Menu* arg0);
-void ScrollList_SetItems(s8*, s32, s8*);
+void ScrollList_SetItems(ScrollList* arg0, ByteMatrix* arg1, u16* arg2); // PORT: matches the definition
 
 void LabItem_Unused(void);
 s32 LabItem_ComputeRemainingCapacity(s32 arg0, ByteMatrix* arg1);
@@ -297,7 +297,7 @@ void func_8000B2F4(s32);
 extern Color_RGBA8 D_8900A5C0;
 extern char D_89018460[];
 extern char D_89018468[];
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Sets up a はい/いいえ question window with a title and text; the caller sets the cursor.
  * Seen in play (2026-11-14): 「ちゅうい！ ６４カセットに あきが ありません どれかけしますか？」 when the
@@ -363,7 +363,7 @@ void LabItem_DrawConfirmWindow(LabItemConfirmWindow* win) {
 
 s32 func_8002B390(s8*);
 s32 func_8002BC14(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Moves the はい/いいえ cursor. Returns 1 on はい, -1 on いいえ or B, otherwise 0.
@@ -488,10 +488,10 @@ void LabItem_DrawCountSelector(LabItemCountSelector* sel) {
 
 s32 func_8002B638(s8 *);                          /* extern */
 s32 func_8002BC14(s32);                             /* extern */
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern M2C_UNK D_89018474;
 
 /**
@@ -615,7 +615,7 @@ void LabItem_DrawMenuRow(s32 x, s32 y, char* str, UNUSED s32 index, s32 flags) {
 }
 
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK func_80027804();
 /**
  * Sets up a menu window whose height fits `count` rows.
@@ -632,13 +632,13 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
     win->window.frame.style = 0;
     *(Color_RGBA8*)&win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32); /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the menu window's items.
@@ -725,7 +725,7 @@ void LabItem_SetItemList(LabItemList* list, s32 table) {
     ScrollList_SetItems((s8*)&list->list, table, (s8*)list->itemFlags);
 }
 
-void ScrollList_Init(s8*, s32, s8*, s32, void*, s32, s32);
+void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabItem_DrawItemCountRow();
 
 /**
@@ -739,8 +739,8 @@ void LabItem_InitItemList(LabItemList* list, s32 x, s32 y, s32 table) {
     list->list.options |= 0x10000;
 }
 
-void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
-void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
 extern Gfx D_80073450[];
@@ -1417,7 +1417,7 @@ extern Color_RGBA8 D_8900A6B0;
 extern char D_89018678[];
 void LabItem_DrawTrainerInfo();
 void Window_SetRect(s8*, s32, s32, s32, s32);
-void Menu_Init(s8*, s32, s32, s32, s32, s32);
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 void func_80027410(s8*, s8*, s32, s32, s32);
 /**
  * Sets up the データをけす window over the four 64 item saves, with
@@ -1436,13 +1436,13 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
     win->footerFrame.color = D_8900A6AC;
     win->footerFrame.color2 = D_8900A6B0;
     func_80027410((s8*)&win->slotTable, (s8*)slots, 0x14, 4, 4);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->slotTable, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
+    Menu_Init((s8*)&win->menu, &win->slotTable, win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
     win->menu.options |= 0x10000;
 }
 
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
-void Menu_DrawInlineItems(void*, s32, s32, s32, s32);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern u8 D_89018688[];
 /**

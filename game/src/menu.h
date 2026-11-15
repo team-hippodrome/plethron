@@ -14,7 +14,7 @@
  * callback and moves a cursor over them. Menu is a one-column list, GridMenu lays the items out
  * in columns, and ScrollList and ScrollGrid show a window of visibleRows rows that
  * scrolls smoothly. All four share the first 0x24 bytes. */
-typedef void (*MenuDrawItemFunc)(s32 x, s32 y, u8* item, s32 index, s32 flags, s32 arg);
+typedef void (*MenuDrawItemFunc)(s32 x, s32 y, u8* item, s32 index, s32 flags, intptr_t arg); // PORT: arg is often a pointer (was s32)
 
 typedef struct Menu {
     /* 0x00 */ ByteMatrix* items; // item table: a PointerList of items, or rows drawn in place (*_DrawInlineItems)

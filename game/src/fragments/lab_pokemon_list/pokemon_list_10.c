@@ -474,7 +474,7 @@ s32 LabPCList_CanLearnMoveByLevelUp(s32 species, s32 tm_index) {
 
 s32 func_80020974(s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 
 /**
  * Sets each usable item's flags for a Pokémon: 1 vitamin stat exp at the cap, 2 already level 100, 4 no move can take a PP Up, 8 already knows the TM/HM move, 0x10 can't learn it.
@@ -516,7 +516,7 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
         } else if (M2C_FIELD(e, s32*, 8) >= 50) {
             n2 = BattleMon_CountMoves(mon);
             for (j = 0; j < n2; j++) {
-                if ((BattleMon_GetMoveIndex((uintptr_t)mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
+                if ((BattleMon_GetMoveIndex(mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
                     break;
                 }
             }

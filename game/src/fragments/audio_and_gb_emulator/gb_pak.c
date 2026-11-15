@@ -28,7 +28,7 @@ void func_812070A0(void);
 void GbApu_SelectRegionClock(s32);
 void GbApu_QueueRegisterWrite(u16, u8, u16);
 void GbApu_ResetChannels(void);
-void GbApu_Reset(unk_D_8122B2F8*);
+void GbApu_Reset(u8*); // PORT: matches the definition
 void GbAudio_FrameStub(void);
 void GbAudio_SetMenuSoundMode(s32);
 #define GB_EMU_PAL_Y_SCALE 0.833f
@@ -56,7 +56,7 @@ extern M2C_UNK D_81156480;
  */
 s32 GbPak_WriteMapperRegister(void *arg0, s32 address, s32 value) {
     M2C_FIELD(&D_81156480, s8 *, 0x1F) = value;
-    return osGbpakReadWrite(M2C_FIELD(arg0, s32 *, 0x50), 1, address, &D_81156480, 0x20);
+    return osGbpakReadWrite(((GbPakChannel*)(arg0))->pfs, 1, address, &D_81156480, 0x20);
 }
 
 /**
@@ -118,23 +118,23 @@ s32 GbPak_VerifyProbeBlock(void *ch) {
     s32 var_v0;
     s32 var_v1;
 
-    M2C_FIELD(ch, s8 *, 0xA2) = 2;
-    sp28 = (s32) M2C_FIELD(ch, u8 *, 0x98);
-    M2C_FIELD(ch, u8 *, 0x98) = 0U;
-    var_v0 = func_81102344(ch, (u32) M2C_FIELD(ch, u32 *, 0x94) >> 0xD);
+    ((GbPakChannel*)(ch))->unkA2 = 2;
+    sp28 = (s32) ((GbPakChannel*)(ch))->unk98;
+    ((GbPakChannel*)(ch))->unk98 = 0U;
+    var_v0 = func_81102344(ch, (u32) ((GbPakChannel*)(ch))->sramAddr >> 0xD);
     var_v1 = var_v0;
     if (var_v0 == 0) {
-        var_v0 = osGbpakReadWrite(M2C_FIELD(ch, s32 *, 0x50), 0, ((M2C_FIELD(ch, u32 *, 0x94) & 0x1FFF) | 0xA000) & 0xFFFF, &D_811564A0, 0x20);
+        var_v0 = osGbpakReadWrite(((GbPakChannel*)(ch))->pfs, 0, ((((GbPakChannel*)(ch))->sramAddr & 0x1FFF) | 0xA000) & 0xFFFF, &D_811564A0, 0x20);
         var_v1 = var_v0;
         if (var_v0 == 0) {
-            var_v0 = bcmp(&D_811564A0, (u8 *)&D_811564C0 + ((M2C_FIELD(ch, u8 *, 0x9C) << 1) << 4), 0x20);
+            var_v0 = bcmp(&D_811564A0, (u8 *)&D_811564C0 + ((((GbPakChannel*)(ch))->channel << 1) << 4), 0x20);
             var_v1 = var_v0;
         }
     }
     if (var_v0 == 0) {
-        M2C_FIELD(ch, s8 *, 0xA2) = 0;
+        ((GbPakChannel*)(ch))->unkA2 = 0;
     }
-    M2C_FIELD(ch, u8 *, 0x98) = (u8) sp28;
+    ((GbPakChannel*)(ch))->unk98 = (u8) sp28;
     return var_v1;
 }
 
@@ -150,16 +150,16 @@ s32 GbPak_CheckCartInserted(s8 *arg0) {
     s32 temp_v0;
     s32 var_v1;
 
-    M2C_FIELD(arg0, s8 *, 0xA2) = 1;
-    temp_v0 = osGbpakCheckConnector(M2C_FIELD(arg0, OSPfs **, 0x50), arg0 + 0x9B) /* PORT: dropped an ignored third argument */;
+    ((GbPakChannel*)(arg0))->unkA2 = 1;
+    temp_v0 = osGbpakCheckConnector(((GbPakChannel*)(arg0))->pfs, &((GbPakChannel*)(arg0))->status) /* PORT: dropped an ignored third argument */;
     var_v1 = temp_v0;
-    if ((temp_v0 == 0) && ((M2C_FIELD(arg0, u8 *, 0x9B) & 9) != 9)) {
+    if ((temp_v0 == 0) && ((((GbPakChannel*)(arg0))->status & 9) != 9)) {
         var_v1 = 0x63;
     }
     if (var_v1 != 0) {
         return var_v1;
     }
-    M2C_FIELD(arg0, s8 *, 0xA2) = 0;
+    ((GbPakChannel*)(arg0))->unkA2 = 0;
     return 0;
 }
 
@@ -180,19 +180,19 @@ s32 GbPak_ProbeCartridge(u8 *arg0) {
     if (((!arg0) && (!arg0)) && (!arg0)) {  // FAKE
     }
     ret = 0;
-    if (!(M2C_FIELD(arg0, u8 *, 0x9B) & 1)) {
+    if (!(((GbPakChannel*)(arg0))->status & 1)) {
         ret = GbPak_CheckCartInserted(arg0);
         if (ret == 0) {
             ret = func_81101FE8(arg0);
-            if ((ret == 0) && (M2C_FIELD(arg0, u8 *, 0x9B) & 1) && (M2C_FIELD(arg0, u8 *, 0x98) != 0)) {
+            if ((ret == 0) && (((GbPakChannel*)(arg0))->status & 1) && (((GbPakChannel*)(arg0))->unk98 != 0)) {
                 ret = GbPak_VerifyProbeBlock(arg0);
                 if (ret == 0) {
-                    ret = GbPak_WriteVerifiedSramBlock(M2C_FIELD(arg0, u8 *, 0x9C), M2C_FIELD(arg0, s32 *, 0x94), M2C_FIELD(arg0, u8 *, 0x98));
+                    ret = GbPak_WriteVerifiedSramBlock(((GbPakChannel*)(arg0))->channel, ((GbPakChannel*)(arg0))->sramAddr, ((GbPakChannel*)(arg0))->unk98);
                 }
             }
         }
         if (ret != 0) {
-            M2C_FIELD(arg0, u8 *, 0x9B) &= ~1;
+            ((GbPakChannel*)(arg0))->status &= ~1;
         }
     }
     return ret;
@@ -211,24 +211,24 @@ s32 GbPak_SelectRomAddress(unk_D_8122B2C0* arg0, s32 arg1) {
     s32 var_v1;
 
     var_v1 = 0;
-    M2C_FIELD(arg0, u8*, 0x9E) = 0xFF;
-    if (M2C_FIELD(arg0, u8*, 0x9F) != 0) {
-        M2C_FIELD(arg0, u8*, 0x9D) = 0xFF;
+    ((GbPakChannel*)(arg0))->unk9D[1] = 0xFF;
+    if (((GbPakChannel*)(arg0))->unk9D[2] != 0) {
+        ((GbPakChannel*)(arg0))->unk9D[0] = 0xFF;
         var_v1 = GbPak_WriteMapperRegister(arg0, 0x6000, 0);
         if (var_v1 == 0) {
-            M2C_FIELD(arg0, u8*, 0x9F) = 0;
+            ((GbPakChannel*)(arg0))->unk9D[2] = 0;
         }
     }
     if (var_v1 == 0) {
-        if (arg1 != M2C_FIELD(arg0, u8*, 0x9D)) {
+        if (arg1 != ((GbPakChannel*)(arg0))->unk9D[0]) {
             temp_a2 = arg1 / 32;
-            if (temp_a2 != ((s32)M2C_FIELD(arg0, u8*, 0x9D) / 32)) {
+            if (temp_a2 != ((s32)((GbPakChannel*)(arg0))->unk9D[0] / 32)) {
                 var_v1 = GbPak_WriteMapperRegister(arg0, 0x4000, temp_a2);
             }
             if (var_v1 == 0) {
                 var_v1 = GbPak_WriteMapperRegister(arg0, 0x2100, arg1);
                 if (var_v1 == 0) {
-                    M2C_FIELD(arg0, u8*, 0x9D) = arg1;
+                    ((GbPakChannel*)(arg0))->unk9D[0] = arg1;
                 }
             }
         }
@@ -247,18 +247,18 @@ s32 GbPak_SelectRamBank(unk_D_8122B2C0* arg0, s32 arg1) {
     s32 var_v1;
 
     var_v1 = 0;
-    M2C_FIELD(arg0, u8*, 0x9D) = 0xFF;
-    if (M2C_FIELD(arg0, u8*, 0x9F) != 1) {
-        M2C_FIELD(arg0, u8*, 0x9E) = 0xFF;
+    ((GbPakChannel*)(arg0))->unk9D[0] = 0xFF;
+    if (((GbPakChannel*)(arg0))->unk9D[2] != 1) {
+        ((GbPakChannel*)(arg0))->unk9D[1] = 0xFF;
         var_v1 = GbPak_WriteMapperRegister(arg0, 0x6000, 1);
         if (var_v1 == 0) {
-            M2C_FIELD(arg0, u8*, 0x9F) = 1;
+            ((GbPakChannel*)(arg0))->unk9D[2] = 1;
         }
     }
-    if ((var_v1 == 0) && (arg1 != M2C_FIELD(arg0, u8*, 0x9E))) {
+    if ((var_v1 == 0) && (arg1 != ((GbPakChannel*)(arg0))->unk9D[1])) {
         var_v1 = GbPak_WriteMapperRegister(arg0, 0x4000, arg1);
         if (var_v1 == 0) {
-            M2C_FIELD(arg0, u8*, 0x9E) = arg1;
+            ((GbPakChannel*)(arg0))->unk9D[1] = arg1;
         }
     }
     return var_v1;
@@ -302,22 +302,22 @@ s32 GbPak_ReadRomSummed(u8* arg0) {
     s32 off;
 
     ret = GbPak_ProbeCartridge(arg0);
-    buf = M2C_FIELD(arg0, u8**, 0x54);
-    addr = M2C_FIELD(arg0, s32*, 0x8C);
-    remaining = M2C_FIELD(arg0, s32*, 0x80);
+    buf = ((GbPakChannel*)(arg0))->buf;
+    addr = ((GbPakChannel*)(arg0))->addr;
+    remaining = ((GbPakChannel*)(arg0))->size;
     if ((ret == 0) && (addr < 0x4000)) {
         if ((addr + remaining) >= 0x4001) {
             size = 0x4000 - addr;
         } else {
             size = remaining;
         }
-        ret = osGbpakReadWrite(M2C_FIELD(arg0, OSPfs**, 0x50), 0, addr, buf, size);
+        ret = osGbpakReadWrite(((GbPakChannel*)(arg0))->pfs, 0, addr, buf, size);
         if (ret == 0) {
             sum = 0;
             for (ret = size; ret != 0; ret--) {
                 sum += *buf++;
             }
-            M2C_FIELD(arg0, s32*, 0x84) += sum;
+            ((GbPakChannel*)(arg0))->sum += sum;
             remaining -= size;
             addr = 0x4000;
         }
@@ -331,20 +331,20 @@ s32 GbPak_ReadRomSummed(u8* arg0) {
             } else {
                 size = remaining;
             }
-            ret = osGbpakReadWrite(M2C_FIELD(arg0, OSPfs**, 0x50), 0, (off | 0x4000) & 0xFFFF, buf, size);
+            ret = osGbpakReadWrite(((GbPakChannel*)(arg0))->pfs, 0, (off | 0x4000) & 0xFFFF, buf, size);
             if (ret == 0) {
                 sum = 0;
                 for (ret = size; ret != 0; ret--) {
                     sum += *buf++;
                 }
-                M2C_FIELD(arg0, s32*, 0x84) += sum;
+                ((GbPakChannel*)(arg0))->sum += sum;
                 remaining -= size;
                 addr = (addr + 0x4000) & ~0x3FFF;
             }
         }
     }
     if (ret == 0) {
-        ret = GbPak_CheckTransferStatus(M2C_FIELD(arg0, OSPfs**, 0x50));
+        ret = GbPak_CheckTransferStatus(((GbPakChannel*)(arg0))->pfs);
     }
     return ret;
 }
@@ -372,9 +372,9 @@ s32 GbPak_TransferBankedRam(u8* arg0, s32 arg1) {
 
     var_v0 = GbPak_ProbeCartridge(arg0);
     var_v1 = var_v0;
-    var_s3 = M2C_FIELD(arg0, u8**, 0x54);
-    var_s2 = M2C_FIELD(arg0, s32*, 0x8C);
-    var_s1 = M2C_FIELD(arg0, s32*, 0x80);
+    var_s3 = ((GbPakChannel*)(arg0))->buf;
+    var_s2 = ((GbPakChannel*)(arg0))->addr;
+    var_s1 = ((GbPakChannel*)(arg0))->size;
     while ((var_v0 == 0) && (var_s1 != 0)) {
         var_v0 = func_81102344(arg0, var_s2 / 0x2000);
         var_v1 = var_v0;
@@ -385,7 +385,7 @@ s32 GbPak_TransferBankedRam(u8* arg0, s32 arg1) {
             } else {
                 var_s0 = var_s1;
             }
-            var_v0 = osGbpakReadWrite(M2C_FIELD(arg0, OSPfs**, 0x50), arg1, (temp_v0 | 0xA000) & 0xFFFF, var_s3, var_s0);
+            var_v0 = osGbpakReadWrite(((GbPakChannel*)(arg0))->pfs, arg1, (temp_v0 | 0xA000) & 0xFFFF, var_s3, var_s0);
             var_v1 = var_v0;
             var_s3 += var_s0;
             var_s1 -= var_s0;
@@ -393,7 +393,7 @@ s32 GbPak_TransferBankedRam(u8* arg0, s32 arg1) {
         }
     }
     if (var_v0 == 0) {
-        var_v1 = GbPak_CheckTransferStatus(M2C_FIELD(arg0, OSPfs**, 0x50));
+        var_v1 = GbPak_CheckTransferStatus(((GbPakChannel*)(arg0))->pfs);
     }
     return var_v1;
 }
@@ -457,12 +457,12 @@ void GbPak_QueueNextBankLoad(GbPakChannel* ch) {
             return;
         }
         ch->request = 4;
-        osSendMesg(&D_81156458, ch->channel, 1);
+        osSendMesg(&D_81156458, (OSMesg)(intptr_t)ch->channel, 1); // PORT: OSMesg value
         D_81156476 = 2;
         return;
     found:
         ch->bankEntry = (u8*)entry;
-        osSendMesg(&D_81156458, ch->channel, 1);
+        osSendMesg(&D_81156458, (OSMesg)(intptr_t)ch->channel, 1); // PORT: OSMesg value
     }
 }
 
@@ -504,7 +504,7 @@ found:
         D_811561C8[chan].size = 0x2000;
         D_811561C8[chan].bankEntry = entry;
         if (!entry && !entry && !entry) {} // FAKE: empty test found by the permuter; only changes instruction scheduling
-        osSendMesg(&D_81156458, D_811561C8[chan].channel, 1);
+        osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811561C8[chan].channel, 1); // PORT: OSMesg value
         while (D_81156475 != 0) {
         }
     }
@@ -551,7 +551,7 @@ s32 GbPak_WriteBackDirtySramBlock(s32 arg0) {
                 ch->addr = i << 8;
                 ch->buf = ch->ramBuf + (i << 8);
                 ch->size = 0x100;
-                osSendMesg(&D_81156458, chan, 1);
+                osSendMesg(&D_81156458, (OSMesg)(intptr_t)chan, 1); // PORT: OSMesg value
                 return 2;
             }
             return 3;
@@ -559,7 +559,7 @@ s32 GbPak_WriteBackDirtySramBlock(s32 arg0) {
     }
     if (ch2->error == 0 && (ch2->status & 1)) {
         ch->request = 4;
-        osSendMesg(&D_81156458, chan, 1);
+        osSendMesg(&D_81156458, (OSMesg)(intptr_t)chan, 1); // PORT: OSMesg value
     }
     return 0;
 }

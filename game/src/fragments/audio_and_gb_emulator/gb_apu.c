@@ -708,8 +708,16 @@ void GbApu_RenderBuffer(s32 num_samples, s16* out) {
     idx = 0;
     last_time = 0;
     while (TRUE) {
-        if (osRecvMesg(&D_811824C0, (OSMesg*)&msg, OS_MESG_NOBLOCK) == -1) {
-            break;
+        { // PORT: the message is the packed u32 itself; unpack it (a raw copy wrote 8 bytes, in host byte order)
+            OSMesg m;
+            u32 v;
+            if (osRecvMesg(&D_811824C0, &m, OS_MESG_NOBLOCK) == -1) {
+                break;
+            }
+            v = (u32)(uintptr_t)m;
+            msg.reg = v >> 24;
+            msg.value = v >> 16;
+            msg.time = v;
         }
         if (first) {
             start_time = msg.time;
@@ -717,7 +725,8 @@ void GbApu_RenderBuffer(s32 num_samples, s16* out) {
         }
         if (msg.time < last_time) {
             if (start_time < D_81138AD8) {
-                osJamMesg(&D_811824C0, *(OSMesg*)&msg, OS_MESG_NOBLOCK);
+                osJamMesg(&D_811824C0, (OSMesg)(uintptr_t)(((u32)msg.reg << 24) | ((u32)msg.value << 16) | msg.time),
+                          OS_MESG_NOBLOCK); // PORT: repack (was a raw copy of the struct)
                 break;
             }
             start_time = 0;
@@ -809,7 +818,7 @@ void GbApu_QueueRegisterWrite(u16 arg0, u8 arg1, u16 arg2) {
     s32 temp_v1;
 
     temp_v1 = arg0 + 0xFFFF0100; // FAKE: arg0 - 0xFF00 written as an unsigned add
-    osSendMesg(&D_811824C0, (temp_v1 << 0x18) | (arg1 << 0x10) | arg2, 0);
+    osSendMesg(&D_811824C0, (OSMesg)(uintptr_t)(u32)((temp_v1 << 0x18) | (arg1 << 0x10) | arg2), 0); // PORT: OSMesg value
     D_81138AD8 = (s32) arg2;
     switch (temp_v1) {
     case 0x14:
@@ -897,7 +906,7 @@ void GbApu_ResetChannels(void) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_Init.
  */
-void GbApu_Reset(s32 arg0) {
+void GbApu_Reset(u8* arg0) { // PORT: arg0 is a pointer (was s32)
   D_81180704 = arg0;
   GbApu_ResetChannels();
 }
@@ -1003,7 +1012,7 @@ s32 GbAudio_UpdateFrame(void) {
     s16** buf_ptr;
 
     D_811858F0++;
-    osSendMesg(D_812896A0_jp, (OSMesg)D_811858F0, OS_MESG_NOBLOCK);
+    osSendMesg(D_812896A0_jp, (OSMesg)(intptr_t)D_811858F0, OS_MESG_NOBLOCK); // PORT: OSMesg value
     D_811858F8 ^= 1;
     D_811858FC++;
     D_811858FC %= 3;

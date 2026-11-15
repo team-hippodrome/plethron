@@ -25,21 +25,21 @@ M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 extern s32 D_8910A7F8[3];
 void func_80027410(void*, void*, s32, s32, s32);
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(s32);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(s8*, s8*, s32, s32);
 void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(s32, s32);
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
-void LabPCList_DrawMonRow();
+void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
 extern s32 D_8910D990[];
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
 extern u8 D_8910A848[];
 extern u8 D_8910A804[];
 extern u8 D_8910A84C[];
-s32 LabPCList_GetColumnCursorX();
+s32 LabPCList_GetColumnCursorX(LabPCListScreen* screen); // PORT: matches the definition
 extern Entry80066AD8 D_80066AD8[];
 s32 Pokemon_GetTypeIndex(u8*, s32);
 M2C_UNK func_8001A384(M2C_UNK, M2C_UNK);
@@ -74,7 +74,7 @@ s32 LabPCList_FilterByAnyType();
 s32 LabPCList_FilterByAnyMove();
 s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
-s32 LabPCList_FilterByBattleEligible();
+s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused); // PORT: matches the definition
 void func_8000A460(s8*, s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
@@ -98,11 +98,11 @@ extern s8 D_8910A8B0[];
 extern u8 D_8910A8C8[];
 extern s8 D_8910E358[];
 s32 LabPCList_UpdateHeaderCursor(void*);
-M2C_UNK LabPCList_ApplyFiltersAndSort();
+M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
 extern s32 D_8910E37C;
 s32 LabPCList_UpdatePopupMenu(LabPopupMenu*);
 void func_80027D68(s32, s32);
-M2C_UNK LabPCList_ApplyFiltersAndSort();
+M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
 extern s32 D_8910D9D0;
 extern s32 D_8910D9D4;
 
@@ -204,7 +204,7 @@ s32 LabPCList_UpdateColumnMenu(LabPCListScreen* screen) {
 }
 
 s32 LabPCList_UpdateLevelInput(void*);
-M2C_UNK LabPCList_ApplyFiltersAndSort();
+M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
 void LabPCList_ClearFilterFlag(LabPCListScreen* screen, M2C_UNK flag); // PORT: no prototype in the decomp
 void LabPCList_SetFilterFlag(LabPCListScreen* screen, s32 flag); // PORT: no prototype in the decomp
 /**
@@ -414,7 +414,7 @@ s32 LabPCList_IsLastPartyMon(s8 **entry) {
     return var_v1;
 }
 
-void TextBox_Init(s8* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 extern Info891033A0 D_80065D00[];
 extern s8 D_8910DD40[];
 extern s8 D_8910DD58[];
@@ -462,7 +462,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
             case 2:
                 if (LabPCList_IsLastPartyMon((s8**)entry) != 0) {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD40, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, D_8910DD40, 0, 1, 0);
                     screen->state = 11;
                 } else {
                     Audio_PlaySystemSound(2);
@@ -477,7 +477,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
                     ret = 2;
                 } else {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD58, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, D_8910DD58, 0, 1, 0);
                     screen->state = 12;
                 }
                 break;

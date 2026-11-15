@@ -302,7 +302,7 @@ void BgStage_DrawFrame(void);
 void StageContext_SetClearColor(u16 color);
 M2C_UNK Audio_FadeCategoriesAndStreams(M2C_UNK);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern void *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern LeoBootDescriptor* sDiskBootBlock;
 
 s32 Leo_RunBootStateMachine(LeoBootDescriptor* arg0); // PORT: no prototype in the decomp
@@ -369,7 +369,7 @@ s32 TitleScreen_Update(s32 fade_mode) {
     return result;
 }
 
-s32 MainPool_Alloc(u32 size, s32 side);
+void* MainPool_Alloc(u32 size, s32 side); // PORT: matches the definition
 u32 MainPool_PushState(u32 arg);
 u32 MainPool_PopState(u32 arg);
 void Gfx_InitDisplayListBuffers(u32 buffer_size, s32 pool_side);
@@ -378,7 +378,7 @@ void Gfx_FreeDisplayListBuffers(void);
 M2C_UNK Audio_WaitForIdle(M2C_UNK);
 s32 Font_Init(s32 load_size, s32 side);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
-M2C_UNK Audio_LoadWaveTablesAndMusic(s32);
+s32 Audio_LoadWaveTablesAndMusic(u8* arg0); // PORT: matches the definition
 M2C_UNK Audio_ClearWaveDataLoaded();
 extern M2C_UNK D_002E0BE0;
 extern M2C_UNK D_002E2B90;
