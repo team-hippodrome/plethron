@@ -58,8 +58,8 @@ Acmd* n_alFxPull(s32 sample_offset, Acmd* p) {
 
     for (i = 0; i < r->section_count; i++) {
         d = &r->delay[i]; /* get the ALDelay structure */
-        in_ptr = &r->input[-d->input];
-        out_ptr = &r->input[-d->output];
+        in_ptr = &r->input[-(s32)d->input]; // PORT: u32 negation wrapped on the 32-bit N64
+        out_ptr = &r->input[-(s32)d->output];
 
         if (in_ptr == prev_out_ptr) {
             SWAP(buff1, buff2);
@@ -221,7 +221,7 @@ Acmd* _n_loadOutputBuffer(ALFx* r, ALDelay* d, s32 buff, Acmd* p) {
         d->rs->first = 0;
         d->rsdelta += count - incount;
     } else {
-        out_ptr = &r->input[-d->output];
+        out_ptr = &r->input[-(s32)d->output];
         ptr = _n_loadBuffer(r, out_ptr, buff, FIXED_SAMPLE, ptr);
     }
 
@@ -242,8 +242,8 @@ Acmd* _n_loadBuffer(ALFx* r, s16* curr_ptr, s32 buff, s32 count, Acmd* p) {
     updated_ptr = curr_ptr + count;
 
     if (updated_ptr > delay_end) {
-        after_end = updated_ptr - delay_end;
-        before_end = delay_end - curr_ptr;
+        after_end = (s32)(updated_ptr - delay_end); // PORT: cast
+        before_end = (s32)(delay_end - curr_ptr); // PORT: cast
 
         n_aLoadBuffer(ptr++, before_end << 1, buff, osVirtualToPhysical(curr_ptr));
         n_aLoadBuffer(ptr++, after_end << 1, buff + (before_end << 1), osVirtualToPhysical(r->base));
@@ -265,8 +265,8 @@ Acmd* _n_saveBuffer(ALFx* r, s16* curr_ptr, s32 buff, Acmd* p) {
     updated_ptr = curr_ptr + FIXED_SAMPLE;
 
     if (updated_ptr > delay_end) { /* if the data wraps past end of r->base */
-        after_end = updated_ptr - delay_end;
-        before_end = delay_end - curr_ptr;
+        after_end = (s32)(updated_ptr - delay_end); // PORT: cast
+        before_end = (s32)(delay_end - curr_ptr); // PORT: cast
 
         n_aSaveBuffer(ptr++, before_end << 1, buff, osVirtualToPhysical(curr_ptr));
         n_aSaveBuffer(ptr++, after_end << 1, buff + (before_end << 1), osVirtualToPhysical(r->base));

@@ -2,29 +2,20 @@
 /* Split from audio_commands.c so the jump tables of Audio_PlayCommand land at 0x8007E87C. */
 
 #include "audio_commands.h"
+#include "audio_cache.h"
+#include "rom_device.h"
 #include "libnumus/player.h"
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 Audio_PlayMoveSound(u32 move_id, u32 species, u32 sound_kind);
 s32 Audio_StartMusicTrack(u32 track_id);
 
-typedef struct SoundBank8 {
-    /* 0x0 */ u8 unk_0;
-    /* 0x1 */ u8 unk_1;
-    /* 0x2 */ u8 unk_2[6];
-} SoundBank8; // size = 0x8
-
-extern SoundBank8 D_80077068[];
 extern u8 D_80077528;
 extern u8 D_80077530;
 extern u8 D_8007753C;
 extern u8 D_80077540;
 extern u8 D_80077544;
 extern s32 D_800B3CE4;
-extern s32 D_800B4188;
-extern s32 D_800B418C;
-extern s32 D_800B41A4;
-extern s32 D_800B41A8;
 extern s32 D_800FD608;
 extern s32 D_800FD654;
 extern s32 D_800FD66C;
@@ -32,15 +23,13 @@ extern s32 D_800FD680;
 extern s32 D_800FD738;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
-void func_80037C04(s32, u32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 s32 func_80047260(s32);
 void Announcer_Reset(s32, s32);
 
 /**
  * Plays sound command `arg0` from the system sound bank (D_800B4188) and returns its handle, or 0 when
  * nothing plays. `arg1` is a species for commands 6-8, 15-17, 50 and 51 (its sound class from
- * D_80077068), a pan angle (-90 to 90) for command 1 and the announcer mode for command 60 (with `arg2`
+ * D_80077064[].unk_04), a pan angle (-90 to 90) for command 1 and the announcer mode for command 60 (with `arg2`
  * the team size, see Announcer_Reset). Commands 30-35 play the special move sound 166 with kinds 0-5.
  */
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
@@ -104,7 +93,7 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
             } else {
                 arg1 = 0;
             }
-            switch (D_80077068[arg1].unk_0) {
+            switch (D_80077064[arg1].unk_04) {
                 case 0:
                     ret = func_8003834C(D_800B4188, D_800B41A4, 7, 0x80, 0x80, 0, -1);
                     break;
@@ -137,7 +126,7 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
             } else {
                 arg1 = 0;
             }
-            switch (D_80077068[arg1].unk_1) {
+            switch (D_80077064[arg1].unk_05) {
                 case 0:
                     ret = func_8003834C(D_800B4188, D_800B41A4, 10, 0x80, 0x80, 0, -1);
                     break;
@@ -251,7 +240,6 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
 
         case 80:
             ret = func_8003834C(D_800B418C, D_800B41A8, D_80077540, 0xFF, 96, 0, -1);
-            func_8003834C(D_800B418C, D_800B41A8, D_80077540, 0xFF, 160, 0, -1);
             if (D_80077530 == 0) {
                 D_800FD608 = Audio_StartMusicTrack(14);
             }
@@ -263,8 +251,6 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
 
         case 82:
             ret = func_8003834C(D_800B4188, D_800B41A4, 39, 0xFF, 96, 0, -1);
-            func_8003834C(D_800B4188, D_800B41A4, 39, 0xFF, 160, 0, -1);
-            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             break;
 
         case 83:
@@ -283,21 +269,18 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
-                        func_80037C04(D_800FD680, 80);
                     }
                     break;
                 case 2:
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
-                        func_80037C04(D_800FD680, 80);
                     }
                     break;
                 case 3:
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
-                        func_80037C04(D_800FD680, 80);
                     }
                     break;
                 default:

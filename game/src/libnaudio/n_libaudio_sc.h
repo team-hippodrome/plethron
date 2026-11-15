@@ -56,7 +56,7 @@ typedef struct {
     s32                 maxAuxBusses;
     s32                 outputRate; 
     s32                 maxOutSamples;
-    s32	       		sv_dramout;
+    s16                 *sv_dramout; // PORT: a host pointer (was s32); a pointer type keeps the lifter's N64 layout
     s32                 sv_first;
 } N_ALSynth;
 

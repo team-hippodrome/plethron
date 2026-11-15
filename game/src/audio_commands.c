@@ -49,22 +49,7 @@ typedef struct SoundFileTable {
     /* 0x0C */ u32 files[1];
 } SoundFileTable; // size >= 0x10
 extern SoundFileTable* D_800B4178;
-extern u8* D_800B41C0[];
 
-typedef struct AudioInitConfig {
-    /* 0x00 */ s32 channels;
-    /* 0x04 */ void* heap;
-    /* 0x08 */ void* bank;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-    /* 0x14 */ s32 synUpdates; // @unverified: same offset/use as libmus's musConfig.syn_updates (forwarded as ALSynConfig.maxUpdates)
-    /* 0x18 */ s32 outputRate;
-    /* 0x1C */ s32 synRspCmds; // @unverified: same offset/use as libmus's musConfig.syn_rsp_cmds (forwarded to amCreateAudioMgr)
-    /* 0x20 */ s32 synRetraceCount; // @unverified: same offset/use as libmus's musConfig.syn_retraceCount (amConfig.framesPerField)
-    /* 0x24 */ s32 synNumDmaBufs; // @unverified: same offset/use as libmus's musConfig.syn_num_dma_bufs
-    /* 0x28 */ s32 synDmaBufSize; // @unverified: same offset/use as libmus's musConfig.syn_dma_buf_size
-    /* 0x2C */ s32 unk_2C;
-} AudioInitConfig; // size = 0x30
 
 typedef struct AudioSeqEntry {
     /* 0x0 */ u32 offset;
@@ -73,8 +58,7 @@ typedef struct AudioSeqEntry {
 
 extern s32 D_80075C30;
 extern u8 D_00B98000[];
-extern u8 D_800B41F8[];
-extern u8 D_800B4208[];
+extern ALHeap D_800B41F8; // PORT: was u8[] (the host ALHeap is larger)
 extern File1Header* D_800B4160;
 extern File1Header* D_800B4164;
 extern u32* D_800B4168;
@@ -82,20 +66,6 @@ extern u32* D_800B416C;
 extern u32* D_800B4170;
 extern struct Bank8003F96C* D_800B4174;
 extern u32* D_800B417C;
-extern s32 D_800B4180;
-extern s32 D_800B4184;
-extern s32 D_800B4188;
-extern s32 D_800B418C;
-extern s32 D_800B4190;
-extern s32 D_800B4194;
-extern s32 D_800B4198;
-extern s32 D_800B419C;
-extern s32 D_800B41A0;
-extern s32 D_800B41A4;
-extern s32 D_800B41A8;
-extern u8* D_800B41B0[];
-extern void* D_800B41D0[5];
-extern u8* D_800B41F0;
 extern s32 D_800FD5E8;
 extern u8 D_800FD5EC;
 extern s32 D_800FD5F0[2];
@@ -125,16 +95,27 @@ extern u8 D_80077534;
 extern u8 D_80077538;
 extern u8 D_8007753C;
 void Rom_InitDevice(s32);
-void func_8004609C(u32, u8*, s32);
-void func_80047FB0(u8*, s32, s32);
-void func_80037F48(s32, s32);
-void Block_RelocateSelf(u8*);
-s32 func_800371A4(s8*);
+s32 func_800371A4(AudioInitConfig*);
 void Audio_SetChannelVolume(s32 arg0, u32 arg1);
+
+// PORT: the sound heap (D_800B4208 on the N64, 300000 bytes) is twice as large on the host: the player's channels,
+// voices and synthesizer structures hold 64-bit pointers.
+#define AUDIO_PORT_HEAP_SIZE (AUDIO_HEAP_SIZE * 2)
+static u8 sAudioPortHeap[AUDIO_PORT_HEAP_SIZE] __attribute__((aligned(16)));
+
+/**
+ * PORT: DMA a big-endian table of `n` u32 words from ROM and swap it to host order (the N64 code reads it in place).
+ */
+static void Audio_PortDmaWords(u32 romAddr, void* dst, u32 n) {
+    Rom_DmaRead(romAddr, (uintptr_t)dst, n * 4);
+    Port_SwapWords(dst, n);
+}
 
 /**
  * Loads and relocates the sound banks, sequences and GB music tables from ROM (0xB98000) at audio thread
  * start, then creates the synthesizer.
+ * PORT: ROM tables are byte-swapped as they are read; sound banks get host wave tables
+ * (Audio_RelocateSoundBankWrapper) and FX blocks keep their offsets (Block_RelocateSelf).
  */
 s32 Audio_LoadSoundData(void) {
     u32 i;
@@ -147,113 +128,111 @@ s32 Audio_LoadSoundData(void) {
 
     rate = osAiSetFrequency(32000);
     D_80075C30 = 0;
-    alHeapInit(D_800B41F8, D_800B4208, 300000);
-    D_800B41F0 = alHeapDBAlloc(0, 0, D_800B41F8, 1, 22000);
+    alHeapInit(&D_800B41F8, sAudioPortHeap, AUDIO_PORT_HEAP_SIZE);
+    D_800B41F0 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 22000);
     Rom_InitDevice(0);
 
-    D_800B4160 = alHeapDBAlloc(0, 0, D_800B41F8, 10, 4);
-    func_8004609C((uintptr_t)D_00B98000, (u8*)D_800B4160, 40);
-    Audio_RelocateOffsets((u32*)D_800B4160 + 1, (uintptr_t)D_00B98000, 9);
+    D_800B4160 = alHeapDBAlloc(0, 0, &D_800B41F8, 10, 4);
+    Audio_PortDmaWords((u32)(uintptr_t)D_00B98000 /* ROM address */, D_800B4160, 10);
+    Audio_RelocateOffsets((u32*)D_800B4160 + 1, (u32)(uintptr_t)D_00B98000 /* ROM address */, 9);
 
-    hdr = D_800B4170 = alHeapDBAlloc(0, 0, D_800B41F8, 4, 4);
-    func_8004609C(D_800B4160->wave_tables_offset, (u8*)hdr, 12);
+    hdr = D_800B4170 = alHeapDBAlloc(0, 0, &D_800B41F8, 4, 4);
+    Audio_PortDmaWords(D_800B4160->wave_tables_offset, hdr, 3);
     num = hdr[2];
-    D_800B4164 = alHeapDBAlloc(0, 0, D_800B41F8, 4, num + 3);
-    func_8004609C(D_800B4160->wave_tables_offset, (u8*)D_800B4164, num * 4 + 12);
+    D_800B4164 = alHeapDBAlloc(0, 0, &D_800B41F8, 4, num + 3);
+    Audio_PortDmaWords(D_800B4160->wave_tables_offset, D_800B4164, num + 3);
     Audio_RelocateOffsets(&D_800B4164->offset1, D_800B4160->wave_tables_offset, 2);
     Audio_RelocateOffsets(D_800B4164->files, D_800B4160->wave_tables_offset, num);
-    func_8004609C(D_800B4164->offset1, D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
-    D_800B4180 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12992);
-    func_80047FB0(D_800B41F0, D_800B4180, 12992);
-    func_80037F48(D_800B4180, D_800B4164->wave_tables_offset);
+    Rom_DmaRead(D_800B4164->offset1, (uintptr_t)D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
+    D_800B4180 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 12992);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4180, 12992);
+    Audio_RelocateSoundBankWrapper(D_800B4180, D_800B4164->wave_tables_offset);
 
-    D_800B4168 = alHeapDBAlloc(0, 0, D_800B41F8, 4, 3);
-    func_8004609C(D_800B4160->num_files, (u8*)D_800B4168, 12);
+    D_800B4168 = alHeapDBAlloc(0, 0, &D_800B41F8, 4, 3);
+    Audio_PortDmaWords(D_800B4160->num_files, D_800B4168, 3);
     Audio_RelocateOffsets(D_800B4168, D_800B4160->num_files, 3);
-    func_8004609C(D_800B4168[0], D_800B41F0, D_800B4168[1] - D_800B4168[0]);
-    D_800B41A0 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2752);
-    func_80047FB0(D_800B41F0, D_800B41A0, 2752);
-    Block_RelocateSelf((u8*)D_800B41A0);
-    func_8004609C(D_800B4168[1], D_800B41F0, D_800B4168[2] - D_800B4168[1]);
-    D_800B4184 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3424);
-    func_80047FB0(D_800B41F0, D_800B4184, 3424);
-    func_80037F48(D_800B4184, D_800B4168[2]);
+    Rom_DmaRead(D_800B4168[0], (uintptr_t)D_800B41F0, D_800B4168[1] - D_800B4168[0]);
+    D_800B41A0 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 2752);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41A0, 2752);
+    Rom_DmaRead(D_800B4168[1], (uintptr_t)D_800B41F0, D_800B4168[2] - D_800B4168[1]);
+    D_800B4184 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 3424);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4184, 3424);
+    Audio_RelocateSoundBankWrapper(D_800B4184, D_800B4168[2]);
 
-    D_800B416C = alHeapDBAlloc(0, 0, D_800B41F8, 4, 3);
-    func_8004609C(D_800B4160->files[0], (u8*)D_800B416C, 12);
+    D_800B416C = alHeapDBAlloc(0, 0, &D_800B41F8, 4, 3);
+    Audio_PortDmaWords(D_800B4160->files[0], D_800B416C, 3);
     Audio_RelocateOffsets(D_800B416C, D_800B4160->files[0], 3);
-    func_8004609C(D_800B416C[0], D_800B41F0, D_800B416C[1] - D_800B416C[0]);
-    D_800B41A4 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
-    func_80047FB0(D_800B41F0, D_800B41A4, 3200);
-    Block_RelocateSelf((u8*)D_800B41A4);
-    func_8004609C(D_800B416C[1], D_800B41F0, D_800B416C[2] - D_800B416C[1]);
-    D_800B4188 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 8288);
-    func_80047FB0(D_800B41F0, D_800B4188, 8288);
-    func_80037F48(D_800B4188, D_800B416C[2]);
+    Rom_DmaRead(D_800B416C[0], (uintptr_t)D_800B41F0, D_800B416C[1] - D_800B416C[0]);
+    D_800B41A4 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 3200);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41A4, 3200);
+    Rom_DmaRead(D_800B416C[1], (uintptr_t)D_800B41F0, D_800B416C[2] - D_800B416C[1]);
+    D_800B4188 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 8288);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4188, 8288);
+    Audio_RelocateSoundBankWrapper(D_800B4188, D_800B416C[2]);
 
-    func_8004609C(D_800B4160->files[2], (u8*)hdr, 12);
+    Audio_PortDmaWords(D_800B4160->files[2], hdr, 3);
     num = hdr[0];
-    D_800B4174 = alHeapDBAlloc(0, 0, D_800B41F8, 4, num + 3);
-    func_8004609C(D_800B4160->files[2], (u8*)D_800B4174, num * 4 + 12);
+    D_800B4174 = alHeapDBAlloc(0, 0, &D_800B41F8, 4, num + 3);
+    Audio_PortDmaWords(D_800B4160->files[2], D_800B4174, num + 3);
     Audio_RelocateOffsets((u32*)D_800B4174 + 1, D_800B4160->files[2], num + 2);
-    func_8004609C(((u32*)D_800B4174)[1], D_800B41F0, ((u32*)D_800B4174)[2] - ((u32*)D_800B4174)[1]);
-    D_800B4190 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 7712);
-    func_80047FB0(D_800B41F0, D_800B4190, 7712);
-    func_80037F48(D_800B4190, ((u32*)D_800B4174)[2]);
+    Rom_DmaRead(((u32*)D_800B4174)[1], (uintptr_t)D_800B41F0, ((u32*)D_800B4174)[2] - ((u32*)D_800B4174)[1]);
+    D_800B4190 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 7712);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4190, 7712);
+    Audio_RelocateSoundBankWrapper(D_800B4190, ((u32*)D_800B4174)[2]);
 
-    func_8004609C(D_800B4160->files[3], (u8*)hdr, 12);
+    Audio_PortDmaWords(D_800B4160->files[3], hdr, 3);
     num = hdr[0];
-    D_800B4178 = (SoundFileTable*) alHeapDBAlloc(0, 0, D_800B41F8, 4, num + 3);
-    func_8004609C(D_800B4160->files[3], (u8*)D_800B4178, num * 4 + 12);
+    D_800B4178 = (SoundFileTable*) alHeapDBAlloc(0, 0, &D_800B41F8, 4, num + 3);
+    Audio_PortDmaWords(D_800B4160->files[3], D_800B4178, num + 3);
     Audio_RelocateOffsets(&D_800B4178->offset1, D_800B4160->files[3], num + 2);
-    func_8004609C(D_800B4178->offset1, D_800B41F0, D_800B4178->wave_tables_offset - D_800B4178->offset1);
-    D_800B4194 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12000);
-    func_80047FB0(D_800B41F0, D_800B4194, 12000);
-    func_80037F48(D_800B4194, D_800B4178->wave_tables_offset);
+    Rom_DmaRead(D_800B4178->offset1, (uintptr_t)D_800B41F0, D_800B4178->wave_tables_offset - D_800B4178->offset1);
+    D_800B4194 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 12000);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4194, 12000);
+    Audio_RelocateSoundBankWrapper(D_800B4194, D_800B4178->wave_tables_offset);
 
-    func_8004609C(D_800B4160->files[4], (u8*)hdr, 12);
+    Audio_PortDmaWords(D_800B4160->files[4], hdr, 3);
     num = hdr[0];
-    D_800B417C = alHeapDBAlloc(0, 0, D_800B41F8, 4, num + 3);
-    func_8004609C(D_800B4160->files[4], (u8*)D_800B417C, num * 4 + 12);
+    D_800B417C = alHeapDBAlloc(0, 0, &D_800B41F8, 4, num + 3);
+    Audio_PortDmaWords(D_800B4160->files[4], D_800B417C, num + 3);
     Audio_RelocateOffsets(D_800B417C + 1, D_800B4160->files[4], num + 2);
-    func_8004609C(D_800B417C[1], D_800B41F0, D_800B417C[2] - D_800B417C[1]);
-    D_800B4198 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2000);
-    func_80047FB0(D_800B41F0, D_800B4198, 2000);
-    func_80037F48(D_800B4198, D_800B417C[2]);
+    Rom_DmaRead(D_800B417C[1], (uintptr_t)D_800B41F0, D_800B417C[2] - D_800B417C[1]);
+    D_800B4198 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 2000);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B4198, 2000);
+    Audio_RelocateSoundBankWrapper(D_800B4198, D_800B417C[2]);
 
-    func_8004609C(D_800B4160->files[1], (u8*)D_800B4170, 12);
+    Audio_PortDmaWords(D_800B4160->files[1], D_800B4170, 3);
     Audio_RelocateOffsets(D_800B4170, D_800B4160->files[1], 3);
-    func_8004609C(D_800B4170[0], D_800B41F0, D_800B4170[1] - D_800B4170[0]);
-    D_800B41A8 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
-    func_80047FB0(D_800B41F0, D_800B41A8, 3200);
-    Block_RelocateSelf((u8*)D_800B41A8);
-    func_8004609C(D_800B4170[1], D_800B41F0, D_800B4170[2] - D_800B4170[1]);
-    D_800B418C = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 24288);
-    func_80047FB0(D_800B41F0, D_800B418C, 24288);
-    func_80037F48(D_800B418C, D_800B4170[2]);
+    Rom_DmaRead(D_800B4170[0], (uintptr_t)D_800B41F0, D_800B4170[1] - D_800B4170[0]);
+    D_800B41A8 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 3200);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41A8, 3200);
+    Rom_DmaRead(D_800B4170[1], (uintptr_t)D_800B41F0, D_800B4170[2] - D_800B4170[1]);
+    D_800B418C = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 24288);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B418C, 24288);
+    Audio_RelocateSoundBankWrapper(D_800B418C, D_800B4170[2]);
 
-    D_800B41EC = alHeapDBAlloc(0, 0, D_800B41F8, 2, 2944);
-    D_800FD688 = alHeapDBAlloc(0, 0, D_800B41F8, 1, 5000);
-    func_8004609C(D_800B4160->files[5], (u8*)D_800FD688, D_800B4160->files[6] - D_800B4160->files[5]);
-    D_800B41E4 = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x100);
-    func_8004609C(D_800B4160->files[6], (u8*)D_800B41E4, 0x100);
+    D_800B41EC = alHeapDBAlloc(0, 0, &D_800B41F8, 2, 2944);
+    D_800FD688 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 5000);
+    Rom_DmaRead(D_800B4160->files[5], (uintptr_t)D_800FD688, D_800B4160->files[6] - D_800B4160->files[5]);
+    D_800B41E4 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x100);
+    // PORT: the 32 {romAddr, size} entries are big-endian words: swap them to host order before relocating
+    Audio_PortDmaWords(D_800B4160->files[6], D_800B41E4, 0x100 / 4);
     for (i = 0; i < 32; i++) {
         D_800B41E4[i].romAddr += D_800B4160->files[6];
     }
 
-    D_800B41E8 = alHeapDBAlloc(0, 0, D_800B41F8, 1, 9000);
-    D_800B419C = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 36000);
-    D_800B41B0[0] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
-    D_800B41B0[1] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
-    D_800B41B0[2] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
-    D_800B41C0[0] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 800);
-    D_800B41C0[1] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 800);
-    D_800B41C0[2] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 800);
-    D_800B41D0[0] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x200);
-    D_800B41D0[1] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x200);
-    D_800B41D0[2] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x200);
-    D_800B41D0[3] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x200);
-    D_800B41D0[4] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 0x200);
+    D_800B41E8 = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 9000);
+    D_800B419C = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 36000);
+    D_800B41B0[0] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 320);
+    D_800B41B0[1] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 320);
+    D_800B41B0[2] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 320);
+    D_800B41C0[0] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 800);
+    D_800B41C0[1] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 800);
+    D_800B41C0[2] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 800);
+    D_800B41D0[0] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x200);
+    D_800B41D0[1] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x200);
+    D_800B41D0[2] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x200);
+    D_800B41D0[3] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x200);
+    D_800B41D0[4] = alHeapDBAlloc(0, 0, &D_800B41F8, 1, 0x200);
 
     D_800FD5E8 = 2;
     D_800FD5EC = 0;
@@ -298,17 +277,19 @@ s32 Audio_LoadSoundData(void) {
     D_8007753C = 1;
 
     config.channels = 24;
-    config.heap = D_800B41F8;
-    config.bank = (void*)D_800B4184;
-    config.unk_0C = ((s32*)D_800B41A0)[3];
-    config.unk_10 = ((s32*)D_800B41A0)[2];
+    config.heap = &D_800B41F8;
+    config.bank = D_800B4184;
+    // PORT: the FX block keeps its offsets (see AudioFxBlock); pass its tables as host pointers and the block itself
+    config.unk_0C = AUDIO_FX_TABLE(D_800B41A0);
+    config.unk_10 = AUDIO_FX_UNK08(D_800B41A0);
+    config.portFxBlock = D_800B41A0;
     config.outputRate = rate;
     config.synUpdates = 0x100;
     config.synRspCmds = 0x400;
     config.synRetraceCount = 1;
     config.synNumDmaBufs = 48;
     config.synDmaBufSize = 1280;
-    ret = func_800371A4((s8*)&config);
+    ret = func_800371A4(&config);
     Audio_SetChannelVolume(2, 2);
     Audio_SetChannelVolume(1, 3);
     gAudioPortReady = 1; // PORT
@@ -316,10 +297,7 @@ s32 Audio_LoadSoundData(void) {
 }
 
 void Audio_StopAllSoundEffects(void);
-s32 func_80037F68(s32, s32);
 void Announcer_QueueLine(s32, f32, s32);
-void func_8004609C(u32, u8*, s32);
-void func_80047FB0(u8*, s32, s32);
 extern u8 D_80077524;
 extern u8 D_80077528;
 extern u8 D_8007752C;
@@ -332,13 +310,9 @@ extern s32 D_80077588;
 extern s32 D_8007758C;
 extern File1Header* D_800B4160;
 extern File1Header* D_800B4164;
-extern s32 D_800B4180;
-extern s32 D_800B419C;
-extern u8* D_800B41F0;
 extern s32 D_800FD608;
 extern u32 D_800FD684;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
-void func_80037C04(s32, u32);
 void Announcer_SetActive(u32);
 
 /**
@@ -613,10 +587,7 @@ s32 Audio_StartMusicTrack(u32 track_id) {
         start = D_800B4164->files[file_index[0]];
         file_size = D_800B4160->num_files - start;
     }
-    func_8004609C(start, D_800B41F0, file_size);
-    func_80047FB0(D_800B41F0, D_800B419C, 36000);
     D_800FD608 = func_80037F68(D_800B4180, D_800B419C);
-    func_80037C04(D_800FD608, volume_scale[0]);
     return D_800FD608;
 }
 
@@ -644,14 +615,8 @@ s32 Audio_FadeOutAll(s32 arg0) {
     return ret;
 }
 
-s32 func_800376E8(s32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 extern u8 D_80077524;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 extern u8* D_800FD690;
-void func_80037C04(s32, u32);
-extern s32 D_800B41A0;
 extern s32 D_800FD610[];
 extern u8 D_800FD620;
 extern s32 D_800FD628[];
@@ -675,12 +640,11 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
         if (!(D_80075C30 & 0x80000000)) {
             return 0;
         }
-        ret = func_8003834C((uintptr_t)D_800FD690, D_800B41A0, 15, 0x80, 0x80, 0, -1);
+        ret = func_8003834C((SoundBank*)D_800FD690, D_800B41A0, 15, 0x80, 0x80, 0, -1);
         func_80037AC4(D_800FD608, 40);
         return ret;
     }
     if (sound_id == 23) {
-        return func_8003834C(D_800B4188, D_800B41A0, 23, 0x80, 0x80, 0, -1);
     }
     i = 0;
     if (D_800FD68C != 0) {
@@ -700,14 +664,12 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
     id = sound_id;
     switch (sound_id) {
         case 36:
-            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             break;
         case 18:
         case 19:
         case 20:
         case 21:
         case 22:
-            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             break;
         case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
         case 11: case 12: case 13: case 14: case 16: case 17: case 24: case 25: case 26:
@@ -740,7 +702,6 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
             break;
     }
     if (id == 10) {
-        func_80037C04(ret, 224);
     }
     return ret;
 }
@@ -754,18 +715,11 @@ typedef struct Bank8003F96C {
 extern u8 D_80077528;
 extern u8 D_80077520;
 extern s32 D_800FD5F8[];
-extern u8* D_800B41B0[];
-extern u8* D_800B41F0;
 extern Bank8003F96C* D_800B4174;
 extern File1Header* D_800B4160;
-extern s32 D_800B4190;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 extern s32 D_800775A8;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
-void Block_RelocateSelf(u8*);
 void func_80037D4C(s32, f32);
 void func_80037E84(s32, s32);
 void func_80037DF4(s32, s32);
@@ -807,35 +761,34 @@ s32 Audio_PlayCry(u32 arg0, u32 arg1) {
         size = D_800B4160->files[3] - start;
     }
     Rom_DmaRead(start, (uintptr_t)D_800B41F0, size);
-    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800B41B0[D_80077520], 320);
-    Block_RelocateSelf(D_800B41B0[D_80077520]);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41B0[D_80077520], 320);
     switch (arg1) {
         case 0:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
             break;
         case 5:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 3, 0x80, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 3, 0x80, 0x80, 0, -1);
             break;
         case 1:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 4, 120, 80, 0, -1);
-            sp30 = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 4, 120, 176, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 4, 120, 80, 0, -1);
+            sp30 = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 4, 120, 176, 0, -1);
             func_80037D4C(D_800FD5F8[D_80077520], 5.0f);
             func_80037E84(D_800FD5F8[D_80077520], 0x3C);
             func_80037D4C(sp30, 6.0f);
             func_80037E84(sp30, 0x3C);
             break;
         case 2:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 2, 112, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 2, 112, 0x80, 0, -1);
             func_80037D4C(D_800FD5F8[D_80077520], -1.0f);
             func_80037DF4(D_800FD5F8[D_80077520], 0x70);
             break;
         case 3:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 2, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 2, 160, 0x80, 0, -1);
             func_80037AC4(D_800775A8, 80);
             D_800775A8 = func_8003834C(D_800B4188, D_800B41A4, 15, 0x80, 0x80, 0, -1);
             break;
         case 4:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
         default:
             return 0;
     }
@@ -854,7 +807,6 @@ void Audio_PlayMoveSoundKind1(s32 move, s32 kind) {
 extern u8 D_80077062[];
 extern u8 D_8007755C;
 extern u8 D_8007757C;
-extern s32 D_800B4194;
 extern u8 D_800FD604;
 extern s32 D_800FD648;
 extern s32 D_800FD64C;
@@ -1129,14 +1081,12 @@ skip:
         size = D_800B4160->files[4] - D_800B4178->files[move_id];
     }
 
-    func_8004609C(D_800B4178->files[move_id], D_800B41F0, size);
-    func_80047FB0(D_800B41F0, (uintptr_t)D_800B41C0[D_800FD604], 800);
-    Block_RelocateSelf(D_800B41C0[D_800FD604]);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41C0[D_800FD604], 800);
 
     if (sound_kind == 255) {
-        ret = func_8003834C(D_800B4194, (uintptr_t)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
+        ret = func_8003834C(D_800B4194, D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
     } else {
-        D_800FD64C = func_8003834C(D_800B4194, (uintptr_t)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
+        D_800FD64C = func_8003834C(D_800B4194, D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
         ret = D_800FD64C;
     }
 
@@ -1147,7 +1097,6 @@ skip:
     if ((sound_kind == 0) || (sound_kind == 2)) {
         switch (move_id + 1) {
             case AMNESIA:
-                func_8003834C(D_800B4188, D_800B41A4, 14, 0x80, 0x80, 0, -1);
                 break;
 
             case REST:

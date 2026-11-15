@@ -5,6 +5,6 @@
 #include "global.h"
 
 // audio_cache.c
-void Audio_CopyDataWithCacheSync(s32, void*, s32);
+void Audio_CopyDataWithCacheSync(void*, void*, s32); // PORT: the source was s32
 
 #endif // AUDIO_CACHE_H

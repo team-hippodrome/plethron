@@ -96,7 +96,7 @@ void Audio_UpdateBattleAudioFrame(void);
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 GbMusic_CountActiveHighChannels(void);
 
-s32 __amDMA(s32 addr, s32 len, void* state);
+intptr_t __amDMA(intptr_t addr, s32 len, void* state); // PORT: returns a host pointer (was s32)
 ALDMAproc __amDmaNew(AMDMAState** state);
 void __clearAudioDMA(void);
 void Cry_SetEnabled(s32 arg0);
@@ -245,11 +245,11 @@ Acmd* n_alEnvmixerPull(N_PVoice* filter, s32 sample_offset, Acmd* p) {
                 break;
             case (AL_FILTER_SET_WAVETABLE):
                 ptr = _pullSubFrame(e, &inp, &loutp, samples, ptr);
-                n_alLoadParam(e, AL_FILTER_SET_WAVETABLE, (void*)e->em_ctrlList->data.i);
+                n_alLoadParam(e, AL_FILTER_SET_WAVETABLE, e->em_ctrlList->data.p); // PORT: was (void*)data.i
                 break;
             default:
                 ptr = _pullSubFrame(e, &inp, &loutp, samples, ptr);
-                n_alEnvmixerParam(e, e->em_ctrlList->type, (void*)e->em_ctrlList->data.i);
+                n_alEnvmixerParam(e, e->em_ctrlList->type, (void*)(intptr_t)e->em_ctrlList->data.i); // PORT: int param
                 break;
         }
         loutp += (samples << 1);
@@ -470,7 +470,7 @@ void amCreateAudioMgr(ALSynConfig* c, amConfig* amc, u32 num_dma_buffers, s32 ar
  * Audio DMA callback: returns a buffer holding the requested audio data,
  * starting a DMA if needed.
  */
-s32 __amDMA(s32 addr, s32 len, void* state) {
+intptr_t __amDMA(intptr_t addr, s32 len, void* state) { // PORT: returns a host pointer (was s32)
     void* found_buffer;
     s32 delta;
     AMDMABuffer* sp34;
@@ -481,7 +481,13 @@ s32 __amDMA(s32 addr, s32 len, void* state) {
     s32 buff_end;
 
     if (D_80075C30 & 0x80000000) {
-        return osVirtualToPhysical(addr);
+        // PORT: wave data in RAM. A voice still playing a ROM wave passes a ROM offset, which the N64 read as
+        // (unmapped) RDRAM; read silence instead.
+        static u8 sPortSilence[0x1000] __attribute__((aligned(16)));
+        if ((uintptr_t)addr < 0x100000000ull) {
+            return osVirtualToPhysical(sPortSilence);
+        }
+        return osVirtualToPhysical((void*)addr);
     }
 
     sp2C = D_800B3FC0[0];
@@ -500,7 +506,7 @@ s32 __amDMA(s32 addr, s32 len, void* state) {
         }
 
         last_dma_ptr = dma_ptr;
-        dma_ptr = dma_ptr->node.next;
+        dma_ptr = (AMDMABuffer*)dma_ptr->node.next; // PORT: node is the first member
     }
 
     dma_ptr = dmaState.firstFree;
@@ -508,7 +514,7 @@ s32 __amDMA(s32 addr, s32 len, void* state) {
         return osVirtualToPhysical(dmaState.firstUsed);
     }
 
-    dmaState.firstFree = dma_ptr->node.next;
+    dmaState.firstFree = (AMDMABuffer*)dma_ptr->node.next; // PORT: node is the first member
     alUnlink(&dma_ptr->node);
 
     if (last_dma_ptr != NULL) {
@@ -517,7 +523,7 @@ s32 __amDMA(s32 addr, s32 len, void* state) {
         last_dma_ptr = dmaState.firstUsed;
 
         dmaState.firstUsed = dma_ptr;
-        dma_ptr->node.next = last_dma_ptr;
+        dma_ptr->node.next = &last_dma_ptr->node; // PORT: was last_dma_ptr
         dma_ptr->node.prev = NULL;
 
         last_dma_ptr->node.prev = &dma_ptr->node;
@@ -530,13 +536,13 @@ s32 __amDMA(s32 addr, s32 len, void* state) {
     found_buffer = dma_ptr->ptr;
     delta = addr & 1;
     addr -= delta;
-    dma_ptr->startAddr = addr;
+    dma_ptr->startAddr = (u32)addr; // PORT: ROM offset
     dma_ptr->lastFrame = audFrameCt;
 
     io_mesg = audDMAIOMesgBuf + nextDMA++;
     io_mesg->hdr.pri = OS_MESG_PRI_HIGH;
     io_mesg->hdr.retQueue = &audDMAMessageQ;
-    io_mesg->devAddr = addr;
+    io_mesg->devAddr = (u32)addr; // PORT: ROM offset
     io_mesg->dramAddr = found_buffer;
     io_mesg->size = dmaBufferLen;
 
@@ -566,7 +572,7 @@ OSTask* __amHandleFrame(OSTask* arg0) {
     AudioInfo* info;
 
     info = __am.audioInfo[audFrameCt % 3];
-    audio_ptr = osVirtualToPhysical(info->data);
+    audio_ptr = (s16*)osVirtualToPhysical(info->data); // PORT: cast
     samples_left = HW_REG(AI_LEN_REG, u32) >> 2;
 
     if ((D_80075E0C == 0) && (lastInfo != NULL)) {
@@ -588,15 +594,15 @@ OSTask* __amHandleFrame(OSTask* arg0) {
     }
 
     cmdp = alAudioFrame(__am.ACMDList[curAcmdList], &cmd_len, audio_ptr, info->frameSamples);
-    sp38.t.data_ptr = __am.ACMDList[curAcmdList];
-    sp38.t.data_size = (cmdp - __am.ACMDList[curAcmdList]) * sizeof(Acmd);
+    sp38.t.data_ptr = (u64*)__am.ACMDList[curAcmdList]; // PORT: cast
+    sp38.t.data_size = (u32)((cmdp - __am.ACMDList[curAcmdList]) * sizeof(Acmd)); // PORT: cast
 
     sp38.t.type = M_AUDTASK;
-    sp38.t.ucode_boot = &rspbootTextStart;
-    sp38.t.ucode_boot_size = (uintptr_t)_binary_assets_us_F3DEX2_bin_start - (uintptr_t)rspbootTextStart;
+    sp38.t.ucode_boot = (u64*)rspbootTextStart; // PORT: was &rspbootTextStart (an array)
+    sp38.t.ucode_boot_size = (u32)((uintptr_t)_binary_assets_us_F3DEX2_bin_start - (uintptr_t)rspbootTextStart); // PORT: cast
     sp38.t.flags = 0;
-    sp38.t.ucode = D_8005E120;
-    sp38.t.ucode_data = D_8007FCF0;
+    sp38.t.ucode = (u64*)D_8005E120; // PORT: cast
+    sp38.t.ucode_data = (u64*)D_8007FCF0; // PORT: cast
     sp38.t.ucode_data_size = SP_UCODE_DATA_SIZE;
     sp38.t.dram_stack = NULL;
     sp38.t.dram_stack_size = 0;
@@ -666,13 +672,13 @@ void __clearAudioDMA(void) {
 
         if ((var_s0_2->lastFrame + FRAME_LAG) < audFrameCt) {
             if (var_s0_2 == dmaState.firstUsed) {
-                dmaState.firstUsed = var_s0_2->node.next;
+                dmaState.firstUsed = (AMDMABuffer*)var_s0_2->node.next; // PORT: node is the first member
             }
 
-            alUnlink(var_s0_2);
+            alUnlink(&var_s0_2->node); // PORT: was var_s0_2
 
             if (dmaState.firstFree != NULL) {
-                alLink(var_s0_2, dmaState.firstFree);
+                alLink(&var_s0_2->node, &dmaState.firstFree->node); // PORT: were the buffers
             } else {
                 dmaState.firstFree = var_s0_2;
                 var_s0_2->node.next = NULL;
@@ -680,7 +686,7 @@ void __clearAudioDMA(void) {
             }
         }
 
-        var_s0_2 = node;
+        var_s0_2 = (AMDMABuffer*)node; // PORT: node is the first member
     }
 
     nextDMA = 0;

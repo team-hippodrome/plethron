@@ -20,95 +20,81 @@
  * of these records is not established here; the field offsets are taken from the retail code.)
  */
 
-#include "m2c_macros.h"
-M2C_UNK func_8003AE2C(void *, M2C_UNK, void *);
-s32 _allocatePVoice(void **, s16);
-void *func_800448F8();
-extern void *D_80075E44;
+// PORT: typed with the n_audio structs (was M2C_FIELD offsets into void*), so the fields land at their host offsets.
+// N64 offsets: voice priority 0x16, fxBus 0x18, unityPitch 0x1A, state 0x14, table 0xC, pvoice 0x8; pvoice offset 0x88;
+// synth paramSamples 0x1C. The update types are AL_FILTER_SET_VOLUME (0xB) and AL_FILTER_STOP_VOICE (0xF), posted
+// with AL_FILTER_ADD_UPDATE (3).
+#include "n_synthInternals.h"
 
-s32 n_alSynAllocVoice(void *arg0, void *arg1) {
-    void *obj;
+s32 _allocatePVoice(N_PVoice** pvoice, s16 priority);
+
+s32 n_alSynAllocVoice(N_ALVoice* arg0, ALVoiceConfig* arg1) {
+    N_PVoice* obj;
     s32 found;
-    void *msg_a;
-    void *msg_b;
+    ALParam* msg_a;
+    ALParam* msg_b;
 
     obj = NULL;
-    M2C_FIELD(arg0, s16 *, 0x16) = (s16) M2C_FIELD(arg1, s16 *, 0);
-    M2C_FIELD(arg0, s16 *, 0x1A) = (s16) M2C_FIELD(arg1, u8 *, 4);
-    M2C_FIELD(arg0, s32 *, 0xC) = 0;
-    M2C_FIELD(arg0, s16 *, 0x18) = (s16) M2C_FIELD(arg1, s16 *, 2);
-    M2C_FIELD(arg0, s16 *, 0x14) = 0;
-    M2C_FIELD(arg0, void **, 8) = NULL;
-    found = _allocatePVoice(&obj, M2C_FIELD(arg1, s16 *, 0));
+    arg0->priority = (s16)arg1->priority;
+    arg0->unityPitch = (s16)arg1->unityPitch;
+    arg0->table = NULL;
+    arg0->fxBus = (s16)arg1->fxBus;
+    arg0->state = 0;
+    arg0->pvoice = NULL;
+    found = _allocatePVoice(&obj, arg1->priority);
     if (obj) {
         if (found != 0) {
-            M2C_FIELD(obj, s32 *, 0x88) = 0x200;
-            M2C_FIELD(M2C_FIELD(obj, void **, 8), s32 *, 8) = 0;
-            M2C_FIELD(obj, void **, 8) = arg0;
-            M2C_FIELD(arg0, void **, 8) = obj;
-            msg_a = func_800448F8();
-            M2C_FIELD(msg_a, s32 *, 4) = (s32) M2C_FIELD(D_80075E44, s32 *, 0x1C);
-            M2C_FIELD(msg_a, s16 *, 8) = 0xB;
-            M2C_FIELD(msg_a, s32 *, 0xC) = 0;
-            M2C_FIELD(msg_a, s32 *, 0x10) = (s32) (M2C_FIELD(obj, s32 *, 0x88) - 0x40);
-            func_8003AE2C(M2C_FIELD(arg0, void **, 8), 3, msg_a);
-            msg_b = func_800448F8();
+            obj->offset = 0x200;
+            obj->vvoice->pvoice = NULL;
+            obj->vvoice = arg0;
+            arg0->pvoice = obj;
+            msg_a = __n_allocParam();
+            msg_a->delta = n_syn->paramSamples;
+            msg_a->type = AL_FILTER_SET_VOLUME;
+            msg_a->data.i = 0;
+            msg_a->moredata.i = obj->offset - 0x40;
+            n_alEnvmixerParam(arg0->pvoice, AL_FILTER_ADD_UPDATE, msg_a);
+            msg_b = __n_allocParam();
             if (msg_b != NULL) {
-                M2C_FIELD(msg_b, s32 *, 4) = (s32) (M2C_FIELD(obj, s32 *, 0x88) + M2C_FIELD(D_80075E44, s32 *, 0x1C));
-                M2C_FIELD(msg_b, s16 *, 8) = 0xF;
-                M2C_FIELD(msg_b, s32 *, 0) = 0;
-                func_8003AE2C(M2C_FIELD(arg0, void **, 8), 3, msg_b);
+                msg_b->delta = obj->offset + n_syn->paramSamples;
+                msg_b->type = AL_FILTER_STOP_VOICE;
+                msg_b->next = NULL;
+                n_alEnvmixerParam(arg0->pvoice, AL_FILTER_ADD_UPDATE, msg_b);
             }
         } else {
-            M2C_FIELD(obj, s32 *, 0x88) = 0;
-            M2C_FIELD(obj, void **, 8) = arg0;
-            M2C_FIELD(arg0, void **, 8) = obj;
+            obj->offset = 0;
+            obj->vvoice = arg0;
+            arg0->pvoice = obj;
         }
     }
     return obj != NULL;
 }
 
-typedef struct ALLink800443C4 {
-    struct ALLink800443C4* next;
-    struct ALLink800443C4* prev;
-} ALLink800443C4;
-typedef struct PVoice800443C4 {
-    /* 0x00 */ ALLink800443C4 node;
-    /* 0x08 */ s8* vvoice;
-    /* 0x0C */ char unk0C[0x7C];
-    /* 0x88 */ s32 offset;
-} PVoice800443C4;
-typedef struct Synth800443C4 {
-    /* 0x00 */ char unk00[4];
-    /* 0x04 */ ALLink800443C4 pFreeList;
-    /* 0x0C */ ALLink800443C4 pAllocList;
-    /* 0x14 */ ALLink800443C4 pLameList;
-} Synth800443C4;
 /**
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the main menu, the Pokédex,
  * the party screen, the Lab list, Lab sort, registration, the Lab PC, Free Battle setup, the battle
  * opening, a switch in battle, running from battle and a Pound turn.
  * @unverified Name from Stadium 1, matched by code similarity.
  */
-s32 _allocatePVoice(void** pvoice, s16 priority) {
-    ALLink800443C4* dl;
-    PVoice800443C4* pv;
+s32 _allocatePVoice(N_PVoice** pvoice, s16 priority) {
+    ALLink* dl;
+    N_PVoice* pv;
     s32 stolen = 0;
 
-    if ((dl = ((Synth800443C4*)D_80075E44)->pLameList.next) != NULL) {
-        *pvoice = dl;
+    if ((dl = n_syn->pLameList.next) != NULL) {
+        *pvoice = (N_PVoice*)dl;
         alUnlink(dl);
-        alLink(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
-    } else if ((dl = ((Synth800443C4*)D_80075E44)->pFreeList.next) != NULL) {
-        *pvoice = dl;
+        alLink(dl, &n_syn->pAllocList);
+    } else if ((dl = n_syn->pFreeList.next) != NULL) {
+        *pvoice = (N_PVoice*)dl;
         alUnlink(dl);
-        alLink(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
+        alLink(dl, &n_syn->pAllocList);
     } else {
-        for (dl = ((Synth800443C4*)D_80075E44)->pAllocList.next; dl != NULL; dl = dl->next) {
-            pv = (PVoice800443C4*)dl;
-            if (M2C_FIELD(pv->vvoice, s16*, 0x16) <= priority && pv->offset == 0) {
+        for (dl = n_syn->pAllocList.next; dl != NULL; dl = dl->next) {
+            pv = (N_PVoice*)dl;
+            if (pv->vvoice->priority <= priority && pv->offset == 0) {
                 *pvoice = pv;
-                priority = M2C_FIELD(pv->vvoice, s16*, 0x16);
+                priority = pv->vvoice->priority;
                 stolen = 1;
             }
         }

@@ -29,14 +29,8 @@ extern s32 D_800FD608;
 extern u8 D_8007752C;
 s32 func_80037AC4(s32, s32);
 void Announcer_SetActive(s32);
-s32 func_800376E8(s32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 extern u8 D_80077524;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 extern u8* D_800FD690;
-void func_80037C04(s32, u32);
-extern s32 D_800B41A0;
 extern s32 D_800FD610[];
 extern u8 D_800FD620;
 extern s32 D_800FD628[];
@@ -44,17 +38,10 @@ extern u8 D_800FD68C;
 extern u8 D_80077528;
 extern u8 D_80077520;
 extern s32 D_800FD5F8[];
-extern u8* D_800B41B0[];
-extern u8* D_800B41F0;
 extern File1Header* D_800B4160;
-extern s32 D_800B4190;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 extern s32 D_800775A8;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
-void Block_RelocateSelf(u8*);
 void func_80037D4C(s32, f32);
 void func_80037E84(s32, s32);
 void func_80037DF4(s32, s32);
@@ -69,9 +56,6 @@ extern s32 D_800FD66C;
 extern s32 D_800FD658[];
 extern s32 D_800FD738;
 extern s32 D_800FD680;
-M2C_UNK func_8003834C(s32, s32, s32, M2C_UNK, s32, s32, s32); /* extern */
-extern s32 D_800B418C;
-extern s32 D_800B41A8;
 extern s32 D_800FD698[];
 extern s32 D_800FD6A8[];
 extern u8 D_800FD6B4[2];
@@ -252,7 +236,6 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             } else {
                 Announcer_QueueLine(29, 0.0f, 0x80);
             }
-            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             break;
         case 5:
             if (D_8007756C != 0) {
@@ -264,7 +247,6 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             break;
         case 6:
             Announcer_QueueLine(38, 0.0f, 0x80);
-            func_8003834C(D_800B4188, D_800B41A4, 26, 112, 0x80, 0, -1);
             break;
         case 7:
             if (D_8007756C != 0) {
@@ -316,7 +298,6 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             break;
         case 30:
             Announcer_QueueLine(26, 0.0f, 0x80);
-            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             D_8007755C = 1;
             break;
         case 31:
@@ -344,7 +325,6 @@ void Announcer_CommentOnSideMessage(s32 kind) {
         case 41:
             Announcer_QueueLine(27, 0.0f, 0x80);
             if (D_800FD6B8 == 0) {
-                func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
             }
             D_8007755C = 1;
             break;
@@ -353,7 +333,6 @@ void Announcer_CommentOnSideMessage(s32 kind) {
                 Announcer_QueueLine(28, 0.0f, 0x80);
                 func_80037AC4(D_800FD6BC, 60);
                 D_800FD6BC = 0;
-                func_8003834C(D_800B4188, D_800B41A4, 28, 0x80, 0x80, 0, -1);
                 D_8007755C = 1;
                 D_80077564 = 1;
             }
@@ -394,7 +373,6 @@ void Announcer_CommentOnMessage(s32 kind) {
             Announcer_QueueLine(47, 0.0f, 0x80);
             D_80077568 = 1;
         }
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 3:
         Announcer_QueueLine(60, 0.0f, 0x80);
@@ -414,7 +392,6 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 9:
         Announcer_QueueLine(39, 0.0f, 0x80);
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 10:
         if (D_80077564 == 0) {
@@ -427,7 +404,6 @@ void Announcer_CommentOnMessage(s32 kind) {
             Announcer_QueueLine(47, 0.0f, 0x80);
             D_80077568 = 1;
         }
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 12:
         if (D_80077564 == 0) {
@@ -584,18 +560,15 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 74:
         Announcer_QueueLine(43, 0.0f, 0x80);
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 77:
         Announcer_QueueLine(42, 0.0f, 0x80);
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 78:
         Announcer_QueueLine(60, 0.0f, 0x80);
         break;
     case 79:
         Announcer_QueueLine(40, 0.0f, 0x80);
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     case 80:
         Announcer_QueueLine(60, 0.0f, 0x80);
@@ -618,7 +591,6 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 87:
         Announcer_QueueLine(41, 0.0f, 0x80);
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         break;
     }
 }
@@ -626,8 +598,6 @@ void Announcer_CommentOnMessage(s32 kind) {
 
 extern u8 D_80077548;
 void Announcer_QueueLine(s32, f32, s32);
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 extern u8 D_80077554;
 extern u8 D_80077570;
 extern u8 D_8007755C;
@@ -656,7 +626,6 @@ void Announcer_CommentOnHpChange(u32 side) {
                 if (lost > 0) {
                     if ((hp < 10) && (hp != 0)) {
                         Announcer_QueueLine(34, 0.0f, 0x80);
-                        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
                         return;
                     }
                     if (D_8007755C == 0) {
@@ -685,8 +654,6 @@ void Announcer_CommentOnHpChange(u32 side) {
 void Announcer_QueueLine(s32, f32, s32);
 extern s8 D_80077530;
 extern u8 D_80077540;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
 
 /**
  * Queues the closing line when a side wins (turn_actions sets the winner right before). In mode 8, if
@@ -703,12 +670,10 @@ void Announcer_CommentOnBattleEnd(void) {
         }
         Announcer_QueueLine(30, 0.0f, 0x80);
         D_80077530 = 0;
-        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
         return;
     }
     Announcer_QueueLine(30, 0.0f, 0x80);
     D_80077530 = 0;
-    func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1);
 }
 
 extern s32 D_80077590;
@@ -833,7 +798,6 @@ extern u8 D_8007759C;
 extern s32 D_800775A0;
 extern u8 D_800B3CC8;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
-s32 func_800383DC(s32, s32, s32, s32, s32, s32, s32);
 
 /**
  * Runs once per audio frame (from __amHandleFrame): when the previous announcer clip has ended, plays the
@@ -896,10 +860,6 @@ void Audio_UpdateBattleAudioFrame(void) {
 
 extern u8* D_800FD690;
 extern File1Header* D_800B4164;
-extern u8* D_800B41F0;
-extern u8* D_800B419C;
-s32 func_80037F68(u8*, u8*);
-void func_80037C04(s32, u32);
 
 /**
  * Loads the second sound bank and its wave table into `arg0` (13000 bytes of bank, then the wave data),
@@ -922,14 +882,13 @@ s32 Audio_LoadWaveTablesAndMusic(u8* arg0) {
     if (1) {}  // karodo
 
     Rom_DmaRead(D_800B4164->offset1, (uintptr_t)D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
-    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800FD690, 12992);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800FD690, 12992);
     Rom_DmaRead(D_800B4164->wave_tables_offset, (uintptr_t)sp1C, D_800B4164->files[0] - D_800B4164->wave_tables_offset);
-    Audio_RelocateSoundBankWrapper((uintptr_t)D_800FD690, (uintptr_t)sp1C);
+    Audio_RelocateSoundBankWrapper((SoundBank*)D_800FD690, (uintptr_t)sp1C);
     D_80075C30 |= 0x80000000;
     Rom_DmaRead(D_800B4164->files[0], (uintptr_t)D_800B41F0, D_800B4164->files[1] - D_800B4164->files[0]);
-    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800B419C, 36000);
-    D_800FD608 = func_80037F68(D_800FD690, D_800B419C);
-    func_80037C04(D_800FD608, 112);
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B419C, 36000);
+    D_800FD608 = func_80037F68((SoundBank*)D_800FD690, D_800B419C);
 
     return D_800FD608;
 }
