@@ -2696,7 +2696,7 @@ const ZLiftType gZLiftTypes[] = {
     { 76, 128, 110, 13 }, // r:struct StorageQueues@rsp.h:33
     { 2744, 2976, 123, 63 }, // r:struct DisplayWorker@dp_intro.h:23
     { 44, 80, 186, 6 }, // r:struct SchedClient@scheduler.h:18
-    { 8, 16, 192, 2 }, // r:struct MemoryMap@memmap.c:6
+    { 8, 16, 192, 2 }, // r:struct MemoryMap@memmap.c:7
     { 52, 96, 194, 11 }, // r:struct MainPool@memory.h:28
     { 16, 32, 205, 4 }, // r:struct MainPoolBlock@memory.h:13
     { 16, 32, 209, 4 }, // r:struct MainPoolState@memory.h:21
