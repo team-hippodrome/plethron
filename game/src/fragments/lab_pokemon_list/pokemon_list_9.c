@@ -403,5 +403,5 @@ s32 LabPCList_FilterByExactTypePair(LabMonEntry* entry, unk_func_8830867C_02C_C5
  * the 0x1C stride by 4 and read a word.
  */
 s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused) {
-    return (D_80064C5C[M2C_FIELD(entry, u8 *, 8) - 1].cupEligibilityFlags & 1) != 0; // PORT: was D_80064C4C + species * 0x1C
+    return (D_80064C5C[((LabPCEntry*)entry)->mon.species.id - 1].cupEligibilityFlags & 1) != 0; // PORT: was D_80064C4C + species * 0x1C, and the species at N64 offset 8
 }

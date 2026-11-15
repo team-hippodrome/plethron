@@ -24,21 +24,19 @@ extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 extern s32 D_8910A7F8[3];
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
-void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
 extern u8 D_8910A848[];
-extern u8 D_8910A804[];
-extern u8 D_8910A84C[];
+extern s32 D_8910A804[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
+extern s32 D_8910A84C[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 s32 LabPCList_GetColumnCursorX(LabPCListScreen* screen); // PORT: matches the definition
 extern Entry80066AD8 D_80066AD8[];
 s32 Pokemon_GetTypeIndex(u8*, s32);
@@ -65,7 +63,7 @@ extern u8 D_8910C978[];
 extern char D_8910DBF0[];
 extern char D_8910DC04[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 void ScrollList_SetItems(s32*, void*, void*);
 void func_80027D94(LabMonEntryList* arg0, LabMonEntryList* arg1, s32 (*arg2)(LabMonEntry*, s32*), s32* arg3); // PORT: matches PointerList_Filter
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
@@ -76,11 +74,10 @@ s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
 s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused); // PORT: matches the definition
 char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
-void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message); // PORT: matches the definition
 void LabPCList_PlacePopup(LabPopupMenu*);
-void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
 extern s8* D_8910A890[];
-extern u8 D_8910A898[];
+extern char* D_8910A898[]; // PORT: a table of string pointers (was u8)
 extern u8 D_8910DC50[];
 extern s8 D_8910E2D0[];
 extern s8 D_8910E312[];
@@ -89,13 +86,13 @@ s32 ScrollList_UpdateCursor(void*);
 void ScrollList_SetCursor(void*, s32);
 void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
-void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message); // PORT: matches the definition
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 extern Color_RGBA8 D_8910A7F4;
 extern s8 *D_8910A8A8[];
 extern s8 D_8910A8B0[];
-extern u8 D_8910A8C8[];
+extern char* D_8910A8C8[]; // PORT: a table of string pointers (was u8)
 extern s8 D_8910E358[];
 s32 LabPCList_UpdateHeaderCursor(void*);
 M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
@@ -103,8 +100,8 @@ extern s32 D_8910E37C;
 s32 LabPCList_UpdatePopupMenu(LabPopupMenu*);
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
-extern s32 D_8910D9D0;
-extern s32 D_8910D9D4;
+extern s32 (*D_8910D9D0)(s32, s32); // PORT: a sort comparator (was s32)
+extern s32 (*D_8910D9D4)(s32, s32); // PORT: a sort comparator (was s32)
 
 void LabPCList_InitLevelInputWindow(LabLevelInputWindow*, s32, s32, Color_RGBA8, s32, s32, s32);
 s32 LabPCList_HasFilterFlag(LabPCListScreen*, s32);
@@ -160,7 +157,7 @@ s32 LabPCList_UpdateColumnMenu(LabPCListScreen* screen) {
                         screen->sortKey = 12;
                         break;
                 }
-                func_80027D68(M2C_FIELD(screen, s32*, 0xB160), D_8910D990[screen->sortKey]);
+                func_80027D68((LabMonEntryList*)screen->list.items, /* PORT: was a raw read at N64 offset 0xB160 */ D_8910D990[screen->sortKey]);
                 screen->state = 0;
                 break;
             case 1:
@@ -184,7 +181,7 @@ s32 LabPCList_UpdateColumnMenu(LabPCListScreen* screen) {
                         screen->sortKey = 11;
                         break;
                 }
-                func_80027D68(M2C_FIELD(screen, s32*, 0xB160), D_8910D990[screen->sortKey]);
+                func_80027D68((LabMonEntryList*)screen->list.items, /* PORT: was a raw read at N64 offset 0xB160 */ D_8910D990[screen->sortKey]);
                 screen->state = 0;
                 break;
             case 2:
@@ -313,48 +310,24 @@ s32 LabPCList_RunMoveFilter(LabPCListScreen* screen) {
     return 0;
 }
 
-/** One 0x20-byte list item; only the fields tested here are named. */
-typedef struct Item89103144 {
-    /* 0x00 */ char unk00[0x8];
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ char unk0C[0x10];
-    /* 0x1C */ s32 unk_1C;
-} Item89103144; // size = 0x20
-
-/** List owning the items. */
-typedef struct List89103144 {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ Item89103144* items;
-    /* 0x14 */ char unk14[0x4];
-    /* 0x18 */ s32 count;
-    /* 0x1C */ char unk1C[0x4];
-    /* 0x20 */ s32 limit;
-} List89103144;
-
-/** Per-item flag array holder. */
-typedef struct Flags89103144 {
-    /* 0x00 */ char unk00[0x4];
-    /* 0x04 */ u16* flags;
-} Flags89103144;
-
 /**
  * Grays out the boxes of a source that are not listed, full, or the Pokémon's own box.
  * Seen in play (2026-11-14) in いちらん: ran when いどうする > ゲームボーイのボックス / 64カセットのボックス opened the box list.
  */
-void LabPCList_DisableUnavailableBoxes(Flags89103144* menu, Item89103144** entry, List89103144* source) {
+void LabPCList_DisableUnavailableBoxes(Menu* menu, LabPCEntry* entry, Entry89100140* source) { // PORT: typed (were N64 views)
     s32 i;
-    Item89103144* item;
+    LabPCBox* item;
 
-    item = source->items;
+    item = (LabPCBox*)source->boxes.rows;
     i = 0;
-    if (source->count > 0) {
+    if (source->boxes.count > 0) {
         do {
-            if ((item->unk_08 == 0) || (item->unk_1C >= source->limit) || (item == *entry)) {
-                menu->flags[i] |= 1;
+            if ((item->unk_08 == 0) || (item->entries.count >= source->unk_20) || (item == entry->box)) {
+                menu->itemFlags[i] |= 1;
             }
             i++;
             item++;
-        } while (i < source->count);
+        } while (i < source->boxes.count);
     }
 }
 
@@ -362,54 +335,54 @@ void LabPCList_DisableUnavailableBoxes(Flags89103144* menu, Item89103144** entry
  * Grays out each destination source with no box that could take the Pokémon.
  * Seen in play (2026-11-14) in いちらん: ran when いどうする opened 「どこへ？」.
  */
-void LabPCList_DisableUnavailableSources(s8* menu, s8** moving_entry, s8* sources) {
+void LabPCList_DisableUnavailableSources(Menu* menu, LabPCEntry* moving_entry, ByteMatrix* sources) { // PORT: typed (were s8* and N64 offsets)
     s32 i;
     s32 j;
-    s8* box;
-    s8* entry;
+    Entry89100140* box;
+    LabPCBox* entry;
 
-    for (box = M2C_FIELD(sources, s8**, 0), i = 0; i < M2C_FIELD(sources, s32*, 8); i++, box += 0x24) {
-        for (entry = M2C_FIELD(box, s8**, 0x10), j = 0; j < M2C_FIELD(box, s32*, 0x18); j++, entry += 0x20) {
-            if ((M2C_FIELD(entry, s32*, 8) != 0) && (M2C_FIELD(entry, s32*, 0x1C) < M2C_FIELD(box, s32*, 0x20)) &&
-                (entry != *moving_entry)) {
+    for (box = (Entry89100140*)sources->rows, i = 0; i < sources->count; i++, box++) {
+        for (entry = (LabPCBox*)box->boxes.rows, j = 0; j < box->boxes.count; j++, entry++) {
+            if ((entry->unk_08 != 0) && (entry->entries.count < box->unk_20) &&
+                (entry != moving_entry->box)) {
                 break;
             }
         }
-        if (j >= M2C_FIELD(box, s32*, 0x18)) {
-            M2C_FIELD(menu, u16**, 4)[i] |= 1;
+        if (j >= box->boxes.count) {
+            menu->itemFlags[i] |= 1;
         }
     }
 }
 
-extern u8 D_8910A8DC[];
-extern s32 D_8910DD34[];
+extern char* D_8910A8DC[]; // PORT: a table of string pointers (was u8)
+extern char D_8910DD34[]; // PORT: a string (was s32)
 /**
  * Opens the 「どこへ？」 (where to?) menu: てもちのポケモン, ゲームボーイのボックス, 64カセットのボックス.
  * Seen in play (2026-11-14) in いちらん: いどうする on フシギダネ opened it.
  */
-void LabPCList_OpenDestinationMenu(LabPCListScreen* screen, s8** entry) {
-    LabPCList_InitPopupMenu(&screen->subPopup, D_8910A8DC, (s8*)&screen->popupItemFlags[1], 3, (uintptr_t)D_8910DD34);
+void LabPCList_OpenDestinationMenu(LabPCListScreen* screen, LabPCEntry* entry) { // PORT: entry typed (was s8**)
+    LabPCList_InitPopupMenu(&screen->subPopup, D_8910A8DC, (u16*)&screen->popupItemFlags[1], 3, D_8910DD34);
     Window_SetRect((s8*)&screen->subPopup.anchorX, screen->popup.window.frame.x + 14, screen->popup.window.frame.y + 56, 108, 28);
     screen->subPopup.window.frame.style |= 0x1000000;
     screen->subPopup.limitX = screen->listFrame.x + screen->listFrame.width;
     screen->subPopup.limitY = screen->listFrame.y + screen->listFrame.height;
     LabPCList_PlacePopup(&screen->subPopup);
     screen->subPopup.window.frame.color = D_8910A7F4;
-    LabPCList_DisableUnavailableSources((s8*)&screen->subPopup.menu, entry, (s8*)&screen->sourceMatrix);
+    LabPCList_DisableUnavailableSources(&screen->subPopup.menu, entry, &screen->sourceMatrix);
 }
 
 /**
  * Returns whether the Pokémon is the only one left in the party, which cannot be moved.
  * Seen in play (2026-11-14) in いちらん: with the party count poked to 1 at this check, いどうする showed 「さいごのポケモンです」.
  */
-s32 LabPCList_IsLastPartyMon(s8 **entry) {
+s32 LabPCList_IsLastPartyMon(LabPCEntry* entry) { // PORT: typed (was s8** and N64 offsets)
     s32 var_v1;
-    s8 *temp_v0;
+    LabPCBox* temp_v0;
 
-    temp_v0 = *entry;
-    var_v1 = M2C_FIELD(M2C_FIELD(temp_v0, s8 **, 0), s32 *, 4) == 0x20;
+    temp_v0 = entry->box;
+    var_v1 = temp_v0->source->unk_04 == 0x20;
     if (var_v1 != 0) {
-        var_v1 = M2C_FIELD(temp_v0, s32 *, 0x1C) == 1;
+        var_v1 = temp_v0->entries.count == 1;
     }
     return var_v1;
 }
@@ -426,7 +399,7 @@ extern s8 D_8910DD58[];
  */
 s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
     s32 ret = 0;
-    s8* entry;
+    LabPCEntry* entry; // PORT: typed (was s8*)
 
     LabPCList_UpdatePopupMenu(&screen->popup);
     if (((u16*)D_800603C0)[4] & 0x4000) {
@@ -438,7 +411,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
             case 0:
                 Audio_PlaySystemSound(2);
                 if (LabPCList_ToggleFilterFlag(screen, 8) != 0) {
-                    screen->unk_9E58 = M2C_FIELD(entry, u8*, 8);
+                    screen->unk_9E58 = entry->mon.species.id;
                 }
                 LabPCList_ApplyFiltersAndSort(screen);
                 screen->state = 0;
@@ -448,7 +421,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
                 if (LabPCList_ToggleFilterFlag(screen, 0x10) != 0) {
                     s32 id;
 
-                    id = M2C_FIELD(entry, u8*, 8) - 1;
+                    id = entry->mon.species.id - 1;
                     screen->sameTypeFilterCount = 1;
                     screen->sameTypeFilterTypes[0] = D_80065D00[id].unk06;
                     if (D_80065D00[id].unk06 != D_80065D00[id].unk07) {
@@ -460,13 +433,13 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
                 screen->state = 0;
                 break;
             case 2:
-                if (LabPCList_IsLastPartyMon((s8**)entry) != 0) {
+                if (LabPCList_IsLastPartyMon(entry) != 0) {
                     Audio_PlaySystemSound(8);
                     TextBox_Init((s8*)screen->textBox, D_8910DD40, 0, 1, 0);
                     screen->state = 11;
                 } else {
                     Audio_PlaySystemSound(2);
-                    LabPCList_OpenDestinationMenu(screen, (s8**)entry);
+                    LabPCList_OpenDestinationMenu(screen, entry);
                     screen->state = 8;
                 }
                 break;
@@ -491,11 +464,11 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
  * in play (2026-11-12) in いちらん: after フシギダネ left the party, the two remaining entries went from
  * slots 1, 2 to 0, 1.
  */
-void LabPCList_ReindexBoxSlots(u8* box) {
+void LabPCList_ReindexBoxSlots(LabPCBox* box) { // PORT: typed (was u8* and N64 offsets)
     s32 i;
-    s32** ptr = M2C_FIELD(box, s32***, 0x14);
+    LabPCEntry** ptr = (LabPCEntry**)box->entries.items;
 
-    for (i = 0; i < M2C_FIELD(box, s32*, 0x1C); i++) {
-        (*ptr++)[1] = i;
+    for (i = 0; i < box->entries.count; i++) {
+        (*ptr++)->slot = i;
     }
 }

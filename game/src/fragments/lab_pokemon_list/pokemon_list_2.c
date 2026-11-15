@@ -188,12 +188,12 @@ s32 BattleMon_GetMoveIndexChecked(u8* mon, s32 slot); // PORT: matches the defin
  * Draws move slot `slot` of a Pokémon in its type's color, or the empty-slot dash; nothing for a missing slot.
  * Seen in play (2026-11-14) in いちらん: drew the わざ1-4 columns of page 2/3.
  */
-void LabPCList_DrawMoveName(s32 x, s32 y, s32 mon, s32 slot) {
+void LabPCList_DrawMoveName(s32 x, s32 y, u8* mon, s32 slot) { // PORT: mon typed (was s32)
     const char* str;
     Color82000BC4 color;
     s32 idx;
 
-    idx = BattleMon_GetMoveIndexChecked((u8*)(uintptr_t)mon, slot); // PORT: mon becomes a pointer in the いちらん cleanup
+    idx = BattleMon_GetMoveIndexChecked(mon, slot);
     if (idx != -1) {
         if (idx == -2) {
             color = *(Color82000BC4*)&D_800734A8;
@@ -227,12 +227,12 @@ extern M2C_UNK D_8910DBC4;
  * cartridge box number, and so on.
  * Seen in play (2026-11-12): てもち in the ばしょ column for the three party Pokemon.
  */
-void LabPCList_DrawLocation(s32 x, s32 y, s8 ***entry) {
+void LabPCList_DrawLocation(s32 x, s32 y, LabPCEntry* entry) { // PORT: typed (was s8*** and N64 offsets)
     s32 temp_v0;
 
     func_8001AB6C();
     func_8001AA9C(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
-    temp_v0 = M2C_FIELD(**entry, s32 *, 4);
+    temp_v0 = entry->box->source->unk_04;
     switch (temp_v0) {                              /* irregular */
     case 32:
         func_8001A384(4, 0);
@@ -240,13 +240,13 @@ void LabPCList_DrawLocation(s32 x, s32 y, s8 ***entry) {
         break;
     case 33:
         func_8001A384(4, -1);
-        Font_DrawCharAt(x + 34, y, M2C_FIELD(*entry, s32 *, 4) + 0x31);
+        Font_DrawCharAt(x + 34, y, entry->box->index + 0x31);
         func_8001AA9C(0xFFU, 0xC8U, 0xFFU, 0xFFU); // #FFC8FFFF
         Font_Printf(x - 2, y, &D_8910DBBC);
         break;
     case 17:
         func_8001A384(4, -1);
-        Font_DrawCharAt(x + 34, y, M2C_FIELD(*entry, s32 *, 4) + 0x31);
+        Font_DrawCharAt(x + 34, y, entry->box->index + 0x31);
         func_8001AA9C(0x96U, 0xDCU, 0xD2U, 0xFFU); // #96DCD2FF
         Font_Printf(x - 2, y, &D_8910DBC0);
         break;

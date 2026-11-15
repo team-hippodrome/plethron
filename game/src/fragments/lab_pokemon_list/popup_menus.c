@@ -63,7 +63,7 @@ void LabTextMenu_DrawRow();
  * No callers: no jal, j, address word or lui/addiu pair in any built fragment or the resident code reaches it (2026-11-14 scan), so it never runs.
  * @unverified Name guessed from the code.
  */
-void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) {
+void LabTextMenu_Init(MenuWindow* menu, s32 x, s32 y, char** texts, u16* flags, s32 count) { // PORT: typed (was s8* and N64 offsets)
     s32 i;
     s32 w;
     s32 max = 0;
@@ -75,16 +75,16 @@ void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) 
             max = w;
         }
     }
-    func_80027804(menu + 0x50, texts, count, count);
+    func_80027804(&menu->itemList, (void**)texts, count, count);
     h = max * 20 + 0x10;
-    Menu_Init(menu + 0x2C, menu + 0x50, flags, LabTextMenu_DrawRow, h, 28);
-    M2C_FIELD(menu, s32 *, 0x4C) |= 0x10000;
-    Window_SetRect(menu, x, y, h + 12, 132);
-    M2C_FIELD(menu, s32 *, 0x24) = 0;
-    M2C_FIELD(menu, s32 *, 0x20) = 0;
-    M2C_FIELD(menu, s32 *, 0x28) = 0;
-    M2C_FIELD(menu, s32 *, 0x14) = 0;
-    M2C_FIELD(menu, Str89104D14 *, 0x18) = D_8910A914;
+    Menu_Init(&menu->menu, (ByteMatrix*)&menu->itemList, flags, LabTextMenu_DrawRow, h, 28);
+    menu->menu.options |= 0x10000;
+    Window_SetRect(&menu->window, x, y, h + 12, 132);
+    menu->window.animTimer = 0;
+    menu->window.title = 0;
+    menu->window.state = 0;
+    menu->window.frame.style = 0;
+    *(Str89104D14*)&menu->window.frame.color = D_8910A914;
 }
 
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
@@ -292,22 +292,22 @@ s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
  * Moves the cursor of the move list.
  * Seen in play (2026-11-14) in いちらん: ran while picking the move for ポイントアップ.
  */
-s32 LabMoveSelect_Update(s32 window) {
-    return Menu_UpdateCursor(window + 0x2C);
+s32 LabMoveSelect_Update(LabMoveSelectWindow* window) { // PORT: typed (was s32 and offset 0x2C)
+    return Menu_UpdateCursor(&window->menu);
 }
 
 /**
  * Returns a box row's menu flags: 8 when it is checked, 0x100 (disabled) when it holds no Pokémon.
  * Seen in play (2026-11-14) in いちらん: ボックス1 and 2 (with Pokémon) were selectable and ボックス3-8 were drawn green (empty).
  */
-s32 LabBoxList_GetBoxFlags(s8 *box) {
+s32 LabBoxList_GetBoxFlags(LabPCBox* box) { // PORT: typed (was s8* and N64 offsets)
     s32 var_v1;
 
     var_v1 = 0x100;
-    if (M2C_FIELD(box, s32 *, 0xC) != 0) {
+    if (box->checked != 0) {
         var_v1 = 0x108;
     }
-    if (M2C_FIELD(box, s32 *, 0x1C) > 0) {
+    if (box->entries.count > 0) {
         var_v1 &= ~0x100;
     }
     return var_v1;
@@ -325,9 +325,9 @@ void LabPCList_UnusedStub1(void) {
 void LabBoxList_UpdateItemFlags(LabBoxListWindow* box_list) {
     s32 i;
     ByteMatrix** sub = &box_list->menu.items;
-    s8* var_s2 = (*sub)->rows;
+    LabPCBox* var_s2 = (LabPCBox*)(*sub)->rows; // PORT: typed (was s8* with stride 0x20)
 
-    for (i = 0; i < (*sub)->count; i++, var_s2 += 0x20) {
+    for (i = 0; i < (*sub)->count; i++, var_s2++) {
         box_list->menu.itemFlags[i] = 0;
         box_list->menu.itemFlags[i] |= LabBoxList_GetBoxFlags(var_s2);
     }
@@ -337,25 +337,17 @@ void LabBoxList_UpdateItemFlags(LabBoxListWindow* box_list) {
  * Checks or unchecks every box of a box list.
  * Seen in play (2026-11-14) in いちらん: A on ゲームボーイのボックス turned all eight box balls red or gray at once.
  */
-void LabBoxList_SetAllChecked(u8* widget, s32 enabled) {
+void LabBoxList_SetAllChecked(LabBoxListWindow* widget, s32 enabled) { // PORT: typed (was u8* and N64 offsets)
     s32 value = enabled ? 8 : 0;
-    s32 offset;
     s32 index;
-    s32* list;
-    u16* flags;
 
-    list = *(s32**)(widget + 0x20);
     index = 0;
-    if (list[2] > 0) {
-        offset = 0;
+    if (widget->menu.items->count > 0) {
         do {
+            widget->menu.itemFlags[index] &= ~8;
+            widget->menu.itemFlags[index] |= value;
             index++;
-            flags = (u16*)(*(u8**)(widget + 0x24) + offset);
-            *flags &= ~8;
-            flags = (u16*)(*(u8**)(widget + 0x24) + offset);
-            *flags |= value;
-            offset += 2;
-        } while (index < *(s32*)(*(u8**)(widget + 0x20) + 8));
+        } while (index < widget->menu.items->count);
     }
 }
 
@@ -425,7 +417,7 @@ void LabBoxList_DrawBoxName();
  * Sets up a box list window (156 wide, 28 per row) beside the source window.
  * Seen in play (2026-11-14) in いちらん: set up ボックス1-8 and ボックス1-4.
  */
-void LabBoxList_Init(LabBoxListWindow* box_list, s32 x, s32 y, ByteMatrix* boxes, s32 item_flags, Color_RGBA8 color) {
+void LabBoxList_Init(LabBoxListWindow* box_list, s32 x, s32 y, ByteMatrix* boxes, u16* item_flags, Color_RGBA8 color) { // PORT: item_flags typed (was s32)
     Window_SetRect(&box_list->frame, x, y, 156, boxes->count * 28 + 8);
     box_list->frame.style = 0;
     box_list->frame.color = color;
@@ -479,21 +471,19 @@ s32 LabBoxList_Update(LabBoxListWindow* box_list) {
     return ret;
 }
 
-typedef struct Entry89105924 { char unk00[0xC]; s32 unk0C; char unk10[0xC]; s32 unk1C; } Entry89105924;
-typedef struct List89105924 { char unk00[0x10]; Entry89105924* entries; char unk14[4]; s32 count; } List89105924;
 /**
  * Returns a source row's menu flags: 8 when any box is checked, 0x100 when no box holds a Pokémon.
  * Seen in play (2026-11-14) in いちらん: 64カセットのボックス (all four boxes empty) was drawn green.
  */
-s32 LabSourceSelect_GetSourceFlags(List89105924* source) {
-    Entry89105924* entries = source->entries;
+s32 LabSourceSelect_GetSourceFlags(Entry89100140* source) { // PORT: typed (was an N64 view)
+    LabPCBox* entries = (LabPCBox*)source->boxes.rows;
     s32 flags = 0x100;
     s32 i;
-    for (i = 0; i < source->count; i++) {
-        if (entries[i].unk0C != 0) {
+    for (i = 0; i < source->boxes.count; i++) {
+        if (entries[i].checked != 0) {
             flags |= 8;
         }
-        if (entries[i].unk1C > 0) {
+        if (entries[i].entries.count > 0) {
             flags &= ~0x100;
         }
     }
@@ -527,37 +517,31 @@ void LabSourceSelect_SyncSourceCheck(LabSourceSelectWindow* window, LabBoxListWi
 }
 
 /* Rebuild entry flags from the current laboratory records. */
-void LabSourceSelect_UpdateItemFlags(u8* widget) {
-    s32 offset;
-    s32 entry = (*(s32**)(widget + 0x70))[0];
+void LabSourceSelect_UpdateItemFlags(LabSourceSelectWindow* widget) { // PORT: typed (was u8*, N64 offsets and an s32 pointer)
+    Entry89100140* entry = (Entry89100140*)widget->menu.items->rows;
     s32 index;
-    s32* list;
     s32 flags;
-    u16* destination;
 
-    list = *(s32**)(widget + 0x70);
-    offset = 0;
     index = 0;
 
-    if (list[2] > 0) {
+    if (widget->menu.items->count > 0) {
         do {
-            *(u16*)(*(u8**)(widget + 0x74) + offset) = 0;
-            flags = LabSourceSelect_GetSourceFlags((List89105924*)entry);
+            widget->menu.itemFlags[index] = 0;
+            flags = LabSourceSelect_GetSourceFlags(entry);
+            entry++;
+            widget->menu.itemFlags[index] |= flags;
             index++;
-            entry += 0x24;
-            destination = (u16*)(*(u8**)(widget + 0x74) + offset);
-            *destination |= flags;
-            offset += 2;
-        } while (index < *(s32*)(*(u8**)(widget + 0x70) + 8));
+        } while (index < widget->menu.items->count);
     }
 }
 
 /** Applies the selection state to an info widget entry. */
 void LabSourceSelect_ApplyCheck(LabSourceSelectWindow* window, s32 row) {
-    s8* ptr = (s8*)window->menu.items->rows + row * 0x24;
-    s8* ptr2 = M2C_FIELD(ptr, s8**, 0x10);
+    // PORT: typed (was row * 0x24 and N64 offsets); sets the first box of the source
+    Entry89100140* ptr = &((Entry89100140*)window->menu.items->rows)[row];
+    LabPCBox* ptr2 = (LabPCBox*)ptr->boxes.rows;
 
-    M2C_FIELD(ptr2, s32*, 0xC) = (window->menu.itemFlags[row] & 8) != 0;
+    ptr2->checked = (window->menu.itemFlags[row] & 8) != 0;
 }
 
 void Ui_DrawImageInStrips(void*, s32, s32);
@@ -599,7 +583,7 @@ void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags) {
 
 void Window_InitLabeled(s8* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags);
-void LabSourceSelect_UpdateItemFlags(u8* widget);
+void LabSourceSelect_UpdateItemFlags(LabSourceSelectWindow* widget);
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_8910A93C;
@@ -609,9 +593,9 @@ extern char D_8910E024[];
  * Sets up the 308x206 「どこのポケモンを いちらん するか えらんでください。」 window, its box lists and the ＯＫ button.
  * Seen in play (2026-11-14) in いちらん: opened on entry with the cursor on ＯＫ.
  */
-void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, s8* sources, Color_RGBA8 color) {
+void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, ByteMatrix* sources, Color_RGBA8 color) { // PORT: sources typed (was s8*)
     s32 pad[5]; // FAKE: stack padding
-    s32 list;
+    Entry89100140* list;
 
     Window_SetRect(&window->window, x, y, 308, 206);
     window->window.animTimer = 0;
@@ -629,11 +613,11 @@ void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, s8* sourc
     Window_InitLabeled(&window->okButton, window->listFrame.x + 112, window->listFrame.y + 92, 72, color, D_8910E024);
     window->okButton.labelX = 10;
     window->okButton.unk_34 = 0xC;
-    list = *(s32*)sources;
-    LabBoxList_Init(&window->gbBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 28, (ByteMatrix*)(list + 0x34), (uintptr_t)(&window->gbBoxFlags), color);
-    LabBoxList_Init(&window->cartBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 56, (ByteMatrix*)(list + 0x58), (uintptr_t)(&window->cartBoxFlags), color);
+    list = (Entry89100140*)sources->rows; // PORT: list + 0x34 and + 0x58 were the box tables of rows 1 and 2
+    LabBoxList_Init(&window->gbBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 28, &list[1].boxes, window->gbBoxFlags, color);
+    LabBoxList_Init(&window->cartBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 56, &list[2].boxes, window->cartBoxFlags, color);
     Menu_Init(&window->menu, sources, (&window->itemFlags), LabSourceSelect_DrawRow, 296, 28);
-    LabSourceSelect_UpdateItemFlags((u8*)window);
+    LabSourceSelect_UpdateItemFlags(window);
     window->cursor.count = 4;
     window->cursor.cursor = 0;
     window->cursor.controller = (Controller*)D_800603C0;
@@ -725,9 +709,9 @@ s32 LabSourceSelect_UpdateSources(LabSourceSelectWindow* window) {
                 Audio_PlaySystemSound(2);
                 window->menu.itemFlags[window->menu.cursor] ^= 8;
                 if (window->cursor.cursor == 1) {
-                    LabBoxList_SetAllChecked((u8*)(&window->gbBoxes), window->menu.itemFlags[window->menu.cursor] & 8);
+                    LabBoxList_SetAllChecked(&window->gbBoxes, window->menu.itemFlags[window->menu.cursor] & 8);
                 } else if (window->cursor.cursor == 2) {
-                    LabBoxList_SetAllChecked((u8*)(&window->cartBoxes), window->menu.itemFlags[window->menu.cursor] & 8);
+                    LabBoxList_SetAllChecked(&window->cartBoxes, window->menu.itemFlags[window->menu.cursor] & 8);
                 }
             }
         } else if (buttons & 0x4000) {
@@ -785,11 +769,11 @@ s32 LabSourceSelect_Update(LabSourceSelectWindow* window) {
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): drew the popup rows, with
  * the highlight on the selected one.
  */
-void LabPCList_DrawPopupRow(s32 x, s32 y, char* text, s32 index, s32 flags, s8* popup) {
-    s32 temp_v0 = M2C_FIELD(popup, s32*, 8) - 0xC;
+void LabPCList_DrawPopupRow(s32 x, s32 y, char* text, s32 index, s32 flags, LabPopupMenu* popup) { // PORT: popup typed (was s8* and N64 offsets)
+    s32 temp_v0 = popup->window.frame.width - 0xC;
 
     if (flags & 0x10) {
-        Ui_FillRectHighlighted(x + 3, y + 3, temp_v0 - 6, 22, M2C_FIELD(popup, Color_RGBA8*, 0x18));
+        Ui_FillRectHighlighted(x + 3, y + 3, temp_v0 - 6, 22, popup->window.frame.color);
     }
     Font_BeginTranslucentTextRendering();
     Font_SetColorForFlags(flags);
@@ -803,7 +787,7 @@ void LabPCList_DrawPopupRow(s32 x, s32 y, char* text, s32 index, s32 flags, s8* 
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): A on フシギダネ set up the popup
  * (フシギダネをあつめる, おなじタイプをあつめる, いどうする, どうぐをつかう).
  */
-void LabPCList_InitPopupMenu(LabPopupMenu* popup, s32 *labels, s32 item_flags, s32 count, s32 message) {
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message) { // PORT: typed (were s32)
     s32 i;
     s32 w;
     s32 max = 0;
@@ -816,13 +800,13 @@ void LabPCList_InitPopupMenu(LabPopupMenu* popup, s32 *labels, s32 item_flags, s
             max = w;
         }
     }
-    func_80027804((s8*)&popup->itemList, labels, count, count);
+    func_80027804(&popup->itemList, (void**)labels, count, count);
     h = max * 20 + 0x10;
-    Menu_Init((s8*)&popup->menu, (s8*)&popup->itemList, item_flags, LabPCList_DrawPopupRow, h, 28);
+    Menu_Init(&popup->menu, (ByteMatrix*)&popup->itemList, item_flags, LabPCList_DrawPopupRow, h, 28);
     popup->menu.options |= 0x10000;
     Window_SetRect(popup, 0, 0, h + 12, popup->itemList.count * 28 + 20);
     popup->window.animTimer = 0;
-    M2C_FIELD(popup, s32 *, 0x20) = 0;
+    popup->window.title = 0;
     popup->window.state = 0;
     if (message != 0) {
         popup->window.frame.style = 0x800;
@@ -830,7 +814,7 @@ void LabPCList_InitPopupMenu(LabPopupMenu* popup, s32 *labels, s32 item_flags, s
         popup->window.frame.style = 0;
     }
     if (message != 0) {
-        M2C_FIELD(popup, s32 *, 0x20) = message;
+        popup->window.title = message;
     }
 }
 
@@ -941,7 +925,7 @@ void LabPCList_InitLevelInputWindow(LabLevelInputWindow* window, s32 x, s32 y, C
     }
     window->cursor.cursor = 0;
     window->cursor.count = 2;
-    M2C_FIELD(window, s32*, 0xCC) = D_800603C0;
+    window->cursor.controller = D_800603C0;
     func_8000B2F4(D_800603C0);
     window->column = 2; window->unk_E0 = 7; // IDO: same line
     window->unk_D8 = D_800603C0;
@@ -964,45 +948,46 @@ void Font_DrawCharAt(s32 x, s32 y, s32 chr);
  * Seen in play (2026-11-12) in いちらん: drew the three digits of each bound with a yellow frame on
  * the selected digit.
  */
-void LabPCList_DrawLevelInput(s8* input, s32 x, s32 y, s32 flags) {
+void LabPCList_DrawLevelInput(DigitSelector* input, s32 x, s32 y, s32 flags) { // PORT: typed (was s8* and N64 offsets)
     s32 hl = flags & 2;
     s32 bx;
     s32 v;
+    u8* img; // PORT: v held the arrow image addresses as s32
 
     if (hl & 2) {
-        bx = x - M2C_FIELD(input, s32*, 0x10) * 0x16 + 0x2C;
+        bx = x - input->digit * 0x16 + 0x2C;
         gSPDisplayList(gDisplayListHead++, D_80073408);
         if (((u16*)D_800603C0)[3] & 0x800) {
-            v = (uintptr_t)D_04002340;
+            img = D_04002340;
         } else {
-            v = (uintptr_t)D_04002130;
+            img = D_04002130;
         }
-        func_8001B884(bx + 3, y - 10, 14, 8, (u8*)v, 0x10, 0x200000);
+        func_8001B884(bx + 3, y - 10, 14, 8, img, 0x10, 0x200000);
         if (((u16*)D_800603C0)[3] & 0x400) {
-            v = (uintptr_t)D_04002448;
+            img = D_04002448;
         } else {
-            v = (uintptr_t)D_04002238;
+            img = D_04002238;
         }
-        func_8001B884(bx + 3, y + 22, 14, 8, (u8*)v, 0x10, 0x200000);
+        func_8001B884(bx + 3, y + 22, 14, 8, img, 0x10, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
         Ui_DrawRoundedFrame(bx - 3, y - 3, 26, 26, D_80073520);
     }
     func_8001AB6C();
     func_8001A384(8, 2);
-    v = (M2C_FIELD(input, s32*, 0x10) == 2) ? hl : 0;
+    v = (input->digit == 2) ? hl : 0;
     Font_SetColorForFlags(v);
-    Font_DrawCharAt(x, y, M2C_FIELD(input, s32*, 0) / 100 + '0');
-    v = (M2C_FIELD(input, s32*, 0x10) == 1) ? hl : 0;
+    Font_DrawCharAt(x, y, input->value / 100 + '0');
+    v = (input->digit == 1) ? hl : 0;
     Font_SetColorForFlags(v);
-    Font_DrawCharAt(x + 22, y, M2C_FIELD(input, s32*, 0) / 10 % 10 + '0');
-    v = (M2C_FIELD(input, s32*, 0x10) == 0) ? hl : 0;
+    Font_DrawCharAt(x + 22, y, input->value / 10 % 10 + '0');
+    v = (input->digit == 0) ? hl : 0;
     Font_SetColorForFlags(v);
-    Font_DrawCharAt(x + 44, y, M2C_FIELD(input, s32*, 0) % 10 + '0');
+    Font_DrawCharAt(x + 44, y, input->value % 10 + '0');
     func_8001ABBC();
 }
 
 void Window_DrawLabeled(s8 *, s32);
-void LabPCList_DrawLevelInput(s8 *, s32, s32, s32);
+void LabPCList_DrawLevelInput(DigitSelector*, s32, s32, s32);
 extern char D_8910E094[];
 /**
  * Draws the レベルのにゅうりょく (level input) window: the lower and upper level digits with から
@@ -1017,8 +1002,8 @@ void LabPCList_DrawLevelInputWindow(LabLevelInputWindow* window) {
         Gfx_SetEnvColor(0xC8, 0xC8, 0xFF, 0xFF); // #C8C8FFFF
         Font_Printf(window->window.frame.x + 84, window->window.frame.y + 19, D_8910E094);
         func_8001ABBC();
-        LabPCList_DrawLevelInput((s8*)&window->minLevel, window->window.frame.x + 14, window->window.frame.y + 0x10, (window->focus == 0) ? 2 : 0);
-        LabPCList_DrawLevelInput((s8*)&window->maxLevel, window->window.frame.x + 122, window->window.frame.y + 0x10, (window->focus == 1) ? 2 : 0);
+        LabPCList_DrawLevelInput(&window->minLevel, window->window.frame.x + 14, window->window.frame.y + 0x10, (window->focus == 0) ? 2 : 0);
+        LabPCList_DrawLevelInput(&window->maxLevel, window->window.frame.x + 122, window->window.frame.y + 0x10, (window->focus == 1) ? 2 : 0);
         Window_DrawLabeled((s8*)&window->gatherButton, (window->focus == 2 && window->cursor.cursor == 0) ? 2 : 0);
         Window_DrawLabeled((s8*)&window->clearButton, (window->focus == 2 && window->cursor.cursor == 1) ? 2 : 0);
     }
@@ -1092,16 +1077,6 @@ s32 LabPCList_UpdateLevelInput(LabLevelInputWindow* window) {
     return sp1C;
 }
 
-/**
- * Sets up a two-state image toggle.
- * No callers: no jal, j, address word or lui/addiu pair in any built fragment or the resident code reaches it (2026-11-14 scan), so it never runs.
- * @unverified Name guessed from the code.
- */
-void LabToggle_Init(s8 *toggle, s32 x, s32 y, s32 width, s32 tex) {
-    Window_SetRect(toggle, x, y, width, 0);
-    M2C_FIELD(toggle, s32 *, 0x14) = tex;
-}
-
 typedef struct Tex89106E64 {
     /* 0x00 */ s32 width;
     /* 0x04 */ s32 height;
@@ -1118,6 +1093,17 @@ typedef struct Win89106E64 {
     /* 0x10 */ s32 flags;
     /* 0x14 */ Tex89106E64* tex;
 } Win89106E64;
+
+/**
+ * Sets up a two-state image toggle.
+ * No callers: no jal, j, address word or lui/addiu pair in any built fragment or the resident code reaches it (2026-11-14 scan), so it never runs.
+ * @unverified Name guessed from the code.
+ */
+void LabToggle_Init(Win89106E64* toggle, s32 x, s32 y, s32 width, Tex89106E64* tex) { // PORT: typed (was s8*, s32 and N64 offset 0x14); moved below its types
+    Window_SetRect((s8*)toggle, x, y, width, 0);
+    toggle->tex = tex;
+}
+
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
@@ -1559,7 +1545,7 @@ s32 LabPCList_UpdateMoveFilter(LabMoveFilterWindow* window) {
                         }
                         window->list.itemFlags[window->list.cursor] |= 8;
                         window->slots[window->cursor.cursor].index = window->list.cursor;
-                        window->slots[window->cursor.cursor].button.label = (uintptr_t)D_8006A9D4[D_8910A978[window->list.cursor]].name;
+                        window->slots[window->cursor.cursor].button.label = D_8006A9D4[D_8910A978[window->list.cursor]].name; // PORT: was cast through uintptr_t
                         window->mode = 0;
                         window->cursor.cursor++;
                     }
@@ -1695,20 +1681,20 @@ void LabPCList_DrawItemRow();
  * Seen in play (2026-11-12) in いちらん: どうぐをつかう on フシギダネ opened 「フシギダネがつかえるどうぐ」, listing the bag
  * items from the Game Boy save (マックスアップ ×5, タウリン ×5, ふしぎなアメ ×5, ポイントアップ ×3, わざマシン06, ひでんマシン01).
  */
-void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, s32 items, s32 item_flags, u8* mon) {
+void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, PointerList* items, u16* item_flags, LabPCEntry* mon) { // PORT: typed (were s32)
     Window_SetRect(&window->window, x, y, 388, 366);
     window->window.animTimer = 0;
     window->window.title = 0;
     window->window.state = 0;
     window->window.frame.style = 0x801;
-    func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon[8] - 1].name);
+    func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon->mon.species.id - 1].name);
     *(Str891084B4*)(strlen(D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;
     *(Rgba891084B4*)&window->textFrame.color = *(Rgba891084B4*)D_8910AAE0;
     *(Rgba891084B4*)&window->textFrame.color2 = *(Rgba891084B4*)D_8910AAE4;
-    ScrollList_Init(&window->list, items, item_flags, 8, LabPCList_DrawItemRow, 376, 28);
+    ScrollList_Init(&window->list, (ByteMatrix*)items, item_flags, 8, LabPCList_DrawItemRow, 376, 28);
     window->list.options |= 0x10000;
     LabPCList_DisableUnusableItems((FlagScanOwner*)window);
     window->mon = mon;
@@ -1783,7 +1769,7 @@ void LabPCList_DrawItemWindow(LabItemWindow* window) {
     }
 }
 
-extern u8 D_8910AAE8[];
+extern char* D_8910AAE8[]; // PORT: a table of string pointers (was u8)
 extern Rgba891084B4 D_8910AAEC;
 s32 ScrollList_UpdateCursor(s8 *);
 u8 func_80020974(s32 tm_hm_index); // PORT: matches Move_GetIdFromTableIndex
@@ -1791,190 +1777,139 @@ u8 func_80020974(s32 tm_hm_index); // PORT: matches Move_GetIdFromTableIndex
  * Handles the item window. Returns 1 for a vitamin, 2 for PP Up, 3 for a TM or HM.
  * Seen in play (2026-11-14) in いちらん: ran マックスアップ (HP 21 -> 21), ポイントアップ (たいあたりのPP 35 -> 42) and わざマシン06 on フシギダネ (learned in slot 3) and on ゼニガメ (たいあたり forgotten).
  */
-s32 LabPCList_UpdateItemWindow(s8 *window)
-{
-  s32 ret = 0;
-  s8 *self = window;
-  u8 **entry;
-  s32 n;
-  s32 species;
-  unsigned int i;
-  switch (*((u32 *) (((s8 *) self) + 0x1B0))) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  {
-    case 0:
-      if (ScrollList_UpdateCursor(self + 0x4C) == 0)
-    {
-      if (((u16 *) D_800603C0)[4] & 0x4000)
-      {
-        Audio_PlaySystemSound(3);
-        ret = -1;
-      }
-      else
-        if (((u16 *) D_800603C0)[4] & 0x8000)
-      {
-        if (!((*((u16 **) (((s8 *) self) + 0x50)))[*((s32 *) (((s8 *) self) + 0x54))] & 1)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        {
-          Audio_PlaySystemSound(2);
-          LabPCList_InitPopupMenu((LabPopupMenu *) (self + 0x94), (s32 *) D_8910AAE8, (uintptr_t) (self + 0x90), 1, 0);
-          Window_SetRect(self + 0xC0, (*((s32 *) (((s8 *) self) + 0))) + 6, (((*((s32 *) (((s8 *) self) + 4))) + (*((s32 *) (((s8 *) self) + 0x80)))) - (*((s32 *) (((s8 *) self) + 0x78)))) + 0x16, (*((s32 *) (((s8 *) self) + 8))) - 0xC, 28); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          *((s32 *) (((s8 *) self) + 0x108)) = ((*((s32 *) (((s8 *) self) + 8))) + (*((s32 *) (((s8 *) self) + 0)))) - 6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          *((s32 *) (((s8 *) self) + 0x10C)) = (*((s32 *) (((s8 *) self) + 4))) + 0xF6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          LabPCList_PlacePopup((LabPopupMenu *) (self + 0x94));
-          *((Rgba891084B4 *) (((s8 *) self) + 0xAC)) = D_8910AAEC; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          *((u32 *) (((s8 *) self) + 0x1B0)) = 1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        }
-        else
-        {
-          Audio_PlaySystemSound(8);
-        }
-      }
-    }
-      break;
+s32 LabPCList_UpdateItemWindow(LabItemWindow* window) { // PORT: typed (was s8* with N64 offsets throughout)
+    s32 ret = 0;
+    LabItemWindow* self = window;
+    TmEntry8910A21C* entry;
+    s32 n;
+    s32 species;
+    unsigned int i;
 
-    case 1:
-      if (LabPCList_UpdatePopupMenu((LabPopupMenu *) (self + 0x94)) == 0)
-    {
-      if (((u16 *) D_800603C0)[4] & 0x4000)
-      {
-        Audio_PlaySystemSound(3);
-        *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      }
-      else
-        if (((u16 *) D_800603C0)[4] & 0x8000)
-      {
-        if ((*((s32 *) (((s8 *) self) + 0xDC))) == 0) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        {
-          entry = (*(*((u8 *****) (((s8 *) self) + 0x4C))))[*((s32 *) (((s8 *) self) + 0x54))]; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          if ((*((s32 *) (((s8 *) entry) + 8))) >= 100) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          {
-            n = BattleMon_CountMoves((*((u8 **) (((s8 *) self) + 0x1AC))) + 8); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-            Audio_PlaySystemSound(2);
-            if (n < 4)
-            {
-              *((u32 *) (((s8 *) self) + 0x1B0)) = 4; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              if ((*entry[0]) >= 201)
-              {
-                species = (*entry[0]) - 201;
-              }
-              else
-              {
-                species = (*entry[0]) - 146;
-              }
-              LabMoveSelect_Init(self + 0x110, (*((s32 *) (((s8 *) self) + 0))) + 0xD5, (*((s32 *) (((s8 *) self) + 4))) + 0x81, (*((u8 **) (((s8 *) self) + 0x1AC))) + 8); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              *((s32 *) (((s8 *) self) + 0x144)) = n; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              LabMoveSelect_StartLearnAnimation(self + 0x110, *((s32 *) (((s8 *) self) + 0x144)), func_80020974(species)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+    switch (self->mode) {
+        case 0:
+            if (ScrollList_UpdateCursor(&self->list) == 0) {
+                if (((u16*)D_800603C0)[4] & 0x4000) {
+                    Audio_PlaySystemSound(3);
+                    ret = -1;
+                } else if (((u16*)D_800603C0)[4] & 0x8000) {
+                    if (!(self->list.itemFlags[self->list.cursor] & 1)) {
+                        Audio_PlaySystemSound(2);
+                        LabPCList_InitPopupMenu(&self->confirmPopup, D_8910AAE8, self->confirmItemFlags, 1, NULL);
+                        Window_SetRect((s8*)&self->confirmPopup.anchorX, self->window.frame.x + 6,
+                                       self->window.frame.y + self->list.cursorY - self->list.scrollY + 0x16, self->window.frame.width - 0xC, 28);
+                        self->confirmPopup.limitX = self->window.frame.width + self->window.frame.x - 6;
+                        self->confirmPopup.limitY = self->window.frame.y + 0xF6;
+                        LabPCList_PlacePopup(&self->confirmPopup);
+                        *(Rgba891084B4*)&self->confirmPopup.window.frame.color = D_8910AAEC;
+                        self->mode = 1;
+                    } else {
+                        Audio_PlaySystemSound(8);
+                    }
+                }
             }
-            else
-            {
-              LabMoveSelect_Init(self + 0x110, (*((s32 *) (((s8 *) self) + 0))) + 0xD5, (*((s32 *) (((s8 *) self) + 4))) + 0x81, (*((u8 **) (((s8 *) self) + 0x1AC))) + 8); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              LabMoveSelect_DisableHmMoves((LabMoveSelectWindow*)(self + 0x110));
-              *((u32 *) (((s8 *) self) + 0x1B0)) = 3; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+            break;
+
+        case 1:
+            if (LabPCList_UpdatePopupMenu(&self->confirmPopup) == 0) {
+                if (((u16*)D_800603C0)[4] & 0x4000) {
+                    Audio_PlaySystemSound(3);
+                    self->mode = 0;
+                } else if (((u16*)D_800603C0)[4] & 0x8000) {
+                    if (self->confirmPopup.menu.cursor == 0) {
+                        entry = ((TmEntry8910A21C**)((PointerList*)self->list.items)->items)[self->list.cursor];
+                        if (entry->unk_08 >= 100) {
+                            n = BattleMon_CountMoves((u8*)&self->mon->mon);
+                            Audio_PlaySystemSound(2);
+                            if (n < 4) {
+                                self->mode = 4;
+                                if (*entry->unk_00 >= 201) {
+                                    species = *entry->unk_00 - 201;
+                                } else {
+                                    species = *entry->unk_00 - 146;
+                                }
+                                LabMoveSelect_Init(&self->moveSelect, self->window.frame.x + 0xD5, self->window.frame.y + 0x81, (u8*)&self->mon->mon);
+                                self->moveSelect.menu.cursor = n;
+                                LabMoveSelect_StartLearnAnimation(&self->moveSelect, self->moveSelect.menu.cursor, func_80020974(species));
+                            } else {
+                                LabMoveSelect_Init(&self->moveSelect, self->window.frame.x + 0xD5, self->window.frame.y + 0x81, (u8*)&self->mon->mon);
+                                LabMoveSelect_DisableHmMoves(&self->moveSelect);
+                                self->mode = 3;
+                            }
+                        } else if (entry->unk_08 >= 50) {
+                            Audio_PlaySystemSound(2);
+                            LabMoveSelect_Init(&self->moveSelect, self->window.frame.x + 0xD5, self->window.frame.y + 0x81, (u8*)&self->mon->mon);
+                            for (i = 0; i < 4; i++) {
+                                if ((self->moveSelect.moves[i] == -1) || (self->moveSelect.moves[i] == -2) || (self->mon->mon.pp[i] >= 0xC0)) {
+                                    self->moveSelect.menu.itemFlags[i] |= 1;
+                                }
+                            }
+                            self->mode = 2;
+                        } else {
+                            Audio_PlaySystemSound(34);
+                            self->mode = 0;
+                            ret = 1;
+                        }
+                    } else {
+                        Audio_PlaySystemSound(3);
+                        self->mode = 0;
+                    }
+                }
             }
-          }
-          else
-            if ((*((s32 *) (((s8 *) entry) + 8))) >= 50) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          {
-            Audio_PlaySystemSound(2);
-            LabMoveSelect_Init(self + 0x110, (*((s32 *) (((s8 *) self) + 0))) + 0xD5, (*((s32 *) (((s8 *) self) + 4))) + 0x81, (*((u8 **) (((s8 *) self) + 0x1AC))) + 8); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-            for (i = 0; i < 4; i++)
-            {
-              if ((((*((s32 *) (((s8 *) self) + (0x170 + (i * 4))))) == (-1)) || ((*((s32 *) (((s8 *) self) + (0x170 + (i * 4))))) == (-2))) || ((*((u8 **) (((s8 *) self) + 0x1AC)))[0x28 + i] >= 0xC0)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              {
-                (*((u16 **) (((s8 *) self) + 0x140)))[i] |= 1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-              }
+            break;
+
+        case 2:
+            if (LabMoveSelect_Update(&self->moveSelect) == 0) {
+                if (((u16*)D_800603C0)[4] & 0x4000) {
+                    Audio_PlaySystemSound(3);
+                    self->mode = 0;
+                } else if (((u16*)D_800603C0)[4] & 0x8000) {
+                    if (!(self->moveSelect.menu.itemFlags[self->moveSelect.menu.cursor] & 1)) {
+                        Audio_PlaySystemSound(34);
+                        self->mode = 0;
+                        ret = 2;
+                    } else {
+                        Audio_PlaySystemSound(8);
+                    }
+                }
             }
+            break;
 
-            *((u32 *) (((s8 *) self) + 0x1B0)) = 2; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          }
-          else
-          {
-            Audio_PlaySystemSound(34);
-            *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-            ret = 1;
-          }
-        }
-        else
-        {
-          Audio_PlaySystemSound(3);
-          *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        }
-      }
+        case 3:
+            if (LabMoveSelect_Update(&self->moveSelect) == 0) {
+                if (((u16*)D_800603C0)[4] & 0x4000) {
+                    Audio_PlaySystemSound(3);
+                    self->mode = 0;
+                } else if (((u16*)D_800603C0)[4] & 0x8000) {
+                    if (!(self->moveSelect.menu.itemFlags[self->moveSelect.menu.cursor] & 1)) {
+                        TmEntry8910A21C* entry2;
+                        s32 sp38;
+
+                        entry2 = ((TmEntry8910A21C**)((PointerList*)self->list.items)->items)[self->list.cursor];
+                        if (*entry2->unk_00 >= 201) {
+                            sp38 = *entry2->unk_00 - 201;
+                        } else {
+                            sp38 = *entry2->unk_00 - 146;
+                        }
+                        Audio_PlaySystemSound(2);
+                        LabMoveSelect_StartLearnAnimation(&self->moveSelect, self->moveSelect.menu.cursor, func_80020974(sp38));
+                        self->mode = 4;
+                    } else {
+                        Audio_PlaySystemSound(8);
+                    }
+                }
+            }
+            break;
+
+        case 4:
+            if ((self->moveSelect.learnTimer == 0) && (((u16*)D_800603C0)[4] & 0xC000)) {
+                Audio_PlaySystemSound(3);
+                self->mode = 0;
+                ret = 3;
+            }
+            break;
     }
-      break;
 
-    case 2:
-      if (LabMoveSelect_Update((uintptr_t) (self + 0x110)) == 0)
-    {
-      if (((u16 *) D_800603C0)[4] & 0x4000)
-      {
-        Audio_PlaySystemSound(3);
-        *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      }
-      else
-        if (((u16 *) D_800603C0)[4] & 0x8000)
-      {
-        if (!((*((u16 **) (((s8 *) self) + 0x140)))[*((s32 *) (((s8 *) self) + 0x144))] & 1)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        {
-          Audio_PlaySystemSound(34);
-          *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          ret = 2;
-        }
-        else
-        {
-          Audio_PlaySystemSound(8);
-        }
-      }
-    }
-      break;
-
-    case 3:
-      if (LabMoveSelect_Update((uintptr_t) (self + 0x110)) == 0)
-    {
-      if (((u16 *) D_800603C0)[4] & 0x4000)
-      {
-        Audio_PlaySystemSound(3);
-        *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      }
-      else
-        if (((u16 *) D_800603C0)[4] & 0x8000)
-      {
-        if (!((*((u16 **) (((s8 *) self) + 0x140)))[*((s32 *) (((s8 *) self) + 0x144))] & 1)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        {
-          u8 **entry2;
-          s32 sp38;
-          entry2 = (*(*((u8 *****) (((s8 *) self) + 0x4C))))[*((s32 *) (((s8 *) self) + 0x54))]; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          if ((*entry2[0]) >= 201)
-          {
-            sp38 = (*entry2[0]) - 201;
-          }
-          else
-          {
-            sp38 = (*entry2[0]) - 146;
-          }
-          Audio_PlaySystemSound(2);
-          LabMoveSelect_StartLearnAnimation(self + 0x110, *((s32 *) (((s8 *) self) + 0x144)), func_80020974(sp38)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          *((u32 *) (((s8 *) self) + 0x1B0)) = 4; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        }
-        else
-        {
-          Audio_PlaySystemSound(8);
-        }
-      }
-    }
-      break;
-
-    case 4:
-      if (((*((s32 *) (((s8 *) self) + 0x188))) == 0) && (((u16 *) D_800603C0)[4] & 0xC000)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    {
-      Audio_PlaySystemSound(3);
-      *((u32 *) (((s8 *) self) + 0x1B0)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      ret = 3;
-    }
-      break;
-
-  }
-
-  return ret;
+    return ret;
 }
 
 /**
@@ -2030,8 +1965,9 @@ void LabPCList_DrawMessageWindow(LabMessageWindow* window) {
         Gfx_SetEnvColor(D_800734A8[0].r, D_800734A8[0].g, D_800734A8[0].b, D_800734A8[0].a);
         entry = window->message;
         if (entry->kind == 0) {
-            Font_Printf(window->window.frame.x + 18, window->window.frame.y + 54, D_8910E1AC, entry->left);
-            Font_Printf(window->window.frame.x + 162, window->window.frame.y + 54, D_8910E1B0, window->message->right);
+            // PORT: kind 0 stores numbers in left and right
+            Font_Printf(window->window.frame.x + 18, window->window.frame.y + 54, D_8910E1AC, (s32)(intptr_t)entry->left);
+            Font_Printf(window->window.frame.x + 162, window->window.frame.y + 54, D_8910E1B0, (s32)(intptr_t)window->message->right);
         } else if (entry->kind == 1) {
             Font_Printf(window->window.frame.x + 18, window->window.frame.y + 54, entry->left);
             Font_Printf(window->window.frame.x + 162, window->window.frame.y + 54, window->message->right);

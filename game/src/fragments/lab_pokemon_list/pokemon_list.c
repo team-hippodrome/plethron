@@ -12,13 +12,13 @@ void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_bu
  * Sets up the three item decks (Game Boy bag, Game Boy PC, 64 cartridge) and reads each one that exists.
  * Seen in play (2026-11-14) in いちらん: ran on entry; the どうぐをつかう window later listed the bag's items (マックスアップ ×5 ...).
  */
-void LabPCList_LoadItemDecks(s8* screen) {
+void LabPCList_LoadItemDecks(LabPCListScreen* screen) { // PORT: typed (was s8* and N64 offsets)
     s32 i;
 
-    LabPCList_InitDeckCategories(screen + 0x9E64, screen + 0x9EB8, screen + 0x9EE0, screen + 0x9F44);
+    LabPCList_InitDeckCategories(screen->itemDecks, screen->bagItems, screen->pcItems, screen->cartItems);
     for (i = 0; i < 3; i++) {
-        if (M2C_FIELD(screen + i * 0x1C, s32*, 0x9E68) != 0) {
-            LabPCList_ReadDeckCategory((unk_func_8830867C_02C_154*)(screen + i * 0x1C + 0x9E64));
+        if (screen->itemDecks[i].unk_04 != 0) {
+            LabPCList_ReadDeckCategory(&screen->itemDecks[i]);
         }
     }
 }
@@ -28,27 +28,18 @@ void LabPCList_LoadItemDecks(s8* screen) {
  * Writes back every item deck that exists and was changed.
  * Seen in play (2026-11-14) in いちらん: ran from LabPCList_SaveChanges on レポートしてやめる after a TM was used.
  */
-void LabPCList_SaveDirtyItemDecks(s32 screen) {
-    s32 var_s1;
-    s32 var_s2;
-    s8 *var_s0;
+void LabPCList_SaveDirtyItemDecks(LabPCListScreen* screen) { // PORT: typed (was s32 and N64 offsets)
+    s32 i;
 
-    var_s0 = screen + 0x8000;
-    var_s1 = screen;
-    var_s2 = 0;
-    do {
-        if ((M2C_FIELD(var_s0, s32 *, 0x1E68) != 0) && (M2C_FIELD(var_s0, s32 *, 0x1E6C) != 0)) {
-            LabPCList_WriteDeckCategory((unk_func_8830867C_02C_154*)(var_s1 + 0x9E64));
+    for (i = 0; i < 3; i++) {
+        if ((screen->itemDecks[i].unk_04 != 0) && (screen->itemDecks[i].unk_08 != 0)) {
+            LabPCList_WriteDeckCategory(&screen->itemDecks[i]);
         }
-        var_s2 += 0x1C;
-        var_s1 += 0x1C;
-        var_s0 += 0x1C;
-    } while (var_s2 != 0x54);
+    }
 }
 
 extern s32 D_8910A7F8[3];
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
 /**
  * Sets up the three sources of the list: てもち (6 slots), the 8 Game Boy boxes and the 4 64 cartridge boxes (30 slots each).
@@ -61,24 +52,24 @@ void LabPCList_InitSources(LabPCListScreen* screen) {
     screen->sources[0].unk_08 = GbSave_GetActivePort();
     screen->sources[0].unk_0C = 0;
     screen->sources[0].unk_20 = 6;
-    func_80027410(&screen->sources[0].boxes, (s8*)screen + 0x90, 0x20, 1, 0);
-    LabPCList_InitSourceBoxes(&screen->sources[0], (s8*)screen + 0x8200, (s8*)screen + 0x430, 6);
+    func_80027410(&screen->sources[0].boxes, screen->partyBox, sizeof(LabPCBox), 1, 0);
+    LabPCList_InitSourceBoxes(&screen->sources[0], screen->partySlots, screen->partyEntries, 6);
     screen->sources[1].unk_04 = 0x21;
     screen->sources[1].unk_08 = screen->sources[0].unk_08;
     screen->sources[1].unk_0C = 1;
     screen->sources[1].unk_20 = 0x1E;
-    func_80027410(&screen->sources[1].boxes, (s8*)screen + 0xB0, 0x20, 8, 0);
-    LabPCList_InitSourceBoxes(&screen->sources[1], (s8*)screen + 0x8218, (s8*)screen + 0x640, 0x1E);
+    func_80027410(&screen->sources[1].boxes, screen->gbBoxes, sizeof(LabPCBox), 8, 0);
+    LabPCList_InitSourceBoxes(&screen->sources[1], screen->gbSlots, screen->gbEntries, 0x1E);
     screen->sources[2].unk_04 = 0x11;
     screen->sources[2].unk_08 = 0;
     screen->sources[2].unk_0C = 2;
     screen->sources[2].unk_20 = 0x1E;
-    func_80027410(&screen->sources[2].boxes, (s8*)screen + 0x1B0, 0x20, 4, 0);
-    LabPCList_InitSourceBoxes(&screen->sources[2], (s8*)screen + 0x85D8, (s8*)screen + 0x58C0, 0x1E);
+    func_80027410(&screen->sources[2].boxes, screen->cartBoxes, sizeof(LabPCBox), 4, 0);
+    LabPCList_InitSourceBoxes(&screen->sources[2], screen->cartSlots, screen->cartEntries, 0x1E);
     for (i = 0; i < 3; i++) {
         screen->sources[i].unk_00 = D_8910A7F8[i];
     }
-    func_80027410((s8*)screen + 0x420, screen->sources, 0x24, 3, 3);
+    func_80027410(&screen->sourceMatrix, screen->sources, sizeof(Entry89100140), 3, 3); // PORT: typed (were N64 offsets and row sizes)
 }
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
@@ -126,29 +117,28 @@ void LabPCList_ResetFilterState(LabPCListScreen* state) {
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
-void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
 extern u8 D_8910A848[];
-extern u8 D_8910A804[];
-extern u8 D_8910A84C[];
+extern s32 D_8910A804[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
+extern s32 D_8910A84C[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 
 /**
  * Sets up the Pokemon list window (564x382) and its widgets.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): ran on entry as the list
  * window appeared.
  */
-void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, s32 msg_box) {
+void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, LabItemResult* msg_box) { // PORT: msg_box typed (was s32)
     UNUSED s32 pad[1]; // FAKE: stack padding
 
     LabPCList_InitSources(screen);
     Window_SetRect(screen, x, y, 564, 382);
     screen->window.animTimer = 0;
-    M2C_FIELD(screen, s32*, 0x20) = 0;
+    screen->window.title = 0;
     screen->window.state = 0;
     screen->window.frame.style = 1;
     Window_SetRect((s8*)&screen->headerFrame, x + 6, y + 6, 552, 30);
@@ -157,14 +147,14 @@ void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, s32 msg_box
     screen->headerFrame.color2 = *(Color_RGBA8*)D_8910A848;
     Window_SetRect((s8*)&screen->listFrame, x + 6, y + 58, 552, 302);
     screen->listFrame.style = 1;
-    func_80027804((s8*)&screen->rows, (s8*)screen->rowBuffer, 0x1D2, 0);
-    func_80027804((s8*)&screen->filteredRows, (s8*)screen->filteredRowBuffer, 0x1D2, 0);
-    LabPCList_LoadAllBoxes((s8*)&screen->sourceMatrix);
+    func_80027804(&screen->rows, screen->rowBuffer, 0x1D2, 0);
+    func_80027804(&screen->filteredRows, screen->filteredRowBuffer, 0x1D2, 0);
+    LabPCList_LoadAllBoxes(&screen->sourceMatrix);
     screen->activeFilters = 0;
     screen->columnWidths = D_8910A804;
-    LabPCList_FlattenEntries(&screen->rows, (unk_func_8830867C_02C_144*)&screen->sourceMatrix);
+    LabPCList_FlattenEntries(&screen->rows, &screen->sourceMatrix);
     screen->sortKey = 0;
-    func_80027D68((uintptr_t)((s8*)&screen->rows), D_8910D990[0]);
+    func_80027D68((LabMonEntryList*)&screen->rows, D_8910D990[0]); // PORT: was an s32 address
     screen->focus = 0;
     LabPCList_LoadItemDecks(screen);
     screen->unk_0080 = 0;
@@ -177,7 +167,7 @@ void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, s32 msg_box
     screen->msg = msg_box;
     LabPCList_ResetFilterState(screen);
     screen->state = 1;
-    LabSourceSelect_Init(&screen->sourceSelectWindow, 120, 103, (s8*)&screen->sourceMatrix, D_8910A7F4);
+    LabSourceSelect_Init(&screen->sourceSelectWindow, 120, 103, &screen->sourceMatrix, D_8910A7F4);
 }
 
 /**

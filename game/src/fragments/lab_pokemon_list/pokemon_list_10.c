@@ -7,7 +7,7 @@
 #include "save_data.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-void LabPCList_ConsumeUsedItem(unk_func_8830867C_04C_030_02C_000*);
+void LabPCList_ConsumeUsedItem(TmEntry8910A21C*);
 extern Gfx D_8910D028[];
 
 #include "m2c_macros.h"
@@ -30,36 +30,18 @@ void LabPCList_WriteDeckCategory(unk_func_8830867C_02C_154* deck);
 s32 LabPCList_IsTmHmItemId(s32* itemId);
 s32 LabPCList_IsVitaminItemId(s32* itemId);
 s32 LabPCList_IsPpUpItemId(s32* itemId);
-s32 LabPCList_CompareUsableItems(PointerList* a, PointerList* b);
+s32 LabPCList_CompareUsableItems(TmEntry8910A21C* a, TmEntry8910A21C* b);
 s32 LabPCList_CanLearnMoveByLevelUp(s32 species, s32 tmIndex);
-void LabPCList_ConsumeUsedItem(unk_func_8830867C_04C_030_02C_000* item);
-
-typedef struct unk_func_89109990_010 {
-    /* 0x00 */ void* unk_00;
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-    /* 0x14 */ char unk_14[0xC];
-} unk_func_89109990_010; // size = 0x20
-
-typedef struct unk_func_89109990 {
-    /* 0x00 */ char unk00[0x4];
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ char unk08[0x8];
-    /* 0x10 */ unk_func_89109990_010* unk_10;
-    /* 0x14 */ s32 unk_14;
-    /* 0x18 */ s32 unk_18;
-} unk_func_89109990;
+void LabPCList_ConsumeUsedItem(TmEntry8910A21C* item);
 
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 /**
  * Sets up the box slots of one source and points each slot at its 0x58-byte entries.
  * Seen in play (2026-11-14) in いちらん: ran three times on entry, for てもち, the GB boxes and the 64 boxes.
  */
-void LabPCList_InitSourceBoxes(unk_func_89109990* src_boxes, u8** slot_ptrs, u8* entry_buffer, s32 slot_capacity) {
+void LabPCList_InitSourceBoxes(Entry89100140* src_boxes, LabPCEntry** slot_ptrs, LabPCEntry* entry_buffer, s32 slot_capacity) { // PORT: typed (were N64 strides of 0x20 and 0x58)
     UNUSED s32 pad[2]; // FAKE: stack padding
-    unk_func_89109990_010* var_s1 = src_boxes->unk_10;
+    LabPCBox* var_s1 = (LabPCBox*)src_boxes->boxes.rows;
     s32 var_t0 = 0;
     s32 i;
     s32 j;
@@ -75,157 +57,106 @@ void LabPCList_InitSourceBoxes(unk_func_89109990* src_boxes, u8** slot_ptrs, u8*
             break;
     }
 
-    src_boxes->unk_18 = src_boxes->unk_14;
-    for (i = 0; i < src_boxes->unk_18; i++) {
-        var_s1[i].unk_00 = src_boxes;
-        var_s1[i].unk_04 = i;
+    src_boxes->boxes.count = src_boxes->boxes.capacity;
+    for (i = 0; i < src_boxes->boxes.count; i++) {
+        var_s1[i].source = src_boxes;
+        var_s1[i].index = i;
         var_s1[i].unk_08 = 1;
-        var_s1[i].unk_0C = var_t0;
-        var_s1[i].unk_10 = 0;
+        var_s1[i].checked = var_t0;
+        var_s1[i].changed = 0;
         // The loop has to stay on one line: IDO orders the unrolled stores by source line.
-        for (j = 0; j < slot_capacity; j++) { slot_ptrs[j] = &entry_buffer[j * 0x58]; }
-        func_80027804(var_s1[i].unk_14, slot_ptrs, slot_capacity, 0);
+        for (j = 0; j < slot_capacity; j++) { slot_ptrs[j] = &entry_buffer[j]; }
+        func_80027804(&var_s1[i].entries, (void**)slot_ptrs, slot_capacity, 0);
         slot_ptrs += slot_capacity;
-        entry_buffer += slot_capacity * 0x58;
+        entry_buffer += slot_capacity;
     }
 }
 
-typedef struct LabPCDeckNode89109B60 {
-    /* 0x00 */ void* owner;
-    /* 0x04 */ s32 index;
-    /* 0x08 */ u8 entry[1];
-} LabPCDeckNode89109B60;
-typedef struct LabPCDeck89109B60 {
-    /* 0x00 */ char unk00[0x14];
-    /* 0x14 */ LabPCDeckNode89109B60** nodes;
-    /* 0x18 */ char unk18[0x4];
-    /* 0x1C */ s32 count;
-} LabPCDeck89109B60; // size = 0x20
-typedef struct LabPCBox89109B60 {
-    /* 0x00 */ char unk00[0x4];
-    /* 0x04 */ s32 unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ char unk0C[0x4];
-    /* 0x10 */ LabPCDeck89109B60* decks;
-    /* 0x14 */ char unk14[0x4];
-    /* 0x18 */ s32 deckCount;
-    /* 0x1C */ char unk1C[0x8];
-} LabPCBox89109B60; // size = 0x24
-typedef struct LabPCBoxList89109B60 {
-    /* 0x00 */ LabPCBox89109B60* boxes;
-    /* 0x04 */ char unk04[0x4];
-    /* 0x08 */ s32 count;
-} LabPCBoxList89109B60;
-
 /* Stadium 1's LabPCList_LoadAllBoxes, without its box-count check and NULL deck check. */
-void LabPCList_LoadAllBoxes(LabPCBoxList89109B60* sources) {
+void LabPCList_LoadAllBoxes(ByteMatrix* sources) { // PORT: typed (were N64 views of the sources and boxes)
     s32 i;
     s32 j;
     s32 n;
     DeckHandle* handle;
-    LabPCDeck89109B60* deck;
-    LabPCDeckNode89109B60** node;
-    LabPCBox89109B60* box;
+    LabPCBox* deck;
+    LabPCEntry** node;
+    Entry89100140* box;
 
-    box = sources->boxes;
+    box = (Entry89100140*)sources->rows;
     for (i = 0; i < sources->count; i++, box++) {
-        deck = box->decks;
-        for (j = 0; j < box->deckCount; j++, deck++) {
-            node = deck->nodes;
+        deck = (LabPCBox*)box->boxes.rows;
+        for (j = 0; j < box->boxes.count; j++, deck++) {
+            node = (LabPCEntry**)deck->entries.items;
             handle = Deck_Open(box->unk_04, box->unk_08, j, 0);
             n = 0;
             while (TRUE) {
-                if (Deck_ReadEntries(&(*node)->entry, 1, handle) == 0) {
+                if (Deck_ReadEntries((u8*)&(*node)->mon, 1, handle) == 0) {
                     break;
                 }
-                (*node)->owner = deck;
-                (*node)->index = n;
+                (*node)->box = deck;
+                (*node)->slot = n;
                 node++;
                 n++;
             }
             Deck_CloseAndFlush(handle);
-            deck->count = n;
+            deck->entries.count = n;
         }
     }
 }
 
-typedef struct LabPCListSlotZero {
-    /* 0x00 */ char unk00[0xC];
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ char unk10[0x4];
-    /* 0x14 */ s32* unk_14;
-    /* 0x18 */ char unk18[0x4];
-    /* 0x1C */ s32 unk_1C;
-} LabPCListSlotZero; // size = 0x20
-
-typedef struct LabPCListBoxZero {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ LabPCListSlotZero* unk_10;
-    /* 0x14 */ char unk14[0x4];
-    /* 0x18 */ s32 unk_18;
-    /* 0x1C */ char unk1C[0x8];
-} LabPCListBoxZero; // size = 0x24
-
 /** Flattens the list's nested entries into one list. */
-void LabPCList_FlattenEntries(PointerList* list, unk_func_8830867C_02C_144* sources) {
+void LabPCList_FlattenEntries(PointerList* list, ByteMatrix* sources) { // PORT: typed (were N64 views and s32 pointer copies)
     s32 i;
     s32 j;
     s32 x;
-    s32* var_v0;
-    LabPCListSlotZero* var_v1;
-    s32* var_t0;
-    LabPCListBoxZero* var_a2;
+    void** var_v0;
+    LabPCBox* var_v1;
+    void** var_t0;
+    Entry89100140* var_a2;
 
-    var_v0 = (s32*)list->items;
-    var_a2 = (LabPCListBoxZero*)sources->unk_00;
+    var_v0 = list->items;
+    var_a2 = (Entry89100140*)sources->rows;
 
-    for (i = 0; i < sources->unk_08; i++, var_a2++) {
-        var_v1 = var_a2->unk_10;
+    for (i = 0; i < sources->count; i++, var_a2++) {
+        var_v1 = (LabPCBox*)var_a2->boxes.rows;
 
-        for (j = 0; j < var_a2->unk_18; j++, var_v1++) {
-            if (var_v1->unk_0C != 0) {
-                var_t0 = var_v1->unk_14;
+        for (j = 0; j < var_a2->boxes.count; j++, var_v1++) {
+            if (var_v1->checked != 0) {
+                var_t0 = var_v1->entries.items;
 
-                for (x = 0; x < var_v1->unk_1C; x++, var_t0++, var_v0++) {
+                for (x = 0; x < var_v1->entries.count; x++, var_t0++, var_v0++) {
                     *var_v0 = *var_t0;
                 }
             }
         }
     }
 
-    list->count = var_v0 - (s32*)list->items;
+    list->count = var_v0 - list->items;
 }
 
-typedef struct LabPCDeck89109D14 {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ s32 dirty;
-    /* 0x14 */ LabPCDeckNode89109B60** nodes;
-    /* 0x18 */ char unk18[0x4];
-    /* 0x1C */ s32 count;
-} LabPCDeck89109D14; // size = 0x20
 void GbSave_SetSeenOwnedBits(s32 arg0, s32 arg1, s32 arg2);
 
 /* Stadium 1's LabPCList_SaveAllBoxes, with every deck flushed the same way. */
-void LabPCList_SaveDirtyBoxes(LabPCBoxList89109B60* sources) {
+void LabPCList_SaveDirtyBoxes(ByteMatrix* sources) { // PORT: typed (were N64 views of the sources and boxes)
     s32 i;
     s32 j;
     s32 x;
     DeckHandle* handle;
-    LabPCDeck89109D14* deck;
-    LabPCDeckNode89109B60** node;
-    LabPCBox89109B60* box;
+    LabPCBox* deck;
+    LabPCEntry** node;
+    Entry89100140* box;
 
-    box = sources->boxes;
+    box = (Entry89100140*)sources->rows;
     for (i = 0; i < sources->count; i++, box++) {
-        deck = (LabPCDeck89109D14*)box->decks;
-        for (j = 0; j < box->deckCount; j++, deck++) {
-            if (deck->dirty != 0) {
-                node = deck->nodes;
+        deck = (LabPCBox*)box->boxes.rows;
+        for (j = 0; j < box->boxes.count; j++, deck++) {
+            if (deck->changed != 0) {
+                node = (LabPCEntry**)deck->entries.items;
                 handle = Deck_Open(box->unk_04, box->unk_08, j, 1);
-                for (x = 0; x < deck->count; x++, node++) {
-                    Deck_WriteEntries((*node)->entry, 1, handle);
+                for (x = 0; x < deck->entries.count; x++, node++) {
+                    Deck_WriteEntries((u8*)&(*node)->mon, 1, handle);
                     if ((box->unk_04 == 0x20) || (box->unk_04 == 0x21)) {
-                        GbSave_SetSeenOwnedBits(box->unk_08, (*node)->entry[0], 3);
+                        GbSave_SetSeenOwnedBits(box->unk_08, (*node)->mon.species.id, 3);
                     }
                 }
                 Deck_CloseAndFlush(handle);
@@ -370,17 +301,10 @@ s32 LabPCList_IsPpUpItemId(s32* item_id) {
  * Usable-item list comparison: by usable-item code, then by bag position.
  * Seen in play (2026-11-14) in いちらん: the list came out vitamins, ふしぎなアメ, ポイントアップ, わざマシン06.
  */
-s32 LabPCList_CompareUsableItems(PointerList* a, PointerList* b) {
-    return (a->count - b->count != 0) ? a->count - b->count : (uintptr_t)a[1].items - (uintptr_t)b[1].items;
+s32 LabPCList_CompareUsableItems(TmEntry8910A21C* a, TmEntry8910A21C* b) { // PORT: typed (read the fields at 8 and 0xC as PointerLists)
+    return (a->unk_08 - b->unk_08 != 0) ? a->unk_08 - b->unk_08 : a->unk_0C - b->unk_0C;
 }
 
-typedef struct TmEntry8910A21C {
-    /* 0x00 */ u8* unk_00;
-    /* 0x04 */ unk_func_8830867C_02C_154* unk_04;
-    /* 0x08 */ s32 unk_08;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ s32 unk_10;
-} TmEntry8910A21C; // size = 0x14
 /**
  * Collects the usable items (vitamins, PP Up, TMs, HMs) of every item deck into one sorted list.
  * Seen in play (2026-11-14) in いちらん: built the list of 「フシギダネがつかえるどうぐ」.
@@ -480,26 +404,26 @@ s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
  * Sets each usable item's flags for a Pokémon: 1 vitamin stat exp at the cap, 2 already level 100, 4 no move can take a PP Up, 8 already knows the TM/HM move, 0x10 can't learn it.
  * Seen in play (2026-11-14) in いちらん: ran when どうぐをつかう opened; わざマシン06 was usable on フシギダネ and ゼニガメ.
  */
-void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
+void LabPCList_UpdateItemUsability(PointerList* items, u8* mon) { // PORT: items typed (was s8* and N64 offsets), mon is BattleMon bytes
     s32 i;
     s32 j;
     s32 n;
     s32 n2;
     s32 k;
     s32 move;
-    s8** base;
-    s8* e;
+    TmEntry8910A21C** base;
+    TmEntry8910A21C* e;
     u8* p;
 
-    base = M2C_FIELD(items, s8***, 0);
-    for (i = 0; i < M2C_FIELD(items, s32*, 8); i++) {
-        M2C_FIELD(base[i], s32*, 0x10) = 0;
+    base = (TmEntry8910A21C**)items->items;
+    for (i = 0; i < items->count; i++) {
+        base[i]->unk_10 = 0;
         e = base[i];
-        if (M2C_FIELD(e, s32*, 8) >= 100) {
-            if (**(u8**)e >= 201) {
-                move = **(u8**)e - 201;
+        if (e->unk_08 >= 100) {
+            if (*e->unk_00 >= 201) {
+                move = *e->unk_00 - 201;
             } else {
-                move = **(u8**)e - 146;
+                move = *e->unk_00 - 146;
             }
             n = BattleMon_CountMoves(mon);
             for (j = 0; j < n; j++) {
@@ -508,12 +432,12 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
                 }
             }
             if (j < n) {
-                M2C_FIELD(base[i], s32*, 0x10) |= 8;
+                base[i]->unk_10 |= 8;
             }
             if (LabPCList_CanLearnMoveByLevelUp(mon[0], move) == 0) {
-                M2C_FIELD(base[i], s32*, 0x10) |= 0x10;
+                base[i]->unk_10 |= 0x10;
             }
-        } else if (M2C_FIELD(e, s32*, 8) >= 50) {
+        } else if (e->unk_08 >= 50) {
             n2 = BattleMon_CountMoves(mon);
             for (j = 0; j < n2; j++) {
                 if ((BattleMon_GetMoveIndex(mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
@@ -521,38 +445,38 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
                 }
             }
             if (j >= n2) {
-                M2C_FIELD(base[i], s32*, 0x10) |= 4;
+                base[i]->unk_10 |= 4;
             }
         } else {
-            switch (**(u8**)e) {
+            switch (*e->unk_00) {
                 case 35:
                     if (M2C_FIELD(mon, u16*, 0x14) >= 25600) {
-                        M2C_FIELD(e, s32*, 0x10) |= 1;
+                        e->unk_10 |= 1;
                     }
                     break;
                 case 36:
                     if (M2C_FIELD(mon, u16*, 0x16) >= 25600) {
-                        M2C_FIELD(e, s32*, 0x10) |= 1;
+                        e->unk_10 |= 1;
                     }
                     break;
                 case 37:
                     if (M2C_FIELD(mon, u16*, 0x18) >= 25600) {
-                        M2C_FIELD(e, s32*, 0x10) |= 1;
+                        e->unk_10 |= 1;
                     }
                     break;
                 case 38:
                     if (M2C_FIELD(mon, u16*, 0x1A) >= 25600) {
-                        M2C_FIELD(e, s32*, 0x10) |= 1;
+                        e->unk_10 |= 1;
                     }
                     break;
                 case 39:
                     if (M2C_FIELD(mon, u16*, 0x1C) >= 25600) {
-                        M2C_FIELD(e, s32*, 0x10) |= 1;
+                        e->unk_10 |= 1;
                     }
                     break;
                 case 40:
                     if (mon[0x24] >= 100) {
-                        M2C_FIELD(e, s32*, 0x10) |= 2;
+                        e->unk_10 |= 2;
                     }
                     break;
             }
@@ -564,13 +488,18 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
  * Takes one of the used item out of its deck (removing the entry at quantity 1) and marks the deck changed.
  * Seen in play (2026-11-14) in いちらん: ran after マックスアップ, ポイントアップ and わざマシン06; the TM06 count went from 1 to none.
  */
-void LabPCList_ConsumeUsedItem(unk_func_8830867C_04C_030_02C_000* item) {
-    if ((LabItem_IsQuantitylessItemForOperation(item->unk_00[0]->unk_00) != 0) || (item->unk_00[0]->unk_01 < 2)) {
-        s32 tmp = item->unk_00[1]->unk_0C.items;
+_Static_assert(__builtin_offsetof(unk_func_8830867C_02C_154, unk_14) - __builtin_offsetof(unk_func_8830867C_02C_154, unk_0C) ==
+                   __builtin_offsetof(unk_func_8830867C_04C_030_02C_000_000_00C, count),
+               "PORT: the deck's word list must match WordList"); // PORT
 
-        WordList_Remove(&item->unk_00[1]->unk_0C, ((uintptr_t)item->unk_00[0] - tmp) >> 1);
+void LabPCList_ConsumeUsedItem(TmEntry8910A21C* item) { // PORT: typed (was an N64 view of the deck)
+    unk_func_8830867C_02C_154* deck = item->unk_04;
+
+    if ((LabItem_IsQuantitylessItemForOperation(item->unk_00[0]) != 0) || (item->unk_00[1] < 2)) {
+        // PORT: the deck's unk_0C/unk_10/unk_14 are the word list (rows, capacity, count)
+        WordList_Remove((unk_func_8830867C_04C_030_02C_000_000_00C*)&deck->unk_0C, (item->unk_00 - deck->unk_0C) >> 1);
     } else {
-        item->unk_00[0]->unk_01--;
+        item->unk_00[1]--;
     }
-    item->unk_00[1]->unk_08 = 1;
+    deck->unk_08 = 1;
 }
