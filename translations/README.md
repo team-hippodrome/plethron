@@ -21,6 +21,12 @@ md5,ja,en,es,de,pt,ko,note
 - `md5` is the lowercase hex md5 of the original string's raw bytes as the game
   holds them (EUC-JP, up to but not including the NUL). This is the key the runtime
   hook computes.
+  A few strings have identical bytes but different meanings, such as ゴースト, which
+  is both Haunter's name and the Ghost type. Those get one row per meaning with
+  a name instead of an md5 (`HAUNTER_NAME`, `GHOST_TYPE_NAME`). Each name is
+  listed in `SPLIT` in `tools/text/tables.py` with the ROM table entry it comes
+  from, and the port binds it to that entry. The checker rejects an md5 row for
+  such a string, and `show_kana.py` lists one row per name.
 - `ja` is Japanese with kanji. The kana original needs no column: it's the ROM. Strings with
   nothing to convert (katakana names, people's names, nicknames, debug text) are left
   empty on purpose and fall through to the original.

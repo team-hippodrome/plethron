@@ -3724,7 +3724,8 @@ aeb9992e1b2be213a6aa9935730fa24e,ライチュウ,Raichu,Raichu,Raichu,Raichu,라
 c80c3b1ec66464bc351b4c8db193f3aa,サンド,Sandshrew,Sandshrew,Sandan,Sandshrew,모래두지,Pokémon name
 2aade742525663ea58b1c1eb39759516,サンドパン,Sandslash,Sandslash,Sandamer,Sandslash,고지,Pokémon name
 318958fc6ecf82f5c24bca948d1e28db,ニドラン♀,Nidoran♀,Nidoran♀,Nidoran♀,Nidoran♀,니드런♀,Pokémon name
-ff41602f16393b9ff989839e04f284e7,どくばり,Poison Sting,Picotazo Veneno,Giftstachel,Poison Sting,독침,Move name
+POISON_PIN_CATEGORY,どくばり,Poison Pin,Pin Veneno,Giftdorn,Ferrão Venenoso,독침,"Category of Nidoran♀, Nidorina, Nidoran♂ and Nidorino; shown as ""%s Pokémon"". Same bytes as the move Poison Sting."
+POISON_STING_MOVE_NAME,どくばり,Poison Sting,Picotazo Veneno,Giftstachel,Poison Sting,독침,Move name. Same bytes as the Nidoran category.
 7fb74c5c8bfa6bf9fe6268f91fd499e9,ニドリーナ,Nidorina,Nidorina,Nidorina,Nidorina,니드리나,Pokémon name
 826d0d8d83d80a2360ce2b0eb44cdca7,ニドクイン,Nidoqueen,Nidoqueen,Nidoqueen,Nidoqueen,니드퀸,Pokémon name
 bf1a52ca7c95fbe20d197eb693fc8b05,ドリル,Drill,Taladro,Bohrer,Broca,드릴,"Pokédex category, shown through ""%s Pokémon"""
@@ -3823,7 +3824,8 @@ f46a1d91a61b256069ef7ee383c20b48,ヘドロ,Sludge,Lodo,Schlamm,Lodo,진흙,"Pok�
 aa640ba7092ca1f08f3af3fd13ad266e,パルシェン,Cloyster,Cloyster,Austos,Cloyster,파르셀,Pokémon name
 a61231b3b5e2c2416890609a24030b63,ゴース,Gastly,Gastly,Nebulak,Gastly,고오스,Pokémon name
 d7a532897a563bc813a1524a30c0eaae,ガスじょう,Gas,Gas,Gas,Gás,가스,"Pokédex category, shown through ""%s Pokémon"""
-8e926012b0747ce3776e6b3dec9f35a8,ゴースト,Ghost,Fantasma,Geist,Fantasma,고스트,Pokémon name
+HAUNTER_NAME,ゴースト,Haunter,Haunter,Alpollo,Haunter,고우스트,Species name of Haunter (#93). Same bytes as the Ghost type.
+GHOST_TYPE_NAME,ゴースト,Ghost,Fantasma,Geist,Fantasma,고스트,Type name. Same bytes as Haunter's name.
 92c549f4d4cd40cc715e954ba6e9ec62,ゲンガー,Gengar,Gengar,Gengar,Gengar,팬텀,Pokémon name
 007b567e1f6209fdb2bf6a9ef9b054f9,シャドー,Shadow,Sombra,Schatten,Sombra,그림자,"Pokédex category, shown through ""%s Pokémon"""
 9fdd8217d4922ba6875589ffba65a155,イワーク,Onix,Onix,Onix,Onix,롱스톤,Pokémon name
@@ -3929,9 +3931,11 @@ d6b78415e120c94fb31b8029f0a5e782,ミュウ,Mew,Mew,Mew,Mew,뮤,Pokémon name
 a35e2d9a21adfb47b9a5201b090e953e,,OK,OK,OK,OK,정상,Status label
 5d33072249f6fecb43d0f8e0091b6742,瀕死,Fainted,Debilitado,Besiegt,Desmaiado,기절,Stat or status label
 a9d7054ca323b4ebdcd6778fa117f8ea,眠り,Sleep,Dormido,Schlaf,Sono,잠듦,Stat or status label
-d66215b1e9db23506f9b670a4a8610ec,どく,Poison,Veneno,Gift,Venenoso,독,Type name (the same key is also used in the status list)
+POISON_STATUS_NAME,毒,Poison,Envenenado,Gift,Veneno,독,Status label (poisoned) on the summary screen. Same bytes as the Poison type.
+POISON_TYPE_NAME,どく,Poison,Veneno,Gift,Venenoso,독,Type name. Same bytes as the poisoned status label.
 961517625753c017e755df08f56ccc79,火傷,Burn,Quemado,Verbrennung,Queimadura,화상,Stat or status label
-c1ff32329ef23f70d464f0fbdba746ee,こおり,Ice,Hielo,Eis,Gelo,얼음,Type name (the same key is also used in the status list)
+FREEZE_STATUS_NAME,氷,Freeze,Congelado,Gefroren,Congelado,얼음,Status label (frozen) on the summary screen. Same bytes as the Ice type.
+ICE_TYPE_NAME,こおり,Ice,Hielo,Eis,Gelo,얼음,Type name. Same bytes as the frozen status label.
 af16aa4ddfcafb41683bcefe05ee4f39,まひ,Paralysis,Paralizado,Paralyse,Paralisia,마비,Stat or status label
 6ddeefbc9d100ad224ce199dccfc2e6b,ノーマル,Normal,Normal,Normal,Normal,노말,Type name (the same key is also used in the status list)
 f30ad98d6782ad0353499f87552991c4,かくとう,Fighting,Lucha,Kampf,Lutador,격투,Type name (the same key is also used in the status list)

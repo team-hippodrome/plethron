@@ -5,7 +5,8 @@
   python3 tools/text/check_tables.py --rom X.z64  also check keys and printf
                                                   specifiers against your ROM
 
-Format checks: exact header, one row per md5, lowercase 32-hex keys, every
+Format checks: exact header, one row per key, keys are lowercase 32-hex md5s
+or names from tables.SPLIT (shared bytes with several meanings), every
 language cell in a row uses the same printf conversions in the same order
 (positional %1$s forms excepted, as long as the same set is used).
 ROM checks: every key exists in the ROM, and each translation's conversions
@@ -52,18 +53,20 @@ def main():
             problems.append("ROM sha1 %s is not the supported dump %s" % (sha1, romtext.SUPPORTED_SHA1))
         found = romtext.extract(rom)
         for name, rows in data.items():
-            for md5, row in rows.items():
+            for key, row in rows.items():
+                md5 = tables.NAME_SOURCE.get(key, key)
                 if md5 not in found:
-                    problems.append("%s.csv %s: key not found in the ROM" % (name, md5))
+                    problems.append("%s.csv %s: key not found in the ROM" % (name, key))
                     continue
                 orig = found[md5][2].decode("euc-jp")
                 for l in tables.LANGS:
                     if row[l] and not same_specs(orig, row[l]):
-                        problems.append("%s.csv %s %s: printf conversions differ from the original" % (name, md5, l))
+                        problems.append("%s.csv %s %s: printf conversions differ from the original" % (name, key, l))
         ai = data["ai"]
         print("coverage vs ROM (%d strings):" % len(found))
         for l in tables.LANGS:
-            n = sum(1 for m in found if tables.effective(m, l, data["human"], ai)[0])
+            n = sum(1 for m in found
+                    if all(tables.effective(k, l, data["human"], ai)[0] for k in tables.keys_for(m)))
             print("  %s %4d / %d" % (l, n, len(found)))
     for p in problems:
         print("error:", p)

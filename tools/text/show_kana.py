@@ -48,18 +48,20 @@ def main():
     records = []
     for md5, (src, off, raw) in found.items():
         kana = romtext.to_cell(raw.decode("euc-jp"))
-        where = "%s+%06X" % (src, off) if src != "rom" else "%06X" % off
-        rec = {"md5": md5, "where": where, "kana": kana}
-        sources = []
-        for lang in tables.LANGS:
-            text, is_human = tables.effective(md5, lang, human, ai)
-            rec[lang] = text
-            if text:
-                sources.append("%s:%s" % (lang, "human" if is_human else "ai"))
-        rec["from"] = " ".join(sources)
-        note = (human.get(md5) or {}).get("note") or (ai.get(md5) or {}).get("note") or ""
-        rec["note"] = note
-        records.append(rec)
+        for key in tables.keys_for(md5):
+            where = "%s+%06X" % (src, off) if src != "rom" else "%06X" % off
+            if key in tables.NAME_SOURCE:
+                where = "%06X (%s)" % tables.SPLIT[md5][key]
+            rec = {"md5": key, "where": where, "kana": kana}
+            sources = []
+            for lang in tables.LANGS:
+                text, is_human = tables.effective(key, lang, human, ai)
+                rec[lang] = text
+                if text:
+                    sources.append("%s:%s" % (lang, "human" if is_human else "ai"))
+            rec["from"] = " ".join(sources)
+            rec["note"] = (human.get(key) or {}).get("note") or (ai.get(key) or {}).get("note") or ""
+            records.append(rec)
 
     with open(os.path.join(OUT, "kana.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
@@ -75,10 +77,11 @@ def main():
     write_html(os.path.join(OUT, "index.html"), cols, records)
 
     known = set(ai) | set(human)
-    missing = sum(1 for m in found if m not in known)
+    has = lambda table, m: all(k in table for k in tables.keys_for(m))
+    missing = sum(1 for m in found if not all(k in known for k in tables.keys_for(m)))
     print("%d strings from the ROM -> %s" % (len(found), OUT))
     print("  in ai.csv: %d   in human.csv: %d   in neither: %d" % (
-        sum(1 for m in found if m in ai), sum(1 for m in found if m in human), missing))
+        sum(1 for m in found if has(ai, m)), sum(1 for m in found if has(human, m)), missing))
 
 
 def write_html(p, cols, records):
