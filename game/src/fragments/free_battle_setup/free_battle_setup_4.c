@@ -354,7 +354,7 @@ void FreeBattle_DrawRentalTitleWindow(s8* entry, s32 cursor_style) {
             sp44 = 0xFFD;
             break;
     }
-    ScrollGrid_DrawItems(entry + 0x6E4, M2C_FIELD(entry, s32*, 0x14) + 8, M2C_FIELD(entry, s32*, 0x18) + 0xAC, sp44, &sp34);
+    ScrollGrid_DrawItems(entry + 0x6E4, M2C_FIELD(entry, s32*, 0x14) + 8, M2C_FIELD(entry, s32*, 0x18) + 0xAC, sp44, (intptr_t)(&sp34));
 }
 
 /**

@@ -297,7 +297,7 @@ void func_8000B2F4(s32);
 extern Color_RGBA8 D_8900A5C0;
 extern char D_89018460[];
 extern char D_89018468[];
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Sets up a はい/いいえ question window with a title and text; the caller sets the cursor.
  * Seen in play (2026-11-14): 「ちゅうい！ ６４カセットに あきが ありません どれかけしますか？」 when the
@@ -363,7 +363,7 @@ void LabItem_DrawConfirmWindow(LabItemConfirmWindow* win) {
 
 s32 func_8002B390(s8*);
 s32 func_8002BC14(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Moves the はい/いいえ cursor. Returns 1 on はい, -1 on いいえ or B, otherwise 0.
@@ -491,7 +491,7 @@ s32 func_8002BC14(s32);                             /* extern */
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern M2C_UNK D_89018474;
 
 /**
@@ -632,7 +632,7 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
     win->window.frame.style = 0;
     *(Color_RGBA8*)&win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -1436,7 +1436,7 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
     win->footerFrame.color = D_8900A6AC;
     win->footerFrame.color2 = D_8900A6B0;
     func_80027410((s8*)&win->slotTable, (s8*)slots, 0x14, 4, 4);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->slotTable, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
+    Menu_Init((s8*)&win->menu, &win->slotTable, win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
     win->menu.options |= 0x10000;
 }
 

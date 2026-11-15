@@ -920,17 +920,17 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     D_884037B0 = (uintptr_t)GeoLayout_Process(sp20, D_8F4A4240);
     D_884037B4 = (uintptr_t)GeoLayout_Process(sp20, D_8F4B2AF0);
     D_884037B8 = (uintptr_t)GeoLayout_Process(sp20, D_8F4959C8);
-    Model_InitDisplayObject(&D_88403648, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8F4886F8));
+    Model_InitDisplayObject(&D_88403648, 0, 0, GeoLayout_Process(sp20, D_8F4886F8));
     if (gSessionContext.transitionFlags & 8) {
         // Doduo Game Boy prize model (fragment039, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 1, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E825FE8));
+        Model_InitDisplayObject(&D_884034E0, 1, 0, GeoLayout_Process(sp20, D_8E825FE8));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E802B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     } else if (gSessionContext.transitionFlags & 0x10) {
         // Dodrio Game Boy prize model (fragment040, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E924770));
+        Model_InitDisplayObject(&D_884034E0, 0, 0, GeoLayout_Process(sp20, D_8E924770));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E902B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);

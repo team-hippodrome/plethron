@@ -270,7 +270,7 @@ void FreeBattle_DrawMenuWindow(MenuWindow* window, s32 flags) {
         func_80029028(window->window.frame.x + 6, window->window.frame.y + 6, window->window.frame.width - 12, temp_s1, *(Color82001CCC*)&D_82009100);
         Ui_FillRectPrimEnvColor(window->window.frame.x + 6, window->window.frame.y + temp_s1 + 12, window->window.frame.width - 12, window->descriptionLines * 28, D_82009104, D_82009108);
         sp38 = window->window.frame.width - 12;
-        Menu_DrawItems(&window->menu, window->window.frame.x + 6, window->window.frame.y + 10, flags | 0xFFED, (s8*)&sp38);
+        Menu_DrawItems(&window->menu, window->window.frame.x + 6, window->window.frame.y + 10, flags | 0xFFED, (intptr_t)((s8*)&sp38));
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -280,7 +280,7 @@ void FreeBattle_DrawMenuWindow(MenuWindow* window, s32 flags) {
     }
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * FreeBattle_UpdateMenuWindow
@@ -378,13 +378,13 @@ void FreeBattle_DrawPopupMenu(MenuWindow* window, s32 flags)
     if (window && window)
     {
     }
-    Menu_DrawItems(new_var = &window->menu, window->window.frame.x + 6, window->window.frame.y + 12, flags | 0xFFED, (s8*)window); // FAKE: permuter temp
+    Menu_DrawItems(new_var = &window->menu, window->window.frame.x + 6, window->window.frame.y + 12, flags | 0xFFED, (intptr_t)((s8*)window)); // FAKE: permuter temp
   }
 }
 
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Moves a popup menu's cursor. Returns -1 on cancel, the 1-based row on confirm.
  * Seen in play: runs while the rules list is open; D-Down moves the highlight down the rules.
@@ -759,8 +759,8 @@ void FreeBattle_DrawTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
             mask_b = 0xFFD;
             mask_a = 0xFEF;
         }
-        Menu_DrawItems(&window->sideMenu, window->window.frame.x + 34, window->window.frame.y + 209, mask_b, NULL);
-        Menu_DrawItems(&window->opponentMenu, window->window.frame.x + 252, window->window.frame.y + 153, mask_a, NULL);
+        Menu_DrawItems(&window->sideMenu, window->window.frame.x + 34, window->window.frame.y + 209, mask_b, (intptr_t)(NULL));
+        Menu_DrawItems(&window->opponentMenu, window->window.frame.x + 252, window->window.frame.y + 153, mask_a, (intptr_t)(NULL));
         switch ((u32)window->sideMenu.cursor) {
             case 0:
                 mark_a = 1;
@@ -1009,7 +1009,7 @@ void FreeBattle_DrawBattleModeWindow(FreeBattleModeWindow* window) {
     }
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * FreeBattle_UpdateBattleModeWindow
@@ -1253,7 +1253,7 @@ void FreeBattle_DrawUsableMonGrid(FreeBattleMonGridWindow* window, s32 flags) {
     }
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Input of the usable Pokémon grid: A or B closes it (returns -1); otherwise 0.

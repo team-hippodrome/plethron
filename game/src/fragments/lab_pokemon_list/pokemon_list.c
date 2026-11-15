@@ -81,7 +81,7 @@ void LabPCList_InitSources(LabPCListScreen* screen) {
     func_80027410((s8*)screen + 0x420, screen->sources, 0x24, 3, 3);
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(s32);
 /**
  * Sets the header cursor's range for the current detail page (1/3: six columns, 2/3: the move block, 3/3: six stat columns).

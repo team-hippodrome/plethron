@@ -13,7 +13,7 @@ extern s32 D_8910A7F8[3];
 void func_80027410(void*, void*, s32, s32, s32);
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(s32);
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -93,7 +93,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     } else {
         flags[0] = 0;
     }
-    ScrollList_DrawItems((s8*)&screen->list, screen->listFrame.x, y, flags[0] | 0xFFED, screen);
+    ScrollList_DrawItems((s8*)&screen->list, screen->listFrame.x, y, flags[0] | 0xFFED, (intptr_t)(screen));
     sel = (screen->focus == 1) ? (((screen->state != 0) ? 0x10 : 0) | 2) : 0;
     LabPCList_DrawDetailColumns(screen, screen->listFrame.x, screen->listFrame.y, sel);
     gSPDisplayList(gDisplayListHead++, D_80060270);

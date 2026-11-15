@@ -67,7 +67,7 @@ void Registration_WriteTeam(s8* arg0, M2C_UNK arg1) {
 
     handle = Deck_OpenAndSetName(0x10, 0, arg1, 0, arg0 + 8, M2C_FIELD(arg0, s32*, 4));
     for (i = 0; i < M2C_FIELD(arg0, s32*, 0x20); i++, entry++) {
-        if (Deck_WriteEntries((uintptr_t)&entry->mon, 1, handle) == 0) {
+        if (Deck_WriteEntries(&entry->mon, 1, handle) == 0) {
             break;
         }
     }
@@ -258,7 +258,7 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
 s32 Menu_UpdateCursor(void*);
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Menu-list input handler (same pattern as PartyScreen_UpdateActionMenu and FreeBattle_UpdatePopupMenu). Returns 0
@@ -299,7 +299,7 @@ s32 Registration_UpdateMainMenu(MenuWindow* menu) {
 }
 
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_88102DA4;
 extern char D_88102F14[];
 extern char D_88102F1C[];
@@ -361,7 +361,7 @@ void Registration_DrawConfirmWindow(RegistrationConfirmWindow* confirm) {
 
 s32 Ui_HandleHorizontalSelectionInput(void*);
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Handles the confirm window. Returns 1 for yes, -1 for no or cancel.
  * Seen in play (2026-11-12): はい confirmed the registration.
@@ -426,7 +426,7 @@ void Registration_DrawMessageWindow(RegistrationMessageWindow* message) {
 }
 
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Returns the confirm/cancel input while the message window is open.
@@ -957,7 +957,7 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
             }
             break;
         case 3:
-            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 0;
@@ -986,7 +986,7 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
             }
             break;
         case 6:
-            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 2;

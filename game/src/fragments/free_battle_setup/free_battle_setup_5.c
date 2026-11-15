@@ -69,13 +69,13 @@ void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
             break;
         case 2:
             if (!(flags & 2)) {
-                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 408, 206, (uintptr_t)D_82008FCC, 3, (uintptr_t)D_82008FD8, 3, (uintptr_t)D_82009D4C);
+                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 408, 206, (uintptr_t)D_82008FCC, 3, D_82008FD8, 3, D_82009D4C);
             }
             view = (s8*)&screen->menuWindow;
             break;
         case 3:
             if (!(flags & 2)) {
-                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 448, 286, (uintptr_t)D_82008F9C, 2, (uintptr_t)D_82008FA4, 7, (uintptr_t)D_82009D64);
+                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 448, 286, (uintptr_t)D_82008F9C, 2, D_82008FA4, 7, D_82009D64);
             }
             view = (s8*)&screen->menuWindow;
             break;
@@ -92,7 +92,7 @@ void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
                 screen->unk_4330 = 0;
                 screen->unk_4370 = 1;
                 screen->unk_4374 = 1;
-                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FBC, 2, (uintptr_t)D_82008FC4, 3, (uintptr_t)D_82009D7C);
+                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FBC, 2, D_82008FC4, 3, D_82009D7C);
             }
             view = (s8*)&screen->ruleMenuWindow;
             break;
@@ -109,7 +109,7 @@ void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
                 screen->unk_4330 = 0;
                 screen->unk_4370 = 2;
                 screen->unk_4374 = 2;
-                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FAC, 2, (uintptr_t)D_82008FB4, 3, (uintptr_t)D_82009D9C);
+                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FAC, 2, D_82008FB4, 3, D_82009D9C);
             }
             view = (s8*)&screen->ruleMenuWindow;
             break;
@@ -124,13 +124,13 @@ void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
                 screen->unk_4370 = 0;
                 switch (screen->unk_4374) {
                     case 0:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, (uintptr_t)D_82008FEC, 2, (uintptr_t)D_82009DBC);
+                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FEC, 2, D_82009DBC);
                         break;
                     case 1:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, (uintptr_t)D_82008FFC, 2, (uintptr_t)D_82009DCC);
+                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FFC, 2, D_82009DCC);
                         break;
                     case 2:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, (uintptr_t)D_82008FF4, 2, (uintptr_t)D_82009DE4);
+                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FF4, 2, D_82009DE4);
                         break;
                 }
             }
@@ -232,7 +232,7 @@ void FreeBattle_InitEntryScreen(FreeBattleScreen* screen)
   s32 i;
   M2C_FIELD(screen, s32*, 0x4368) = (!((screen->unk_4370) == 0)) || (!((screen->unk_4374) == 0));
   M2C_FIELD(screen, s32*, 0x436C) = ((screen->unk_4370) == 0) && ((screen->unk_4374) == 0);
-  TableView_Initialize((s8*)screen + 0x4310, (uintptr_t) ((s8*)screen + 0x10), 0x214, 0x20, 0);
+  TableView_Initialize((s8*)screen + 0x4310, ((s8*)screen + 0x10), 0x214, 0x20, 0);
   FreeBattle_LoadGbTeams((s8*)screen + 0x4310);
   if (M2C_FIELD(screen, s32*, 0x4368))
   {
@@ -347,7 +347,7 @@ s32 FreeBattle_UpdateOpponentSelect(s8*);
 s32 FreeBattle_UpdateBattleModeWindow(s8*);
 s32 FreeBattle_UpdateCupSelect(s8*);
 s32 FreeBattle_UpdateUsableMonGrid(FreeBattleMonGridWindow*);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s32 D_82008F84;
 extern u8 D_8200AC58[];
 

@@ -16,7 +16,7 @@ void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 extern Entry80066AA0 D_80066AA0[];
 extern M2C_UNK D_800734A8;
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
@@ -267,7 +267,7 @@ void PartyScreen_DrawActionMenu(PartyActionMenuWindow* window) {
     }
 }
 
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 s32 Menu_UpdateCursor(s8*);
 s32 func_8002BC14(s32);
@@ -549,7 +549,7 @@ void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon) {
     func_8001A384(4, 0);
     Font_Printf(x + 9, y + 60, "タイプ"); // "Type"
     Font_Printf(x + 79, y + 60, "1/");
-    if (Pokemon_GetTypeIndex((uintptr_t)mon, 1) != -1) {
+    if (Pokemon_GetTypeIndex(mon, 1) != -1) {
         Font_Printf(x + 185, y + 60, "2/");
     }
     MonSummary_DrawTypeName(x + 111, y + 60, 4, (uintptr_t)mon, 0);

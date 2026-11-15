@@ -25,7 +25,7 @@ void func_8000B2F4(s32);
 extern Color_RGBA8 D_8900A5C0;
 extern char D_89018460[];
 extern char D_89018468[];
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
@@ -39,7 +39,7 @@ extern Color_RGBA8 D_8900A5C8;
 extern Color_RGBA8 D_8900A5CC;
 s32 func_8002B390(s8*);
 s32 func_8002BC14(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern Color_RGBA8 D_8900A5BC;
 void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
 void Font_DrawCharAt(s32 x, s32 y, s32 chr);
@@ -54,7 +54,7 @@ extern u8 D_04002238[];
 extern u8 D_04002340[];
 extern u8 D_04002448[];
 extern char D_89018470[];
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern M2C_UNK D_89018474;
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
 M2C_UNK func_8001AA9C(u8, u8, u8, u8);

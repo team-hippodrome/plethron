@@ -363,7 +363,7 @@ void FreeBattle_InitNamedTeam(SlotList* team, s32 name_index) {
     team->slotCount = 6;
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern Color_RGBA8 D_8200902C;
 extern char D_82009B80[];
@@ -590,7 +590,7 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
         Font_Printf(x + 178, y + 5, D_82009BA8, window->mon->level);
         Font_Printf(x + 320, y + 5, D_82009BAC, window->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_82009BB0);
-        if (Pokemon_GetTypeIndex((uintptr_t)window->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex(window->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_82009BBC);
         }
         Font_Printf(x + 258, y + 40, D_82009BC8);
@@ -1272,6 +1272,6 @@ void FreeBattle_DrawRentalListWindow(s8 *entry, s32 cursor_style)
 
   }
 
-  GridMenu_DrawInlineItems(entry + 0x2F8, x + 136, y, mode, &def);
+  GridMenu_DrawInlineItems(entry + 0x2F8, x + 136, y, mode, (intptr_t)(&def));
   FreeBattle_DrawRowBorders(x, y, D_82008F60);
 }

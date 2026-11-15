@@ -155,7 +155,7 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
     win->window.frame.style = 0;
     win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
+    Menu_Init((s8*)&win->menu, &win->items, win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -176,7 +176,7 @@ void PcSort_DrawMenu(PcSortMenuWindow* win) {
 s32 Menu_UpdateCursorSkipDisabled(void*);
 s32 func_8002BC14(s32);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Moves the menu cursor. Returns -1 on cancel, the 1-based row on confirm, otherwise 0.
  * Seen in play (2026-11-12): picked GBのボックス1 as the destination.
@@ -495,7 +495,7 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     Font_Printf(x + 348, y + 84, D_89018B10, *(u16*)(mon + 0x2C));
     Font_Printf(x + 487, y + 84, D_89018B14, *(u16*)(mon + 0x2E));
     for (i = 0; i < count; i++) {
-        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex((uintptr_t)mon, i), D_8900A79C[i].type);
+        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex(mon, i), D_8900A79C[i].type);
     }
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, D_80060290);

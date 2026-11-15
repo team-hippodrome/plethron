@@ -377,7 +377,7 @@ void GbEmu_Init(GbPlayerEmuBlock* params) { // PORT: the emulator thread block (
 }
 
 extern s16 D_800AA148;
-extern u8* D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern GbEmuTask D_81154BF0;
 extern u8 D_811565A0;
 extern u8 D_811565A1;

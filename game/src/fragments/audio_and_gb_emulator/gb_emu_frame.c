@@ -63,7 +63,7 @@ extern s32 D_81154C48;
 extern u8 D_81154C0F;
 extern u8 D_81154C4F;
 extern GbEmuTask D_81154BF0;
-extern u8* D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern u8 D_8112AF3C[];
 extern u8 D_81130024[];
 extern u8 D_811565F0[];

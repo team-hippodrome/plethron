@@ -516,7 +516,7 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
         } else if (M2C_FIELD(e, s32*, 8) >= 50) {
             n2 = BattleMon_CountMoves(mon);
             for (j = 0; j < n2; j++) {
-                if ((BattleMon_GetMoveIndex((uintptr_t)mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
+                if ((BattleMon_GetMoveIndex(mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
                     break;
                 }
             }

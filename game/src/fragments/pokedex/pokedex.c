@@ -169,7 +169,7 @@ void Pokedex_DrawListWindow(PokedexListWindow* list_window, u32 flags) {
     }
 }
 
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 s32 ScrollList_UpdateCursor(unk_func_8820BE14_02C_038*);
 
 /**
@@ -681,7 +681,7 @@ s32 Pokedex_RunActionMenu(void) {
         Cont_ReadInputs();
         Input_ResetRepeatState();
         if ((sIndexScreen.menuWindow.window.state == 1) || (sIndexScreen.menuWindow.window.state == 2)) {
-            temp_v0 = Pokedex_UpdateActionMenuCursor((uintptr_t) &sActionMenuWindow);
+            temp_v0 = Pokedex_UpdateActionMenuCursor(&sActionMenuWindow);
             if (temp_v0 != 0) {
                 temp_v0_2 = Pokedex_HandleActionMenuResult(temp_v0, &sp50);
                 if (temp_v0_2 == 1) {

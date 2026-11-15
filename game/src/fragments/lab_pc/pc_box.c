@@ -186,7 +186,7 @@ s32 LabPC_AllBoxesEmpty(ByteMatrix* table) {
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void Window_InitLabeled(void* arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4, char* arg5);
 M2C_UNK func_8000B2F4(s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern u8 D_8900A870[];
 extern char D_89018E60[];
 extern char D_89018E68[];
@@ -376,7 +376,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         Font_Printf(x + 178, y + 5, D_89018E88, win->mon->level);
         Font_Printf(x + 320, y + 5, D_89018E8C, win->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_89018E90);
-        if (Pokemon_GetTypeIndex((uintptr_t)win->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex(win->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_89018E9C);
         }
         Font_Printf(x + 258, y + 40, D_89018EA8);
@@ -566,7 +566,7 @@ void PcBox_DrawList(PcBoxListWindow* win, s32 flags) {
 s32 GridMenu_UpdateCursor(void*);
 s32 func_8002BC14(s32);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 /**
  * Moves the box contents cursor. Returns -1 on cancel, the 1-based cell on confirm,
  * otherwise 0. Seen in play (2026-11-14): A on ホ opened its status window.
@@ -791,9 +791,9 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = (Controller*)D_800603C0;
     func_8000B2F4(D_800603C0);
-    Menu_Init(&win->gbBoxMenu, (uintptr_t)gb_box_table, (uintptr_t)win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
+    Menu_Init(&win->gbBoxMenu, gb_box_table, win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
     win->gbBoxMenu.options |= 0x10000;
-    Menu_Init(&win->stadiumBoxMenu, (uintptr_t)(gb_box_table + 1), (uintptr_t)win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
+    Menu_Init(&win->stadiumBoxMenu, (gb_box_table + 1), win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
     win->stadiumBoxMenu.options |= 0x10000;
     win->state = 1;
 }

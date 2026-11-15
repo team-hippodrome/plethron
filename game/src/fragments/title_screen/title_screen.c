@@ -301,7 +301,7 @@ void BgStage_DrawFrame(void);
 void StageContext_SetClearColor(u16 color);
 M2C_UNK Audio_FadeCategoriesAndStreams(M2C_UNK);
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);
-extern void *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern LeoBootDescriptor* sDiskBootBlock;
 
 s32 Leo_RunBootStateMachine(LeoBootDescriptor* arg0); // PORT: no prototype in the decomp

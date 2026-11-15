@@ -23,7 +23,7 @@ M2C_UNK func_80019008(s32, s32, M2C_UNK);
 M2C_UNK func_8001B5F0();
 M2C_UNK Ui_DrawFrameLeftCorners(s32, s32, s32, M2C_UNK *);
 extern M2C_UNK D_800734A8;
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 func_80020CE4(s32, s32, s32);

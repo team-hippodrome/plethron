@@ -25,7 +25,7 @@ M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 extern s32 D_8910A7F8[3];
 void func_80027410(void*, void*, s32, s32, s32);
 void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(s32);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(s8*, s8*, s32, s32);
@@ -462,7 +462,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
             case 2:
                 if (LabPCList_IsLastPartyMon((s8**)entry) != 0) {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD40, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, D_8910DD40, 0, 1, 0);
                     screen->state = 11;
                 } else {
                     Audio_PlaySystemSound(2);
@@ -477,7 +477,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
                     ret = 2;
                 } else {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD58, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, D_8910DD58, 0, 1, 0);
                     screen->state = 12;
                 }
                 break;

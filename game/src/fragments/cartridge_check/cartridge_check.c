@@ -12,7 +12,7 @@
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK func_8001B5F0();
-extern s8 *D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 
 /**
  * Geo callback (referenced from the console model in fragment038, the 0x8F400000 model
