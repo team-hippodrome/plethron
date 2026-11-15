@@ -1,0 +1,1094 @@
+/* Stadium Zero resident code. */
+/* C ported from the Stadium 1 decomp: src/gb_audio.c. */
+
+#include "gb_audio.h"
+#include "gb_audio_render.h"
+typedef struct GbMusicVibrato {
+    /* 0x00 */ u8 vibratoExtent; // @unverified: from the code, as pokered's wChannelVibratoExtents: high nybble = step up, low nybble = step down
+    /* 0x01 */ u8 vibratoRate; // @unverified: from the code, as pokered's wChannelVibratoRates: low nybble counts down, high nybble reloads it
+    /* 0x02 */ u8 frequencyLow; // @unverified: low byte of the note's frequency, the base the vibrato moves around (pokered's wChannelFrequencyLowBytes)
+    /* 0x03 */ u8 vibratoDelayCounter; // @unverified: counts down before the vibrato starts, reloaded from vibratoDelay each note (pokered's wChannelVibratoDelayCounters)
+    /* 0x04 */ u8 vibratoDelay; // @unverified: first byte of the vibrato command (pokered's wChannelVibratoDelayCounterReloadValues)
+} GbMusicVibrato;
+typedef struct GbMusicPitchSlide {
+    /* 0x00 */ f32 current; // @unverified: from the code: current pitch-slide frequency, stepped and written to NRx3/NRx4
+    /* 0x04 */ f32 target; // @unverified: from the code: pitch-slide target frequency (from the slide command's note)
+    /* 0x08 */ f32 step; // @unverified: from the code: (target - current) / length, added each tick
+    /* 0x0C */ u8 length; // @unverified: from the code: first byte of the pitch-slide command, the number of steps
+} GbMusicPitchSlide;
+static u8 D_800B3FD0[8]; // unreferenced; present because the file's .bss is 16-byte aligned (the donor's D_800FCD40)
+static u8 D_800B3FD8[8];
+static u8 D_800B3FE0[8];
+static u8 D_800B3FE8[8];
+static u8 D_800B3FF0[8];
+static u8 D_800B3FF8;
+static GbMusicVibrato D_800B4000[8];
+static GbMusicPitchSlide D_800B4028[8];
+static u8 D_800B40A8[8];
+static u8 D_800B40B0[8];
+static u8 D_800B40B8[8];
+static u8 D_800B40C0[8];
+static u8 D_800B40C8[8];
+static u8 D_800B40D0[8];
+static u8* D_800B40D8[8];
+static s32 D_800B40F8[8];
+static s32 D_800B4118[8];
+static u8 D_800B4138[8];
+static u16 D_800B4140;
+static u16 D_800B4142;
+static u8 D_800B4144;
+static u8 D_800B4146[2];
+static u8* D_800B4148[2];
+static u8 D_800B4150[8];
+static u32 D_800B4158;
+static u8 D_800B415C;
+static u8 D_800B415D;
+extern u8 D_80075FA8[];
+extern u8 D_80075FB0[];
+extern u8 D_80075FB8;
+extern u8 D_80075FBC;
+extern u8 D_80075FC0;
+extern u8 D_80075FC4;
+extern u8 D_80075FC8;
+extern u8 D_80075FCC;
+extern u8 D_80075FD0;
+
+void GbMusic_UpdateChannels(void);
+void GbMusic_StartSequenceById(u8 arg0);
+s32 GbMusic_StartTableSequence(u16 arg0);
+void GbMusic_UpdateChannel(u32 arg0);
+void GbMusic_DecodeChannelCommands(u32 arg0);
+u8 GbMusic_CmdEndOrReturn(u32 arg0);
+u8 GbMusic_CmdCall(u32 arg0);
+u8 GbMusic_CmdLoop(u32 arg0);
+u8 GbMusic_CmdToggleFinePitch(u32 arg0);
+u8 GbMusic_CmdSetEnvelope(u32 arg0);
+u8 GbMusic_CmdPitchSlide(u32 arg0);
+u8 GbMusic_CmdSetDutyCycle(u32 arg0);
+u8 GbMusic_CmdSetTempo(u32 arg0);
+u8 GbMusic_CmdSetPanMask(u32 arg0);
+u8 GbMusic_CmdPlaySequence(u32 arg0);
+u8 GbMusic_CmdSetDutyRotation(u32 arg0);
+u8 GbMusic_CmdSetMasterVolume(u32 arg0);
+u8 GbMusic_CmdEnableEnvelope(u32 arg0);
+u8 GbMusic_CmdSetNoteLength(u32 arg0, u8 arg1);
+u8 GbMusic_CmdSetOctave(u32 arg0, u8 arg1);
+s32 GbMusic_CmdPlayNoteWithDuty(u32 arg0, u8 arg1);
+u8 GbMusic_CmdPlayNote(u32 arg0, u8 arg1);
+u8 GbMusic_TriggerNoteFromByte(u32 arg0, u8 arg1);
+s32 GbMusic_ScheduleNote(u32 arg0, u8 arg1);
+s32 GbMusic_TriggerChannelNote(u32 arg0, u16 arg1, u16 arg2);
+s32 GbMusic_UpdateChannelPanning(u32 arg0);
+s32 GbMusic_WriteChannelDutyLength(u32 arg0);
+s32 GbMusic_WriteChannelFrequency(u32 arg0, u16 arg1);
+void GbMusic_UpdateHighChannelTempo(void);
+void GbMusic_WriteTransposedFrequency(u16 arg0, u16 arg1);
+s32 GbMusic_RewindIfSfxActive(u32 arg0);
+s32 GbMusic_IsSfxActive(void);
+void GbMusic_AdvancePitchSlide(u32 arg0);
+s32 GbMusic_StartPitchSlide(u32 arg0, u16 arg1);
+void GbMusic_RotateChannelDuty(u32 arg0);
+u8 GbMusic_ReadStreamByte(u32 arg0);
+u16 GbMusic_GetChannelRegister(u32 arg0, s32 arg1);
+u16 GbMusic_GetNoteFrequency(u8 arg0, u8 arg1);
+void GbMusic_StartSfx(u8 arg0);
+void GbMusic_ResetApu(void);
+void GbMusic_BindSequenceTracks(u8 arg0);
+s32 GbMusic_CountActiveHighChannels(void);
+void GbMusic_RelocateBank(GbMusicBank* arg0);
+
+void GbMusic_StartMusic(u8 arg0);
+
+/** Advances all eight Game Boy music channels by one tick. */
+void GbMusic_UpdateChannels(void) {
+    s32 i;
+
+    for (i = 0; i < 8; i++) {
+        if (D_800B3FD8[i] != 0) {
+            GbMusic_UpdateChannel(i);
+        }
+    }
+}
+
+/**
+ * Starts the Game Boy music sequence with the given id; 0xFF stops music and
+ * resets the APU.
+ */
+void GbMusic_StartSequenceById(u8 arg0) {
+    D_800B4144 = arg0;
+    if (arg0 == 0xFF) {
+        GbMusic_ResetApu();
+    } else if ((D_80075FC0 >= arg0) || (D_80075FC4 < arg0)) {
+        GbMusic_StartSfx(arg0);
+    } else {
+        GbMusic_StartMusic(arg0);
+    }
+}
+
+/** Starts a sequence looked up from the sequence table by index. */
+s32 GbMusic_StartTableSequence(u16 arg0) {
+    s32 a;
+    s32 offset;
+
+    if (GbMusic_CountActiveHighChannels() != 0) {
+        return 0;
+    }
+
+    GbMusic_RelocateBank(D_800FD688);
+
+    if (D_800FD688->num_entries < arg0) {
+        return 0;
+    }
+
+    offset = D_800FD688->offset;
+    GbMusic_ResetApu();
+
+    arg0--;
+
+    a = D_800FD688->entries[arg0].seqId;
+    D_800B4144 = a;
+    D_800B415C = D_800FD688->entries[arg0].unk_02;
+    D_800B415D = D_800FD688->entries[arg0].unk_03;
+    D_800B4158 = offset + a * 0x18;
+
+    GbMusic_StartSfx(a);
+
+    return 1;
+}
+
+/**
+ * Advances one channel's note timer and decodes its next commands when the
+ * note ends.
+ */
+void GbMusic_UpdateChannel(u32 arg0) {
+    if (D_800B3FE0[arg0] < 2) {
+        D_800B4000[arg0].vibratoDelayCounter = D_800B4000[arg0].vibratoDelay;
+        D_800B3FE8[arg0] &= (u8)~0x30;
+        GbMusic_DecodeChannelCommands(arg0);
+        return;
+    }
+
+    D_800B3FE0[arg0]--;
+
+    if ((arg0 < 4) && (D_800B3FD8[arg0 + 4] != 0)) {
+        return;
+    }
+
+    if (D_800B3FE8[arg0] & 0x40) {
+        GbMusic_RotateChannelDuty(arg0);
+    }
+
+    if ((D_800B3FF0[arg0] & 1) || (D_800B3FE8[arg0] & 4)) {
+        if (D_800B3FE8[arg0] & 0x10) {
+            GbMusic_AdvancePitchSlide(arg0);
+        } else if (D_800B4000[arg0].vibratoDelayCounter != 0) {
+            D_800B4000[arg0].vibratoDelayCounter--;
+        } else if (D_800B4000[arg0].vibratoExtent != 0) {
+            if (D_800B4000[arg0].vibratoRate & 0xF) {
+                D_800B4000[arg0].vibratoRate--;
+            } else {
+                u8 sp2F = D_800B4000[arg0].vibratoRate;
+                sp2F = (sp2F << 4) | ((sp2F >> 4) & 0xF);
+
+                D_800B4000[arg0].vibratoRate |= sp2F;
+
+                if ((D_800B3FE8[arg0] & 8) != 0) {
+                    sp2F = D_800B4000[arg0].vibratoExtent & 0xF;
+                    D_800B3FE8[arg0] &= ~8;
+                    if (D_800B4000[arg0].frequencyLow < sp2F) {
+                        sp2F = D_800B3FE8[arg0] * 0; // FAKE: * 0
+                    } else {
+                        sp2F = D_800B4000[arg0].frequencyLow - sp2F;
+                    }
+                } else {
+                    sp2F = (D_800B4000[arg0].vibratoExtent & 0xF0) >> 4;
+                    D_800B3FE8[arg0] &= 8;
+                    if ((0xFF - sp2F) < D_800B4000[arg0].frequencyLow) {
+                        sp2F = 0xFF;
+                    } else {
+                        sp2F += D_800B4000[arg0].frequencyLow;
+                    }
+                }
+                GbAudio_QueueRegisterWrite(GbMusic_GetChannelRegister(arg0, 3), sp2F, 0);
+            }
+        }
+    }
+}
+
+/**
+ * Decodes and runs the commands in a channel's stream until a note or rest is
+ * produced.
+ */
+void GbMusic_DecodeChannelCommands(u32 arg0) {
+    u32 var_v0;
+    u8 temp_v0;
+
+    do {
+        temp_v0 = GbMusic_ReadStreamByte(arg0);
+        switch (temp_v0) {
+            case 0xFF:
+                var_v0 = GbMusic_CmdEndOrReturn(arg0);
+                break;
+            case 0xFD:
+                var_v0 = GbMusic_CmdCall(arg0);
+                break;
+            case 0xFE:
+                var_v0 = GbMusic_CmdLoop(arg0);
+                break;
+            case 0xE8:
+                var_v0 = GbMusic_CmdToggleFinePitch(arg0);
+                break;
+            case 0xEA:
+                var_v0 = GbMusic_CmdSetEnvelope(arg0);
+                break;
+            case 0xEB:
+                var_v0 = GbMusic_CmdPitchSlide(arg0);
+                break;
+            case 0xEC:
+                var_v0 = GbMusic_CmdSetDutyCycle(arg0);
+                break;
+            case 0xED:
+                var_v0 = GbMusic_CmdSetTempo(arg0);
+                break;
+            case 0xEE:
+                var_v0 = GbMusic_CmdSetPanMask(arg0);
+                break;
+            case 0xEF:
+                var_v0 = GbMusic_CmdPlaySequence(arg0);
+                break;
+            case 0xFC:
+                var_v0 = GbMusic_CmdSetDutyRotation(arg0);
+                break;
+            case 0xF0:
+                var_v0 = GbMusic_CmdSetMasterVolume(arg0);
+                break;
+            case 0xF8:
+                var_v0 = GbMusic_CmdEnableEnvelope(arg0);
+                break;
+            default:
+                switch (temp_v0 & 0xF0) {
+                    case 0xD0:
+                        var_v0 = GbMusic_CmdSetNoteLength(arg0, temp_v0);
+                        break;
+                    case 0xE0:
+                        var_v0 = GbMusic_CmdSetOctave(arg0, temp_v0);
+                        break;
+                    case 0x20:
+                        var_v0 = GbMusic_CmdPlayNoteWithDuty(arg0, temp_v0);
+                        break;
+                    default:
+                        var_v0 = GbMusic_CmdPlayNote(arg0, temp_v0);
+                        break;
+                }
+                break;
+        }
+    } while (!var_v0 ^ 0);  // FAKE
+}
+
+/** Music command: ends the channel or returns from a called sub-sequence. */
+u8 GbMusic_CmdEndOrReturn(u32 arg0) {
+    if (D_800B3FE8[arg0] & 2) {
+        D_800B3FE8[arg0] &= ~2;
+        D_800B40F8[arg0] = D_800B40D8[arg0];
+        return 0;
+    }
+
+    if (arg0 >= 3) {
+        D_800B3FE8[arg0] &= ~4;
+        D_800B3FF0[arg0] &= ~1;
+        if (arg0 == 6) {
+            GbAudio_QueueRegisterWrite(0xFF1A, 0, 0);
+            GbAudio_QueueRegisterWrite(0xFF1A, 0x80, 0);
+        }
+
+        if (D_800B3FF8 != 0) {
+            D_800B3FF8 = 0;
+        }
+        GbAudio_QueueRegisterWrite(0xFF25, D_80075FB0[arg0] & GbAudio_GetRegisterValue(0xFF25), 0);
+    }
+
+    D_800B3FD8[arg0] = 0;
+
+    if ((D_800B3FD8[4] >= D_80075FB8) && (D_800B3FD8[4] < D_80075FBC)) {
+        if ((arg0 != 4) && (GbMusic_RewindIfSfxActive(arg0) != 0)) {
+            return 1;
+        } else {
+            GbAudio_QueueRegisterWrite(0xFF24, D_800B40D0[0], 0);
+            D_800B40D0[0] = 0;
+            D_800B3FD8[arg0] = 0;
+        }
+    }
+    return 1;
+}
+
+/** Music command: calls a sub-sequence, saving the return address. */
+u8 GbMusic_CmdCall(u32 arg0) {
+    u8 sp1F;
+    u8 temp_v0;
+    s32 tmp;
+
+    sp1F = GbMusic_ReadStreamByte(arg0);
+    temp_v0 = GbMusic_ReadStreamByte(arg0);
+    tmp = (temp_v0 << 8) + sp1F;
+
+    D_800B40F8[arg0] = D_800B40D8[arg0];
+    D_800B40D8[arg0] = tmp + D_800B4118[arg0];
+    D_800B3FE8[arg0] |= 2;
+    return 0;
+}
+
+/** Music command: repeats a section of the stream a given number of times. */
+u8 GbMusic_CmdLoop(u32 arg0) {
+    u8 sp27;
+    u8 sp26;
+    u32 temp_v0 = GbMusic_ReadStreamByte(arg0);
+
+    if (temp_v0) {
+        if (D_800B40C0[arg0] == temp_v0) {
+            D_800B40C0[arg0] = 1;
+            GbMusic_ReadStreamByte(arg0);
+            GbMusic_ReadStreamByte(arg0);
+            return 0;
+        }
+        D_800B40C0[arg0]++;
+    }
+
+    sp27 = GbMusic_ReadStreamByte(arg0);
+    sp26 = GbMusic_ReadStreamByte(arg0);
+
+    //!bug adds the offset to the address of D_800B4118 itself, not to the channel's base D_800B4118[arg0]
+    // as GbMusic_CmdCall does
+    D_800B40D8[arg0] = (u8*)D_800B4118 + ((sp26 << 8) | sp27);
+    return 0;
+}
+
+/** Music command: toggles the channel's fine-pitch flag. */
+u8 GbMusic_CmdToggleFinePitch(u32 arg0) {
+    D_800B3FE8[arg0] ^= 1;
+    return 0;
+}
+
+/**
+ * Music command 0xEA (pokered's vibrato): reads the vibrato delay, then one byte whose high nybble
+ * gives the vibrato extent (split into up and down steps) and whose low nybble the vibrato rate.
+ * The name says envelope; the code sets the vibrato fields.
+ */
+u8 GbMusic_CmdSetEnvelope(u32 arg0) {
+    u8 temp_a0;
+    u8 temp_a1;
+    u8 temp_v0;
+    u8 temp_t9;
+
+    temp_v0 = GbMusic_ReadStreamByte(arg0);
+    D_800B4000[arg0].vibratoDelayCounter = temp_v0;
+    D_800B4000[arg0].vibratoDelay = temp_v0;
+
+    temp_v0 = GbMusic_ReadStreamByte(arg0);
+    temp_a0 = temp_v0 & 0xF0;
+    temp_a0 >>= 4;
+    temp_a1 = temp_a0;
+    temp_a1 >>= 1;
+    temp_t9 = temp_a0 & 1;
+    temp_a0 = temp_a1 + temp_t9;
+    temp_a0 <<= 4;
+    temp_t9 = temp_a0 | temp_a1;
+    D_800B4000[arg0].vibratoExtent = temp_t9;
+
+    temp_t9 = temp_v0 & 0xF;
+    temp_v0 = temp_t9 << 4;
+    temp_v0 |= temp_t9;
+    D_800B4000[arg0].vibratoRate = temp_v0;
+    return 0;
+}
+
+/** Music command: starts a pitch slide on the channel. */
+u8 GbMusic_CmdPitchSlide(u32 arg0) {
+    UNUSED s32 pad; // FAKE: stack padding
+    u8 temp_v0;
+
+    D_800B4028[arg0].length = GbMusic_ReadStreamByte(arg0);
+    temp_v0 = GbMusic_ReadStreamByte(arg0);
+    D_800B4028[arg0].target = GbMusic_GetNoteFrequency(temp_v0 & 0xF, (temp_v0 & 0xF0) >> 4);
+    D_800B3FE8[arg0] |= 0x10;
+    GbMusic_ScheduleNote(arg0, GbMusic_ReadStreamByte(arg0));
+    return 1;
+}
+
+/** Music command: sets the channel's pulse duty cycle. */
+u8 GbMusic_CmdSetDutyCycle(u32 arg0) {
+    D_800B40B0[arg0] = GbMusic_ReadStreamByte(arg0) << 6;
+    return 0;
+}
+
+/** Music command: sets the music tempo. */
+u8 GbMusic_CmdSetTempo(u32 arg0) {
+    u8 sp1F;
+    u8 sp1E;
+
+    if (arg0 < 4) {
+        sp1F = GbMusic_ReadStreamByte(arg0);
+        sp1E = GbMusic_ReadStreamByte(arg0);
+        D_800B4140 = (sp1E << 8) + sp1F;
+        D_800B4150[0] = 0;
+        D_800B4150[1] = 0;
+        D_800B4150[2] = 0;
+        D_800B4150[3] = 0;
+    } else {
+        sp1F = GbMusic_ReadStreamByte(arg0);
+        sp1E = GbMusic_ReadStreamByte(arg0);
+        D_800B4142 = (sp1E << 8) + sp1F;
+        D_800B4150[4] = 0;
+        D_800B4150[5] = 0;
+        D_800B4150[6] = 0;
+        D_800B4150[7] = 0;
+    }
+    return 0;
+}
+
+/** Music command: sets the stereo panning mask. */
+u8 GbMusic_CmdSetPanMask(u32 arg0) {
+    D_800B40D0[1] = GbMusic_ReadStreamByte(arg0);
+    return 0;
+}
+
+/** Music command: starts another sequence. */
+u8 GbMusic_CmdPlaySequence(u32 arg0) {
+    GbMusic_StartSequenceById(GbMusic_ReadStreamByte(arg0));
+    if (D_800B3FF8 == 0) {
+        D_800B3FF8 = D_800B3FD8[7];
+        D_800B3FD8[7] = 0;
+    }
+    return 0;
+}
+
+/** Music command: sets a duty-cycle rotation pattern for the channel. */
+u8 GbMusic_CmdSetDutyRotation(u32 arg0) {
+    u8 temp_v0 = GbMusic_ReadStreamByte(arg0);
+
+    D_800B40A8[arg0] = temp_v0;
+    D_800B40B0[arg0] = temp_v0 & 0xC0;
+    D_800B3FE8[arg0] |= 0x40;
+    return 0;
+}
+
+/** Music command: writes the master volume register. */
+u8 GbMusic_CmdSetMasterVolume(u32 arg0) {
+    GbAudio_QueueRegisterWrite(0xFF24, GbMusic_ReadStreamByte(arg0), 0);
+    return 0;
+}
+
+/** Music command: enables the volume envelope on the channel. */
+u8 GbMusic_CmdEnableEnvelope(u32 arg0) {
+    D_800B3FF0[arg0] |= 1;
+    return 0;
+}
+
+/**
+ * Music command: sets the note length from the low nibble of the command byte.
+ */
+u8 GbMusic_CmdSetNoteLength(u32 arg0, u8 arg1) {
+    u8 var_a1;
+
+    D_800B4138[arg0] = arg1 & 0xF;
+    if (arg0 != 3) {
+        var_a1 = GbMusic_ReadStreamByte(arg0);
+        if (arg0 == 2) {
+            D_800B4146[0] = var_a1 & 0xF;
+            var_a1 = (var_a1 & 0x30) * 2;
+        } else if (arg0 == 6) {
+            D_800B4146[1] = var_a1 & 0xF;
+            var_a1 = (var_a1 & 0x30) * 2;
+        }
+        D_800B40B8[arg0] = var_a1;
+    }
+    return 0;
+}
+
+/** Music command: sets the octave from the low nibble of the command byte. */
+u8 GbMusic_CmdSetOctave(u32 arg0, u8 arg1) {
+    D_800B40C8[arg0] = arg1 & 0xF;
+    return 0;
+}
+
+/**
+ * Music command: plays a note on a pulse channel together with its duty
+ * setting.
+ */
+s32 GbMusic_CmdPlayNoteWithDuty(u32 arg0, u8 arg1) {
+    u8 sp27;
+    u8 sp26;
+    u8 sp25;
+    u32 var_v1;
+
+    if (((arg1 & 0xF0) != 0x20) || (arg0 < 3) || (D_800B3FF0[arg0] & 1)) {
+        var_v1 = GbMusic_CmdPlayNote(arg0, arg1);
+    } else {
+        sp25 = D_800B40B0[arg0] | GbMusic_ScheduleNote(arg0, arg1);
+        GbAudio_QueueRegisterWrite(GbMusic_GetChannelRegister(arg0, 1), sp25, 0);
+        sp27 = GbMusic_ReadStreamByte(arg0);
+        GbAudio_QueueRegisterWrite(GbMusic_GetChannelRegister(arg0, 2), sp27, 0);
+        sp26 = GbMusic_ReadStreamByte(arg0);
+        sp27 = 0;
+        if (arg0 != 7) {
+            sp27 = GbMusic_ReadStreamByte(arg0);
+        }
+        GbMusic_WriteChannelDutyLength(arg0);
+        GbMusic_UpdateChannelPanning(arg0);
+        GbMusic_WriteChannelFrequency(arg0, (sp27 << 8) + sp26);
+        var_v1 = 1;
+    }
+    return var_v1;
+}
+
+/** Music command: plays a note, triggering it on the four sound channels. */
+u8 GbMusic_CmdPlayNote(u32 arg0, u8 arg1) {
+    if (arg0 < 4) {
+        GbMusic_TriggerNoteFromByte(arg0, arg1);
+    }
+
+    if (arg1 != 0x10) {
+        GbMusic_TriggerNoteFromByte(arg0, arg1);
+        return 1;
+    }
+
+    if (D_800B3FF0[arg0] & 1) {
+        GbMusic_TriggerNoteFromByte(arg0, arg1);
+        return 1;
+    }
+
+    GbAudio_QueueRegisterWrite(0xFF10, GbMusic_ReadStreamByte(arg0), 0);
+    return 0;
+}
+
+/** Decodes a note byte (pitch and length) and triggers the note on a channel. */
+u8 GbMusic_TriggerNoteFromByte(u32 arg0, u8 arg1) {
+    u8 sp1F;
+    s32 temp_v0 = arg1 & 0xF0;
+
+    if ((arg0 != 3) || (temp_v0 > 0xB0)) {
+        GbMusic_ScheduleNote(arg0, arg1); //!bug the call below then passes sp1F uninitialized
+    } else {
+        if (temp_v0 == 0xB0) {
+            sp1F = GbMusic_ReadStreamByte(arg0);
+        } else {
+            sp1F = temp_v0 >> 4;
+        }
+
+        if (D_800B3FF8 == 0) {
+            GbMusic_StartSequenceById(D_800B4144);
+        }
+    }
+
+    GbMusic_ScheduleNote(arg0, sp1F);
+    return 1;
+}
+
+/** Computes a note's frequency and duration and schedules it on a channel. */
+s32 GbMusic_ScheduleNote(u32 arg0, u8 arg1) {
+    u16 sp26;
+    u16 tmp;
+    u16 var_t0;
+    u16 sp20;
+    u8 sp1F;
+
+    sp26 = (D_800B4138[arg0] * ((arg1 & 0xF) + 1));
+    var_t0 = 0x100;
+    if (arg0 >= 4) {
+        if (arg0 != 7) {
+            GbMusic_UpdateHighChannelTempo();
+            var_t0 = D_800B4142;
+        }
+    } else {
+        var_t0 = D_800B4140;
+    }
+
+    tmp = (D_800B4150[arg0] + (sp26 * var_t0));
+    D_800B4150[arg0] = tmp & 0xFFFF;
+    D_800B3FE0[arg0] = (tmp & 0xFF00) >> 8;
+
+    if (!(D_800B3FF0[arg0] & 1) && (D_800B3FE8[arg0] & 4)) {
+        return D_800B3FE0[arg0];
+    } else if ((arg1 & 0xF0) != 0xC0) {
+        return GbMusic_TriggerChannelNote(arg0, arg1, tmp);
+    } else if ((arg0 < 4) && (D_800B3FD8[4 + arg0] != 0)) {
+        return D_800B3FD8[4 + arg0];
+    } else if ((arg0 == 2) || (arg0 == 6)) {
+        sp1F = D_80075FB0[arg0] | GbAudio_GetRegisterValue(0xFF25);
+        GbAudio_QueueRegisterWrite(0xFF25, sp1F, 0);
+        return sp1F;
+    } else {
+        sp20 = GbMusic_GetChannelRegister(arg0, 2);
+        GbAudio_QueueRegisterWrite(sp20, 8, 0);
+        GbAudio_QueueRegisterWrite(sp20 + 2, 0x80, 0);
+    }
+
+    return 0x80;
+}
+
+/** Writes the registers that trigger a note on a channel. */
+s32 GbMusic_TriggerChannelNote(u32 arg0, u16 arg1, u16 arg2) {
+    u16 var_s1;
+    s32 tmp;
+    u8 tmp1;
+
+    arg1 = (arg1 & 0xF0) >> 8; //!bug always 0: the pitch nybble is shifted out
+
+    tmp1 = D_800B40C8[arg0];
+    var_s1 = GbMusic_GetNoteFrequency(arg1, tmp1);
+    tmp = D_800B3FE8[arg0] == 0;
+
+    if (tmp & 0x10) { //!bug never true: tmp is 0 or 1
+        GbMusic_StartPitchSlide(arg0, var_s1);
+    }
+
+    if ((arg0 < 4) && (D_800B3FD8[4 + arg0] != 0)) {
+        return 1;
+    }
+
+    GbAudio_QueueRegisterWrite(GbMusic_GetChannelRegister(arg0, 2), D_800B40B8[arg0], 0);
+    GbMusic_WriteChannelDutyLength(arg0);
+    GbMusic_UpdateChannelPanning(arg0);
+    if (D_800B3FE8[arg0] & 1) {
+        var_s1++;
+    }
+    D_800B4000[arg0].frequencyLow = var_s1 & 0xFF;
+    GbMusic_WriteChannelFrequency(arg0, var_s1);
+    return 1;
+}
+
+/** Writes the channel's stereo panning bits to the panning register. */
+s32 GbMusic_UpdateChannelPanning(u32 arg0) {
+    u8 tmp;
+    u8 sp1E;
+    u8 temp_v1 = D_80075FA8[arg0] | GbAudio_GetRegisterValue(0xFF25);
+
+    if ((arg0 >= 4) && (arg0 != 7)) {
+        GbAudio_QueueRegisterWrite(0xFF25, temp_v1, 0);
+        return 1;
+    }
+
+    if ((arg0 != 7) && (D_800B3FD8[4 + arg0] != 0)) {
+        GbAudio_QueueRegisterWrite(0xFF25, temp_v1, 0);
+        return 1;
+    }
+
+    sp1E = (D_800B40D0[1] & D_80075FA8[arg0]);
+    tmp = D_80075FB0[arg0] & GbAudio_GetRegisterValue(0xFF25);
+    tmp |= sp1E;
+    GbAudio_QueueRegisterWrite(0xFF25, tmp, 0);
+    return 1;
+}
+
+/** Writes a channel's duty and length register. */
+s32 GbMusic_WriteChannelDutyLength(u32 arg0) {
+    u8 sp1F = D_800B3FE0[arg0];
+    u8 tmp;
+
+    if ((arg0 != 2) && (arg0 != 6)) {
+        tmp = D_800B40B0[arg0];
+
+        sp1F &= 0x3F;
+        sp1F |= tmp;
+    }
+    GbAudio_QueueRegisterWrite(GbMusic_GetChannelRegister(arg0, 1), sp1F, 0);
+    return 1;
+}
+
+/** Writes a channel's frequency registers. */
+s32 GbMusic_WriteChannelFrequency(u32 arg0, u16 arg1) {
+    u8 sp2E[4];
+    s32 var_s2;
+    u16 temp_v0;
+
+    if ((arg0 == 2) || (arg0 == 6)) {
+        s32 i;
+
+        if (arg0 == 2) {
+            var_s2 = 0;
+        } else {
+            var_s2 = 1;
+        }
+        GbAudio_QueueRegisterWrite(0xFF1A, 0, 0);
+
+        for (i = 0; i < 16; i++) {
+            GbAudio_QueueRegisterWrite(i + 0x20, D_800B4148[var_s2][i], 0);
+        }
+
+        GbAudio_QueueRegisterWrite(0xFF1A, 0x80, 0);
+    }
+
+    {
+        u32 new_var2 = arg1 & 0xFF; // FAKE: permuter temp
+        u32 new_var = (((arg1 >> 8) & 0xFF) | 0x80) & 0xC7; // FAKE: permuter temp
+
+        sp2E[2] = new_var2; // FAKE
+        sp2E[3] = new_var; // FAKE
+
+        temp_v0 = GbMusic_GetChannelRegister(arg0, 3);
+        GbAudio_QueueRegisterWrite(temp_v0, new_var2, 0); // FAKE
+        GbAudio_QueueRegisterWrite(temp_v0 + 1, new_var, 0); // FAKE
+
+        if (D_800B3FD8[4] != 0) {
+            GbMusic_WriteTransposedFrequency(sp2E[2] + (sp2E[3] << 8), temp_v0);
+        }
+    }
+    return 1;
+}
+
+/** Applies the tempo to the upper channels while no sound effect is active. */
+void GbMusic_UpdateHighChannelTempo(void) {
+    s32 tmp;
+
+    if (GbMusic_IsSfxActive() != 0) {
+        tmp = D_800B415D + 0x80;
+        D_800B4142 = tmp;
+    } else {
+        D_800B4142 = 0x100;
+    }
+}
+
+/** Writes a transposed frequency, unless a sound effect is active. */
+void GbMusic_WriteTransposedFrequency(u16 arg0, u16 arg1) {
+    if (GbMusic_IsSfxActive() != 0) {
+        u16 sp18 = D_800B415C;
+
+        arg0 += sp18;
+        GbAudio_QueueRegisterWrite(arg1, arg0 & 0xFF, 0);
+        GbAudio_QueueRegisterWrite(arg1 + 1, (arg0 >> 8) & 0xFF, 0);
+    }
+}
+
+/**
+ * Steps the stream back one byte while a sound effect is active; returns 1 if
+ * it did.
+ */
+s32 GbMusic_RewindIfSfxActive(u32 arg0) {
+    if (GbMusic_IsSfxActive() != 0) {
+        D_800B40D8[arg0]--;
+        return 1;
+    }
+    return 0;
+}
+
+/** Returns whether a sound effect currently occupies the shared channel. */
+s32 GbMusic_IsSfxActive(void) {
+    if ((D_800B3FD8[4] < D_80075FBC) && (D_800B3FD8[4] >= D_80075FB8)) {
+        return 1;
+    }
+    return 0;
+}
+
+/** Advances a channel's pitch slide by one step. */
+void GbMusic_AdvancePitchSlide(u32 arg0) {
+    u8 sp1F;
+    u8 sp1E;
+    u16 sp1C;
+
+    D_800B4028[arg0].current += D_800B4028[arg0].step;
+    if (D_800B3FE8[arg0] & 0x20) {
+        if (D_800B4028[arg0].target < D_800B4028[arg0].current) {
+            D_800B3FE8[arg0] &= ~0x30;
+            return;
+        }
+    } else if (D_800B4028[arg0].current < D_800B4028[arg0].target) {
+        D_800B3FE8[arg0] &= ~0x30;
+        return;
+    }
+
+    sp1F = D_800B4028[arg0].current;
+    sp1E = ((u16)D_800B4028[arg0].current & 0xFF00) >> 8;
+    sp1C = GbMusic_GetChannelRegister(arg0, 3);
+    GbAudio_QueueRegisterWrite(sp1C, sp1F, 0);
+    GbAudio_QueueRegisterWrite(sp1C + 1, sp1E, 0);
+}
+
+/** Starts a pitch slide toward the given frequency. */
+s32 GbMusic_StartPitchSlide(u32 arg0, u16 arg1) {
+    D_800B4028[arg0].current = arg1;
+    if (arg1 < D_800B4028[arg0].target) {
+        D_800B3FE8[arg0] &= ~0x20;
+    } else {
+        D_800B3FE8[arg0] |= 0x20;
+    }
+    D_800B4028[arg0].step = (D_800B4028[arg0].target - D_800B4028[arg0].current) / D_800B4028[arg0].length;
+    return 1;
+}
+
+/** Advances the channel's duty-cycle rotation. */
+void GbMusic_RotateChannelDuty(u32 arg0) {
+    u8 sp1F;
+    u16 sp1C;
+
+    sp1F = D_800B40A8[arg0];
+    sp1F &= 0xC0;
+    D_800B40A8[arg0] *= 4;
+    D_800B40A8[arg0] |= (sp1F >> 6);
+    sp1F &= 0xC0;
+    sp1C = GbMusic_GetChannelRegister(arg0, 1);
+    GbAudio_QueueRegisterWrite(sp1C, (sp1F | (GbAudio_GetRegisterValue(sp1C) & 0x3F) & 0xFF), 0);
+}
+
+/** Reads the next byte from a channel's command stream. */
+u8 GbMusic_ReadStreamByte(u32 arg0) {
+    return *D_800B40D8[arg0]++;
+}
+
+/**
+ * Returns the Game Boy register address of the given channel and register
+ * number.
+ */
+u16 GbMusic_GetChannelRegister(u32 arg0, s32 arg1) {
+    UNUSED s32 pad; // FAKE: stack padding
+    u16 D_800785BC[] = {
+        0xFF10, 0xFF15, 0xFF1A, 0xFF1F, 0xFF10, 0xFF15, 0xFF1A, 0xFF1F,
+    };
+    s32 ret = D_800785BC[arg0] + arg1;
+
+    return ret;
+}
+
+/** Returns the frequency value for a note and octave. */
+u16 GbMusic_GetNoteFrequency(u8 arg0, u8 arg1) {
+    s16 sp8[] = {
+        0xF82C, 0xF89D, 0xF907, 0xF96B, 0xF9CA, 0xFA23, 0xFA77, 0xFAC7, 0xFB12, 0xFB58, 0xFB9B, 0xFBDA,
+    };
+    s16 ret = sp8[arg0];
+
+    ret >>= 7 - arg1;
+    ret += 0x800;
+    return ret;
+}
+
+/**
+ * Resets the Game Boy sound-chip emulation state and starts music sequence
+ * arg0: clears the per-channel arrays for the four channels (and the two
+ * 8-entry pointer/word tables), sets the music tempo D_800B4140 to 0x100, programs the
+ * master registers 0xFF24/0xFF10/0xFF25/0xFF1A through the register-write
+ * queue (GbAudio_QueueRegisterWrite) and finally binds the sequence tracks
+ * (GbMusic_BindSequenceTracks).
+ *
+ * Same code as GbMusic_StartMusic in the Stadium 1 decomp; Zero's state
+ * arrays are the donor's at a constant address offset of -0x48D70.
+ *
+ * NOTE: this function only matches when the state arrays are file-local
+ * (static) data of this translation unit, as in the donor: with `extern`
+ * declarations the compiler emits 204 words instead of the retail 188 (observed:
+ * it then repeats the `lui` for every store instead of sharing it; why is
+ * not investigated).  That is why the arrays below are static and why
+ * config/jp/sections.json places this file's .bss at 0x800B3FD0.
+ * Not reached in play (2026-11-13): did not run in a tour of the main menu, Pokédex, party, Lab,
+ * registration, Free Battle setup and a COM battle (opening, a switch, running, a Pound turn).
+ * @unverified Name was previously used only by callers of this address; the definition was still func_.
+ */
+void GbMusic_StartMusic(u8 arg0) {
+    s32 i;
+
+    D_800B3FF8 = 0;
+    D_800B4140 = 0x100;
+    D_800B4146[0] = 0;
+    D_800B4146[1] = 0;
+
+    for (i = 0; i < 8; i++) {
+        D_800B40F8[i] = 0;
+        D_800B40D8[i] = 0;
+    }
+
+    for (i = 0; i < 4; i++) {
+        D_800B3FD8[i] = 0;
+        D_800B3FE8[i] = 0;
+        D_800B40B0[i] = 0;
+        D_800B40A8[i] = 0;
+
+        D_800B4000[i].vibratoDelayCounter = 0;
+        D_800B4000[i].vibratoExtent = 0;
+        D_800B4000[i].vibratoRate = 0;
+        D_800B4000[i].frequencyLow = 0;
+        D_800B4000[i].vibratoDelay = 0;
+
+        D_800B3FF0[i] = 0;
+
+        D_800B4028[i].length = 0;
+        D_800B4028[i].current = 0;
+        D_800B4028[i].target = 0;
+        D_800B4028[i].step = 0;
+
+        D_800B40C0[i] = 1;
+        D_800B3FE0[i] = 1;
+        D_800B4138[i] = 1;
+    }
+
+    D_800B40D0[1] = 0xFF;
+    GbAudio_QueueRegisterWrite(0xFF24, 0, 0);
+    GbAudio_QueueRegisterWrite(0xFF10, 8, 0);
+    GbAudio_QueueRegisterWrite(0xFF25, 0, 0);
+    GbAudio_QueueRegisterWrite(0xFF1A, 0, 0);
+    GbAudio_QueueRegisterWrite(0xFF1A, 0x80, 0);
+    GbAudio_QueueRegisterWrite(0xFF24, 0x77, 0);
+    GbMusic_BindSequenceTracks(arg0);
+}
+
+
+/** Starts a sound effect on the shared sound channels. */
+void GbMusic_StartSfx(u8 arg0) {
+    u8 i;
+
+    D_800B40D0[1] = 0xFF;
+
+    for (i = 4; i < 7; i++) {
+        if (i == 6) {
+            continue;
+        }
+
+        if (D_800B3FD8[i]) {
+            if (i == 7) {
+                if (arg0 < D_80075FC8) {
+                    return;
+                }
+                if ((D_800B3FD8[i] < D_80075FC8) && (D_800B3FD8[i] < arg0)) {
+                    return;
+                }
+            } else if (D_800B3FD8[i] < arg0) {
+                return;
+            }
+        }
+
+        D_800B40F8[i] = 0;
+        D_800B40D8[i] = 0;
+        D_800B3FD8[i] = 0;
+
+        D_800B3FE8[i] = 0;
+        D_800B40B0[i] = 0;
+        D_800B40A8[i] = 0;
+
+        D_800B4000[i].vibratoDelayCounter = 0;
+        D_800B4000[i].vibratoExtent = 0;
+        D_800B4000[i].vibratoRate = 0;
+        D_800B4000[i].frequencyLow = 0;
+        D_800B4000[i].vibratoDelay = 0;
+
+        D_800B4028[i].length = 0;
+        D_800B4028[i].current = 0.0f;
+        D_800B4028[i].target = 0.0f;
+        D_800B4028[i].step = 0.0f;
+
+        D_800B40C0[i] = 1;
+        D_800B3FE0[i] = 1;
+        D_800B4138[i] = 1;
+
+        if (i == 4) {
+            GbAudio_QueueRegisterWrite(0xFF10, 8, 0);
+        }
+    }
+
+    GbMusic_BindSequenceTracks(arg0);
+}
+
+/** Resets the emulated Game Boy sound hardware. */
+void GbMusic_ResetApu(void) {
+    s32 i;
+
+    GbAudio_QueueRegisterWrite(0xFF26, 0x80, 0);
+    GbAudio_QueueRegisterWrite(0xFF1A, 0x80, 0);
+    GbAudio_QueueRegisterWrite(0xFF25, 0, 0);
+    GbAudio_QueueRegisterWrite(0xFF1C, 0, 0);
+    GbAudio_QueueRegisterWrite(0xFF10, 8, 0);
+    GbAudio_QueueRegisterWrite(0xFF12, 8, 0);
+    GbAudio_QueueRegisterWrite(0xFF17, 8, 0);
+    GbAudio_QueueRegisterWrite(0xFF21, 8, 0);
+    GbAudio_QueueRegisterWrite(0xFF14, 0x40, 0);
+    GbAudio_QueueRegisterWrite(0xFF19, 0x40, 0);
+    GbAudio_QueueRegisterWrite(0xFF23, 0x40, 0);
+    GbAudio_QueueRegisterWrite(0xFF24, 0x77, 0);
+
+    D_800B3FF8 = 0;
+    D_80075FCC = 0;
+    D_800B4140 = 0x100;
+    D_800B4142 = 0x100;
+    D_800B4146[0] = 0;
+    D_800B4146[1] = 0;
+
+    for (i = 0; i < 8; i++) {
+        D_800B3FE0[i] = 1;
+        D_800B40C0[i] = 1;
+        D_800B4138[i] = 1;
+    }
+
+    D_800B40D0[1] = 0xFF;
+}
+
+/** Binds a sequence's tracks to the sound channels. */
+void GbMusic_BindSequenceTracks(u8 arg0) {
+    u32 i;
+    u8 x;
+    u8 temp;
+    u8 temp_v1;
+
+    temp_v1 = ((GbMusicTrackHeader*)D_800B4158)->channel;
+    temp = (temp_v1 >> 6) & 3;
+    x = temp_v1 & 0xF;
+    i = 0;
+    while (1) {
+        D_800B3FD8[x] = arg0 + 1;
+        if (x >= 3) {
+            D_800B3FE8[x] |= 4;
+        }
+
+        D_800B40D8[x] = ((GbMusicTrackHeader*)D_800B4158 + i)->data;
+        D_800B4118[x] = D_800B40D8[x];
+        i++;
+        
+        if (i > temp) {
+            break;
+        }
+        x = ((GbMusicTrackHeader*)D_800B4158 + i)->channel & 0xF;
+    }
+
+    if ((arg0 >= D_80075FB8) && (arg0 < D_80075FBC)) {
+        D_800B3FD8[4] = arg0 + 1;
+        D_800B3FD8[5] = arg0 + 1;
+        D_800B3FD8[6] = arg0 + 1;
+        D_800B3FD8[7] = arg0 + 1;
+        D_800B40D8[6] = &D_80075FD0;
+        if (D_800B40D0[0] == 0) {
+            D_800B40D0[0] = GbAudio_GetRegisterValue(0xFF24);
+            GbAudio_QueueRegisterWrite(0xFF24, 0x77, 0);
+        }
+    }
+}
+
+/** Returns the number of active upper sound channels. */
+s32 GbMusic_CountActiveHighChannels(void) {
+    s32 ret = 0;
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (D_800B3FD8[4 + i] != 0) {
+            ret++;
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * Relocates a loaded GB music bank in place (its track table offset and each track data pointer) and
+ * marks it relocated. Does nothing if already relocated.
+ */
+void GbMusic_RelocateBank(GbMusicBank* bank) {
+    s32 i, end;
+    u32 base;
+    u8* temp_v1;
+    GbMusicTrackHeader* temp_v0;
+    if (bank->flags != 0) return;
+    end = bank->numSequences;
+    base = (u32)bank;
+    temp_v1 = bank->offset;
+    temp_v1 += base;
+    bank->offset = (u32)temp_v1;
+    for (i = 0; i != (end * 3); i++) {
+        temp_v0 = (GbMusicTrackHeader*)((u32)i * 8 + (u32)temp_v1);
+        temp_v0 += 0; // FAKE: + 0
+        temp_v0->data += base;
+    }
+    bank->flags = 1;
+}

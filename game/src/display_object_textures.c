@@ -1,0 +1,593 @@
+/* Stadium Zero resident code. */
+/* C ported from the Stadium 1 decomp: src/display_object_textures.c. */
+
+#include "display_object_textures.h"
+#include "dma.h"
+#include "geo_layout.h"
+#include "jpeg_stream.h"
+#include "main_pool.h"
+#include "matrix.h"
+#include "memory_main.h"
+#include "model_renderer.h"
+#include "util.h"
+
+// Declared here instead of in a header: the callers of these disagree on their types.
+void MainPool_FinalizeAllocation(struct MemoryBlock* block);
+void MainPool_ResetStateToOffset(struct MainPoolState* state, s32 size);
+void* MainPool_AllocAligned(struct MainPoolState* state, s32 arg1, s32 arg2);
+void* MainPool_InitState(struct MainPoolState* block, s32 size);
+#include <PR/os_internal_reg.h>
+#include <PR/leo.h>
+// Header returned by a fragment's entry function when called with (0, 0): geo layout count at 0x03, layout list at 0x08.
+typedef struct unk_func_80017428 {
+    /* 0x00 */ char unk00[0x3];
+    /* 0x03 */ u8 unk_03;
+    /* 0x04 */ char unk04[0x4];
+    /* 0x08 */ GeoTextureBankNode** unk_08;
+    /* 0x0C */ char unk0C[0x8];
+    /* 0x14 */ func_unk_D_800ABE10 unk_14;
+} unk_func_80017428;
+extern ModelLoaderThread D_800AC7A0;
+
+#include "m2c_macros.h"
+
+void GeoTextureBank_AdjustColors(GeoTextureBankNode* arg0, arg1_func_80010CA8 arg1);
+Fragment* Jpeg_AllocAndDecodeFragment(MemoryBlock* arg0, PRESJPEG* arg1, PRESJPEG* arg2);
+Fragment* Yay0_AllocAndDecompressFragment(MainPoolState* arg0, PERSSZP* arg1, PERSSZP* arg2);
+Fragment* Asset_AllocAndCopyFragment(MainPoolState* arg0, PERSSZP* arg1, s32 arg2, u32 arg3);
+Fragment* Fragment_LoadFromRomRange(MainPoolState* arg0, s32 start, s32 end, PERSSZP* arg3, s32 arg4);
+Fragment* Fragment_LoadFromLbaRange(MainPoolState* arg0, StorageLbaRange* arg1, PERSSZP* arg2, u32 arg3);
+void Fragment_RelocateAndCommit(MainPoolState* arg0, u32 arg1, Fragment* arg2);
+Fragment* BinArchive_LoadFileFromRomRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4);
+Fragment* BinArchive_LoadFileFromLbaRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4);
+Fragment* BinArchive_LoadFileToPool(MainPoolState* arg0, BinArchive* arg1, s32 arg2, u32 arg3, s32 arg4);
+s32 Fragment_ProcessGeoLayout(MemoryBlock* arg0, Fragment* arg1, arg1_func_80010CA8 arg2);
+void Fragment_ProcessGeoLayoutList(MemoryBlock* arg0, arg1_func_80019420* arg1);
+void PokeIcon_LoadModelArchive(ModelLoadRequest* arg0);
+void PokeIcon_LoadMultipleModels(ModelLoadRequest* arg0);
+void PokeIcon_StartThread(void);
+unk_D_86002F30* Model_LoadByArchiveIndex(s32 arg0);
+unk_D_86002F30* Model_LoadForPokemon(BattleMon* arg0);
+arg1_func_80019420* BattleAnim_LoadResourceTable(s32 arg0);
+Fragment* Fragment_LoadAndRelocateFromRomRange(MainPoolState* arg0, u32 arg1, s32 arg2, s32 arg3, PERSSZP* arg4, s32 arg5);
+
+void PokeIcon_ThreadMain(UNUSED void* arg0);
+
+/**
+ * Runs `adjust` over every RGBA16 and RGBA32 texel and every palette entry of a geo texture bank (in place).
+ */
+void GeoTextureBank_AdjustColors(GeoTextureBankNode* bank, arg1_func_80010CA8 adjust) {
+    s32 i;
+    s32 j;
+    GeoTexture* var_s2 = bank->textures;
+    GeoPalette* var_s4 = bank->palettes;
+
+    for (i = 0; i < bank->textureCount; i++, var_s2++) {
+        if (var_s2->fmt == 0) {
+            if (var_s2->siz == GEO_TEXTURE_SIZ_2) {
+                u16* var_s1 = (u16*)var_s2->texture;
+                for (j = 0; j < var_s2->num_texels; j++, var_s1++) *var_s1 = Color_AdjustRGB5551(*var_s1, adjust);
+            }
+            if (var_s2->siz == GEO_TEXTURE_SIZ_3) {
+                u32* var_s1 = var_s2->texture;
+                for (j = 0; j < var_s2->num_texels; j++, var_s1++) *var_s1 = Color_AdjustRGBA8(*var_s1, adjust);
+            }
+        }
+    }
+    for (i = 0; i < bank->paletteCount; i++, var_s4++) {
+        u16* var_s1 = var_s4->data;
+        for (j = 0; j < var_s4->count; j++, var_s1++) *var_s1 = Color_AdjustRGB5551(*var_s1, adjust);
+    }
+}
+
+/** Allocates a fragment and decodes a JPEG image into it. */
+Fragment* Jpeg_AllocAndDecodeFragment(MemoryBlock* arg0, PRESJPEG* arg1, PRESJPEG* arg2) {
+    Fragment* sp1C;
+    s32 sp18;
+    s32 temp_v0_2;
+
+    sp18 = arg0->size;
+    sp1C = MainPool_AllocAligned(arg0, arg2->decodedSize + 0x100, 0x10);
+
+    if (sp1C != NULL) {
+        temp_v0_2 = Jpeg_DecodeImage(sp1C, arg2->decodedSize + 0x100, (u8*)arg2 + arg2->dataOffset);
+        if (temp_v0_2 == 0) {
+            MainPool_ResetStateToOffset(arg0, sp18);
+            sp1C = NULL;
+        } else {
+            MainPool_ResetStateToOffset(arg0, sp18 + temp_v0_2);
+        }
+    }
+    return sp1C;
+}
+
+/** Allocates a fragment and decompresses a Yay0 asset into it. */
+Fragment* Yay0_AllocAndDecompressFragment(MainPoolState* arg0, PERSSZP* arg1, PERSSZP* arg2) {
+    u8* sp1C = MainPool_AllocAligned(arg0, arg2->decompressed_size2, 0x10);
+
+    if (sp1C != NULL) {
+        Yay0_DecompressAndRelocate(arg2, sp1C);
+    }
+    return sp1C;
+}
+
+/** Allocates a fragment and copies an uncompressed asset into it. */
+Fragment* Asset_AllocAndCopyFragment(MainPoolState* arg0, PERSSZP* arg1, s32 arg2, u32 arg3) {
+    u32* sp1C;
+
+    sp1C = MainPool_AllocAligned(arg0, arg3, 0x10);
+    if (sp1C != NULL) {
+        Util_Memcpy(sp1C, (u8*)arg1 + arg2, arg3 >> 2);
+    }
+    return sp1C;
+}
+
+/** Loads a fragment from a ROM range into a pool, decompressing it as needed. */
+Fragment* Fragment_LoadFromRomRange(MainPoolState* arg0, s32 start, s32 end, PERSSZP* arg3, s32 arg4) {
+    UNUSED s32 pad; // FAKE: stack padding
+    u32 size = ALIGN16(end - start);
+    Fragment* var_v1 = NULL;
+
+    if (arg4 >= size) {
+        Dma_WriteChunks(arg3, start, end, 0);
+
+        if (((u32*)arg3->magic)[0] == 'PERS' && (((u32*)arg3->magic)[1] == '-SZP')) {
+            var_v1 = Yay0_AllocAndDecompressFragment(arg0, arg3, arg3);
+        } else if (((u32*)arg3->magic)[0] == 'PRES' && (((u32*)arg3->magic)[1] == 'JPEG')) {
+            var_v1 = Jpeg_AllocAndDecodeFragment(arg0, arg3, arg3);
+        } else {
+            var_v1 = Asset_AllocAndCopyFragment(arg0, arg3, 0, size);
+        }
+    }
+
+    return var_v1;
+}
+
+/**
+ * Loads a fragment from a block-address range into a pool, decompressing it as
+ * needed.
+ */
+Fragment* Fragment_LoadFromLbaRange(MainPoolState* arg0, StorageLbaRange* arg1, PERSSZP* arg2, u32 arg3) {
+    s32 sp3C;
+    Fragment* sp38;
+    PERSSZP* temp_s1;
+
+    LeoLBAToByte(arg1->startLba, arg1->lbaCount, &sp3C);
+    sp3C = ALIGN16(sp3C);
+
+    if (arg3 >= sp3C) {
+        temp_s1 = arg1->dataOffset + (u8*)arg2;
+
+        Storage_QueueDiskTransfer(0, arg2, arg1->startLba, arg1->lbaCount, &D_800AC7A0.diskQueue, 0);
+        osRecvMesg(&D_800AC7A0.diskQueue, NULL, 1);
+
+        if (((u32*)temp_s1->magic)[0] == 'PERS' && (((u32*)temp_s1->magic)[1] == '-SZP')) {
+            sp38 = Yay0_AllocAndDecompressFragment(arg0, arg2, temp_s1);
+        } else if (((u32*)temp_s1->magic)[0] == 'PRES' && (((u32*)temp_s1->magic)[1] == 'JPEG')) {
+            sp38 = Jpeg_AllocAndDecodeFragment(arg0, arg2, temp_s1);
+        } else {
+            sp38 = Asset_AllocAndCopyFragment(arg0, arg2, arg1->dataOffset, arg1->size);
+        }
+    }
+
+    return sp38;
+}
+
+/** Relocates a fragment's pointers and commits it to its pool. */
+void Fragment_RelocateAndCommit(MainPoolState* arg0, u32 arg1, Fragment* arg2) {
+    Memmap_RelocateFragment(arg1, arg2);
+    MainPool_ResetStateToOffset(arg0, ((u32)arg2 + arg2->sizeInRam) - (u32)arg0->listHeadR);
+}
+
+/** Loads an archive file into a pool from a ROM range. */
+Fragment* BinArchive_LoadFileFromRomRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4) {
+    s32 temp_a1 = arg1->source + arg2->offset;
+
+    return Fragment_LoadFromRomRange(arg0, temp_a1, arg2->size + temp_a1, arg3, arg4);
+}
+
+/** Loads an archive file into a pool from a block-address range. */
+Fragment* BinArchive_LoadFileFromLbaRange(MainPoolState* arg0, BinArchive* arg1, BinArchiveFile* arg2, u32 arg3, s32 arg4) {
+    StorageLbaRange sp1C;
+
+    Storage_SetByteRange(&sp1C, arg1->source, arg2->offset, arg2->size);
+    return Fragment_LoadFromLbaRange(arg0, &sp1C, arg3, arg4);
+}
+
+/** Loads an archive file into a pool, choosing the ROM or block-address path. */
+Fragment* BinArchive_LoadFileToPool(MainPoolState* arg0, BinArchive* arg1, s32 arg2, u32 arg3, s32 arg4) {
+    s32 pad[4]; // FAKE: stack padding
+    Fragment* var_s0 = NULL;
+    BinArchiveFile* sp2C = (u8*)arg1 + sizeof(BinArchive) + (arg2 * sizeof(BinArchiveFile));
+
+    if (arg2 < arg1->num_files) {
+        if (arg1->flags & 1) {
+            var_s0 = (u8*)arg1 + sp2C->offset;
+        } else if (!(arg1->flags & 4) && (sp2C->cached != NULL)) {
+            var_s0 = sp2C->cached;
+        } else {
+            if (arg1->flags & 0x80) {
+                var_s0 = BinArchive_LoadFileFromLbaRange(arg0, arg1, sp2C, arg3, arg4);
+            } else {
+                var_s0 = BinArchive_LoadFileFromRomRange(arg0, arg1, sp2C, arg3, arg4);
+            }
+
+            if (var_s0 != NULL) {
+                if ((((u32*)var_s0->magic)[0] == 'FRAG') && (((u32*)var_s0->magic)[1] == 'MENT')) {
+                    Fragment_RelocateAndCommit(arg0, arg1->fragmentId, var_s0);
+                }
+                sp2C->cached = var_s0;
+            }
+        }
+    }
+
+    return var_s0;
+}
+
+/** Builds the graph node tree for a fragment's geo layout. */
+s32 Fragment_ProcessGeoLayout(MemoryBlock* arg0, Fragment* arg1, arg1_func_80010CA8 arg2) {
+    s32 i;
+    GeoTextureBankNode* temp_v0_2;
+    unk_func_80017428* temp_v0;
+    unk_func_80017428* (*func)(s32, s32) = arg1;
+
+    temp_v0 = func(0, 0);
+    temp_v0->unk_14 = arg1;
+
+    for (i = 0; i < temp_v0->unk_03; i++) {
+        temp_v0_2 = GeoLayout_Process(arg0, temp_v0->unk_08[i]);
+
+        if (temp_v0_2->node.type == 0xE) {
+            temp_v0_2->unk_28 = arg1;
+            if (arg2.raw != 0) {
+                GeoTextureBank_AdjustColors(temp_v0_2, arg2);
+            }
+        }
+        temp_v0->unk_08[i] = temp_v0_2;
+    }
+
+    return temp_v0;
+}
+
+/** Builds graph node trees for every geo layout in a list. */
+void Fragment_ProcessGeoLayoutList(MemoryBlock* arg0, arg1_func_80019420* arg1) {
+    while (arg1->unk_00) {
+        if (arg1->unk_00 == 3) {
+            arg1->unk_04 = GeoLayout_Process(arg0, arg1->unk_04);
+        }
+
+        arg1++;
+    }
+}
+
+/** Loads a Pokemon icon model archive on the loader thread. */
+void PokeIcon_LoadModelArchive(ModelLoadRequest* arg0) {
+    UNUSED s32 pad; // FAKE: stack padding
+    MemoryBlock* sp28;
+    Fragment* sp24;
+
+    sp28 = MainPool_InitState(arg0->pool, arg0->size);
+    sp24 = BinArchive_LoadFileToPool(sp28, D_800AC7A0.archives.modelArchive, arg0->fileIndex, D_800AC7A0.archives.scratchBuffer, 0x28000);
+
+    if (sp24 != NULL) {
+        arg0->result = Fragment_ProcessGeoLayout(sp28, sp24, arg0->colorVariant);
+    } else {
+        arg0->result = 0;
+    }
+
+    arg0->size = sp28->size + 0x10;
+}
+
+/** Loads several Pokemon icon models on the loader thread. */
+void PokeIcon_LoadMultipleModels(ModelLoadRequest* arg0) {
+    Fragment* temp_v0;
+    MainPoolState* temp_s3;
+    s32 var_s2;
+    s32* temp_s6;
+    s16* var_s0;
+
+    temp_s6 = arg0->result;
+    var_s2 = 0;
+    temp_s3 = MainPool_InitState(arg0->pool, arg0->size);
+    var_s0 = arg0->fileList;
+
+    while (*var_s0 != -1) {
+        temp_v0 = BinArchive_LoadFileToPool(temp_s3, D_800AC7A0.archives.resourceArchive, *var_s0, D_800AC7A0.archives.scratchBuffer, 0x28000);
+        if (temp_v0 == NULL) {
+            break;
+        }
+
+        temp_s6[var_s2] = temp_v0 + 1;
+        Fragment_ProcessGeoLayoutList(temp_s3, temp_v0 + 1);
+        var_s0++;
+        var_s2++;
+    }
+
+    temp_s6[var_s2] = 0;
+    arg0->size = temp_s3->listHeadL + 1;
+}
+
+/** Main loop of the thread that loads Pokemon icon models on request. */
+void PokeIcon_ThreadMain(UNUSED void* arg0) {
+    ModelLoadRequest* sp34;
+
+    __osSetFpcCsr(0x01000F00);
+
+    while (true) {
+        osRecvMesg(&D_800AC7A0.requestQueue, &sp34, 1);
+
+        switch (sp34->kind) {
+            case 1:
+                PokeIcon_LoadModelArchive(sp34);
+                break;
+
+            case 2:
+                PokeIcon_LoadMultipleModels(sp34);
+                break;
+        }
+
+        if (sp34->queue != NULL) {
+            osSendMesg(sp34->queue, sp34, 1);
+        }
+    }
+}
+
+/** Creates the message queues and starts the icon loader thread. */
+void PokeIcon_StartThread(void) {
+    osCreateMesgQueue(&D_800AC7A0.requestQueue, D_800AC7A0.requestMsgs, 8);
+    osCreateMesgQueue(&D_800AC7A0.diskQueue, &D_800AC7A0.diskMsg, 1);
+    osCreateThread(&D_800AC7A0.thread, 7, PokeIcon_ThreadMain, NULL, D_800AC7A0.stack + sizeof(D_800AC7A0.stack), 0xA);
+    osStartThread(&D_800AC7A0.thread);
+}
+
+s8 *func_800023C4(M2C_UNK, M2C_UNK);              /* extern */
+M2C_UNK func_800567E0(s8 *, s8 *, M2C_UNK);     /* extern */
+
+/** Allocates the framebuffers used by the icon loader. */
+s8 *PokeIcon_AllocFramebuffers(s32 arg0) {
+    s8 *temp_v0;
+
+    temp_v0 = func_800023C4(0x64, 1);
+    M2C_FIELD(temp_v0, s8 *, 1) = 0;
+    M2C_FIELD(temp_v0, s8 *, 2) = 0;
+    M2C_FIELD(temp_v0, s32 *, 0x18) = 0;
+    M2C_FIELD(temp_v0, s8 **, 4) = NULL;
+    M2C_FIELD(temp_v0, s8 **, 8) = NULL;
+    M2C_FIELD(temp_v0, s8 **, 0xC) = NULL;
+    M2C_FIELD(temp_v0, s32 *, 0x20) = 0;
+    M2C_FIELD(temp_v0, s8 *, 0) = (s8) arg0;
+    if (arg0 & 1) {
+        M2C_FIELD(temp_v0, s8 **, 4) = func_800023C4(0x3C000, 1);
+        if (arg0 & 4) {
+            M2C_FIELD(temp_v0, s8 **, 8) = func_800023C4(0x3C000, 1);
+        }
+    }
+    if (arg0 & 2) {
+        M2C_FIELD(temp_v0, s8 **, 0xC) = func_800023C4(0x18000, 1);
+    }
+    func_800567E0(temp_v0 + 0x24, temp_v0 + 0x3C, 2);
+    func_800567E0(temp_v0 + 0x44, temp_v0 + 0x5C, 2);
+    return temp_v0;
+}
+
+s32 func_80004154(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
+extern s32 D_800AD1A4;
+extern s32 D_800AD1A8;
+extern s32 D_800AD1AC;
+
+/**
+ * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the Pokédex, the party screen,
+ * Lab sort, registration, the Lab PC and Free Battle setup.
+ * @unverified Name was previously used only by callers of this address; the definition was still func_.
+ */
+void PokeIcon_OpenModelArchives(void) {
+    D_800AD1A4 = func_80004154(0x500000, 0, 1, 1);
+    D_800AD1A8 = func_80004154(0x4A8000, 0, 1, 1);
+    D_800AD1AC = func_800023C4(0x28000, 1);
+}
+
+/** Sends a model load request to the icon loader thread. */
+s32 PokeIcon_RequestFrameLoad(ModelLoadContext* arg0, u16 arg1, arg1_func_80010CA8 arg2) {
+    s32 sp1C;
+    ModelLoadRequest* sp18;
+    s32 var_v1;
+
+    sp1C = 0;
+    if ((arg0->flags & 1) && !(arg0->pendingLoads & 1)) {
+        sp18 = Util_Malloc(sizeof(ModelLoadRequest));
+        if (sp18 != NULL) {
+            var_v1 = arg0->bufferIndex;
+            if (arg0->flags & 4) {
+                var_v1 ^= 1;
+            }
+
+            sp18->kind = 1;
+            sp18->fileIndex = arg1 - 1;
+            sp18->queue = &arg0->modelQueue;
+            sp18->result = 0;
+            sp18->fileList = 0;
+            sp18->pool = arg0->modelBuffers[var_v1];
+            sp18->size = 0x3C000;
+            sp18->colorVariant = arg2;
+
+            if ((arg0->loadedModel != NULL) && (arg0->loadedModel->modelId == arg1) && (arg0->colorVariant.raw == sp18->colorVariant.raw)) {
+                osSendMesg(sp18->queue, sp18, 1);
+            } else {
+                osSendMesg(&D_800AC7A0.requestQueue, sp18, 1);
+            }
+
+            arg0->pendingLoads |= 1;
+            sp1C = 1;
+        }
+    }
+
+    return sp1C;
+}
+
+/** Sends a background model load request to the icon loader thread. */
+s32 PokeIcon_RequestBackgroundLoad(ModelLoadContext* arg0, s32 arg1, s32 arg2) {
+    s32 sp1C = 0;
+    ModelLoadRequest* temp_v0;
+
+    if ((arg0->flags & 2) && !(arg0->pendingLoads & 2)) {
+        temp_v0 = Util_Malloc(sizeof(ModelLoadRequest));
+        if (temp_v0 != NULL) {
+            temp_v0->kind = 2;
+            temp_v0->fileIndex = 0;
+            temp_v0->queue = &arg0->backgroundQueue;
+            temp_v0->result = arg2;
+            temp_v0->fileList = arg1;
+            temp_v0->pool = arg0->backgroundBuffer;
+            temp_v0->size = 0x18000;
+
+            osSendMesg(&D_800AC7A0.requestQueue, temp_v0, 1);
+
+            sp1C = 1;
+            arg0->pendingLoads |= 2;
+        }
+    }
+
+    return sp1C;
+}
+
+/** Applies a load result received from the icon loader thread. */
+s32 PokeIcon_ApplyLoadResult(ModelLoadContext* arg0, ModelLoadRequest* arg1) {
+    s32 sp1C = 0;
+
+    switch (arg1->kind) {
+        case 1:
+            arg0->pendingLoads &= ~1;
+            if (arg1->result != 0) {
+                if (arg0->flags & 4) {
+                    arg0->bufferIndex ^= 1;
+                }
+                arg0->loadedModel = arg1->result;
+                arg0->modelSize = arg1->size;
+                arg0->colorVariant = arg1->colorVariant;
+            }
+            sp1C = 1;
+            break;
+
+        case 2:
+            arg0->pendingLoads &= ~2;
+            arg0->loadedBackground = arg1->result;
+            arg0->backgroundSize = arg1->size;
+            sp1C = 1;
+            break;
+    }
+
+    Util_Free(arg1);
+    return sp1C;
+}
+
+/** Checks whether the icon loader has finished a requested model. */
+s32 PokeIcon_PollFrameLoad(ModelLoadContext* arg0) {
+    ModelLoadRequest* sp1C;
+    s32 sp18 = 0;
+
+    if (osRecvMesg(&arg0->modelQueue, &sp1C, 0) != -1) {
+        sp18 = PokeIcon_ApplyLoadResult(arg0, sp1C);
+    }
+
+    return sp18;
+}
+
+/**
+ * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the battle opening, a switch
+ * in battle and a Pound turn.
+ * @unverified Name was previously used only by callers of this address; the definition was still func_.
+ */
+s32 PokeIcon_PollBackgroundLoad(ModelLoadContext* arg0) {
+    ModelLoadRequest* sp1C;
+    s32 sp18 = 0;
+
+    if (osRecvMesg((OSMesgQueue*)((u8*)arg0 + 0x44), &sp1C, 0) != -1) {
+        sp18 = PokeIcon_ApplyLoadResult(arg0, sp1C);
+    }
+
+    return sp18;
+}
+
+/**
+ * Blocks until the next model load request of `ctx` completes (queue at +0x24) and applies it.
+ * Returns PokeIcon_ApplyLoadResult's result. Callers wait on it before reusing a slot.
+ */
+s32 PokeIcon_WaitFrameLoad(ModelLoadContext* ctx) {
+    ModelLoadRequest* req;
+
+    osRecvMesg((OSMesgQueue*)((u8*)ctx + 0x24), (OSMesg*)&req, OS_MESG_BLOCK);
+    return PokeIcon_ApplyLoadResult(ctx, req);
+}
+
+M2C_UNK func_80017BA0(s32, s32);                    /* extern */
+M2C_UNK func_8004D1C0(s32, s32 *, M2C_UNK);         /* extern */
+
+/** Blocks until the icon loader finishes a background load. */
+void PokeIcon_WaitBackgroundLoad(s32 arg0) {
+    s32 sp1C;
+
+    func_8004D1C0(arg0 + 0x44, &sp1C, 1);
+    func_80017BA0(arg0, sp1C);
+}
+
+/** Loads a model by its archive index. */
+unk_D_86002F30* Model_LoadByArchiveIndex(s32 arg0) {
+    Fragment* sp2C;
+    arg1_func_80010CA8 sp28;
+    unk_D_86002F30* sp24 = NULL;
+    MemoryBlock* sp20;
+
+    sp2C = BinArchive_GetFile(D_800AC7A0.archives.modelArchive, arg0 - 1);
+    if (sp2C != NULL) {
+        sp20 = MainPool_AllocState(MainPool_GetAvailable(), 0);
+        sp28.raw = 0;
+        sp24 = Fragment_ProcessGeoLayout(sp20, sp2C, sp28);
+        MainPool_FinalizeAllocation(sp20);
+    }
+
+    return sp24;
+}
+
+/** Loads the model for a Pokemon. */
+unk_D_86002F30* Model_LoadForPokemon(BattleMon* arg0) {
+    Fragment* sp2C;
+    arg1_func_80010CA8 sp28;
+    unk_D_86002F30* sp24 = NULL;
+    MemoryBlock* sp20;
+
+    sp2C = BinArchive_GetFile(D_800AC7A0.archives.modelArchive, arg0->species.id - 1);
+    if (sp2C != NULL) {
+        sp20 = MainPool_AllocState(MainPool_GetAvailable(), 0);
+        Model_ComputeSizeVariant(&sp28, arg0);
+        sp24 = Fragment_ProcessGeoLayout(sp20, sp2C, sp28);
+        MainPool_FinalizeAllocation(sp20);
+    }
+    return sp24;
+}
+
+/** Loads a battle animation resource table. */
+arg1_func_80019420* BattleAnim_LoadResourceTable(s32 arg0) {
+    Fragment* sp24;
+    arg1_func_80019420* sp20;
+    MemoryBlock* sp1C;
+
+    sp20 = NULL;
+    sp24 = BinArchive_GetFile(D_800AC7A0.archives.resourceArchive, arg0);
+    if (sp24 != NULL) {
+        sp1C = MainPool_AllocState(MainPool_GetAvailable(), 0);
+        sp20 = sp24->data;
+        Fragment_ProcessGeoLayoutList(sp1C, sp20);
+        MainPool_FinalizeAllocation(sp1C);
+    }
+    return sp20;
+}
+
+/** Loads a fragment from a ROM range and relocates it. */
+Fragment* Fragment_LoadAndRelocateFromRomRange(MainPoolState* arg0, u32 arg1, s32 arg2, s32 arg3, PERSSZP* arg4, s32 arg5) {
+    Fragment* sp24 = Fragment_LoadFromRomRange(arg0, arg2, arg3, arg4, arg5);
+
+    if (sp24 != NULL) {
+        Fragment_RelocateAndCommit(arg0, arg1, sp24);
+    }
+    return sp24;
+}
