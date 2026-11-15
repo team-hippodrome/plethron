@@ -525,7 +525,7 @@ void BattleAnim_RunSmallSand(Particle* arg0) {
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
         func_82140228(arg0, 0x3F400000, 0x3CCCCCCD); // 0.75f, 0.025f
         Particle_ApproachStepMagnitude(arg0, 0.5f, 0.25f);
-        func_8213E1FC(arg0, M2C_FIELD(arg0, s32 *, 0x5C));
+        func_8213E1FC(arg0, (*(s32*)&arg0->motionTarget.y));
         Particle_MoveXZAlongRotationY(arg0);
         return;
     case 3:
@@ -577,7 +577,7 @@ void BattleAnim_RunLargeSand(Particle* arg0) {
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 3, 0);
         func_82140228(arg0, 0x3F800000, 0x3D4CCCCD); // 1.0f, 0.05f
         Particle_ApproachStepMagnitude(arg0, 0.5f, 0.25f);
-        func_8213E1FC(arg0, M2C_FIELD(arg0, s32 *, 0x5C));
+        func_8213E1FC(arg0, (*(s32*)&arg0->motionTarget.y));
         break;
     case 3:
         if (Particle_ApproachPrimAlpha(arg0, 0, 0x20) != 0) {
@@ -626,7 +626,7 @@ void BattleAnim_SandAttackParticleUpdate(Particle* arg0) {
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
         Particle_ApproachPrimAlpha(arg0, 0x64, 9);
         func_82140228(arg0, 0x3ECCCCCD, 0x3CCCCCCD); // 0.4f, 0.025f
-        func_8213E1FC(arg0, M2C_FIELD(arg0, s32 *, 0x5C));
+        func_8213E1FC(arg0, (*(s32*)&arg0->motionTarget.y));
         Particle_MoveXZAlongRotationY(arg0);
         return;
     case 3:
@@ -672,7 +672,7 @@ void BattleAnim_CallbackSpreadingParticle(Particle* particle) {
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 2, 0);
         func_82140228(particle, 0x3F400000, 0x3CCCCCCD); // 0.75f, 0.025f
         Particle_ApproachStepMagnitude(particle, 0.5f, 0.2f);
-        func_8213E1FC(particle, M2C_FIELD(particle, s32 *, 0x5C));
+        func_8213E1FC(particle, (*(s32*)&particle->motionTarget.y));
         Particle_MoveXZAlongRotationY(particle);
         return;
     case 3:

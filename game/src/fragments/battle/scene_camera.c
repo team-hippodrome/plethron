@@ -133,7 +133,7 @@ void BattleScene_SetCameraAtAndEyeFromAngles(CameraNode* camera, f32 x, f32 y, f
  * @unverified Named from the code; the sweep hit it during move animations but did not check the point.
  */
 void BattleScene_GetParticipantCameraAnchor(ActivePokemon* arg0, Vec3f* arg1) {
-    if ((M2C_FIELD(arg0, s16*, 0x1A) == 0x52) || (M2C_FIELD(arg0, s16*, 0x1A) == 0x5F)) {
+    if ((arg0->displayObject.objectType == 0x52) || (arg0->displayObject.objectType == 0x5F)) {
         GeoRender_FindAnchorPosition((DisplayObject*)arg0, 9, arg1);
     } else {
         GeoRender_FindAnchorPosition((DisplayObject*)arg0, 0x64, arg1);
@@ -527,7 +527,7 @@ void BattleScene_ClearCameraOffsetVectors(void) {
 void BattleScene_SetCameraAtFromAnchor(ActivePokemon* arg0, CameraNode* arg1, Vec3f arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6) {
     Camera_ComputeEyeFromAngles(&arg2, &arg1->view.targetPosition, arg5, arg3, arg4);
     arg1->view.targetPosition.y += arg6;
-    arg1->view.targetPosition.y += ((CameraTargetOffsetRow*)D_FLT_82189358)[M2C_FIELD(arg0, s16*, 0x1A)].v;
+    arg1->view.targetPosition.y += ((CameraTargetOffsetRow*)D_FLT_82189358)[arg0->displayObject.objectType].v;
 }
 
 /**
@@ -617,7 +617,7 @@ void BattleScene_EaseSideOnCameraDistance(CameraNode* camera, ActivePokemon* act
     s16 sp2C;
     BattleAnim_CalculateDistanceAngles(&sBattleScene.scene->savedCameraEye, &sBattleScene.scene->savedCameraAt, &sp30, &sp2E, &sp2C);
     if (((sp2C / 182) == 0x5A) || ((sp2C / 182) == -0x5A)) {
-        BattleAnim_CalculateDistanceAngles(&M2C_FIELD(camera, Vec3f*, 0xB4), &M2C_FIELD(camera, Vec3f*, 0xA8), &sp38, &sp36, &sp34);
+        BattleAnim_CalculateDistanceAngles(&(*(Vec3f*)&camera->view.targetPosition.x), &(*(Vec3f*)&camera->view.eyePosition.x), &sp38, &sp36, &sp34);
         if (active_pokemon->displayObject.objectType == 0x65) {
             BattleAnim_ApproachF(&sp38, sp30 * 1.5f, 1.0f);
         } else {
@@ -1084,8 +1084,8 @@ void BattleScene_SetCameraPresetLowClose(CameraNode* arg0, ActivePokemon* arg1) 
     sp3E = BattleScene_GetParticipantFacingAngle(arg1);
     BattleScene_SetCameraEyeFromPosition(arg0, sBattleScene.scene->anchorPosition, 0, sp3E - (arg1->facingDirection * 0x1555), D_8219A534,
                   -BattleScene_GetParticipantHeight(arg1) * D_DBL_82196260);
-    if (M2C_FIELD(arg0, f32*, 0xAC) <= 15.0f) {
-        M2C_FIELD(arg0, f32*, 0xAC) = 15.0f;
+    if (arg0->view.eyePosition.y <= 15.0f) {
+        arg0->view.eyePosition.y = 15.0f;
     }
 }
 
@@ -1148,8 +1148,8 @@ void BattleScene_FrameParticipantFromBelow(CameraNode* camera, ActivePokemon* ac
     gCameraDistTarget = BattleScene_ScaleCameraDistance(active_pokemon, 5.0f, 400.0f);
     BattleScene_SetCameraAtFromAnchor(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection << 0xE, 0.0f, 0.0f);
     BattleScene_SetCameraEyeFromPosition(camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection * 0xE38, gCameraDistTarget, -BattleScene_GetParticipantHeight(active_pokemon) * D_FLT_82196268);
-    if (M2C_FIELD(camera, f32*, 0xAC) <= 15.0f) {
-        M2C_FIELD(camera, f32*, 0xAC) = 15.0f;
+    if (camera->view.eyePosition.y <= 15.0f) {
+        camera->view.eyePosition.y = 15.0f;
     }
 }
 
@@ -1176,7 +1176,7 @@ void BattleScene_FrameParticipantImpact(CameraNode* camera, ActivePokemon* activ
     D_8219A534 = BattleScene_ScaleCameraDistance(active_pokemon, 5.0f, 400.0f);
     BattleScene_SetCameraAtFromAnchor(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection << 14, sBattleScene.scene->orbitDistance = D_8219A530, 0.0f);
     BattleScene_SetCameraEyeFromPosition(camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection * 0x1555, D_8219A534, eye_height);
-    if (M2C_FIELD(camera, f32*, 0xAC) <= 15.0f) {
-        M2C_FIELD(camera, f32*, 0xAC) = 15.0f;
+    if (camera->view.eyePosition.y <= 15.0f) {
+        camera->view.eyePosition.y = 15.0f;
     }
 }

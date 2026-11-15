@@ -730,7 +730,7 @@ void BattleAnim_CallbackMove73End31SpawnDesc42(Particle* particle) {
         }
         return;
     case 3:
-        if (func_8001104C(M2C_FIELD(particle, s32 *, 0x14)) != 0) {
+        if (func_8001104C(((uintptr_t)particle->displayObject)) != 0) {
             func_8213C9D0(particle);
         }
         break;
@@ -1542,7 +1542,7 @@ void BattleAnim_RunFallingRock(Particle* arg0) {
     case 3:
         Particle_ApproachPrimRed(arg0, 0, 0x10);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
-        if (func_8001104C(M2C_FIELD(arg0, s32 *, 0x14)) != 0) {
+        if (func_8001104C(((uintptr_t)arg0->displayObject)) != 0) {
             func_8213C9D0(arg0);
             return;
         }
@@ -5036,7 +5036,7 @@ void BattleAnim_CallbackEnd79DefaultDescPaletteFade(Particle* particle) {
     case 2:
         func_821437E0(particle, 0x33, 0x24);
         Particle_ApproachPrimAlpha(particle, 0xFF, 0x1D);
-        if (func_8001104C(M2C_FIELD(particle, s32 *, 0x14)) != 0) {
+        if (func_8001104C(((uintptr_t)particle->displayObject)) != 0) {
             Particle_MarkInactive(particle);
         }
         return;

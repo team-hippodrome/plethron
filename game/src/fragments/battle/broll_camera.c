@@ -583,7 +583,7 @@ void BattleScene_BRollTiltUpHigh(CameraNode* camera) {
     BattleAnim_ApproachF(&camera->view.targetPosition.y,
                          sBattleScene.scene->anchorPosition.y * 1.5f + D_FLT_82189358[sActivePokemon[sBattleScene.scene->actingSide]->displayObject.objectType][0],
                          sBattleScene.scene->easeRates.z);
-    if (((D_FLT_82189358[sActivePokemon[sBattleScene.scene->actingSide]->displayObject.objectType][0] + sBattleScene.scene->anchorPosition.y * 1.5f) - 0.5f) < M2C_FIELD(camera, f32*, 0xB8)) {
+    if (((D_FLT_82189358[sActivePokemon[sBattleScene.scene->actingSide]->displayObject.objectType][0] + sBattleScene.scene->anchorPosition.y * 1.5f) - 0.5f) < camera->view.targetPosition.y) {
         BattleScene_SelectNextBRollCameraShot(camera);
     }
 }
@@ -635,7 +635,7 @@ void BattleScene_BRollRaiseRotationXRestoreFov(CameraNode* camera) {
     BattleAnim_StepToS16(&sBattleScene.scene->orbitRotationX, 0x149E, 0x2D);
     func_82122628((uintptr_t)camera, sBattleScene.scene->anchorPosition, sBattleScene.scene->orbitRotationX,
                   BattleScene_GetParticipantFacingAngle(sActivePokemon[sBattleScene.scene->actingSide]), sBattleScene.scene->orbitDistance, 0.0f);
-    BattleAnim_ApproachF(&M2C_FIELD(camera, f32*, 0x2C), sBattleScene.scene->verticalFieldOfView, 0.08f);
+    BattleAnim_ApproachF(&camera->perspective.verticalFieldOfView, sBattleScene.scene->verticalFieldOfView, 0.08f);
     temp_f0 = sBattleScene.scene->verticalFieldOfView;
     if (camera->perspective.verticalFieldOfView < (temp_f0 + 1.0f)) {
         camera->perspective.verticalFieldOfView = temp_f0;

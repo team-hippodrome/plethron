@@ -19,8 +19,8 @@ void BattleScene_StepImpactFraming(CameraNode* camera, ActivePokemon* active_pok
     D_8219A530 = BattleScene_ScaleCameraDistance(active_pokemon, 5.0f, 400.0f);
     BattleScene_SetCameraAtFromAnchor(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection << 14, sBattleScene.scene->orbitDistance, 0.0f);
     BattleScene_SetCameraEyeFromPosition(camera, sBattleScene.scene->anchorPosition, 0, active_pokemon->facingDirection * 0x1555, D_8219A530, eye_height);
-    if (M2C_FIELD(camera, f32*, 0xAC) <= 15.0f) {
-        M2C_FIELD(camera, f32*, 0xAC) = 15.0f;
+    if (camera->view.eyePosition.y <= 15.0f) {
+        camera->view.eyePosition.y = 15.0f;
     }
 }
 

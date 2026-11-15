@@ -224,9 +224,9 @@ void BattleScene_PhaseWithdraw(CameraNode* arg0) {
                 Battle_ClearMessageCursor();
             }
             if (BattleScene_AdvanceCameraFrameCounter(105) != 0) {
-                Vec3f_SetComponentsDuplicate((Vec3f*)((u8*)arg0 + 0xB4), temp_s0->facingDirection * -150.0f, 0.0, 0.0f);
+                Vec3f_SetComponentsDuplicate((Vec3f*)(((u8*)&arg0->view.targetPosition.x)), temp_s0->facingDirection * -150.0f, 0.0, 0.0f);
                 if (sBattleScene.scene && sBattleScene.scene) {}  // FAKE
-                Vec3f_SetComponentsDuplicate((Vec3f*)((u8*)arg0 + 0xA8), temp_s0->facingDirection * -50.0f, 5.0f, 0.0f);
+                Vec3f_SetComponentsDuplicate((Vec3f*)(((u8*)&arg0->view.eyePosition.x)), temp_s0->facingDirection * -50.0f, 5.0f, 0.0f);
                 BattleScene_SetParticipantModelTransform(temp_s0, 2, 0);
                 BattleAnim_QueueEffectList3(0xD, temp_s0, temp_s0, 0xFF, 0xFF);
                 sBattleScene.scene->phaseStep++;
@@ -237,20 +237,20 @@ void BattleScene_PhaseWithdraw(CameraNode* arg0) {
             if (temp_s0->pokeBall.position.y == 2.5f) {
                 temp_s0->pokeBall.node.renderFlags |= 0x20;
             }
-            if (ModelAnim_IsAnimationDone((DisplayObject*)((u8*)temp_s0 + 0x624)) == 1) {
+            if (ModelAnim_IsAnimationDone((DisplayObject*)(((u8*)&temp_s0->pokeBall.node.type))) == 1) {
                 sBattleScene.scene->phaseStep++;
             }
             break;
 
         case 4:
             temp_s0->pokeBall.node.flags &= ~1;
-            *M2C_FIELD(temp_s0, u8**, 0x85C) |= 0x80;
+            temp_s0->side->modelFlags |= 0x80;
             sBattleScene.scene->phaseStep++;
             break;
 
         case 5:
-            if (*M2C_FIELD(temp_s0, u8**, 0x85C) & 0x10) {
-                *M2C_FIELD(temp_s0, u8**, 0x85C) &= ~0x90;
+            if (temp_s0->side->modelFlags & 0x10) {
+                temp_s0->side->modelFlags &= ~0x90;
                 Battle_LoadOwnerModelForSwitchIn(temp_s0);
                 func_82107408(temp_s0);
                 BattleAnim_QueueEffectList3(3, temp_s0, temp_s0, 0xFF, 0xFF);
@@ -279,7 +279,7 @@ void BattleScene_PhaseWithdraw(CameraNode* arg0) {
                 BattleAnim_CleanupEffects(2);
                 Battle_ClearMessageCursor();
                 BattleScene_ResetCameraFrameCounter();
-                Vec3f_SetComponentsDuplicate((Vec3f*)((u8*)temp_s0 + 0x30), 1.0f, 1.0f, 1.0f);
+                Vec3f_SetComponentsDuplicate((Vec3f*)(((u8*)&temp_s0->displayObject.scale.x)), 1.0f, 1.0f, 1.0f);
                 BattleScene_EndActingSideAction();
                 sp2C->flags &= ~0x3800;
             }
@@ -554,8 +554,8 @@ void BattleScene_IntroStepSpinOverheadCamera(CameraNode* arg0) {
     }
     if (func_821217DC(80) != 0) {
         Audio_PlayCommand(1, 0xFE, 0);
-        Vec3f_SetComponentsDuplicate((Vec3f*)((u8*)arg0 + 0xB4), 0.0f, 75.0f, 0.0f);
-        Vec3f_SetComponentsDuplicate((Vec3f*)((u8*)arg0 + 0xA8), -1.79f, 0.075f, 155.2f);
+        Vec3f_SetComponentsDuplicate((Vec3f*)(((u8*)&arg0->view.targetPosition.x)), 0.0f, 75.0f, 0.0f);
+        Vec3f_SetComponentsDuplicate((Vec3f*)(((u8*)&arg0->view.eyePosition.x)), -1.79f, 0.075f, 155.2f);
         ActivePokemon_SetModelTransform((s8*)sActivePokemon[0], 1, 0);
         func_821365B0(8, (s8*)sActivePokemon[0], (s8*)sActivePokemon[0], 0xFF, 0xFF);
         Battle_SetStageScale(1.0f);

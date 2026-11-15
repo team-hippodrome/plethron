@@ -55,7 +55,7 @@ void BattleAnim_CallbackOwnerTintPaletteFade(Particle* arg0) {
         }
         break;
     case 3:
-        if (func_821436A0(arg0, arg0->byteParam0, M2C_FIELD(arg0, u8 *, 0xA7)) != 0) {
+        if (func_821436A0(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte (0xA7 on the big-endian N64) */) != 0) {
             func_8213C9D0(arg0);
         }
         break;
@@ -64,7 +64,7 @@ void BattleAnim_CallbackOwnerTintPaletteFade(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B28(M2C_FIELD(arg0, s32 *, 0x10), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
+        func_80019B28(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
     }
 }
 
@@ -202,7 +202,7 @@ void BattleAnim_CallbackOwnerModelAlphaFade(Particle* arg0) {
         func_82144644(arg0);
         break;
     case 2:
-        if (Particle_ApproachPrimAlpha(arg0, arg0->byteParam0, M2C_FIELD(arg0, u8 *, 0xA7)) != 0) {
+        if (Particle_ApproachPrimAlpha(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte (0xA7 on the big-endian N64) */) != 0) {
             func_8213C9D0(arg0);
         }
         break;
@@ -211,7 +211,7 @@ void BattleAnim_CallbackOwnerModelAlphaFade(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B6C(M2C_FIELD(arg0, s32 *, 0x10), arg0->prim_a);
+        func_80019B6C(((uintptr_t)arg0->pokemon), arg0->prim_a);
     }
 }
 
@@ -253,7 +253,7 @@ void BattleAnim_CallbackModelBurstAlphaFade(Particle* particle) {
         }
         break;
     }
-    func_80019B28(M2C_FIELD(particle, s32 *, 0x10), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->prim_a);
+    func_80019B28(((uintptr_t)particle->pokemon), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->prim_a);
 }
 
 /**

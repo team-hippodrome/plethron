@@ -130,7 +130,7 @@ M2C_UNK func_8213B31C(M2C_UNK);
  */
 void DemoBattle_ClearStatus(ActivePokemon* active_pokemon) {
     s32 pad; // FAKE: stack padding
-    s8* sp20 = (s8*)active_pokemon->teamRoster + 0x1C;
+    s8* sp20 = ((s8*)&active_pokemon->teamRoster->pokemonPicked[0].species.id);
     BattleMonRuntime* rt = &active_pokemon->state.runtime;
 
     func_82101AD0();
@@ -138,7 +138,7 @@ void DemoBattle_ClearStatus(ActivePokemon* active_pokemon) {
         func_82136708(3, active_pokemon);
     }
     M2C_FIELD(sp20, s8*, 5) = 0;
-    M2C_FIELD(active_pokemon, s16*, 0x7C2) = 0;
+    active_pokemon->state.flags = 0;
     rt->statusCondition = 0;
     func_8213B31C(1);
     func_8213B31C(2);

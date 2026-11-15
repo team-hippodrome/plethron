@@ -280,7 +280,7 @@ s32 BattleAi_GetBestDamage(ComBattler* arg0, ComBattler* arg1, s32 arg2)
     }
     if (BattleAi_CanUseMove((s8 *) arg0, arg0->mon.moves[i]) != 0)
     {
-      d = BattleAi_EstimateDamage(((s8 *) arg0) + 0xC, ((s8 *) arg1) + 0xC, arg0->mon.moves[i]);
+      d = BattleAi_EstimateDamage(((s8*)&arg0->mon.unk_00), ((s8*)&arg1->mon.unk_00), arg0->mon.moves[i]);
       if (best < d)
       {
         best = d;
@@ -301,7 +301,7 @@ s32 BattleAi_GetBestDamage(ComBattler* arg0, ComBattler* arg1, s32 arg2)
     move = D_82194578[i];
     if (((move != 0) && (((move != SELFDESTRUCT) && (move != EXPLOSION)) || (arg2 > 0))) && (BattleAi_MayKnowMove(arg0, move) != 0))
     {
-      d = BattleAi_EstimateDamage(((s8 *) arg0) + 0xC, ((s8 *) arg1) + 0xC, move);
+      d = BattleAi_EstimateDamage(((s8*)&arg0->mon.unk_00), ((s8*)&arg1->mon.unk_00), move);
       if (best < d)
       {
         best = d;

@@ -110,7 +110,7 @@ void BattleAnim_RunSurfHitSpark(Particle* arg0) {
     if (func_8213CB7C(arg0) != 0) {
         func_8213E488(arg0);
         Particle_ApproachStepMagnitude(arg0, arg0->magnitudeStep, 0.5f);
-        func_82140064(arg0, M2C_FIELD(arg0, s32 *, 0x70), arg0->scratchA);
+        func_82140064(arg0, (*(s32*)&arg0->stepMagnitude), arg0->scratchA);
     }
 }
 

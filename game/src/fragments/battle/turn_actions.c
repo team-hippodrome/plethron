@@ -127,7 +127,7 @@ s32 BattleScene_TryStartSwitchAction(void) {
     sp1C = &sActivePokemon[!sBattleScene.scene->actingSide]->state;
     BattleScene_SetCameraClipMaskBothSides(0x1FFE);
     if ((sp24->faintState == 0xF) || (sp24->faintState == 0x10)) {
-        if (*M2C_FIELD(sActivePokemon[sBattleScene.scene->actingSide], u8**, 0x860) & 2) {
+        if (sActivePokemon[sBattleScene.scene->actingSide]->teamRoster->isHuman & 2 /* PORT: first byte of the roster */) {
             BattleAi_RecordUsedMove(sp20->rosterIndex, sp1C->rosterIndex, 2);
         }
         Battle_ClearRuntimeFlags(sActivePokemon[sBattleScene.scene->actingSide], 0x3800);
@@ -350,7 +350,7 @@ void BattleScene_EndActingSideAction(void) {
  * @unverified Name from Stadium 1.
  */
 s32 BattleScene_HandleFaintStatusCompletion(void) {
-    s8* temp_v0 = (s8*)sOtherPokemon + 0x7C6;
+    s8* temp_v0 = ((s8*)&sOtherPokemon->state.runtime.unk_00);
 
     if (((M2C_FIELD(temp_v0, u8*, 0x4D) & 0x80) || (M2C_FIELD(temp_v0, u8*, 0x15) & 0x18)) && (M2C_FIELD(temp_v0, u8*, 0x5A) == 0xFF)) {
         BattleAnim_ClearRockThrowingMoveFlag(sActivePokemon[sBattleScene.scene->actingSide]);
@@ -1045,7 +1045,7 @@ void BattleScene_CommandCameraResetStep(CameraNode* camera) {
     if (func_821217DC(10) != 0) {
         sBattleScene.scene->phaseStep++;
     }
-    func_8000EEBC((s8*)camera + 0xB4, (s8*)camera + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
+    func_8000EEBC(((s8*)&camera->view.targetPosition.x), ((s8*)&camera->view.eyePosition.x), sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
 }
 
 f32 func_8000F23C(f32, f32, f32, f32);
@@ -1067,7 +1067,7 @@ void BattleScene_CommandCameraPullBackStep(CameraNode* camera) {
         func_8210C104(&sBattleScene.scene->rotationX, 0xE38, sBattleScene.scene->orbitDistance);
         func_8210C1A8(&sBattleScene.scene->distance, 250.0f, 0.055f);
         func_8210C1A8(&camera->perspective.verticalFieldOfView, 80.0f, 0.03f);
-        func_8000EEBC((s8*)camera + 0xB4, (s8*)camera + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
+        func_8000EEBC(((s8*)&camera->view.targetPosition.x), ((s8*)&camera->view.eyePosition.x), sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
         if (sBattleScene.scene->rotationX == 0xE38) {
             func_82125594(camera, 2);
         }
@@ -1086,7 +1086,7 @@ void BattleScene_CommandCameraPullBackStep(CameraNode* camera) {
             func_8210C1A8(&sBattleScene.scene->distance, 250.0f, 0.2f);
             func_8210C1A8(&camera->perspective.verticalFieldOfView, 80.0f, 0.02f);
         }
-        func_8000EEBC((s8*)camera + 0xB4, (s8*)camera + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
+        func_8000EEBC(((s8*)&camera->view.targetPosition.x), ((s8*)&camera->view.eyePosition.x), sBattleScene.scene->distance, sBattleScene.scene->rotationX, sBattleScene.scene->rotationY);
         if (sBattleScene.scene->rotationX == 0xE38) {
             func_82125594(camera, 2);
         }
@@ -1126,17 +1126,17 @@ void ModelAnim_SetFrame(DisplayObject* display_object, s16 animation_timer);
  * from frame_count. Skipped when model flag 2 or 0x4000 is set.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_AlignIdleLoopToFrameCount(DisplayObject* active_pokemon, s32 frame_count) {
-    s32 frames = M2C_FIELD(M2C_FIELD(active_pokemon, s8**, 0x44), u16*, 0xA);
+void BattleAnim_AlignIdleLoopToFrameCount(ActivePokemon* active_pokemon, s32 frame_count) { // PORT: was DisplayObject* (it reads state.flags)
+    s32 frames = active_pokemon->displayObject.transformAnim.data->endFrame;
 
-    if (M2C_FIELD(active_pokemon, u16*, 0x7C2) & 2) {
+    if (active_pokemon->state.flags & 2) {
         return;
     }
     /* Read through a second type so the halfword is loaded again, as in the original. */
-    if ((u16)M2C_FIELD(active_pokemon, s16*, 0x7C2) & 0x4000) {
+    if (active_pokemon->state.flags & 0x4000) {
         return;
     }
-    ModelAnim_SetFrame(active_pokemon, (frame_count / frames + 1) * frames - frame_count);
+    ModelAnim_SetFrame(&active_pokemon->displayObject, (frame_count / frames + 1) * frames - frame_count);
 }
 
 f32 func_82121750(ActivePokemon*, f32, f32);
@@ -1188,7 +1188,7 @@ void BattleScene_MoveIntroCameraFront(CameraNode* camera) {
                     }
                     i++;
                 }
-                BattleAnim_AlignIdleLoopToFrameCount((DisplayObject*)sActingPokemon, i += 5); // FAKE: i += 5
+                BattleAnim_AlignIdleLoopToFrameCount(sActingPokemon, i += 5); // FAKE: i += 5
                 func_821224F4();
             }
             break;
@@ -1271,7 +1271,7 @@ void BattleScene_MoveIntroCameraFacing(CameraNode* camera) {
                     }
                     i++;
                 }
-                BattleAnim_AlignIdleLoopToFrameCount((DisplayObject*)sActingPokemon, i += 5); // FAKE: i += 5
+                BattleAnim_AlignIdleLoopToFrameCount(sActingPokemon, i += 5); // FAKE: i += 5
                 BattleScene_SetCameraAtFromAnchor(sActingPokemon, camera, sBattleScene.scene->anchorPosition, 0, (sActingPokemon)->facingDirection << 0xE, sBattleScene.scene->orbitDistance = 150.0f, 0.0); // FAKE: store inside the call
                 BattleScene_SetCameraEyeAndStoreAnglesFromAt(camera, 0, (sActingPokemon)->facingDirection * 0x16C, 600.0f, 0.0f);
                 if (camera->view.eyePosition.y <= 25.0f) {
@@ -1361,7 +1361,7 @@ void BattleScene_MoveIntroCameraHigh(CameraNode* camera) {
                     }
                     i++;
                 }
-                BattleAnim_AlignIdleLoopToFrameCount((DisplayObject*)sActingPokemon, i += 5); // FAKE: i += 5
+                BattleAnim_AlignIdleLoopToFrameCount(sActingPokemon, i += 5); // FAKE: i += 5
                 func_821224F4();
             }
             break;
@@ -1427,7 +1427,7 @@ void BattleScene_MoveIntroCameraLow(CameraNode* camera) {
                     }
                     i++;
                 }
-                BattleAnim_AlignIdleLoopToFrameCount((DisplayObject*)sActingPokemon, i += 5); // FAKE: i += 5
+                BattleAnim_AlignIdleLoopToFrameCount(sActingPokemon, i += 5); // FAKE: i += 5
                 func_821224F4();
             }
             break;
@@ -1581,7 +1581,7 @@ void BattleScene_MoveIntroCameraSwing(CameraNode* arg0) {
                     }
                     i++;
                 }
-                BattleAnim_AlignIdleLoopToFrameCount((DisplayObject*)sActingPokemon, i += 5); // FAKE: i is dead afterwards
+                BattleAnim_AlignIdleLoopToFrameCount(sActingPokemon, i += 5); // FAKE: i is dead afterwards
 
                 // Then reset the camera to its starting state.
                 sBattleScene.scene->verticalFieldOfView = arg0->perspective.verticalFieldOfView;

@@ -287,8 +287,8 @@ M2C_UNK func_8213D260();                            /* extern */
  */
 void Particle_DisableAndDetach(Particle* arg0) {
     arg0->lifecycle = 0;
-    M2C_FIELD(arg0, s32 *, 8) = 0;
-    M2C_FIELD(arg0, s32 *, 0xC) = 0;
+    arg0->updateCallback = NULL; // PORT: was the N64 offset 0x08
+    arg0->descriptor = NULL; // PORT: was the N64 offset 0x0C
     func_8213D260();
 }
 

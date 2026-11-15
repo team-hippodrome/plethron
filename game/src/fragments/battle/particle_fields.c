@@ -103,7 +103,7 @@ void Particle_SetByteParam0Checked(s8 *particle, unsigned char value)
  */
 void Particle_SetParam1Checked(Particle* particle, s16 value) { // PORT: was s8*
     if (particle != (s8 *)-1) {
-        M2C_FIELD(particle, s16 *, 0xA6) = value;
+        particle->param1 = value;
     }
 }
 
@@ -137,7 +137,7 @@ void Particle_SetFieldOffsetAAIfNotSentinel(Particle* arg0, s16 arg1) {
  */
 void Particle_SetScratchBChecked(Particle* particle, s16 value) { // PORT: was s8*
     if (particle != (s8 *)-1) {
-        M2C_FIELD(particle, s16 *, 0xAC) = value;
+        particle->scratchB = value;
     }
 }
 
@@ -147,7 +147,7 @@ void Particle_SetScratchBChecked(Particle* particle, s16 value) { // PORT: was s
  * byte at 0xCA each time.
  */
 u8 Particle_GetByteParam2(Particle* arg0) { // PORT: was s8*
-    return M2C_FIELD(arg0, u8 *, 0xCA);
+    return arg0->byteParam2;
 }
 
 /**
@@ -157,7 +157,7 @@ u8 Particle_GetByteParam2(Particle* arg0) { // PORT: was s8*
  * @unverified Name and comment guessed from the code.
  */
 u8 Particle_GetByteParam0(Particle* arg0) { // PORT: was s8*
-    return M2C_FIELD(arg0, u8 *, 0xC9);
+    return arg0->byteParam0;
 }
 
 /**
@@ -177,7 +177,7 @@ s16 Particle_ScratchA_GetS16_0C068(Particle* arg0) {
  * @unverified Name and comment guessed from the code.
  */
 s16 Particle_GetSpawnIndex(Particle* arg0) { // PORT: was s8*
-    return M2C_FIELD(arg0, s16 *, 0xA8);
+    return arg0->spawnIndex;
 }
 
 /**
@@ -207,7 +207,7 @@ s16 Particle_GetParam1(Particle* arg0) {
  * @unverified Name and comment guessed from the code.
  */
 s16 Particle_GetParam0(Particle* arg0) { // PORT: was s8*
-    return M2C_FIELD(arg0, s16 *, 0xA2);
+    return arg0->param0;
 }
 
 /**
@@ -217,7 +217,7 @@ s16 Particle_GetParam0(Particle* arg0) { // PORT: was s8*
  * @unverified Name and comment guessed from the code.
  */
 s16 Particle_GetCountdown(Particle* arg0) { // PORT: was s8*
-    return M2C_FIELD(arg0, s16 *, 0xA4);
+    return arg0->countdown;
 }
 
 /**

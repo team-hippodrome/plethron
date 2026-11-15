@@ -691,7 +691,7 @@ void BattleScene_EnterConfusedRow(ActivePokemon* active_pokemon) {
 void BattleScene_TickRow22PlaySpeciesSound(ActivePokemon* active_pokemon) {
     s8* cue = (s8*)sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)];
 
-    if ((M2C_FIELD(cue, u8*, 4) + 1) == M2C_FIELD(active_pokemon, s32*, 0x620)) {
+    if ((M2C_FIELD(cue, u8*, 4) + 1) == active_pokemon->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             Audio_PlayMoveSound(1, active_pokemon->displayObject.objectType, 0);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
@@ -985,7 +985,7 @@ s32 Audio_PlayCry(u32 arg0, u32 arg1); //@src/audio_commands.c
 void BattleScene_TickRow16PlayCry(ActivePokemon* active_pokemon) {
     s16 species;
     ActivePokemonState* state = &active_pokemon->state;
-    BattleMon* party_pokemon_ptr = &active_pokemon->teamRoster->pokemonPicked[M2C_FIELD(active_pokemon, s32*, 0x9D0)];
+    BattleMon* party_pokemon_ptr = &active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex];
 
     if ((state->flags & ACTIVE_UNDERGROUND) || (state->flags & ACTIVE_FREEZE) || (party_pokemon_ptr->statusCondition & STATUS_SLEEP_MASK)) {
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
@@ -1284,7 +1284,7 @@ void BattleScene_TickFaintRowPlayLandingSound(ActivePokemon* active_pokemon) {
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         return;
     }
-    if (((cue[4] + 1) == M2C_FIELD(active_pokemon, s32*, 0x620)) && (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0)) {
+    if (((cue[4] + 1) == active_pokemon->animationTimer) && (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0)) {
         ActivePokemon_PlayLandingSoundBySize(active_pokemon);
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
     }
@@ -1557,7 +1557,7 @@ void BattleScene_TickRow20PlayCueEffectScript(ActivePokemon* active_pokemon) {
 
     rec = (MovePresentationCue*)D_82189180[func_82107A5C()] + (D_82189190[D_8219A50C] - 1);
     if (D_8219A50C == 5) {
-        if (((rec->animationDuration + 1) == M2C_FIELD(active_pokemon, s32*, 0x620)) && (BattleAnim_IsAssetLoadBusy(active_pokemon) == 0)) {
+        if (((rec->animationDuration + 1) == active_pokemon->animationTimer) && (BattleAnim_IsAssetLoadBusy(active_pokemon) == 0)) {
             func_82101B54((ActivePokemon*)active_pokemon, D_82189190[D_8219A50C]);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
@@ -1995,17 +1995,17 @@ s32 func_8001101C(ActivePokemon*, s32);
  * @unverified Name guessed from the code.
  */
 s32 BattleScene_IsModelAnimationDone(ActivePokemon* active_pokemon, s32 frame_limit) {
-    u8* p = (u8*)(*(s32*)((u8*)active_pokemon + 0x9D0) * 0x50 + *(s32*)((u8*)active_pokemon + 0x860)) + 0x1C;
+    u8* p = (u8*)&active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
 
-    if ((*(volatile u16*)((u8*)active_pokemon + 0x7C2) & 2) || (p[5] & 7) ||
-        ((*(u16*)((u8*)active_pokemon + 0x7C2) & 0x200) && !(*(u16*)((u8*)active_pokemon + 0x7C2) & 0x400)) ||
-        (*(u16*)((u8*)active_pokemon + 0x7C2) & 0x4000)) {
+    if ((*(volatile u16*)&active_pokemon->state.flags & 2) || (p[5] & 7) ||
+        ((active_pokemon->state.flags & 0x200) && !(active_pokemon->state.flags & 0x400)) ||
+        (active_pokemon->state.flags & 0x4000)) {
         if (func_821217DC(frame_limit) != 0) {
             return 1;
         }
         return 0;
     }
-    if (*(s16*)((u8*)active_pokemon + 0x40) == -1) {
+    if (active_pokemon->displayObject.transformAnim.animationId == -1) {
         return 1;
     }
     return func_8001101C(active_pokemon, frame_limit);
@@ -2641,7 +2641,7 @@ void BattleScene_UpdateParticipantVisuals(ActivePokemon *active_pokemon)
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartFreezeEffectIfFrozen(ActivePokemon* active_pokemon) {
-    u8* p = (u8*)(*(s32*)((u8*)active_pokemon + 0x9D0) * 0x50 + *(s32*)((u8*)active_pokemon + 0x860)) + 0x1C;
+    u8* p = (u8*)&active_pokemon->teamRoster->pokemonPicked[active_pokemon->thumbnail.shownRosterIndex]; // PORT: was roster + index * 0x50 + 0x1C through s32 words
 
     if (p[5] & 0x20) {
         ((u8*)active_pokemon)[2] &= ~0x20;
@@ -2758,7 +2758,7 @@ void BattleScene_InitializeParticipantController(ActivePokemon* arg0) {
     ActivePokemon_SetReplacementState(arg0, 0);
     ActivePokemon_SetController(arg0, sp24);
     arg0->thumbnail.shownRosterIndex = 0;
-    M2C_FIELD(arg0, s32*, 0x9D4) = 0;
+    arg0->thumbnail.shownTeamMemberIndex = 0;
     state->menuTeamMemberIndex = 0;
     state->prevMenuTeamMemberIndex = 0;
 }

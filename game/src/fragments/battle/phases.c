@@ -1012,14 +1012,14 @@ void BattleScene_PhaseTransform(CameraNode* arg0) {
                 } else {
                     (sActingPokemon)->side->displayModel = sOtherPokemon->side->displayModel;
                 }
-                *M2C_FIELD(sActingPokemon, u8**, 0x85C) |= 0x80;
+                sActingPokemon->side->modelFlags |= 0x80;
                 sBattleScene.scene->phaseStep++;
             }
             break;
 
         case 2:
-            if (*M2C_FIELD(sActingPokemon, u8**, 0x85C) & 0x10) {
-                *M2C_FIELD(sActingPokemon, u8**, 0x85C) &= ~0x90;
+            if (sActingPokemon->side->modelFlags & 0x10) {
+                sActingPokemon->side->modelFlags &= ~0x90;
                 func_8210881C(sActingPokemon);
                 func_82107408(sActingPokemon);
                 func_82101B54(sActingPokemon, sp30->usedMove);
@@ -1035,7 +1035,7 @@ void BattleScene_PhaseTransform(CameraNode* arg0) {
             break;
 
         case 4:
-            M2C_FIELD(sActingPokemon, u8**, 0x9CC)[1] |= 1;
+            ((u8*)sActingPokemon->thumbnail.camera)[1] |= 1; // PORT: byte 1 of the node (was the N64 offset 0x9CC + 1)
             (sActingPokemon)->thumbnail.displayObject.node.flags |= 1;
             func_82107160(sActingPokemon);
             func_821233EC(arg0, sActingPokemon);
@@ -1464,7 +1464,7 @@ void BattleScene_PhaseCannotMove(CameraNode* arg0) {
  * @unverified Name guessed from the code.
  */
 void BattleScene_ReturnToGroundHeight(ActivePokemon* active_pokemon) {
-    u8* ptr = (u8*)active_pokemon + 0x78C;
+    u8* ptr = ((u8*)&active_pokemon->state.unk00[0]);
 
     if (M2C_FIELD(ptr, u16*, 0x36) & 0x200) {
         active_pokemon->displayObject.position.y = D_FLT_82189354[active_pokemon->displayObject.objectType][0];

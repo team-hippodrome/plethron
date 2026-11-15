@@ -55,7 +55,7 @@ s32 func_82125F54(void);
  * step 0, and called BattleScene_TryStartSwitchAction.
  */
 void BattleScene_ActionStepIntro(CameraNode* arg0, s32 arg1) {
-    s8* sp1C = (s8*)sActingPokemon + 0x78C;
+    s8* sp1C = ((s8*)&sActingPokemon->state.unk00[0]);
 
     BattleScene_SetCameraClipMaskBothSides(0x1FFE);
     func_82106374((uintptr_t)sActivePokemon[0]);

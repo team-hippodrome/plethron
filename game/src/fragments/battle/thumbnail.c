@@ -88,8 +88,8 @@ M2C_UNK func_82107408(s8 *);                      /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleThumbnail_InitializeOwnerCameraFraming(s32 camera0, ActivePokemon* pokemon0, s32 camera1, ActivePokemon* pokemon1) {
-    M2C_FIELD(pokemon0, s32 *, 0x9CC) = camera0;
-    M2C_FIELD(pokemon1, s32 *, 0x9CC) = camera1;
+    pokemon0->thumbnail.camera = camera0;
+    pokemon1->thumbnail.camera = camera1;
     func_82107290(pokemon0, pokemon1);
     func_82107408(pokemon0);
     func_82107408(pokemon1);
@@ -149,7 +149,7 @@ void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK sp
     if (active_pokemon->thumbnail.side == 1) {
         active_pokemon->thumbnail.status = 0;
         active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, -0x48, speed, speed);
-        temp_v1 = M2C_FIELD(active_pokemon, s8 **, 0x9CC);
+        temp_v1 = active_pokemon->thumbnail.camera;
         if (M2C_FIELD(temp_v1, s16 *, 0x1C) == -0x48) {
             M2C_FIELD(temp_v1, u8 *, 1) = (u8) (M2C_FIELD(temp_v1, u8 *, 1) & 0xFFFE);
             active_pokemon->thumbnail.displayObject.node.flags = (u8) (active_pokemon->thumbnail.displayObject.node.flags & 0xFFFE);
@@ -157,7 +157,7 @@ void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK sp
     } else {
         active_pokemon->thumbnail.status = 0;
         active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, 0x15F, speed, speed);
-        temp_v1_2 = M2C_FIELD(active_pokemon, s8 **, 0x9CC);
+        temp_v1_2 = active_pokemon->thumbnail.camera;
         if (M2C_FIELD(temp_v1_2, s16 *, 0x1C) == 0x15F) {
             M2C_FIELD(temp_v1_2, u8 *, 1) = (u8) (M2C_FIELD(temp_v1_2, u8 *, 1) & 0xFFFE);
             active_pokemon->thumbnail.displayObject.node.flags = (u8) (active_pokemon->thumbnail.displayObject.node.flags & 0xFFFE);

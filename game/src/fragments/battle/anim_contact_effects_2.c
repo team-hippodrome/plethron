@@ -238,7 +238,7 @@ void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* particle) {
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, (s32) particle->scratchB, 0);
-        Particle_ApproachPrimAlpha(particle, 0x40, M2C_FIELD(particle, u8 *, 0xAB));
+        Particle_ApproachPrimAlpha(particle, 0x40, (u8)particle->scratchA /* PORT: low byte (0xAB on the big-endian N64) */);
         Particle_RiseByStepMagnitude(particle);
         return;
     case 4:
@@ -372,7 +372,7 @@ void BattleAnim_RunDigHitDust(Particle* arg0) {
         break;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, (s32) arg0->scratchB, 0);
-        Particle_ApproachPrimAlpha(arg0, 0x40, M2C_FIELD(arg0, u8 *, 0xAB));
+        Particle_ApproachPrimAlpha(arg0, 0x40, (u8)arg0->scratchA /* PORT: low byte (0xAB on the big-endian N64) */);
         break;
     case 4:
         Particle_MarkInactive(arg0);

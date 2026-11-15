@@ -579,10 +579,10 @@ void BattleScene_InitializeParticipantAuxiliaryModel(ActivePokemon* active_pokem
 
     if (active_pokemon == sActivePokemon[0]) {
         Vec3f_SetComponentsDuplicate(&auxiliary_model->position, -50.0f, 2.0f, 0.0f);
-        M2C_FIELD(auxiliary_model, s16*, 0x20) = 0x4000;
+        auxiliary_model->rotation.y = 0x4000;
     } else {
         Vec3f_SetComponentsDuplicate(&auxiliary_model->position, 50.0f, 2.0f, 0.0f);
-        M2C_FIELD(auxiliary_model, s16*, 0x20) = -0x4000;
+        auxiliary_model->rotation.y = -0x4000;
     }
 }
 
@@ -927,7 +927,7 @@ void Battle_SetModelToHitAnim(ActivePokemon* active_pokemon) {
  * Seen in play (2026-11-12): picked Onix's roster entry when it was switched in.
  */
 void ActivePokemon_SelectTeamRoster(ActivePokemon* arg0, s32 arg1) {
-    M2C_FIELD(arg0, s32 *, 0x860) = (s32) M2C_FIELD((M2C_FIELD(arg0, s32 *, 0x85C) + (arg1 * 4)), s32 *, 8);
+    arg0->teamRoster = arg0->side->teamMember[arg1]; // PORT: was side + arg1 * 4 + 8 (N64 offsets)
 }
 
 /**
@@ -935,7 +935,7 @@ void ActivePokemon_SelectTeamRoster(ActivePokemon* arg0, s32 arg1) {
  * Seen in play (2026-11-12): set the switched-in team member (Onix).
  */
 void ActivePokemon_SetTeamMemberIndex(ActivePokemon* arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0x7B7) = arg1;
+    arg0->state.teamMemberIndex = arg1;
 }
 
 /**
@@ -955,7 +955,7 @@ void ActivePokemon_SetController(ActivePokemon* arg0, Controller* arg1) { // POR
  * @unverified Name and comment guessed from the code.
  */
 void ActivePokemon_SetReplacementState(ActivePokemon* arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0x7B9) = arg1;
+    arg0->state.menuTeamMemberIndex = arg1;
 }
 
 /**
