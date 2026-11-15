@@ -919,7 +919,7 @@ ZLIFT_STORAGE(sDiskErrorSeeManualText2, 20);
 ZLIFT_STORAGE(sDiskErrorWrongDiskText1, 36);
 ZLIFT_STORAGE(sDiskErrorWrongDiskText2, 36);
 ZLIFT_STORAGE(sDiskErrorPleaseCheckText, 24);
-ZLIFT_STORAGE(sTitleBackgroundImage, 4);
+ZLIFT_STORAGE(sTitleBackgroundImage, 8);
 ZLIFT_STORAGE(sDiskBootBlock, 8);
 ZLIFT_STORAGE(sTitleFrameCounter, 4);
 ZLIFT_STORAGE(sTitleAudioHeap, 4);
@@ -2737,7 +2737,7 @@ const ZLiftType gZLiftTypes[] = {
     { 48, 48, 492, 4 }, // r:struct PosBlend@model_vertex_draw.h:14
     { 20, 32, 496, 4 }, // r:struct ALPlayer_s@libaudio.h:306
     { 16, 24, 500, 3 }, // r:ALHeap@libaudio.h:126
-    { 36, 36, 503, 2 }, // r:struct PlayerChannelZero_1E@player.c:518
+    { 36, 36, 503, 2 }, // r:struct PlayerChannelZero_1E@player.c:519
     { 648, 712, 505, 17 }, // r:struct AMAudioMgr@audio_manager.c:30
     { 8, 8, 522, 1 }, // r:Acmd@abi.h:218
     { 16, 32, 523, 4 }, // r:struct AudioInfo@audio_manager.c:20
@@ -6001,7 +6001,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x81200F94, 0x24, 36, 3, 3, 0, 0xF94, sDiskErrorWrongDiskText1 }, // sDiskErrorWrongDiskText1
     { 0x81200FB8, 0x24, 36, 3, 3, 0, 0xFB8, sDiskErrorWrongDiskText2 }, // sDiskErrorWrongDiskText2
     { 0x81200FDC, 0x18, 24, 3, 3, 0, 0xFDC, sDiskErrorPleaseCheckText }, // sDiskErrorPleaseCheckText
-    { 0x81201010, 0x4, 1, 0, 3, 0, 0x1010, sTitleBackgroundImage }, // sTitleBackgroundImage
+    { 0x81201010, 0x4, 1, 5, 3, 0, 0x1010, sTitleBackgroundImage }, // sTitleBackgroundImage
     { 0x81201014, 0x4, 1, 5, 3, 0, 0x1014, sDiskBootBlock }, // sDiskBootBlock
     { 0x81201018, 0x4, 1, 0, 3, 0, 0x1018, sTitleFrameCounter }, // sTitleFrameCounter
     { 0x8120101C, 0x4, 1, 0, 3, 0, 0x101C, sTitleAudioHeap }, // sTitleAudioHeap

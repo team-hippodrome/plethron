@@ -1,5 +1,6 @@
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/dp_intro.c, src/game_state.c. */
+#include <stdlib.h> // PORT: getenv
 
 #include "game_state.h"
 #include "asset_archive.h"
@@ -487,7 +488,9 @@ extern M2C_UNK D_82100000;
 void State_Boot(void) {
     func_80025B60(((u32) ((uintptr_t) &D_81500000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F390, &D_0015F8F0, 0, 0);
     Session_InitTwoTrainers(5, 3, 3);
-    func_80025B60(((u32) ((uintptr_t) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (uintptr_t) &gSessionContext);
+    // PORT: debug option PORT_SKIP_OPENING=1 goes straight to the title screen (while the opening battle is ported)
+    if (getenv("PORT_SKIP_OPENING") == NULL)
+        func_80025B60(((u32) ((uintptr_t) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (uintptr_t) &gSessionContext);
     gNextGameState = 0x8010;
 }
 

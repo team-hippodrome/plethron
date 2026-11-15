@@ -5,7 +5,7 @@
 extern OSMesgQueue D_80100170;
 extern OSPiHandle* D_80100188;
 
-void Rom_DmaRead(u32 dev_addr, u32 dram_addr, u32 size);
+void Rom_DmaRead(u32 dev_addr, uintptr_t dram_addr, u32 size); // PORT: dram_addr is a host pointer
 
 extern OSMesg D_8010018C;
 /**
@@ -24,10 +24,10 @@ void Rom_InitDevice(s32 arg0) {
 }
 
 /** Reads from a device address into memory with DMA and waits for completion. */
-void Rom_DmaRead(u32 dev_addr, u32 dram_addr, u32 size) {
+void Rom_DmaRead(u32 dev_addr, uintptr_t dram_addr, u32 size) {
     OSIoMesg msg;
     u32 dev = dev_addr;
-    u32 dram = dram_addr;
+    uintptr_t dram = dram_addr; // PORT: host pointer
     s32 var_s0;
 
     while (size != 0) {
@@ -39,7 +39,7 @@ void Rom_DmaRead(u32 dev_addr, u32 dram_addr, u32 size) {
 
         msg.hdr.pri = 0;
         msg.hdr.retQueue = &D_80100170;
-        msg.dramAddr = dram;
+        msg.dramAddr = (void*)dram;
         msg.devAddr = dev;
         msg.size = var_s0;
 

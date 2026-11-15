@@ -79,6 +79,7 @@ set(PORT_MAIN_SOURCES
   # (tools/zero/gen_lift.py, src/port/zero_lift.c). Compiled without the game's headers: the storage is plain bytes.
   src/port/zero_lift.c
   src/port/zero_asm.c
+  src/port/text_lookup.cpp
   src/port/generated/zero_lift_data.c
 )
 if(NOT EMSCRIPTEN)  # web: an object file written by tools/gen_wasm_abs_syms.py instead (below)
@@ -95,6 +96,12 @@ if(ANDROID)
   target_link_options(pokestadium PRIVATE -Wl,-Bsymbolic)
 else()
   add_executable(pokestadium ${PORT_MAIN_SOURCES})
+  # the translation tables (translations/README.md), looked up next to the executable (src/port/text_lookup.cpp)
+  add_custom_command(TARGET pokestadium POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/translations
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
+            ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv $<TARGET_FILE_DIR:pokestadium>/translations/
+    COMMENT "Copying the translation tables")
 endif()
 target_include_directories(pokestadium PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src

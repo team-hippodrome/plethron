@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "title_screen.h"
 #include "src/leo.h" // PORT: the SDK has a leo.h too
+#include "src/stage_loader.h" // PORT: StageContext_Allocate returns a pointer
 
 
 s32 Cont_GetConnectedMask(void);
@@ -158,7 +159,7 @@ void TitleScreen_DrawDiskError(s32 boot_error) {
     }
 }
 
-extern s32 sTitleBackgroundImage;
+extern u8* sTitleBackgroundImage; // PORT: was s32
 
 /**
  * Draws the full-screen title picture (logo, Poké Ball, lightning and Pokémon), a 320x240 YUV
@@ -167,7 +168,7 @@ extern s32 sTitleBackgroundImage;
  * the band across the logo's "POCKET MONSTERS STADIUM" subtitle.
  */
 void TitleScreen_DrawBackground(void) {
-    u8* image = (u8*)sTitleBackgroundImage;
+    u8* image = sTitleBackgroundImage;
     s32 y;
     s32 x;
 
@@ -373,10 +374,7 @@ u32 MainPool_PushState(u32 arg);
 u32 MainPool_PopState(u32 arg);
 void Gfx_InitDisplayListBuffers(u32 buffer_size, s32 pool_side);
 void Gfx_FreeDisplayListBuffers(void);
-s32 StageContext_Allocate(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
-M2C_UNK StageContext_Activate(s32);
-M2C_UNK StageContext_Deactivate();
-s32 BgStage_WaitForCondition(M2C_UNK *, M2C_UNK, M2C_UNK);
+// PORT: StageContext_Allocate comes from stage_loader.h (it returns a pointer)
 M2C_UNK Audio_WaitForIdle(M2C_UNK);
 s32 Font_Init(s32 load_size, s32 side);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
@@ -388,7 +386,7 @@ extern M2C_UNK D_002EBCB0;
 extern M2C_UNK D_002F0A50;
 extern M2C_UNK D_01000000;
 extern M2C_UNK D_02000000;
-extern s32 sTitleBackgroundImage;
+extern u8* sTitleBackgroundImage; // PORT: was s32
 extern s32 sTitleAudioHeap;
 extern s32 sPushStartBlinkTimer;
 
@@ -403,7 +401,7 @@ void Leo_AbortPendingBootRequest(void); // PORT: no prototype in the decomp
  */
 s32 TitleScreen_Main(UNUSED s32 arg0, UNUSED M2C_UNK arg1) {
     s32 result;
-    s32 stage;
+    StageContext* stage; // PORT: was s32
 
     MainPool_PushState(0x5449544C); // 'TITL'
     Gfx_InitDisplayListBuffers(0x10000, 0);
@@ -413,7 +411,7 @@ s32 TitleScreen_Main(UNUSED s32 arg0, UNUSED M2C_UNK arg1) {
     Asset_LoadToSegment((u32) ((uintptr_t) &D_02000000 & 0x0F000000) >> 0x18, (u8*)&D_002EBCB0, (u8*)&D_002F0A50, 0);
     sDiskBootBlock = (LeoBootDescriptor*)MainPool_Alloc(0x4510, 0);
     sTitleAudioHeap = MainPool_Alloc(0x100000, 0);
-    sTitleBackgroundImage = (uintptr_t)Asset_LoadToSegment(0U, (u8*)&D_002E2B90, (u8*)&D_002EBCB0, 0);
+    sTitleBackgroundImage = Asset_LoadToSegment(0U, (u8*)&D_002E2B90, (u8*)&D_002EBCB0, 0);
     sTitleFrameCounter = 0;
     sPushStartBlinkTimer = 0;
     Audio_LoadWaveTablesAndMusic(sTitleAudioHeap);

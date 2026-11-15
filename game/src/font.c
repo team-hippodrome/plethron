@@ -14,6 +14,7 @@
 extern FontContext* font_context;
 
 #include "m2c_macros.h"
+#include "text_lookup.h" // PORT: translations
 extern Gfx D_80060950[];
 extern Gfx D_800609A8[];
 
@@ -238,6 +239,12 @@ void Font_Printf(s32 x, s32 y, const char* fmt, ...) {
 
     va_start(args, fmt);
     start_x = x;
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) {
+        // PORT: the translated text (format and %s arguments looked up by md5), drawn with the game's glyphs for now
+        char utf8[0x200];
+        Port_Text_Vformat(utf8, sizeof(utf8), fmt, args);
+        len = Port_Text_Utf8ToGameEuc(utf8, buf, sizeof(buf));
+    } else
     len = _Printf(String_CopyBytesAndAdvance, (char*)buf, fmt, args);
     if (len > 0) {
         buf[len] = 0;
