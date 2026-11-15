@@ -62,6 +62,10 @@ static void yay0Decode(const uint8_t* src, uint8_t* dst, uint32_t outSize) {
 }
 
 // The image as the game sees it after loading (decompressed, relocation words restored, bss part zeroed).
+static size_t imageDataEnd(int image, const uint8_t* rom, size_t romSize);
+static void liftRange(const uint8_t* img, size_t dataEnd, uint32_t rom, uint32_t ext, uint8_t* host, int type,
+                      uint32_t count);
+
 static const uint8_t* imageBytes(int image, size_t* size) {
     const uint8_t* rom = Port_RomBytes();
     size_t romSize = Port_RomLength();
@@ -176,9 +180,11 @@ static long translate(int type, uint32_t off) {
                 if (r >= (uint32_t)o->size) {
                     return -1;
                 }
-                if (o->kind == ZLIFT_SCALAR || o->kind == ZLIFT_BITS) {
+                if ((o->kind == ZLIFT_SCALAR || o->kind == ZLIFT_BITS) && r != 0) {
                     return h + (o->size - 1 - r); // byte r of a big-endian value
                 }
+                // the start of a value maps to the start of its host copy: such pointers are buffer or element
+                // addresses (a symbol's storage can span unnamed buffers after it), not byte views of the value
                 return h;
             }
         }
@@ -340,13 +346,8 @@ static void* resolve(uint32_t v, int pointee) {
     // sLazy may move while lifting (nested lazies): use the copies above
     size_t isz;
     const uint8_t* img = imageBytes(b->image, &isz);
-    if (img != NULL && rom + ext <= isz) {
-        if (type >= 0) {
-            liftElems(img + rom, host, type, count);
-        } else {
-            memcpy(host, img + rom, ext);
-        }
-    }
+    isz = imageDataEnd(b->image, img, isz);
+    liftRange(img, isz, rom, ext, host, type, count);
     return host;
 }
 
@@ -456,10 +457,47 @@ int ZLift_ImageOfAddr(uint32_t addr) {
     return (addr >= 0x80000000u && addr < 0x81000000u) ? 0 : -1;
 }
 
+// Bytes of an image that hold initialized data. A fragment's ROM image ends with its relocation table at
+// relocOffset (header word 0x14); symbols past it are bss, and lifting them from the image would read the table.
+static size_t imageDataEnd(int image, const uint8_t* rom, size_t romSize) {
+    if (image > 0 && rom != NULL && romSize >= 0x20 && memcmp(rom + 8, "FRAGMENT", 8) == 0) {
+        uint32_t reloc = be32(rom + 0x14);
+        if (reloc != 0 && reloc < romSize) {
+            return reloc;
+        }
+    }
+    return romSize;
+}
+
+// Lifts the part of [rom, rom + ext) that lies in initialized data (below dataEnd); the rest stays zero (bss).
+static void liftRange(const uint8_t* img, size_t dataEnd, uint32_t rom, uint32_t ext, uint8_t* host, int type,
+                      uint32_t count) {
+    if (img == NULL || rom >= dataEnd) {
+        return;
+    }
+    if (rom + ext > dataEnd) {
+        uint32_t avail = (uint32_t)(dataEnd - rom);
+        if (type >= 0) {
+            uint32_t n64 = gZLiftTypes[type].n64Size;
+            uint32_t whole = n64 != 0 ? avail / n64 : 0;
+            count = whole < count ? whole : count;
+        } else {
+            ext = avail;
+        }
+    }
+    if (type >= 0) {
+        liftElems(img + rom, host, type, count);
+    } else {
+        memcpy(host, img + rom, ext);
+    }
+}
+
 void ZLift_LoadImage(int image) {
     size_t romSize;
     const uint8_t* rom = imageBytes(image, &romSize);
     uint32_t n = 0;
+
+    romSize = imageDataEnd(image, rom, romSize);
 
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {
         const ZLiftSym* s = &gZLiftSyms[i];
@@ -468,20 +506,16 @@ void ZLift_LoadImage(int image) {
         }
         size_t hs = (size_t)gZLiftTypes[s->type].hostSize * s->count;
         memset(s->host, 0, hs);
-        if (!s->bss && rom != NULL && s->rom + s->n64Ext <= romSize) {
-            liftElems(rom + s->rom, s->host, s->type, s->count);
+        if (!s->bss) {
+            liftRange(rom, romSize, s->rom, s->n64Ext, s->host, s->type, s->count);
         }
         n++;
     }
     for (uint32_t i = 0; i < sLazyCount; i++) {
         LazyBlock b = sLazy[i];
-        if (b.image == image && rom != NULL && b.rom + b.n64Ext <= romSize) {
+        if (b.image == image && rom != NULL) {
             memset(b.host, 0, b.hostSize);
-            if (b.type >= 0) {
-                liftElems(rom + b.rom, b.host, b.type, b.count);
-            } else {
-                memcpy(b.host, rom + b.rom, b.n64Ext);
-            }
+            liftRange(rom, romSize, b.rom, b.n64Ext, b.host, b.type, b.count);
         }
     }
     if (TRACE) {

@@ -1,6 +1,7 @@
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/geo_render.c, src/model_animation.c, src/model_animation_events.c. */
 
+#include "anim_raw.h"
 #include "geo_render.h"
 #include "battle_hud.h"
 #include "font.h"
@@ -190,6 +191,8 @@ extern ModelAnimCurveContext D_800ABCC0[2];
 s32 func_80002C80(s32);
 s32 ModelAnim_AdvanceCurveFrame(TransformAnimState* arg0);
 extern ModelAnimCurveContext D_800AC690;
+int gAnimCurveRaw;
+int gAnimEventRaw;
 
 /** Starts evaluating an animation curve set, setting up its channel context. */
 void ModelAnim_BeginCurveContext(void* arg0, s32 arg1) {
@@ -200,14 +203,16 @@ void ModelAnim_BeginCurveContext(void* arg0, s32 arg1) {
         ((TransformAnimState*)arg0)->frameFixed = ModelAnim_AdvanceCurveFrame((TransformAnimState*)arg0);
     }
     ((TransformAnimState*)arg0)->lastRenderFrame = (u16) D_80060484;
+    gAnimCurveRaw = Anim_IsRaw(temp_s1); // PORT: big-endian data read through anim_raw.h
     D_800AC690.active = 1;
-    D_800AC690.wideTranslation = (s8) (((TransformAnimState*)arg0)->data->flags & 4);
+    D_800AC690.wideTranslation = (s8) (ANIM_FLAGS(temp_s1) & 4);
     D_800AC690.frame = (s16) (((TransformAnimState*)arg0)->frameFixed >> 0x10);
     D_800AC690.data = temp_s1;
-    D_800AC690.channels = (void*) func_80002C80(temp_s1->channelTable);
-    D_800AC690.scaleValues = (void*) func_80002C80(temp_s1->scaleData);
-    D_800AC690.rotationValues = (void*) func_80002C80(temp_s1->rotationData);
-    D_800AC690.translationValues = (void*) func_80002C80(temp_s1->translationData);
+    // PORT: the four u32 link addresses at 0x0C..0x18 (was func_80002C80, which returns s32)
+    D_800AC690.channels = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)temp_s1 + 0x0C, gAnimCurveRaw));
+    D_800AC690.scaleValues = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)temp_s1 + 0x10, gAnimCurveRaw));
+    D_800AC690.rotationValues = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)temp_s1 + 0x14, gAnimCurveRaw));
+    D_800AC690.translationValues = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)temp_s1 + 0x18, gAnimCurveRaw));
     if (D_800AC690.frame < 0) {
         D_800AC690.frame = 0;
     }
@@ -221,17 +226,18 @@ f32 ModelAnim_EvaluateScaleChannel(ModelAnimCurveContext* arg0, s32 arg1) {
     f32 ret;
     s32 var_a2;
     ModelAnimChannel* temp_v0 = &arg0->channels[arg1];
+    u16 scaleIndex = Anim_ReadU16(&temp_v0->scaleIndex, gAnimCurveRaw); // PORT: anim_raw.h
 
     if (temp_v0->scaleKeyCount == 1) {
-        ret = temp_v0->scaleIndex / 1000.0f;
+        ret = scaleIndex / 1000.0f;
     } else {
         if (arg0->frame < temp_v0->scaleKeyCount) {
-            var_a2 = temp_v0->scaleIndex + arg0->frame;
+            var_a2 = scaleIndex + arg0->frame;
         } else {
-            var_a2 = (temp_v0->scaleIndex + temp_v0->scaleKeyCount) - 1;
+            var_a2 = (scaleIndex + temp_v0->scaleKeyCount) - 1;
         }
 
-        ret = arg0->scaleValues[var_a2] / 1000.0f;
+        ret = (s16)Anim_ReadU16(&arg0->scaleValues[var_a2], gAnimCurveRaw) / 1000.0f;
     }
 
     return ret;
@@ -242,16 +248,17 @@ s16 ModelAnim_EvaluateRotationChannel(ModelAnimCurveContext* arg0, s32 arg1) {
     s32 var_a1;
     s16 var_v1;
     ModelAnimChannel* temp_v0 = &arg0->channels[arg1];
+    u16 rotationIndex = Anim_ReadU16(&temp_v0->rotationIndex, gAnimCurveRaw); // PORT: anim_raw.h
 
     if (temp_v0->rotationKeyCount == 1) {
-        var_v1 = temp_v0->rotationIndex * 0x10;
+        var_v1 = rotationIndex * 0x10;
     } else {
         if (arg0->frame < temp_v0->rotationKeyCount) {
-            var_a1 = temp_v0->rotationIndex + arg0->frame;
+            var_a1 = rotationIndex + arg0->frame;
         } else {
-            var_a1 = (temp_v0->rotationIndex + temp_v0->rotationKeyCount) - 1;
+            var_a1 = (rotationIndex + temp_v0->rotationKeyCount) - 1;
         }
-        var_v1 = PackedBits_ReadSigned(arg0->rotationValues, var_a1, 0xC) * 0x10;
+        var_v1 = Anim_PackedBitsReadSigned(arg0->rotationValues, var_a1, 0xC, gAnimCurveRaw) * 0x10;
     }
     return var_v1;
 }
@@ -262,25 +269,26 @@ f32 ModelAnim_EvaluateTranslationChannel(ModelAnimCurveContext* arg0, s32 arg1) 
     s16 var_a2;
     s32 var_a1;
     ModelAnimChannel* temp_v0 = &arg0->channels[arg1];
+    u16 translationIndex = Anim_ReadU16(&temp_v0->translationIndex, gAnimCurveRaw); // PORT: anim_raw.h
 
     if (temp_v0->translationKeyCount == 1) {
         if (arg0->wideTranslation != 0) {
-            var_fv1 = (s16)temp_v0->translationIndex;
+            var_fv1 = (s16)translationIndex;
         } else {
-            var_a2 = temp_v0->translationIndex * 0x10;
+            var_a2 = translationIndex * 0x10;
             var_fv1 = var_a2 >> 4;
         }
     } else {
         if (arg0->frame < temp_v0->translationKeyCount) {
-            var_a1 = temp_v0->translationIndex + arg0->frame;
+            var_a1 = translationIndex + arg0->frame;
         } else {
-            var_a1 = (temp_v0->translationIndex + temp_v0->translationKeyCount) - 1;
+            var_a1 = (translationIndex + temp_v0->translationKeyCount) - 1;
         }
 
         if (arg0->wideTranslation != 0) {
-            var_fv1 = PackedBits_ReadSigned(arg0->translationValues, var_a1, 0x10);
+            var_fv1 = Anim_PackedBitsReadSigned(arg0->translationValues, var_a1, 0x10, gAnimCurveRaw);
         } else {
-            var_fv1 = PackedBits_ReadSigned(arg0->translationValues, var_a1, 0xC);
+            var_fv1 = Anim_PackedBitsReadSigned(arg0->translationValues, var_a1, 0xC, gAnimCurveRaw);
         }
     }
 
@@ -303,20 +311,21 @@ s32 ModelAnim_AdvanceCurveFrame(TransformAnimState* arg0) {
     spC.raw = arg0->frameFixed;
     if (arg0->lastRenderFrame != D_80060484) {
         spC.raw += arg0->speedFixed;
+        // PORT: header fields through anim_raw.h
         if ((s32)arg0->speedFixed >= 0) {
-            if (ptr->whole >= temp_v0->endFrame) {
-                if (temp_v0->flags & 2) {
-                    ptr->whole = temp_v0->endFrame - 1;
+            if (ptr->whole >= ANIM_END(temp_v0)) {
+                if (ANIM_FLAGS(temp_v0) & 2) {
+                    ptr->whole = ANIM_END(temp_v0) - 1;
                 } else {
-                    ptr->whole = temp_v0->loopStart;
+                    ptr->whole = ANIM_LOOP(temp_v0);
                 }
             }
         } else {
-            if (ptr->whole < temp_v0->loopStart) {
-                if (temp_v0->flags & 2) {
-                    ptr->whole = temp_v0->loopStart;
+            if (ptr->whole < ANIM_LOOP(temp_v0)) {
+                if (ANIM_FLAGS(temp_v0) & 2) {
+                    ptr->whole = ANIM_LOOP(temp_v0);
                 } else {
-                    ptr->whole = temp_v0->endFrame - 1;
+                    ptr->whole = ANIM_END(temp_v0) - 1;
                 }
             }
         }
@@ -331,8 +340,8 @@ typedef struct EventTrackRender {
     /* 0x0 */ u8 active;
     /* 0x2 */ s16 frame;
     /* 0x4 */ EventTrackData* data;
-    /* 0x8 */ s32 trackTable;
-    /* 0xC */ s32 frameValues;
+    /* 0x8 */ void* trackTable; // PORT: pointers (were s32)
+    /* 0xC */ void* frameValues;
 } EventTrackRender;
 
 extern EventTrackRender D_800AC6A8;
@@ -350,11 +359,17 @@ void ModelAnim_PrepareEventTrackRender(EventTrackState* track, s32 advance) {
         track->frame = ModelAnim_AdvanceEventFrame(track);
     }
     track->lastRenderFrame = D_80060484;
+    gAnimEventRaw = Anim_IsRaw(data); // PORT: big-endian data read through anim_raw.h
     D_800AC6A8.active = 1;
     D_800AC6A8.frame = track->frame;
     D_800AC6A8.data = data;
-    D_800AC6A8.trackTable = func_80002C80((uintptr_t)data->trackTable);
-    D_800AC6A8.frameValues = func_80002C80((uintptr_t)data->frameValues);
+    if (gAnimEventRaw) { // PORT: u32 link addresses at 0x0C / 0x10
+        D_800AC6A8.trackTable = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)data + 0x0C, 1));
+        D_800AC6A8.frameValues = Util_ConvertAddrToVirtAddr(Anim_ReadU32((u8*)data + 0x10, 1));
+    } else {
+        D_800AC6A8.trackTable = Util_ConvertAddrToVirtAddr((uintptr_t)data->trackTable);
+        D_800AC6A8.frameValues = Util_ConvertAddrToVirtAddr((uintptr_t)data->frameValues);
+    }
     if (D_800AC6A8.frame < 0) {
         D_800AC6A8.frame = 0;
     }
@@ -364,11 +379,13 @@ void ModelAnim_PrepareEventTrackRender(EventTrackState* track, s32 advance) {
 s32 ModelAnim_ResolveEventIndex(s32 arg0, unk_func_80017540_arg1* arg1, s32 arg2) {
     unk_func_80017540_arg1* temp_v0 = &arg1[arg2];
     s32 ret;
+    u16 count = Anim_ReadU16(&temp_v0->unk_00, gAnimEventRaw); // PORT: anim_raw.h
+    u16 first = Anim_ReadU16(&temp_v0->unk_02, gAnimEventRaw);
 
-    if (arg0 < temp_v0->unk_00) {
-        ret = arg0 + temp_v0->unk_02;
+    if (arg0 < count) {
+        ret = arg0 + first;
     } else {
-        ret = (temp_v0->unk_02 + temp_v0->unk_00) - 1;
+        ret = (first + count) - 1;
     }
     return ret;
 }
@@ -383,11 +400,11 @@ s16 ModelAnim_AdvanceEventFrame(EventTrackState* arg0) {
 
     if (arg0->lastRenderFrame != D_80060484) {
         var_v1 += 1;
-        if (var_v1 >= temp_v0->endFrame) {
-            if (temp_v0->flags & 2) {
-                var_v1 = temp_v0->endFrame - 1;
+        if (var_v1 >= ANIM_END(temp_v0)) { // PORT: header fields through anim_raw.h
+            if (ANIM_FLAGS(temp_v0) & 2) {
+                var_v1 = ANIM_END(temp_v0) - 1;
             } else {
-                var_v1 = temp_v0->loopStart;
+                var_v1 = ANIM_LOOP(temp_v0);
             }
         }
     }
@@ -1404,7 +1421,7 @@ void Geo_NodeAnimatedPart(GraphNode* arg0) {
 
     Vec3f_FromVec3s(&sp8C, &arg->translation);
     if (((&D_800AC690)->active == 1) && (idx >= 0) &&
-        (idx + 2 < (&D_800AC690)->data->channelCount)) {
+        (idx + 2 < ANIM_COUNT((&D_800AC690)->data))) { // PORT: anim_raw.h
         sp8C.x = ModelAnim_EvaluateTranslationChannel(&D_800AC690, idx + 0);
         sp8C.y = ModelAnim_EvaluateTranslationChannel(&D_800AC690, idx + 1);
         sp8C.z = ModelAnim_EvaluateTranslationChannel(&D_800AC690, idx + 2);
@@ -1667,7 +1684,7 @@ void Geo_NodeMaterial(GeoMaterialNode *arg0)
   switch (D_800AC6A8.active)
   {
     case 1:
-    if ((arg0->eventIndex >= 0) && (arg0->eventIndex < D_800AC6A8.data->trackCount))
+    if ((arg0->eventIndex >= 0) && (arg0->eventIndex < ANIM_COUNT(D_800AC6A8.data))) // PORT: anim_raw.h
     {
       tex_index = ((u8 *) D_800AC6A8.frameValues)[ModelAnim_ResolveEventIndex(D_800AC6A8.frame, (unk_func_80017540_arg1 *) D_800AC6A8.trackTable, arg0->eventIndex)];
       D_800AB454 = (uintptr_t) (&D_800604A0->textures[tex_index]);

@@ -2701,11 +2701,11 @@ void BattleAnim_TriggerStatusAfflictionCry(ActivePokemon* active_pokemon) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void BattleScene_AllocateParticipantRecord(BattleSide* session_teams, s32 side_index) {
-    ActivePokemon* active_pokemon = MainPool_Alloc(0xA8C, 0);
+    ActivePokemon* active_pokemon = MainPool_Alloc(sizeof(ActivePokemon), 0); // PORT: was 0xA8C (the N64 size)
 
     sActivePokemon[side_index] = active_pokemon;
 
-    bzero(active_pokemon, 0xA8C);
+    bzero(active_pokemon, sizeof(ActivePokemon)); // PORT: was 0xA8C
     bzero(&sActivePokemon[side_index]->state, sizeof(ActivePokemonState));
     bzero(&sActivePokemon[side_index]->state.runtime, sizeof(BattleMonRuntime));
     bzero(&sActivePokemon[side_index]->thumbnail, sizeof(ThumbnailState));

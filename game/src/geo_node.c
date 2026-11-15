@@ -1,6 +1,7 @@
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/geo_node.c, src/model_animation.c, src/model_animation_events.c. */
 
+#include "anim_raw.h"
 #include "zero_lift.h"
 #include <stdio.h>
 #include "global.h"
@@ -758,7 +759,7 @@ s32 ModelAnim_BindTransformCurve(DisplayObject* display_object, s16 animation_id
     if ((transform_addr != transform_anim->data) || (animation_id != transform_anim->animationId)) {
         transform_anim->animationId = animation_id;
         transform_anim->data = transform_addr;
-        transform_anim->frameFixed = (transform_addr->startFrame << 16) - speed;
+        transform_anim->frameFixed = (ANIM_START(transform_addr) << 16) - speed; // PORT: anim_raw.h
     }
 
     transform_anim->speedFixed = speed;
@@ -804,12 +805,12 @@ s32 ModelAnim_HasCrossedFrame(DisplayObject* arg0, s16 arg1) {
 
 /** Returns whether the transform animation has reached its final frame. */
 s32 ModelAnim_IsAnimationDone(DisplayObject* display_object) {
-    return ModelAnim_HasCrossedFrame(display_object, display_object->transformAnim.data->endFrame - 1);
+    return ModelAnim_HasCrossedFrame(display_object, ANIM_END(display_object->transformAnim.data) - 1); // PORT: anim_raw.h
 }
 
 /** Returns whether the transform animation is on or past its last frame. */
 s32 ModelAnim_IsFinished(DisplayObject* arg0) {
-    return arg0->transformAnim.frameFixed >= ((arg0->transformAnim.data->endFrame - 1) << 0x10);
+    return arg0->transformAnim.frameFixed >= ((ANIM_END(arg0->transformAnim.data) - 1) << 0x10); // PORT: anim_raw.h
 }
 
 /** Detaches the event track from a display object. */
@@ -826,7 +827,7 @@ s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2) {
     if ((temp_v0 != ptr->data) || (arg1 != ptr->trackId)) {
         ptr->trackId = arg1;
         ptr->data = temp_v0;
-        ptr->frame = temp_v0->startFrame - 1;
+        ptr->frame = ANIM_START(temp_v0) - 1; // PORT: anim_raw.h
     }
 
     return ptr->frame;

@@ -901,16 +901,14 @@ f32 Math_StepToF(f32 current, f32 target, f32 increase, f32 decrease) {
 
 /** Reads a signed bit field of the given length from a packed array of shorts. */
 s16 PackedBits_ReadSigned(s16* packed, s32 offset, s32 length) {
-    Vec2s_s32 spC;
+    // PORT: the original paired two shorts through a union (first short high on the big-endian N64) and shifted
+    // by -length (32 - length on MIPS); this is the same on any host
     s16* temp_a3 = &packed[(offset * length) / 16];
-    s16* p_spC = &spC.x;
+    s32 v = (s32)(((u32)(u16)temp_a3[0] << 16) | (u16)temp_a3[1]);
 
-    p_spC[0] = temp_a3[0];
-    p_spC[1] = temp_a3[1];
-
-    spC.xy <<= ((offset * length) % 16);
-    spC.xy >>= -length;
-    return spC.y;
+    v <<= ((offset * length) % 16);
+    v >>= (32 - length);
+    return (s16)v;
 }
 
 /** Converts RGB channels in the range 0 to 1 to hue, saturation and value. */

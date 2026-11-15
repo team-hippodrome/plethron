@@ -24,7 +24,7 @@ s32 Storage_QueueRtcRead(void* arg0, s32 arg1, s32 arg2);
 s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         if (arg0 == 0) {
             temp_v0->command = 0xF0;
@@ -44,7 +44,7 @@ s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* 
 s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         if (arg0 == 0) {
             temp_v0->command = 0xF2;
@@ -64,7 +64,7 @@ s32 Storage_QueueSramTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQu
 s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQueue* arg4, s32 arg5) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         if (arg0 == 0) {
             temp_v0->command = 5;
@@ -84,7 +84,7 @@ s32 Storage_QueueDiskTransfer(s32 arg0, void* arg1, s32 arg2, s32 arg3, OSMesgQu
 s32 Storage_QueueDiskIdRead(s32 arg0, s32 arg1) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 0xC;
         temp_v0->dramAddr = &D_80084D10;
@@ -98,7 +98,7 @@ s32 Storage_QueueDiskIdRead(s32 arg0, s32 arg1) {
 s32 Storage_QueueDiskSeek(s32 arg0, s32 arg1, s32 arg2) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 7;
         temp_v0->devAddr = arg0;
@@ -112,7 +112,7 @@ s32 Storage_QueueDiskSeek(s32 arg0, s32 arg1, s32 arg2) {
 s32 Storage_QueueDiskMotorOff(s32 arg0, s32 arg1) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 8;
         temp_v0->devAddr = 0;
@@ -126,7 +126,7 @@ s32 Storage_QueueDiskMotorOff(s32 arg0, s32 arg1) {
 s32 Storage_QueueDiskReset(s32 arg0, s32 arg1) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 8;
         temp_v0->devAddr = 4;
@@ -140,7 +140,7 @@ s32 Storage_QueueDiskReset(s32 arg0, s32 arg1) {
 s32 Storage_QueueRtcWrite(void* arg0, s32 arg1, s32 arg2) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 0xE;
         temp_v0->dramAddr = arg0;
@@ -159,7 +159,7 @@ s16 Storage_GetDiskStatus(void) {
 s32 Storage_QueueRtcRead(void* arg0, s32 arg1, s32 arg2) {
     StorageRequest* temp_v0;
 
-    temp_v0 = Util_Malloc(0x2C);
+    temp_v0 = Util_Malloc(sizeof(StorageRequest)); // PORT: was 0x2C (the N64 size)
     if (temp_v0 != NULL) {
         temp_v0->command = 0xD;
         temp_v0->dramAddr = arg0;

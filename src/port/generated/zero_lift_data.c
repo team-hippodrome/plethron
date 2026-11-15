@@ -345,7 +345,7 @@ ZLIFT_STORAGE(D_800AB458, 4);
 ZLIFT_STORAGE(D_800AB45C, 4);
 ZLIFT_STORAGE(D_800AB460, 4392);
 ZLIFT_STORAGE(D_800AC508, 400);
-ZLIFT_STORAGE(D_800AC6A8, 24);
+ZLIFT_STORAGE(D_800AC6A8, 32);
 ZLIFT_STORAGE(gGraphNodePool, 8);
 ZLIFT_STORAGE(gCurRootGraphNode, 8);
 ZLIFT_STORAGE(gGeoLayoutStack, 128);
@@ -2698,247 +2698,247 @@ const ZLiftType gZLiftTypes[] = {
     { 104, 112, 304, 7 }, // r:OSPfs@pfs.h:71
     { 16, 24, 311, 4 }, // r:struct LeoBootDescriptor@leo.h:8
     { 8, 8, 315, 1 }, // r:struct LeoBootState@leo.h:17
-    { 4260, 4392, 316, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:16
+    { 4260, 4392, 316, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:17
     { 64, 64, 320, 1 }, // r:MtxF@types.h:14
     { 16, 16, 321, 1 }, // af4[4]
     { 400, 400, 322, 4 }, // r:struct unk_D_800AB970@geo_render.h:10
     { 24, 48, 326, 7 }, // r:struct ModelAnimCurveContext@geo_render.h:68
     { 28, 28, 333, 4 }, // r:struct TransformAnimData@global.h:94
     { 10, 10, 337, 2 }, // r:struct ModelAnimChannel@geo_render.h:58
-    { 16, 24, 339, 4 }, // r:struct EventTrackRender@geo_render.c:330
-    { 20, 32, 343, 5 }, // r:struct EventTrackData@global.h:116
-    { 4, 8, 348, 1 }, // ip
-    { 2584, 2696, 349, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
-    { 16, 16, 374, 2 }, // r:struct BinArchive@asset_archive.h:21
-    { 24, 48, 376, 6 }, // r:struct GraphNode@global.h:177
-    { 240, 304, 382, 22 }, // r:struct CameraNode@global.h:253
-    { 32, 32, 404, 1 }, // r:LookAt@gbi.h:1374
-    { 16, 16, 405, 4 }, // r:Light@gbi.h:1318
-    { 24, 48, 409, 6 }, // r:struct DisplayNodeHeader@global.h:81
-    { 44, 72, 415, 5 }, // r:struct ModelAssetNode@global.h:75
-    { 24, 48, 420, 3 }, // r:struct ModelNodeView@global.h:67
-    { 100, 176, 423, 20 }, // r:struct ModelLoadContext@global.h:48
-    { 12, 16, 443, 3 }, // r:struct ModelLoadResult@global.h:42
-    { 4128, 4128, 446, 29 }, // r:struct GbSaveMainData@gb_data.h:124
-    { 2, 2, 475, 1 }, // r:struct BattleMonSpecies@game_state.h:29
-    { 44, 44, 476, 9 }, // r:struct GbPokemonRecordExt@gb_data.h:82
-    { 6, 6, 485, 1 }, // as1u[6]
-    { 33, 33, 486, 8 }, // r:struct GbPokemonRecord@gb_data.h:65
-    { 20, 40, 494, 5 }, // r:struct unk_D_800AE520@game_state.h:20
-    { 354, 354, 499, 7 }, // r:struct GbSavePortSnapshot@pokemon_stats.h:37
-    { 12, 12, 506, 2 }, // r:struct SaveContinueSession@save_data.h:104
-    { 1024, 1024, 508, 1 }, // r:MtxBuffer@model_renderer_callbacks.c:24
-    { 6000, 6120, 509, 1 }, // ar:struct StadiumModelSlot@model_renderer_callbacks.c:17[3]
-    { 2000, 2040, 510, 17 }, // r:struct StadiumModelSlot@model_renderer_callbacks.c:17
-    { 60, 64, 527, 3 }, // r:struct StadiumTransform@model_vertex_draw.h:52
-    { 16, 16, 530, 1 }, // r:struct ModelBlendWeight@model_vertex_draw.h:27
-    { 168, 168, 531, 1 }, // r:struct unk_D_800B2EA8@model_renderer_callbacks.c:21
-    { 48, 48, 532, 4 }, // r:struct PosBlend@model_vertex_draw.h:14
-    { 20, 32, 536, 4 }, // r:struct ALPlayer_s@libaudio.h:306
-    { 16, 24, 540, 3 }, // r:ALHeap@libaudio.h:126
-    { 36, 56, 543, 8 }, // r:struct audio_voice_t@player.h:106
-    { 8, 16, 551, 2 }, // r:struct ALLink_s@libaudio.h:113
-    { 140, 208, 553, 20 }, // r:struct N_PVoice_s@n_synthInternals.h:56
-    { 28, 48, 573, 6 }, // r:struct N_ALVoice_s@n_libaudio_sc.h:32
-    { 20, 32, 579, 5 }, // r:struct ALWaveTable_s@libaudio.h:216
-    { 44, 44, 584, 2 }, // r:ALADPCMloop@libaudio.h:177
-    { 12, 12, 586, 2 }, // r:ALADPCMBook@libaudio.h:171
-    { 32, 32, 588, 1 }, // as2s[16]
-    { 80, 80, 589, 1 }, // as2s[40]
-    { 28, 40, 590, 5 }, // r:struct ALParam_s@synthInternals.h:85
-    { 648, 720, 595, 19 }, // r:struct AMAudioMgr@audio_manager.c:30
-    { 8, 8, 614, 1 }, // r:Acmd@abi.h:218
-    { 16, 32, 615, 4 }, // r:struct AudioInfo@audio_manager.c:20
-    { 20, 32, 619, 5 }, // r:struct N_ALMainBus_s@n_synthInternals.h:112
-    { 20, 32, 624, 5 }, // r:struct N_ALFilter_s@n_synthInternals.h:103
-    { 68, 120, 629, 8 }, // r:struct N_ALAuxBus_s@n_synthInternals.h:118
-    { 20, 32, 637, 5 }, // r:struct ALFilter_s@synthInternals.h:140
-    { 44, 80, 642, 11 }, // r:ALFx@synthInternals.h:212
-    { 40, 48, 653, 5 }, // r:ALDelay@synthInternals.h:197
-    { 48, 56, 658, 4 }, // r:ALLowPass@synthInternals.h:186
-    { 8, 8, 662, 1 }, // as2s[4]
-    { 52, 80, 663, 10 }, // r:struct ALResampler_s@synthInternals.h:174
-    { 12, 24, 673, 3 }, // r:struct AMDMAState@audio_manager.h:21
-    { 20, 32, 676, 4 }, // r:struct AMDMABuffer@audio_manager.h:14
-    { 12, 12, 680, 1 }, // r:struct QueuedEntry80043CE8@audio_commands_4.c:748
-    { 48, 48, 681, 10 }, // r:struct GbSynthSquare1@gb_audio_render.c:63
-    { 40, 40, 691, 7 }, // r:struct GbSynthSquare2@gb_audio_render.c:42
-    { 32, 32, 698, 2 }, // r:struct GbSynthWave@gb_audio_render.c:57
-    { 44, 44, 700, 5 }, // r:struct GbSynthNoise@gb_audio_render.c:27
-    { 96, 96, 705, 4 }, // r:struct GbSoundRegisters@gb_audio_render.c:8
-    { 8, 16, 709, 3 }, // r:struct GbSoundRegWrite@gb_audio_render.c:21
-    { 232, 240, 712, 7 }, // r:leo_sys_form@internal.h:28
-    { 12, 12, 719, 2 }, // r:tgt_param_form@internal.h:8
-    { 24, 48, 721, 7 }, // r:OSIoMesg@pi.h:49
-    { 116, 144, 728, 6 }, // r:struct OSPiHandle@pi.h:24
-    { 36, 48, 734, 5 }, // r:__OSBlockInfo@pi.h:4
-    { 928, 928, 739, 1 }, // as1u[928]
-    { 16, 24, 740, 4 }, // r:block_param_form@internal.h:19
-    { 4, 4, 744, 1 }, // r:LEOVersion@leo.h:33
-    { 24, 32, 745, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:885
-    { 8, 16, 762, 2 }, // r:struct SoundFontSound@audio_and_gb_emulator.h:261
-    { 16, 32, 764, 8 }, // r:struct Sample@audio_and_gb_emulator.h:203
-    { 8, 8, 772, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:566
-    { 48, 56, 773, 5 }, // r:struct AudioSpec@audio_and_gb_emulator.h:179
-    { 18, 18, 778, 4 }, // r:struct ReverbSettings@audio_and_gb_emulator.h:166
-    { 32, 32, 782, 6 }, // r:struct AudioTable@audio_and_gb_emulator.h:235
-    { 100, 160, 788, 22 }, // r:struct GbPlayerTask@gb_emu_screen.c:272
-    { 60, 96, 810, 15 }, // r:struct GbEmuTask@audio_and_gb_emulator.h:523
-    { 88, 120, 825, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:458
-    { 196, 328, 841, 2 }, // r:struct SlowLoads8110E500@audio_load_2.c:332
-    { 96, 160, 843, 23 }, // r:struct AudioSlowLoad@audio_and_gb_emulator.h:245
-    { 80, 80, 866, 17 }, // r:struct GbApuChannelState@audio_and_gb_emulator.h:329
-    { 4, 4, 883, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:445
-    { 4, 4, 885, 1 }, // r:struct GbApuStatusOverride@audio_and_gb_emulator.h:368
-    { 344, 528, 886, 26 }, // r:struct SynthesisReverb@audio_and_gb_emulator.h:276
-    { 100, 160, 912, 1 }, // ar:struct ReverbRingBufferItem@audio_and_gb_emulator.h:266[5]
-    { 20, 32, 913, 5 }, // r:struct ReverbRingBufferItem@audio_and_gb_emulator.h:266
-    { 16, 24, 918, 3 }, // r:struct AudioAllocPool@audio_and_gb_emulator.h:49
-    { 76, 112, 921, 12 }, // r:struct AudioCache@audio_and_gb_emulator.h:103
-    { 12, 16, 933, 3 }, // r:struct AudioCacheEntry@audio_and_gb_emulator.h:73
-    { 400, 536, 936, 4 }, // r:struct AudioPermanentCache@audio_and_gb_emulator.h:109
-    { 40, 56, 940, 7 }, // r:struct SampleCache8110BA8C@audio_and_gb_emulator.h:125
-    { 16, 16, 947, 1 }, // r:struct AudioSessionPoolSplit@audio_and_gb_emulator.h:310
-    { 8, 8, 948, 1 }, // r:struct AudioCachePoolSplit@audio_and_gb_emulator.h:317
-    { 12, 12, 949, 1 }, // r:struct AudioCommonPoolSplit@audio_and_gb_emulator.h:322
-    { 348, 512, 950, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:667
-    { 212, 352, 990, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:709
-    { 204, 272, 1038, 57 }, // r:struct Note@audio_and_gb_emulator.h:911
-    { 16, 32, 1095, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:581
-    { 64, 128, 1099, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:600
-    { 132, 192, 1115, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:773
-    { 4, 4, 1151, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:625
-    { 348, 348, 1152, 2 }, // r:struct SequencePlayerFromSkipTicks@audio_load.c:1031
-    { 20, 32, 1154, 4 }, // r:struct AudioPreloadReq@audio_and_gb_emulator.h:215
-    { 84, 112, 1158, 10 }, // r:struct Entry8110EABC@audio_load_2.c:528
-    { 56, 56, 1168, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:546
-    { 8, 8, 1172, 1 }, // as4s[2]
-    { 12, 12, 1173, 2 }, // r:struct ModelSmokeSpawnFrames@model_callbacks.h:61
-    { 440, 440, 1175, 1 }, // ar:struct ModelParticle@model_callbacks.h:48[10]
-    { 44, 44, 1176, 5 }, // r:struct ModelParticle@model_callbacks.h:48
-    { 80, 80, 1181, 13 }, // r:struct BattleMon@game_state.h:34
-    { 12, 24, 1194, 1 }, // ap[3]
-    { 16, 16, 1195, 3 }, // r:struct OrderSidebarIcons@battle_order_select.h:8
-    { 32, 40, 1198, 6 }, // r:struct OrderSelectPanel@battle_order_select.h:17
-    { 516, 536, 1204, 7 }, // r:struct TeamRoster@game_state.h:135
-    { 520, 520, 1211, 5 }, // r:struct ExtendedRosterInfo@game_state.h:126
-    { 14, 14, 1216, 1 }, // r:struct Key80027168@game_state.h:261
-    { 18, 18, 1217, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:15
-    { 360, 408, 1220, 23 }, // r:struct DisplayObject@global.h:141
-    { 16, 16, 1243, 3 }, // r:struct ModelAnchor@global.h:134
-    { 4, 4, 1246, 1 }, // r:struct Color82001CCC@free_battle_setup.c:480
-    { 16, 24, 1247, 2 }, // r:struct Img82001E20@free_battle_setup.c:991
-    { 20, 20, 1249, 1 }, // r:struct Slot82000C5C@free_battle_setup.c:506
-    { 4, 4, 1250, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
-    { 8, 8, 1251, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:432
-    { 12, 24, 1252, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:102
-    { 4, 4, 1255, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
-    { 12, 16, 1256, 3 }, // r:struct List82004518@free_battle_setup_5.c:15
-    { 4, 4, 1259, 1 }, // r:struct Color88100D9C@registration.h:70
-    { 496, 512, 1260, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
-    { 512, 512, 1265, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
-    { 16, 16, 1267, 1 }, // r:struct unk_D_84390028@battle.h:418
-    { 24, 24, 1268, 3 }, // r:struct unk_D_843847BC@battle.h:430
-    { 8, 16, 1271, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
-    { 44, 80, 1274, 3 }, // r:struct BattleSceneStateRow@battle.h:395
-    { 6, 6, 1277, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1131
-    { 3, 3, 1278, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
-    { 2, 2, 1279, 1 }, // r:struct StatStageMultiplier@battle.h:881
-    { 48, 48, 1280, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
-    { 7, 7, 1281, 1 }, // r:struct Arr82133534@demo_mode11.c:259
-    { 396, 792, 1282, 1 }, // ap[99]
-    { 6, 6, 1283, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
-    { 14, 14, 1284, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
-    { 20, 20, 1287, 2 }, // r:struct S0Learnset@damage_estimate.c:310
-    { 8, 16, 1289, 2 }, // r:struct ParticleDescriptor@battle.h:646
-    { 16, 32, 1291, 4 }, // r:struct ParticleDescriptorChild@battle.h:631
-    { 8, 16, 1295, 1 }, // ap[2]
-    { 20, 40, 1296, 1 }, // ap[5]
-    { 3, 3, 1297, 1 }, // as1u[3]
-    { 16, 16, 1298, 3 }, // r:union Vtx@gbi.h:1046
-    { 8, 8, 1301, 1 }, // f8
-    { 4, 4, 1302, 1 }, // r:union Color_RGBA8_u32@color.h:29
-    { 8, 16, 1303, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:403
-    { 36, 36, 1305, 1 }, // as2u[18]
-    { 100, 100, 1306, 16 }, // r:struct BattleMonRuntime@game_state.h:71
-    { 36, 36, 1322, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
-    { 64, 72, 1327, 2 }, // r:struct unk_D_84390240@battle.h:388
-    { 208, 216, 1329, 21 }, // r:struct BattleScene@battle.h:339
-    { 12, 12, 1350, 1 }, // r:struct ParticleRenderContext@battle.h:961
-    { 24, 24, 1351, 3 }, // r:struct unk_D_84392040@battle.h:57
-    { 2808, 2808, 1354, 6 }, // r:struct RibbonMesh@battle.h:475
-    { 28, 28, 1360, 4 }, // r:struct RibbonMeshVertexState@battle.h:466
-    { 9232, 9240, 1364, 6 }, // r:struct SurfWaterGrid@battle.h:89
-    { 320, 320, 1370, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
-    { 20, 20, 1371, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
-    { 40, 40, 1373, 2 }, // r:struct CameraFacingQuad@battle.h:499
-    { 1504, 1512, 1375, 7 }, // r:struct Radial20@battle.h:516
-    { 72, 72, 1382, 4 }, // r:struct Radial20Node@battle.h:506
-    { 7188, 7200, 1386, 5 }, // r:struct Trail40@battle.h:538
-    { 448, 448, 1391, 1 }, // ar:struct Trail40Node@battle.h:531[16]
-    { 28, 28, 1392, 2 }, // r:struct Trail40Node@battle.h:531
-    { 8212, 8224, 1394, 5 }, // r:struct Trail40Variant@battle.h:556
-    { 512, 512, 1399, 1 }, // ar:struct Trail40VariantNode@battle.h:548[16]
-    { 32, 32, 1400, 3 }, // r:struct Trail40VariantNode@battle.h:548
-    { 856, 864, 1403, 6 }, // r:struct TexturedRibbonSheet@battle.h:576
-    { 80, 80, 1409, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:566
-    { 1072, 1080, 1413, 7 }, // r:struct FourStreamTrail@battle.h:602
-    { 68, 68, 1420, 2 }, // r:struct FourStreamTrailNode@battle.h:590
-    { 1076, 1088, 1422, 8 }, // r:struct OwnerLinkedFourStream@battle.h:716
-    { 208, 232, 1430, 15 }, // r:struct Particle@battle.h:660
-    { 2892, 3208, 1445, 124 }, // r:struct ActivePokemon@battle.h:259
-    { 368, 416, 1569, 26 }, // r:struct PokemonAfterimage@battle.h:174
-    { 40, 80, 1595, 10 }, // r:struct BattleSide@game_state.h:148
-    { 8, 16, 1605, 3 }, // r:struct arg1_func_80019420@game_state.h:14
-    { 32, 32, 1608, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
-    { 1048, 1064, 1611, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:733
-    { 864, 872, 1617, 8 }, // r:struct Trail50Effect@battle.h:759
-    { 80, 80, 1625, 2 }, // r:struct Trail50EffectNode@battle.h:746
-    { 576, 584, 1627, 10 }, // r:struct DoubleTextureTrail@battle.h:810
-    { 40, 40, 1637, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:776
-    { 884, 888, 1640, 10 }, // r:struct BeamTrail@battle.h:858
-    { 36, 36, 1650, 1 }, // r:struct BeamTrailSegment@battle.h:850
-    { 484, 484, 1651, 3 }, // r:struct AuxiliaryEffect@battle.h:844
-    { 24, 24, 1654, 2 }, // r:struct AuxiliaryEffectNode@battle.h:835
-    { 144, 152, 1656, 22 }, // r:struct ComBattler@battle.h:122
-    { 896, 952, 1678, 5 }, // r:struct ComSide@battle.h:142
-    { 72, 144, 1683, 7 }, // r:struct VsSceneSide@vs_scene.h:10
-    { 24, 24, 1690, 1 }, // as1u[24]
-    { 16, 16, 1691, 1 }, // r:struct MainMenuRect@main_menu.c:211
-    { 16, 24, 1692, 2 }, // r:struct MainMenuLabel@main_menu.c:213
-    { 8, 8, 1694, 1 }, // r:struct PrimEnvColor@lab_pc.h:658
-    { 20, 24, 1695, 2 }, // r:struct Slot890056A4@pc_sort.c:442
-    { 20, 20, 1697, 1 }, // r:struct Slot89007678@pc_box.c:298
-    { 8, 8, 1698, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
-    { 2672, 3016, 1699, 173 }, // r:struct LabItemScreen@lab_pc.h:233
-    { 16, 24, 1872, 2 }, // r:struct ByteMatrix@table_view.h:26
-    { 20, 20, 1874, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:162
-    { 132, 168, 1876, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:223
-    { 8, 8, 1891, 1 }, // ar:Color_RGBA8@color.h:15[2]
-    { 4, 4, 1892, 1 }, // r:struct Str89104D14@popup_menus.c:55
-    { 4, 4, 1893, 1 }, // r:struct Str89104FC0@popup_menus.c:174
-    { 4, 4, 1894, 1 }, // r:struct Rgba891084B4@popup_menus.c:1669
-    { 8, 16, 1895, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:251
-    { 47092, 58760, 1897, 277 }, // r:struct LabPCList@lab_pokemon_list.h:444
-    { 36, 48, 2174, 4 }, // r:struct Entry89100140@lab_pokemon_list.h:206
-    { 32, 40, 2178, 4 }, // r:struct LabPCBox@lab_pokemon_list.h:181
-    { 88, 96, 2182, 15 }, // r:struct LabPCEntry@lab_pokemon_list.h:191
-    { 64, 72, 2197, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:344
-    { 28, 40, 2202, 5 }, // r:struct unk_func_8830867C_02C_154@lab_pokemon_list.h:32
-    { 20, 32, 2207, 3 }, // r:struct TmEntry8910A21C@lab_pokemon_list.h:198
-    { 16, 32, 2210, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:330
-    { 4, 4, 2214, 1 }, // r:struct Rgba8A100620@pokedex.c:205
-    { 64, 64, 2215, 1 }, // ar:union Vtx@gbi.h:1046[4]
-    { 18, 18, 2216, 1 }, // as1u[18]
-    { 20, 20, 2217, 1 }, // as1u[20]
-    { 12, 12, 2218, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
-    { 4, 4, 2220, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
-    { 624, 696, 2221, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
-    { 28, 56, 2257, 7 }, // r:struct GeoDisplayListNode@global.h:313
-    { 48, 48, 2264, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
-    { 36, 64, 2266, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
-    { 8, 8, 2269, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
-    { 40, 40, 2270, 1 }, // r:struct Entry8A203384@party_screen.c:447
+    { 16, 32, 339, 5 }, // r:struct EventTrackRender@geo_render.c:339
+    { 20, 32, 344, 5 }, // r:struct EventTrackData@global.h:116
+    { 4, 8, 349, 1 }, // ip
+    { 2584, 2696, 350, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
+    { 16, 16, 375, 2 }, // r:struct BinArchive@asset_archive.h:21
+    { 24, 48, 377, 6 }, // r:struct GraphNode@global.h:177
+    { 240, 304, 383, 22 }, // r:struct CameraNode@global.h:253
+    { 32, 32, 405, 1 }, // r:LookAt@gbi.h:1374
+    { 16, 16, 406, 4 }, // r:Light@gbi.h:1318
+    { 24, 48, 410, 6 }, // r:struct DisplayNodeHeader@global.h:81
+    { 44, 72, 416, 5 }, // r:struct ModelAssetNode@global.h:75
+    { 24, 48, 421, 3 }, // r:struct ModelNodeView@global.h:67
+    { 100, 176, 424, 20 }, // r:struct ModelLoadContext@global.h:48
+    { 12, 16, 444, 3 }, // r:struct ModelLoadResult@global.h:42
+    { 4128, 4128, 447, 29 }, // r:struct GbSaveMainData@gb_data.h:124
+    { 2, 2, 476, 1 }, // r:struct BattleMonSpecies@game_state.h:29
+    { 44, 44, 477, 9 }, // r:struct GbPokemonRecordExt@gb_data.h:82
+    { 6, 6, 486, 1 }, // as1u[6]
+    { 33, 33, 487, 8 }, // r:struct GbPokemonRecord@gb_data.h:65
+    { 20, 40, 495, 5 }, // r:struct unk_D_800AE520@game_state.h:20
+    { 354, 354, 500, 7 }, // r:struct GbSavePortSnapshot@pokemon_stats.h:37
+    { 12, 12, 507, 2 }, // r:struct SaveContinueSession@save_data.h:104
+    { 1024, 1024, 509, 1 }, // r:MtxBuffer@model_renderer_callbacks.c:24
+    { 6000, 6120, 510, 1 }, // ar:struct StadiumModelSlot@model_renderer_callbacks.c:17[3]
+    { 2000, 2040, 511, 17 }, // r:struct StadiumModelSlot@model_renderer_callbacks.c:17
+    { 60, 64, 528, 3 }, // r:struct StadiumTransform@model_vertex_draw.h:52
+    { 16, 16, 531, 1 }, // r:struct ModelBlendWeight@model_vertex_draw.h:27
+    { 168, 168, 532, 1 }, // r:struct unk_D_800B2EA8@model_renderer_callbacks.c:21
+    { 48, 48, 533, 4 }, // r:struct PosBlend@model_vertex_draw.h:14
+    { 20, 32, 537, 4 }, // r:struct ALPlayer_s@libaudio.h:306
+    { 16, 24, 541, 3 }, // r:ALHeap@libaudio.h:126
+    { 36, 56, 544, 8 }, // r:struct audio_voice_t@player.h:106
+    { 8, 16, 552, 2 }, // r:struct ALLink_s@libaudio.h:113
+    { 140, 208, 554, 20 }, // r:struct N_PVoice_s@n_synthInternals.h:56
+    { 28, 48, 574, 6 }, // r:struct N_ALVoice_s@n_libaudio_sc.h:32
+    { 20, 32, 580, 5 }, // r:struct ALWaveTable_s@libaudio.h:216
+    { 44, 44, 585, 2 }, // r:ALADPCMloop@libaudio.h:177
+    { 12, 12, 587, 2 }, // r:ALADPCMBook@libaudio.h:171
+    { 32, 32, 589, 1 }, // as2s[16]
+    { 80, 80, 590, 1 }, // as2s[40]
+    { 28, 40, 591, 5 }, // r:struct ALParam_s@synthInternals.h:85
+    { 648, 720, 596, 19 }, // r:struct AMAudioMgr@audio_manager.c:30
+    { 8, 8, 615, 1 }, // r:Acmd@abi.h:218
+    { 16, 32, 616, 4 }, // r:struct AudioInfo@audio_manager.c:20
+    { 20, 32, 620, 5 }, // r:struct N_ALMainBus_s@n_synthInternals.h:112
+    { 20, 32, 625, 5 }, // r:struct N_ALFilter_s@n_synthInternals.h:103
+    { 68, 120, 630, 8 }, // r:struct N_ALAuxBus_s@n_synthInternals.h:118
+    { 20, 32, 638, 5 }, // r:struct ALFilter_s@synthInternals.h:140
+    { 44, 80, 643, 11 }, // r:ALFx@synthInternals.h:212
+    { 40, 48, 654, 5 }, // r:ALDelay@synthInternals.h:197
+    { 48, 56, 659, 4 }, // r:ALLowPass@synthInternals.h:186
+    { 8, 8, 663, 1 }, // as2s[4]
+    { 52, 80, 664, 10 }, // r:struct ALResampler_s@synthInternals.h:174
+    { 12, 24, 674, 3 }, // r:struct AMDMAState@audio_manager.h:21
+    { 20, 32, 677, 4 }, // r:struct AMDMABuffer@audio_manager.h:14
+    { 12, 12, 681, 1 }, // r:struct QueuedEntry80043CE8@audio_commands_4.c:748
+    { 48, 48, 682, 10 }, // r:struct GbSynthSquare1@gb_audio_render.c:63
+    { 40, 40, 692, 7 }, // r:struct GbSynthSquare2@gb_audio_render.c:42
+    { 32, 32, 699, 2 }, // r:struct GbSynthWave@gb_audio_render.c:57
+    { 44, 44, 701, 5 }, // r:struct GbSynthNoise@gb_audio_render.c:27
+    { 96, 96, 706, 4 }, // r:struct GbSoundRegisters@gb_audio_render.c:8
+    { 8, 16, 710, 3 }, // r:struct GbSoundRegWrite@gb_audio_render.c:21
+    { 232, 240, 713, 7 }, // r:leo_sys_form@internal.h:28
+    { 12, 12, 720, 2 }, // r:tgt_param_form@internal.h:8
+    { 24, 48, 722, 7 }, // r:OSIoMesg@pi.h:49
+    { 116, 144, 729, 6 }, // r:struct OSPiHandle@pi.h:24
+    { 36, 48, 735, 5 }, // r:__OSBlockInfo@pi.h:4
+    { 928, 928, 740, 1 }, // as1u[928]
+    { 16, 24, 741, 4 }, // r:block_param_form@internal.h:19
+    { 4, 4, 745, 1 }, // r:LEOVersion@leo.h:33
+    { 24, 32, 746, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:885
+    { 8, 16, 763, 2 }, // r:struct SoundFontSound@audio_and_gb_emulator.h:261
+    { 16, 32, 765, 8 }, // r:struct Sample@audio_and_gb_emulator.h:203
+    { 8, 8, 773, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:566
+    { 48, 56, 774, 5 }, // r:struct AudioSpec@audio_and_gb_emulator.h:179
+    { 18, 18, 779, 4 }, // r:struct ReverbSettings@audio_and_gb_emulator.h:166
+    { 32, 32, 783, 6 }, // r:struct AudioTable@audio_and_gb_emulator.h:235
+    { 100, 160, 789, 22 }, // r:struct GbPlayerTask@gb_emu_screen.c:272
+    { 60, 96, 811, 15 }, // r:struct GbEmuTask@audio_and_gb_emulator.h:523
+    { 88, 120, 826, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:458
+    { 196, 328, 842, 2 }, // r:struct SlowLoads8110E500@audio_load_2.c:332
+    { 96, 160, 844, 23 }, // r:struct AudioSlowLoad@audio_and_gb_emulator.h:245
+    { 80, 80, 867, 17 }, // r:struct GbApuChannelState@audio_and_gb_emulator.h:329
+    { 4, 4, 884, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:445
+    { 4, 4, 886, 1 }, // r:struct GbApuStatusOverride@audio_and_gb_emulator.h:368
+    { 344, 528, 887, 26 }, // r:struct SynthesisReverb@audio_and_gb_emulator.h:276
+    { 100, 160, 913, 1 }, // ar:struct ReverbRingBufferItem@audio_and_gb_emulator.h:266[5]
+    { 20, 32, 914, 5 }, // r:struct ReverbRingBufferItem@audio_and_gb_emulator.h:266
+    { 16, 24, 919, 3 }, // r:struct AudioAllocPool@audio_and_gb_emulator.h:49
+    { 76, 112, 922, 12 }, // r:struct AudioCache@audio_and_gb_emulator.h:103
+    { 12, 16, 934, 3 }, // r:struct AudioCacheEntry@audio_and_gb_emulator.h:73
+    { 400, 536, 937, 4 }, // r:struct AudioPermanentCache@audio_and_gb_emulator.h:109
+    { 40, 56, 941, 7 }, // r:struct SampleCache8110BA8C@audio_and_gb_emulator.h:125
+    { 16, 16, 948, 1 }, // r:struct AudioSessionPoolSplit@audio_and_gb_emulator.h:310
+    { 8, 8, 949, 1 }, // r:struct AudioCachePoolSplit@audio_and_gb_emulator.h:317
+    { 12, 12, 950, 1 }, // r:struct AudioCommonPoolSplit@audio_and_gb_emulator.h:322
+    { 348, 512, 951, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:667
+    { 212, 352, 991, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:709
+    { 204, 272, 1039, 57 }, // r:struct Note@audio_and_gb_emulator.h:911
+    { 16, 32, 1096, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:581
+    { 64, 128, 1100, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:600
+    { 132, 192, 1116, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:773
+    { 4, 4, 1152, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:625
+    { 348, 348, 1153, 2 }, // r:struct SequencePlayerFromSkipTicks@audio_load.c:1031
+    { 20, 32, 1155, 4 }, // r:struct AudioPreloadReq@audio_and_gb_emulator.h:215
+    { 84, 112, 1159, 10 }, // r:struct Entry8110EABC@audio_load_2.c:528
+    { 56, 56, 1169, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:546
+    { 8, 8, 1173, 1 }, // as4s[2]
+    { 12, 12, 1174, 2 }, // r:struct ModelSmokeSpawnFrames@model_callbacks.h:61
+    { 440, 440, 1176, 1 }, // ar:struct ModelParticle@model_callbacks.h:48[10]
+    { 44, 44, 1177, 5 }, // r:struct ModelParticle@model_callbacks.h:48
+    { 80, 80, 1182, 13 }, // r:struct BattleMon@game_state.h:34
+    { 12, 24, 1195, 1 }, // ap[3]
+    { 16, 16, 1196, 3 }, // r:struct OrderSidebarIcons@battle_order_select.h:8
+    { 32, 40, 1199, 6 }, // r:struct OrderSelectPanel@battle_order_select.h:17
+    { 516, 536, 1205, 7 }, // r:struct TeamRoster@game_state.h:135
+    { 520, 520, 1212, 5 }, // r:struct ExtendedRosterInfo@game_state.h:126
+    { 14, 14, 1217, 1 }, // r:struct Key80027168@game_state.h:261
+    { 18, 18, 1218, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:15
+    { 360, 408, 1221, 23 }, // r:struct DisplayObject@global.h:141
+    { 16, 16, 1244, 3 }, // r:struct ModelAnchor@global.h:134
+    { 4, 4, 1247, 1 }, // r:struct Color82001CCC@free_battle_setup.c:480
+    { 16, 24, 1248, 2 }, // r:struct Img82001E20@free_battle_setup.c:991
+    { 20, 20, 1250, 1 }, // r:struct Slot82000C5C@free_battle_setup.c:506
+    { 4, 4, 1251, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
+    { 8, 8, 1252, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:432
+    { 12, 24, 1253, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:102
+    { 4, 4, 1256, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
+    { 12, 16, 1257, 3 }, // r:struct List82004518@free_battle_setup_5.c:15
+    { 4, 4, 1260, 1 }, // r:struct Color88100D9C@registration.h:70
+    { 496, 512, 1261, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
+    { 512, 512, 1266, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
+    { 16, 16, 1268, 1 }, // r:struct unk_D_84390028@battle.h:418
+    { 24, 24, 1269, 3 }, // r:struct unk_D_843847BC@battle.h:430
+    { 8, 16, 1272, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
+    { 44, 80, 1275, 3 }, // r:struct BattleSceneStateRow@battle.h:395
+    { 6, 6, 1278, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1131
+    { 3, 3, 1279, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
+    { 2, 2, 1280, 1 }, // r:struct StatStageMultiplier@battle.h:881
+    { 48, 48, 1281, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
+    { 7, 7, 1282, 1 }, // r:struct Arr82133534@demo_mode11.c:259
+    { 396, 792, 1283, 1 }, // ap[99]
+    { 6, 6, 1284, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
+    { 14, 14, 1285, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
+    { 20, 20, 1288, 2 }, // r:struct S0Learnset@damage_estimate.c:310
+    { 8, 16, 1290, 2 }, // r:struct ParticleDescriptor@battle.h:646
+    { 16, 32, 1292, 4 }, // r:struct ParticleDescriptorChild@battle.h:631
+    { 8, 16, 1296, 1 }, // ap[2]
+    { 20, 40, 1297, 1 }, // ap[5]
+    { 3, 3, 1298, 1 }, // as1u[3]
+    { 16, 16, 1299, 3 }, // r:union Vtx@gbi.h:1046
+    { 8, 8, 1302, 1 }, // f8
+    { 4, 4, 1303, 1 }, // r:union Color_RGBA8_u32@color.h:29
+    { 8, 16, 1304, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:403
+    { 36, 36, 1306, 1 }, // as2u[18]
+    { 100, 100, 1307, 16 }, // r:struct BattleMonRuntime@game_state.h:71
+    { 36, 36, 1323, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
+    { 64, 72, 1328, 2 }, // r:struct unk_D_84390240@battle.h:388
+    { 208, 216, 1330, 21 }, // r:struct BattleScene@battle.h:339
+    { 12, 12, 1351, 1 }, // r:struct ParticleRenderContext@battle.h:961
+    { 24, 24, 1352, 3 }, // r:struct unk_D_84392040@battle.h:57
+    { 2808, 2808, 1355, 6 }, // r:struct RibbonMesh@battle.h:475
+    { 28, 28, 1361, 4 }, // r:struct RibbonMeshVertexState@battle.h:466
+    { 9232, 9240, 1365, 6 }, // r:struct SurfWaterGrid@battle.h:89
+    { 320, 320, 1371, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
+    { 20, 20, 1372, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
+    { 40, 40, 1374, 2 }, // r:struct CameraFacingQuad@battle.h:499
+    { 1504, 1512, 1376, 7 }, // r:struct Radial20@battle.h:516
+    { 72, 72, 1383, 4 }, // r:struct Radial20Node@battle.h:506
+    { 7188, 7200, 1387, 5 }, // r:struct Trail40@battle.h:538
+    { 448, 448, 1392, 1 }, // ar:struct Trail40Node@battle.h:531[16]
+    { 28, 28, 1393, 2 }, // r:struct Trail40Node@battle.h:531
+    { 8212, 8224, 1395, 5 }, // r:struct Trail40Variant@battle.h:556
+    { 512, 512, 1400, 1 }, // ar:struct Trail40VariantNode@battle.h:548[16]
+    { 32, 32, 1401, 3 }, // r:struct Trail40VariantNode@battle.h:548
+    { 856, 864, 1404, 6 }, // r:struct TexturedRibbonSheet@battle.h:576
+    { 80, 80, 1410, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:566
+    { 1072, 1080, 1414, 7 }, // r:struct FourStreamTrail@battle.h:602
+    { 68, 68, 1421, 2 }, // r:struct FourStreamTrailNode@battle.h:590
+    { 1076, 1088, 1423, 8 }, // r:struct OwnerLinkedFourStream@battle.h:716
+    { 208, 232, 1431, 15 }, // r:struct Particle@battle.h:660
+    { 2892, 3208, 1446, 124 }, // r:struct ActivePokemon@battle.h:259
+    { 368, 416, 1570, 26 }, // r:struct PokemonAfterimage@battle.h:174
+    { 40, 80, 1596, 10 }, // r:struct BattleSide@game_state.h:148
+    { 8, 16, 1606, 3 }, // r:struct arg1_func_80019420@game_state.h:14
+    { 32, 32, 1609, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
+    { 1048, 1064, 1612, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:733
+    { 864, 872, 1618, 8 }, // r:struct Trail50Effect@battle.h:759
+    { 80, 80, 1626, 2 }, // r:struct Trail50EffectNode@battle.h:746
+    { 576, 584, 1628, 10 }, // r:struct DoubleTextureTrail@battle.h:810
+    { 40, 40, 1638, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:776
+    { 884, 888, 1641, 10 }, // r:struct BeamTrail@battle.h:858
+    { 36, 36, 1651, 1 }, // r:struct BeamTrailSegment@battle.h:850
+    { 484, 484, 1652, 3 }, // r:struct AuxiliaryEffect@battle.h:844
+    { 24, 24, 1655, 2 }, // r:struct AuxiliaryEffectNode@battle.h:835
+    { 144, 152, 1657, 22 }, // r:struct ComBattler@battle.h:122
+    { 896, 952, 1679, 5 }, // r:struct ComSide@battle.h:142
+    { 72, 144, 1684, 7 }, // r:struct VsSceneSide@vs_scene.h:10
+    { 24, 24, 1691, 1 }, // as1u[24]
+    { 16, 16, 1692, 1 }, // r:struct MainMenuRect@main_menu.c:211
+    { 16, 24, 1693, 2 }, // r:struct MainMenuLabel@main_menu.c:213
+    { 8, 8, 1695, 1 }, // r:struct PrimEnvColor@lab_pc.h:658
+    { 20, 24, 1696, 2 }, // r:struct Slot890056A4@pc_sort.c:442
+    { 20, 20, 1698, 1 }, // r:struct Slot89007678@pc_box.c:298
+    { 8, 8, 1699, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
+    { 2672, 3016, 1700, 173 }, // r:struct LabItemScreen@lab_pc.h:233
+    { 16, 24, 1873, 2 }, // r:struct ByteMatrix@table_view.h:26
+    { 20, 20, 1875, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:162
+    { 132, 168, 1877, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:223
+    { 8, 8, 1892, 1 }, // ar:Color_RGBA8@color.h:15[2]
+    { 4, 4, 1893, 1 }, // r:struct Str89104D14@popup_menus.c:55
+    { 4, 4, 1894, 1 }, // r:struct Str89104FC0@popup_menus.c:174
+    { 4, 4, 1895, 1 }, // r:struct Rgba891084B4@popup_menus.c:1669
+    { 8, 16, 1896, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:251
+    { 47092, 58760, 1898, 277 }, // r:struct LabPCList@lab_pokemon_list.h:444
+    { 36, 48, 2175, 4 }, // r:struct Entry89100140@lab_pokemon_list.h:206
+    { 32, 40, 2179, 4 }, // r:struct LabPCBox@lab_pokemon_list.h:181
+    { 88, 96, 2183, 15 }, // r:struct LabPCEntry@lab_pokemon_list.h:191
+    { 64, 72, 2198, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:344
+    { 28, 40, 2203, 5 }, // r:struct unk_func_8830867C_02C_154@lab_pokemon_list.h:32
+    { 20, 32, 2208, 3 }, // r:struct TmEntry8910A21C@lab_pokemon_list.h:198
+    { 16, 32, 2211, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:330
+    { 4, 4, 2215, 1 }, // r:struct Rgba8A100620@pokedex.c:205
+    { 64, 64, 2216, 1 }, // ar:union Vtx@gbi.h:1046[4]
+    { 18, 18, 2217, 1 }, // as1u[18]
+    { 20, 20, 2218, 1 }, // as1u[20]
+    { 12, 12, 2219, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
+    { 4, 4, 2221, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
+    { 624, 696, 2222, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
+    { 28, 56, 2258, 7 }, // r:struct GeoDisplayListNode@global.h:313
+    { 48, 48, 2265, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
+    { 36, 64, 2267, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
+    { 8, 8, 2270, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
+    { 40, 40, 2271, 1 }, // r:struct Entry8A203384@party_screen.c:447
 };
 const uint32_t gZLiftTypeCount = 314;
 
@@ -3285,7 +3285,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2, 2, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, 81, 0, 0, 0, 0 },
-    { 0, 8, 16, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 8, 16, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
+    { 1, 12, 24, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 2, 2, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
