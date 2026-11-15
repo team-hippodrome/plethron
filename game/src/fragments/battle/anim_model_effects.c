@@ -18,14 +18,11 @@ M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimBlue(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimGreen(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachScratchA(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachScratchB(s8 *, M2C_UNK, M2C_UNK);
-M2C_UNK Particle_GetByteParam2();
 M2C_UNK Particle_SetRotationY(s8 *, s16);
 M2C_UNK Particle_SetParam0(s8 *, s16);
 M2C_UNK Particle_SetScratchB(s8 *, M2C_UNK);
-M2C_UNK ParticleMath_GetPointAlongView(s8 *, M2C_UNK);
 M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32);
 M2C_UNK func_8213C9D0(s8 *);
 M2C_UNK func_821401D4(s8 *, M2C_UNK);
@@ -36,11 +33,8 @@ extern M2C_UNK BattleAnim_RunDigHitRocks;
 extern M2C_UNK BattleAnim_RunOscillatingFlameUnderneathPokemon;
 extern M2C_UNK D_8218E7B8;
 extern M2C_UNK BattleAnim_CallbackModelBurstAlphaFade;
-s16 Particle_GetByteParam0();
-s16 Particle_GetByteParam1();
 s32 ParticleMath_ComputeViewRotationY();
 s32 func_82140690(s8 *);
-void Particle_AddPosOffsetYScaled(s8*, f32);
 void func_8213E1FC(Particle* arg0, f32 arg1);
 
 /**
@@ -2227,7 +2221,7 @@ void Particle_CreateDisplayList_CustomColors(s32 arg0, arg1_func_84344CE8* arg1)
 void BattleAnim_CallbackStart50And82ModelScalePalFade(Particle* particle) {
     s16 temp_v1;
 
-    Particle_GetByteParam2();
+    Particle_GetByteParam2(particle); // PORT: the particle was passed through a0
     temp_v1 = particle->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -2326,7 +2320,7 @@ void BattleAnim_RunBoomUseEffect6(Particle* arg0) {
 void BattleAnim_RunBoomHitEffect1(Particle* arg0) {
     s16 temp_v1;
 
-    Particle_GetByteParam2();
+    Particle_GetByteParam2(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -2601,7 +2595,7 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(s8 *arg0) {
     s16 sp26;
     s16 temp_v1;
 
-    sp26 = Particle_GetByteParam1();
+    sp26 = Particle_GetByteParam1(arg0); // PORT: the particle was passed through a0
     temp_v1 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -3628,7 +3622,7 @@ void BattleAnim_CallbackStart95To97End62And63Fade_Init(s8 *arg0) {
     s16 sp26;
     s32 temp_v0;
 
-    sp26 = Particle_GetByteParam0();
+    sp26 = Particle_GetByteParam0(arg0); // PORT: the particle was passed through a0
     temp_v0 = func_82136AC0(arg0);
     M2C_FIELD(arg0, s32 *, 0x14) = temp_v0;
     if (temp_v0 != 0) {

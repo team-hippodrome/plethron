@@ -1242,10 +1242,10 @@ void Particle_CopyMotionStepToOffsetXY(Particle* arg0) {
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed motionOffset
  * (0x4C-0x54) of the live particle, e.g. 0 -> 3.55.
  */
-M2C_UNK Particle_ApplyMotionStep(s32 arg0) {
-    ((Particle*)arg0)->motionOffset.x += ((Particle*)arg0)->motionStep.x;
-    ((Particle*)arg0)->motionOffset.y += ((Particle*)arg0)->motionStep.y;
-    ((Particle*)arg0)->motionOffset.z += ((Particle*)arg0)->motionStep.z;
+void Particle_ApplyMotionStep(Particle* arg0) { // PORT: takes the particle (was s32)
+    arg0->motionOffset.x += arg0->motionStep.x;
+    arg0->motionOffset.y += arg0->motionStep.y;
+    arg0->motionOffset.z += arg0->motionStep.z;
 }
 
 /**
@@ -1333,7 +1333,6 @@ void Particle_AddVelocityFromRotationTemplate2(Particle* arg0) {
     Particle_ApplyMotionStepXY(arg0);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FB50();                            /* extern */
 
 /**
@@ -1345,7 +1344,6 @@ void Particle_AddVelocityFromRotationTemplate1(s32 arg0) {
     Particle_ApplyMotionStep(arg0);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 
 void Particle_MotionStep_SetVecFromRotationXZ(Particle* arg0);
 
@@ -1358,7 +1356,6 @@ void Particle_MoveAlongRotationXZ(s32 particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FC48();                            /* extern */
 
 /**
@@ -1373,7 +1370,6 @@ void Particle_MoveAlongRotationXYAlt(Particle* particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FCC8();                            /* extern */
 
 /**
@@ -1385,7 +1381,6 @@ void Particle_MoveAlongRotationYZ(s32 particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FE04();                            /* extern */
 
 /**
@@ -1401,7 +1396,6 @@ void Particle_MoveAlongRotationXYZAlt(Particle* particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FD3C();                            /* extern */
 
 /**
@@ -1413,7 +1407,6 @@ void Particle_MoveAlongRotationXYZ(s32 particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FED4();                            /* extern */
 
 /**
@@ -1426,7 +1419,6 @@ void Particle_MoveAlongRotationYZAlt(s32 particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK Particle_ApplyMotionStep(s32);                         /* extern */
 M2C_UNK func_8213FED4();                            /* extern */
 
 /**
@@ -3179,7 +3171,6 @@ void Particle_SetScratchA(Particle* arg0, s16 arg1) {
     arg0->scratchA = arg1;
 }
 
-M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
 
 /**
  * Steps the particle's scratchA toward a target (helper of the approach family).
@@ -3187,7 +3178,7 @@ M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
  * (offset 0xAA) went from 0xE1 to 0xA1.
  */
 void Particle_ApproachScratchA(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchA, arg1, arg2);
+    ParticleMath_StepS16Toward(&arg0->scratchA, arg1, arg2);
 }
 
 /**
@@ -3214,7 +3205,6 @@ void Particle_SetScratchB(Particle* arg0, s16 arg1) {
     arg0->scratchB = arg1;
 }
 
-M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
 
 /**
  * Steps the particle's scratchB toward a target (helper of the approach family).
@@ -3222,5 +3212,5 @@ M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
  * (offset 0xAC) went from 0x64 to 0x5C.
  */
 void Particle_ApproachScratchB(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchB, arg1, arg2);
+    ParticleMath_StepS16Toward(&arg0->scratchB, arg1, arg2);
 }

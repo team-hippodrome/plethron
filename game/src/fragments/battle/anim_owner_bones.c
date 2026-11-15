@@ -16,7 +16,7 @@ void BattleAnim_GetSecondaryOwnerBonePosition(Vec3f* arg0);
 void BattleAnim_GetTertiaryOwnerBonePosition(Vec3f* arg0);
 void BattleAnim_GetSecondaryOwnerAnchorPosition(Vec3f* arg0);
 void BattleAnim_GetTertiaryOwnerBone9Position(Vec3f* arg0);
-void BattleAnim_GetOwnerModelSizeScaled(unk_D_82F20A88* arg0);
+void BattleAnim_GetOwnerModelSizeScaled(ActivePokemon* arg0, Vec3f* out);
 f32 BattleAnim_GetOwnerModelScale(ActivePokemon* arg0);
 f32 BattleAnim_GetSecondaryOwnerModelScale(void);
 void BattleAnim_GetSecondaryOwnerSpeciesBaseScale(void);
@@ -28,7 +28,6 @@ void BattleAnim_DestroyParticle(Particle* arg0);
 void BattleAnim_ReleaseParticleModel(Particle* arg0);
 void BattleAnim_GetOwnerBonePosition(ActivePokemon* arg0, s16 arg1, Vec3f* arg2);
 f32 BattleAnim_GetSpeciesBaseScale(ActivePokemon* arg0);
-void BattleScene_GetParticipantModelSizeScaled(ActivePokemon* arg0);
 
 /**
  * Returns 1 if the current animation owner's model shows species arg0.
@@ -137,8 +136,8 @@ void BattleAnim_GetTertiaryOwnerBone9Position(Vec3f* arg0) {
  * no pointer word, no lui/addiu pair in any fragment), so play cannot reach it.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_GetOwnerModelSizeScaled(unk_D_82F20A88* arg0) {
-    BattleScene_GetParticipantModelSizeScaled(arg0);
+void BattleAnim_GetOwnerModelSizeScaled(ActivePokemon* arg0, Vec3f* out) { // PORT: out was passed through a1
+    BattleScene_GetParticipantModelSizeScaled(arg0, out);
 }
 
 /**
@@ -150,7 +149,6 @@ f32 BattleAnim_GetOwnerModelScale(ActivePokemon* arg0) {
     return BattleAnim_GetSpeciesBaseScale(arg0);
 }
 
-M2C_UNK ActivePokemon_GetSizeRatio();                            /* extern */
 
 /**
  * Returns the owner Pokémon's size ratio (ActivePokemon_GetSizeRatio); the result is left in f0
@@ -199,14 +197,14 @@ void BattleAnim_GetTertiaryOwnerSpeciesBaseScale(void) {
     BattleAnim_GetOwnerSizeRatio(gBattleAnimTertiaryOwner);
 }
 
-extern s32 D_8219A878;
+extern CameraNode* D_8219A878; // PORT: the camera (was s32)
 
 /**
  * Returns D_8219A878.
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (24 of the moves).
  * @unverified Name from Stadium 1.
  */
-s32 BattleAnim_GetCameraContext(void) {
+CameraNode* BattleAnim_GetCameraContext(void) { // PORT: was s32
     return D_8219A878;
 }
 

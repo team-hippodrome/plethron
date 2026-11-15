@@ -437,7 +437,6 @@ void BattleAnim_DigContinue(s32 arg0, ActivePokemon* arg1) {
     }
 }
 
-f32 BattleScene_GetParticipantHeight(s8*);
 /**
  * Model transform step that sinks the Pokemon below the ground: turns it toward its side,
  * lowers it toward -2.6 heights and ends the transform once it is 2.5 heights down.

@@ -73,7 +73,6 @@ M2C_UNK func_8213CB3C(s8 *);                      /* extern */
 s32 func_8213CB7C(s8 *);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 M2C_UNK func_8213E488(s8 *);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);        /* extern */
 M2C_UNK func_82140064(s8 *, s32, s16);            /* extern */
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);             /* extern */
 s32 func_82140690(s8 *);                          /* extern */
@@ -595,9 +594,7 @@ void BattleAnim_SetupHydroPumpBurstChild(Particle* arg0) {
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-M2C_UNK Particle_AddPosOffsetYScaled(s8 *, M2C_UNK);             /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK func_8214A634(s8 *);                      /* extern */
@@ -742,7 +739,6 @@ void BattleAnim_SetupWaterGunProjectileChild(Particle* arg0) {
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-M2C_UNK Particle_AddPosOffsetYScaled(s8 *, M2C_UNK);             /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
 M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
@@ -1268,7 +1264,6 @@ void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK func_8214B84C(s8 *);                      /* extern */
 
@@ -1321,7 +1316,6 @@ void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK func_8214B9A8(s8 *);                      /* extern */
 
@@ -1372,7 +1366,6 @@ void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK func_8214BAFC(s8 *);                      /* extern */
 
@@ -1438,12 +1431,10 @@ void BattleAnim_SetupWeakBeamHitEffect(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-s16 Particle_GetByteParam1();                                /* extern */
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK func_821434FC(s8 *, s16);                 /* extern */
 M2C_UNK func_82143530(s8 *, s16);                 /* extern */
@@ -1461,7 +1452,7 @@ void BattleAnim_RunWeakBeamHitEffect(Particle* arg0) {
     s16 sp2E;
     s16 temp_v1;
 
-    sp2E = Particle_GetByteParam1();
+    sp2E = Particle_GetByteParam1(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* switch 1; irregular */
     case 1:                                         /* switch 1 */
@@ -1539,12 +1530,10 @@ void BattleAnim_SetupTriAttackHitSpark(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK Particle_GetByteParam2();                            /* extern */
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 M2C_UNK func_8213CB3C(s8 *);                      /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);    /* extern */
 M2C_UNK func_821402B8(s8 *);                      /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 s32 func_821406B4(s8 *);                          /* extern */
@@ -1558,7 +1547,7 @@ M2C_UNK func_8214BEE8(s8 *);                      /* extern */
 void BattleAnim_RunTriAttackHitSpark(Particle* arg0) {
     s16 temp_v1;
 
-    Particle_GetByteParam2();
+    Particle_GetByteParam2(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -2022,7 +2011,6 @@ void BattleAnim_SetupHydroPumpWaterGunProjectileHit(Particle* arg0) {
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-M2C_UNK Particle_AddPosOffsetYScaled(s8 *, M2C_UNK);             /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
 M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */

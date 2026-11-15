@@ -4,7 +4,6 @@ M2C_UNK func_82143408(s32, M2C_UNK); // ParticleGfx_RecolorPrim under its addres
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
-M2C_UNK Particle_ApplyMotionStep(s8 *);
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);
 M2C_UNK func_8213C9D0(s8 *);
 M2C_UNK func_821401D4(s8 *, M2C_UNK);
@@ -62,7 +61,7 @@ void BattleAnim_CallbackDescriptor26BurstChild(Particle* arg0) {
 void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0) {
     s16 sp26;
 
-    sp26 = Particle_GetSpawnIndex();
+    sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     func_821401D4(arg0, 0x3F000000); // 0.5f
     func_8213E14C(arg0, 0x42C80000); // 100.0f
     Particle_SetParam0(arg0, (s16) (sp26 + 1));

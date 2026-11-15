@@ -4,7 +4,7 @@
 #include "battle.h"
 extern ParticleDescriptor gDefaultParticleDescriptor;
 
-extern unk_D_86B10BE0 D_8219A82C;
+extern s32 D_8219A82C; // PORT: one word (D_8219A830 follows); declared as a 0x14 struct it took the next symbols' storage
 
 #include "m2c_macros.h"
 
@@ -101,7 +101,7 @@ void Particle_SetByteParam0Checked(s8 *particle, unsigned char value)
  * Sets field A6 of the particle to arg1, unless the particle pointer is -1.
  * @unverified Name guessed from the code.
  */
-void Particle_SetParam1Checked(s8 *particle, s16 value) {
+void Particle_SetParam1Checked(Particle* particle, s16 value) { // PORT: was s8*
     if (particle != (s8 *)-1) {
         M2C_FIELD(particle, s16 *, 0xA6) = value;
     }
@@ -135,7 +135,7 @@ void Particle_SetFieldOffsetAAIfNotSentinel(Particle* arg0, s16 arg1) {
  * Sets field AC of the particle to arg1, unless the particle pointer is -1.
  * @unverified Name guessed from the code.
  */
-void Particle_SetScratchBChecked(s8 *particle, s16 value) {
+void Particle_SetScratchBChecked(Particle* particle, s16 value) { // PORT: was s8*
     if (particle != (s8 *)-1) {
         M2C_FIELD(particle, s16 *, 0xAC) = value;
     }
@@ -146,7 +146,7 @@ void Particle_SetScratchBChecked(s8 *particle, s16 value) {
  * Seen in play (2026-11-13) in the 165-move sweep (Pay Day, Vice Grip): it returned 7 and 2, the
  * byte at 0xCA each time.
  */
-u8 Particle_GetByteParam2(s8 *arg0) {
+u8 Particle_GetByteParam2(Particle* arg0) { // PORT: was s8*
     return M2C_FIELD(arg0, u8 *, 0xCA);
 }
 
@@ -156,7 +156,7 @@ u8 Particle_GetByteParam2(s8 *arg0) {
  * turns): ran.
  * @unverified Name and comment guessed from the code.
  */
-u8 Particle_GetByteParam0(s8 *arg0) {
+u8 Particle_GetByteParam0(Particle* arg0) { // PORT: was s8*
     return M2C_FIELD(arg0, u8 *, 0xC9);
 }
 
@@ -176,7 +176,7 @@ s16 Particle_ScratchA_GetS16_0C068(Particle* arg0) {
  * in battle and a Pound turn.
  * @unverified Name and comment guessed from the code.
  */
-s16 Particle_GetSpawnIndex(s8 *arg0) {
+s16 Particle_GetSpawnIndex(Particle* arg0) { // PORT: was s8*
     return M2C_FIELD(arg0, s16 *, 0xA8);
 }
 
@@ -206,7 +206,7 @@ s16 Particle_GetParam1(Particle* arg0) {
  * no function-pointer word in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
-s16 Particle_GetParam0(s8 *arg0) {
+s16 Particle_GetParam0(Particle* arg0) { // PORT: was s8*
     return M2C_FIELD(arg0, s16 *, 0xA2);
 }
 
@@ -216,7 +216,7 @@ s16 Particle_GetParam0(s8 *arg0) {
  * no function-pointer word in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
-s16 Particle_GetCountdown(s8 *arg0) {
+s16 Particle_GetCountdown(Particle* arg0) { // PORT: was s8*
     return M2C_FIELD(arg0, s16 *, 0xA4);
 }
 
@@ -230,7 +230,7 @@ s16 Particle_GetCountdown(s8 *arg0) {
  * @unverified Named from the code.
  */
 void BattleAnim_SetEffectState(s32 arg0) {
-    (*(s32 *)&D_8219A82C) = arg0;
+    D_8219A82C = arg0;
 }
 
 /**
@@ -243,7 +243,7 @@ void BattleAnim_SetEffectState(s32 arg0) {
  * @unverified Named from the code.
  */
 void BattleAnim_ClearEffectState(void) {
-    D_8219A82C.unk_00 = 0;
+    D_8219A82C = 0;
 }
 
 /**
@@ -253,5 +253,5 @@ void BattleAnim_ClearEffectState(void) {
  * @unverified Name guessed from the code.
  */
 s32 BattleAnim_GetEffectState(void) {
-    return (*(s32 *)&D_8219A82C);
+    return D_8219A82C;
 }

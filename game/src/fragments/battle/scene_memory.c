@@ -6,7 +6,7 @@
 #include "math.h"
 extern u8* sBattleAnimAssetPointers[256];
 extern s16 sBattleAnimResourceList[0x10];
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 extern s16 D_8219CAC0;
 extern s16 D_8219CAC2;
 extern Mtx D_8219CAC8;
@@ -59,7 +59,6 @@ void BattleScene_MemoryUnusedNop(void) {
 
 void BattleScene_SelectNextBRollCameraShot(CameraNode* arg0);
 void BattleCamera_StartNextBRollShot(CameraNode* arg0);
-void BattleScene_InitTurnPresentation(s32 arg0);
 void BattleScene_SetPhase(CameraNode* arg0, s32 arg1);
 void BattleScene_OpeningStepInitCamera(CameraNode* arg0);
 void BattleScene_IntroStepInitOverheadCamera(CameraNode* arg0);
@@ -88,11 +87,11 @@ void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNU
         case 2:
         case 6:
         case 10:
-            BattleScene_InitTurnPresentation((uintptr_t)arg0);
+            BattleScene_InitTurnPresentation(arg0);
             BattleScene_SetPhase(arg0, 1);
             break;
         case 3:
-            BattleScene_InitTurnPresentation((uintptr_t)arg0);
+            BattleScene_InitTurnPresentation(arg0);
             BattleScene_SetPhase(arg0, 5);
             break;
         case 8:

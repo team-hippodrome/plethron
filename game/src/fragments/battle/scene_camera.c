@@ -6,8 +6,6 @@
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK func_8000EEBC(s32, s32, f32, s16, s32);
 extern f32 D_FLT_82189358[];
-f32 BattleScene_GetParticipantHeight();
-void BattleScene_FrameParticipantFrontAltThunk();
 
 extern f32 D_8219A534;
 extern f32 D_FLT_82189358[];
@@ -220,7 +218,7 @@ u16 BattleScene_IsParticipantInViewWedge(ActivePokemon*, CameraNode*, ActivePoke
  * locals, which is what the ROM does.
  * @unverified Name guessed from the code.
  */
-void BattleScene_UpdateParticipantsInView(s32 camera) {
+void BattleScene_UpdateParticipantsInView(CameraNode* camera) { // PORT: was s32 camera
     ActivePokemonState* first_state = &sActivePokemon[0]->state;
     ActivePokemonState* second_state = &sActivePokemon[1]->state;
     s32 mode = sBattleScene.scene->mode;
@@ -361,7 +359,7 @@ void BattleScene_ApplyCameraShake(CameraNode* arg0) {
  * breakpoint): ran only for Earthquake, Growl, Roar.
  * @unverified Name guessed from the code.
  */
-void BattleScene_ResetCameraShake(s32 camera) {
+void BattleScene_ResetCameraShake(CameraNode* camera) { // PORT: was s32 camera
     sBattleScene.scene->shakeAmplitude = 30.0f;
     sBattleScene.scene->shakeAngle = 0;
 }
@@ -884,7 +882,7 @@ void BattleScene_EaseCameraTargetFromSavedEye(CameraNode* camera, ActivePokemon*
  * breakpoint): ran only for Fly.
  * @unverified Name guessed from the code.
  */
-void BattleScene_EaseCameraToFrontView(CameraNode* camera, ActivePokemon* active_pokemon, Color_RGBA8 unused_color) {
+void BattleScene_EaseCameraToFrontView(CameraNode* camera, ActivePokemon* active_pokemon, f32 unused) { // PORT: callers pass a float (was Color_RGBA8 unused_color)
     Vec3f sp74;
     Vec3f sp68;
     Vec3f sp5C;

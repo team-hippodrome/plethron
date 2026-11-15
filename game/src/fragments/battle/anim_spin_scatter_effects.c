@@ -6,7 +6,7 @@
 #include "math.h"
 extern u8* sBattleAnimAssetPointers[256];
 extern s16 sBattleAnimResourceList[0x10];
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 extern s16 D_8219CAC0;
 extern s16 D_8219CAC2;
 extern Mtx D_8219CAC8;
@@ -106,7 +106,6 @@ void BattleAnim_SetupOrphanDescriptor2BSpinFade(Particle* arg0) {
 }
 
 void func_8213E1FC(Particle* arg0, f32 arg1);
-s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
 /**
  * Particle callback: after the delay shows the particle, flies it out spinning, then
  * fades it.
@@ -248,7 +247,6 @@ void BattleAnim_SetupPetalDanceLingeringHitEffect(Particle* arg0) {
 }
 
 void func_8213E1FC(Particle* arg0, f32 arg1);
-s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
 void Particle_ApplyRotationStepX(Particle* arg0);
 /**
  * Handles the floating pedals that linger when being hit by pedal dance

@@ -6,7 +6,7 @@
 #include "math.h"
 extern u8* sBattleAnimAssetPointers[256];
 extern s16 sBattleAnimResourceList[0x10];
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 extern s16 D_8219CAC0;
 extern s16 D_8219CAC2;
 extern Mtx D_8219CAC8;
@@ -1010,7 +1010,6 @@ void BattleAnim_SetupEmberUseEffect(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
 /**
  * Particle callback for an Ember use flame: animates frames 0 to 7 once while slowing to 0.5 and
  * fading toward alpha 0x20, then is marked inactive. While running it grows toward 0.75, moves
@@ -1229,7 +1228,6 @@ void BattleAnim_SetupBoomSmallExplosion(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK Particle_GetByteParam2();                            /* extern */
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 M2C_UNK func_8213CB3C(s8 *);                      /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
@@ -1247,7 +1245,7 @@ M2C_UNK func_821469BC(s8 *);                      /* extern */
 void BattleAnim_RunBoomSmallExplosion(Particle* arg0) {
     s16 temp_v1;
 
-    Particle_GetByteParam2();
+    Particle_GetByteParam2(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -1380,7 +1378,6 @@ void BattleAnim_SetupSecondaryBombExplosion(Particle* arg0) {
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
 M2C_UNK func_8213C9D0(s8 *);                      /* extern */
 M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-M2C_UNK Particle_AddPosOffsetYScaled(s8 *, M2C_UNK);             /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
 M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */
@@ -1529,7 +1526,6 @@ void BattleAnim_SetupEmberHitSmoke(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
 /**
  * Particle callback for an Ember hit smoke puff: shows it, plays frames 0 to 7 once while growing
  * toward 1.05, slowing down and moving along its rotation; after 5 frames it also rises and fades
@@ -1598,7 +1594,6 @@ void BattleAnim_SetupFirePunchLingeringHitSpark(Particle* arg0) {
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
 M2C_UNK func_8213C9D0(s8 *);                      /* extern */
 M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-M2C_UNK Particle_AddPosOffsetYScaled(s8 *, M2C_UNK);             /* extern */
 void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
 M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */

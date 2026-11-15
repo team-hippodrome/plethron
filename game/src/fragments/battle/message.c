@@ -20,11 +20,8 @@ void BattleScene_ResetMessageQueue(void);
 
 void BattleMenu_DrawRosterPanel(TeamRoster*, s32, s32, s32);
 void BattleMenu_DrawSwitchPanel(ActivePokemon*, s32, s32, s32);
-void BattleMenu_DrawConfirmButton(ActivePokemon*, s32, s32, s32);
-void BattleMenu_DrawBackConfirmBar(ActivePokemon*, s32, s32, s32);
 void BattleMenu_DrawMovePanel(ActivePokemon*, s32, s32, s32);
 void BattleMenu_DrawSurrenderPromptWithCursor(ActivePokemon*, s32, s32, s32);
-void BattleMenu_DrawCommandMenu(ActivePokemon*, s32, s32, s32);
 /**
  * Draws side 0's status box and whichever battle menu its state has open (command, move, confirm, surrender).
  */
@@ -266,7 +263,6 @@ void BattleMessage_ShowForSide(s8* arg0, s32 side) {
     arg0[0] = 0;
 }
 
-void BattleMessage_DrawBox();
 /**
  * Reveals the battle message one character per frame (one byte for ASCII and spaces, two for EUC-
  * JP) and draws the box with BattleMessage_DrawBox. Called every frame from Battle_RenderHud; in
@@ -355,7 +351,6 @@ void ActivePokemon_ShowCaption(ActivePokemon* arg0, s8* arg1, ...) {
     func_8211EEC0(&arg0->captionState.fullText, arg1);
 }
 
-void BattleHud_DrawCaptionBox(u8, s32, s32, s8*);
 extern ActivePokemon* sSide1ActivePokemon;
 /**
  * Same one-character-per-frame reveal as BattleMessage_TickTypewriter for the Pokemon's caption
@@ -430,10 +425,8 @@ void BattleScene_ResetMessageQueue(void) {
 }
 
 void func_8211F1E0(ActivePokemon*, ActivePokemonState*, ActivePokemonState*);
-void BattleText_DrawTextBox(ActivePokemon*, ActivePokemonState*, ActivePokemonState*);
 void func_8211D3A8(void);
 void BattleText_DrawTextBoxFrame(void);
-void BattleHud_DrawActingPokemonNickname(ActivePokemon*, ActivePokemonState*, ActivePokemonState*);
 
 /**
  * Draws the battle HUD for the current camera mode.
@@ -470,11 +463,11 @@ void Battle_RenderHud(void) {
             break;
         case 9:
         case 10:
-            BattleText_DrawTextBox(sActivePokemon[0], s0, s1);
+            BattleText_DrawTextBox(); // PORT: takes no arguments
             BattleText_DrawTextBoxFrame();
             break;
         case 7:
-            BattleHud_DrawActingPokemonNickname(sActivePokemon[0], s0, s1);
+            BattleHud_DrawActingPokemonNickname(); // PORT: takes no arguments
             break;
     }
 }

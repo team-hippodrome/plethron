@@ -319,7 +319,6 @@ void BattleScene_GetParticipantModelPosition(ActivePokemon* pokemon, Vec3f* dest
     dest->z = pokemon->displayObject.position.z;
 }
 
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 /**
  * World point where effects aim at the participant: its position, raised by its
  * height for grounded species, never below its height.
@@ -343,7 +342,6 @@ void BattleScene_GetParticipantAimPoint(ActivePokemon *arg0, u8 *arg1) {
 }
 
 f32 func_8210791C(ActivePokemon*);
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 /**
  * Like BattleScene_GetParticipantAimPoint, but in screen x (func_8210791C) with z 0.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in a Pound turn.
@@ -946,8 +944,8 @@ void ActivePokemon_SetTeamMemberIndex(ActivePokemon* arg0, s32 arg1) {
  * B opened the Pokémon menu.
  * @unverified Name and comment guessed from the code.
  */
-void ActivePokemon_SetController(ActivePokemon* arg0, s32 arg1) {
-    M2C_FIELD(arg0, s32 *, 0x858) = arg1;
+void ActivePokemon_SetController(ActivePokemon* arg0, Controller* arg1) { // PORT: typed (was s32 at the N64 offset 0x858)
+    arg0->state.controller = arg1;
 }
 
 /**

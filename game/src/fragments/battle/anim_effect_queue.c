@@ -70,7 +70,7 @@ extern s32 sD_84391A50[16];
 extern DisplayObject sD_84391A90[4];
 extern s32 sD_84392030[4];
 extern unk_D_84392040 sD_84392040;
-extern f32 D_8219C590[26];
+extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 extern s32 sD_84385BB0[];
 extern ParticleDescriptorChild gParticleDescriptorChildren[];
 extern ParticleDescriptor gBattleAnimParticleDescriptors[];
@@ -1052,17 +1052,14 @@ void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0) {
     }
 }
 
-M2C_UNK BattleAnim_UpdateEffectSystems(s32);                         /* extern */
-M2C_UNK func_82137000(s32);                         /* extern */
 M2C_UNK func_82137160();                            /* extern */
-M2C_UNK func_8216D720(s32);                         /* extern */
-extern s32 D_8219A878;
+extern CameraNode* D_8219A878; // PORT: the camera (was s32)
 /**
  * Effect list command handler: 0 resets (func_82137160), 2 selects list arg1, 5 calls
  * func_8216D720(arg1); 1, 3 and 4 do nothing. Returns 0.
  * @unverified Name guessed from the code.
  */
-s32 BattleAnim_DispatchPresentation(u32 arg0, s32 arg1) {
+s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1) { // PORT: arg1 is the camera (was s32)
     switch (arg0) {
     case 1:
     case 3:
@@ -1074,10 +1071,10 @@ s32 BattleAnim_DispatchPresentation(u32 arg0, s32 arg1) {
     case 2:
         D_8219A878 = arg1;
         BattleAnim_UpdateEffectSystems(arg1);
-        func_82137000(arg1);
+        BattleAnim_UpdateEffectCallbacks(arg1);
         break;
     case 5:
-        func_8216D720(arg1);
+        BattleAnim_RenderEffectsFrame(arg1);
         break;
     }
     return 0;

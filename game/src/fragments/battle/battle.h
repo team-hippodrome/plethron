@@ -955,11 +955,12 @@ typedef struct ParticleCameraState {
     /* 0x78 */ s16 unk_78;
 } ParticleCameraState; // size = 0x7C
 
+// PORT: only the scale is this symbol; 0x8219A82C.. are separate variables (D_8219A82C, D_8219A830,
+// sBattleAnimEffectCallbackIndex, gBattleAnimEffectUpdateFuncs, D_8219A878, ...). Declared as one 0x8C struct, the host
+// gave the function pointer tables (8 bytes per entry) storage inside it and they overran the following fields.
 typedef struct ParticleRenderContext {
     /* 0x00 */ Vec3f scale;
-    /* 0x0C */ CameraNode* camera;
-    /* 0x10 */ ParticleCameraState cameraState;
-} ParticleRenderContext; // size = 0x8C
+} ParticleRenderContext; // size = 0xC
 
 typedef struct ParticleMatrixPool {
     /* 0x0000 */ MtxF matrices[364]; // @unverified: per-frame model matrices, indexed by gParticleMatrixPoolIndex
@@ -1111,7 +1112,7 @@ extern u8* sBattleAnimAssetPointers[256];
 
 extern s16 sBattleAnimResourceList[0x10];
 
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 
 extern s16 D_8219CAC0;
 
@@ -1220,7 +1221,7 @@ extern ThumbnailSettings sSideThumbnailSettings[2];
 
 extern BattleSceneStateCallback sBattleSceneStateTickSentinel;
 
-extern BattleSceneStateRow sBattleSceneStateRowTable[];
+extern BattleSceneStateRow sBattleSceneStateRowTable[23]; // PORT: 23 rows (0x8218A7B4-0x8218ABA8); unsized, the host lifted one
 
 extern M2C_UNK D_8218E6A8;
 
@@ -1612,7 +1613,7 @@ extern s16 gBlendColorB;
 
 extern s16 gBlendColorA;
 
-extern f32 D_8219C590[26];
+extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 
 extern Gfx gDL_ItemIcon[];
 
@@ -2134,7 +2135,6 @@ void BattleHud_DrawTotalTime(s16 x, s16 y);
 void BattleHud_DrawPartyBallRow(ActivePokemon* arg0, s16 arg1, s16 arg2);
 void BattleHud_DrawMonStatusBoxPlayer(ActivePokemon* arg0, s16 arg1, s16 arg2, u16 arg3, s32 arg4);
 void BattleHud_DrawMonStatusBoxOpponent(ActivePokemon* arg0, s16 arg1, s16 arg2, u16 arg3, s32 arg4);
-void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, s32 arg2);
 
 // menu_panels.c
 void BattleHud_DrawPlainText(s16 arg0, s16 arg1, char* arg2);
@@ -2475,6 +2475,7 @@ void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1);
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1);
 s32 BattleAnim_IsModelAnimComplete(DisplayObject* arg0);
 void BattleAnim_UpdateEffectCallbacks(UNUSED CameraNode* arg0);
+void BattleAnim_UpdateEffectSystems(CameraNode* unused);
 void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0);
 
 // anim_init.c
@@ -2652,7 +2653,6 @@ void Particle_UpdateFrameCounters(void);
 void Particle_UpdateFrameCountersAlias(void);
 
 // particle_fields.c
-s16 Particle_GetSpawnIndex();                                /* extern */
 s32 func_8213C494(s8 *);                          /* extern */
 void func_8213C4B8(void);
 void BattleAnim_SetEffectState(s32 arg0);
@@ -2686,7 +2686,7 @@ f32 BattleAnim_GetSecondaryOwnerModelScale(void);
 void BattleAnim_GetSecondaryOwnerSpeciesBaseScale(void);
 f32 BattleAnim_GetTertiaryOwnerModelScale(void);
 void BattleAnim_GetTertiaryOwnerSpeciesBaseScale(void);
-s32 BattleAnim_GetCameraContext(void);
+CameraNode* BattleAnim_GetCameraContext(void);
 Particle* BattleAnim_SpawnSecondaryOwnerParticle(Vec3f arg0, u8 arg1);
 void BattleAnim_SetParticlePosition(Particle* arg0, Vec3f arg1);
 void BattleAnim_MarkParticleInactive(Particle* arg0);
@@ -4009,7 +4009,7 @@ M2C_UNK BattleAnim_InitializeQuickAttackHiJumpKickUse();                        
 void BattleAnim_CallbackOrphanDesc34ColorFadeDetach(Particle* arg0);
 void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* arg0);
 void BattleAnim_InitializeCutUse(void);
-s32 BattleScene_Init(s32* arg0);
+s32 BattleScene_Init(StageContext* arg0);
 s32 BattleAnim_PollAssetLoadBusy(ActivePokemon* active_pokemon);
 s32 BattleAnim_IsModelBusy(ActivePokemon* active_pokemon);
 void Battle_MarkIllegalMoves(ActivePokemon* pokemon, u16 pokemon_id, SpeciesLearnsetBuffer* red_blue_learnset, SpeciesLearnsetBuffer* yellow_learnset);
@@ -4018,7 +4018,6 @@ void BattleThumbnail_InitializeOwnerCameraFraming(s32 camera0, ActivePokemon* po
 void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, s32 delta);
 s32 BattleScene_GetTeamMemberTeamSize(ActivePokemon* active_pokemon);
 s32 BattleScene_GetPartnerTeamSize(ActivePokemon* active_pokemon);
-u8 BattleScene_GetParticipantUsedMove(); // takes the ActivePokemon; some callers pass it through a0
 void BattleAnim_GetOwnerDefaultAnchorPosition(ActivePokemon* arg0, Vec3f* arg1);
 void BattleScene_GetParticipantPokeBallPosition(ActivePokemon* arg0, Vec3f* arg1);
 s32 Battle_GetDisplayModelId(ActivePokemon* active_pokemon, UNUSED s32 unused);
@@ -4031,7 +4030,7 @@ s32 BattleScene_HandlePlayerMoveSelectionLocked(s8 *active_pokemon, M2C_UNK unus
 void Battle_DrawSpectatorModeBackgroundPanel(); // the caller passes three unused arguments
 void BattleScene_PhaseSendOut(CameraNode* arg0);
 void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNUSED s32 arg2);
-s32 BattleAnim_DispatchPresentation(u32 arg0, s32 arg1);
+s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1);
 void BattleAnim_GetOwnerSizeRatio(ActivePokemon* active_pokemon);
 s32 BattleCamera_StepPathLateEase(CameraNode* camera, ActivePokemon* active_pokemon);
 void BattleCamera_StepFeaturedPokemonPath(Particle* camera);
@@ -4152,8 +4151,70 @@ s32 Particle_ScratchB_Approach_0C000(Particle* arg0, s16 arg1, s16 arg2);
 s16 Particle_SpawnIndex_GetS16_0C038(Particle* arg0);
 s32 Particle_FieldCE_GetS32_0C040(Particle* arg0);
 u8 Particle_FieldCD_GetU8_0C048(Particle* arg0);
-s16 Particle_GetByteParam1(); // takes the particle; most callers pass it through a0
 void ParticleGfx_RecolorPrim(u8* arg0, u16 arg1);
 void ParticleGfx_RecolorEnv(u8* arg0, u16 arg1);
+
+// PORT: one prototype per battle function that callers in other files used with their own (disagreeing) local
+// declarations; a pointer or float passed through an int-typed declaration is lost on a 64-bit host.
+void ActivePokemon_ClearCaption(ActivePokemon* active_pokemon);
+u8* ActivePokemon_GetNickname(ActivePokemon* arg0);
+f32 ActivePokemon_GetSizeRatio(ActivePokemon* active_pokemon);
+void ActivePokemon_SetController(ActivePokemon* arg0, Controller* arg1);
+void ActivePokemon_ShowCaption(ActivePokemon* arg0, s8* arg1, ...);
+s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1);
+void BattleAnim_StartQueuedCategory2Effect(ActivePokemon* active_pokemon);
+void BattleCamera_PlayReactionFraming(ActivePokemon* active_pokemon, CameraNode* camera, s32 arg2);
+void BattleCamera_PlayShot(void* arg0, void* arg1, s32 arg2);
+void BattleCamera_StoreShotIndex(s32 shot);
+void BattleHud_DrawActingPokemonNickname(void);
+void BattleHud_DrawCaptionBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3);
+void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, const char* arg2);
+void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
+void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
+void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
+void BattleMessage_DrawBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3);
+void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...);
+void BattleMessage_ShowForSide(s8* arg0, s32 side);
+void BattleScene_CameraShotTargetHighThunk(CameraNode* arg0, ActivePokemon* arg1);
+void BattleScene_EaseCameraToFrontView(CameraNode* camera, ActivePokemon* active_pokemon, f32 unused);
+void BattleScene_FinishReactionWhenHpSettled(CameraNode* step, s32 *user_hp_done, s32 *target_hp_done);
+void BattleScene_FrameParticipantFromAboveThunk(CameraNode* camera, ActivePokemon* active_pokemon);
+void BattleScene_FrameParticipantFromBelowClamped(CameraNode* arg0, ActivePokemon* active_pokemon);
+void BattleScene_FrameParticipantFront(CameraNode* camera, ActivePokemon* active_pokemon);
+void BattleScene_FrameParticipantFrontAltThunk(CameraNode* camera, ActivePokemon* active_pokemon);
+void BattleScene_FrameParticipantImpact(CameraNode* camera, ActivePokemon* active_pokemon, f32 eye_height);
+void BattleScene_GetParticipantAimPoint(ActivePokemon *arg0, u8 *arg1);
+f32 BattleScene_GetParticipantHeight(ActivePokemon* active_pokemon);
+void BattleScene_GetParticipantModelSizeScaled(ActivePokemon* arg0, Vec3f* out);
+u8 BattleScene_GetParticipantUsedMove(ActivePokemon* active_pokemon);
+void BattleScene_InitTurnPresentation(CameraNode* arg0);
+void BattleScene_IntroStepWaitForAssets(CameraNode* arg0);
+void BattleScene_OpeningStepThrowSide1(CameraNode* arg0);
+void BattleScene_OpeningStepWaitSide0Ball(CameraNode* arg0);
+void BattleScene_ReactionCritical(CameraNode* arg0, s32 arg1);
+void BattleScene_ReactionNormal(CameraNode* arg0, s32 arg1);
+void BattleScene_ResetCameraShake(CameraNode* camera);
+void BattleScene_ResetSideFlagsAtActionStart(ActivePokemon* active_pokemon);
+void BattleScene_ResidualPhaseNop(void);
+void BattleScene_RestoreUserAfterTravel(ActivePokemon* active_pokemon);
+void BattleScene_SetReactionFlagFromByte1(s8 *arg0);
+void BattleScene_StartOrbitFraming(CameraNode* camera, ActivePokemon* active_pokemon, f32 zoom_scale, f32 zoom_min, f32 distance_scale, f32 distance_min, s16 rotation_x);
+void BattleScene_StepImpactFraming(CameraNode* camera, ActivePokemon* active_pokemon, f32 eye_height);
+void BattleScene_StepPartyHpAndUpdateHpBar(CameraNode* camera);
+void BattleScene_UpdateHpBarWhenHpSettled(CameraNode* camera);
+void BattleScene_UpdateParticipantsInView(CameraNode* camera);
+void BattleText_DrawTextBox(void);
+s32 Battle_StepPartyHpToDisplay(ActivePokemon* arg0);
+void DemoBattle_SetupDemoMove(void);
+void ParticleMath_GetPointAlongView(Vec3f* out, f32 distance);
+s32 ParticleMath_StepS16Toward(s16* value, s16 target, s16 step);
+void Particle_AddPosOffsetYScaled(Particle* arg0, f32 arg1);
+void Particle_ApplyMotionStep(Particle* arg0);
+s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
+u8 Particle_GetByteParam0(Particle* arg0);
+s16 Particle_GetByteParam1(Particle* arg0);
+u8 Particle_GetByteParam2(Particle* arg0);
+s16 Particle_GetSpawnIndex(Particle* arg0);
+void Particle_SetMagnitudeStepScaled(Particle* arg0, f32 arg1);
 
 #endif // FRAGMENT_BATTLE_H

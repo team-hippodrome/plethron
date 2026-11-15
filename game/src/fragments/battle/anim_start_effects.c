@@ -225,7 +225,6 @@ void BattleAnim_InitStart139Desc42FallingScale(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-s32 Particle_ApproachStepMagnitude(Particle* arg0, f32 arg1, f32 arg2);
 /**
  * Particle callback for effect 139's falling particles: after the delay, grows them, then
  * slows and drops them as they fade.

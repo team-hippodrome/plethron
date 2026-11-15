@@ -689,7 +689,7 @@ extern u8 D_8006B18B[];
  * Screech, Smokescreen, Kinesis, Flash) while the opponent's stage for that stat
  * is at least -1 and it was not the last move used. Returns the move slot or -1.
  */
-s32 BattleAi_PickStatLowerMove(ComBattler* arg0, s32 arg1) {
+s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1) { // PORT: arg1 was s32
     s32 i;
     s32 t;
     s32 pad; // FAKE: stack padding

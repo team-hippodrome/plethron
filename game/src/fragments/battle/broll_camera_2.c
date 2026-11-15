@@ -21,7 +21,6 @@ void func_8212187C(s32);
 void BattleCamera_StartSpeciesPath(CameraNode*, ActivePokemon*);
 s32 func_8211F644(ActivePokemon*, CameraNode*);
 void func_82104C68(ActivePokemon*, s32);
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
 extern f32 D_FLT_82196040;
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);

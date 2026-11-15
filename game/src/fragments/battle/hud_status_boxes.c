@@ -352,7 +352,7 @@ extern char D_821959DC[];
 /**
  * Draws the battle command menu: たたかう (Fight), ポケモン (Pokemon), にげる (Run).
  */
-void BattleMenu_DrawCommandMenu(s32 arg0, s16 arg1, s16 arg2, s32 arg3) {
+void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3) { // PORT: arg0 was s32
     s32 i;
     s32 pad; // FAKE
 
@@ -392,7 +392,7 @@ extern char D_821959EC[];
 /**
  * Draws the wide button bar with もどる (Back) and かくにん (Confirm).
  */
-void BattleMenu_DrawBackConfirmBar(s32 arg0, s16 arg1, s16 arg2, s32 arg3) {
+void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3) { // PORT: arg0 was s32
     s32 i;
     s32 pad; // FAKE
 
@@ -429,7 +429,7 @@ extern char D_821959F8[];
  * Seen in play (2026-11-12): first ran on the frame before the R かくにん button appeared beside
  * COM's panel while COM picked a replacement for its fainted Pinsir (カイのすけ).
  */
-void BattleMenu_DrawConfirmButton(s32 arg0, s16 arg1, s16 arg2, s32 arg3) {
+void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3) { // PORT: arg0 was s32
     s32 i;
     s32 pad; // FAKE
 
@@ -462,6 +462,6 @@ void BattleMenu_DrawConfirmButton(s32 arg0, s16 arg1, s16 arg2, s32 arg3) {
  * once, from the command menu to the end of its turn).
  * @unverified Name from the code.
  */
-void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, s32 arg2) {
+void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, const char* arg2) { // PORT: arg2 was s32
     Font_Printf(arg0 - ((strlen(arg2) >> 1) * 0xA), arg1, arg2);
 }

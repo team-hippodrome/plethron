@@ -7,7 +7,6 @@
 M2C_UNK Particle_AddRotationY(s8 *, s16);
 M2C_UNK Particle_AnimateFramesForwardLooped(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
-M2C_UNK Particle_ApplyMotionStep(s8 *);
 M2C_UNK Particle_ApproachEnvBlue(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachEnvGreen(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachEnvRed(s8 *, M2C_UNK, M2C_UNK);
@@ -15,13 +14,11 @@ M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimBlue(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimGreen(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);
-M2C_UNK Particle_ApproachStepMagnitude(s8 *, f32, f32);
 M2C_UNK Particle_SetStepMagnitudeScaled(s8 *, f32);
 M2C_UNK func_8213C9D0(s8 *);
 M2C_UNK func_8213E1FC(s8 *, s32);
 M2C_UNK func_821401D4(s8 *, M2C_UNK);
 M2C_UNK func_82143478(s8 *, u16);
-s16 Particle_GetByteParam2();
 s32 func_82140690(s8 *);
 void BattleAnim_PowderCloudScaleMotion(Particle* arg0);
 
@@ -310,7 +307,7 @@ void BattleAnim_RunSlashingMoveFullScreenFlash(Particle* arg0) {
     s16 sp26;
     s16 temp_v1;
 
-    sp26 = Particle_GetByteParam2();
+    sp26 = Particle_GetByteParam2(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -357,7 +354,7 @@ void BattleAnim_RunSlashMoveWhiteFlashOverlay(Particle* arg0) {
     s16 sp26;
     s16 temp_v1;
 
-    sp26 = Particle_GetByteParam2();
+    sp26 = Particle_GetByteParam2(arg0); // PORT: the particle was passed through a0
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
@@ -497,7 +494,7 @@ void BattleAnim_SetupSmallSand(s8 *arg0) {
     s16 sp26;
     u16 sp24;
 
-    sp26 = Particle_GetSpawnIndex();
+    sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     sp24 = Particle_GetByteParam1(arg0);
     func_821401D4(arg0, 0x3E800000); // 0.25f
     M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((func_8000F150() * 0.5f) + 0.25f);
@@ -549,7 +546,7 @@ void BattleAnim_SetupLargeSand(s8 *arg0) {
     s16 sp26;
     u16 sp24;
 
-    sp26 = Particle_GetSpawnIndex();
+    sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     sp24 = Particle_GetByteParam1(arg0);
     func_821401D4(arg0, 0x3F000000); // 0.5f
     M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((func_8000F150() * 0.5f) + 0.25f);
@@ -646,7 +643,7 @@ void BattleAnim_SandAttackParticleUpdate(Particle* arg0) {
 void BattleAnim_InitSpreadingParticle(s8 *arg0) {
     s16 sp26;
 
-    sp26 = Particle_GetSpawnIndex();
+    sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
     func_821401D4(arg0, 0x3ECCCCCD); // 0.4f
     func_8213DDB8(arg0, 0, 0, 0xA);
     M2C_FIELD(arg0, f32 *, 0x5C) = (f32) ((func_8000F150() * 0.5f) + 0.25f);
