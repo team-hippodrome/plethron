@@ -60,7 +60,7 @@ extern u16 D_8111E310;
 extern u16 D_811228B4;
 extern u8 D_811228B8;
 extern s32 D_81154C48;
-extern u8 D_81154C0F;
+#define D_81154C0F (D_81154BF0.unk_1C.bytes[3]) // PORT: a byte inside D_81154BF0 (fade alpha); the lifter maps a union by its start
 extern u8 D_81154C4F;
 extern GbEmuTask D_81154BF0;
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
