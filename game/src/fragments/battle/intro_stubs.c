@@ -38,7 +38,7 @@ extern u32 sArrowBlock[];
 #include "math.h"
 extern u8* sBattleAnimAssetPointers[256];
 extern s16 sBattleAnimResourceList[0x10];
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 extern s16 D_8219CAC0;
 extern s16 D_8219CAC2;
 extern Mtx D_8219CAC8;
@@ -59,7 +59,6 @@ s32 Diorama_ScaleRotateCallbackA(s32, GraphNode*);
 s32 Diorama_ScaleRotateCallbackB(s32, GraphNode*);
 s32 Diorama_GroupStateCallback(s32, GraphNode*);
 
-extern unk_D_86B10BE0 D_8219A82C;
 
 void BattleIntroStubs_UnusedNopA(void);
 void BattleIntroStubs_UnusedNopB(void);

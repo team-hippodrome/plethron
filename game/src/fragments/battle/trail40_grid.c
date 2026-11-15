@@ -256,7 +256,6 @@ s32 Trail40GridAlt_IsComplete(void) {
 }
 
 s32 func_8000515C(s32);
-s32 BattleAnim_GetCameraContext(void);
 void func_80031F14(f32*, f32*, f32*);
 void func_800320A8(s32, f32, f32, f32, f32, f32, f32);
 extern s32 D_821AABA0;

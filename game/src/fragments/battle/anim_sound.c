@@ -68,7 +68,7 @@ extern s32 sD_84391A50[16];
 extern DisplayObject sD_84391A90[4];
 extern s32 sD_84392030[4];
 extern unk_D_84392040 sD_84392040;
-extern f32 D_8219C590[26];
+extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 extern s32 sD_84385BB0[];
 extern ParticleDescriptorChild gParticleDescriptorChildren[];
 extern ParticleDescriptor gBattleAnimParticleDescriptors[];

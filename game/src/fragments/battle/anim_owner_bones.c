@@ -197,14 +197,14 @@ void BattleAnim_GetTertiaryOwnerSpeciesBaseScale(void) {
     BattleAnim_GetOwnerSizeRatio(gBattleAnimTertiaryOwner);
 }
 
-extern s32 D_8219A878;
+extern CameraNode* D_8219A878; // PORT: the camera (was s32)
 
 /**
  * Returns D_8219A878.
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (24 of the moves).
  * @unverified Name from Stadium 1.
  */
-s32 BattleAnim_GetCameraContext(void) {
+CameraNode* BattleAnim_GetCameraContext(void) { // PORT: was s32
     return D_8219A878;
 }
 

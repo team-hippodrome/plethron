@@ -980,13 +980,11 @@ Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2) {
     return arg0;
 }
 
-s32 BattleAnim_GetCameraContext(void);
 
 #ifdef NON_MATCHING
 /* TODO: decompile ParticleMath_GetPointAlongTurnedView; signature not recovered. */
 #else
 void func_821381E4(Vec3f*, Vec3f, Vec3f);
-s32 BattleAnim_GetCameraContext(void);
 void func_82137F10();
 /**
  * Writes to arg0 the point arg2 units from the camera eye along the view direction turned

@@ -12,7 +12,7 @@ extern BattleScene* D_8219A5A0;
 void Battle_ComputeSplineWeightsVariantC(f32* arg0, f32 arg1);
 extern u8* sBattleAnimAssetPointers[256];
 extern s16 sBattleAnimResourceList[0x10];
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 extern s16 D_8219CAC0;
 extern s16 D_8219CAC2;
 extern Mtx D_8219CAC8;
@@ -94,7 +94,7 @@ extern s32 sD_84391A50[16];
 extern DisplayObject sD_84391A90[4];
 extern s32 sD_84392030[4];
 extern unk_D_84392040 sD_84392040;
-extern f32 D_8219C590[26];
+extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 extern s32 sD_84385BB0[];
 extern ParticleDescriptorChild gParticleDescriptorChildren[];
 extern ParticleDescriptor gBattleAnimParticleDescriptors[];
@@ -856,7 +856,7 @@ M2C_UNK func_8216D970();                            /* extern */
  * particle passes.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_UpdateEffectSystems(s32 unused) {
+void BattleAnim_UpdateEffectSystems(CameraNode* unused) { // PORT: was s32
     BattleAnim_AdvanceFrameCounters();
     func_82136338();
     func_8213AE68();

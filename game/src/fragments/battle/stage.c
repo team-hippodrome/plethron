@@ -180,9 +180,9 @@ void Battle_DrawStageBackdrop(void) {
         texture_step_y = 0x10000 / (sStageCamera.viewport.height / 2);
 
         switch (D_82198D1C) {
-            case 1: tex = Memmap_GetFragmentVaddr(D_8F908980); break;
-            case 2: tex = Memmap_GetFragmentVaddr(D_8FA08900); break;
-            case 3: tex = Memmap_GetFragmentVaddr(D_8FB08900); break;
+            case 1: tex = (void*)Memmap_GetFragmentVaddr(D_8F908980); break;
+            case 2: tex = (void*)Memmap_GetFragmentVaddr(D_8FA08900); break;
+            case 3: tex = (void*)Memmap_GetFragmentVaddr(D_8FB08900); break;
         }
 
         if ((sStageCamera.viewport.width < 0x140) || (sStageCamera.viewport.height < 0xF0)) {
@@ -288,7 +288,7 @@ void Battle_FillActivePokemonThumbnail(GraphNode* thumbnail_root, GfxImage* thum
     s32 y;
     CameraNode* camera_node = thumbnail_root->children;
     CameraViewport* viewport = &thumbnail_root->children->viewport;
-    s32 image_address;
+    u8* image_address; // PORT: was s32
 
     x = viewport->x;
     y = viewport->y;
@@ -607,8 +607,8 @@ void Battle_SelectComRoster(void) {
     s32 i;
 
 
-    player_roster = *(TeamRoster**)((u8*)D_82198D10 + 0x103C);
-    com_roster = *(TeamRoster**)((u8*)D_82198D10 + 0x1064);
+    player_roster = D_82198D10->battleSides[0].teamMember[0]; // PORT: was the N64 offset 0x103C
+    com_roster = D_82198D10->battleSides[1].teamMember[0]; // PORT: was the N64 offset 0x1064
     switch (D_82198D10->mode) {
         case 0:
             difficulty = D_82189170[D_82198D10->ruleCategory];
@@ -709,7 +709,6 @@ void func_82100B84(void);
 void func_821070E0(s32, Unit82101324*);
 void func_821076FC(s32, CameraNode*, CameraNode*);
 void func_82134CC0(s32, CameraNode*);
-void func_821370DC(s32, CameraNode*); // BattleAnim_DispatchPresentation, declared here with the argument types this file's calls need
 
 /**
  * Sets up the battle stage: fonts, icon framebuffers, the thumbnail images, the stage assets
@@ -717,7 +716,7 @@ void func_821370DC(s32, CameraNode*); // BattleAnim_DispatchPresentation, declar
  * and 3.
  * @unverified Name from Stadium 1.
  */
-s32 BattleScene_Init(s32* arg0) { // FAKE: s32 return (value unused) fixes caller regalloc
+s32 BattleScene_Init(StageContext* arg0) { // PORT: was s32* // FAKE: s32 return (value unused) fixes caller regalloc
     UNUSED s32 pad; // FAKE
     MemoryBlock* block;
     unk_D_86002F30* model;
@@ -733,7 +732,7 @@ s32 BattleScene_Init(s32* arg0) { // FAKE: s32 return (value unused) fixes calle
     D_82198D14[1].framebuffers = PokeIcon_AllocFramebuffers(3);
     PokeIcon_OpenModelArchives();
     D_82198CFC = MainPool_Alloc(0x10, 0);
-    GfxImage_Initialize(D_82198CFC, 0, 2, 0x4C, 0x4C, ((s32**)((s32**)arg0)[6])[3][2]);
+    GfxImage_Initialize(D_82198CFC, 0, 2, 0x4C, 0x4C, (uintptr_t)arg0->renderTargets[0]->depth_p->img_p); // PORT: was ((s32**)((s32**)arg0)[6])[3][2], N64 strides
     D_82198D00 = GfxImage_Allocate(0, 2, 0x4C, 0x4C, 0);
     D_82198D04 = GfxImage_Allocate(0, 2, 0x4C, 0x4C, 0);
     GfxImage_AttachDepthBuffer(D_82198D00, D_82198CFC);
@@ -770,7 +769,7 @@ s32 BattleScene_Init(s32* arg0) { // FAKE: s32 return (value unused) fixes calle
     func_821070E0(0, D_82198D14);
     func_821076FC(0, &D_82198B10, &D_82198C00);
     func_82134CC0(0, &D_82198A20);
-    func_821370DC(0, &D_82198A20);
+    BattleAnim_DispatchPresentation(0, &D_82198A20);
     block = MainPool_AllocState(MainPool_GetAvailable(), 0);
     switch (D_82198D1C) {
         case 0:
@@ -792,7 +791,7 @@ s32 BattleScene_Init(s32* arg0) { // FAKE: s32 return (value unused) fixes calle
     func_821070E0(3, D_82198D14);
     func_821076FC(3, &D_82198B10, &D_82198C00);
     func_82134CC0(3, &D_82198A20);
-    func_821370DC(3, &D_82198A20);
+    BattleAnim_DispatchPresentation(3, &D_82198A20);
     D_82198D20 = 1;
     D_82198D18 = 0;
 }
@@ -821,7 +820,7 @@ s32 BattleStage_Init(s32 unused, SessionContext *session)
   StageContext *stage_context;
   SessionContext *ctx;
   ctx = (D_82198D10 = session);
-  sBattleSides = (BattleSide *) (((u8 *) ctx) + 0x1034);
+  sBattleSides = &ctx->battleSides[0]; // PORT: was ctx + 0x1034 (the N64 offset)
   sCompletionGate = -2;
   if (ctx->mode == 0)
   {
@@ -845,7 +844,7 @@ s32 BattleStage_Init(s32 unused, SessionContext *session)
   MainPool_PushState('BATL');
   Gfx_InitDisplayListBuffers(0x20000, 0);
   stage_context = StageContext_Allocate(0, 1, 3, 1, 2, 1);
-  BattleScene_Init((s32*)stage_context);
+  BattleScene_Init(stage_context);
   switch (D_82198D10->mode)
   {
     case 3:

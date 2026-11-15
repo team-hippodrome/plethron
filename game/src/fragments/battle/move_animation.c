@@ -1290,13 +1290,8 @@ void BattleScene_TickFaintRowPlayLandingSound(ActivePokemon* active_pokemon) {
     }
 }
 
-typedef struct Cue8218A7D8 {
-    /* 0x00 */ s32 sound; // @unverified: BattleScene_TickRow7PlayRowSound passes it to func_82101B18 as the row's sound
-    char pad04[0x28];
-} Cue8218A7D8;
 extern f32 D_FLT_82189354[];
 extern s32 D_8219A74C;
-extern Cue8218A7D8 D_8218A7D8[];
 void func_82101B18(ActivePokemon*, s32);
 /**
  * Animation row tick: ends at once for species with a hover height (except 0x16, 0x52 and
@@ -1313,7 +1308,7 @@ void BattleScene_TickRow7PlayRowSound(ActivePokemon* active_pokemon) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             s32 idx = active_pokemon->animationState;
 
-            func_82101B18(active_pokemon, D_8218A7D8[idx].sound);
+            func_82101B18(active_pokemon, sBattleSceneStateRowTable[idx].mode); // PORT: D_8218A7D8[idx].sound, the same word (row + 0x24) on the N64
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
     }

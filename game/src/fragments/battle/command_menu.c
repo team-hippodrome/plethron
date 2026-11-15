@@ -165,7 +165,7 @@ s32 BattleMenu_HandleNoUsableMoves(arg0) ActivePokemon *arg0;
         temp_v0->selectedCommandOption = 1;
       }
       ActivePokemon_ClearCaption(arg0);
-      ActivePokemon_ShowCaption(arg0, D_8218C6F0, ActivePokemon_GetNickname((uintptr_t) arg0));
+      ActivePokemon_ShowCaption(arg0, D_8218C6F0, ActivePokemon_GetNickname(arg0));
     }
     else
       if (cont->buttonPressed & 0x20)

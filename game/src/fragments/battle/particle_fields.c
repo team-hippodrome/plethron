@@ -4,7 +4,7 @@
 #include "battle.h"
 extern ParticleDescriptor gDefaultParticleDescriptor;
 
-extern unk_D_86B10BE0 D_8219A82C;
+extern s32 D_8219A82C; // PORT: one word (D_8219A830 follows); declared as a 0x14 struct it took the next symbols' storage
 
 #include "m2c_macros.h"
 
@@ -230,7 +230,7 @@ s16 Particle_GetCountdown(Particle* arg0) { // PORT: was s8*
  * @unverified Named from the code.
  */
 void BattleAnim_SetEffectState(s32 arg0) {
-    (*(s32 *)&D_8219A82C) = arg0;
+    D_8219A82C = arg0;
 }
 
 /**
@@ -243,7 +243,7 @@ void BattleAnim_SetEffectState(s32 arg0) {
  * @unverified Named from the code.
  */
 void BattleAnim_ClearEffectState(void) {
-    D_8219A82C.unk_00 = 0;
+    D_8219A82C = 0;
 }
 
 /**
@@ -253,5 +253,5 @@ void BattleAnim_ClearEffectState(void) {
  * @unverified Name guessed from the code.
  */
 s32 BattleAnim_GetEffectState(void) {
-    return (*(s32 *)&D_8219A82C);
+    return D_8219A82C;
 }

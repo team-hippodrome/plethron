@@ -955,11 +955,12 @@ typedef struct ParticleCameraState {
     /* 0x78 */ s16 unk_78;
 } ParticleCameraState; // size = 0x7C
 
+// PORT: only the scale is this symbol; 0x8219A82C.. are separate variables (D_8219A82C, D_8219A830,
+// sBattleAnimEffectCallbackIndex, gBattleAnimEffectUpdateFuncs, D_8219A878, ...). Declared as one 0x8C struct, the host
+// gave the function pointer tables (8 bytes per entry) storage inside it and they overran the following fields.
 typedef struct ParticleRenderContext {
     /* 0x00 */ Vec3f scale;
-    /* 0x0C */ CameraNode* camera;
-    /* 0x10 */ ParticleCameraState cameraState;
-} ParticleRenderContext; // size = 0x8C
+} ParticleRenderContext; // size = 0xC
 
 typedef struct ParticleMatrixPool {
     /* 0x0000 */ MtxF matrices[364]; // @unverified: per-frame model matrices, indexed by gParticleMatrixPoolIndex
@@ -1111,7 +1112,7 @@ extern u8* sBattleAnimAssetPointers[256];
 
 extern s16 sBattleAnimResourceList[0x10];
 
-extern arg1_func_80019420* sBattleAnimResourceTablePointers[40];
+extern arg1_func_80019420* sBattleAnimResourceTablePointers[16]; // PORT: 16 entries (gParticlePool follows at +0x40); [40] overlapped it
 
 extern s16 D_8219CAC0;
 
@@ -1220,7 +1221,7 @@ extern ThumbnailSettings sSideThumbnailSettings[2];
 
 extern BattleSceneStateCallback sBattleSceneStateTickSentinel;
 
-extern BattleSceneStateRow sBattleSceneStateRowTable[];
+extern BattleSceneStateRow sBattleSceneStateRowTable[23]; // PORT: 23 rows (0x8218A7B4-0x8218ABA8); unsized, the host lifted one
 
 extern M2C_UNK D_8218E6A8;
 
@@ -1612,7 +1613,7 @@ extern s16 gBlendColorB;
 
 extern s16 gBlendColorA;
 
-extern f32 D_8219C590[26];
+extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 
 extern Gfx gDL_ItemIcon[];
 
@@ -2474,6 +2475,7 @@ void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1);
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1);
 s32 BattleAnim_IsModelAnimComplete(DisplayObject* arg0);
 void BattleAnim_UpdateEffectCallbacks(UNUSED CameraNode* arg0);
+void BattleAnim_UpdateEffectSystems(CameraNode* unused);
 void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0);
 
 // anim_init.c
@@ -2684,7 +2686,7 @@ f32 BattleAnim_GetSecondaryOwnerModelScale(void);
 void BattleAnim_GetSecondaryOwnerSpeciesBaseScale(void);
 f32 BattleAnim_GetTertiaryOwnerModelScale(void);
 void BattleAnim_GetTertiaryOwnerSpeciesBaseScale(void);
-s32 BattleAnim_GetCameraContext(void);
+CameraNode* BattleAnim_GetCameraContext(void);
 Particle* BattleAnim_SpawnSecondaryOwnerParticle(Vec3f arg0, u8 arg1);
 void BattleAnim_SetParticlePosition(Particle* arg0, Vec3f arg1);
 void BattleAnim_MarkParticleInactive(Particle* arg0);
@@ -4007,7 +4009,7 @@ M2C_UNK BattleAnim_InitializeQuickAttackHiJumpKickUse();                        
 void BattleAnim_CallbackOrphanDesc34ColorFadeDetach(Particle* arg0);
 void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* arg0);
 void BattleAnim_InitializeCutUse(void);
-s32 BattleScene_Init(s32* arg0);
+s32 BattleScene_Init(StageContext* arg0);
 s32 BattleAnim_PollAssetLoadBusy(ActivePokemon* active_pokemon);
 s32 BattleAnim_IsModelBusy(ActivePokemon* active_pokemon);
 void Battle_MarkIllegalMoves(ActivePokemon* pokemon, u16 pokemon_id, SpeciesLearnsetBuffer* red_blue_learnset, SpeciesLearnsetBuffer* yellow_learnset);
@@ -4028,7 +4030,7 @@ s32 BattleScene_HandlePlayerMoveSelectionLocked(s8 *active_pokemon, M2C_UNK unus
 void Battle_DrawSpectatorModeBackgroundPanel(); // the caller passes three unused arguments
 void BattleScene_PhaseSendOut(CameraNode* arg0);
 void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNUSED s32 arg2);
-s32 BattleAnim_DispatchPresentation(u32 arg0, s32 arg1);
+s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1);
 void BattleAnim_GetOwnerSizeRatio(ActivePokemon* active_pokemon);
 s32 BattleCamera_StepPathLateEase(CameraNode* camera, ActivePokemon* active_pokemon);
 void BattleCamera_StepFeaturedPokemonPath(Particle* camera);

@@ -3178,7 +3178,7 @@ void Particle_SetScratchA(Particle* arg0, s16 arg1) {
  * (offset 0xAA) went from 0xE1 to 0xA1.
  */
 void Particle_ApproachScratchA(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchA, arg1, arg2);
+    ParticleMath_StepS16Toward(&arg0->scratchA, arg1, arg2);
 }
 
 /**
@@ -3212,5 +3212,5 @@ void Particle_SetScratchB(Particle* arg0, s16 arg1) {
  * (offset 0xAC) went from 0x64 to 0x5C.
  */
 void Particle_ApproachScratchB(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchB, arg1, arg2);
+    ParticleMath_StepS16Toward(&arg0->scratchB, arg1, arg2);
 }
