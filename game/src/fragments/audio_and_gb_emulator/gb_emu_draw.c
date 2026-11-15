@@ -4,6 +4,7 @@
 
 #include "global.h"
 #include "audio_and_gb_emulator.h"
+#include "gb_player_launch.h"
 #include "variables.h"
 typedef struct unk_func_812009D0 {
   /* 0x00 */ u8 unk00[0x34];
@@ -29,7 +30,7 @@ void func_812070A0(void);
 void GbApu_SelectRegionClock(s32);
 void GbApu_QueueRegisterWrite(u16, u8, u16);
 void GbApu_ResetChannels(void);
-void GbApu_Reset(unk_D_8122B2F8*);
+void GbApu_Reset(u8*); // PORT: matches the definition
 void GbAudio_FrameStub(void);
 void GbAudio_SetMenuSoundMode(s32);
 #define GB_EMU_PAL_Y_SCALE 0.833f
@@ -182,7 +183,7 @@ restart:
             ch->addr = i << 8;
             ch->size = 0x100;
             ch->buf = ch->verifyBuf;
-            osSendMesg(&D_81156458, arg0, 1);
+            osSendMesg(&D_81156458, (OSMesg)(intptr_t)arg0, 1); // PORT: OSMesg value
             while (D_81156475 != 0) {
             }
             if (ch->error != 0) {
@@ -200,7 +201,7 @@ restart:
                 ch->addr = off;
                 ch->buf = ch->ramBuf + off;
                 ch->size = 0x100;
-                osSendMesg(&D_81156458, arg0, 1);
+                osSendMesg(&D_81156458, (OSMesg)(intptr_t)arg0, 1); // PORT: OSMesg value
                 while (D_81156475 != 0) {
                 }
                 if (ch->error) {
@@ -275,8 +276,8 @@ s32 GbPak_WriteVerifiedSramBlock(s32 arg0, s32 arg1, s32 arg2) {
         addr = (arg1 & 0x1FFF) | 0xA000;
         do {
             func_81102EB0(entry, n);
-            ret = osGbpakReadWrite((uintptr_t)ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
-            if (ret == 0 && (ret = osGbpakReadWrite((uintptr_t)ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
+            ret = osGbpakReadWrite(ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
+            if (ret == 0 && (ret = osGbpakReadWrite(ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
                 (ret = bcmp(&D_811564A0, entry, 0x20)) == 0 && --n == 0) {
                 ch->unk98 = arg2;
                 ch->sramAddr = arg1;
@@ -305,7 +306,7 @@ s32 GbPak_CheckGen1SaveChecksum(s8*);
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak.
  */
-void GbPak_IoThreadMain(s32 arg0) {
+void GbPak_IoThreadMain(void* arg0) { // PORT: OSThread entry signature (was s32)
     s32 pad0; // FAKE
     s32 chan;
     OSPfs* pfs;
@@ -318,7 +319,12 @@ void GbPak_IoThreadMain(s32 arg0) {
         if (D_81156458.validCount == 0) {
             D_81156475 = 0;
         }
-        osRecvMesg(&D_81156458, (OSMesg*)&chan, OS_MESG_BLOCK);
+        // PORT: receive into an OSMesg (pointer-sized) and take the channel number from it
+        {
+            OSMesg msg;
+            osRecvMesg(&D_81156458, &msg, OS_MESG_BLOCK);
+            chan = (s32)(intptr_t)msg;
+        }
         if (chan == 0xFF) {
             D_81156474 = 0;
             osDestroyThread(NULL);
@@ -465,7 +471,7 @@ extern OSPfs D_81156018[4];
 extern OSMesg D_811561B8[4];
 extern OSThread D_81154C68;
 extern u8 D_81155E18[];
-void GbPak_IoThreadMain();
+void GbPak_IoThreadMain(void*);
 /**
  * Clears the four Transfer Pak channel records, gives each its OSPfs and starts the Game Boy Pak
  * I/O thread (GbPak_IoThreadMain) on the given message queue.
@@ -483,8 +489,8 @@ void GbPak_StartIoThread(s32 arg0, s32 arg1, s32 arg2) {
     D_81156477 = 0;
     D_81156478 = 0;
     D_81156479 = 0;
-    bzero((uintptr_t) D_811561C8, 0x290);
-    bzero((uintptr_t) &D_81156480, 0x20);
+    bzero(D_811561C8, sizeof(D_811561C8)); // PORT: host size of the 4 channels (0x290 on the N64)
+    bzero(&D_81156480, 0x20);
     for (i = 0; i < 4; i++) {
         D_811561C8[i].channel = i;
         D_811561C8[i].unkA1 = 0x18;
@@ -519,12 +525,12 @@ void GbPak_StopIoThread(s32 arg0) {
     }
     for (i = 0; i < 4; i++) {
         if ((1 << i) & arg0) {
-            osGbpakPower(*(s32 *)((u8 *)&D_811561C8[i] + 0x50), 0);
+            osGbpakPower(D_811561C8[i].pfs, 0); // PORT: the pfs field (offset 0x50 on the N64)
         }
     }
     while (D_81156475 != 0) {
     }
-    osSendMesg(&D_81156458, 0xFF, 1);
+    osSendMesg(&D_81156458, (OSMesg)(intptr_t)0xFF, 1); // PORT: OSMesg value
     while (D_81156474 != 0) {
     }
     D_81156470 = 0;
@@ -739,7 +745,7 @@ void GbEmu_BlitWithPixelOp(u16* dst, u16* src, s32 mode, s32 width, s32 height) 
   }
 }
 
-extern s32 D_8115658C;
+extern uintptr_t D_8115658C; // PORT: GbEmuState.framebuffer, a buffer address
 
 /**
  * Clears the 0x2800-byte status bar image below the GB screen and writes back the data cache.
@@ -747,7 +753,7 @@ extern s32 D_8115658C;
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
 void GbEmu_ClearStatusBar(void) {
-    bzero(D_8115658C, 0x2800);
+    bzero((void*)D_8115658C, 0x2800);
     osWritebackDCacheAll();
 }
 
@@ -862,7 +868,7 @@ void GbEmu_DrawAccessIcon(u16* arg0, s32 arg1, s32 arg2) {
     osWritebackDCache(arg0, 0x1E00);
 }
 
-extern s32 D_81156550;
+extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 extern u8 D_8111E308;
 extern u8 D_811221C0[];
 extern u8 D_81121B30[];
@@ -870,7 +876,7 @@ extern u8 D_811220D0[];
 extern u8 D_81122010[];
 extern u8 D_81122070[];
 extern u8 D_81121DA0[];
-void func_81103C40(s32, u8*, s32, s32, s32);
+void func_81103C40(uintptr_t, const void*, s32, s32, s32); // PORT: GbEmu_BlitWithPixelOp; dst is a buffer address
 
 /**
  * Draws the speed-up indicator in the status bar: the speed lamps 1, 2 (and 3 when two levels are
@@ -878,11 +884,11 @@ void func_81103C40(s32, u8*, s32, s32, s32);
  * Seen in play (2026-11-14) ran when C-Right changed the speed (speed-up unlocked by poking
  * D_8111E308 to 2); called from GbEmu_DrawStatusBar.
  */
-void GbEmu_DrawSpeedIndicator(s32 fb) {
+void GbEmu_DrawSpeedIndicator(uintptr_t fb) { // PORT: fb is a buffer address
     s32 sp2C;
     s32 mode;
 
-    sp2C = ((u8*)D_81156550)[0x101B9];
+    sp2C = D_81156550[0x101B9];
     mode = D_8111E308;
 
     if (mode == 1) {
@@ -901,9 +907,9 @@ void GbEmu_DrawSpeedIndicator(s32 fb) {
     }
 }
 
-extern s32 D_81156590;
+extern uintptr_t D_81156590; // PORT: GbEmuState.unk_50, a buffer address
 extern u16 D_811223E0[];
-extern s32 D_81154C00;
+extern uintptr_t D_81154C00; // PORT: frame buffer address in the GB RSP task
 extern s32 D_81156594;
 extern u8* D_81156598;
 extern s8 D_811565A2;
@@ -917,13 +923,13 @@ extern u16 D_81120B58[];
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
 void GbEmu_DrawAccessOverlay(s32 direction) {
-    s32 pos;
-    s32 dst;
+    uintptr_t pos; // PORT: buffer addresses (were s32)
+    uintptr_t dst;
     s32 i;
     u8* p;
 
     pos = D_81156590;
-    bzero(pos, 0x2800);
+    bzero((void*)pos, 0x2800);
     pos += 0xAE;
     GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156594], 0x70);
     i = 0;
@@ -951,7 +957,7 @@ extern u16 D_811223E0[];
 extern u8 D_811208F8[];
 extern u8 D_811541FC[5];
 extern u8* D_8115659C;
-extern s32 D_81154C00;
+extern uintptr_t D_81154C00; // PORT: frame buffer address in the GB RSP task
 
 /**
  * Draws the status bar below the GB screen: the tinted bar, the ▲でメニュー ("▲: Menu") hint and, when a speed-up
@@ -961,8 +967,8 @@ extern s32 D_81154C00;
  */
 void GbEmu_DrawStatusBar(void) {
 
-    s32 pos;
-    s32 dst;
+    uintptr_t pos; // PORT: buffer addresses (were s32)
+    uintptr_t dst;
     u8* p;
 
     GbEmu_ClearStatusBar();
@@ -999,7 +1005,7 @@ void GbEmu_DrawStatusBar(void) {
     D_81154C00 = D_81156540.framebuffer;
 }
 
-extern s32 D_81156550;
+extern u8* D_81156550; // PORT: GbEmuState.mem, a pointer
 
 /**
  * Clears the 16 RGBA5551 GB palette colors at GB memory +0x12D00 (4 palettes of 4), so the GB
@@ -1012,8 +1018,8 @@ void GbEmu_ClearPalettes(void) {
     bzero(D_81156550 + 0x12D00, 0x20);
 }
 
-extern u32 D_811565AC;
-extern u32 D_811565B0;
+extern uintptr_t D_811565AC; // PORT: heap pointer
+extern uintptr_t D_811565B0; // PORT: heap end
 /**
  * Bump allocator: aligns the heap pointer to 64 bytes, reserves the size and hangs when the heap
  * runs out.
@@ -1022,15 +1028,15 @@ extern u32 D_811565B0;
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
-s32 GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1)
+uintptr_t GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1) // PORT: returns an address (was s32)
 {
-  s32 new_var; // FAKE: permuter temp
-  s32 temp_v1;
+  uintptr_t new_var; // FAKE: permuter temp
+  uintptr_t temp_v1;
   u32 temp_t6;
   temp_v1 = (D_811565AC + 0x3F) & (~0x3F);
   new_var = temp_v1; // FAKE: permuter temp
   ; // FAKE: empty statement
-  if ((D_811565AC = new_var + arg0) >= ((u32) D_811565B0)) // FAKE: permuter temp
+  if ((D_811565AC = new_var + arg0) >= ((uintptr_t) D_811565B0)) // FAKE: permuter temp
   {
     loop_1:
     goto loop_1; // FAKE: m2c's endless hang
@@ -1110,9 +1116,9 @@ s32 GbPak_CheckGen1SaveChecksum(s8* arg0) {
     s32 i;
     s32 sum;
 
-    if ((M2C_FIELD(arg0, u32*, 0x8C) >> 13) == 1) {
+    if ((((GbPakChannel*)(arg0))->addr >> 13) == 1) {
         for (i = 0x598; i < 0x59E; i++) {
-            if (M2C_FIELD(arg0, u8**, 0x54)[i] == 0x50) {
+            if (((GbPakChannel*)(arg0))->buf[i] == 0x50) {
                 goto found;
             }
         }
@@ -1120,10 +1126,10 @@ s32 GbPak_CheckGen1SaveChecksum(s8* arg0) {
     found:
         sum = 0;
         for (i = 0x598; i < 0x1594; i++) {
-            sum += M2C_FIELD(arg0, u8**, 0x54)[i];
+            sum += ((GbPakChannel*)(arg0))->buf[i];
         }
         sum = (sum & 0xFF) ^ 0xFF;
-        if (sum != M2C_FIELD(arg0, u8**, 0x54)[i]) {
+        if (sum != ((GbPakChannel*)(arg0))->buf[i]) {
             return 10;
         }
     }
@@ -1185,7 +1191,7 @@ extern f32 D_FLT_81154254;
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_Init.
  */
-s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
+s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPlayerEmuBlock* arg4) { // PORT: arg0/arg1 are addresses
     GbPakChannel* cur;
     GbPakChannel* slot;
     u8* buf;
@@ -1198,8 +1204,8 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     D_811565AC = arg1;
     D_811565B0 = arg1 + arg2;
     D_811565A0 = arg3;
-    D_81156598 = M2C_FIELD(arg4, u8**, 0x21CC);
-    D_8115659C = M2C_FIELD(arg4, u8**, 0x21D0);
+    D_81156598 = arg4->font1Data;
+    D_8115659C = arg4->font2Data;
     D_81156540.mem = (u8*)GbEmu_AllocAligned64(0x27F80, 0);
     D_81156540.rom = (u8*)GbEmu_AllocAligned64(0x100000, 0);
     D_81156540.sramSize = 0x8000;
@@ -1214,7 +1220,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     D_811565A1 = 0;
     D_811565A5 = 0x20;
     D_811565A4 = 0;
-    bzero((uintptr_t)D_81156540.mem, 0xFF80);
+    bzero(D_81156540.mem, 0xFF80);
     for (i = 0, p = D_81156540.mem + 0x16B20; i < 0x40; i++) {
         *p++ = 1;
     }
@@ -1224,7 +1230,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     GbEmu_ClearStatusBar();
     i = func_80025BD8();
     D_811561C8[i].request = 0x80;
-    osSendMesg(&D_81156458, i, 1);
+    osSendMesg(&D_81156458, (OSMesg)(intptr_t)i, 1); // PORT: OSMesg value
     while (D_81156475 != 0) {
     }
 
@@ -1280,7 +1286,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     cur->sum = 0;
 
     if (cur->bankList == NULL) {
-        GbEmu_DrawLoadingScreen((u16*)arg0, M2C_FIELD(arg4, u8 (**)[0xC80], 0x2204), func_80025BD8(), D_81156540.colorIndex);
+        GbEmu_DrawLoadingScreen((u16*)arg0, (u8 (*)[0xC80])arg4->params.partyIcons, func_80025BD8(), D_81156540.colorIndex);
         GbEmu_DrawStatusBar();
         osWritebackDCacheAll();
         osViBlack(0);
@@ -1289,7 +1295,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
             cur->addr = i * 0x2000;
             cur->buf = i * 0x2000 + D_81156540.sram;
             cur->size = 0x2000;
-            osSendMesg(&D_81156458, D_811565A0, 1);
+            osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
             while (D_81156475 != 0) {
                 GbEmu_AnimateLoadingScreen();
             }
@@ -1306,7 +1312,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
             cur->addr = i * 0x2000;
             cur->buf = i * 0x2000 + D_81156540.rom;
             cur->size = 0x2000;
-            osSendMesg(&D_81156458, D_811565A0, 1);
+            osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
             while (D_81156475 != 0) {
                 GbEmu_AnimateLoadingScreen();
             }

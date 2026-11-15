@@ -423,7 +423,7 @@ typedef struct GbEmuState {
     /* 0x40 */ u32 sramSize; // @unverified: 0x8000 (GbEmu_LoadCartridge)
     /* 0x44 */ u8* unk_44;
     /* 0x48 */ u8* unk_48;
-    /* 0x4C */ s32 framebuffer;
+    /* 0x4C */ uintptr_t framebuffer; // PORT: a buffer address (s32 on the N64)
     /* 0x50 */ u8* unk_50;
     /* 0x54 */ s32 colorIndex;
 } GbEmuState; // size = 0x58
@@ -466,6 +466,32 @@ typedef struct GbPakChannel {
     /* 0xA2 */ u8 unkA2;
     /* 0xA3 */ char unkA3[0x1];
 } GbPakChannel; // size = 0xA4
+
+// The GB Player's RSP task (D_81154BF0): an OSTask whose fields carry the GB microcode's parameters. GbEmu_RunFrame
+// copies it into GbPlayerTask.task, at the OSTask's place in a SchedTask.
+// PORT: unk_10, unk_20 and outputBuff hold addresses, so they are pointer-sized on the host (s32 / u8[4] on the N64).
+typedef struct GbEmuTask {
+    /* 0x00 */ u32 type;
+    /* 0x04 */ u32 flags;
+    /* 0x08 */ void* ucode;
+    /* 0x0C */ s32 ucodeSize;
+    /* 0x10 */ uintptr_t unk_10; // frame buffer address (D_81154C00)
+    /* 0x14 */ u8 unk_14;
+    /* 0x15 */ u8 unk_15;
+    /* 0x16 */ u8 unk_16[2];
+    /* 0x18 */ u8* unk_18;
+    /* 0x1C */ union {
+        s32 word;
+        u8 bytes[4]; // bytes[3]: fade alpha (GbEmu_RunFrame)
+    } unk_1C;
+    /* 0x20 */ u8* unk_20;
+    /* 0x24 */ u8 unk_24[4];
+    /* 0x28 */ uintptr_t outputBuff; // the other frame buffer (GbEmu_RunFrame; GbPlayerTask.unk_48 before)
+    /* 0x2C */ u8 unk_2C[4];
+    /* 0x30 */ s32 unk_30;
+    /* 0x34 */ u8 unk_34[4];
+    /* 0x38 */ s32 unk_38;
+} GbEmuTask; // size = 0x40 on the N64
 
 typedef struct AudioBufferParameters {
     /* 0x00 */ s16 specUnk4; // @unverified: same offset/use as OoT's AudioBufferParameters.specUnk4 (set from AudioSpec.unk_04; 2 doubles the AI buffer bounds)

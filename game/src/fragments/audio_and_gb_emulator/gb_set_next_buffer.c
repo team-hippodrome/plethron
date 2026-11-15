@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "audio_and_gb_emulator.h"
+#include "StadionPort.h"
 
 /**
  * The fragment's private copy of libultra's osAiSetNextBuffer (same body, including the
@@ -51,7 +52,9 @@ s32 osGbSetNextBuffer(void* buf_ptr, u32 size) {
   }
 #endif
 
-  IO_WRITE(AI_DRAM_ADDR_REG, OS_PHYSICAL_TO_K0(bptr));
+  IO_WRITE(AI_DRAM_ADDR_REG, (u32)(uintptr_t)bptr); // PORT: no K0 address on the host; the register shim takes 32 bits
   IO_WRITE(AI_LEN_REG, size);
+  // PORT: the audio interface is the host's sound output (src/port/gb_audio_out.cpp), as in stadion
+  Port_GbAudioSubmit(buf_ptr, size);
   return 0;
 }
