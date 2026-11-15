@@ -161,7 +161,7 @@ extern s8 *D_8900A6D8[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 extern u8 D_800735C4[];
 void Window_DrawFrame(void*);
-s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
+s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 s32 LabItem_UpdateItemList(void *, u32);
 
 void BgStage_DrawFrame(void);

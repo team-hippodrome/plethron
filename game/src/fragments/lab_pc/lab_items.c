@@ -1121,7 +1121,7 @@ void LabItem_OpenTargetList(LabItemOrganizeWindow* win) {
     win->state = 4;
 }
 
-s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
+s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 s32 Menu_SkipDisabledForward(Menu*);
 extern char* D_8900A688[]; // PORT: a table of string pointers (was s32)
 extern char* D_8900A694; // PORT: a string pointer (was s32)
@@ -1624,7 +1624,7 @@ void LabItem_DrawSaveDataWindow(LabItemSaveDataWindow* win) {
     }
 }
 
-s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
+s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 s32 LabItem_UpdateItemList(void *, u32);
 /**
  * Runs the save data window. Returns 1 for このデータをすてる, -1 for B or

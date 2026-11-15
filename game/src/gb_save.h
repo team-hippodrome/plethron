@@ -162,7 +162,7 @@ typedef struct unk_D_8007596C {
 // gb_save.c
 void GbSave_BuildPortSummary(GbSavePortSummary* arg0, s32 arg1);
 s32 Ui_AdjustVerticalSelection(UiSelection* arg0, s32 arg1);
-s32 Ui_HandleVerticalSelectionInput(s32 arg0);
+s32 Ui_HandleVerticalSelectionInput(UiSelection* arg0); // PORT: a cursor pointer (was s32)
 s32 Ui_AdjustHorizontalSelection(UiSelection* arg0, s32 arg1);
 void Ui_AdjustSteppedScrollSelection(UiRangeValue* arg0);
 s32 Ui_AdjustNumericSelection(UiNumberInput* arg0, s32 arg1);

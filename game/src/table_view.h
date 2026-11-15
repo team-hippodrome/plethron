@@ -31,7 +31,8 @@ typedef struct ByteMatrix {
 } ByteMatrix; // size = 0x10
 
 typedef struct unk_func_8830867C_02C_0CC_000_000_000 {
-    /* 0x00 */ char unk00[0x8];
+    /* 0x00 */ char* unk_00; // PORT: a pointer (Entry89100140.unk_00), read by LabPCList_CompareByPointer (was char unk00[0x8])
+    /* 0x04 */ s32 unk_04;
     /* 0x08 */ s32 unk_08;
     /* 0x0C */ s32 unk_0C;
 } unk_func_8830867C_02C_0CC_000_000_000; // size >= 0x10
@@ -83,7 +84,7 @@ typedef struct unk_func_8830867C_04C_030_02C_000_000_00C {
 
 typedef s32 (*func_func_8002D1AC)(LabMonEntry*, s32*);
 
-typedef s32 (*unk_D_8831A1F8)(s32, s32);
+typedef s32 (*unk_D_8831A1F8)(void*, void*); // PORT: comparators take the element pointers (was (s32, s32))
 
 // table_view.c
 void TableView_Initialize(ByteMatrix*, void*, s32, s32, s32);

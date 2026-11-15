@@ -88,7 +88,7 @@ typedef struct DisplayNodeHeader {
     /* 0x08 */ struct DisplayNodeHeader* nextSibling;
     /* 0x0C */ ModelAssetNode* children;
     /* 0x10 */ ModelLoadContext* callback;
-    /* 0x14 */ s32 callbackArg;
+    /* 0x14 */ intptr_t callbackArg; // PORT: pointer-sized as in GraphNode; holds a Gfx* or an index (was s32)
 } DisplayNodeHeader; // size = 0x18
 
 typedef struct TransformAnimData {

@@ -14,9 +14,9 @@ void PointerList_Initialize(PointerList* arg0, void** arg1, s32 arg2, s32 arg3);
 void PointerList_Insert(PointerList* arg0, char* arg1, s32 arg2);
 void PointerList_Remove(LabMonEntryList* arg0, s32 arg1);
 void PointerList_SwapRange(void** arg0, void** arg1, s32 arg2);
-s32* Sort_SelectMedianPointer(s32* arg0, s32* arg1, s32* arg2, s32 (*arg3)(s32, s32));
-void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(s32, s32));
-void PointerList_Sort(LabMonEntryList* arg0, s32 (*arg1)(s32, s32));
+void** Sort_SelectMedianPointer(void** arg0, void** arg1, void** arg2, s32 (*arg3)(void*, void*));
+void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(void*, void*));
+void PointerList_Sort(LabMonEntryList* arg0, s32 (*arg1)(void*, void*));
 void PointerList_Filter(LabMonEntryList* arg0, LabMonEntryList* arg1,
                    s32 (*arg2)(LabMonEntry*, s32*), s32* arg3);
 s32 Text_CompareU16Terminated(u16* a0, u16* a1);
@@ -230,7 +230,8 @@ void PointerList_SwapRange(void** arg0, void** arg1, s32 arg2) {
 }
 
 /** Returns the median of three pointers according to a comparison function. */
-s32* Sort_SelectMedianPointer(s32* arg0, s32* arg1, s32* arg2, s32 (*arg3)(s32, s32)) {
+// PORT: elements are pointers and the comparators take them (was s32* / s32 (*)(s32, s32))
+void** Sort_SelectMedianPointer(void** arg0, void** arg1, void** arg2, s32 (*arg3)(void*, void*)) {
     return (arg3(*arg0, *arg1) < 0)   ? (arg3(*arg1, *arg2) < 0)   ? arg1
                                         : (arg3(*arg0, *arg2) < 0) ? arg2
                                                                    : arg0
@@ -240,7 +241,7 @@ s32* Sort_SelectMedianPointer(s32* arg0, s32* arg1, s32* arg2, s32 (*arg3)(s32, 
 }
 
 /** Sorts an array of pointers with a quicksort using a comparison function. */
-void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(s32, s32)) {
+void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(void*, void*)) { // PORT: comparator takes pointers
     void** sp8C;
     s32 temp_s2;
     void* temp_s4;
@@ -287,11 +288,11 @@ void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(s32, s32)) {
         var_a2 = (base + n) - 1;
         if (n >= 0x29) {
             temp_v0_2 = n / 8;
-            var_s2 = (void**)Sort_SelectMedianPointer((s32*)base, (s32*)(base + temp_v0_2), (s32*)(base + temp_v0_2 * 2), cmp);
-            sp8C = (void**)Sort_SelectMedianPointer((s32*)(sp8C - temp_v0_2), (s32*)sp8C, (s32*)(sp8C + temp_v0_2), cmp);
-            var_a2 = (void**)Sort_SelectMedianPointer((s32*)(var_a2 - temp_v0_2 * 2), (s32*)(var_a2 - temp_v0_2), (s32*)var_a2, cmp);
+            var_s2 = Sort_SelectMedianPointer(base, (base + temp_v0_2), (base + temp_v0_2 * 2), cmp);
+            sp8C = Sort_SelectMedianPointer((sp8C - temp_v0_2), sp8C, (sp8C + temp_v0_2), cmp);
+            var_a2 = Sort_SelectMedianPointer((var_a2 - temp_v0_2 * 2), (var_a2 - temp_v0_2), var_a2, cmp);
         }
-        sp8C = (void**)Sort_SelectMedianPointer((s32*)var_s2, (s32*)sp8C, (s32*)var_a2, cmp);
+        sp8C = Sort_SelectMedianPointer(var_s2, sp8C, var_a2, cmp);
     }
 
     temp_s4 = *sp8C;
@@ -368,7 +369,7 @@ void Sort_QuickSort(void** base, s32 n, s32 (*cmp)(s32, s32)) {
 }
 
 /** Sorts a pointer list with a comparison function. */
-void PointerList_Sort(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)) {
+void PointerList_Sort(LabMonEntryList* arg0, s32 (*arg1)(void*, void*)) { // PORT: comparator takes pointers
     Sort_QuickSort(arg0->items, arg0->count, arg1);
 }
 

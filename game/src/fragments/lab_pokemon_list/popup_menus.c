@@ -676,7 +676,7 @@ void LabSourceSelect_Draw(LabSourceSelectWindow* window, s32 flags) {
     }
 }
 
-s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
+s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 
 /**
  * Handles the source rows and ＯＫ: A toggles a source with all its boxes, D-Right opens its box list, A on ＯＫ applies the checks (returns 1), B returns -1.

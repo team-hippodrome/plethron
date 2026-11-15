@@ -1031,7 +1031,7 @@ s32 PcBox_StepViewCursorSkipEmpty(PcBoxOperationWindow* win, s32 buttons) {
 }
 
 s32 func_8000B30C(void);
-s32 func_8002B2B0(s32 arg0); // PORT: matches Ui_HandleVerticalSelectionInput
+s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(void*);

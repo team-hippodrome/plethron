@@ -27,7 +27,7 @@ void Gfx_DrawTextureIa16(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture
 void GbSave_BuildPortSummary(GbSavePortSummary* arg0, s32 arg1);
 s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
 s32 Ui_AdjustVerticalSelection(UiSelection* arg0, s32 arg1);
-s32 Ui_HandleVerticalSelectionInput(s32 arg0);
+s32 Ui_HandleVerticalSelectionInput(UiSelection* arg0); // PORT: a cursor pointer (was s32)
 s32 Ui_AdjustHorizontalSelection(UiSelection* arg0, s32 arg1);
 s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0);
 void Ui_AdjustSteppedScrollSelection(UiRangeValue* arg0);
@@ -848,7 +848,7 @@ s32 Ui_AdjustVerticalSelection(UiSelection* arg0, s32 arg1) {
 }
 
 /** Reads the repeated d-pad input and moves a vertical menu selection. */
-s32 Ui_HandleVerticalSelectionInput(s32 arg0) {
+s32 Ui_HandleVerticalSelectionInput(UiSelection* arg0) {
     s32 sp1C = Input_GetRepeatedDPad() & 0xFFFF;
 
     Ui_AdjustVerticalSelection(arg0, sp1C);
