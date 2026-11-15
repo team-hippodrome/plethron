@@ -110,4 +110,8 @@ void Announcer_CommentOnBattleEnd(void);
 // libultra/audio/synthesizer.c
 void func_80056950(void);
 
+// PORT: set once Audio_LoadSoundData has loaded the sound data; the entry points game code calls return early until
+// then (the audio thread skips it with PORT_NO_AUDIO=1)
+extern s32 gAudioPortReady;
+
 #endif // AUDIO_COMMANDS_H

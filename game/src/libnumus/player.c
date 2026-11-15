@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/libnumus/player.c. */
 
 #include "libnumus/player.h"
+#include "audio_commands.h"
 #include "audio_manager.h"
 #include "libnaudio/n_synsetpriority.h"
 typedef u8* (*command_func_t)(channel_t*, u8*);
@@ -720,6 +721,9 @@ s32 func_8003A638(channel_t*, s32, s32, s32, s32);
  * D_800B3648[song] (D_800B3648 is a pointer to a table of s32).
  */
 s32 func_800376E8(s32 song) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     channel_t* cp;
     s32 i;
     s32 found;
@@ -772,6 +776,9 @@ s32 func_8003A638(channel_t*, s32, s32, s32, s32);
  * What the table and the started object are is not established.
  */
 s32 func_80037828(s32 song, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     channel_t* cp;
     s32 i;
     s32 found;
@@ -1082,6 +1089,9 @@ void Audio_RelocateSoundBankWrapper(s32 arg0, s32 arg1) {
  * set, restores the interrupt mask, then calls func_80037508(arg1).
  */
 void func_80037F68(void* arg0, s32* arg1) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return;
+    }
     s32 prevMask;
 
     prevMask = osSetIntMask(1);
@@ -1237,6 +1247,9 @@ extern s32 D_800B3CCC;
 s32 func_8003821C(s32, s32, s32, s32, s32, s32, s32); /* extern */
 
 s32 func_8003834C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     s32 ret;
     s32 mask;
 
@@ -1264,6 +1277,9 @@ void Block_RelocateSelf(void*);
  * established (func_8003815C stores them at channel offsets 0x88/0x140 and 0x13C).
  */
 s32 func_800383DC(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, UNUSED s32 arg5, s32 arg6) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     s32 ret;
     s32* tbl;
     s8* p;

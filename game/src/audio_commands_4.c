@@ -846,6 +846,9 @@ s32 func_800383DC(s32, s32, s32, s32, s32, s32, s32);
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 void Audio_UpdateBattleAudioFrame(void) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return;
+    }
     s32 ret;
 
     if ((D_80077538 != 0) && (D_8007753C == 0) && (Audio_QueueSetMonoOutputCommand(D_80077590) == 0) && (D_80077588 != D_8007758C) &&
@@ -907,6 +910,9 @@ void func_80037C04(s32, u32);
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 s32 Audio_LoadWaveTablesAndMusic(u8* arg0) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     UNUSED s32 pad[2]; // FAKE: stack padding
     u8* sp1C;
 

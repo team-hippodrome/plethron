@@ -33,6 +33,9 @@ s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
  * @unverified: that these are announcer clips (not cries) is inferred, audio is not heard in the headless emulator.
  */
 s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     u32 addr;
     s32 size;
     s32 flags;

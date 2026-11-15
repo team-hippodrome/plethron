@@ -8,6 +8,8 @@
 #include "audio_manager.h"
 #include "rom_device.h"
 #include "libnumus/player.h"
+
+s32 gAudioPortReady; // PORT: set once Audio_LoadSoundData has loaded the sound data
 extern u8 pad_D_800FC694[4];
 extern GbNoiseSampleEntry* D_800B41E4;
 extern u8* D_800B41E8;
@@ -309,6 +311,7 @@ s32 Audio_LoadSoundData(void) {
     ret = func_800371A4((s8*)&config);
     Audio_SetChannelVolume(2, 2);
     Audio_SetChannelVolume(1, 3);
+    gAudioPortReady = 1; // PORT
     return ret;
 }
 
@@ -347,6 +350,9 @@ void Announcer_SetActive(u32);
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 s32 Audio_StartMusicTrack(u32 track_id) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     u32 file_index[1]; // FAKE
     s32 pad; // FAKE
     s32 volume_scale[1]; // FAKE
@@ -656,6 +662,9 @@ extern u8 D_800FD68C;
  * and 23 bypass the list. @unverified: sound not heard in the headless emulator.
  */
 s32 Audio_PlaySystemSound(s32 sound_id) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     s32 ret;
     s32 pad[2]; // FAKE
     u32 i;
@@ -768,6 +777,9 @@ void func_80037DF4(s32, s32);
  * @unverified Name and comment guessed from the code.
  */
 s32 Audio_PlayCry(u32 arg0, u32 arg1) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     u8 pad[0x28C]; // FAKE
     s32 sp30;
     u32 start;
@@ -857,6 +869,9 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
  * 133 calls (the rest were the COM's move) and species was 95, Onix, the 1P Pokémon.
  */
 s32 Audio_PlayMoveSound(u32 move_id, u32 species, u32 sound_kind) {
+    if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
+        return 0;
+    }
     s32 var;
     u32 size;
     s32 ret;
