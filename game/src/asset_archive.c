@@ -41,6 +41,10 @@ MainPoolBlock* Asset_LoadToSegmentByLbaRange(s32 arg0, s32 arg1, s32 arg2, s32 a
 void Fragment_FreeCallback(u32 base_addr, u32 addr);
 void Fragment_Register(s32 arg0, Fragment* addr);
 ret_func_80004454 Fragment_Load(s32 arg0, u8* romStart, u8* romEnd);
+// PORT: statically linked fragments (port_fragments.c)
+void Port_FragmentRemember(u8* romStart, void* block);
+void Port_FragmentLoaded(u32 slot, u8* romStart);
+void* Port_FragmentEntry(u8* romStart);
 void* Fragment_LoadByLbaRange(s32 arg0, s32 arg1, s32 arg2);
 BinArchive* BinArchive_Open(u8* romStart, u8* romEnd, s32 arg2, s32 arg3);
 void* BinArchive_LoadByLbaRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
@@ -344,7 +348,10 @@ void Fragment_FreeCallback(u32 base_addr, u32 addr) {
 /** Registers a loaded fragment so it is freed with its block. */
 void Fragment_Register(s32 arg0, Fragment* addr) {
     UNUSED s32 pad; // FAKE: stack padding
-    u32 sp20 = MainPool_GetBlockDist(addr);
+    u32 sp20;
+
+    Memmap_NormalizeFragmentHeader(addr); // PORT: the header words are big-endian
+    sp20 = MainPool_GetBlockDist(addr);
 
     MainPool_SetFunc(addr, arg0 + 0x81000000, &Fragment_FreeCallback);
 
@@ -364,7 +371,14 @@ ret_func_80004454 Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end) {
     if (addr != NULL) {
         Fragment_Register(arg0, (Fragment*)addr);
     }
+#ifdef PORT_STATIC_FRAGMENTS
+    // PORT: fragment code is statically linked (port_fragments.c): return the C entry, not the loaded image
+    Port_FragmentRemember(rom_start, addr);
+    Port_FragmentLoaded(arg0, rom_start);
+    return (ret_func_80004454)Port_FragmentEntry(rom_start);
+#else
     return addr;
+#endif
 }
 
 /** Loads a fragment from a block-address range and registers it. */

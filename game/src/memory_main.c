@@ -167,14 +167,13 @@ void* MainPool_Alloc(u32 size, s32 side) {
     return node;
 }
 
-M2C_UNK func_80002230(s32, M2C_UNK);                /* extern */
 s32 MainPool_GetAvailable(void);
 extern M2C_UNK D_800A94A4;
 
 /** Waits on the pool lock and frees a block if it is valid. */
-void MainPool_TryFree(s32 arg0) {
+void MainPool_TryFree(void* arg0) { // PORT: a block address, not an s32
     osRecvMesg(&D_800A94A4, NULL, 1);
-    func_80002230(arg0, 1);
+    MainPool_Free(arg0, 1);
     osSendMesg(&D_800A94A4, 0, 0);
     MainPool_GetAvailable();
 }

@@ -1109,7 +1109,7 @@ extern s32 D_800AB458;
 extern s32 D_800AB45C;
 s32 MainPool_GetAvailable(void);
 s32 func_80002B10(s32, s32);
-void MainPool_TryFree(s32 arg0);
+void MainPool_TryFree(void* arg0);
 void GeoRender_DrawModelLayers(Root80013DC8*);
 s32 func_8001380C();
 /**

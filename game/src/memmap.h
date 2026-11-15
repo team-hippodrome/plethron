@@ -42,6 +42,7 @@ u32 Memmap_GetSegmentVaddrMask(u32 i, uintptr_t addr);
 void Memmap_ClearSegmentMemmap(u32 id);
 void Memmap_SetSegments(Gfx** gfxDl);
 void Memmap_RelocateFragment(u32 id, struct Fragment* fragment);
+void Memmap_NormalizeFragmentHeader(struct Fragment* f); // PORT: memmap.c
 void Memmap_SetFragmentMap(u32 id, uintptr_t vaddr, size_t size);
 uintptr_t Memmap_GetFragmentBaseVaddr(u32 id);
 uintptr_t Memmap_GetFragmentVaddr(void* addr);

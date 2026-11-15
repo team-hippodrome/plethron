@@ -276,6 +276,11 @@ void Memmap_RelocateFragment(u32 id, struct Fragment* fragment) {
     osInvalICache(fragment, fragment->sizeInRam);
     osInvalDCache(fragment, fragment->sizeInRam);
     Memmap_SetFragmentMap(id, (uintptr_t)fragment, fragment->sizeInRam);
+#ifdef PORT_STATIC_FRAGMENTS
+    // PORT: fragment code is linked into the executable, so there is nothing to relocate. The image stays as loaded
+    // (data blobs are read from it; their words still hold link-time addresses).
+    return;
+#endif
 
     for (i = 0; i < reloc_info->nRelocations; i++) {
         reloc = reloc_info->relocations[i];

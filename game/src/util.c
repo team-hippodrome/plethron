@@ -6,7 +6,8 @@
 #include "memmap.h"
 #include "memory_main.h"
 extern u32 gExpansionRAMStart;
-extern MainPool** gMainPool;
+#include "memory.h"
+extern MemoryPool* gMainPool;
 void Dma_InitializeCompletionQueue(void);
 s32 StageContext_IsHighResolution(void);
 
@@ -54,20 +55,19 @@ void Util_Memcpy(u32* dest, u32* src, int size) {
     }
 }
 
-M2C_UNK func_800020C0(M2C_UNK *, M2C_UNK);          /* extern */
-s32 func_80002840(M2C_UNK, M2C_UNK);                /* extern */
-M2C_UNK func_80003670();                            /* extern */
-extern s32 D_800A94E0;
-extern M2C_UNK D_80105360;
+#define PORT_HEAP_SIZE (96 * 1024 * 1024)
+extern unsigned char gPortHeap[]; // PORT: src/port/stubs.c
 
 /**
  * Sets up the main memory pool from the end of the resident image (0x80105360) to 0x80400000, the
  * DMA completion queue, and a 64 KiB general pool. Called once from Main at boot.
  */
 void Memory_InitPools(void) {
-    func_800020C0(&D_80105360, 0x80400000);
-    func_80003670();
-    D_800A94E0 = func_80002840(0x10000, 0);
+    // PORT: the original pool spans RDRAM from the end of .bss (0x80105360) to 0x80400000. The host has no fixed
+    // RDRAM, so the pool is carved out of a static arena (src/port/stubs.c), as in stadion.
+    MainPool_Init(gPortHeap, gPortHeap + PORT_HEAP_SIZE);
+    Dma_InitializeCompletionQueue();
+    gMainPool = MemPool_TryInit(0x10000, 0);
 }
 
 /**

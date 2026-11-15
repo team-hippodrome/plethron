@@ -15,7 +15,7 @@ void *MainPool_AllocFromPool(u32 size, u32 side);
 u32 MainPool_Free(void *addr, u32 runBlockFunc);
 void *MainPool_AllocWithFunc(u32 size, s32 side, s32 arg, AllocateFunc func);
 void *MainPool_Alloc(u32 size, s32 side);
-void MainPool_TryFree(s32 arg0);
+void MainPool_TryFree(void* arg0);
 void *MainPool_Realloc(void *addr, size_t size);
 s32 MainPool_GetAvailable(void);
 u32 MainPool_PushState(u32 arg);

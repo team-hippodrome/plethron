@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include "StadionPort.h"
 
+#include "zero_lift.h"
 extern "C" void port_PostEvent(OSEvent event);
 extern "C" void port_PostMesgFromIrq(OSMesgQueue* mq, OSMesg msg);
 
@@ -72,7 +73,11 @@ bool Port::LoadRom(const char* path) {
     gRom.resize((size_t)n);
     size_t got = fread(gRom.data(), 1, (size_t)n, f);
     fclose(f);
-    return got == (size_t)n;
+    if (got != (size_t)n) {
+        return false;
+    }
+    ZLift_LoadImage(0); // Stadium Zero's resident data, from this ROM (zero_lift.c)
+    return true;
 }
 
 const uint8_t* Port::RomData() {

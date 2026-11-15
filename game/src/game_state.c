@@ -45,6 +45,7 @@ void Display_SetBufferConfig(DisplayFrame* arg0, u8 arg1, u8 arg2, u8 arg3, u8 a
 #include "m2c_macros.h"
 
 s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, u32 arg4);
+void Port_FragmentFree(u8* romStart); // PORT: port_fragments.c
 void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, s32 arg4);
 TeamRoster* Trainer_GetSlots(void);
 s32 GbSave_GetActivePort(void);
@@ -313,7 +314,11 @@ s32 Fragment_LoadAndCall(s32 arg0, u8* rom_start, u8* rom_end, u32 arg3, u32 arg
 
     result = func(arg3, arg4);
 
+#ifdef PORT_STATIC_FRAGMENTS
+    Port_FragmentFree(rom_start); // func is the statically linked entry, not the loaded image
+#else
     MainPool_TryFree(func);
+#endif
 
     return result;
 }

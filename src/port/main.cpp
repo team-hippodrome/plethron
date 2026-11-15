@@ -256,11 +256,11 @@ static bool RomIsOriginal(const std::string& path) {
     const std::string sha1 = Port::Sha1Hex(Port::RomData(), Port::RomSize());
     char message[1024];
     snprintf(message, sizeof message,
-             "%s is not the original Pokemon Stadium (USA) ROM.\n\nSHA-1 %s (%zu bytes)\nexpected %s (%zu bytes, .z64)\n\n"
+             "%s is not the original Pocket Monsters Stadium (Japan) ROM.\n\nSHA-1 %s (%zu bytes)\nexpected %s (%zu bytes, .z64)\n\n"
              "A different revision, a patched or translated ROM or a damaged dump does not work with the port.",
              path.c_str(), sha1.c_str(), Port::RomSize(), Port::kRomSha1, Port::kRomSize);
     fprintf(stderr, "%s\n", message);
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Pokémon Stadium: wrong ROM", message, nullptr);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Plethron: wrong ROM", message, nullptr);
     return false;
 }
 
@@ -414,7 +414,7 @@ static int RunGame(int argc, char** argv) {
     // asks for the ROM, the save and the Transfer Pak cartridges in the game window first.
     std::string romPath = argc > 1 ? argv[1] : "";
     if (!romPath.empty() && !Port::LoadRom(romPath.c_str())) {
-        fprintf(stderr, "Could not read ROM '%s'\nUsage: pokestadium [path to Pokemon Stadium (USA) .z64]\n", romPath.c_str());
+        fprintf(stderr, "Could not read ROM '%s'\nUsage: plethron [path to Pocket Monsters Stadium (Japan) .z64]\n", romPath.c_str());
         return 1;
     }
     if (!romPath.empty() && !RomIsOriginal(romPath)) {
