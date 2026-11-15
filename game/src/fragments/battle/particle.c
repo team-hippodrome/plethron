@@ -2812,7 +2812,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xffff -> 0xf7ff.
  */
 void Particle_ApproachPrimRed(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 M2C_UNK func_82137804(s32, s32, s32);               /* extern */
@@ -2823,7 +2823,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xf7ff -> 0xf7f7.
  */
 void Particle_ApproachPrimGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 M2C_UNK func_82137804(s32, s32, s32);               /* extern */
@@ -2834,7 +2834,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xffffffff -> 0xf7ffffff.
  */
 void Particle_ApproachPrimBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 extern s16 D_8219A8B2;
@@ -2888,7 +2888,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xff0000 -> 0xdf0000.
  */
 void Particle_ApproachEnvRed(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 M2C_UNK func_82137804(s32, s32, s32);               /* extern */
@@ -2899,7 +2899,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xf7c0cfff -> 0xf7c0cff7.
  */
 void Particle_ApproachEnvBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 M2C_UNK func_82137804(s32, s32, s32);               /* extern */
@@ -2910,7 +2910,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xe7ffff00 -> 0xe7ffe700.
  */
 void Particle_ApproachEnvGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -2933,7 +2933,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xc8000000 -> 0xc4000000.
  */
 void Particle_ApproachPrimAlpha(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((s32)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
+    func_82137804((uintptr_t)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -3187,7 +3187,7 @@ M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
  * (offset 0xAA) went from 0xE1 to 0xA1.
  */
 void Particle_ApproachScratchA(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((s32)&arg0->scratchA, arg1, arg2);
+    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchA, arg1, arg2);
 }
 
 /**
@@ -3222,5 +3222,5 @@ M2C_UNK ParticleMath_StepS16Toward(s32, s16, s16);               /* extern */
  * (offset 0xAC) went from 0x64 to 0x5C.
  */
 void Particle_ApproachScratchB(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward((s32)&arg0->scratchB, arg1, arg2);
+    ParticleMath_StepS16Toward((uintptr_t)&arg0->scratchB, arg1, arg2);
 }

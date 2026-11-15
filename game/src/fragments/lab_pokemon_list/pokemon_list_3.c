@@ -150,7 +150,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
         case 8:
 
         case 9:
-          LabPCList_DrawMoveName(cx + 1, y + 2, (s32) (&entry->species), col - 6);
+          LabPCList_DrawMoveName(cx + 1, y + 2, (uintptr_t) (&entry->species), col - 6);
           break;
 
         case 10:

@@ -214,8 +214,8 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
             {
                 ModelSegment* segment = &D_800B0338[mode][D_800AFB28].model.segment;
                 {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDB060038;    _gfx->words.w1 = (s32) segment->vertexSegment;    }
-                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (s32) segment->displayList;    }
-                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (s32) D_800744C0;    }
+                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) segment->displayList;    }
+                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) D_800744C0;    }
             }
             D_800AFB28++;
         }
@@ -228,11 +228,11 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
         case 2:
         case 3:
             vtx = Gfx_AllocDisplayList(0xA0);
-            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDA380002;    _gfx->words.w1 = (s32) D_80074410;    }
+            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDA380002;    _gfx->words.w1 = (uintptr_t) D_80074410;    }
             gfx = ModelRenderer_SetSlotModelColor(gfx);
             gfx = Model_Draw(gfx, &D_800B0338[mode][D_800AFB28].model, vtx);
             {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xD8380002;    _gfx->words.w1 = 0x40;    }
-            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (s32) D_800744C0;    }
+            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) D_800744C0;    }
             break;
     }
     D_800AFB28++;

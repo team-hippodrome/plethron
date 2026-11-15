@@ -89,7 +89,7 @@ void Rental_TeamSlotsUpdate(CameraNode* arg0) {
             BattleScene_BRollStepOrbitUntilEnd(arg0);
             break;
         case 27:
-            BattleScene_BRollWait440Frames((s32)arg0);
+            BattleScene_BRollWait440Frames((uintptr_t)arg0);
             break;
         case 29:
             BattleScene_BRollWaitForButtonToExit(arg0);

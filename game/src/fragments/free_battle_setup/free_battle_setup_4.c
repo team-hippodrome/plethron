@@ -108,15 +108,15 @@ void FreeBattle_EnterEntryScreenState(arg0)
             panel = arg0 + 0x14;
             break;
         case 3:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (s32)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (s32)&D_82009C50, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
+            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (uintptr_t)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (uintptr_t)&D_82009C50, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
             panel = arg0 + 0x5CC;
             break;
         case 7:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (s32)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (s32)&D_82009C6C, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
+            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (uintptr_t)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (uintptr_t)&D_82009C6C, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
             panel = arg0 + 0x5CC;
             break;
         case 9:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, M2C_FIELD(arg0, s32*, 0x6EC) * 0x50 + *M2C_FIELD(arg0, s32**, 0x6E4), (s32)&D_82009C84, M2C_FIELD(arg0, s32*, 0x744));
+            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, M2C_FIELD(arg0, s32*, 0x6EC) * 0x50 + *M2C_FIELD(arg0, s32**, 0x6E4), (uintptr_t)&D_82009C84, M2C_FIELD(arg0, s32*, 0x744));
             panel = arg0 + 0x5CC;
             break;
         case 10:
@@ -673,7 +673,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
           {
             *((Blk820038B0 *) (entry + 0xC8)) = *((Blk820038B0 *) rec);
           }
-          func_80027410(entry + 0x2DC, (s32) (entry + 0xE4), 0x54, 6, 6);
+          func_80027410(entry + 0x2DC, (uintptr_t) (entry + 0xE4), 0x54, 6, 6);
           GridMenu_Init(entry + 0x2F8, entry + 0x2DC, entry + 0x2EC, FreeBattle_DrawSlotCell, 3, 132, 50);
           *((s32 *) (((s8 *) entry) + 0x6EC)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
           *((s32 *) (((s8 *) entry) + 0x318)) |= 0x10000; // FAKE: decomp slop, raw pointer casts stand in for struct fields

@@ -888,9 +888,9 @@ s32 Stadium_BonusPikachuReward(UNUSED s32 arg0, s32 session) {
         stage = StageContext_Allocate(0, 1, 3, 1, 2, 1);
         Font_Init(6, 0);
 
-        Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
-        Fragment_Load(((((u32)D_8FC00000) & 0x0FF00000) >> 0x14) - 0x10, D_0042C4A0, D_0042CC80);
-        Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+        Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+        Fragment_Load(((((uintptr_t)D_8FC00000) & 0x0FF00000) >> 0x14) - 0x10, D_0042C4A0, D_0042CC80);
+        Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
 
         PokeIcon_OpenModelArchives();
         sPikachuModel = Model_LoadForPokemon(sPikachuPartyMon);

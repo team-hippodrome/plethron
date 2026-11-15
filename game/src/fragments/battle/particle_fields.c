@@ -30,7 +30,7 @@ void Particle_SpawnIndex_SetS16_0BED8(Particle* arg0, s16 arg1);
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetACIfNotSentinel(Particle* arg0, s16 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         Particle_SpawnIndex_SetS16_0BED8(arg0, arg1);
     }
 }
@@ -42,7 +42,7 @@ void Particle_SetFieldOffsetACIfNotSentinel(Particle* arg0, s16 arg1) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetCFIfNotSentinel(Particle* arg0, u8 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         Particle_SetByteParam1(arg0, arg1);
     }
 }
@@ -54,7 +54,7 @@ void Particle_SetFieldOffsetCFIfNotSentinel(Particle* arg0, u8 arg1) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetA6IfNotSentinel(Particle* arg0, s16 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         Particle_Param0_SetS16_0BCA8(arg0, arg1);
     }
 }
@@ -66,7 +66,7 @@ void Particle_SetFieldOffsetA6IfNotSentinel(Particle* arg0, s16 arg1) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetA8IfNotSentinel(Particle* arg0, s16 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         Particle_Countdown_SetS16_0BE14(arg0, arg1);
     }
 }
@@ -78,7 +78,7 @@ void Particle_SetFieldOffsetA8IfNotSentinel(Particle* arg0, s16 arg1) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetCEIfNotSentinel(Particle* arg0, u8 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         arg0->byteParam2 = arg1;
     }
 }
@@ -114,7 +114,7 @@ void Particle_SetParam1Checked(s8 *particle, s16 value) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetPrimAlphaIfNotSentinel(Particle* arg0, u8 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         Particle_SetPrimAlpha(arg0, arg1);
     }
 }
@@ -126,7 +126,7 @@ void Particle_SetPrimAlphaIfNotSentinel(Particle* arg0, u8 arg1) {
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
 void Particle_SetFieldOffsetAAIfNotSentinel(Particle* arg0, s16 arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         arg0->scratchA = arg1;
     }
 }

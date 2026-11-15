@@ -310,8 +310,8 @@ s32 CupClear_Main(UNUSED s32 arg0, s32 cup) {
     Gfx_InitDisplayListBuffers(0x10000, 0);
     stage = StageContext_Allocate(1, 1, 2, 1, 2, 1);
     Font_Init(0x10, 0);
-    Asset_LoadToSegment((u32)((s32)&D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Fragment_Load(((u32)((s32)&D_8EA00000 & 0x0FF00000) >> 0x14) - 0x10, D_0042CC80, D_00434C00);
+    Asset_LoadToSegment((u32)((uintptr_t)&D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Fragment_Load(((u32)((uintptr_t)&D_8EA00000 & 0x0FF00000) >> 0x14) - 0x10, D_0042CC80, D_00434C00);
     CupClear_InitScene();
     StageContext_Activate(stage);
     CupClear_PlaySequence();

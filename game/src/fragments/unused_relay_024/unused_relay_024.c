@@ -24,6 +24,6 @@ extern M2C_UNK D_8E000000; // fragment020 link base
  * and 0), fragment020 then queued fragment 0x70 (ROM 0x235D70-0x238BD0), and the main menu came back.
  */
 s32 UnusedRelay024_QueueMainMenuLauncher(s32 unused_arg, s32 unused_context) {
-    Fragment_QueueCall(((u32) ((s32) &D_8E000000 & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
+    Fragment_QueueCall(((u32) ((uintptr_t) &D_8E000000 & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
     return 0x8040;
 }

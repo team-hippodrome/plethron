@@ -434,7 +434,7 @@ extern MoveNameView D_8006A9CC[];
  * Returns the name string of the Pokemon's current move (move cache byte at 0x80A).
  */
 s32 ActivePokemon_GetMoveName(u8* arg0) {
-    return (s32)D_8006A9CC[arg0[0x80A]].name;
+    return (uintptr_t)D_8006A9CC[arg0[0x80A]].name;
 }
 
 /**

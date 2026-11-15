@@ -394,7 +394,7 @@ void LabTerminal_InitMenuWindow(LabTerminalMenuWindow* win, s32 x, s32 y, s32 wi
     win->window.frame.style = 0x801;
     win->window.title = title;
     func_80027804(&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (s32)&win->items, (s32)win->itemFlags, (s32)LabTerminal_DrawMenuRow, width - 12, 0x20);
+    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)LabTerminal_DrawMenuRow, width - 12, 0x20);
     win->descriptions = (char**)descriptions;
     win->descriptionLines = description_lines;
 }
@@ -417,7 +417,7 @@ void LabTerminal_DrawMenuWindow(LabTerminalMenuWindow* win) {
         func_80029028(win->window.frame.x + 6, win->window.frame.y + 6, win->window.frame.width - 12, h, *(Color_RGBA8*)&D_8900A5BC);
         Ui_FillRectPrimEnvColor(win->window.frame.x + 6, win->window.frame.y + h + 12, win->window.frame.width - 12, win->descriptionLines * 28, D_8900A6FC, D_8900A700);
         sp38 = win->window.frame.width - 12;
-        Menu_DrawItems(&win->menu, win->window.frame.x + 6, win->window.frame.y + 10, 0xFFEF, (s32)&sp38);
+        Menu_DrawItems(&win->menu, win->window.frame.x + 6, win->window.frame.y + 10, 0xFFEF, (uintptr_t)&sp38);
         Font_BeginTranslucentTextRendering();
         func_8001AA9C(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -698,8 +698,8 @@ s32 LabTerminal_UpdateFade(s32);
 s32 LabTerminal_Init(s32 unused0, s32 unused1) {
     MainPool_PushState('TERM');
     Font_Init(0x3C, 0);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
     LabTerminal_InitScreen();
     StageLoader_UpdateSegments();
     BgStage_RunUntilCondition(8, LabTerminal_UpdateFade);
@@ -707,6 +707,6 @@ s32 LabTerminal_Init(s32 unused0, s32 unused1) {
     BgStage_RunUntilCondition(8, LabTerminal_UpdateFade);
     StageLoader_WaitForRetrace();
     MainPool_PopState('TERM');
-    Fragment_QueueCall(((((u32)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
     return 0x8040;
 }

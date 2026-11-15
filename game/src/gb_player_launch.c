@@ -108,9 +108,9 @@ void GbPlayer_Start(GbPlayerLaunchParams* arg0) {
     void* temp_v0;
 
     MainPool_PushState('GBEM');
-    D_800AAF40 = (s32)MainPool_Alloc(0x2208, 0);
-    D_800AAF44 = (s32)MainPool_Alloc(0x21E0, 0);
-    Fragment_Load(((((u32)D_81100000) & 0x0FF00000) >> 20) - 16, D_00080C00, D_000DA9B0);
+    D_800AAF40 = (uintptr_t)MainPool_Alloc(0x2208, 0);
+    D_800AAF44 = (uintptr_t)MainPool_Alloc(0x21E0, 0);
+    Fragment_Load(((((uintptr_t)D_81100000) & 0x0FF00000) >> 20) - 16, D_00080C00, D_000DA9B0);
     temp_v0 = BinArchive_Open(D_002B2C80, D_002E0BE0, 1, 1);
     M2C_FIELD(D_800AAF40, void**, 0x21CC) = BinArchive_GetFile(temp_v0, 0);
     M2C_FIELD(D_800AAF40, void**, 0x21D0) = BinArchive_GetFile(temp_v0, 1);

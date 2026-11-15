@@ -168,7 +168,7 @@ s32 BattleMenu_HandleNoUsableMoves(arg0) ActivePokemon *arg0;
         temp_v0->selectedCommandOption = 1;
       }
       ActivePokemon_ClearCaption(arg0);
-      ActivePokemon_ShowCaption(arg0, D_8218C6F0, ActivePokemon_GetNickname((s32) arg0));
+      ActivePokemon_ShowCaption(arg0, D_8218C6F0, ActivePokemon_GetNickname((uintptr_t) arg0));
     }
     else
       if (cont->buttonPressed & 0x20)
@@ -537,7 +537,7 @@ void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
     if (M2C_FIELD(arg1, u16*, 8) & 0xC00F) {
         if ((state->rosterIndex == state->actionChosen) && (state->teamMemberIndex == state->menuTeamMemberIndex)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
-                BattleMenu_ShowNicknameCaption((s32)arg0);
+                BattleMenu_ShowNicknameCaption((uintptr_t)arg0);
             }
         } else if (state->actionChosen <= (u32)(team[2] - 1)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {

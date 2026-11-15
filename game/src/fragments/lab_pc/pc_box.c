@@ -376,7 +376,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         Font_Printf(x + 178, y + 5, D_89018E88, win->mon->level);
         Font_Printf(x + 320, y + 5, D_89018E8C, win->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_89018E90);
-        if (Pokemon_GetTypeIndex((s32)win->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex((uintptr_t)win->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_89018E9C);
         }
         Font_Printf(x + 258, y + 40, D_89018EA8);
@@ -391,8 +391,8 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
             PcBox_DrawMoveName(D_8900A884[i].x + x, D_8900A884[i].y + y, BattleMon_GetMoveIndex(win->mon, i), D_8900A884[i].centered);
         }
         func_8001ABBC();
-        PcBox_DrawTypeName(x + 156, y + 0x40, (s32)win->mon, 0);
-        PcBox_DrawTypeName(x + 156, y + 124, (s32)win->mon, 1);
+        PcBox_DrawTypeName(x + 156, y + 0x40, (uintptr_t)win->mon, 0);
+        PcBox_DrawTypeName(x + 156, y + 124, (uintptr_t)win->mon, 1);
         gSPDisplayList(gDisplayListHead++, D_80060290);
         for (i = 0; i < count; i++) {
             func_8001B884(D_8900A884[i].iconX + x, D_8900A884[i].y + y, 20, 20, (u8*)D_8900A884[i].icon, 0x14, 0x200000);
@@ -409,9 +409,9 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         }
         if (win->animLoaded == 0) {
             win->animLoaded = 1;
-            func_80019008((s32)win->anim, win->mon, 0x416D);
+            func_80019008((uintptr_t)win->anim, win->mon, 0x416D);
         }
-        tex = func_800196F8((s32)win->anim);
+        tex = func_800196F8((uintptr_t)win->anim);
         BgStage_DrawFrame();
         gSPDisplayList(gDisplayListHead++, D_80060290);
         gDPSetAlphaCompare(gDisplayListHead++, G_AC_NONE);
@@ -763,27 +763,27 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
     win->footerFrame.style = 6;
     win->footerFrame.color = D_8900A91C;
     win->footerFrame.color2 = D_8900A920;
-    ImageButton_Init(&win->backButton, x + 228, y + 14, 54, 42, 0x30, (s32)D_8900BFC0);
+    ImageButton_Init(&win->backButton, x + 228, y + 14, 54, 42, 0x30, (uintptr_t)D_8900BFC0);
     win->backButton.selectedColor = D_8900A580[0];
     win->backButton.color = D_8900A580[1];
     win->backButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->moveTo64Button, x + 228, y + 60, 54, 42, 0x30, (s32)D_8900DAD0);
+    ImageButton_Init(&win->moveTo64Button, x + 228, y + 60, 54, 42, 0x30, (uintptr_t)D_8900DAD0);
     win->moveTo64Button.selectedColor = D_8900A580[2];
     win->moveTo64Button.color = D_8900A580[3];
     win->moveTo64Button.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->moveToGbButton, x + 228, y + 106, 54, 42, 0x30, (s32)D_8900CD48);
+    ImageButton_Init(&win->moveToGbButton, x + 228, y + 106, 54, 42, 0x30, (uintptr_t)D_8900CD48);
     win->moveToGbButton.selectedColor = D_8900A580[2];
     win->moveToGbButton.color = D_8900A580[3];
     win->moveToGbButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->reorderButton, x + 228, y + 152, 54, 42, 0x30, (s32)D_8900E858);
+    ImageButton_Init(&win->reorderButton, x + 228, y + 152, 54, 42, 0x30, (uintptr_t)D_8900E858);
     win->reorderButton.selectedColor = D_8900A580[4];
     win->reorderButton.color = D_8900A580[5];
     win->reorderButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->exchangeButton, x + 228, y + 198, 54, 42, 0x30, (s32)D_8900F5E0);
+    ImageButton_Init(&win->exchangeButton, x + 228, y + 198, 54, 42, 0x30, (uintptr_t)D_8900F5E0);
     win->exchangeButton.selectedColor = D_8900A580[6];
     win->exchangeButton.color = D_8900A580[7];
     win->exchangeButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->viewButton, x + 228, y + 244, 54, 42, 0x30, (s32)D_89010368);
+    ImageButton_Init(&win->viewButton, x + 228, y + 244, 54, 42, 0x30, (uintptr_t)D_89010368);
     win->viewButton.selectedColor = D_8900A580[8];
     win->viewButton.color = D_8900A580[9];
     win->viewButton.highlightColor = D_8900A5BC;
@@ -791,9 +791,9 @@ void PcBox_InitOperationWindow(PcBoxOperationWindow* win, s32 x, s32 y, ByteMatr
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = (Controller*)D_800603C0;
     func_8000B2F4(D_800603C0);
-    Menu_Init(&win->gbBoxMenu, (s32)gb_box_table, (s32)win->gbBoxFlags, (s32)PcBox_DrawGbBoxRow, 206, 28);
+    Menu_Init(&win->gbBoxMenu, (uintptr_t)gb_box_table, (uintptr_t)win->gbBoxFlags, (uintptr_t)PcBox_DrawGbBoxRow, 206, 28);
     win->gbBoxMenu.options |= 0x10000;
-    Menu_Init(&win->stadiumBoxMenu, (s32)(gb_box_table + 1), (s32)win->stadiumBoxFlags, (s32)PcBox_DrawStadiumBoxRow, 260, 56);
+    Menu_Init(&win->stadiumBoxMenu, (uintptr_t)(gb_box_table + 1), (uintptr_t)win->stadiumBoxFlags, (uintptr_t)PcBox_DrawStadiumBoxRow, 260, 56);
     win->stadiumBoxMenu.options |= 0x10000;
     win->state = 1;
 }
@@ -1306,7 +1306,7 @@ void PcBox_Init(PcBoxScreen* screen) {
     screen->monRenderer = (u16*)func_80018F2C(screen->iconFramebuffers, 0x80, 0x78, 0, 0, 0x78, 0x78, 0);
     screen->iconRenderer = func_80017FDC(screen->iconFramebuffers, 0x1E, 0x28, 0x28);
     PokeIcon_OpenModelArchives();
-    Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
     PcBox_ReadBoxes((s8*)screen->gbBoxes, 0x21, D_89019108, 8);
     PcBox_ReadBoxes((s8*)screen->stadiumBoxes, 0x11, 0, 4);
     for (i = 0; i < 8; i++) {
@@ -1449,7 +1449,7 @@ s32 PcBox_UpdateScreen(PcBoxScreen* screen) {
                 } else {
                     Audio_PlaySystemSound(2);
                     screen->state = 3;
-                    PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (s32)entry, 0, D_800603C0, screen->monRenderer);
+                    PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)entry, 0, D_800603C0, screen->monRenderer);
                 }
             }
             break;

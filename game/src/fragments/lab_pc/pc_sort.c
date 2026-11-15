@@ -155,7 +155,7 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
     win->window.frame.style = 0;
     win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (s32)&win->items, (s32)win->itemFlags, (s32)PcSort_DrawMenuRow, 176, 28);
+    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)PcSort_DrawMenuRow, 176, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -371,8 +371,8 @@ void PcSort_InitOrganizeWindow(PcSortOrganizeWindow* win, s32 x, s32 y, ByteMatr
     GridMenu_Init(&win->operationMenu, &win->buttonTable, &win->operationFlags, PcSort_DrawOperationButton, 2, 0, 0);
     win->rightBox = 1;
     win->leftBox = 0;
-    PcSort_InitMonList(&win->leftList, win->window.frame.x + 14, win->window.frame.y + 44, (s32)tables);
-    PcSort_InitMonList(&win->rightList, win->window.frame.x + 346, win->window.frame.y + 44, (s32)(tables + win->rightBox));
+    PcSort_InitMonList(&win->leftList, win->window.frame.x + 14, win->window.frame.y + 44, (uintptr_t)tables);
+    PcSort_InitMonList(&win->rightList, win->window.frame.x + 346, win->window.frame.y + 44, (uintptr_t)(tables + win->rightBox));
     win->boxTables = tables;
     win->dirty = dirty;
     func_80027410(&win->partyView, tables->rows, 0x50, tables->capacity, 0);
@@ -495,7 +495,7 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     Font_Printf(x + 348, y + 84, D_89018B10, *(u16*)(mon + 0x2C));
     Font_Printf(x + 487, y + 84, D_89018B14, *(u16*)(mon + 0x2E));
     for (i = 0; i < count; i++) {
-        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex((s32)mon, i), D_8900A79C[i].type);
+        PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex((uintptr_t)mon, i), D_8900A79C[i].type);
     }
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, D_80060290);
@@ -594,8 +594,8 @@ void PcSort_DrawOrganizeWindow(PcSortOrganizeWindow* win) {
         Ui_DrawTexturedFrameDecal(win->window.frame.x + 12, win->window.frame.y + 12, 208, 234, D_800735C4);
         Ui_DrawTexturedFrameDecal(win->window.frame.x + 344, win->window.frame.y + 12, 208, 234, D_800735C4);
         GridMenu_DrawInlineItems(&win->operationMenu, 0, 0, (win->state == 1) ? 2 : 0x10, 0);
-        PcSort_DrawBoxTab((s32)win, win->window.frame.x + 14, win->window.frame.y + 14, 0, win->leftBox);
-        PcSort_DrawBoxTab((s32)win, win->window.frame.x + 346, win->window.frame.y + 14, 0, win->rightBox);
+        PcSort_DrawBoxTab((uintptr_t)win, win->window.frame.x + 14, win->window.frame.y + 14, 0, win->leftBox);
+        PcSort_DrawBoxTab((uintptr_t)win, win->window.frame.x + 346, win->window.frame.y + 14, 0, win->rightBox);
         m1 = 0xFDED;
         m2 = 0xFDED;
         mode = win->state;
@@ -698,7 +698,7 @@ void PcSort_OpenBox(PcSortOrganizeWindow* win) {
     temp_v0 = win->targetBoxWindow.menu.cursor;
     temp_a0 = &win->rightList;
     win->rightBox = temp_v0;
-    PcSort_SetMonList(temp_a0, (s32)(win->boxTables + temp_v0));
+    PcSort_SetMonList(temp_a0, (uintptr_t)(win->boxTables + temp_v0));
     win->state = 4;
 }
 
@@ -741,7 +741,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                         Audio_PlaySystemSound(2);
                         next = 2;
                         if ((win->operationMenu.cursor == 3) || (win->operationMenu.cursor == 4) || (win->operationMenu.cursor == 5)) {
-                            PcSort_SetMonList(&win->rightList, (s32)(&win->partyView));
+                            PcSort_SetMonList(&win->rightList, (uintptr_t)(&win->partyView));
                             win->rightBox = -1;
                         }
                     }
@@ -765,7 +765,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                 } else {
                     Audio_PlaySystemSound(2);
                     win->leftBox = win->sourceBoxWindow.menu.cursor;
-                    PcSort_SetMonList(&win->leftList, (s32)(win->boxTables + win->sourceBoxWindow.menu.cursor));
+                    PcSort_SetMonList(&win->leftList, (uintptr_t)(win->boxTables + win->sourceBoxWindow.menu.cursor));
                     if ((win->operationMenu.cursor == 3) || (win->operationMenu.cursor == 4) || (win->operationMenu.cursor == 5)) {
                         win->state = 4;
                     } else {
@@ -892,7 +892,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
         switch (next) {
             case 2:
                 PcSort_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 37, win->window.frame.y - 20,
-                              (s32)D_8900A758, 0xD, win->leftBox);
+                              (uintptr_t)D_8900A758, 0xD, win->leftBox);
                 PcSort_DisableEmptyBoxes(&win->sourceBoxWindow, win->boxTables);
                 if ((win->operationMenu.cursor == 0) || (win->operationMenu.cursor == 5)) {
                     PcSort_DisableIfSingleMon(&win->sourceBoxWindow, win->boxTables);
@@ -900,7 +900,7 @@ s32 PcSort_UpdateOrganizeWindow(PcSortOrganizeWindow* win) {
                 break;
             case 3:
                 PcSort_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 371, win->window.frame.y - 20,
-                              (s32)D_8900A758, 0xD, win->rightBox);
+                              (uintptr_t)D_8900A758, 0xD, win->rightBox);
                 if (win->operationMenu.cursor == 0) {
                     PcSort_DisableFullBoxes(&win->targetBoxWindow, win->boxTables);
                 } else if (win->operationMenu.cursor == 2) {
@@ -937,7 +937,7 @@ void PcSort_Init(PcSortScreen* screen, s32 title) {
     screen->iconFramebuffers = PokeIcon_AllocFramebuffers(1);
     screen->monRenderer = (u16*)func_80018F2C(screen->iconFramebuffers, 0x80, 0x78, 0, 0, 0x78, 0x78, 0);
     PokeIcon_OpenModelArchives();
-    Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
     screen->title = title;
     func_80027410(&screen->partyTable, screen->partyMons, 0x50, 6, 0);
     for (i = 0; i < 8; i++) {
@@ -1130,13 +1130,13 @@ s32 PcSort_UpdateScreen(PcSortScreen* screen) {
             } else if (res == 2) {
                 mon = screen->organizeWindow.leftList.list.cursor * 0x50 + *(u8**)screen->organizeWindow.leftList.list.items;
                 screen->state = 3;
-                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (s32)mon, 0,
+                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)mon, 0,
                               D_800603C0, screen->monRenderer);
             } else if (res == 3) {
                 mon = screen->organizeWindow.leftList.list.cursor * 0x50 + *(u8**)screen->organizeWindow.leftList.list.items;
                 screen->state = 4;
-                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (s32)mon,
-                              (s32)D_89018DBC, D_800603C0, screen->monRenderer);
+                PcBox_InitMonStatusWindow(&screen->statusWindow, 105, 125, (uintptr_t)mon,
+                              (uintptr_t)D_89018DBC, D_800603C0, screen->monRenderer);
                 screen->statusWindow.choice.cursor = 1;
             }
             break;

@@ -309,13 +309,13 @@ void VsScene_ZoomIntoScreen(void) {
     s32 sp3C;
     s32 temp_s0_2;
 
-    sp3C = (s32)D_82203240->children;
+    sp3C = (uintptr_t)D_82203240->children;
     if (D_822036A4->mode == 0) {
-        BezierPath_InitEased(sp7C, (s32) &D_82202CD0);
-        BezierPath_InitEased(sp40, (s32) &D_82202CEC);
+        BezierPath_InitEased(sp7C, (uintptr_t) &D_82202CD0);
+        BezierPath_InitEased(sp40, (uintptr_t) &D_82202CEC);
     } else {
-        BezierPath_InitEased(sp7C, (s32) &D_82202C60);
-        BezierPath_InitEased(sp40, (s32) &D_82202C7C);
+        BezierPath_InitEased(sp7C, (uintptr_t) &D_82202C60);
+        BezierPath_InitEased(sp40, (uintptr_t) &D_82202C7C);
     }
     do {  // karodo
     } while (0); // karodo
@@ -350,13 +350,13 @@ void VsScene_ZoomOutOfScreen(void) {
     s32 rec;
     s32 done;
 
-    rec = (s32)D_82203240->children;
+    rec = (uintptr_t)D_82203240->children;
     if (D_822036A4->mode == 0) {
-        BezierPath_InitEased(sp8C, (s32) &D_82202D08);
-        BezierPath_InitEased(sp50, (s32) &D_82202D24);
+        BezierPath_InitEased(sp8C, (uintptr_t) &D_82202D08);
+        BezierPath_InitEased(sp50, (uintptr_t) &D_82202D24);
     } else {
-        BezierPath_InitEased(sp8C, (s32) &D_82202C98);
-        BezierPath_InitEased(sp50, (s32) &D_82202CB4);
+        BezierPath_InitEased(sp8C, (uintptr_t) &D_82202C98);
+        BezierPath_InitEased(sp50, (uintptr_t) &D_82202CB4);
     }
     do {  // karodo
     } while (0); // karodo
@@ -520,8 +520,8 @@ void VsScene_ZoomOutOfScreen(void);
 void VsScene_Play(void) {
     CameraNode* camera = D_82203240->children;
 
-    Fragment_LoadAndCall((((u32)D_82400000 & 0x0FF00000) >> 0x14) - 0x10, D_00175570, D_0017BE70, 0,
-                         (u32)D_822036A4);
+    Fragment_LoadAndCall((((uintptr_t)D_82400000 & 0x0FF00000) >> 0x14) - 0x10, D_00175570, D_0017BE70, 0,
+                         (uintptr_t)D_822036A4);
     VsScene_PrepareTeams();
     VsScene_LoadTeamIcons(&D_82203170[0], 0);
     VsScene_LoadTeamIcons(&D_82203170[1], 1);
@@ -1103,8 +1103,8 @@ void Tournament_PlayNextRoundTitle(void) {
             state->roundOrDemoId++;
             ModelRenderer_ClearDisplayObject(&D_82203268);
             MainPool_PopState('ICON');
-            Fragment_LoadAndCall((((u32)D_82400000 & 0x0FF00000) >> 0x14) - 0x10, D_00175570, D_0017BE70, 0,
-                                 (u32)D_822036A4);
+            Fragment_LoadAndCall((((uintptr_t)D_82400000 & 0x0FF00000) >> 0x14) - 0x10, D_00175570, D_0017BE70, 0,
+                                 (uintptr_t)D_822036A4);
             VsScene_PrepareTeams();
             VsScene_LoadTeamIcons(&D_82203170[0], 0);
             VsScene_LoadTeamIcons(&D_82203170[1], 1);
@@ -1329,7 +1329,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     D_82203208 = GfxImage_Allocate(0, 2, 320, 240, 1);
     GfxImage_AttachDepthBuffer(D_82203208, D_82203204->renderTargets[0]->depth_p);
     Font_Init(0x2A, 0);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
     Fragment_Load(DEMO_FRAGMENT_ID(D_81000000), D_0015B1A0, D_0015E220);
     Fragment_Load(DEMO_FRAGMENT_ID(D_8F200000), D_003553C0, D_0035C390);
     Fragment_Load(DEMO_FRAGMENT_ID(D_8F500000), D_0035C390, D_0035E790);
@@ -1363,7 +1363,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     }
 
     D_82203260 = PokeIcon_AllocFramebuffers(5);
-    D_82203264 = (s32)PokeIcon_CreateRenderList(D_82203260, 12, 0x40, 0x40);
+    D_82203264 = (uintptr_t)PokeIcon_CreateRenderList(D_82203260, 12, 0x40, 0x40);
     D_8220325C = BinArchive_Open(D_002F5940, D_003139C0, 1, 1);
     PokeIcon_OpenModelArchives();
     VsScene_LoadGeoLayout(sp24);

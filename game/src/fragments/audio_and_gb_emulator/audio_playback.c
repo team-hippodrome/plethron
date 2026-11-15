@@ -249,7 +249,7 @@ void AudioPlayback_ProcessNotes(void)
     playback_state = &note->playbackState;
     if (playback_state->parentLayer != ((SequenceLayer *) (-1)))
     {
-      if (((u32) playback_state->parentLayer) < 0x7FFFFFFF)
+      if (((uintptr_t) playback_state->parentLayer) < 0x7FFFFFFF)
       {
         continue;
       }
@@ -468,7 +468,7 @@ u8* AudioPlayback_GetDrum(s32 arg0, s32 arg1) {
         D_811859D0 = (arg0 << 8) + arg1 + 0x04000000;
         return NULL;
     }
-    if ((u32)bank->drums < 0x80000000) {
+    if ((uintptr_t)bank->drums < 0x80000000) {
         return NULL;
     }
     ret = bank->drums[arg1];
@@ -962,7 +962,7 @@ s8* AudioPlayback_AllocNoteFromActive(s8* pool, s8* layer) {
     }
     if (a_priority < r_priority) {
         AudioPlayback_AudioListRemove(a_note);
-        AudioPlayback_NoteReleaseOwnerAndQueueLayer(a_note, (s32)layer);
+        AudioPlayback_NoteReleaseOwnerAndQueueLayer(a_note, (uintptr_t)layer);
         AudioSeq_AudioListPushBack(pool + 0x20, (Note*)a_note);
         M2C_FIELD(a_note, u8*, 0x30) = M2C_FIELD(M2C_FIELD(layer, u8**, 0x54), u8*, 5);
         return a_note;
@@ -993,14 +993,14 @@ s8* AudioPlayback_AllocNote(s8* arg0) {
         }
     }
     if (flags & 2) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (s32)arg0)) != NULL) ||
+        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL)) {
             return voice;
         }
     } else if (flags & 4) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (s32)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, (s32)arg0)) != NULL) ||
+        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
+            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, (uintptr_t)arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
@@ -1008,14 +1008,14 @@ s8* AudioPlayback_AllocNote(s8* arg0) {
             return voice;
         }
     } else if (flags & 8) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (s32)arg0)) != NULL) ||
+        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (uintptr_t)arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(&D_81184938, arg0)) != NULL)) {
             return voice;
         }
     } else {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (s32)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (s32)arg0)) != NULL) ||
+        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
+            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (uintptr_t)arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
             ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||

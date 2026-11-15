@@ -186,7 +186,7 @@ void PartyScreen_DrawList(PartyListWindow* window, s32 mode) {
                 flags = 0xFFFD;
                 break;
         }
-        Menu_DrawItems((s8*)&window->menu, window->window.frame.x + 6, window->window.frame.y + 6, flags, (s32)&mode);
+        Menu_DrawItems((s8*)&window->menu, window->window.frame.x + 6, window->window.frame.y + 6, flags, (uintptr_t)&mode);
     }
 
     if ((window->window.state == 1) || (window->window.state == 2)) {
@@ -282,7 +282,7 @@ s32 PartyScreen_UpdateActionMenu(PartyActionMenuWindow* window) {
     s32 idx;
 
     if (Menu_UpdateCursor((s8*)&window->menu) == 0) {
-        dir = func_8002BC14((s32)D_800603C0);
+        dir = func_8002BC14((uintptr_t)D_800603C0);
         if (dir == -1) {
             sp1C = -1;
         } else if (dir == 1) {
@@ -549,10 +549,10 @@ void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon) {
     func_8001A384(4, 0);
     Font_Printf(x + 9, y + 60, "タイプ"); // "Type"
     Font_Printf(x + 79, y + 60, "1/");
-    if (Pokemon_GetTypeIndex((s32)mon, 1) != -1) {
+    if (Pokemon_GetTypeIndex((uintptr_t)mon, 1) != -1) {
         Font_Printf(x + 185, y + 60, "2/");
     }
-    MonSummary_DrawTypeName(x + 111, y + 60, 4, (s32)mon, 0);
-    MonSummary_DrawTypeName(x + 217, y + 60, 4, (s32)mon, 1);
+    MonSummary_DrawTypeName(x + 111, y + 60, 4, (uintptr_t)mon, 0);
+    MonSummary_DrawTypeName(x + 217, y + 60, 4, (uintptr_t)mon, 1);
     func_8001ABBC();
 }

@@ -22,6 +22,6 @@ extern u8 D_002B13F0[];
  * @unverified Not reachable in play; name and comment come from the code and the ROM scan.
  */
 s32 UnusedRelay021_QueueMainMenuLauncher(s32 unused_arg0, s32 unused_arg1, s32 unused_arg2) {
-    Fragment_QueueCall(((((u32)D_8E000000) & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_8E000000) & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
     return 0x8040;
 }

@@ -722,7 +722,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
     s32 step;
     s32 i;
 
-    D_811565C0 = (s32)dst;
+    D_811565C0 = (uintptr_t)dst;
     step = 0x5000;
     for (y = 0; y < 0x14000; y += step) {
         row = dst + y;
@@ -764,16 +764,16 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     switch (port) {
         case 1:
-            D_811565C4 = (s32)((u8*)dst + 2);
+            D_811565C4 = (uintptr_t)((u8*)dst + 2);
             break;
         case 2:
-            D_811565C4 = (s32)((u8*)dst + 4);
+            D_811565C4 = (uintptr_t)((u8*)dst + 4);
             break;
         case 3:
-            D_811565C4 = (s32)((u8*)dst + 6);
+            D_811565C4 = (uintptr_t)((u8*)dst + 6);
             break;
         default:
-            D_811565C4 = (s32)dst;
+            D_811565C4 = (uintptr_t)dst;
             break;
     }
 

@@ -91,7 +91,7 @@ void PokeIcon_ResetSlots(PokeIconRenderer* arg0) {
 
     if (arg0->flags & 1) {
         PokeIcon_WaitFrameLoad(arg0->loadContext);
-        func_800199E4((s32)arg0->displayObject);
+        func_800199E4((uintptr_t)arg0->displayObject);
     }
     arg0->flags = 0U;
     arg0->nextSlot = 0;
@@ -412,7 +412,7 @@ s32 PokeIcon_GetImage(s8* arg0, s32 arg1) {
 
     var_v1 = 0;
     if (arg1 < (s32) ((PokeIconRenderer*)arg0)->slotCount) {
-        var_v1 = (s32)((PokeIconRenderer*)arg0)->slots[arg1].image->img_p;
+        var_v1 = (uintptr_t)((PokeIconRenderer*)arg0)->slots[arg1].image->img_p;
     }
     return var_v1;
 }

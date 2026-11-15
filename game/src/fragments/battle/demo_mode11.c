@@ -119,34 +119,34 @@ void SceneMode11_StartCut(CameraNode* camera) {
     switch (D_8219A50C) {
         case 0:
             Audio_PlaySystemSound(0x12);
-            SceneMode11_FrameDemoPokemon((s32)D_8219A590, (s32)camera, 3);
+            SceneMode11_FrameDemoPokemon((uintptr_t)D_8219A590, (uintptr_t)camera, 3);
             func_800199F8(D_8219A590, cue->id);
             func_80010F9C(D_8219A590, sp38[D_8219A50C]);
             break;
         case 1:
             Audio_PlaySystemSound(0x13);
             ((ActivePokemon*)D_8219A590)->displayObject.position.y += 500.0;
-            SceneMode11_FrameFromAimPoint((s32)camera, (s32)D_8219A590, 350.0f, 0.0f, -0x1C71, 0x38E3);
+            SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 350.0f, 0.0f, -0x1C71, 0x38E3);
             func_800199F8(D_8219A590, cue->id);
             func_80010F9C(D_8219A590, sp38[D_8219A50C]);
             break;
         case 2:
             Audio_PlaySystemSound(0x14);
             ((ActivePokemon*)D_8219A590)->displayObject.rotation.y = -0x4000;
-            SceneMode11_FrameFromAimPoint((s32)camera, (s32)D_8219A590, 300.0f, -75.0f, 0x71C, -0x2AAA);
+            SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 300.0f, -75.0f, 0x71C, -0x2AAA);
             func_800199F8(D_8219A590, cue->id);
             func_80010F9C(D_8219A590, sp38[D_8219A50C]);
             break;
         case 3:
             Audio_PlaySystemSound(0x15);
-            SceneMode11_FrameFromAimPoint((s32)camera, (s32)D_8219A590, 200.0f, 0.0f, 0x71C, 0x2AAA);
+            SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 200.0f, 0.0f, 0x71C, 0x2AAA);
             func_800199F8(D_8219A590, cue->id);
             func_80010F9C(D_8219A590, sp38[D_8219A50C]);
             break;
         case 4:
             Audio_PlaySystemSound(0x16);
             ((ActivePokemon*)D_8219A590)->displayObject.rotation.y = -0x4000;
-            SceneMode11_FrameFromAimPoint((s32)camera, (s32)D_8219A590, 600.0f, -200.0f, 0, -0x238E);
+            SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 600.0f, -200.0f, 0, -0x238E);
             func_800199F8(D_8219A590, cue->id);
             func_80010F9C(D_8219A590, sp38[D_8219A50C]);
             break;
@@ -364,11 +364,11 @@ void SceneMode11_Update(CameraNode* camera) {
             break;
 
         case 5:
-            SceneMode11_StepWaitModelReload((s32)camera);
+            SceneMode11_StepWaitModelReload((uintptr_t)camera);
             break;
 
         case 6:
-            SceneMode11_StepEnd((s32)camera);
+            SceneMode11_StepEnd((uintptr_t)camera);
             break;
     }
 }

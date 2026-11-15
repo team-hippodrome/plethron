@@ -83,8 +83,8 @@ void VsPanel_PortraitCallback(s32 event, DemoGeoNode* node) {
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
         node->displayList = Gfx_AllocDisplayList(0x10);
-        VsPanel_WritePortraitGfx(node->displayList, teams[(s32)node->node.callbackArg].trainerFile);
-        node->displayList = (Gfx*)VsPanel_CheckBootCode((s32)node->displayList);
+        VsPanel_WritePortraitGfx(node->displayList, teams[(uintptr_t)node->node.callbackArg].trainerFile);
+        node->displayList = (Gfx*)VsPanel_CheckBootCode((uintptr_t)node->displayList);
     }
 }
 
@@ -98,7 +98,7 @@ void VsPanel_TitleTextCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(s32)node->node.callbackArg].rosterInfo[0]->title;
+        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
     }
 }
 
@@ -114,10 +114,10 @@ void VsPanel_NameTextCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(s32)node->node.callbackArg].rosterInfo[0]->fullName;
-        if (*(s16*)&teams[(s32)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
+        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
+        if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
             node->unk_20 = 210;
-        } else if (*(s16*)&teams[(s32)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
+        } else if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
             node->unk_22 = -240;
         } else {
             node->unk_22 = -300;
@@ -150,8 +150,8 @@ void VsPanel_IconCallback(s32 event, DemoGeoNode *node)
   if (event == 2)
   {
     teams = D_80060490->node.callbackArg;
-    team = (((u32) node->node.callbackArg) >> 16) & 0xFFFF;
-    slot = ((u32) node->node.callbackArg) & 0xFFFF;
+    team = (((uintptr_t) node->node.callbackArg) >> 16) & 0xFFFF;
+    slot = ((uintptr_t) node->node.callbackArg) & 0xFFFF;
     if (slot < teams[team].rosterInfo[0]->numberOfPokemonCanBePicked)
     {
       node->displayList = Gfx_AllocDisplayList(0x10);
@@ -180,8 +180,8 @@ void VsPanel_NicknameCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        team = ((u32)node->node.callbackArg >> 16) & 0xFFFF;
-        slot = (u32)node->node.callbackArg & 0xFFFF;
+        team = ((uintptr_t)node->node.callbackArg >> 16) & 0xFFFF;
+        slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (slot < teams[team].rosterInfo[0]->numberOfPokemonCanBePicked) {
             sVsPanelNicknameText[0] = 9;
             _bcopy(teams[team].rosterInfo[0]->battleMon[slot].nickname, &sVsPanelNicknameText[1], 12);

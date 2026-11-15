@@ -94,8 +94,8 @@ s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
 void BattleAnim_InitParticleSystem(void) {
     gBattleAnimEffectSlots = (void*)func_800023C4(0x20D0, 0);
     gParticlePool = (Particle*)func_800023C4(sizeof(Particle) * 300, 0);
-    bzero((s32)gBattleAnimEffectSlots, 0x20D0);
-    bzero((s32)gParticlePool, sizeof(Particle) * 300);
+    bzero((uintptr_t)gBattleAnimEffectSlots, 0x20D0);
+    bzero((uintptr_t)gParticlePool, sizeof(Particle) * 300);
     gBattleAnimEffectSlotIndex = 0;
     gParticlePoolIndex = 0;
 }
@@ -266,13 +266,13 @@ Particle* Particle_AllocChain(u8 arg0) {
 
     sp28 = Particle_Alloc();
 
-    if ((u32)sp28 != -1) {
+    if ((uintptr_t)sp28 != -1) {
         var_s0 = sp28;
         arg0--;
 
         for (i = 0; i < arg0; i++) {
             temp_v0 = Particle_Alloc();
-            if ((u32)temp_v0 == -1) {
+            if ((uintptr_t)temp_v0 == -1) {
                 break;
             }
             var_s0->next = temp_v0;
@@ -351,7 +351,7 @@ void BattleAnim_EmitParticleBurst(Particle* arg0, ParticleUpdateCallback arg1, P
 
     for (i = 0; i < arg3; i++) {
         temp_v0 = Particle_New();
-        if ((u32)temp_v0 == -1) {
+        if ((uintptr_t)temp_v0 == -1) {
             break;
         }
         BattleAnim_CloneParticleState(temp_v0, arg0, arg1, arg2, i);
@@ -371,7 +371,7 @@ void BattleAnim_EmitParticleBurstWithMetadata(Particle* arg0, ParticleUpdateCall
 
     for (i = 0; i < arg3; i++) {
         temp_v0 = Particle_New();
-        if ((u32)temp_v0 == -1) {
+        if ((uintptr_t)temp_v0 == -1) {
             break;
         }
         BattleAnim_CloneParticleState(temp_v0, arg0, arg1, arg2, i);
@@ -389,7 +389,7 @@ void BattleAnim_EmitParticleBurstWithMetadata(Particle* arg0, ParticleUpdateCall
 Particle* BattleAnim_CreateProceduralParticle(s16 arg0, s16 arg1, s32 arg2, f32 arg3) {
     Particle* temp_v0 = Particle_New();
 
-    if ((u32)temp_v0 != -1) {
+    if ((uintptr_t)temp_v0 != -1) {
         Vec3f_SetComponentsDuplicate(&temp_v0->positionOffset, arg0, arg1, 0.0f);
         Particle_UpdateWorldTransform(temp_v0);
         Vec3s_SetComponents(&temp_v0->rotation, arg2, arg2, arg2);
@@ -735,7 +735,7 @@ void Particle_DispatchDraw(Particle* arg0, CameraNode* arg1) {
  * owner (1P 0x8028FB20 or COM 0x802905C0) and the origin position.
  */
 void BattleAnim_InitializeParticleFromEffect(Particle* arg0, ActivePokemon* arg1, BattleAnimEffectSlot* arg2, s16 arg3) {
-    if ((u32)arg0 == -1) {
+    if ((uintptr_t)arg0 == -1) {
         return;
     }
 
@@ -789,7 +789,7 @@ void BattleAnim_SpawnStandardParticles(BattleAnimEffectSlot* arg0) {
     s16 var_s0;
     s32 temp_s3;
 
-    temp_s3 = (s32)arg0->pokemon;
+    temp_s3 = (uintptr_t)arg0->pokemon;
     temp_s2 = arg0->param1;
     if (arg0->descriptor->chained == 0) {
         var_s0 = 0;
@@ -818,7 +818,7 @@ void BattleAnim_SpawnBatchedParticles(BattleAnimEffectSlot* arg0) {
     s32 temp_s4;
     s32 temp_v0;
 
-    temp_s4 = (s32)arg0->pokemon;
+    temp_s4 = (uintptr_t)arg0->pokemon;
     step = arg0->param1;
     count = arg0->param0 / step;
     if (arg0->descriptor->chained == 0) {
@@ -1187,7 +1187,7 @@ BattleAnimEffectSlot* BattleAnim_CreateEffectSlot(s32 arg0, s32 arg1, s8 arg2, f
                               ActivePokemon* arg5, s16 arg6, s16 arg7, u8 arg8, u8 arg9, u8 argA, u8 argB) {
     BattleAnimEffectSlot* sp1C = BattleAnim_AllocEffectSlot();
 
-    if ((u32)sp1C != -1) {
+    if ((uintptr_t)sp1C != -1) {
         sp1C->delayTimer = arg0 + gBattleAnimSpawnDelay;
         sp1C->repeatInterval = arg1;
         sp1C->repeatCount = arg2;

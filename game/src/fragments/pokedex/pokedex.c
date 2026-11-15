@@ -156,7 +156,7 @@ void Pokedex_DrawListWindow(PokedexListWindow* list_window, u32 flags) {
 
     if (func_8002AE6C() == 0) {
         Ui_DrawTexturedDivider(list_window->window.frame.x, list_window->window.frame.y + 325, list_window->window.frame.width, &D_8007356C);
-        ScrollList_DrawInlineItems(&list_window->list, list_window->window.frame.x + 6, list_window->window.frame.y + 22, flags | 0xFFED, (s32)&list_window->sortByKana);
+        ScrollList_DrawInlineItems(&list_window->list, list_window->window.frame.x + 6, list_window->window.frame.y + 22, flags | 0xFFED, (uintptr_t)&list_window->sortByKana);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(list_window->window.frame.x + 6, list_window->window.frame.y + 332, list_window->window.frame.width - 12, 28, D_8A1057DC);
         Font_BeginTranslucentTextRendering();
@@ -682,7 +682,7 @@ s32 Pokedex_RunActionMenu(void) {
         Cont_ReadInputs();
         Input_ResetRepeatState();
         if ((sIndexScreen.menuWindow.window.state == 1) || (sIndexScreen.menuWindow.window.state == 2)) {
-            temp_v0 = Pokedex_UpdateActionMenuCursor((s32) &sActionMenuWindow);
+            temp_v0 = Pokedex_UpdateActionMenuCursor((uintptr_t) &sActionMenuWindow);
             if (temp_v0 != 0) {
                 temp_v0_2 = Pokedex_HandleActionMenuResult(temp_v0, &sp50);
                 if (temp_v0_2 == 1) {
@@ -764,7 +764,7 @@ extern u8 D_8A105818;
  */
 void Pokedex_CreateModelPreview(s32 framebuffers, s32 species) {
     MainPool_PushState(0x50494354);
-    sModelPreview = (s32)PokeIcon_CreateModelPreview((ModelLoadContext*)framebuffers, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, &D_8A105818);
+    sModelPreview = (uintptr_t)PokeIcon_CreateModelPreview((ModelLoadContext*)framebuffers, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, &D_8A105818);
     PokeIcon_SetPreviewSpecies((PokeModelPreview*)sModelPreview, species, 0x108D);
 }
 
@@ -793,7 +793,7 @@ extern s32 sSelectedDexIndex;
 s32 Pokedex_ShowEntry(void) {
     s32 temp_s1;
 
-    Pokedex_CreateModelPreview((s32)sIconFramebuffers, sSelectedDexIndex + 1);
+    Pokedex_CreateModelPreview((uintptr_t)sIconFramebuffers, sSelectedDexIndex + 1);
     temp_s1 = GbSave_GetSpeciesProgressLevel(sGbPort, sSelectedDexIndex + 1);
     do {
         Cont_StartReadInputs();
@@ -1080,9 +1080,9 @@ s32 Pokedex_Main(UNUSED s32 arg0, UNUSED s32 arg1) {
     sIconFramebuffers = PokeIcon_AllocFramebuffers(1);
     PokeIcon_OpenModelArchives();
 
-    Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
+    Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
 
     StageLoader_UpdateSegments();
     ModelRenderer_InitDisplayRoots();
@@ -1095,6 +1095,6 @@ s32 Pokedex_Main(UNUSED s32 arg0, UNUSED s32 arg1) {
 
     MainPool_PopState('BOOK');
 
-    Fragment_QueueCall(((((u32)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
     return 0x8040;
 }

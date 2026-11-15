@@ -675,7 +675,7 @@ s32 MainMenu_UpdateScreen(MainMenuScreen* screen) {
                     Audio_PlaySystemSound(2);
                     screen->state = 3;
                     idx = screen->itemList.menu.cursor;
-                    MainMenu_InitMessageWindow(&screen->messageWindow, 54, 87, D_88002258[idx], D_8800227C[idx], D_880022A0[idx], D_88001FEC[idx], (s32)D_88002034[idx]);
+                    MainMenu_InitMessageWindow(&screen->messageWindow, 54, 87, D_88002258[idx], D_8800227C[idx], D_880022A0[idx], D_88001FEC[idx], (uintptr_t)D_88002034[idx]);
                 }
             }
             break;
@@ -981,9 +981,9 @@ s32 MainMenu_Init(s32 is_first_entry) {
 
     MainPool_PushState(0x434F4D50); // 'COMP'
     Font_Init(0x18, 0);
-    func_80003EB8((u32) ((s32) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
-    func_80003EB8((u32) ((s32) &D_04000000 & 0x0F000000) >> 0x18, &D_00400F70, &D_004076E0, 0);
-    func_80003EB8((u32) ((s32) &D_05000000 & 0x0F000000) >> 0x18, &D_004076E0, &D_004199E0, 0);
+    func_80003EB8((u32) ((uintptr_t) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
+    func_80003EB8((u32) ((uintptr_t) &D_04000000 & 0x0F000000) >> 0x18, &D_00400F70, &D_004076E0, 0);
+    func_80003EB8((u32) ((uintptr_t) &D_05000000 & 0x0F000000) >> 0x18, &D_004076E0, &D_004199E0, 0);
     MainMenu_LoadGbSaveSummary();
     func_8000675C();
     if (is_first_entry == 1) {
@@ -1034,7 +1034,7 @@ s32 MainMenu_Enter(s32 is_first_entry, s32 unused) {
 
     if (gSessionContext.transitionFlags & 0x100) {
         ret = 0x8040;
-        Fragment_QueueCall(((u32)((s32)&D_82000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00166580, &D_001720F0, 0, 0);
+        Fragment_QueueCall(((u32)((uintptr_t)&D_82000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00166580, &D_001720F0, 0, 0);
     } else {
         ret = MainMenu_Init(is_first_entry);
     }

@@ -133,22 +133,22 @@ extern s8 D_8A200000;
 void PokedexMenu_LoadSelectedFragment(void) {
     switch (sPokedexMenuSelection) {
     case 0:
-        Fragment_QueueCall(((u32) ((s32) &D_8A100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00262620, &D_00293410, 0, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_8A100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00262620, &D_00293410, 0, 0);
         return;
     case 1:
-        Fragment_QueueCall(((u32) ((s32) &D_8A200000 & 0x0FF00000) >> 0x14) - 0x10, &D_00293410, &D_002B1360, 1, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_8A200000 & 0x0FF00000) >> 0x14) - 0x10, &D_00293410, &D_002B1360, 1, 0);
         return;
     case 2:
-        Fragment_QueueCall(((u32) ((s32) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
         return;
     case 3:
-        Fragment_QueueCall(((u32) ((s32) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
         return;
     case 4:
-        Fragment_QueueCall(((u32) ((s32) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
         return;
     case 5:
-        Fragment_QueueCall(((u32) ((s32) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+        Fragment_QueueCall(((u32) ((uintptr_t) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
         /* fallthrough */
     default:
         return;
@@ -179,7 +179,7 @@ s32 PokedexMenu_RunFrame(s32 fade_mode) {
             ret = 0x8000;
         } else if (gPlayer1Controller->buttonPressed & B_BUTTON) {
             Audio_PlaySystemSound(SFX_MENU_BACK);
-            Fragment_QueueCall(((u32) ((s32) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+            Fragment_QueueCall(((u32) ((uintptr_t) &D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
             ret = 0x8000;
         } else {
             PokedexMenu_UpdateCursor();
@@ -206,8 +206,8 @@ extern M2C_UNK D_02000000;
 s32 PokedexMenu_Init(s32 unused0, M2C_UNK unused1) {
     MainPool_PushState(0x424D4E55);
     Font_Init(0x30, 0);
-    Asset_LoadToSegment((u32) ((s32) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
-    Asset_LoadToSegment((u32) ((s32) &D_02000000 & 0x0F000000) >> 0x18, &D_002F0A50, &D_002F3BD0, 0);
+    Asset_LoadToSegment((u32) ((uintptr_t) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
+    Asset_LoadToSegment((u32) ((uintptr_t) &D_02000000 & 0x0F000000) >> 0x18, &D_002F0A50, &D_002F3BD0, 0);
     Input_SetRepeatController(gPlayer1Controller);
     Audio_PlayMusicIfChanged(2);
     StageLoader_UpdateSegments();

@@ -60,16 +60,16 @@ void* MainPool_AllocAligned(struct MainPoolState* state, s32 arg1, s32 arg2) {
     s32 ret = 0;
 
     if (arg2 > 0) {
-        var_v0 = (((s32)state->prev + (s32)arg2) - 1) & ~(arg2 - 1);
+        var_v0 = (((uintptr_t)state->prev + (s32)arg2) - 1) & ~(arg2 - 1);
     } else {
         var_v0 = state->prev;
     }
-    temp_a2 = (var_v0 - (s32)state->prev) + arg1;
+    temp_a2 = (var_v0 - (uintptr_t)state->prev) + arg1;
     if (temp_a2 > 0) {
-        temp_a3 = (s32)state->listHeadL + temp_a2;
+        temp_a3 = (uintptr_t)state->listHeadL + temp_a2;
         if ((s32)state->freeSpace >= temp_a3) {
             ret = var_v0;
-            state->prev = (s32)((s32)state->prev + temp_a2);
+            state->prev = (s32)((uintptr_t)state->prev + temp_a2);
             state->listHeadL = temp_a3;
         }
     }
@@ -80,13 +80,13 @@ void* MainPool_AllocAligned(struct MainPoolState* state, s32 arg1, s32 arg2) {
 void MainPool_ResetStateToOffset(struct MainPoolState* state, s32 size) {
     if ((s32)state->freeSpace >= size) {
         state->listHeadL = size;
-        state->prev = (void*)((s32)state->listHeadR + size);
+        state->prev = (void*)((uintptr_t)state->listHeadR + size);
     }
 }
 
 /** Frees every allocation of a pool state. */
 void MainPool_ResetState(struct MainPoolState* state) {
-    void* mem = (u8*)((u32)state + sizeof(struct MainPoolState));
+    void* mem = (u8*)((uintptr_t)state + sizeof(struct MainPoolState));
 
     state->listHeadL = 0;
     state->listHeadR = mem;

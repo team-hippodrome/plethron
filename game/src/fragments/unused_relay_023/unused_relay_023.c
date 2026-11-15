@@ -26,6 +26,6 @@ extern u8 D_002B13F0[];
  * and the main menu came up.
  */
 s32 UnusedRelay023_QueueMainMenuLauncher(s32 unused_arg0, s32 unused_arg1) {
-    Fragment_QueueCall(((((u32)D_8E000000) & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_8E000000) & 0x0FF00000) >> 0x14) - 0x10, D_002B1360, D_002B13F0, 0, 0);
     return 0x8040;
 }

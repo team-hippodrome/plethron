@@ -449,7 +449,7 @@ void Save_RunGbReportErrorScreen(s32 arg0) {
     var_s0 = 2;
     func_8000256C(0x47424552);
     Font_Init(0x18, 0);
-    func_80003EB8((u32) ((s32) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
+    func_80003EB8((u32) ((uintptr_t) &D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
     func_8000675C();
     do {
         temp_v0 = GbSave_PollCartRemoval(arg0);
@@ -485,9 +485,9 @@ extern M2C_UNK D_82100000;
  * slot 0x11 (battle) with the opening battle on screen.
  */
 void State_Boot(void) {
-    func_80025B60(((u32) ((s32) &D_81500000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F390, &D_0015F8F0, 0, 0);
+    func_80025B60(((u32) ((uintptr_t) &D_81500000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F390, &D_0015F8F0, 0, 0);
     Session_InitTwoTrainers(5, 3, 3);
-    func_80025B60(((u32) ((s32) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (s32) &gSessionContext);
+    func_80025B60(((u32) ((uintptr_t) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (uintptr_t) &gSessionContext);
     gNextGameState = 0x8010;
 }
 
@@ -501,12 +501,12 @@ extern s32 D_800AF988;
  * Seen in play (2026-11-14): runs while ポケモンスタジアム (Pokémon Stadium) / PUSH START is on screen, after the opening.
  */
 void State_TitleScreen(void) {
-    gNextGameState = func_80025B60(((u32) ((s32) &D_81200000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015E220, &D_0015F390, 0, 0);
+    gNextGameState = func_80025B60(((u32) ((uintptr_t) &D_81200000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015E220, &D_0015F390, 0, 0);
     gSessionContext.modeSelection = 0;
     gSessionContext.transitionFlags = 0;
     switch (gNextGameState) {
         case 0x8010:
-            func_80025B60(((u32) ((s32) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (s32) &gSessionContext);
+            func_80025B60(((u32) ((uintptr_t) &D_82100000 & 0x0FF00000) >> 0x14) - 0x10, &D_0017ED00, &D_00232510, 0, (uintptr_t) &gSessionContext);
             break;
         case 0x8020:
             gActiveGbPort = -1;
@@ -559,11 +559,11 @@ void State_MainMenu(void)
   {
     D_800AF988 = 0;
     GbSave_SetActivePort(gActiveGbPort);
-    Fragment_QueueCall((((u32) (((s32) (&D_88000000)) & 0x0FF00000)) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, (s32) (&gSessionContext));
+    Fragment_QueueCall((((u32) (((uintptr_t) (&D_88000000)) & 0x0FF00000)) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, (uintptr_t) (&gSessionContext));
   }
   else
   {
-    Fragment_QueueCall((((u32) (((s32) (&D_88400000)) & 0x0FF00000)) >> 0x14) - 0x10, D_00162BE0, D_00166580, 0, (s32) (&gSessionContext));
+    Fragment_QueueCall((((u32) (((uintptr_t) (&D_88400000)) & 0x0FF00000)) >> 0x14) - 0x10, D_00162BE0, D_00166580, 0, (uintptr_t) (&gSessionContext));
   }
   Tournament_LoadContinueData();
   while ((gNextGameState == 0x8040) && (D_800AF990.unk_00 != 0))
@@ -639,20 +639,20 @@ void State_Battle(void)
   if (gSessionContext.mode == 0)
   {
     gSessionContext.roundOrDemoId = 1;
-    func_80025B60((((u32) (((s32) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 0, (s32) &gSessionContext);
-    func_80025B60((((u32) (((s32) (&D_82300000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0015FCE0, &D_00162BE0, 0, (s32) &gSessionContext);
-    func_80025B60((((u32) (((s32) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (s32) &gSessionContext);
-    func_80025B60((((u32) (((s32) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 1, (s32) &gSessionContext);
+    func_80025B60((((u32) (((uintptr_t) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 0, (uintptr_t) &gSessionContext);
+    func_80025B60((((u32) (((uintptr_t) (&D_82300000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0015FCE0, &D_00162BE0, 0, (uintptr_t) &gSessionContext);
+    func_80025B60((((u32) (((uintptr_t) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (uintptr_t) &gSessionContext);
+    func_80025B60((((u32) (((uintptr_t) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 1, (uintptr_t) &gSessionContext);
   }
   else
   {
     prev = gSessionContext.mode;
-    func_80025B60((((u32) (((s32) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 0, (s32) &gSessionContext);
+    func_80025B60((((u32) (((uintptr_t) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 0, (uintptr_t) &gSessionContext);
     while (!(gSessionContext.transitionFlags & 1))
     {
-      func_80025B60((((u32) (((s32) (&D_82300000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0015FCE0, &D_00162BE0, 0, (s32) &gSessionContext);
-      func_80025B60((((u32) (((s32) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (s32) &gSessionContext);
-      func_80025B60((((u32) (((s32) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 2, (s32) &gSessionContext);
+      func_80025B60((((u32) (((uintptr_t) (&D_82300000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0015FCE0, &D_00162BE0, 0, (uintptr_t) &gSessionContext);
+      func_80025B60((((u32) (((uintptr_t) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (uintptr_t) &gSessionContext);
+      func_80025B60((((u32) (((uintptr_t) (&D_82200000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00232510, &D_00235D70, 2, (uintptr_t) &gSessionContext);
     }
 
     if (gSessionContext.transitionFlags & 0x40)
@@ -669,25 +669,25 @@ void State_Battle(void)
         info = roster->rosterInfo;
         roster->numberOfPokemonBrought = info->numberOfPokemonCanBePicked;
         _bcopy(info->battleMon, roster->pokemonPicked, 0x1E0);
-        func_80025B60((((u32) (((s32) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (s32) &gSessionContext);
+        func_80025B60((((u32) (((uintptr_t) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (uintptr_t) &gSessionContext);
         if (prev == 1)
         {
-          func_80025B60((((u32) (((s32) (&D_81800000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017E340, &D_0017ED00_2, 0, 4);
+          func_80025B60((((u32) (((uintptr_t) (&D_81800000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017E340, &D_0017ED00_2, 0, 4);
         }
         else
         {
-          func_80025B60((((u32) (((s32) (&D_81800000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017E340, &D_0017ED00_2, 0, (s32) gSessionContext.modeSelection);
+          func_80025B60((((u32) (((uintptr_t) (&D_81800000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017E340, &D_0017ED00_2, 0, (s32) gSessionContext.modeSelection);
         }
       }
       if (gSessionContext.transitionFlags & 4)
       {
         Session_InitTwoTrainers(6, 0xA, 0xD);
         gSessionContext.roundOrDemoId = 8;
-        func_80025B60((((u32) (((s32) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (s32) &gSessionContext);
+        func_80025B60((((u32) (((uintptr_t) (&D_82100000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017ED00, &D_00232510_2, 0, (uintptr_t) &gSessionContext);
       }
       if (gSessionContext.transitionFlags & 0x20)
       {
-        func_80025B60((((u32) (((s32) (&D_81700000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017BE70, &D_0017E340, 0, (s32) &gSessionContext);
+        func_80025B60((((u32) (((uintptr_t) (&D_81700000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_0017BE70, &D_0017E340, 0, (uintptr_t) &gSessionContext);
       }
       }
   }
@@ -721,7 +721,7 @@ void State_GbPlayer(void) {
 
     sp24.partyIcons = MainPool_Alloc(sizeof(*sp24.partyIcons), 0);
 
-    func_80025B60(((u32) ((s32) &D_81300000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F8F0, &D_0015FCE0, gActiveGbPort, (s32) &sp24);
+    func_80025B60(((u32) ((uintptr_t) &D_81300000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F8F0, &D_0015FCE0, gActiveGbPort, (uintptr_t) &sp24);
     GbPlayer_Start(&sp24);
 
     sp2C = GbPlayer_WaitForExit();

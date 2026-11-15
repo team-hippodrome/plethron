@@ -41,7 +41,7 @@ extern DisplayObject* D_8006049C;
  */
 void CartridgeCheckModels_GeoSwitchTerminal(s32 context, GeoSwitchCaseNode* node) {
     if (context == 2) {
-        node->node.children = (struct CameraNode*)CartridgeCheckModels_CheckBootCode((s32)node->node.children);
+        node->node.children = (struct CameraNode*)CartridgeCheckModels_CheckBootCode((uintptr_t)node->node.children);
         node->selectedChild = (s16) D_8006049C->node.callbackArg;
     }
 }

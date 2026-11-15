@@ -110,7 +110,7 @@ void LabTextMenu_Draw(Box89104E38* menu) {
         s32 sp2C[4];
 
         sp2C[0] = menu->w - 12;
-        label = (s32)menu->label;
+        label = (uintptr_t)menu->label;
         Menu_DrawItems(label, menu->x + 6, menu->y + 10, 0xFFEF, (s8*)sp2C);
     }
     /* Empty test kept from the permuter: it keeps menu in $s0 as in the ROM. */
@@ -192,13 +192,13 @@ void LabMoveSelect_Init(LabMoveSelectWindow* window, s32 x, s32 y, u8* mon) {
     s32 i;
 
     for (i = 0; i < n; i++) {
-        window->moves[i] = BattleMon_GetMoveIndex((s32)mon, i);
+        window->moves[i] = BattleMon_GetMoveIndex((uintptr_t)mon, i);
     }
     for (i = n; i < 4; i++) {
         window->moves[i] = -1;
     }
     func_80027410(&window->moveMatrix, window->moves, 4, 4, 4);
-    Menu_Init(&window->menu, &window->moveMatrix, (s32)window->itemFlags, LabMoveSelect_DrawMoveRow, 156, 28);
+    Menu_Init(&window->menu, &window->moveMatrix, (uintptr_t)window->itemFlags, LabMoveSelect_DrawMoveRow, 156, 28);
     window->menu.options |= 0x10000;
     Window_SetRect(&window->window, x, y, 168, 132);
     window->window.animTimer = 0;
@@ -635,9 +635,9 @@ void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, s8* sourc
     window->okButton.labelX = 10;
     window->okButton.unk_34 = 0xC;
     list = *(s32*)sources;
-    LabBoxList_Init(&window->gbBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 28, (ByteMatrix*)(list + 0x34), (s32)(&window->gbBoxFlags), color);
-    LabBoxList_Init(&window->cartBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 56, (ByteMatrix*)(list + 0x58), (s32)(&window->cartBoxFlags), color);
-    Menu_Init(&window->menu, sources, (s32)(&window->itemFlags), LabSourceSelect_DrawRow, 296, 28);
+    LabBoxList_Init(&window->gbBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 28, (ByteMatrix*)(list + 0x34), (uintptr_t)(&window->gbBoxFlags), color);
+    LabBoxList_Init(&window->cartBoxes, window->window.frame.x + window->window.frame.width, window->listFrame.y + 56, (ByteMatrix*)(list + 0x58), (uintptr_t)(&window->cartBoxFlags), color);
+    Menu_Init(&window->menu, sources, (uintptr_t)(&window->itemFlags), LabSourceSelect_DrawRow, 296, 28);
     LabSourceSelect_UpdateItemFlags((u8*)window);
     window->cursor.count = 4;
     window->cursor.cursor = 0;
@@ -911,7 +911,7 @@ M2C_UNK Menu_UpdateCursor(s32);                         /* extern */
  * cursor from フシギダネをあつめる to いどうする.
  */
 s32 LabPCList_UpdatePopupMenu(LabPopupMenu* popup) {
-    return Menu_UpdateCursor((s32)&popup->menu);
+    return Menu_UpdateCursor((uintptr_t)&popup->menu);
 }
 
 extern char D_8910E064[];
@@ -978,15 +978,15 @@ void LabPCList_DrawLevelInput(s8* input, s32 x, s32 y, s32 flags) {
         bx = x - M2C_FIELD(input, s32*, 0x10) * 0x16 + 0x2C;
         gSPDisplayList(gDisplayListHead++, D_80073408);
         if (((u16*)D_800603C0)[3] & 0x800) {
-            v = (s32)D_04002340;
+            v = (uintptr_t)D_04002340;
         } else {
-            v = (s32)D_04002130;
+            v = (uintptr_t)D_04002130;
         }
         func_8001B884(bx + 3, y - 10, 14, 8, (u8*)v, 0x10, 0x200000);
         if (((u16*)D_800603C0)[3] & 0x400) {
-            v = (s32)D_04002448;
+            v = (uintptr_t)D_04002448;
         } else {
-            v = (s32)D_04002238;
+            v = (uintptr_t)D_04002238;
         }
         func_8001B884(bx + 3, y + 22, 14, 8, (u8*)v, 0x10, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
@@ -1244,7 +1244,7 @@ void LabPCList_InitTypeFilter(LabTypeFilterWindow* window, s32 x, s32 y, s32* fi
     for (i = 0; i < 0xF; i++) {
         window->names[i] = (s8*)&D_80066AD8[i + ((i < 6) ? 0 : 1)];
     }
-    ScrollList_Init(&window->list, (s32)&window->typeList, (s32)window->typeFlags, 8, LabPCList_DrawTypeFilterRow, 174, 28);
+    ScrollList_Init(&window->list, (uintptr_t)&window->typeList, (uintptr_t)window->typeFlags, 8, LabPCList_DrawTypeFilterRow, 174, 28);
     window->list.options |= 0x10000;
     for (i = 0; i < *filter; i++) {
         window->slots[i].index = LabPCList_TypeIdToListIndex(((u8*)filter)[4 + i]);
@@ -1446,7 +1446,7 @@ void LabPCList_InitMoveFilter(LabMoveFilterWindow* window, s32 x, s32 y, u8* fil
     window->window.frame.color = D_8910AACC;
     window->window.title = D_8910E0D0;
     func_80027410(&window->moveMatrix, D_8910A978, 1, 0xA4, 0xA4);
-    ScrollList_Init(&window->list, (s32)&window->moveMatrix, (s32)window->moveFlags, 8, LabPCList_DrawMoveFilterRow, 212, 28);
+    ScrollList_Init(&window->list, (uintptr_t)&window->moveMatrix, (uintptr_t)window->moveFlags, 8, LabPCList_DrawMoveFilterRow, 212, 28);
     window->list.options |= 0x10000;
     for (i = 0; i < M2C_FIELD(filter, s32*, 4); i++) {
         window->slots[i].index = D_8910AA1C[filter[i] - 1];
@@ -1564,7 +1564,7 @@ s32 LabPCList_UpdateMoveFilter(LabMoveFilterWindow* window) {
                         }
                         window->list.itemFlags[window->list.cursor] |= 8;
                         window->slots[window->cursor.cursor].index = window->list.cursor;
-                        window->slots[window->cursor.cursor].button.label = (s32)D_8006A9D4[D_8910A978[window->list.cursor]].name;
+                        window->slots[window->cursor.cursor].button.label = (uintptr_t)D_8006A9D4[D_8910A978[window->list.cursor]].name;
                         window->mode = 0;
                         window->cursor.cursor++;
                     }
@@ -1707,7 +1707,7 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, s32 items, s3
     window->window.state = 0;
     window->window.frame.style = 0x801;
     func_8000A460(D_89119BD0, *(s8**)D_80064C44[mon[8]]);
-    *(Str891084B4*)(strlen((s32)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
+    *(Str891084B4*)(strlen((uintptr_t)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;
@@ -1820,7 +1820,7 @@ s32 LabPCList_UpdateItemWindow(s8 *window)
         if (!((*((u16 **) (((s8 *) self) + 0x50)))[*((s32 *) (((s8 *) self) + 0x54))] & 1)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
         {
           Audio_PlaySystemSound(2);
-          LabPCList_InitPopupMenu((LabPopupMenu *) (self + 0x94), (s32 *) D_8910AAE8, (s32) (self + 0x90), 1, 0);
+          LabPCList_InitPopupMenu((LabPopupMenu *) (self + 0x94), (s32 *) D_8910AAE8, (uintptr_t) (self + 0x90), 1, 0);
           Window_SetRect(self + 0xC0, (*((s32 *) (((s8 *) self) + 0))) + 6, (((*((s32 *) (((s8 *) self) + 4))) + (*((s32 *) (((s8 *) self) + 0x80)))) - (*((s32 *) (((s8 *) self) + 0x78)))) + 0x16, (*((s32 *) (((s8 *) self) + 8))) - 0xC, 28); // FAKE: decomp slop, raw pointer casts stand in for struct fields
           *((s32 *) (((s8 *) self) + 0x108)) = ((*((s32 *) (((s8 *) self) + 8))) + (*((s32 *) (((s8 *) self) + 0)))) - 6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
           *((s32 *) (((s8 *) self) + 0x10C)) = (*((s32 *) (((s8 *) self) + 4))) + 0xF6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
@@ -1908,7 +1908,7 @@ s32 LabPCList_UpdateItemWindow(s8 *window)
       break;
 
     case 2:
-      if (LabMoveSelect_Update((s32) (self + 0x110)) == 0)
+      if (LabMoveSelect_Update((uintptr_t) (self + 0x110)) == 0)
     {
       if (((u16 *) D_800603C0)[4] & 0x4000)
       {
@@ -1933,7 +1933,7 @@ s32 LabPCList_UpdateItemWindow(s8 *window)
       break;
 
     case 3:
-      if (LabMoveSelect_Update((s32) (self + 0x110)) == 0)
+      if (LabMoveSelect_Update((uintptr_t) (self + 0x110)) == 0)
     {
       if (((u16 *) D_800603C0)[4] & 0x4000)
       {

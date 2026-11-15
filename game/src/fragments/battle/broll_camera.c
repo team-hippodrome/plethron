@@ -635,7 +635,7 @@ void BattleScene_BRollRaiseRotationXRestoreFov(CameraNode* camera) {
         return;
     }
     BattleAnim_StepToS16(&sBattleScene.scene->orbitRotationX, 0x149E, 0x2D);
-    func_82122628((s32)camera, sBattleScene.scene->anchorPosition, sBattleScene.scene->orbitRotationX,
+    func_82122628((uintptr_t)camera, sBattleScene.scene->anchorPosition, sBattleScene.scene->orbitRotationX,
                   BattleScene_GetParticipantFacingAngle(sActivePokemon[sBattleScene.scene->actingSide]), sBattleScene.scene->orbitDistance, 0.0f);
     BattleAnim_ApproachF(&M2C_FIELD(camera, f32*, 0x2C), sBattleScene.scene->verticalFieldOfView, 0.08f);
     temp_f0 = sBattleScene.scene->verticalFieldOfView;
@@ -669,7 +669,7 @@ void BattleScene_BRollDollyIn(CameraNode* camera) {
     }
     temp_f0 = func_82121750(sActivePokemon[sBattleScene.scene->actingSide], 2.5f, 300.0f);
     BattleAnim_ApproachF(&sBattleScene.scene->orbitDistance, temp_f0, 0.08f);
-    func_82122628((s32)camera, sBattleScene.scene->anchorPosition, 0,
+    func_82122628((uintptr_t)camera, sBattleScene.scene->anchorPosition, 0,
                   BattleScene_GetParticipantFacingAngle(sActivePokemon[sBattleScene.scene->actingSide]), sBattleScene.scene->orbitDistance, 0.0f);
     if (sBattleScene.scene->orbitDistance < (temp_f0 + 0.2f)) {
         BattleScene_SelectNextBRollCameraShot(camera);

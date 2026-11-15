@@ -69,19 +69,19 @@ void BattleMessage_ShowDamage(s32 attacker, s32 defender) {
     s32 pct;
 
     if (runtime->hp == 0) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[0], 0x21, D_8218C788, ActivePokemon_GetNickname(*atk));
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], 0x21, D_8218C788, ActivePokemon_GetNickname(*atk));
         return;
     }
     state->foeHpBeforeMove = runtime->hp;
     pct = (runtime->hp * 0x19) / (runtime->maxHp >> 2);
     if (pct >= 0x46) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[0], 0x21, D_8218C788, ActivePokemon_GetNickname(*atk));
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], 0x21, D_8218C788, ActivePokemon_GetNickname(*atk));
     } else if (pct >= 0x28) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[0], 0x22, D_8218C78C, ActivePokemon_GetNickname(*atk));
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], 0x22, D_8218C78C, ActivePokemon_GetNickname(*atk));
     } else if (pct >= 0xA) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[0], 0x23, D_8218C790, ActivePokemon_GetNickname(*atk));
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], 0x23, D_8218C790, ActivePokemon_GetNickname(*atk));
     } else {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[0], 0x24, D_8218C794, ActivePokemon_GetNickname(*atk));
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], 0x24, D_8218C794, ActivePokemon_GetNickname(*atk));
     }
 }
 
@@ -141,17 +141,17 @@ void Battle_FormatDamageComment(ActivePokemon* active_pokemon) {
     }
 
     if (var_v0 == 0) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[5], 0x25, D_8218C798);
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[5], 0x25, D_8218C798);
     } else if (var_v0 < 0x1E) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[5], 0x26, D_8218C79C);
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[5], 0x26, D_8218C79C);
     } else if (var_v0 < 0x46) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[5], 0x27, D_8218C7A0);
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[5], 0x27, D_8218C7A0);
     } else {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[5], 0x28, D_8218C7A4);
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[5], 0x28, D_8218C7A4);
     }
 
     if (active_pokemon->state.faintState == 0x10) {
-        BattleMessage_Format((s32)gBattleMessageQueues->messageBuffers[5], 0, (s32)D_8219544C);
+        BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[5], 0, (uintptr_t)D_8219544C);
     }
 }
 

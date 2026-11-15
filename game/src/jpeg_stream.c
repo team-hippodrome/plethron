@@ -110,7 +110,7 @@ void Jpeg_InitializeDspTask(SchedTask* arg0, JpegTaskParams* arg1) {
     arg0->task.t.type = 4;
     arg0->task.t.flags = 0;
     arg0->task.t.ucode_boot = rspbootTextStart;
-    arg0->task.t.ucode_boot_size = (u32)_binary_assets_us_F3DEX2_bin_start - (u32)rspbootTextStart;
+    arg0->task.t.ucode_boot_size = (uintptr_t)_binary_assets_us_F3DEX2_bin_start - (uintptr_t)rspbootTextStart;
     arg0->task.t.ucode = njpgdspMainTextStart;
     arg0->task.t.ucode_size = 0x1000;
     arg0->task.t.ucode_data = njpgdspMainDataStart;
@@ -144,9 +144,9 @@ void Jpeg_BuildDspOutput(JpegTaskParams* arg0, u8(arg1)[2][0x80], JpegStreamInfo
     arg0->address = 0;
     arg0->mode = arg2->mode;
     arg0->mbCount = 1;
-    arg0->qTableYPtr = (u32)&arg1[0] & 0x1FFFFFFF;
-    arg0->qTableUPtr = (u32)&arg1[1] & 0x1FFFFFFF;
-    arg0->qTableVPtr = (u32)&arg1[1] & 0x1FFFFFFF;
+    arg0->qTableYPtr = (uintptr_t)&arg1[0] & 0x1FFFFFFF;
+    arg0->qTableUPtr = (uintptr_t)&arg1[1] & 0x1FFFFFFF;
+    arg0->qTableVPtr = (uintptr_t)&arg1[1] & 0x1FFFFFFF;
 }
 
 /**

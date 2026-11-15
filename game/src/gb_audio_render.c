@@ -687,7 +687,7 @@ s16 GbAudio_RenderNoise(void) {
         if (sample_id != D_800FD7B8.sampleId) {
             D_800FD7B8.sampleId = sample_id;
             ent = (GbNoiseSampleEntry*)((u32*)D_800B41E4 + (D_800FD7B8.sampleId << 1));
-            Rom_DmaRead(ent->romAddr, (u32)D_800B41E8, ent->size);
+            Rom_DmaRead(ent->romAddr, (uintptr_t)D_800B41E8, ent->size);
         }
 
         D_800FD7B8.sampleIndex = 0;

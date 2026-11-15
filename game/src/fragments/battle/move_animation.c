@@ -429,26 +429,26 @@ void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon* arg0) {
 
     side = func_82107A5C(arg0);
     type = arg0->displayObject.objectType - 1;
-    base = (u32)&D_00434C00;
+    base = (uintptr_t)&D_00434C00;
     // FAKE: the redundant (u32) casts on base below set the addu operand order.
     src = (s8*)((D_80073B30[type] & 0xFFFFFF) + (u32)base);
     func_80003824(D_82189180[side], src, src + 0x814, 0);
     if (side == 1) {
         s8** p = &D_82189188[side];
 
-        src = (s8*)((u32)base + ((u32)D_0004EDA8[type] & 0xFFFFFF));
+        src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
         func_80003824(*p, src, src + 0x20, 0);
         if (M2C_FIELD(*p, s16*, 0x10) != 0xFF) {
             saved = M2C_FIELD(*p, s16*, 0x10);
-            src = (s8*)(((u32)D_0004EDA8[M2C_FIELD(*p, s16*, 0x10) - 2] & 0xFFFFFF) + (u32)base);
+            src = (s8*)(((uintptr_t)D_0004EDA8[M2C_FIELD(*p, s16*, 0x10) - 2] & 0xFFFFFF) + (u32)base);
             func_80003824(*p, src, src + 0x20, 0);
             M2C_FIELD(*p, s16*, 0x10) = saved;
         }
     } else {
-        src = (s8*)((u32)base + ((u32)D_0004EDA8[type] & 0xFFFFFF));
+        src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
         func_80003824(D_82189188[side], src, src + 0x20, 0);
     }
-    src = (s8*)((u32)base + ((u32)D_00050228[type] & 0xFFFFFF));
+    src = (s8*)((u32)base + ((uintptr_t)D_00050228[type] & 0xFFFFFF));
     func_80003824(D_82199DF0[side], src, src + 0x10, 0);
 }
 

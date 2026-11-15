@@ -593,7 +593,7 @@ OSTask* __amHandleFrame(OSTask* arg0) {
 
     sp38.t.type = M_AUDTASK;
     sp38.t.ucode_boot = &rspbootTextStart;
-    sp38.t.ucode_boot_size = (s32)_binary_assets_us_F3DEX2_bin_start - (s32)rspbootTextStart;
+    sp38.t.ucode_boot_size = (uintptr_t)_binary_assets_us_F3DEX2_bin_start - (uintptr_t)rspbootTextStart;
     sp38.t.flags = 0;
     sp38.t.ucode = D_8005E120;
     sp38.t.ucode_data = D_8007FCF0;

@@ -371,7 +371,7 @@ s32 LabPCList_IsPpUpItemId(s32* item_id) {
  * Seen in play (2026-11-14) in いちらん: the list came out vitamins, ふしぎなアメ, ポイントアップ, わざマシン06.
  */
 s32 LabPCList_CompareUsableItems(PointerList* a, PointerList* b) {
-    return (a->count - b->count != 0) ? a->count - b->count : (s32)a[1].items - (s32)b[1].items;
+    return (a->count - b->count != 0) ? a->count - b->count : (uintptr_t)a[1].items - (uintptr_t)b[1].items;
 }
 
 typedef struct TmEntry8910A21C {
@@ -516,7 +516,7 @@ void LabPCList_UpdateItemUsability(s8* items, u8* mon) {
         } else if (M2C_FIELD(e, s32*, 8) >= 50) {
             n2 = BattleMon_CountMoves(mon);
             for (j = 0; j < n2; j++) {
-                if ((BattleMon_GetMoveIndex((s32)mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
+                if ((BattleMon_GetMoveIndex((uintptr_t)mon, j) != -2) && ((mon + j)[0x20] < 0xC0)) {
                     break;
                 }
             }
@@ -568,7 +568,7 @@ void LabPCList_ConsumeUsedItem(unk_func_8830867C_04C_030_02C_000* item) {
     if ((LabItem_IsQuantitylessItemForOperation(item->unk_00[0]->unk_00) != 0) || (item->unk_00[0]->unk_01 < 2)) {
         s32 tmp = item->unk_00[1]->unk_0C.items;
 
-        WordList_Remove(&item->unk_00[1]->unk_0C, ((s32)item->unk_00[0] - tmp) >> 1);
+        WordList_Remove(&item->unk_00[1]->unk_0C, ((uintptr_t)item->unk_00[0] - tmp) >> 1);
     } else {
         item->unk_00[0]->unk_01--;
     }

@@ -1210,7 +1210,7 @@ s32 GbSave_GetPlayerName(s32 port, M2C_UNK dst) {
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
-    return func_8001FCC0(dst & 0xFFFFFFFFFFFFFFFF, (s32)temp_v0->mainData->playerName, dst); // FAKE
+    return func_8001FCC0(dst & 0xFFFFFFFFFFFFFFFF, (uintptr_t)temp_v0->mainData->playerName, dst); // FAKE
 }
 
 extern s8 D_800AD210;
@@ -1225,7 +1225,7 @@ s32 GbSave_SetPlayerName(s32 port, char* name) {
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
-    return (s32)Text_TranscodeName((char*)temp_v0->mainData->playerName, name);
+    return (uintptr_t)Text_TranscodeName((char*)temp_v0->mainData->playerName, name);
 }
 
 s32 func_8001FCC0(M2C_UNK, s32, M2C_UNK);           /* extern */
@@ -1241,7 +1241,7 @@ s32 GbSave_GetRivalName(s32 port, M2C_UNK dst) {
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
-    return func_8001FCC0(dst ^ 0, (s32)temp_v0->mainData->rivalName, dst); // FAKE
+    return func_8001FCC0(dst ^ 0, (uintptr_t)temp_v0->mainData->rivalName, dst); // FAKE
 }
 
 extern s8 D_800AD210;
@@ -1256,7 +1256,7 @@ s32 GbSave_SetRivalName(s32 port, char* name) {
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
-    return (s32)Text_TranscodeName((char*)temp_v0->mainData->rivalName, name);
+    return (uintptr_t)Text_TranscodeName((char*)temp_v0->mainData->rivalName, name);
 }
 
 /*

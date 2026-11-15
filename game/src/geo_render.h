@@ -25,8 +25,8 @@ typedef struct GeoLayerRenderState {
     /* 0x00 */ s32 unk_00;
     /* 0x04 */ s32 primColor; // @unverified: last gDPSetPrimColor color (GeoRender_ResetMaterialState)
     /* 0x08 */ s32 fogColor; // @unverified: last G_SETFOGCOLOR word, compared with the layer entry (GeoRender_ApplyEntryFog)
-    /* 0x0C */ s32 texture; // @unverified: bound texture; 0 means none (GeoRender_DisableTexture/BindTexture)
-    /* 0x10 */ s32 palette; // @unverified: cleared with texture in GeoRender_ResetMaterialState
+    /* 0x0C */ uintptr_t texture; // @unverified: bound texture; 0 means none (GeoRender_DisableTexture/BindTexture)
+    /* 0x10 */ uintptr_t palette; // @unverified: cleared with texture in GeoRender_ResetMaterialState
     /* 0x14 */ s32 displayList; // @unverified: last material display list (GeoRender_BindTexture)
     /* 0x18 */ u8 combineMode; // @unverified: index into D_80060534 combine modes
     /* 0x19 */ u8 primLodFraction; // @unverified: last gDPSetPrimColor LOD fraction
@@ -44,14 +44,14 @@ typedef struct GeoLayerEntry {
     /* 0x05 */ u8 textureMode;
     /* 0x06 */ u8 combineMode; // @unverified: index into D_80060534, compared with GeoLayerRenderState.combineMode (GeoRender_ApplyEntryCombineMode)
     /* 0x07 */ u8 lodFraction;
-    /* 0x08 */ s32 dl;
-    /* 0x0C */ s32 mtx;
+    /* 0x08 */ uintptr_t dl;
+    /* 0x0C */ uintptr_t mtx;
     /* 0x10 */ s32 primColor; // @unverified: RGBA word for gDPSetPrimColor (GeoRender_ApplyEntryPrimColor)
     /* 0x14 */ s32 fogColor; // @unverified: G_SETFOGCOLOR word; low byte nonzero enables fog (GeoRender_ApplyEntryFog/GeoRender_ClearEntryFog)
-    /* 0x18 */ s32 texture; // @unverified: GeoTextureBankNode texture entry, 0 for none (GeoRender_BindTexture)
-    /* 0x1C */ s32 palette; // @unverified: GeoTextureBankNode palette entry or 0 (GeoRender_BindTexture)
-    /* 0x20 */ s32 materialDisplayList; // @unverified: called after the texture image is set (GeoRender_BindTexture)
-} GeoLayerEntry; // size = 0x24
+    /* 0x18 */ uintptr_t texture; // @unverified: GeoTextureBankNode texture entry, 0 for none (GeoRender_BindTexture)
+    /* 0x1C */ uintptr_t palette; // @unverified: GeoTextureBankNode palette entry or 0 (GeoRender_BindTexture)
+    /* 0x20 */ uintptr_t materialDisplayList; // @unverified: called after the texture image is set (GeoRender_BindTexture)
+} GeoLayerEntry; // size = 0x24 (N64; PORT: pointer fields widened to uintptr_t)
 
 struct Root80013DC8;
 

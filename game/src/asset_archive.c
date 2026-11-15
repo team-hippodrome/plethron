@@ -137,7 +137,7 @@ void* Jpeg_LoadDecodedImage(u8* addr, PRESJPEG* arg1, s32 side) {
     s32 new_addr = MainPool_Alloc(arg1->decodedSize + 0x100, side);
 
     if (new_addr != NULL) {
-        s32 size = Jpeg_DecodeImage(new_addr, arg1->decodedSize + 0x100, (u32)arg1 + arg1->dataOffset);
+        s32 size = Jpeg_DecodeImage(new_addr, arg1->decodedSize + 0x100, (uintptr_t)arg1 + arg1->dataOffset);
 
         if (size == 0) {
             MainPool_TryFree(new_addr);

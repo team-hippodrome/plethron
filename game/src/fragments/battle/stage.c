@@ -740,21 +740,21 @@ s32 BattleScene_Init(s32* arg0) { // FAKE: s32 return (value unused) fixes calle
     GfxImage_AttachDepthBuffer(D_82198D04, D_82198CFC);
     D_82198D08 = D_82198D00->img_p;
     D_82198D0C = D_82198D04->img_p;
-    func_800040B4(((u32)((s32)D_81000000 & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
-    Asset_LoadToSegment((u32)((s32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment((u32)((s32)D_03000000 & 0x0F000000) >> 0x18, D_003F53F0, D_003FC1A0, 0);
+    func_800040B4(((u32)((uintptr_t)D_81000000 & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Asset_LoadToSegment((u32)((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment((u32)((uintptr_t)D_03000000 & 0x0F000000) >> 0x18, D_003F53F0, D_003FC1A0, 0);
     switch (D_82198D1C) {
         case 0:
-            func_800040B4(((u32)((s32)D_8F300000 & 0x0FF00000) >> 0x14) - 0x10, D_00320820, D_00326700);
+            func_800040B4(((u32)((uintptr_t)D_8F300000 & 0x0FF00000) >> 0x14) - 0x10, D_00320820, D_00326700);
             break;
         case 1:
-            func_800040B4(((u32)((s32)D_8F900000 & 0x0FF00000) >> 0x14) - 0x10, D_003139C0, D_00317EF0);
+            func_800040B4(((u32)((uintptr_t)D_8F900000 & 0x0FF00000) >> 0x14) - 0x10, D_003139C0, D_00317EF0);
             break;
         case 2:
-            func_800040B4(((u32)((s32)D_8FA00000 & 0x0FF00000) >> 0x14) - 0x10, D_00317EF0, D_0031C300);
+            func_800040B4(((u32)((uintptr_t)D_8FA00000 & 0x0FF00000) >> 0x14) - 0x10, D_00317EF0, D_0031C300);
             break;
         case 3:
-            func_800040B4(((u32)((s32)D_8FB00000 & 0x0FF00000) >> 0x14) - 0x10, D_0031C300, D_00320820);
+            func_800040B4(((u32)((uintptr_t)D_8FB00000 & 0x0FF00000) >> 0x14) - 0x10, D_0031C300, D_00320820);
             break;
     }
     model = Model_LoadByArchiveIndex(0x99);

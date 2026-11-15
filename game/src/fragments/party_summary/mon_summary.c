@@ -349,7 +349,7 @@ void PartyScreen_ReadParty(ByteMatrix* table) {
     s32 sp18;
     s32 temp_v0;
 
-    sp1C = (s32)table->rows;
+    sp1C = (uintptr_t)table->rows;
     temp_v0 = func_80020AFC(0x20, sPartyGbPort, 0, 0);
     sp18 = temp_v0;
     table->count = func_80020CE4(sp1C, table->capacity, temp_v0);
@@ -404,7 +404,7 @@ void PartyScreen_SetupList(PartyScreen* screen) {
         PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, i, (BattleMon*)(screen->monTable.rows + i * 0x50),
                       GPACK_RGBA5551(D_8A203304.r, D_8A203304.g, D_8A203304.b, 1));
     }
-    PartyScreen_InitList(&screen->listWindow, 47, 77, (s32)&screen->monList);
+    PartyScreen_InitList(&screen->listWindow, 47, 77, (uintptr_t)&screen->monList);
 }
 
 s32 Window_UpdateAnimation(Window* arg0);
@@ -528,7 +528,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             if (Menu_UpdateCursor(&arg0->listWindow.menu) != 0) {
                 arg0->listWindow.window.animTimer = (arg0->listWindow.window.state <= 0) ? arg0->listWindow.window.animTimer : 4;
             } else {
-                res = func_8002BC14((s32)D_800603C0);
+                res = func_8002BC14((uintptr_t)D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     if (arg0->dirty != 0) {
@@ -550,19 +550,19 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             res = PartyScreen_UpdateActionMenu(&arg0->actionMenu);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
-                PartyScreen_CloseWindow(arg0, 1, (s32)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
             } else if (res > 0) {
                 switch (res) {
                     case 1:
                         Audio_PlaySystemSound(2);
-                        PartyScreen_CloseWindow(arg0, 4, (s32)&arg0->summaryWindow);
+                        PartyScreen_CloseWindow(arg0, 4, (uintptr_t)&arg0->summaryWindow);
                         arg0->summaryWindow.moveSlot = 0;
                         arg0->listWindow.window.animTimer = 7;
                         MonSummary_InitPageWindow(&arg0->summaryWindow, 44, 84, arg0->monPointers[arg0->listWindow.menu.cursor]);
                         break;
                     case 2:
                         Audio_PlaySystemSound(2);
-                        PartyScreen_CloseWindow(arg0, 3, (s32)&arg0->listWindow);
+                        PartyScreen_CloseWindow(arg0, 3, (uintptr_t)&arg0->listWindow);
                         arg0->listWindow.menu.itemFlags[arg0->listWindow.menu.cursor] |= 8;
                         arg0->swapIndex = arg0->listWindow.menu.cursor;
                         break;
@@ -570,7 +570,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
                         Audio_PlaySystemSound(3);
                         if (arg0->dirty != 0) {
                             SavePrompt_Init(&arg0->savePrompt, 212, 173);
-                            PartyScreen_CloseWindow(arg0, 6, (s32)&arg0->savePrompt);
+                            PartyScreen_CloseWindow(arg0, 6, (uintptr_t)&arg0->savePrompt);
                         } else {
                             PartyScreen_CloseWindow(arg0, 7, 0);
                             arg0->listWindow.window.animTimer = 7;
@@ -583,7 +583,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             if (Menu_UpdateCursor(&arg0->listWindow.menu) != 0) {
                 arg0->listWindow.window.animTimer = (arg0->listWindow.window.state <= 0) ? arg0->listWindow.window.animTimer : 4;
             } else {
-                res = func_8002BC14((s32)D_800603C0);
+                res = func_8002BC14((uintptr_t)D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     arg0->state = 1;
@@ -606,10 +606,10 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             }
             break;
         case 4:
-            res = func_8002BC14((s32)D_800603C0);
+            res = func_8002BC14((uintptr_t)D_800603C0);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
-                PartyScreen_CloseWindow(arg0, 1, (s32)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
                 arg0->listWindow.window.animTimer = 0;
             } else if (res == 1) {
                 Audio_PlaySystemSound(2);
@@ -619,14 +619,14 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             break;
         case 5:
             if (MonSummary_UpdateMoveCursor(&arg0->summaryWindow) == 0) {
-                res = func_8002BC14((s32)D_800603C0);
+                res = func_8002BC14((uintptr_t)D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     arg0->state = 4;
                     arg0->summaryWindow.window.animTimer = (arg0->summaryWindow.window.state <= 0) ? arg0->summaryWindow.window.animTimer : 4;
                 } else if (res == 1) {
                     Audio_PlaySystemSound(2);
-                    PartyScreen_CloseWindow(arg0, 1, (s32)&arg0->listWindow);
+                    PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
                     arg0->listWindow.window.animTimer = 0;
                 }
             }
@@ -634,12 +634,12 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
         case 6:
             res = SavePrompt_Update(&arg0->savePrompt);
             if (res == -1) {
-                PartyScreen_CloseWindow(arg0, 1, (s32)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
             } else if (res > 0) {
                 switch (res) {
                     case 1:
                         Save_DrawReportingWindow(&arg0->savePrompt);
-                        PartyScreen_WriteParty((s32*)(&arg0->monList), (s32)arg0);
+                        PartyScreen_WriteParty((s32*)(&arg0->monList), (uintptr_t)arg0);
                         PartyScreen_CloseWindow(arg0, 7, 0);
                         arg0->listWindow.window.animTimer = 7;
                         break;
@@ -746,13 +746,13 @@ s32 PartyScreen_Init(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2) {
     Font_Init(0x1C, 0);
     sMoveBackdropArchive = BinArchive_Open(D_003DCB60, D_003F53C0, 1, 1);
     D_8A21DA48 = (ModelLoadContext*)PokeIcon_AllocFramebuffers(1);
-    sPartyModelPreview = (s32)PokeIcon_CreateModelPreview(D_8A21DA48, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, D_8A203438);
+    sPartyModelPreview = (uintptr_t)PokeIcon_CreateModelPreview(D_8A21DA48, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, D_8A203438);
     sPartyIconList = (s8*)PokeIcon_CreateRenderList(D_8A21DA48, 6, 0x28, 0x28);
     PokeIcon_OpenModelArchives();
 
-    Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
+    Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
 
     D_8A21DA58 = MainPool_Alloc(0x3000, 0);
     for (i = 0; i < 4; i++) {
@@ -767,6 +767,6 @@ s32 PartyScreen_Init(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2) {
     StageLoader_WaitForRetrace();
     Font_Free();
     MainPool_PopState('VIEW');
-    Fragment_QueueCall(((((u32)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
     return 0x8040;
 }

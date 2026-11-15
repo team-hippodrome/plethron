@@ -51,9 +51,9 @@ void GbEmu_DrawPauseMenu(s8* fb, u8 cursor) {
     fb += 0x787C;
     GbEmu_DrawTextCommands(fb, D_8111E318);
     for (i = 0; i != 0x140; i += 0x20) {
-        func_81103C40((s32)(fb + 0xC806 + i), &D_8111C4F0, 0, 0xC, 5);
+        func_81103C40((uintptr_t)(fb + 0xC806 + i), &D_8111C4F0, 0, 0xC, 5);
     }
-    func_81103C40((s32)(fb + (cursor & 3) * 0x2D00 + 0x4618), &D_8111C568, 0, 0x10, 0xA);
+    func_81103C40((uintptr_t)(fb + (cursor & 3) * 0x2D00 + 0x4618), &D_8111C568, 0, 0x10, 0xA);
     D_8111E324[4] = 0xA;
     D_8111E364[4] = 0xA;
     D_8111E3CC[4] = 0xA;
@@ -264,7 +264,7 @@ void GbEmu_DrawQuitConfirm(s8* fb, s32 no) {
     D_8111E4BC[no ? 4 : 0xC] = 8;
     D_8111E4BC[no ? 0xC : 4] = 0xA;
     GbEmu_DrawTextCommands(fb, D_8111E4BC);
-    func_81103C40((s32)&((u16*)(fb + 0x13B00))[no ? 0xE : 0x45], &D_8111C568, 0, 0x10, 0xA);
+    func_81103C40((uintptr_t)&((u16*)(fb + 0x13B00))[no ? 0xE : 0x45], &D_8111C568, 0, 0x10, 0xA);
 }
 
 typedef struct GbPlayerTask {
@@ -323,7 +323,7 @@ void GbEmu_Init(s8* params) {
 
     D_81154C30[0] = func_800051F0(0, 2, 0x140, 0xF0, 1);
     D_81154C30[1] = func_800051F0(0, 2, 0x140, 0xF0, 1);
-    D_81154C38 = func_800023C4((u32) D_0015A9B0 - (u32) D_000DA9B0 + 0x158000, 0, (u32) D_000DA9B0);
+    D_81154C38 = func_800023C4((uintptr_t) D_0015A9B0 - (uintptr_t) D_000DA9B0 + 0x158000, 0, (uintptr_t) D_000DA9B0);
     if (D_81154C38 == 0) {
         D_81154C4E = 1;
         D_81154C48 = 3;
@@ -333,7 +333,7 @@ void GbEmu_Init(s8* params) {
     AudioLoad_Init();
     func_80003824(D_81154C38, D_000DA9B0, D_0015A9B0, 0);
     func_81117288(D_81154C38);
-    D_81154C38 = (D_81154C38 + (u32) D_0015A9B0) - (u32) D_000DA9B0;
+    D_81154C38 = (D_81154C38 + (uintptr_t) D_0015A9B0) - (uintptr_t) D_000DA9B0;
     func_811171DC();
     osCreateMesgQueue(D_81154B24, (u8*)D_81154B20, 1);
     osCreateMesgQueue(D_81154B8C, D_81154B88, 1);

@@ -422,7 +422,7 @@ void LabPCList_ApplyPpUpItem(u8** entry, s32 item, s32 slot, Msg891041D8* msg) {
     s32 step;
     s8* end;
 
-    func_8000A460(D_8910E3B8, D_8006A9CC[*(u8*)((u32)entry + slot + 0x11)].name); // FAKE: integer cast keeps entry + slot from being reused
+    func_8000A460(D_8910E3B8, D_8006A9CC[*(u8*)((uintptr_t)entry + slot + 0x11)].name); // FAKE: integer cast keeps entry + slot from being reused
     ptr = (u8*)entry + slot + 8;
     end = D_8910E3B8 + strlen(D_8910E3B8);
     *(Str891041D8*)end = *(Str891041D8*)D_8910DE3C;
@@ -537,7 +537,7 @@ s32 LabPCList_UpdateList(LabPCListScreen* screen) {
  */
 void LabPCList_InitScreen(LabPCList* lab) {
     lab->state = 0;
-    LabPCList_InitListWindow(&lab->listScreen, 38, 72, (s32)&lab->message);
+    LabPCList_InitListWindow(&lab->listScreen, 38, 72, (uintptr_t)&lab->message);
 }
 
 void SavePrompt_Init(SavePrompt*, s32, s32);
@@ -816,8 +816,8 @@ s32 LabPCList_UpdateFade(s32);
 s32 LabPCList_Init(UNUSED s32 unused0, UNUSED s32 unused1) {
     MainPool_PushState('TERM');
     Font_Init(0x3C, 0);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
     LabPCList_Setup();
     StageLoader_UpdateSegments();
     BgStage_RunUntilCondition(8, LabPCList_UpdateFade);
@@ -825,6 +825,6 @@ s32 LabPCList_Init(UNUSED s32 unused0, UNUSED s32 unused1) {
     BgStage_RunUntilCondition(8, LabPCList_UpdateFade);
     StageLoader_WaitForRetrace();
     MainPool_PopState('TERM');
-    Fragment_QueueCall(((((u32)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
+    Fragment_QueueCall(((((uintptr_t)D_88000000) & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
     return 0x8040;
 }

@@ -253,7 +253,7 @@ void AudioLoad_Init(void) {
     }
 
     ptr = &D_81184100;
-    for (count = ((u32)&D_81186258 - (u32)&D_81184100) / 8; count >= 0; count--) {
+    for (count = ((uintptr_t)&D_81186258 - (uintptr_t)&D_81184100) / 8; count >= 0; count--) {
         *ptr++ = 0;
     }
 
@@ -351,7 +351,7 @@ s32 AudioLoad_SlowLoadSample(s32 arg0, u8 arg1, s8* status) {
     }
     load->sample = *header;
     load->status = status;
-    load->curRamAddr = AudioHeap_AllocTemporarySampleCache(header->size, arg0, (s32)header->sampleAddr, header->medium);
+    load->curRamAddr = AudioHeap_AllocTemporarySampleCache(header->size, arg0, (uintptr_t)header->sampleAddr, header->medium);
     if (load->curRamAddr == 0) {
         if ((header->medium == 1) || (header->codec == 2)) {
             *status = 0;
@@ -363,7 +363,7 @@ s32 AudioLoad_SlowLoadSample(s32 arg0, u8 arg1, s8* status) {
     load->state = 1;
     load->bytesRemaining = ALIGN16(header->size);
     load->ramAddr = load->curRamAddr;
-    load->curDevAddr = (s32)header->sampleAddr;
+    load->curDevAddr = (uintptr_t)header->sampleAddr;
     load->medium = header->medium;
     load->seqOrFontId = arg0;
     load->instId = arg1;
@@ -642,7 +642,7 @@ void AudioLoad_ProcessAsyncLoad(Entry8110EABC* load, s32 reset_status) {
         return;
     }
     if (load->size == 0) {
-        info = (u32)load->info;
+        info = (uintptr_t)load->info;
         switch ((u8)(info >> 16)) {
             case 0:
                 AudioLoad_SetSeqLoadStatus((u8)(info >> 8), (u8)info);
@@ -746,8 +746,8 @@ void AudioLoad_RelocateSample(Sample8110EE3C** sample_p, s32 font_data_addr, Rel
     Sample8110EE3C* sample;
     s32 reloc;
 
-    if ((u32)*sample_p <= 0x80000000) {
-        reloc = (u32)*sample_p + font_data_addr;
+    if ((uintptr_t)*sample_p <= 0x80000000) {
+        reloc = (uintptr_t)*sample_p + font_data_addr;
         *sample_p = (Sample8110EE3C*)reloc;
         sample = (Sample8110EE3C*)reloc;
 
@@ -889,7 +889,7 @@ void AudioLoad_RelocateFontAndPreloadSamples(s32 font_id, s32 font_data, RelocIn
     if ((D_8118557C != 0) && !preload_in_progress) {
         sample = (Sample8110EF7C*)D_81184B78[D_8118557C - 1].sample;
         n_chunks = (sample->size >> 12) + 1;
-        AudioLoad_StartAsyncLoad(sample->sampleAddr, (s32)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
+        AudioLoad_StartAsyncLoad(sample->sampleAddr, (uintptr_t)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
     }
 }
 
@@ -923,7 +923,7 @@ s32 AudioLoad_ProcessSamplePreloads(s32 arg0) {
             sample = (Sample8110EF7C*)D_81184B78[preload_index].sample;
             key = sample->sampleAddr + sample->size + sample->medium;
             if (key == D_81184B78[preload_index].endAndMediumKey) {
-                sample->sampleAddr = (s32)D_81184B78[preload_index].ramAddr;
+                sample->sampleAddr = (uintptr_t)D_81184B78[preload_index].ramAddr;
                 sample->medium = 0;
             }
             D_81184B78[preload_index].isFree = 1;
@@ -945,7 +945,7 @@ s32 AudioLoad_ProcessSamplePreloads(s32 arg0) {
                 D_81184B78[D_8118557C - 1].isFree = 1;
                 D_8118557C--;
             } else {
-                AudioLoad_StartAsyncLoad(sample->sampleAddr, (s32)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
+                AudioLoad_StartAsyncLoad(sample->sampleAddr, (uintptr_t)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
                 break;
             }
         }
@@ -1158,7 +1158,7 @@ void AudioLoad_PreloadSamplesForFont(s32 font_id, s32 async, RelocInfo8110EF7C* 
     if ((D_8118557C != 0) && !preload_in_progress) {
         sample = (Sample8110EF7C*)D_81184B78[D_8118557C - 1].sample;
         n_chunks = (sample->size >> 12) + 1;
-        AudioLoad_StartAsyncLoad(sample->sampleAddr, (s32)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
+        AudioLoad_StartAsyncLoad(sample->sampleAddr, (uintptr_t)D_81184B78[D_8118557C - 1].ramAddr, sample->size, sample->medium, n_chunks, &D_811855F8, D_81184B78[D_8118557C - 1].encodedInfo);
     }
 }
 

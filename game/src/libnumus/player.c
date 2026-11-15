@@ -693,7 +693,7 @@ s32 func_80037508(s32* song) {
         func_8003A2B8(cp);
         mask = osSetIntMask(1);
         M2C_FIELD(cp, s32*, 0x88) = D_800B366C;
-        M2C_FIELD(cp, s32*, 0x84) = (s32)song;
+        M2C_FIELD(cp, s32*, 0x84) = (uintptr_t)song;
         M2C_FIELD(cp, s32*, 0x58) = M2C_FIELD(cp, s32*, 0x98) = ((s32*)song[2])[i];
         M2C_FIELD(cp, s32*, 0x54) = M2C_FIELD(cp, s32*, 0x94) = ((s32*)song[3])[i];
         M2C_FIELD(cp, s32*, 0x30) = M2C_FIELD(cp, s32*, 0x8C) = ((s32*)song[1])[i];
@@ -1086,7 +1086,7 @@ void func_80037F68(void* arg0, s32* arg1) {
 
     prevMask = osSetIntMask(1);
     if ((arg0 != NULL) && (M2C_FIELD(arg0, s32*, 0x10) & 1)) {
-        D_800B366C = (s32)arg0;
+        D_800B366C = (uintptr_t)arg0;
     }
     osSetIntMask(prevMask);
     func_80037508(arg1);
@@ -1203,7 +1203,7 @@ s32 func_8003821C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
   if (((u32) arg6) == 0xFFFFFFFFU)
   {
     tbl = (s32 *) (*((s32 *) (((s8 *) arg1) + 8)));
-    arg6 = *((s32 *) ((arg2 * 4) + ((s32) tbl)));
+    arg6 = *((s32 *) ((arg2 * 4) + ((uintptr_t) tbl)));
   }
   for (i = 0, p = D_800B3640; i < ((u32) D_800B3638); i++, p += 0x148)
   {
@@ -1278,7 +1278,7 @@ s32 func_800383DC(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, UNUSED s32 a
     }
     if ((u32)arg6 == 0xFFFFFFFFU) {
         tbl = (s32*)M2C_FIELD(arg1, s32*, 8);
-        arg6 = *(s32*)(arg2 * 4 + (s32)tbl);
+        arg6 = *(s32*)(arg2 * 4 + (uintptr_t)tbl);
     }
     for (i = 0, p = D_800B3640; i < (u32)D_800B3638; i++, p += 0x148) {
         if (M2C_FIELD(p, s32*, 0x30) == 0) {
@@ -2122,12 +2122,12 @@ void Audio_RelocateSoundBank(u8* arg0, s32 arg1) {
 
             if (soundbank->wave_list[i]->waveInfo.rawWave.loop != NULL) {
                 soundbank->wave_list[i]->waveInfo.rawWave.loop =
-                    (u32)soundbank + (u32)soundbank->wave_list[i]->waveInfo.rawWave.loop;
+                    (uintptr_t)soundbank + (uintptr_t)soundbank->wave_list[i]->waveInfo.rawWave.loop;
             }
 
             if (soundbank->wave_list[i]->type == AL_ADPCM_WAVE) {
                 soundbank->wave_list[i]->waveInfo.adpcmWave.book =
-                    (u32)soundbank + (u32)soundbank->wave_list[i]->waveInfo.adpcmWave.book;
+                    (uintptr_t)soundbank + (uintptr_t)soundbank->wave_list[i]->waveInfo.adpcmWave.book;
             }
         }
     }
@@ -2284,7 +2284,7 @@ s32 func_8003A638(channel_t* cp, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 mask;
 
     func_8003A2B8((s8*)cp);
-    M2C_FIELD(cp, s32*, 0x88) = (s32)D_800B3668;
+    M2C_FIELD(cp, s32*, 0x88) = (uintptr_t)D_800B3668;
     M2C_FIELD(cp, s16*, 0xB2) = arg1;
     cp->volume_scale = arg2;
     cp->sweep_amount = arg3;

@@ -35,7 +35,7 @@ s32 osGbSetNextBuffer(void* buf_ptr, u32 size) {
       bptr = (u8*)buf_ptr - 0x2000;
   }
 
-  if ((((u32)buf_ptr + size) & 0x1fff) == 0) {
+  if ((((uintptr_t)buf_ptr + size) & 0x1fff) == 0) {
       hdwr_bug_flag = TRUE;
   } else {
       hdwr_bug_flag = FALSE;

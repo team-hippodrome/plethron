@@ -67,7 +67,7 @@ void Registration_WriteTeam(s8* arg0, M2C_UNK arg1) {
 
     handle = Deck_OpenAndSetName(0x10, 0, arg1, 0, arg0 + 8, M2C_FIELD(arg0, s32*, 4));
     for (i = 0; i < M2C_FIELD(arg0, s32*, 0x20); i++, entry++) {
-        if (Deck_WriteEntries((s32)&entry->mon, 1, handle) == 0) {
+        if (Deck_WriteEntries((uintptr_t)&entry->mon, 1, handle) == 0) {
             break;
         }
     }
@@ -203,11 +203,11 @@ void Registration_InitMainMenu(MenuWindow* menu, s32 x, s32 y, s32 width, s32 he
     menu->window.state = 0;
     menu->window.animTimer = 0;
     menu->window.frame.style = 0x801;
-    menu->window.title = (s32)title;
+    menu->window.title = (uintptr_t)title;
     func_80027804(&menu->itemList, (s8*)labels, label_count, label_count);
     Menu_Init(&menu->menu, &menu->itemList, &menu->itemFlags, (M2C_UNK*)Registration_DrawMenuRow, width - 12, 0x20);
     menu->menu.options = (s32) (menu->menu.options | 0x10000);
-    menu->descriptions = (s32)descriptions;
+    menu->descriptions = (uintptr_t)descriptions;
     menu->descriptionLines = description_lines;
     sp2C = Registration_FindFreeSlot();
     if ((Deck_GetCount(0x20, D_88103078, 0) == 0) || (sp2C == -1)) {
@@ -245,7 +245,7 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
         func_80029028(menu->window.frame.x + 6, menu->window.frame.y + 6, menu->window.frame.width - 12, h, *(Color88100D9C*)&D_88102D74);
         Ui_FillRectPrimEnvColor(menu->window.frame.x + 6, menu->window.frame.y + h + 12, menu->window.frame.width - 12, menu->descriptionLines * 28, D_88102D9C, D_88102DA0);
         sp38 = menu->window.frame.width - 0xC;
-        Menu_DrawItems(&menu->menu, menu->window.frame.x + 6, menu->window.frame.y + 10, flags | 0xFFED, (s32)&sp38);
+        Menu_DrawItems(&menu->menu, menu->window.frame.x + 6, menu->window.frame.y + 10, flags | 0xFFED, (uintptr_t)&sp38);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -927,7 +927,7 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
                 } else if (res == 1) {
                     Audio_PlaySystemSound(2);
                     list->state = 3;
-                    Registration_InitConfirmWindow(&list->confirmWindow, list->window.frame.x + 86, list->window.frame.y + 121, (s32)D_88102F34);
+                    Registration_InitConfirmWindow(&list->confirmWindow, list->window.frame.x + 86, list->window.frame.y + 121, (uintptr_t)D_88102F34);
                     list->selectedTeam = *((RegisteredTeam**)list->list.items->rows)[list->list.cursor];
                     list->selectedTeam.source = 0x10;
                     list->selectedTeam.slot = Registration_FindFreeSlot();
@@ -950,14 +950,14 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
                 } else if (res == 1) {
                     Audio_PlaySystemSound(2);
                     list->selectedTeam = *((RegisteredTeam**)list->list.items->rows)[list->list.cursor];
-                    Registration_InitConfirmWindow(&list->confirmWindow, list->window.frame.x + 86, list->window.frame.y + 121, (s32)D_88102F54);
+                    Registration_InitConfirmWindow(&list->confirmWindow, list->window.frame.x + 86, list->window.frame.y + 121, (uintptr_t)D_88102F54);
                     list->confirmWindow.choice.cursor = 1;
                     list->state = 6;
                 }
             }
             break;
         case 3:
-            res = Registration_UpdateConfirmWindow((s32)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 0;
@@ -974,19 +974,19 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
             }
             if (Registration_StepTimer(&list->timer) != 0) {
                 Audio_PlaySystemSound(0x1E);
-                Registration_InitMessageWindow(&list->messageWindow, list->window.frame.x + 88, list->window.frame.y + 120, (s32)D_88102F6C);
+                Registration_InitMessageWindow(&list->messageWindow, list->window.frame.x + 88, list->window.frame.y + 120, (uintptr_t)D_88102F6C);
                 list->state = 5;
             }
             break;
         case 5:
-            res = Registration_UpdateMessageWindow((s32)(&list->messageWindow));
+            res = Registration_UpdateMessageWindow((uintptr_t)(&list->messageWindow));
             if ((res == -1) || (res == 1)) {
                 Audio_PlaySystemSound(2);
                 ret = -1;
             }
             break;
         case 6:
-            res = Registration_UpdateConfirmWindow((s32)(&list->confirmWindow));
+            res = Registration_UpdateConfirmWindow((uintptr_t)(&list->confirmWindow));
             if (res == -1) {
                 Audio_PlaySystemSound(3);
                 list->state = 2;
@@ -1004,12 +1004,12 @@ s32 Registration_UpdateTeamList(RegistrationTeamList* list) {
                 Audio_PlaySystemSound(0x1F);
                 func_80027868(list->teams, list->list.cursor);
                 Registration_WriteAllTeams(list->teams);
-                Registration_InitMessageWindow(&list->messageWindow, list->window.frame.x + 88, list->window.frame.y + 120, (s32)D_88102FC8);
+                Registration_InitMessageWindow(&list->messageWindow, list->window.frame.x + 88, list->window.frame.y + 120, (uintptr_t)D_88102FC8);
                 list->state = 8;
             }
             break;
         case 8:
-            res = Registration_UpdateMessageWindow((s32)(&list->messageWindow));
+            res = Registration_UpdateMessageWindow((uintptr_t)(&list->messageWindow));
             if ((res == -1) || (res == 1)) {
                 Audio_PlaySystemSound(2);
                 ret = -1;
@@ -1305,10 +1305,10 @@ s32 Registration_Init(s32 unused0, s32 unused1) {
     D_88103070 = PokeIcon_AllocFramebuffers(1);
     D_88103074 = func_80017FDC(D_88103070, 25, 40, 40);
     PokeIcon_OpenModelArchives();
-    Fragment_Load(((u32)((s32)&D_81000000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015B1A0, &D_0015E220);
-    Asset_LoadToSegment((u32)((s32)&D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
-    Asset_LoadToSegment((u32)((s32)&D_04000000 & 0x0F000000) >> 0x18, &D_00400F70, &D_004076E0, 0);
-    Asset_LoadToSegment((u32)((s32)&D_05000000 & 0x0F000000) >> 0x18, &D_004199E0, &D_0042C4A0, 0);
+    Fragment_Load(((u32)((uintptr_t)&D_81000000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015B1A0, &D_0015E220);
+    Asset_LoadToSegment((u32)((uintptr_t)&D_01000000 & 0x0F000000) >> 0x18, &D_002E0BE0, &D_002E2B90, 0);
+    Asset_LoadToSegment((u32)((uintptr_t)&D_04000000 & 0x0F000000) >> 0x18, &D_00400F70, &D_004076E0, 0);
+    Asset_LoadToSegment((u32)((uintptr_t)&D_05000000 & 0x0F000000) >> 0x18, &D_004199E0, &D_0042C4A0, 0);
     Registration_AllocScreen();
     func_8000675C();
     func_80006828(8, Registration_UpdateFade);
@@ -1317,6 +1317,6 @@ s32 Registration_Init(s32 unused0, s32 unused1) {
     func_80006724();
     Registration_FreeScreen();
     MainPool_PopState(0x52454753); // 'REGS'
-    Fragment_QueueCall(((u32)((s32)&D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
+    Fragment_QueueCall(((u32)((uintptr_t)&D_88000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
     return 0x8040;
 }

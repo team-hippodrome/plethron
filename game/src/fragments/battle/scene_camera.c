@@ -625,7 +625,7 @@ void BattleScene_EaseSideOnCameraDistance(CameraNode* camera, ActivePokemon* act
         } else {
             BattleAnim_ApproachF(&sp38, sp30, 0.5f);
         }
-        func_8000EEBC((s32)camera + 0xB4, (s32)camera + 0xA8, sp38, sp36, sp34);
+        func_8000EEBC((uintptr_t)camera + 0xB4, (uintptr_t)camera + 0xA8, sp38, sp36, sp34);
     }
 }
 

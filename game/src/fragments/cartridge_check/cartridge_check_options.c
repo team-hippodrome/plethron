@@ -170,7 +170,7 @@ void CartridgeCheck_ScrollToNextMessage(s8* text) {
         BgStage_AdvanceFrame();
     }
 
-    D_88402D70 = (s32)text;
+    D_88402D70 = (uintptr_t)text;
 }
 
 /**
@@ -193,11 +193,11 @@ void CartridgeCheck_RunGameBoyGiftEvent(void) {
     if (gSessionContext.transitionFlags & 8) {
         CartridgeCheck_ShowMessageUntilA(D_88402D88);
         CartridgeCheck_ScrollToNextMessage(D_88402D8C);
-        CartridgeCheck_ShowMessageUntilA((s32) D_88402D8C);
+        CartridgeCheck_ShowMessageUntilA((uintptr_t) D_88402D8C);
     } else {
         CartridgeCheck_ShowMessageUntilA(D_88402D90);
         CartridgeCheck_ScrollToNextMessage(D_88402D94);
-        CartridgeCheck_ShowMessageUntilA((s32) D_88402D94);
+        CartridgeCheck_ShowMessageUntilA((uintptr_t) D_88402D94);
     }
     CartridgeCheck_CloseMessageWindow();
     M2C_FIELD(&D_884034E0, u8 *, 2) = (u8) (M2C_FIELD(&D_884034E0, u8 *, 2) | 0x20);
@@ -223,8 +223,8 @@ void CartridgeCheck_PlayBootIntro(void) {
     s32 pad; // FAKE: stack padding
 
     rec = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp8C, (s32) &D_88402DB4);
-    BezierPath_InitEased(sp50, (s32) &D_88402D98);
+    BezierPath_InitEased(sp8C, (uintptr_t) &D_88402DB4);
+    BezierPath_InitEased(sp50, (uintptr_t) &D_88402D98);
     if (BezierPath_Step(sp8C, rec + 0xA8) != 0) {
         do {
             if (i++ == 42) {
@@ -267,8 +267,8 @@ void CartridgeCheck_PlayCupWinIntro(void) {
     if (gSessionContext.transitionFlags & 0x18) {
         CartridgeCheck_RunGameBoyGiftEvent();
     }
-    BezierPath_InitEased(sp8C, (s32) &D_88402DEC);
-    BezierPath_InitEased(sp50, (s32) &D_88402DD0);
+    BezierPath_InitEased(sp8C, (uintptr_t) &D_88402DEC);
+    BezierPath_InitEased(sp50, (uintptr_t) &D_88402DD0);
     if (BezierPath_Step(sp8C, rec + 0xA8) != 0) {
         do {
             if (i++ == 10) {
@@ -625,8 +625,8 @@ void CartridgeCheck_PlayExitToTitle(void) {
     s32 sp34;
 
     sp34 = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp74, (s32)&D_88402E24);
-    BezierPath_InitEased(sp38, (s32)&D_88402E08);
+    BezierPath_InitEased(sp74, (uintptr_t)&D_88402E24);
+    BezierPath_InitEased(sp38, (uintptr_t)&D_88402E08);
     ModelAnim_SetSpeed(&D_88403648, 0xFFFF0000);
     ModelAnim_SetFrame(&D_88403648, 0x2E);
     M2C_FIELD(&D_88403648, u8 *, 2) |= 0x20;
@@ -693,8 +693,8 @@ void CartridgeCheck_PlayZoomIntoMonitor(void) {
 
     temp_s0 = M2C_FIELD(D_88403370, s32 *, 0xC);
     Audio_StopMusic(50);
-    BezierPath_InitEased(sp7C, (s32) &D_88402E5C);
-    BezierPath_InitEased(sp40, (s32) &D_88402E40);
+    BezierPath_InitEased(sp7C, (uintptr_t) &D_88402E5C);
+    BezierPath_InitEased(sp40, (uintptr_t) &D_88402E40);
     if (BezierPath_Step(sp7C, temp_s0 + 0xA8) != 0) {
         do {
             BezierPath_Step(sp40, temp_s0 + 0xB4);
@@ -725,8 +725,8 @@ void CartridgeCheck_PlayZoomOutOfMonitor(void) {
     s32 pad; // FAKE: stack padding
 
     temp_s1 = M2C_FIELD(D_88403370, s32 *, 0xC);
-    BezierPath_InitEased(sp94, (s32) &D_88402E94);
-    BezierPath_InitEased(sp58, (s32) &D_88402E78);
+    BezierPath_InitEased(sp94, (uintptr_t) &D_88402E94);
+    BezierPath_InitEased(sp58, (uintptr_t) &D_88402E78);
     if (BezierPath_Step(sp94, temp_s1 + 0xA8) != 0) {
         do {
             if (i++ == 0xF) {
@@ -916,21 +916,21 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_88403648);
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_88403378);
     ModelRenderer_AttachDisplayObject((DisplayObject*)&D_884034E0);
-    D_88403370 = (s32)GeoLayout_Process(sp20, D_88402EB0);
-    D_884037B0 = (s32)GeoLayout_Process(sp20, D_8F4A4240);
-    D_884037B4 = (s32)GeoLayout_Process(sp20, D_8F4B2AF0);
-    D_884037B8 = (s32)GeoLayout_Process(sp20, D_8F4959C8);
-    Model_InitDisplayObject(&D_88403648, 0, 0, (s32)GeoLayout_Process(sp20, D_8F4886F8));
+    D_88403370 = (uintptr_t)GeoLayout_Process(sp20, D_88402EB0);
+    D_884037B0 = (uintptr_t)GeoLayout_Process(sp20, D_8F4A4240);
+    D_884037B4 = (uintptr_t)GeoLayout_Process(sp20, D_8F4B2AF0);
+    D_884037B8 = (uintptr_t)GeoLayout_Process(sp20, D_8F4959C8);
+    Model_InitDisplayObject(&D_88403648, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8F4886F8));
     if (gSessionContext.transitionFlags & 8) {
         // Doduo Game Boy prize model (fragment039, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 1, 0, (s32)GeoLayout_Process(sp20, D_8E825FE8));
+        Model_InitDisplayObject(&D_884034E0, 1, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E825FE8));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E802B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     } else if (gSessionContext.transitionFlags & 0x10) {
         // Dodrio Game Boy prize model (fragment040, seen in play 2026-11-14).
-        Model_InitDisplayObject(&D_884034E0, 0, 0, (s32)GeoLayout_Process(sp20, D_8E924770));
+        Model_InitDisplayObject(&D_884034E0, 0, 0, (uintptr_t)GeoLayout_Process(sp20, D_8E924770));
         ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E902B64, 0x10000);
         M2C_FIELD(&D_884034E0, u8 *, 1) &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);

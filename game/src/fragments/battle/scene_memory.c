@@ -88,11 +88,11 @@ void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNU
         case 2:
         case 6:
         case 10:
-            BattleScene_InitTurnPresentation((s32)arg0);
+            BattleScene_InitTurnPresentation((uintptr_t)arg0);
             BattleScene_SetPhase(arg0, 1);
             break;
         case 3:
-            BattleScene_InitTurnPresentation((s32)arg0);
+            BattleScene_InitTurnPresentation((uintptr_t)arg0);
             BattleScene_SetPhase(arg0, 5);
             break;
         case 8:
@@ -102,7 +102,7 @@ void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNU
             BattleScene_IntroStepInitOverheadCamera(arg0);
             break;
         case 7:
-            SceneMode7_StepInit((s32)arg0);
+            SceneMode7_StepInit((uintptr_t)arg0);
             break;
         case 11:
             SceneMode11_StepInit(arg0);

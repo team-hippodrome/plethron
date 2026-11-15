@@ -164,7 +164,7 @@ void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, s32 msg_box
     screen->columnWidths = D_8910A804;
     LabPCList_FlattenEntries(&screen->rows, (unk_func_8830867C_02C_144*)&screen->sourceMatrix);
     screen->sortKey = 0;
-    func_80027D68((s32)((s8*)&screen->rows), D_8910D990[0]);
+    func_80027D68((uintptr_t)((s8*)&screen->rows), D_8910D990[0]);
     screen->focus = 0;
     LabPCList_LoadItemDecks(screen);
     screen->unk_0080 = 0;

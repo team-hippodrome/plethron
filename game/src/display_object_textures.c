@@ -176,7 +176,7 @@ Fragment* Fragment_LoadFromLbaRange(MainPoolState* arg0, StorageLbaRange* arg1, 
 /** Relocates a fragment's pointers and commits it to its pool. */
 void Fragment_RelocateAndCommit(MainPoolState* arg0, u32 arg1, Fragment* arg2) {
     Memmap_RelocateFragment(arg1, arg2);
-    MainPool_ResetStateToOffset(arg0, ((u32)arg2 + arg2->sizeInRam) - (u32)arg0->listHeadR);
+    MainPool_ResetStateToOffset(arg0, ((uintptr_t)arg2 + arg2->sizeInRam) - (uintptr_t)arg0->listHeadR);
 }
 
 /** Loads an archive file into a pool from a ROM range. */

@@ -69,7 +69,7 @@ void DisplayTask_Initialize(SchedTask* arg0) {
 /** Fills in a graphics task from a display list buffer and submits it. */
 void DisplayTask_Submit(SchedTask* arg0, DisplayFrame* arg1, s32 arg2) {
     arg0->task.t.data_ptr = (void*)(uintptr_t)arg1->dlist;
-    arg0->task.t.data_size = (u32)arg1->dlistSize;
+    arg0->task.t.data_size = (uintptr_t)arg1->dlistSize;
     Sched_SubmitTask(arg0, arg2);
 }
 

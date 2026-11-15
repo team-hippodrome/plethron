@@ -56,7 +56,7 @@ void SceneMode7_StepInit(s32 camera) {
     D_8219A580 = (&D_82199DE0)[sBattleScene.scene->actingSide];
     M2C_FIELD(sp1C, s32 *, 8) = 0;
     BattleCamera_PlayShot(D_8219A580, camera, 3);
-    func_82136918((s32)((ActivePokemon*)D_8219A580)->side, 9);
+    func_82136918((uintptr_t)((ActivePokemon*)D_8219A580)->side, 9);
     func_80006998(0);
     sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
 }
@@ -218,10 +218,10 @@ void SceneMode7_StepWaitModelReload(CameraNode* arg0);
 void SceneMode7_Update(CameraNode* camera) {
     switch (sBattleScene.scene->phaseStep) {
         case 0:
-            SceneMode7_StepInit((s32)camera);
+            SceneMode7_StepInit((uintptr_t)camera);
             break;
         case 1:
-            SceneMode7_StepWaitModelReady((s32)camera);
+            SceneMode7_StepWaitModelReady((uintptr_t)camera);
             break;
         case 2:
             SceneMode7_StepStartCameraPath(camera);

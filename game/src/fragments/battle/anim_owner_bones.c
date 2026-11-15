@@ -221,7 +221,7 @@ s32 BattleAnim_GetCameraContext(void) {
 Particle* BattleAnim_SpawnSecondaryOwnerParticle(Vec3f arg0, u8 arg1) {
     Particle* sp1C = Particle_New();
 
-    if ((u32)sp1C != -1) {
+    if ((uintptr_t)sp1C != -1) {
         ParticleMath_CopyVec3f(&sp1C->origin, &arg0);
         BattleAnim_InitStingerMoveParticle(sp1C, arg1);
         sp1C->pokemon = gBattleAnimSecondaryOwner;
@@ -241,7 +241,7 @@ Particle* BattleAnim_SpawnSecondaryOwnerParticle(Vec3f arg0, u8 arg1) {
  * @unverified Name from Stadium 1.
  */
 void BattleAnim_SetParticlePosition(Particle* arg0, Vec3f arg1) {
-    if ((u32)arg0 != -1) {
+    if ((uintptr_t)arg0 != -1) {
         arg0->origin.x = arg1.x;
         arg0->origin.y = arg1.y;
         arg0->origin.z = arg1.z;

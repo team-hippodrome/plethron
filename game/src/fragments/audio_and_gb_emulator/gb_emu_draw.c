@@ -275,8 +275,8 @@ s32 GbPak_WriteVerifiedSramBlock(s32 arg0, s32 arg1, s32 arg2) {
         addr = (arg1 & 0x1FFF) | 0xA000;
         do {
             func_81102EB0(entry, n);
-            ret = osGbpakReadWrite((s32)ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
-            if (ret == 0 && (ret = osGbpakReadWrite((s32)ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
+            ret = osGbpakReadWrite((uintptr_t)ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
+            if (ret == 0 && (ret = osGbpakReadWrite((uintptr_t)ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
                 (ret = bcmp(&D_811564A0, entry, 0x20)) == 0 && --n == 0) {
                 ch->unk98 = arg2;
                 ch->sramAddr = arg1;
@@ -483,8 +483,8 @@ void GbPak_StartIoThread(s32 arg0, s32 arg1, s32 arg2) {
     D_81156477 = 0;
     D_81156478 = 0;
     D_81156479 = 0;
-    bzero((s32) D_811561C8, 0x290);
-    bzero((s32) &D_81156480, 0x20);
+    bzero((uintptr_t) D_811561C8, 0x290);
+    bzero((uintptr_t) &D_81156480, 0x20);
     for (i = 0; i < 4; i++) {
         D_811561C8[i].channel = i;
         D_811561C8[i].unkA1 = 0x18;
@@ -1214,7 +1214,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     D_811565A1 = 0;
     D_811565A5 = 0x20;
     D_811565A4 = 0;
-    bzero((s32)D_81156540.mem, 0xFF80);
+    bzero((uintptr_t)D_81156540.mem, 0xFF80);
     for (i = 0, p = D_81156540.mem + 0x16B20; i < 0x40; i++) {
         *p++ = 1;
     }

@@ -812,9 +812,9 @@ void BattleHud_DrawActingPokemonNickname(void) {
     func_8001AA9C(0xFF, 0xFF, 0xFF, D_8219A4F1); // #FFFFFF
     Gfx_SetPrimColor(0xFF, 0xFF, 0xF, D_8219A4F1);
     name = (s8*)bm + 0x30;
-    len = strlen((s32)name) >> 1;
+    len = strlen((uintptr_t)name) >> 1;
     func_8001A384(4, 0);
-    Font_Printf(154 - len * 6, 190, (s32)name);
+    Font_Printf(154 - len * 6, 190, (uintptr_t)name);
     Font_DisableTwoCycleTexturing();
     func_8001ABBC();
 }
@@ -1105,12 +1105,12 @@ void BattleDebug_DrawCameraParams(s16 arg0, s16 arg1) {
     Ui_DrawPrimColorRect(arg0, arg1, 130, 80, 0, 0, 0, 0x3C); // #000000
     func_8001AB6C();
     func_8001A384(1, 0);
-    Font_Printf(arg0 + 3, arg1 + 4, (s32)D_82195B00);
-    Font_Printf(arg0 + 3, arg1 + 0x10, (s32)D_82195B0C);
-    Font_Printf(arg0 + 3, arg1 + 28, (s32)D_82195B18);
-    Font_Printf(arg0 + 3, arg1 + 40, (s32)D_82195B24);
-    Font_Printf(arg0 + 3, arg1 + 52, (s32)D_82195B30);
-    Font_Printf(arg0 + 3, arg1 + 0x40, (s32)D_82195B3C);
+    Font_Printf(arg0 + 3, arg1 + 4, (uintptr_t)D_82195B00);
+    Font_Printf(arg0 + 3, arg1 + 0x10, (uintptr_t)D_82195B0C);
+    Font_Printf(arg0 + 3, arg1 + 28, (uintptr_t)D_82195B18);
+    Font_Printf(arg0 + 3, arg1 + 40, (uintptr_t)D_82195B24);
+    Font_Printf(arg0 + 3, arg1 + 52, (uintptr_t)D_82195B30);
+    Font_Printf(arg0 + 3, arg1 + 0x40, (uintptr_t)D_82195B3C);
     func_8001ABBC();
     sprintf(buf, D_82195B4C, M2C_FIELD(D_82199DE0, f32*, 0x9F0));
     BattleHud_DrawSmallDigits(buf, arg0 + 70, arg1 + 6);

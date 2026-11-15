@@ -462,12 +462,12 @@ AudioCmd* AudioSynth_DoOneAudioUpdate(s32* ai_buf, s32 ai_buf_len, AudioCmd* cmd
         }
         if (((Reverb8110814C*)&D_81184110[reverb_index])->useReverb) {
             if (((Reverb8110814C*)&D_81184110[reverb_index])->filterLeft != NULL) {
-                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(2, 16, 8) | ZSHIFTL_814C(ai_buf_len * 2, 0, 16); _a->w1 = (u32)((Reverb8110814C*)&D_81184110[reverb_index])->filterLeft; }
-                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(((Reverb8110814C*)&D_81184110[reverb_index])->resampleFlags, 16, 8) | ZSHIFTL_814C(0xC80, 0, 16); _a->w1 = (u32)((Reverb8110814C*)&D_81184110[reverb_index])->filterLeftState; }
+                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(2, 16, 8) | ZSHIFTL_814C(ai_buf_len * 2, 0, 16); _a->w1 = (uintptr_t)((Reverb8110814C*)&D_81184110[reverb_index])->filterLeft; }
+                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(((Reverb8110814C*)&D_81184110[reverb_index])->resampleFlags, 16, 8) | ZSHIFTL_814C(0xC80, 0, 16); _a->w1 = (uintptr_t)((Reverb8110814C*)&D_81184110[reverb_index])->filterLeftState; }
             }
             if (((Reverb8110814C*)&D_81184110[reverb_index])->filterRight != NULL) {
-                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(2, 16, 8) | ZSHIFTL_814C(ai_buf_len * 2, 0, 16); _a->w1 = (u32)((Reverb8110814C*)&D_81184110[reverb_index])->filterRight; }
-                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(((Reverb8110814C*)&D_81184110[reverb_index])->resampleFlags, 16, 8) | ZSHIFTL_814C(0xE20, 0, 16); _a->w1 = (u32)((Reverb8110814C*)&D_81184110[reverb_index])->filterRightState; }
+                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(2, 16, 8) | ZSHIFTL_814C(ai_buf_len * 2, 0, 16); _a->w1 = (uintptr_t)((Reverb8110814C*)&D_81184110[reverb_index])->filterRight; }
+                { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x1B, 24, 8) | ZSHIFTL_814C(((Reverb8110814C*)&D_81184110[reverb_index])->resampleFlags, 16, 8) | ZSHIFTL_814C(0xE20, 0, 16); _a->w1 = (uintptr_t)((Reverb8110814C*)&D_81184110[reverb_index])->filterRightState; }
             }
             cmd = AudioSynth_SaveReverbSamples(cmd, reverb_index, update_index);
             if (((Reverb8110814C*)&D_81184110[reverb_index])->mixReverbIndex != -1) {
@@ -488,7 +488,7 @@ AudioCmd* AudioSynth_DoOneAudioUpdate(s32* ai_buf, s32 ai_buf_len, AudioCmd* cmd
 
     update_index = ai_buf_len * 2;
     { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0xD, 24, 8) | ZSHIFTL_814C(update_index >> 4, 16, 8) | ZSHIFTL_814C(0x3C0, 0, 16); _a->w1 = ZSHIFTL_814C(0x940, 16, 16) | ZSHIFTL_814C(0xAE0, 0, 16); }
-    { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x15, 24, 8) | ZSHIFTL_814C((update_index * 2) >> 4, 16, 8) | ZSHIFTL_814C(0x3C0, 0, 16); _a->w1 = (u32)ai_buf + 0x80000000; }
+    { AudioCmd* _a = cmd++; _a->w0 = ZSHIFTL_814C(0x15, 24, 8) | ZSHIFTL_814C((update_index * 2) >> 4, 16, 8) | ZSHIFTL_814C(0x3C0, 0, 16); _a->w1 = (uintptr_t)ai_buf + 0x80000000; }
     return cmd;
 }
 
@@ -767,7 +767,7 @@ AudioCmd* AudioSynth_ProcessSample(s32 note_index, ZNoteSubEu* note_sub_eu, Note
                                              &synthesis_state->sampleDmaIndex, audio_book_sample->medium);
                     }
 
-                    a3 = ((u32)v0_2 & 0xf);
+                    a3 = ((uintptr_t)v0_2 & 0xf);
                     aligned = ZALIGN(t0 * unk_s6 + 16, 4);
                     addr = 0x940 - aligned;
                     zLoadBuffer(cmd++, ZV2P(v0_2 - a3), addr, ZALIGN(t0 * unk_s6 + 16, 4));

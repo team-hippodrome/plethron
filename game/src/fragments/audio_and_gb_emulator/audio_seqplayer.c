@@ -367,7 +367,7 @@ void AudioSeq_SequencePlayerDisableChannels(u8* seq_player, s32 channel_bits) {
 
     for (i = 0; i < 16; i++) {
         channel = M2C_FIELD(seq_player, SequenceChannel**, 0x34 + i * 4);
-        if (((u32)channel != (u32)&D_81184850) == 1) {
+        if (((uintptr_t)channel != (uintptr_t)&D_81184850) == 1) {
             func_81112B84(channel);
         }
     }
@@ -462,7 +462,7 @@ s32 AudioSeq_AudioListPopBack(AudioListItem* list) {
     list->prev = item->prev;
     item->prev = NULL;
     list->u.count = (s32)(list->u.count - 1);
-    return (s32)item->u.value;
+    return (uintptr_t)item->u.value;
 }
 
 /**

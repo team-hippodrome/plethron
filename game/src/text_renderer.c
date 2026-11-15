@@ -42,7 +42,7 @@ void TextRenderer_SetupGlyphState(void) {
     gDPSetPrimColor(D_800AA1D0++, 0, 0, 255, 255, 255, 255); // #FFFFFFFF
     gDPSetRenderMode(D_800AA1D0++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     gDPSetCombineMode(D_800AA1D0++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-    gDPLoadTextureBlock_4b(D_800AA1D0++, (u32)D_8005F770 & 0x1FFFFFFF, G_IM_FMT_IA, 96, 48, 0,
+    gDPLoadTextureBlock_4b(D_800AA1D0++, (uintptr_t)D_8005F770, G_IM_FMT_IA, 96, 48, 0,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 7, 6, G_TX_NOLOD, G_TX_NOLOD);
 }
 

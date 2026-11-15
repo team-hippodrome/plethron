@@ -451,7 +451,7 @@ void BattleAnim_DigSinkUnderground(s32 transform, ActivePokemon* active_pokemon)
     if (*(f32*)(transform + 0x28) <= -(BattleScene_GetParticipantHeight(active_pokemon) * 2.5)) {
         func_8000D700(transform + 0x1E, 0, (s16)(active_pokemon->facingDirection << 0xE), 0);
         func_82109C88(active_pokemon);
-        func_8210942C((s32)active_pokemon);
+        func_8210942C((uintptr_t)active_pokemon);
     }
 }
 
@@ -1083,13 +1083,13 @@ void BattleAnim_PlayTransformInducingAnimation(s32 side_index) {
             BattleAnim_DrawParticleNoop((Particle*)owner, (CameraNode*)animated_pokemon);
             break;
         case 1:
-            BattleAnim_PokeBallThrow((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_PokeBallThrow((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         case 2:
-            BattleAnim_PokeBallLand((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_PokeBallLand((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         case 3:
-            BattleAnim_Fly((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_Fly((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         case 4:
             BattleAnim_Submission(owner, animated_pokemon);
@@ -1113,7 +1113,7 @@ void BattleAnim_PlayTransformInducingAnimation(s32 side_index) {
             BattleAnim_Surf(owner, animated_pokemon);
             break;
         case 11:
-            BattleAnim_RunSwayTransform((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_RunSwayTransform((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         case 12:
             BattleAnim_Withdraw(owner, animated_pokemon);
@@ -1125,10 +1125,10 @@ void BattleAnim_PlayTransformInducingAnimation(s32 side_index) {
             BattleAnim_Waterfall(owner, animated_pokemon);
             break;
         case 15:
-            BattleAnim_SquishHitReaction((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_SquishHitReaction((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         case 16:
-            BattleAnim_BindHitReaction((s32)owner, (s8*)animated_pokemon);
+            BattleAnim_BindHitReaction((uintptr_t)owner, (s8*)animated_pokemon);
             break;
         default:
             BattleScene_ResetParticipantModelFlags(animated_pokemon);

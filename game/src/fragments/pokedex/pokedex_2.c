@@ -995,8 +995,8 @@ void Pokedex_LoadAreaMap(s32 species, MainPoolState* pool, UNUSED s32 pool_size,
     sSpeciesIcon = MainPool_Alloc(0x3200, 0);
     Pokedex_LoadIcon(sSpeciesIcon, species);
 
-    Fragment_LoadAndRelocateFromRomRange(sp44, (((u32)&D_8F100000 & 0x0FF00000) >> 0x14) - 0x10, (s32)D_00326700,
-                  (s32)D_003553C0, load_buffer, load_buffer_size);
+    Fragment_LoadAndRelocateFromRomRange(sp44, (((uintptr_t)&D_8F100000 & 0x0FF00000) >> 0x14) - 0x10, (uintptr_t)D_00326700,
+                  (uintptr_t)D_003553C0, load_buffer, load_buffer_size);
 
     D_8A1302D0 = BinArchive_GetFile(BinArchive_Open(D_003FEBD0, D_003FFD60, 1, 1), 0);
     GeoNode_CreateDisplayList(NULL, &sGbMapNode, 5, NULL);

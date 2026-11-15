@@ -1081,12 +1081,12 @@ void GbMusic_RelocateBank(GbMusicBank* bank) {
     GbMusicTrackHeader* temp_v0;
     if (bank->flags != 0) return;
     end = bank->numSequences;
-    base = (u32)bank;
+    base = (uintptr_t)bank;
     temp_v1 = bank->offset;
     temp_v1 += base;
-    bank->offset = (u32)temp_v1;
+    bank->offset = (uintptr_t)temp_v1;
     for (i = 0; i != (end * 3); i++) {
-        temp_v0 = (GbMusicTrackHeader*)((u32)i * 8 + (u32)temp_v1);
+        temp_v0 = (GbMusicTrackHeader*)((u32)i * 8 + (uintptr_t)temp_v1);
         temp_v0 += 0; // FAKE: + 0
         temp_v0->data += base;
     }

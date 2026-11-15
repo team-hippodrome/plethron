@@ -1198,7 +1198,7 @@ void ParticleGfx_PushMatrix(MtxF* arg0) {
     if (gParticleMatrixPoolIndex < 364) {
         MtxF_ToFixed(&gParticleMatrixPool->matrices[gParticleMatrixPoolIndex], arg0);
 
-        gSPMatrix(gDisplayListHead++, (u32)&gParticleMatrixPool->matrices[gParticleMatrixPoolIndex] & 0x1FFFFFFF,
+        gSPMatrix(gDisplayListHead++, (uintptr_t)&gParticleMatrixPool->matrices[gParticleMatrixPoolIndex],
                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
         gParticleMatrixPoolIndex++;

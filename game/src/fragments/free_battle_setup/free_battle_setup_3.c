@@ -350,7 +350,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
             max = w;
         }
     }
-    func_80027804(&window->itemList, (s32)items->items, items->count, items->count);
+    func_80027804(&window->itemList, (uintptr_t)items->items, items->count, items->count);
     h = max * 24 + 24;
     Menu_Init(&window->menu, &window->itemList, item_flags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawPopupRow, h, 36);
     window->menu.options |= 0x10000;
@@ -506,7 +506,7 @@ void FreeBattle_InitOpponentSelect(FreeBattleOpponentWindow* window, s32 x, s32 
     window->window.frame.style = 0x801;
     window->window.title = (char*)&D_82009F70;
     sp2C = (s8*)&window->itemList;
-    func_80027804(sp2C, (s32)&D_8200917C, 4, 4);
+    func_80027804(sp2C, (uintptr_t)&D_8200917C, 4, 4);
     sp28 = (s8*)&window->menu;
     Menu_Init(sp28, sp2C, window->itemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawOpponentOption, 76, 28);
     window->menu.options = (s32) (window->menu.options | 0x10000);
@@ -705,12 +705,12 @@ void FreeBattle_InitTagOpponentSelect(FreeBattleTeamOpponentWindow* window, s32 
     window->window.frame.style = 0x801;
     window->window.title = &D_82009FCC;
     sp2C = &window->sideItemList;
-    func_80027804(sp2C, (s32)&D_82009190, 4, 4);
+    func_80027804(sp2C, (uintptr_t)&D_82009190, 4, 4);
     sp28 = &window->sideMenu;
     Menu_Init(sp28, sp2C, &window->sideItemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawTagOpponentOption, 116, 28);
     sp2C = &window->opponentItemList;
     window->sideMenu.options = (s32) (window->sideMenu.options | 0x10000);
-    func_80027804(sp2C, (s32)&D_820091A0, 7, 7);
+    func_80027804(sp2C, (uintptr_t)&D_820091A0, 7, 7);
     Menu_Init(&window->opponentMenu, sp2C, &window->opponentItemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawTagOpponentOption, 116, 28);
     window->opponentMenu.options = (s32) (window->opponentMenu.options | 0x10000);
     window->controllerMask = controller_mask;
@@ -865,7 +865,7 @@ s32 FreeBattle_UpdateTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
                             break;
                     }
                     window->opponentMenu.cursor = 0;
-                    Menu_SkipDisabledForward((s8*)&window->opponentMenu, (s32)window);
+                    Menu_SkipDisabledForward((s8*)&window->opponentMenu, (uintptr_t)window);
                 }
             }
             break;
@@ -1104,7 +1104,7 @@ void FreeBattle_InitCupSelect(FreeBattleCupWindow* window, s32 x, s32 y, s32 cup
     window->window.frame.style = 0x800;
     window->window.frame.color = D_82009100;
     window->window.title = D_8200A040;
-    func_80027410(&window->items, (s32)D_820091C4, 8, 4, 4);
+    func_80027410(&window->items, (uintptr_t)D_820091C4, 8, 4, 4);
     Menu_Init(&window->menu, &window->items, &window->itemFlags, (void (*)(s32, s32, char*, s32, s32, s32*))FreeBattle_DrawCupRow, 336, 36);
     window->menu.options |= 0x10000;
     window->menu.cursor = n - 1;

@@ -1228,10 +1228,10 @@ s32 BattleMenu_RunOrderSelectScreen(s32 arg0, s32 session) {
     Font_Init(0x3C, 0);
     PokeIcon_OpenModelArchives();
 
-    Fragment_Load(((((u32)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
-    Asset_LoadToSegment(((u32)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
-    Asset_LoadToSegment(((u32)D_02000000 & 0x0F000000) >> 0x18, D_002F0A50, D_002F3BD0, 0);
-    Asset_LoadToSegment(((u32)D_03000000 & 0x0F000000) >> 0x18, D_003D64A0, D_003DCB60, 0);
+    Fragment_Load(((((uintptr_t)D_81000000) & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Asset_LoadToSegment(((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
+    Asset_LoadToSegment(((uintptr_t)D_02000000 & 0x0F000000) >> 0x18, D_002F0A50, D_002F3BD0, 0);
+    Asset_LoadToSegment(((uintptr_t)D_03000000 & 0x0F000000) >> 0x18, D_003D64A0, D_003DCB60, 0);
 
     BattleMenu_InitOrderSelectPanels((SessionContext*)session);
     Audio_PlayMusicIfChanged(7);

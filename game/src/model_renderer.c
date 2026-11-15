@@ -248,7 +248,7 @@ void PokeIcon_WaitFrameLoadForObject(BattleSide* arg0) {
 /** Requests a side's background load. */
 void PokeIcon_RequestBackgroundForObject(BattleSide* arg0) {
     if (!(arg0->backgroundLoadFlags & 0x40) && (arg0->backgroundLoadFlags & 0x80)) {
-        PokeIcon_RequestBackgroundLoad(arg0->modelLoadContext, arg0->backgroundFileList, (s32)arg0->background);
+        PokeIcon_RequestBackgroundLoad(arg0->modelLoadContext, arg0->backgroundFileList, (uintptr_t)arg0->background);
         arg0->backgroundLoadFlags |= 0x40;
         arg0->backgroundLoadFlags &= ~0x10;
         if (arg0->backgroundLoadFlags & 0x20) {

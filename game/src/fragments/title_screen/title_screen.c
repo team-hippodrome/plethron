@@ -409,11 +409,11 @@ s32 TitleScreen_Main(UNUSED s32 arg0, UNUSED M2C_UNK arg1) {
     Gfx_InitDisplayListBuffers(0x10000, 0);
     stage = StageContext_Allocate(0, 1, 2, 0, 2, 1);
     Font_Init(6, 0);
-    Asset_LoadToSegment((u32) ((s32) &D_01000000 & 0x0F000000) >> 0x18, (u8*)&D_002E0BE0, (u8*)&D_002E2B90, 0);
-    Asset_LoadToSegment((u32) ((s32) &D_02000000 & 0x0F000000) >> 0x18, (u8*)&D_002EBCB0, (u8*)&D_002F0A50, 0);
+    Asset_LoadToSegment((u32) ((uintptr_t) &D_01000000 & 0x0F000000) >> 0x18, (u8*)&D_002E0BE0, (u8*)&D_002E2B90, 0);
+    Asset_LoadToSegment((u32) ((uintptr_t) &D_02000000 & 0x0F000000) >> 0x18, (u8*)&D_002EBCB0, (u8*)&D_002F0A50, 0);
     sDiskBootBlock = (LeoBootDescriptor*)MainPool_Alloc(0x4510, 0);
     sTitleAudioHeap = MainPool_Alloc(0x100000, 0);
-    sTitleBackgroundImage = (s32)Asset_LoadToSegment(0U, (u8*)&D_002E2B90, (u8*)&D_002EBCB0, 0);
+    sTitleBackgroundImage = (uintptr_t)Asset_LoadToSegment(0U, (u8*)&D_002E2B90, (u8*)&D_002EBCB0, 0);
     sTitleFrameCounter = 0;
     sPushStartBlinkTimer = 0;
     Audio_LoadWaveTablesAndMusic(sTitleAudioHeap);

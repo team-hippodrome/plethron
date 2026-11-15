@@ -34,7 +34,7 @@ typedef struct GfxImage {
 
 // gfx_rect.c
 void Gfx_ApplyScissorRect(Gfx** gfx_p);
-void GfxImage_Initialize(GfxImage* arg0, s32 fmt, s32 size, s32 width, s32 height, u32 img_p);
+void GfxImage_Initialize(GfxImage* arg0, s32 fmt, s32 size, s32 width, s32 height, uintptr_t img_p);
 GfxImage* GfxImage_Allocate(s32 fmt, s32 size, s32 width, s32 height, s32 side);
 void GfxImage_AttachDepthBuffer(GfxImage* img, GfxImage* depth);
 void GfxImage_ResetCurrent(void);

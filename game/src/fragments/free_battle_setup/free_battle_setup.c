@@ -590,7 +590,7 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
         Font_Printf(x + 178, y + 5, D_82009BA8, window->mon->level);
         Font_Printf(x + 320, y + 5, D_82009BAC, window->mon->maxHp);
         Font_Printf(x + 136, y + 40, D_82009BB0);
-        if (Pokemon_GetTypeIndex((s32)window->mon, 1) != -1) {
+        if (Pokemon_GetTypeIndex((uintptr_t)window->mon, 1) != -1) {
             Font_Printf(x + 136, y + 100, D_82009BBC);
         }
         Font_Printf(x + 258, y + 40, D_82009BC8);
@@ -605,8 +605,8 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
             FreeBattle_DrawMoveName(D_82009040[i].x + x, D_82009040[i].y + y, BattleMon_GetMoveIndex(window->mon, i), D_82009040[i].centered);
         }
         Font_EndTexturedTextRendering();
-        FreeBattle_DrawTypeName(x + 156, y + 0x40, (s32)window->mon, 0);
-        FreeBattle_DrawTypeName(x + 156, y + 124, (s32)window->mon, 1);
+        FreeBattle_DrawTypeName(x + 156, y + 0x40, (uintptr_t)window->mon, 0);
+        FreeBattle_DrawTypeName(x + 156, y + 124, (uintptr_t)window->mon, 1);
         gSPDisplayList(gDisplayListHead++, D_80060290);
         for (i = 0; i < count; i++) {
             Gfx_DrawTextureRgba16(D_82009040[i].iconX + x, D_82009040[i].y + y, 20, 20, (u8*)D_82009040[i].icon, 20, 0x200000);
@@ -1125,7 +1125,7 @@ void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, Sl
               hl = 0x200;
             }
           }
-          FreeBattle_DrawMonCell((x + 136) + ((i % 3) * 132), ((i / 3) * 50) + y, name, i, hl, (s32) (&def));
+          FreeBattle_DrawMonCell((x + 136) + ((i % 3) * 132), ((i / 3) * 50) + y, name, i, hl, (uintptr_t) (&def));
           i++;
         } while (i < list->slotCount);
       }
@@ -1137,14 +1137,14 @@ void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, Sl
       {
         {
           Gfx *_g = (Gfx *) (gDisplayListHead++);
-          _g->words.w1 = (unsigned int) D_80073408; // FAKE: hand-expanded gbi macro
+          _g->words.w1 = (uintptr_t) D_80073408; // FAKE: hand-expanded gbi macro
           _g->words.w0 = (((unsigned int) ((((unsigned int) 0xde) & ((0x01 << 8) - 1)) << 24)) | ((unsigned int) ((((unsigned int) 0x00) & ((0x01 << 8) - 1)) << 16))) | ((unsigned int) ((((unsigned int) 0) & ((0x01 << 16) - 1)) << 0)); // FAKE: hand-expanded gbi macro
         }
         ;
         Gfx_DrawTextureRgba16(x + 96, (y + 5) + (i * 14), 40, 14, D_82008F74[i], 40, 0x200000);
         {
           Gfx *_g = (Gfx *) (gDisplayListHead++);
-          _g->words.w1 = (unsigned int) D_80073438; // FAKE: hand-expanded gbi macro
+          _g->words.w1 = (uintptr_t) D_80073438; // FAKE: hand-expanded gbi macro
           _g->words.w0 = (((unsigned int) ((((unsigned int) 0xde) & ((0x01 << 8) - 1)) << 24)) | ((unsigned int) ((((unsigned int) 0x00) & ((0x01 << 8) - 1)) << 16))) | ((unsigned int) ((((unsigned int) 0) & ((0x01 << 16) - 1)) << 0)); // FAKE: hand-expanded gbi macro
         }
         ;

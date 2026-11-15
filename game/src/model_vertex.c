@@ -48,7 +48,7 @@ s32 Model_GetSkinnedModelSize(s32 vertex_count) {
     u8 stack[4];
     u8* ptr = stack;
 
-    return ((u8*)((s32)ptr + (vertex_count * 0x94)) - ptr) + 0x170;
+    return ((u8*)((uintptr_t)ptr + (vertex_count * 0x94)) - ptr) + 0x170;
 }
 
 /**
@@ -59,7 +59,7 @@ s32 Model_GetNormalBufferSize(s32 vertex_count) {
     u8 stack[4];
     u8* ptr = stack;
 
-    return ((u8*)(s32)ptr + (vertex_count * 0x10)) - ptr;
+    return ((u8*)(uintptr_t)ptr + (vertex_count * 0x10)) - ptr;
 }
 
 /** Returns the absolute value of a float. */

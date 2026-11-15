@@ -99,7 +99,7 @@ extern s32 D_811859D8[][2];
 void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1) {
     s32* entry = D_811859D8[D_811861DA & 0xFF]; // FAKE: no-op mask on a u8
 
-    entry[0] = (s32)arg0;
+    entry[0] = (uintptr_t)arg0;
     entry[1] = *arg1;
     if (D_811861DB == ++D_811861DA) {
         D_811861DA--;

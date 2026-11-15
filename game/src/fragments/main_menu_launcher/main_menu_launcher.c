@@ -20,6 +20,6 @@ extern u8 D_88000000[]; // main menu (fragment 014) load address
  * @unverified Name and comment from the code; the fragment never loads in normal play.
  */
 s32 MainMenuLauncher_QueueMainMenu(s32 unused0, s32 unused1) {
-    Fragment_QueueCall(((u32) ((s32) D_88000000 & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
+    Fragment_QueueCall(((u32) ((uintptr_t) D_88000000 & 0x0FF00000) >> 0x14) - 0x10, D_00235D70, D_00238BD0, 0, 0);
     return 0x8040;
 }

@@ -18,7 +18,7 @@ void BattleScene_RunOpeningSendOut(CameraNode* arg0) {
             BattleScene_OpeningStepInitCamera(arg0);
 
         case 1:
-            BattleScene_OpeningStepWaitForAssets((s32)arg0);
+            BattleScene_OpeningStepWaitForAssets((uintptr_t)arg0);
             break;
 
         case 2:
@@ -62,7 +62,7 @@ void BattleScene_RunOpeningSendOut(CameraNode* arg0) {
             break;
 
         case 12:
-            BattleScene_OpeningStepNop((s32)arg0);
+            BattleScene_OpeningStepNop((uintptr_t)arg0);
             break;
     }
 }

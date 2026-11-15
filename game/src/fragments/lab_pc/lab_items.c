@@ -90,7 +90,7 @@ void ScrollList_SetCursorKeepOffset(s32*, s32);
  * list.
  */
 void LabList_RemoveSelectedEntry(ScrollList* list) {
-    func_800275E4((s32)list->items, list->cursor);
+    func_800275E4((uintptr_t)list->items, list->cursor);
     if (list->cursor >= list->items->count) {
         list->cursor -= 1;
     }
@@ -447,15 +447,15 @@ void LabItem_DrawCountSelector(LabItemCountSelector* sel) {
         x = sel->window.frame.x - sel->count.digit * 22 + 54;
         gSPDisplayList(gDisplayListHead++, D_80073408);
         if (((u16*)D_800603C0)[3] & 0x800) {
-            v = (s32)D_04002340;
+            v = (uintptr_t)D_04002340;
         } else {
-            v = (s32)D_04002130;
+            v = (uintptr_t)D_04002130;
         }
         func_8001B884(x + 3, sel->window.frame.y + 6, 14, 8, (u8*)v, 0x10, 0x200000);
         if (((u16*)D_800603C0)[3] & 0x400) {
-            v = (s32)D_04002448;
+            v = (uintptr_t)D_04002448;
         } else {
-            v = (s32)D_04002238;
+            v = (uintptr_t)D_04002238;
         }
         func_8001B884(x + 3, sel->window.frame.y + 38, 14, 8, (u8*)v, 0x10, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
@@ -632,7 +632,7 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
     win->window.frame.style = 0;
     *(Color_RGBA8*)&win->window.frame.color = D_8900A5BC;
     func_80027804((s8*)&win->items, names, count, count);
-    Menu_Init((s8*)&win->menu, (s32)&win->items, (s32)win->itemFlags, (s32)LabItem_DrawMenuRow, 216, 28);
+    Menu_Init((s8*)&win->menu, (uintptr_t)&win->items, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawMenuRow, 216, 28);
     win->menu.cursor = cursor;
     win->menu.options |= 0x10000;
 }
@@ -819,19 +819,19 @@ void LabItem_InitOrganizeWindow(LabItemOrganizeWindow* win, s32 x, s32 y, ByteMa
     win->footerFrame.style = 6;
     win->footerFrame.color = D_8900A600;
     win->footerFrame.color2 = D_8900A604;
-    ImageButton_Init(&win->backButton, x + 0xFF, y + 58, 54, 42, 0x30, (s32)D_8900BFC0);
+    ImageButton_Init(&win->backButton, x + 0xFF, y + 58, 54, 42, 0x30, (uintptr_t)D_8900BFC0);
     win->backButton.selectedColor = ((Color_RGBA8*)D_8900A580)[0];
     win->backButton.color = ((Color_RGBA8*)D_8900A580)[1];
     win->backButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->moveButton, x + 0xFF, y + 116, 54, 42, 0x30, (s32)D_8900DAD0);
+    ImageButton_Init(&win->moveButton, x + 0xFF, y + 116, 54, 42, 0x30, (uintptr_t)D_8900DAD0);
     win->moveButton.selectedColor = ((Color_RGBA8*)D_8900A580)[2];
     win->moveButton.color = ((Color_RGBA8*)D_8900A580)[3];
     win->moveButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->reorderButton, x + 0xFF, y + 174, 54, 42, 0x30, (s32)D_8900E858);
+    ImageButton_Init(&win->reorderButton, x + 0xFF, y + 174, 54, 42, 0x30, (uintptr_t)D_8900E858);
     win->reorderButton.selectedColor = ((Color_RGBA8*)D_8900A580)[4];
     win->reorderButton.color = ((Color_RGBA8*)D_8900A580)[5];
     win->reorderButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->exchangeButton, x + 0xFF, y + 232, 54, 42, 0x30, (s32)D_8900F5E0);
+    ImageButton_Init(&win->exchangeButton, x + 0xFF, y + 232, 54, 42, 0x30, (uintptr_t)D_8900F5E0);
     win->exchangeButton.selectedColor = ((Color_RGBA8*)D_8900A580)[6];
     win->exchangeButton.color = ((Color_RGBA8*)D_8900A580)[7];
     win->exchangeButton.highlightColor = D_8900A5BC;
@@ -848,8 +848,8 @@ void LabItem_InitOrganizeWindow(LabItemOrganizeWindow* win, s32 x, s32 y, ByteMa
     win->tables = tables;
     win->dirty = dirty;
     win->gamePakSlot = game_pak_slot;
-    LabItem_InitItemList(&win->leftList, win->window.frame.x + 12, win->window.frame.y + 42, (s32)&tables[win->leftBox]);
-    LabItem_InitItemList(&win->rightList, win->window.frame.x + 316, win->window.frame.y + 42, (s32)&tables[win->rightBox]);
+    LabItem_InitItemList(&win->leftList, win->window.frame.x + 12, win->window.frame.y + 42, (uintptr_t)&tables[win->leftBox]);
+    LabItem_InitItemList(&win->rightList, win->window.frame.x + 316, win->window.frame.y + 42, (uintptr_t)&tables[win->rightBox]);
     func_80027410((s8*)&win->reorderView, (s8*)win->tables->rows, 2, win->tables->capacity, 0);
 }
 
@@ -1116,7 +1116,7 @@ void LabItem_OpenTargetList(LabItemOrganizeWindow* win) {
     temp_v0 = win->targetBoxWindow.menu.cursor;
     temp_a0 = &win->rightList;
     win->rightBox = temp_v0;
-    LabItem_SetItemList(temp_a0, (s32)&win->tables[temp_v0]);
+    LabItem_SetItemList(temp_a0, (uintptr_t)&win->tables[temp_v0]);
     win->state = 4;
 }
 
@@ -1187,7 +1187,7 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
             Audio_PlaySystemSound(2);
             idx = win->sourceBoxWindow.menu.cursor;
             win->leftBox = idx;
-            LabItem_SetItemList(&win->leftList, (s32)&win->tables[idx]);
+            LabItem_SetItemList(&win->leftList, (uintptr_t)&win->tables[idx]);
             if (win->operationCursor.cursor == 1) {
                 win->state = 4;
                 break;
@@ -1364,12 +1364,12 @@ s32 LabItem_UpdateOrganizeWindow(LabItemOrganizeWindow* win) {
     if (next > 0) {
         switch (next) {
             case 2:
-                LabItem_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 0x1F, win->window.frame.y + 41, (s32)win->boxNames,
+                LabItem_InitMenuWindow(&win->sourceBoxWindow, win->window.frame.x + 0x1F, win->window.frame.y + 41, (uintptr_t)win->boxNames,
                               win->boxCount, win->leftBox);
                 LabItem_DisableEmptyLists(&win->sourceBoxWindow, win->tables);
                 break;
             case 3:
-                LabItem_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 335, win->window.frame.y + 41, (s32)win->boxNames,
+                LabItem_InitMenuWindow(&win->targetBoxWindow, win->window.frame.x + 335, win->window.frame.y + 41, (uintptr_t)win->boxNames,
                               win->boxCount, win->rightBox);
                 if (win->operationCursor.cursor == 2) {
                     LabItem_DisableEmptyLists(&win->targetBoxWindow, win->tables);
@@ -1436,7 +1436,7 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
     win->footerFrame.color = D_8900A6AC;
     win->footerFrame.color2 = D_8900A6B0;
     func_80027410((s8*)&win->slotTable, (s8*)slots, 0x14, 4, 4);
-    Menu_Init((s8*)&win->menu, (s32)&win->slotTable, (s32)win->itemFlags, (s32)LabItem_DrawTrainerInfo, 316, 62);
+    Menu_Init((s8*)&win->menu, (uintptr_t)&win->slotTable, (uintptr_t)win->itemFlags, (uintptr_t)LabItem_DrawTrainerInfo, 316, 62);
     win->menu.options |= 0x10000;
 }
 
@@ -1517,15 +1517,15 @@ void LabItem_InitSaveDataWindow(LabItemSaveDataWindow* win, s32 x, s32 y, LabIte
     win->footerFrame.style = 6;
     win->footerFrame.color = D_8900A6B4;
     win->footerFrame.color2 = D_8900A6B8;
-    ImageButton_Init(&win->backButton, x + 43, y + 71, 54, 42, 0x30, (s32)D_8900BFC0);
+    ImageButton_Init(&win->backButton, x + 43, y + 71, 54, 42, 0x30, (uintptr_t)D_8900BFC0);
     win->backButton.selectedColor = *(Color_RGBA8*)D_8900A580;
     win->backButton.color = *(Color_RGBA8*)D_8900A584;
     win->backButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->discardButton, x + 43, y + 159, 54, 42, 0x30, (s32)D_890110F0);
+    ImageButton_Init(&win->discardButton, x + 43, y + 159, 54, 42, 0x30, (uintptr_t)D_890110F0);
     win->discardButton.selectedColor = *(Color_RGBA8*)D_8900A5A8;
     win->discardButton.color = *(Color_RGBA8*)D_8900A5AC;
     win->discardButton.highlightColor = D_8900A5BC;
-    ImageButton_Init(&win->viewItemsButton, x + 43, y + 247, 54, 42, 0x30, (s32)D_89010368);
+    ImageButton_Init(&win->viewItemsButton, x + 43, y + 247, 54, 42, 0x30, (uintptr_t)D_89010368);
     win->viewItemsButton.selectedColor = *(Color_RGBA8*)D_8900A5A0;
     win->viewItemsButton.color = *(Color_RGBA8*)D_8900A5A4;
     win->viewItemsButton.highlightColor = D_8900A5BC;
@@ -1533,7 +1533,7 @@ void LabItem_InitSaveDataWindow(LabItemSaveDataWindow* win, s32 x, s32 y, LabIte
     win->operationCursor.cursor = 0;
     win->operationCursor.controller = D_800603C0;
     func_8000B2F4(D_800603C0);
-    LabItem_InitItemList(&win->itemList, win->window.frame.x + 136, win->window.frame.y + 54, (s32)items);
+    LabItem_InitItemList(&win->itemList, win->window.frame.x + 136, win->window.frame.y + 54, (uintptr_t)items);
     win->slot = slot;
     win->state = 1;
 }

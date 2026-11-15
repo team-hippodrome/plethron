@@ -388,7 +388,7 @@ extern s32 D_8910DD34[];
  * Seen in play (2026-11-14) in いちらん: いどうする on フシギダネ opened it.
  */
 void LabPCList_OpenDestinationMenu(LabPCListScreen* screen, s8** entry) {
-    LabPCList_InitPopupMenu(&screen->subPopup, D_8910A8DC, (s8*)&screen->popupItemFlags[1], 3, (s32)D_8910DD34);
+    LabPCList_InitPopupMenu(&screen->subPopup, D_8910A8DC, (s8*)&screen->popupItemFlags[1], 3, (uintptr_t)D_8910DD34);
     Window_SetRect((s8*)&screen->subPopup.anchorX, screen->popup.window.frame.x + 14, screen->popup.window.frame.y + 56, 108, 28);
     screen->subPopup.window.frame.style |= 0x1000000;
     screen->subPopup.limitX = screen->listFrame.x + screen->listFrame.width;
@@ -462,7 +462,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
             case 2:
                 if (LabPCList_IsLastPartyMon((s8**)entry) != 0) {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (s32)D_8910DD40, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD40, 0, 1, 0);
                     screen->state = 11;
                 } else {
                     Audio_PlaySystemSound(2);
@@ -477,7 +477,7 @@ s32 LabPCList_UpdateMonMenu(LabPCListScreen* screen) {
                     ret = 2;
                 } else {
                     Audio_PlaySystemSound(8);
-                    TextBox_Init((s8*)screen->textBox, (s32)D_8910DD58, 0, 1, 0);
+                    TextBox_Init((s8*)screen->textBox, (uintptr_t)D_8910DD58, 0, 1, 0);
                     screen->state = 12;
                 }
                 break;

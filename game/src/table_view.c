@@ -394,7 +394,7 @@ void PointerList_Filter(LabMonEntryList* arg0, LabMonEntryList* arg1,
         var_s0++;
     }
 
-    arg1->count = ((s32)var_s1 - (s32)arg1->items) >> 2;
+    arg1->count = ((uintptr_t)var_s1 - (uintptr_t)arg1->items) >> 2;
 }
 
 /** Compares two zero-terminated 16-bit strings. */

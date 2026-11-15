@@ -440,8 +440,8 @@ void BattleCamera_LoadSpeciesPathPoints(ActivePokemon* active_pokemon) {
     s8* sp18;
 
     temp_a2 = active_pokemon->displayObject.objectType - 1;
-    temp_a1 = (s8*)((D_8218A2DC[temp_a2] & 0xFFFFFF) + (u32)&D_00434C00);
-    sp18 = (s8*)((D_8218A544[temp_a2] & 0xFFFFFF) + (u32)&D_00434C00);
+    temp_a1 = (s8*)((D_8218A2DC[temp_a2] & 0xFFFFFF) + (uintptr_t)&D_00434C00);
+    sp18 = (s8*)((D_8218A544[temp_a2] & 0xFFFFFF) + (uintptr_t)&D_00434C00);
     if (sBattleScene.scene->mode == 9) {
         func_80003824(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
         return;
@@ -496,7 +496,7 @@ loop:
     }
     D_8219A5A0->splineKeyframeCount = count;
     BattleScene_GetParticipantAimPoint(active_pokemon, &D_FLT_8219A718);
-    func_8212254C((s32)active_pokemon, (s32)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
+    func_8212254C((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
     D_FLT_8219A718 *= active_pokemon->facingDirection;
     func_8210BCF0(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
     func_8000EEBC((u8*)camera + 0xB4, (Vec3f*)((u8*)camera + 0xA8), sp40, sp3E, M2C_FIELD(active_pokemon, u32*, 0x60C) * *(sp3Cp = &sp3C)); // FAKE
@@ -731,7 +731,7 @@ void BattleCamera_StartDemoPath(CameraNode* camera, ActivePokemon* active_pokemo
     D_8219A5A0->splineT = 0.0f;
     D_8219A5A0->splineKeyframeCount = 0;
     count = 0;
-    BattleCamera_LoadDemoPathPoints((s32)active_pokemon);
+    BattleCamera_LoadDemoPathPoints((uintptr_t)active_pokemon);
     p = (Vec3f*)&D_FLT_8219A5B0;
 loop:
     if (p->x != 1000.0f) {
@@ -742,7 +742,7 @@ loop:
     }
     D_8219A5A0->splineKeyframeCount = count;
     BattleScene_GetParticipantAimPoint(active_pokemon, &D_FLT_8219A718);
-    func_8212254C((s32)active_pokemon, (s32)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
+    func_8212254C((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
     D_FLT_8219A718 *= active_pokemon->facingDirection;
     func_8210BCF0(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
     func_8000EEBC((u8*)camera + 0xB4, (Vec3f*)((u8*)camera + 0xA8), sp40, sp3E, M2C_FIELD(active_pokemon, u32*, 0x60C) * *(sp3Cp = &sp3C)); // FAKE

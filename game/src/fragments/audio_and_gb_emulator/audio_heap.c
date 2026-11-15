@@ -140,10 +140,10 @@ u32 AudioHeap_AllocZeroed(AudioAllocPool* arg0, s32 arg1) {
   u32 var_a1;
   temp_v0 = ALIGN16(arg1);
   temp_a2 = arg0->curRamAddr;
-  if ((u32)(arg0->startRamAddr + arg0->size) >= (temp_a2 + temp_v0)) {
+  if ((uintptr_t)(arg0->startRamAddr + arg0->size) >= (temp_a2 + temp_v0)) {
       arg0->curRamAddr += temp_v0;
       var_a1 = temp_a2;
-      while (var_a1 < (u32)arg0->curRamAddr) {
+      while (var_a1 < (uintptr_t)arg0->curRamAddr) {
           *((u8*)var_a1++) = 0;
       }
   } else {
@@ -264,8 +264,8 @@ extern s32 D_811842A0;
  * Transfer Pak; called from AudioLoad_Init.
  */
 void AudioHeap_InitMainPools(s32 arg0) {
-    func_811098C0(&D_811842B0, (s32)D_81186270, arg0);
-    func_811098C0(&D_81184290, (s32)(D_81186270 + arg0), D_811526FC - arg0);
+    func_811098C0(&D_811842B0, (uintptr_t)D_81186270, arg0);
+    func_811098C0(&D_81184290, (uintptr_t)(D_81186270 + arg0), D_811526FC - arg0);
     D_811842A0 = 0;
 }
 
@@ -566,7 +566,7 @@ void* AudioHeap_AllocCached(s32 table_type, s32 size, s32 cache, s32 id) {
                 break;
 
             case 1:
-                t_cache->entries[1].ramAddr = (u8*)((u32)(temp_pool->startRamAddr + temp_pool->size - size) & ~0xF);
+                t_cache->entries[1].ramAddr = (u8*)((uintptr_t)(temp_pool->startRamAddr + temp_pool->size - size) & ~0xF);
                 t_cache->entries[1].id = id;
                 t_cache->entries[1].size = size;
                 if (t_cache->entries[0].id != -1 && t_cache->entries[1].ramAddr < temp_pool->curRamAddr) {
@@ -661,18 +661,18 @@ s32 AudioHeap_SearchRegularCaches(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 == 0) {
         if (arg2 == temporary->entries[0].id) {
             temporary->nextSide = 1;
-            return (s32)temporary->entries[0].ramAddr;
+            return (uintptr_t)temporary->entries[0].ramAddr;
         }
         if (arg2 == temporary->entries[1].id) {
             temporary->nextSide = 0;
-            return (s32)temporary->entries[1].ramAddr;
+            return (uintptr_t)temporary->entries[1].ramAddr;
         }
         return 0;
     }
     persistent = &tbl->persistent;
     for (i = 0; i < persistent->numEntries; i++) {
         if (arg2 == tbl->persistent.entries[i].id) {
-            return (s32)tbl->persistent.entries[i].ramAddr;
+            return (uintptr_t)tbl->persistent.entries[i].ramAddr;
         }
     }
     if (arg1 == 2) {

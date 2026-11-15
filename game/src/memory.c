@@ -100,7 +100,7 @@ void MemPool_Free(MemoryPool* pool, void* addr) {
         pool->freeList.next = block;
         block->next = NULL;
     } else if (block < pool->freeList.next) {
-        if ((u32)pool->freeList.next == ((u32)block + (u32)block->size)) {
+        if ((uintptr_t)pool->freeList.next == ((uintptr_t)block + (u32)block->size)) {
             block->size += ((u32)free_list->size);
             block->next = free_list->next;
             pool->freeList.next = block;
@@ -115,14 +115,14 @@ void MemPool_Free(MemoryPool* pool, void* addr) {
             }
             free_list = free_list->next;
         }
-        if (((u32)free_list + (u32)free_list->size) == (u32)block) {
+        if (((uintptr_t)free_list + (u32)free_list->size) == (uintptr_t)block) {
             free_list->size += block->size;
             block = free_list;
         } else {
             block->next = free_list->next;
             free_list->next = block;
         }
-        if (block->next != NULL && (u32)block->next == ((u32)block + (u32)block->size)) {
+        if (block->next != NULL && (uintptr_t)block->next == ((uintptr_t)block + (u32)block->size)) {
             block->size = (u32)block->size + (u32)block->next->size;
             block->next = block->next->next;
         }

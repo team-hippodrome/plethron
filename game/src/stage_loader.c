@@ -218,15 +218,15 @@ void StageLoader_SetupFrame(void) {
     Gfx_SetDefaultRenderState();
     Gfx_SetDefaultGeometryState();
 
-    gSPMatrix(gDisplayListHead++, (u32)&D_8005F688 & 0x1FFFFFFF, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPMatrix(gDisplayListHead++, (u32)&D_800AA188 & 0x1FFFFFFF, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPMatrix(gDisplayListHead++, (uintptr_t)&D_8005F688, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(gDisplayListHead++, (uintptr_t)&D_800AA188, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPPerspNormalize(gDisplayListHead++, 0xFFFF);
 
     if (stage->zoom == 1) {
-        gSPViewport(gDisplayListHead++, (u32)&D_8005F6D8 & 0x1FFFFFFF);
+        gSPViewport(gDisplayListHead++, (uintptr_t)&D_8005F6D8);
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, stage->width, stage->height);
     } else {
-        gSPViewport(gDisplayListHead++, (u32)&D_8005F6C8 & 0x1FFFFFFF);
+        gSPViewport(gDisplayListHead++, (uintptr_t)&D_8005F6C8);
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, stage->width, stage->height);
     }
 

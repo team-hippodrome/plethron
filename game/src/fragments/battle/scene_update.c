@@ -79,7 +79,7 @@ void BattleScene_TickCameraSubstateDefault(CameraNode* arg0) {
             break;
 
         case 3:
-            GeoCamera_SetBackgroundTexture(arg0, 0x12C, 0xA, 2, Util_ConvertAddrToVirtAddr((u32)D_1000000));
+            GeoCamera_SetBackgroundTexture(arg0, 0x12C, 0xA, 2, Util_ConvertAddrToVirtAddr((uintptr_t)D_1000000));
             GeoCamera_SetBackground(arg0, 5, 0xA, 0, 0, 0);
             sBattleScene.scene->transitionStage = 0;
             sBattleScene.scene->transitionStep += 1;
@@ -102,7 +102,7 @@ void BattleScene_TickCameraSubstateDefault(CameraNode* arg0) {
                 BattleAnim_ClearHardenTexture(sActivePokemon[0]);
                 BattleAnim_ClearHardenTexture(sActivePokemon[1]);
                 sBattleScene.scene->transitionStage = 2;
-                GeoCamera_SetBackgroundTexture(arg0, 0xA, 0x12C, 2, Util_ConvertAddrToVirtAddr((u32)D_1000000));
+                GeoCamera_SetBackgroundTexture(arg0, 0xA, 0x12C, 2, Util_ConvertAddrToVirtAddr((uintptr_t)D_1000000));
                 GeoCamera_SetBackground(arg0, 4, 0xA, 0, 0, 0);
                 arg0->perspective.verticalFieldOfView = 30.0f;
                 sBattleScene.scene->verticalFieldOfView = 30.0f;

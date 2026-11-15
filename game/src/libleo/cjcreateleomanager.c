@@ -28,6 +28,9 @@ s32 LeoCJCreateLeoManager(OSPri com_pri, OSPri int_pri, OSMesg* cmd_buf, s32 cmd
         return LEO_ERROR_GOOD;
     }
 
+    // PORT: there is no 64DD on the host; report it as absent, as the N64 does without the drive
+    return LEO_ERROR_DEVICE_COMMUNICATION_FAILURE;
+
     leo_disk_handle = osLeoDiskInit();
     drive_rom_handle = osDriveRomInit();
     osEPiReadIo(leo_disk_handle, 0x05000508, &data);
@@ -50,10 +53,10 @@ s32 LeoCJCreateLeoManager(OSPri com_pri, OSPri int_pri, OSMesg* cmd_buf, s32 cmd
     leoCommand((void*)&cmd_block_inq);
 
     {
-        volatile s32 dummy = (u32)&cmd_block_inq & 0xFFFFFF;
+        volatile s32 dummy = (uintptr_t)&cmd_block_inq & 0xFFFFFF;
 
         while (dummy > 0) {
-            dummy -= ((u32)__leoSetReset & 0xFFFFFF) | 0x403DF4;
+            dummy -= ((uintptr_t)__leoSetReset & 0xFFFFFF) | 0x403DF4;
         }
     }
 
@@ -84,7 +87,7 @@ s32 LeoCJCreateLeoManager(OSPri com_pri, OSPri int_pri, OSMesg* cmd_buf, s32 cmd
         }
 
         dummy *= data;
-        dummy -= (u32)&cmd_block_inq;
+        dummy -= (uintptr_t)&cmd_block_inq;
         LEO_country_code = 0xE848D316;
     } else {
         while (1) {}

@@ -66,7 +66,7 @@ void BattleAnim_RenderEffectsFrame(CameraNode* arg0) {
     BattleAnim_DrawWorldParticleChainsThunk(0, (M2C_UNK)arg0);
     guOrtho(&gParticleMatrixPool->orthoMatrix, 0.0f, 320.0f, 240.0f, 0.0f, -2.0f, 2.0f, 1.0f);
 
-    gSPMatrix(gDisplayListHead++, (u32)&gParticleMatrixPool->orthoMatrix & 0x1FFFFFFF,
+    gSPMatrix(gDisplayListHead++, (uintptr_t)&gParticleMatrixPool->orthoMatrix,
               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPDisplayList(gDisplayListHead++, gDL_BeginUIOverlay);
 

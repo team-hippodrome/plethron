@@ -915,13 +915,13 @@ s32 Audio_LoadWaveTablesAndMusic(u8* arg0) {
 
     if (1) {}  // karodo
 
-    Rom_DmaRead(D_800B4164->offset1, (u32)D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
-    Audio_CopyDataWithCacheSync((s32)D_800B41F0, D_800FD690, 12992);
-    Rom_DmaRead(D_800B4164->wave_tables_offset, (u32)sp1C, D_800B4164->files[0] - D_800B4164->wave_tables_offset);
-    Audio_RelocateSoundBankWrapper((s32)D_800FD690, (s32)sp1C);
+    Rom_DmaRead(D_800B4164->offset1, (uintptr_t)D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
+    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800FD690, 12992);
+    Rom_DmaRead(D_800B4164->wave_tables_offset, (uintptr_t)sp1C, D_800B4164->files[0] - D_800B4164->wave_tables_offset);
+    Audio_RelocateSoundBankWrapper((uintptr_t)D_800FD690, (uintptr_t)sp1C);
     D_80075C30 |= 0x80000000;
-    Rom_DmaRead(D_800B4164->files[0], (u32)D_800B41F0, D_800B4164->files[1] - D_800B4164->files[0]);
-    Audio_CopyDataWithCacheSync((s32)D_800B41F0, D_800B419C, 36000);
+    Rom_DmaRead(D_800B4164->files[0], (uintptr_t)D_800B41F0, D_800B4164->files[1] - D_800B4164->files[0]);
+    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800B419C, 36000);
     D_800FD608 = func_80037F68(D_800FD690, D_800B419C);
     func_80037C04(D_800FD608, 112);
 

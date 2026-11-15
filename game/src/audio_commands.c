@@ -150,8 +150,8 @@ s32 Audio_LoadSoundData(void) {
     Rom_InitDevice(0);
 
     D_800B4160 = alHeapDBAlloc(0, 0, D_800B41F8, 10, 4);
-    func_8004609C((u32)D_00B98000, (u8*)D_800B4160, 40);
-    Audio_RelocateOffsets((u32*)D_800B4160 + 1, (u32)D_00B98000, 9);
+    func_8004609C((uintptr_t)D_00B98000, (u8*)D_800B4160, 40);
+    Audio_RelocateOffsets((u32*)D_800B4160 + 1, (uintptr_t)D_00B98000, 9);
 
     hdr = D_800B4170 = alHeapDBAlloc(0, 0, D_800B41F8, 4, 4);
     func_8004609C(D_800B4160->wave_tables_offset, (u8*)hdr, 12);
@@ -161,7 +161,7 @@ s32 Audio_LoadSoundData(void) {
     Audio_RelocateOffsets(&D_800B4164->offset1, D_800B4160->wave_tables_offset, 2);
     Audio_RelocateOffsets(D_800B4164->files, D_800B4160->wave_tables_offset, num);
     func_8004609C(D_800B4164->offset1, D_800B41F0, D_800B4164->wave_tables_offset - D_800B4164->offset1);
-    D_800B4180 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12992);
+    D_800B4180 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12992);
     func_80047FB0(D_800B41F0, D_800B4180, 12992);
     func_80037F48(D_800B4180, D_800B4164->wave_tables_offset);
 
@@ -169,11 +169,11 @@ s32 Audio_LoadSoundData(void) {
     func_8004609C(D_800B4160->num_files, (u8*)D_800B4168, 12);
     Audio_RelocateOffsets(D_800B4168, D_800B4160->num_files, 3);
     func_8004609C(D_800B4168[0], D_800B41F0, D_800B4168[1] - D_800B4168[0]);
-    D_800B41A0 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2752);
+    D_800B41A0 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2752);
     func_80047FB0(D_800B41F0, D_800B41A0, 2752);
     Block_RelocateSelf((u8*)D_800B41A0);
     func_8004609C(D_800B4168[1], D_800B41F0, D_800B4168[2] - D_800B4168[1]);
-    D_800B4184 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3424);
+    D_800B4184 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3424);
     func_80047FB0(D_800B41F0, D_800B4184, 3424);
     func_80037F48(D_800B4184, D_800B4168[2]);
 
@@ -181,11 +181,11 @@ s32 Audio_LoadSoundData(void) {
     func_8004609C(D_800B4160->files[0], (u8*)D_800B416C, 12);
     Audio_RelocateOffsets(D_800B416C, D_800B4160->files[0], 3);
     func_8004609C(D_800B416C[0], D_800B41F0, D_800B416C[1] - D_800B416C[0]);
-    D_800B41A4 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
+    D_800B41A4 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
     func_80047FB0(D_800B41F0, D_800B41A4, 3200);
     Block_RelocateSelf((u8*)D_800B41A4);
     func_8004609C(D_800B416C[1], D_800B41F0, D_800B416C[2] - D_800B416C[1]);
-    D_800B4188 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 8288);
+    D_800B4188 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 8288);
     func_80047FB0(D_800B41F0, D_800B4188, 8288);
     func_80037F48(D_800B4188, D_800B416C[2]);
 
@@ -195,7 +195,7 @@ s32 Audio_LoadSoundData(void) {
     func_8004609C(D_800B4160->files[2], (u8*)D_800B4174, num * 4 + 12);
     Audio_RelocateOffsets((u32*)D_800B4174 + 1, D_800B4160->files[2], num + 2);
     func_8004609C(((u32*)D_800B4174)[1], D_800B41F0, ((u32*)D_800B4174)[2] - ((u32*)D_800B4174)[1]);
-    D_800B4190 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 7712);
+    D_800B4190 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 7712);
     func_80047FB0(D_800B41F0, D_800B4190, 7712);
     func_80037F48(D_800B4190, ((u32*)D_800B4174)[2]);
 
@@ -205,7 +205,7 @@ s32 Audio_LoadSoundData(void) {
     func_8004609C(D_800B4160->files[3], (u8*)D_800B4178, num * 4 + 12);
     Audio_RelocateOffsets(&D_800B4178->offset1, D_800B4160->files[3], num + 2);
     func_8004609C(D_800B4178->offset1, D_800B41F0, D_800B4178->wave_tables_offset - D_800B4178->offset1);
-    D_800B4194 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12000);
+    D_800B4194 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 12000);
     func_80047FB0(D_800B41F0, D_800B4194, 12000);
     func_80037F48(D_800B4194, D_800B4178->wave_tables_offset);
 
@@ -215,18 +215,18 @@ s32 Audio_LoadSoundData(void) {
     func_8004609C(D_800B4160->files[4], (u8*)D_800B417C, num * 4 + 12);
     Audio_RelocateOffsets(D_800B417C + 1, D_800B4160->files[4], num + 2);
     func_8004609C(D_800B417C[1], D_800B41F0, D_800B417C[2] - D_800B417C[1]);
-    D_800B4198 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2000);
+    D_800B4198 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 2000);
     func_80047FB0(D_800B41F0, D_800B4198, 2000);
     func_80037F48(D_800B4198, D_800B417C[2]);
 
     func_8004609C(D_800B4160->files[1], (u8*)D_800B4170, 12);
     Audio_RelocateOffsets(D_800B4170, D_800B4160->files[1], 3);
     func_8004609C(D_800B4170[0], D_800B41F0, D_800B4170[1] - D_800B4170[0]);
-    D_800B41A8 = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
+    D_800B41A8 = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 3200);
     func_80047FB0(D_800B41F0, D_800B41A8, 3200);
     Block_RelocateSelf((u8*)D_800B41A8);
     func_8004609C(D_800B4170[1], D_800B41F0, D_800B4170[2] - D_800B4170[1]);
-    D_800B418C = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 24288);
+    D_800B418C = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 24288);
     func_80047FB0(D_800B41F0, D_800B418C, 24288);
     func_80037F48(D_800B418C, D_800B4170[2]);
 
@@ -240,7 +240,7 @@ s32 Audio_LoadSoundData(void) {
     }
 
     D_800B41E8 = alHeapDBAlloc(0, 0, D_800B41F8, 1, 9000);
-    D_800B419C = (s32)alHeapDBAlloc(0, 0, D_800B41F8, 1, 36000);
+    D_800B419C = (uintptr_t)alHeapDBAlloc(0, 0, D_800B41F8, 1, 36000);
     D_800B41B0[0] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
     D_800B41B0[1] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
     D_800B41B0[2] = alHeapDBAlloc(0, 0, D_800B41F8, 1, 320);
@@ -666,7 +666,7 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
         if (!(D_80075C30 & 0x80000000)) {
             return 0;
         }
-        ret = func_8003834C((s32)D_800FD690, D_800B41A0, 15, 0x80, 0x80, 0, -1);
+        ret = func_8003834C((uintptr_t)D_800FD690, D_800B41A0, 15, 0x80, 0x80, 0, -1);
         func_80037AC4(D_800FD608, 40);
         return ret;
     }
@@ -794,36 +794,36 @@ s32 Audio_PlayCry(u32 arg0, u32 arg1) {
         start = D_800B4174->files[arg0];
         size = D_800B4160->files[3] - start;
     }
-    Rom_DmaRead(start, (u32)D_800B41F0, size);
-    Audio_CopyDataWithCacheSync((s32)D_800B41F0, D_800B41B0[D_80077520], 320);
+    Rom_DmaRead(start, (uintptr_t)D_800B41F0, size);
+    Audio_CopyDataWithCacheSync((uintptr_t)D_800B41F0, D_800B41B0[D_80077520], 320);
     Block_RelocateSelf(D_800B41B0[D_80077520]);
     switch (arg1) {
         case 0:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
             break;
         case 5:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 3, 0x80, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 3, 0x80, 0x80, 0, -1);
             break;
         case 1:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 4, 120, 80, 0, -1);
-            sp30 = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 4, 120, 176, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 4, 120, 80, 0, -1);
+            sp30 = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 4, 120, 176, 0, -1);
             func_80037D4C(D_800FD5F8[D_80077520], 5.0f);
             func_80037E84(D_800FD5F8[D_80077520], 0x3C);
             func_80037D4C(sp30, 6.0f);
             func_80037E84(sp30, 0x3C);
             break;
         case 2:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 2, 112, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 2, 112, 0x80, 0, -1);
             func_80037D4C(D_800FD5F8[D_80077520], -1.0f);
             func_80037DF4(D_800FD5F8[D_80077520], 0x70);
             break;
         case 3:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 2, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 2, 160, 0x80, 0, -1);
             func_80037AC4(D_800775A8, 80);
             D_800775A8 = func_8003834C(D_800B4188, D_800B41A4, 15, 0x80, 0x80, 0, -1);
             break;
         case 4:
-            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (s32)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
+            D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, (uintptr_t)D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
         default:
             return 0;
     }
@@ -1115,13 +1115,13 @@ skip:
     }
 
     func_8004609C(D_800B4178->files[move_id], D_800B41F0, size);
-    func_80047FB0(D_800B41F0, (s32)D_800B41C0[D_800FD604], 800);
+    func_80047FB0(D_800B41F0, (uintptr_t)D_800B41C0[D_800FD604], 800);
     Block_RelocateSelf(D_800B41C0[D_800FD604]);
 
     if (sound_kind == 255) {
-        ret = func_8003834C(D_800B4194, (s32)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
+        ret = func_8003834C(D_800B4194, (uintptr_t)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
     } else {
-        D_800FD64C = func_8003834C(D_800B4194, (s32)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
+        D_800FD64C = func_8003834C(D_800B4194, (uintptr_t)D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
         ret = D_800FD64C;
     }
 

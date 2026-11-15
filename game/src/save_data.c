@@ -826,13 +826,13 @@ s32 Deck_ReadSaveEntry(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
     if (arg2 < Deck_GetSaveEntryCount(arg0, arg1)) {
         switch (arg0) {
             case 16:
-                BattleMon_FromGbSaveRecord((s32)arg3, (s32)&gSaveSram->teams[arg1][0].mons[arg2]);
+                BattleMon_FromGbSaveRecord((uintptr_t)arg3, (uintptr_t)&gSaveSram->teams[arg1][0].mons[arg2]);
                 break;
             case 17:
-                BattleMon_FromGbSaveRecord((s32)arg3, (s32)&gSaveSram->boxes[arg1][0].mons[arg2]);
+                BattleMon_FromGbSaveRecord((uintptr_t)arg3, (uintptr_t)&gSaveSram->boxes[arg1][0].mons[arg2]);
                 break;
             case 19:
-                BattleMon_FromGbSaveRecord((s32)arg3, (s32)&gSaveSram->list[0].mons[arg2]);
+                BattleMon_FromGbSaveRecord((uintptr_t)arg3, (uintptr_t)&gSaveSram->list[0].mons[arg2]);
                 break;
             case 18:
                 *(SaveItemSlot*)arg3 = gSaveSram->items[arg1][0].items[arg2];
@@ -995,7 +995,7 @@ s16 Save_ReadContinueData(SaveContinueSession* arg0, GbSavePortSnapshot* arg1, B
             *arg1 = blk->gbSnapshot;
             count = blk->count;
             for (i = 0; i < count; i++) {
-                BattleMon_FromGbSaveRecord((s32)&arg2[i], (s32)&blk->team[i]);
+                BattleMon_FromGbSaveRecord((uintptr_t)&arg2[i], (uintptr_t)&blk->team[i]);
                 if (blk->rentalMask & (1 << i)) {
                     arg2[i].species.isRental = 1;
                 }

@@ -27,12 +27,12 @@ void Block_RelocateSelf(RelocHeader8003A710* arg0) {
 
     n = arg0->count;
     i = arg0->unk08;
-    arg0->unk08 = (u32)arg0 + i;
+    arg0->unk08 = (uintptr_t)arg0 + i;
     i = arg0->table;
-    arg0->table = (u32)arg0 + i;
+    arg0->table = (uintptr_t)arg0 + i;
     p = (u32*)arg0->table;
     for (i = 0; i < n; i++) {
-        *p++ += (u32)arg0;
+        *p++ += (uintptr_t)arg0;
     }
     arg0->flags |= 1;
 }
@@ -42,9 +42,9 @@ void Block_RelocateSelf(RelocHeader8003A710* arg0) {
  * (flags bit 0) and returns the bank data. @unverified: no callers found.
  */
 s32 Audio_RelocateSoundBankHeader(Unk8003A7AC* arg0) {
-    s32 end = arg0->size + (s32)arg0;
+    s32 end = arg0->size + (uintptr_t)arg0;
 
-    func_80037F48((s32)arg0->data, end);
+    func_80037F48((uintptr_t)arg0->data, end);
     arg0->flags |= 1;
-    return (s32)arg0->data;
+    return (uintptr_t)arg0->data;
 }

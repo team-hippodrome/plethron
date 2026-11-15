@@ -76,8 +76,8 @@ void VsResults_PortraitCallback(s32 event, DemoGeoNode* node) {
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
         node->displayList = Gfx_AllocDisplayList(0x10);
-        VsResults_WritePortraitGfx(node->displayList, teams[(s32)node->node.callbackArg].trainerFile);
-        node->displayList = (Gfx*)VsResults_CheckBootCode((s32)node->displayList);
+        VsResults_WritePortraitGfx(node->displayList, teams[(uintptr_t)node->node.callbackArg].trainerFile);
+        node->displayList = (Gfx*)VsResults_CheckBootCode((uintptr_t)node->displayList);
     }
 }
 
@@ -91,7 +91,7 @@ void VsResults_TitleTextCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(s32)node->node.callbackArg].rosterInfo[0]->title;
+        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
     }
 }
 
@@ -107,10 +107,10 @@ void VsResults_NameTextCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(s32)node->node.callbackArg].rosterInfo[0]->fullName;
-        if (*(s16*)&teams[(s32)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
+        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
+        if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
             node->unk_20 = 210;
-        } else if (*(s16*)&teams[(s32)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
+        } else if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
             node->unk_22 = -240;
         } else {
             node->unk_22 = -300;
@@ -132,8 +132,8 @@ void VsResults_NicknameCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        team = ((u32)node->node.callbackArg >> 16) & 0xFFFF;
-        slot = (u32)node->node.callbackArg & 0xFFFF;
+        team = ((uintptr_t)node->node.callbackArg >> 16) & 0xFFFF;
+        slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (slot < teams[team].teamMember[0]->numberOfPokemonBrought) {
             sVsResultsNicknameText[0] = 9;
             _bcopy(teams[team].teamMember[0]->pokemonPicked[slot].nickname, &sVsResultsNicknameText[1], 12);
@@ -184,8 +184,8 @@ void VsResults_RowIconCallback(s32 event, DemoGeoNode *node)
   if (event == 2)
   {
     teams = D_80060490->node.callbackArg;
-    team = (((u32) node->node.callbackArg) >> 16) & 0xFFFF;
-    slot = ((u32) node->node.callbackArg) & 0xFFFF;
+    team = (((uintptr_t) node->node.callbackArg) >> 16) & 0xFFFF;
+    slot = ((uintptr_t) node->node.callbackArg) & 0xFFFF;
     if (slot < teams[team].teamMember[0]->numberOfPokemonBrought)
     {
       node->displayList = Gfx_AllocDisplayList(0x10);
@@ -228,8 +228,8 @@ void VsResults_GridIconCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        team = ((u32)node->node.callbackArg >> 16) & 0xFFFF;
-        slot = (u32)node->node.callbackArg & 0xFFFF;
+        team = ((uintptr_t)node->node.callbackArg >> 16) & 0xFFFF;
+        slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (teams[team].teamLayout == 2) {
             if (slot % 3 < teams[team].teamMember[slot / 3]->numberOfPokemonBrought) {
                 node->displayList = Gfx_AllocDisplayList(0x10);
@@ -273,8 +273,8 @@ void VsResults_HpBarCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        team = ((u32)node->node.callbackArg >> 16) & 0xFFFF;
-        slot = (u32)node->node.callbackArg & 0xFFFF;
+        team = ((uintptr_t)node->node.callbackArg >> 16) & 0xFFFF;
+        slot = (uintptr_t)node->node.callbackArg & 0xFFFF;
         if (teams[team].teamLayout == 2) {
             if (slot % 3 < teams[team].teamMember[slot / 3]->numberOfPokemonBrought) {
                 node->displayList = Gfx_AllocDisplayList(0x10);

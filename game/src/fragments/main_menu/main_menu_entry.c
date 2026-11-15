@@ -35,28 +35,28 @@ s32 MainMenu_LoadSelectedFragment(u32 item) {
     // expansion would) for IDO to schedule it like the retail code.
     switch (item) {
         case 0:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_89000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00238BD0, &D_00252E10, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_89000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00238BD0, &D_00252E10, 0, 0);
             break;
         case 2:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_89100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00252E10, &D_00261F00, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_89100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00252E10, &D_00261F00, 0, 0);
             break;
         case 3:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_8A100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00262620, &D_00293410, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_8A100000 & 0x0FF00000) >> 0x14) - 0x10, &D_00262620, &D_00293410, 0, 0);
             break;
         case 4:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_82000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00166580, &D_001720F0, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_82000000 & 0x0FF00000) >> 0x14) - 0x10, &D_00166580, &D_001720F0, 0, 0);
             break;
         case 5:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_8A200000 & 0x0FF00000) >> 0x14) - 0x10, &D_00293410, &D_002B1360, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_8A200000 & 0x0FF00000) >> 0x14) - 0x10, &D_00293410, &D_002B1360, 0, 0);
             break;
         case 6:
             ret = 0x8060;
             break;
         case 7:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_88400000 & 0x0FF00000) >> 0x14) - 0x10, &D_00162BE0, &D_00166580, 1, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_88400000 & 0x0FF00000) >> 0x14) - 0x10, &D_00162BE0, &D_00166580, 1, 0);
             break;
         case 8:
-            ret = 0x8040; Fragment_QueueCall(((u32)((s32)&D_88100000 & 0x0FF00000) >> 0x14) - 0x10, &D_001720F0, &D_00175570, 0, 0);
+            ret = 0x8040; Fragment_QueueCall(((u32)((uintptr_t)&D_88100000 & 0x0FF00000) >> 0x14) - 0x10, &D_001720F0, &D_00175570, 0, 0);
             break;
     }
     return ret;
