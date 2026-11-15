@@ -21,7 +21,9 @@ md5,ja,en,es,de,pt,ko,ru,ar,hi,note
 - `md5` is the lowercase hex md5 of the original string's raw bytes as the game
   holds them (EUC-JP, up to but not including the NUL). This is the key the runtime
   hook computes.
-- `ja` is Japanese with kanji. The kana original needs no column: it's the ROM.
+- `ja` is Japanese with kanji. The kana original needs no column: it's the ROM. Strings with
+  nothing to convert (katakana names, people's names, nicknames, debug text) are left
+  empty on purpose and fall through to the original.
 - `en` … `hi` are the translations. A line break is a real newline inside a quoted
   cell. A non-printing byte is written `\xNN`.
 - `note` is context for translators (where the string appears, what `%s` stands
