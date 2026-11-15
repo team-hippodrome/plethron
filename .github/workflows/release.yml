@@ -1,0 +1,84 @@
+# Manual release: builds Linux, macOS and Windows (build.yml), tags the commit as v<version> and moves the "latest"
+# tag to it, and publishes a GitHub release: the Linux AppImage, the macOS app (zipped) and a zip per Windows
+# architecture. Run it from the Actions tab on main. The builds carry the version (Info.plist, AppImage, the .exe's
+# file version).
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, e.g. 0.0.4 (a leading v is fine too; the tag is v<version>)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  # the version without a leading "v" ("v0.0.3" was tagged "vv0.0.3")
+  version:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - id: v
+        env:
+          INPUT: ${{ inputs.version }}
+        run: |
+          VERSION="${INPUT#v}"
+          if ! echo "$VERSION" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+            echo "::error::version must look like 0.0.4 (got '$INPUT')"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: version
+    uses: ./.github/workflows/build.yml
+    with:
+      version: ${{ needs.version.outputs.version }}
+
+  release:
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Package
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          mkdir -p dist
+          for dir in artifacts/*/; do
+            name=$(basename "$dir")
+            if [ -n "$(find "$dir" -maxdepth 1 -name '*.AppImage')" ]; then
+              # Linux: the AppImage on its own (made executable after download: chmod +x)
+              cp "$dir"/*.AppImage "dist/${name%-x64}-x86_64-v${VERSION}.AppImage"
+              continue
+            fi
+            if [ -f "$dir/$name.app.zip" ]; then
+              # macOS: the app bundle, already zipped with ditto by build.yml
+              cp "$dir/$name.app.zip" "dist/${name}-v${VERSION}.zip"
+              continue
+            fi
+            cp README.md PORTING_NOTES.md "$dir/"
+            mkdir -p "$dir/docs"
+            cp docs/BUILDING.md "$dir/docs/BUILDING.md"
+            (cd "$dir" && zip -r "../../dist/${name}-v${VERSION}.zip" .)
+          done
+          ls -l dist
+      - name: Tag and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Pokémon Stadium port v$VERSION" "$GITHUB_SHA"
+          git push origin "v$VERSION"
+          git tag -f latest "$GITHUB_SHA"
+          git push -f origin latest
+          gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" \
+            --notes "Builds for Linux (x86_64 AppImage), macOS (Apple Silicon, Pokemon Stadium.app) and Windows (x64 and arm64). No game data included: you need your own Pokémon Stadium (USA) ROM. See README.md."
