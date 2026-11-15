@@ -1844,7 +1844,7 @@ ZLIFT_STORAGE(D_821CF2A8, 8);
 ZLIFT_STORAGE(D_821CF2AC, 8);
 ZLIFT_STORAGE(D_821CF2B0, 4);
 ZLIFT_STORAGE(D_821CF2B4, 4);
-ZLIFT_STORAGE(D_821CF2B8, 864);
+ZLIFT_STORAGE(D_821CF2B8, 912);
 ZLIFT_STORAGE(D_821CF618, 952);
 ZLIFT_STORAGE(D_821CF998, 69496);
 ZLIFT_STORAGE(D_82200000, 32);
@@ -2849,7 +2849,7 @@ const ZLiftType gZLiftTypes[] = {
     { 24, 24, 1215, 3 }, // r:struct unk_D_843847BC@battle.h:430
     { 8, 16, 1218, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
     { 44, 80, 1221, 3 }, // r:struct BattleSceneStateRow@battle.h:395
-    { 6, 6, 1224, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1145
+    { 6, 6, 1224, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1131
     { 3, 3, 1225, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
     { 2, 2, 1226, 1 }, // r:struct StatStageMultiplier@battle.h:881
     { 48, 48, 1227, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
@@ -2912,8 +2912,8 @@ const ZLiftType gZLiftTypes[] = {
     { 36, 36, 1630, 1 }, // r:struct BeamTrailSegment@battle.h:850
     { 484, 484, 1631, 3 }, // r:struct AuxiliaryEffect@battle.h:844
     { 24, 24, 1634, 2 }, // r:struct AuxiliaryEffectNode@battle.h:835
-    { 896, 952, 1636, 5 }, // r:struct ComSide@battle.h:142
-    { 144, 152, 1641, 22 }, // r:struct ComBattler@battle.h:122
+    { 144, 152, 1636, 22 }, // r:struct ComBattler@battle.h:122
+    { 896, 952, 1658, 5 }, // r:struct ComSide@battle.h:142
     { 72, 144, 1663, 7 }, // r:struct VsSceneSide@vs_scene.h:10
     { 24, 24, 1670, 1 }, // as1u[24]
     { 16, 16, 1671, 1 }, // r:struct MainMenuRect@main_menu.c:211
@@ -4588,12 +4588,7 @@ const ZLiftOp gZLiftOps[] = {
     { 4, 4, 4, 0, 20, 24, 24, 271, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 188, 0, 0, 0, 0 },
-    { 4, 4, 8, 0, 6, 144, 152, 273, 0, 0, 0, 0 },
-    { 0, 868, 920, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 0, 872, 924, 1, 5, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 877, 929, 1, 19, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 272, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 273, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 12, 16, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 14, 18, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
@@ -4615,6 +4610,11 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 116, 120, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 124, 128, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 127, 131, 1, 17, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 188, 0, 0, 0, 0 },
+    { 4, 4, 8, 0, 6, 144, 152, 272, 0, 0, 0, 0 },
+    { 0, 868, 920, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 872, 924, 1, 5, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 877, 929, 1, 19, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 1, 1, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6997,9 +6997,9 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x821CF2AC, 0x4, 1, 5, 13, 1, 0x0, D_821CF2AC }, // D_821CF2AC
     { 0x821CF2B0, 0x4, 1, 0, 13, 1, 0x0, D_821CF2B0 }, // D_821CF2B0
     { 0x821CF2B4, 0x4, 1, 1, 13, 1, 0x0, D_821CF2B4 }, // D_821CF2B4
-    { 0x821CF2B8, 0x360, 864, 3, 13, 1, 0x0, D_821CF2B8 }, // D_821CF2B8
-    { 0x821CF618, 0x380, 1, 272, 13, 1, 0x0, D_821CF618 }, // D_821CF618
-    { 0x821CF998, 0xFF80, 73, 272, 13, 1, 0x0, D_821CF998 }, // D_821CF998
+    { 0x821CF2B8, 0x360, 6, 272, 13, 1, 0x0, D_821CF2B8 }, // D_821CF2B8
+    { 0x821CF618, 0x380, 1, 273, 13, 1, 0x0, D_821CF618 }, // D_821CF618
+    { 0x821CF998, 0xFF80, 73, 273, 13, 1, 0x0, D_821CF998 }, // D_821CF998
     { 0x82200000, 0x20, 8, 0, 14, 0, 0x0, D_82200000 }, // D_82200000
     { 0x82202C1C, 0x4, 1, 5, 14, 0, 0x2C1C, D_82202C1C }, // D_82202C1C
     { 0x82202C3C, 0x24, 9, 5, 14, 0, 0x2C3C, D_82202C3C }, // D_82202C3C
