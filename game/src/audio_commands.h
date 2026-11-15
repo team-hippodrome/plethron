@@ -82,6 +82,35 @@ typedef struct unk_D_80077970 {
     /* 0x04 */ u8 unk_04;
 } unk_D_80077970;
 
+// PORT: typed (several files declared these s32): the sound banks, songs buffer and FX blocks Audio_LoadSoundData
+// loads into the sound heap. The FX blocks keep their offsets on the host (see AudioFxBlock in libnumus/player.h).
+#include "libnumus/player.h"
+extern SoundBank* D_800B4180;
+extern SoundBank* D_800B4184;
+extern SoundBank* D_800B4188;
+extern SoundBank* D_800B418C;
+extern SoundBank* D_800B4190;
+extern SoundBank* D_800B4194;
+extern SoundBank* D_800B4198;
+extern song_t* D_800B419C;
+extern AudioFxBlock* D_800B41A0;
+extern AudioFxBlock* D_800B41A4;
+extern AudioFxBlock* D_800B41A8;
+extern AudioFxBlock* D_800B41B0[];
+extern AudioFxBlock* D_800B41C0[];
+extern AudioFxBlock* D_800B41D0[];
+extern u8* D_800B41F0; // scratch buffer for compressed data
+
+// PORT: D_80077064 was declared s32[][2] (audio_commands_3.c) with D_80077068 a SoundBank8[] alias four bytes in
+// (audio_commands_2.c). The first word is a pointer, so the host layout differs: one struct for both.
+typedef struct AnnouncerSpeciesEntry {
+    /* 0x0 */ u8* moveFlags;
+    /* 0x4 */ u8 unk_04; // was D_80077068[i].unk_0
+    /* 0x5 */ u8 unk_05; // was D_80077068[i].unk_1
+    /* 0x6 */ u8 unk_06[2];
+} AnnouncerSpeciesEntry; // size = 0x8 on the N64
+extern AnnouncerSpeciesEntry D_80077064[];
+
 extern GbNoiseSampleEntry* D_800B41E4;
 
 extern u8* D_800B41E8;

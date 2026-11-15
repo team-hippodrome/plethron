@@ -45,16 +45,16 @@ typedef struct fx_metadata_t {
     /* 0x00 */ u8 params[4]; // [3] = default priority
 } fx_metadata_t; // size = 0x4
 
+// PORT: songs are big-endian blobs whose header tables hold 32-bit offsets from the song. On the N64
+// func_8003A598 adds the song's address to them; on the host they stay offsets (byte-swapped to host order on first
+// use by Audio_PortRelocateSong) and PORT_BLOB_AT turns them into pointers.
 typedef struct song_t {
     /* 0x00 */ u32 num_channels;
-    /* 0x04 */ u32* channel_data;
-    /* 0x08 */ u32* volume_data;
-    /* 0x0C */ u32* pitchbend_data;
-    /* 0x10 */ envelope_t* env_table;
-    /* 0x14 */ s32* drum_table;
-    /* 0x18 */ char unk18[0x10];
-    /* 0x28 */ f32* detune;
-    /* 0x2C */ u32* samples;
+    /* 0x04 */ u32 channel_data;   // offset of u32 channel_data[num_channels] (offsets of command streams, 0 = none)
+    /* 0x08 */ u32 volume_data;    // offset of u32 volume_data[num_channels]
+    /* 0x0C */ u32 pitchbend_data; // offset of u32 pitchbend_data[num_channels]
+    /* 0x10 */ u32 env_table;      // offset of envelope_t env_table[]
+    /* 0x14 */ u32 drum_table;     // offset of s32 drum_table[] (offsets from the song)
 } song_t; // size >= 0x18
 
 typedef struct fx_t {
@@ -63,24 +63,62 @@ typedef struct fx_t {
     /* 0x0C */ u32* fx_data;
 } fx_t; // size >= 0x10
 
+/**
+ * Stadium Zero's FX block (the second argument of func_8003834C): a header followed by its tables, loaded from ROM.
+ * On the N64 Block_RelocateSelf adds the block's address to `unk08`, `table` and every entry of `table`.
+ * PORT: on the host Block_RelocateSelf only byte-swaps the header; `unk08`, `table` and the table's entries stay
+ * offsets from the block, and the tables stay big-endian. Read them through the AUDIO_FX_* macros.
+ */
+typedef struct AudioFxBlock {
+    /* 0x00 */ u32 count;
+    /* 0x04 */ u32 flags; // bit 0: relocated
+    /* 0x08 */ u32 unk08;  // offset of an s32 per entry (read by func_80037828)
+    /* 0x0C */ u32 table;  // offset of `count` u32 offsets: the entries' command streams
+} AudioFxBlock; // size >= 0x10
+
+#define PORT_BLOB_AT(blob, off) ((u8*)(blob) + (off))
+#define PORT_BLOB_PTR_OR_NULL(blob, off) ((off) != 0 ? PORT_BLOB_AT(blob, off) : NULL)
+#define PORT_SONG_TABLE(song, table, i) (((u32*)PORT_BLOB_AT(song, (song)->table))[i])
+#define AUDIO_FX_TABLE(blk) ((u32*)PORT_BLOB_AT(blk, (blk)->table))
+#define AUDIO_FX_UNK08(blk) ((s32*)PORT_BLOB_AT(blk, (blk)->unk08))
+#define AUDIO_FX_ENTRY(blk, i) PORT_BLOB_AT(blk, Port_ReadBE32(&AUDIO_FX_TABLE(blk)[i]))
+#define AUDIO_FX_UNK08_AT(blk, i) ((s32)Port_ReadBE32(&AUDIO_FX_UNK08(blk)[i]))
+
+/** Configuration block of the sound player initialiser func_800371A4 (filled by Audio_LoadSoundData). */
+typedef struct AudioInitConfig {
+    /* 0x00 */ s32 channels;
+    /* 0x04 */ ALHeap* heap;
+    /* 0x08 */ SoundBank* bank;
+    /* 0x0C */ u32* unk_0C; // PORT: was s32. The FX block's table (offsets from portFxBlock, see AudioFxBlock)
+    /* 0x10 */ s32* unk_10; // PORT: was s32. The FX block's unk08 table
+    /* 0x14 */ s32 synUpdates; // @unverified: same offset/use as libmus's musConfig.syn_updates (forwarded as ALSynConfig.maxUpdates)
+    /* 0x18 */ s32 outputRate;
+    /* 0x1C */ s32 synRspCmds; // @unverified: same offset/use as libmus's musConfig.syn_rsp_cmds (forwarded to amCreateAudioMgr)
+    /* 0x20 */ s32 synRetraceCount; // @unverified: same offset/use as libmus's musConfig.syn_retraceCount (amConfig.framesPerField)
+    /* 0x24 */ s32 synNumDmaBufs; // @unverified: same offset/use as libmus's musConfig.syn_num_dma_bufs
+    /* 0x28 */ s32 synDmaBufSize; // @unverified: same offset/use as libmus's musConfig.syn_dma_buf_size
+    /* 0x2C */ s32 unk_2C;
+    /* 0x30 */ AudioFxBlock* portFxBlock; // PORT: the block unk_0C's offsets are relative to
+} AudioInitConfig; // size = 0x30 on the N64
+
+// Stadium Zero's voice (Stadium 1's audio_voice_t without the leading list node). The player keeps 45 of them in
+// D_800B3670. PORT: a real struct instead of raw N64 offsets; on the host N_ALVoice holds 64-bit pointers.
 typedef struct audio_voice_t {
-    /* 0x00 */ ALLink node;
-    /* 0x08 */ N_ALVoice voice;
-    /* 0x24 */ s32 release_end_frame;
-    /* 0x28 */ u16 env_release_speed;
-    /* 0x2A */ u8 env_phase;
-} audio_voice_t; // size = 0x2C
+    /* 0x00 */ N_ALVoice voice;
+    /* 0x1C */ u16 env_release_speed;
+    /* 0x1E */ u8 env_phase; // 1-3 playing, 4 releasing, 5 free
+    /* 0x20 */ u32 release_end_frame;
+} audio_voice_t; // size = 0x24
 
 typedef struct channel_t {
-    /* 0x000 */ struct channel_t* unk_000;
-    /* 0x004 */ char unk004[0x4];
+    /* 0x000 */ u64 unk_000; // the channel's current time (frames << 8)
     /* 0x008 */ u64 channel_frame;
     /* 0x010 */ u64 volume_frame;
     /* 0x018 */ u64 pitchbend_frame;
     /* 0x020 */ u64 note_end_frame;
     /* 0x028 */ u64 note_start_frame;
     /* 0x030 */ u8* pdata;
-    /* 0x034 */ s32 sample;
+    /* 0x034 */ ALWaveTable* sample; // PORT: was s32
     /* 0x038 */ s32 duration;
     /* 0x03C */ s32 duration_scale;
     /* 0x040 */ f32 vib_amount;
@@ -101,7 +139,7 @@ typedef struct channel_t {
     /* 0x07C */ f32 bendrange;
     /* 0x080 */ f32 pitchbend;
     /* 0x084 */ song_t* song_addr;
-    /* 0x088 */ song_t* sample_bank;
+    /* 0x088 */ SoundBank* sample_bank;
     /* 0x08C */ u8* pbase;
     /* 0x090 */ u8* pdrums;
     /* 0x094 */ u8* ppitchbendbase_offset;
@@ -115,10 +153,10 @@ typedef struct channel_t {
     /* 0x0AC */ u16 volume_current;
     /* 0x0AE */ u16 cont_vol_repeat_count;
     /* 0x0B0 */ u16 cont_pb_repeat_count;
-    /* 0x0BA */ u16 IsFX;
-    /* 0x0BC */ u16 channel_tempo_save;
-    /* 0x0BE */ u16 wobble_frame;
-    /* 0x0C0 */ u16 fixed_length;
+    /* 0x0B2 */ u16 IsFX;
+    /* 0x0B4 */ u16 channel_tempo_save;
+    /* 0x0B6 */ u16 wobble_frame;
+    /* 0x0B8 */ u16 fixed_length;
     /* 0x0BA */ u16 wave;
     /* 0x0BC */ s16 sweep_amount;
     /* 0x0BE */ u16 cutoff;
@@ -148,7 +186,10 @@ typedef struct channel_t {
     /* 0x0DE */ u8 reverb;
     /* 0x0DF */ u8 reverb_intensity;
     /* 0x0E0 */ u8 reverb_mix;
-    /* 0x0E1 */ char unk_0E1[0x4];
+    /* 0x0E1 */ u8 unk_0E1;
+    /* 0x0E2 */ u8 unk_0E2;
+    /* 0x0E3 */ u8 unk_0E3;
+    /* 0x0E4 */ s8 unk_0E4;
     /* 0x0E5 */ u8 wobble_on_speed;
     /* 0x0E6 */ u8 wobble_off_speed;
     /* 0x0E7 */ u8 wobble_counter;
@@ -156,22 +197,21 @@ typedef struct channel_t {
     /* 0x0E9 */ u8 velocity_on;
     /* 0x0EA */ u8 default_velocity;
     /* 0x0EB */ u8 sweep_speed;
-    /* 0x0EC */ s8 wobble_value;
+    /* 0x0EC */ u8 wobble_value;
     /* 0x0ED */ u8 env_trigger_off;
-    /* 0x0EE */ u8 trigger_off;
-    /* 0x0EF */ s8 wobble_amount;
-    /* 0x0F0 */ u8 sweep_counter;
-    /* 0x0F1 */ u8 sweep_direction;
-    /* 0x0F2 */ u8 for_stack_count;
-    /* 0x0F4 */ u8* for_stack[FORNEXT_DEPTH];
-    /* 0x104 */ u8* for_stackvol[FORNEXT_DEPTH];
-    /* 0x114 */ u8* for_stackpb[FORNEXT_DEPTH];
-    /* 0x124 */ u16 for_vol_count[FORNEXT_DEPTH];
-    /* 0x12C */ u16 for_pb_count[FORNEXT_DEPTH];
-    /* 0x134 */ u8 for_count[FORNEXT_DEPTH];
-    /* 0x138 */ u8 for_volume[FORNEXT_DEPTH];
-    /* 0x13C */ u8 for_pitchbend[FORNEXT_DEPTH];
-    /* 0x140 */ fx_t* fx_bank;
+    // Zero keeps its for/next stack four bytes lower than Stadium 1 (no trigger_off, wobble_amount, sweep_counter,
+    // sweep_direction) and has the FX block and its sound bank before the voice.
+    /* 0x0EE */ u8 for_stack_count;
+    /* 0x0F0 */ u8* for_stack[FORNEXT_DEPTH];
+    /* 0x100 */ u8* for_stackvol[FORNEXT_DEPTH];
+    /* 0x110 */ u8* for_stackpb[FORNEXT_DEPTH];
+    /* 0x120 */ u16 for_vol_count[FORNEXT_DEPTH];
+    /* 0x128 */ u16 for_pb_count[FORNEXT_DEPTH];
+    /* 0x130 */ u8 for_count[FORNEXT_DEPTH];
+    /* 0x134 */ u8 for_volume[FORNEXT_DEPTH];
+    /* 0x138 */ u8 for_pitchbend[FORNEXT_DEPTH];
+    /* 0x13C */ struct AudioFxBlock* fx_block;
+    /* 0x140 */ SoundBank* fx_sample_bank;
     /* 0x144 */ audio_voice_t* voice;
 } channel_t; // size = 0x148
 
@@ -244,7 +284,7 @@ void Audio_QueueVoicePan(s32, u16);
 void Audio_QueueVoiceDetune(s32, f32);
 void Audio_QueueVoiceVolume(s32, s32);
 void Audio_QueueVoiceVolumeByte(u32, s32);
-void Audio_RelocateSoundBankWrapper(s32, s32);
+void Audio_RelocateSoundBankWrapper(SoundBank*, uintptr_t);
 void Audio_RelocateSoundBankTable(bank_remap_descriptor_t*);
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 void Audio_SetVoiceStartTimingMode(s32);
@@ -279,7 +319,7 @@ f32 Audio_ComputeSinePitchModulation(channel_t*);
 void Audio_AdvancePitchEnvelope(channel_t*);
 void Audio_AdvanceVolumeEnvelope(channel_t*);
 f32 Audio_ExpApproximation(f32);
-void Audio_RelocateSoundBank(u8*, s32);
+void Audio_RelocateSoundBank(u8*, uintptr_t);
 s32 Audio_RandomScale(s32);
 void Audio_ResetVoiceState(channel_t*);
 s32 Audio_FindFreeVoice(song_t*, s32);
@@ -290,5 +330,16 @@ void Audio_QueueFreeVoice(audio_voice_t*);
 audio_voice_t* Audio_DequeueFreeVoice(void);
 void Audio_QueueActiveVoice(audio_voice_t*);
 void Audio_ReclaimExpiredVoices(void);
+
+// Stadium Zero's sound player entry points (PORT: typed; callers declared them with s32 arguments)
+s32 func_8003834C(SoundBank* bank, AudioFxBlock* fx, s32 id, s32 volume, s32 pan, s32 arg5, s32 priority);
+s32 func_800383DC(SoundBank* bank, AudioFxBlock* fx, s32 id, s32 volume, s32 pan, s32 arg5, s32 priority);
+s32 func_80037F68(SoundBank* bank, song_t* song);
+void func_80037FCC(SoundBank* bank, s32 song);
+void func_80038014(SoundBank* bank, s32 song, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+s32 func_800376E8(s32 song);
+s32 func_80037828(s32 song, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+s32 func_80037C04(s32 handle, s32 arg1);
+void Block_RelocateSelf(AudioFxBlock* block);
 
 #endif // _PLAYER_H_

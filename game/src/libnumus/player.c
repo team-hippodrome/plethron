@@ -5,6 +5,7 @@
 #include "audio_commands.h"
 #include "audio_manager.h"
 #include "libnaudio/n_synsetpriority.h"
+#include "audio_port.h"
 typedef u8* (*command_func_t)(channel_t*, u8*);
 typedef u8* (*api_func_t)(u8*);
 extern s32 mus_song_stop_countdown;
@@ -43,20 +44,20 @@ u8* Audio_DisableVoiceVelocityFromStream(channel_t* cp, u8* ptr);
 u8* Audio_DisableVoicePeriodicPitchModulation(channel_t* cp, u8* ptr);
 u8* Audio_SkipVoiceCommandWord(UNUSED channel_t* cp, u8* ptr);
 u8* Audio_SkipVoiceCommandByte(UNUSED channel_t* cp, u8* ptr);
-void Audio_RelocateSoundBankWrapper(s32 arg0, s32 arg1);
+void Audio_RelocateSoundBankWrapper(SoundBank* arg0, uintptr_t arg1);
 f32 Audio_ExpApproximation(f32 arg0);
-void Audio_RelocateSoundBank(u8* arg0, s32 arg1);
+void Audio_RelocateSoundBank(u8* arg0, uintptr_t arg1);
 s32 Audio_RandomScale(s32 arg0);
 void Audio_FillBytes(u8* arg0, u8 arg1, u32 arg2);
 void Audio_RelocatePointerArray(u8* arg0, u32 arg1, u32 arg2);
 
-s32 func_80036640(s8 *arg0, M2C_UNK arg1) {
-    M2C_FIELD(arg0, s32 *, 0x58) = 0;
-    M2C_FIELD(arg0, s32 *, 0x54) = 0;
-    M2C_FIELD(arg0, s32 *, 0x84) = 0;
-    M2C_FIELD(arg0, s16 *, 0xB2) = 0;
-    M2C_FIELD(arg0, s32 *, 0x5C) = 0;
-    return 0;
+u8* func_80036640(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->pvolumebase = NULL;
+    arg0->ppitchbendbase = NULL;
+    arg0->song_addr = NULL;
+    arg0->IsFX = 0;
+    arg0->handle = 0;
+    return NULL;
 }
 
 u8* Audio_SetVoiceSampleIndex(channel_t* cp, u8* ptr) {
@@ -79,8 +80,8 @@ u8* Audio_EnableVoicePitchSlide(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s32 func_800366BC(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xC6) = 0;
+u8* func_800366BC(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->port = 0;
     return arg1;
 }
 
@@ -184,9 +185,9 @@ u8* Audio_EnableVoiceVibratoDown(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s32 func_800369DC(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xE8) = 0;
-    M2C_FIELD(arg0, f32 *, 0x78) = 0.0f;
+u8* func_800369DC(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->vib_speed = 0;
+    arg0->vibrato = 0.0f;
     return arg1;
 }
 
@@ -202,18 +203,18 @@ u8* Audio_SetVoiceDurationOverride(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s32 func_80036A34(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xC5) = 1;
+u8* func_80036A34(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->ignore = 1;
     return arg1;
 }
 
-s8 *func_80036A44(s8 *arg0, u8 *arg1) {
-    M2C_FIELD(arg0, u8 *, 0xC7) = (u8) *arg1;
+u8* func_80036A44(channel_t* arg0, u8* arg1) {
+    arg0->transpose = (u8) *arg1;
     return arg1 + 1;
 }
 
-s32 func_80036A54(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xC8) = 1;
+u8* func_80036A54(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->ignore_transpose = 1;
     return arg1;
 }
 
@@ -237,7 +238,8 @@ u8* Audio_SetVoiceEnvelopeFromTable(channel_t* cp, u8* ptr) {
         value |= *ptr++;
     }
 
-    Audio_SetVoiceVolumeEnvelope(cp, (u8*)&cp->song_addr->env_table[value]);
+    // PORT: env_table is an offset from the song
+    Audio_SetVoiceVolumeEnvelope(cp, PORT_BLOB_AT(cp->song_addr, cp->song_addr->env_table) + value * sizeof(envelope_t));
     return ptr;
 }
 
@@ -251,70 +253,56 @@ u8* Audio_DisableVoiceVelocityFromStream(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s32 func_80036B44(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xEA) = 1;
+u8* func_80036B44(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->default_velocity = 1;
     return arg1;
 }
 
-s32 func_80036B54(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xEA) = 0;
+u8* func_80036B54(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->default_velocity = 0;
     return arg1;
 }
-
-// Zero's channel_t keeps its for/next stack four bytes lower than Stadium 1's.
-typedef struct ChannelForStackZero {
-    /* 0x000 */ char unk_000[0xEE];
-    /* 0x0EE */ u8 for_stack_count;
-    /* 0x0F0 */ u8* for_stack[FORNEXT_DEPTH];
-    /* 0x100 */ u8* for_stackvol[FORNEXT_DEPTH];
-    /* 0x110 */ u8* for_stackpb[FORNEXT_DEPTH];
-    /* 0x120 */ u16 for_vol_count[FORNEXT_DEPTH];
-    /* 0x128 */ u16 for_pb_count[FORNEXT_DEPTH];
-    /* 0x130 */ u8 for_count[FORNEXT_DEPTH];
-    /* 0x134 */ u8 for_volume[FORNEXT_DEPTH];
-    /* 0x138 */ u8 for_pitchbend[FORNEXT_DEPTH];
-} ChannelForStackZero;
 
 u8* Audio_PushVoiceLoopState(channel_t* cp, u8* ptr) {
-    u8 index = ((ChannelForStackZero*)cp)->for_stack_count;
+    u8 index = cp->for_stack_count;
 
-    ((ChannelForStackZero*)cp)->for_count[index] = *ptr++;
+    cp->for_count[index] = *ptr++;
 
-    ((ChannelForStackZero*)cp)->for_stack[index] = ptr;
-    ((ChannelForStackZero*)cp)->for_stackvol[index] = cp->pvolumebase;
-    ((ChannelForStackZero*)cp)->for_stackpb[index] = cp->ppitchbendbase;
+    cp->for_stack[index] = ptr;
+    cp->for_stackvol[index] = cp->pvolumebase;
+    cp->for_stackpb[index] = cp->ppitchbendbase;
 
-    ((ChannelForStackZero*)cp)->for_volume[index] = cp->volume;
-    ((ChannelForStackZero*)cp)->for_pitchbend[index] = cp->pitchbend;
+    cp->for_volume[index] = cp->volume;
+    cp->for_pitchbend[index] = cp->pitchbend;
 
-    ((ChannelForStackZero*)cp)->for_vol_count[index] = cp->cont_vol_repeat_count;
-    ((ChannelForStackZero*)cp)->for_pb_count[index] = cp->cont_pb_repeat_count;
+    cp->for_vol_count[index] = cp->cont_vol_repeat_count;
+    cp->for_pb_count[index] = cp->cont_pb_repeat_count;
 
-    ((ChannelForStackZero*)cp)->for_stack_count++;
+    cp->for_stack_count++;
     return ptr;
 }
 
 u8* Audio_PopVoiceLoopState(channel_t* cp, u8* ptr) {
-    s32 index = cp->trigger_off - 1;
+    s32 index = cp->for_stack_count - 1;
 
-    if (((u8*)((u8*)cp + 0x130))[index] != 0xFF) {
-        ((u8*)((u8*)cp + 0x130))[index]--;
-        if (!((u8*)((u8*)cp + 0x130))[index]) {
-            cp->trigger_off = index;
+    if (cp->for_count[index] != 0xFF) {
+        cp->for_count[index]--;
+        if (!cp->for_count[index]) {
+            cp->for_stack_count = index;
             index = -1;
         }
     }
 
     if (index >= 0) {
-        ptr = ((u8**)((u8*)cp + 0xF0))[index];
+        ptr = cp->for_stack[index];
 
-        cp->pvolumebase = ((u8**)((u8*)cp + 0x100))[index];
-        cp->ppitchbendbase = ((u8**)((u8*)cp + 0x110))[index];
-        cp->volume = ((u8*)((u8*)cp + 0x134))[index];
+        cp->pvolumebase = cp->for_stackvol[index];
+        cp->ppitchbendbase = cp->for_stackpb[index];
+        cp->volume = cp->for_volume[index];
 
-        cp->pitchbend = ((u8*)((u8*)cp + 0x138))[index];
-        cp->cont_vol_repeat_count = ((u16*)((u8*)cp + 0x120))[index];
-        cp->cont_pb_repeat_count = ((u16*)((u8*)cp + 0x128))[index];
+        cp->pitchbend = cp->for_pitchbend[index];
+        cp->cont_vol_repeat_count = cp->for_vol_count[index];
+        cp->cont_pb_repeat_count = cp->for_pb_count[index];
         cp->bendrange = 0.03125f;
         cp->pitchbend_calc = cp->pitchbend * cp->bendrange;
     }
@@ -322,20 +310,20 @@ u8* Audio_PopVoiceLoopState(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s8 *func_80036D04(s8 *arg0, s8 *arg1) {
-    M2C_FIELD(arg0, u8 *, 0xEB) = (u8) M2C_FIELD(arg1, u8 *, 0);
-    M2C_FIELD(arg0, u8 *, 0xE1) = (u8) M2C_FIELD(arg1, u8 *, 1);
-    M2C_FIELD(arg0, u8 *, 0xE2) = (u8) M2C_FIELD(arg1, u8 *, 2);
+u8* func_80036D04(channel_t* arg0, u8* arg1) {
+    arg0->sweep_speed = (u8) M2C_FIELD(arg1, u8 *, 0);
+    arg0->unk_0E1 = (u8) M2C_FIELD(arg1, u8 *, 1);
+    arg0->unk_0E2 = (u8) M2C_FIELD(arg1, u8 *, 2);
     return arg1 + 3;
 }
 
-s32 func_80036D24(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xE1) = 0;
+u8* func_80036D24(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->unk_0E1 = 0;
     return arg1;
 }
 
-s32 func_80036D30(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s8 *, 0xE5) = 1;
+u8* func_80036D30(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->wobble_on_speed = 1;
     return arg1;
 }
 
@@ -350,8 +338,8 @@ u8* Audio_SetVoiceDefaultVelocity(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s8 *func_80036D60(s8 *arg0, u8 *arg1) {
-    M2C_FIELD(arg0, s8 *, 0xCB) = (s8) ((s32) *arg1 / 2);
+u8* func_80036D60(channel_t* arg0, u8* arg1) {
+    arg0->pan = (s8) ((s32) *arg1 / 2);
     return arg1 + 1;
 }
 
@@ -362,14 +350,16 @@ u8* Audio_SkipVoiceCommandWord(UNUSED channel_t* cp, u8* ptr) {
 }
 
 u8* Audio_SetVoiceSubEnvelopePointer(channel_t* cp, u8* ptr) {
-    u8* addr = (u8*)&cp->song_addr->num_channels + cp->song_addr->drum_table[*ptr++];
+    // PORT: drum_table is an offset from the song, its entries offsets from the song
+    u8* addr = PORT_BLOB_AT(cp->song_addr, (s32)Port_ReadBE32(PORT_BLOB_AT(cp->song_addr, cp->song_addr->drum_table) +
+                                                              4 * *ptr++)); // PORT: big-endian table
 
     cp->pdrums = addr;
     return ptr;
 }
 
-s32 func_80036DB4(s8 *arg0, s32 arg1) {
-    M2C_FIELD(arg0, s32 *, 0x90) = 0;
+u8* func_80036DB4(channel_t* arg0, u8* arg1) { // PORT: command handler; arg1 and the result were s32
+    arg0->pdrums = NULL;
     return arg1;
 }
 
@@ -405,8 +395,8 @@ u8* Audio_SetVoiceEnvelopePointers(channel_t* cp, u8* ptr) {
     return &cp->pbase[tmp0];
 }
 
-s8 *func_80036E30(s8 *arg0, u8 *arg1) {
-    M2C_FIELD(arg0, u8 *, 0xDE) = (u8) *arg1;
+u8* func_80036E30(channel_t* arg0, u8* arg1) {
+    arg0->reverb = (u8) *arg1;
     return arg1 + 1;
 }
 
@@ -428,36 +418,36 @@ u8* func_80036EE0(channel_t* cp, u8* ptr) {
     return ptr;
 }
 
-s8 *func_80036F30(s8 *arg0, u8 *arg1) {
-    M2C_FIELD(arg0, u8 *, 0xCA) = (u8) *arg1;
+u8* func_80036F30(channel_t* arg0, u8* arg1) {
+    arg0->volume = (u8) *arg1;
     return arg1 + 1;
 }
 
 M2C_UNK func_80037828(s32, s32, s32, s32, s32);
 extern s32 D_800B3638;
-extern s8* D_800B3640;
-u8* func_80036F40(s8* cp, u8* ptr) {
+extern channel_t* D_800B3640;
+u8* func_80036F40(channel_t* cp, u8* ptr) {
     s32 id = *ptr++;
     s32 ret;
     s32 i;
-    s8* p;
+    channel_t* p;
 
     if (id >= 0x80) {
         id = ((id & 0x7F) << 8) + *ptr++;
     }
-    ret = func_80037828(id, M2C_FIELD(cp, u8*, 0xCA), M2C_FIELD(cp, s16*, 0xBC), 0, M2C_FIELD(cp, s32*, 0x60)++);
-    M2C_FIELD(cp, s32*, 0x60)--;
+    ret = func_80037828(id, cp->volume, cp->sweep_amount, 0, cp->priority++);
+    cp->priority--;
     if (ret == 0) {
         return ptr;
     }
     p = D_800B3640;
-    for (i = 0; i < D_800B3638; i++, p += 0x148) {
-        if (ret == M2C_FIELD(p, s32*, 0x5C)) {
-            M2C_FIELD(p, s32*, 0x5C) = M2C_FIELD(cp, s32*, 0x5C);
-            M2C_FIELD(p, s32*, 0x88) = M2C_FIELD(cp, s32*, 0x88);
-            M2C_FIELD(p, s16*, 0xAA) = M2C_FIELD(cp, s16*, 0xAA);
-            M2C_FIELD(p, s32*, 0x38) = M2C_FIELD(cp, s32*, 0x38);
-            M2C_FIELD(p, s32*, 0x3C) = M2C_FIELD(cp, s32*, 0x3C);
+    for (i = 0; i < D_800B3638; i++, p++) {
+        if (ret == p->handle) {
+            p->handle = cp->handle;
+            p->sample_bank = cp->sample_bank;
+            p->volume_scale = cp->volume_scale;
+            p->duration = cp->duration;
+            p->duration_scale = cp->duration_scale;
         }
     }
     return ptr;
@@ -472,12 +462,12 @@ u8* Audio_SetVoiceVolumeScale(channel_t* cp, u8* ptr) {
 u8* Audio_SetVoicePanModulation(channel_t* cp, u8* ptr) {
     cp->wobble_counter = *ptr++;
     if (!cp->wobble_counter) {
-        M2C_FIELD(cp, u16*, 0xBC) = 0x80;
+        cp->sweep_amount = 0x80;
     }
     return ptr;
 }
 
-s32 func_8003821C(s32, s32, s32, s32, s32, s32, s32);
+s32 func_8003821C(SoundBank*, AudioFxBlock*, s32, s32, s32, s32, s32);
 
 /**
  * Command handler (same shape as func_80036F40): reads a sound id from `ptr`, either one
@@ -489,76 +479,51 @@ s32 func_8003821C(s32, s32, s32, s32, s32, s32, s32);
  * equals it receives this channel's handle (0x5C), 0x88, 0xAA, 0x38 and 0x3C fields.
  * Returns the advanced command pointer. What the started object is is not established.
  */
-u8* func_800370AC(s8* cp, u8* ptr) {
+u8* func_800370AC(channel_t* cp, u8* ptr) {
     u32 id = *ptr++;
     s32 ret;
     s32 i;
-    s8* p;
+    channel_t* p;
 
     if (id >= 0x80) {
         id = ((id & 0x7F) << 8) + *ptr++;
     }
-    ret = func_8003821C(M2C_FIELD(cp, s32*, 0x140), M2C_FIELD(cp, s32*, 0x13C), id, M2C_FIELD(cp, s16*, 0xAA), M2C_FIELD(cp, s16*, 0xBC), 0, M2C_FIELD(cp, s32*, 0x60)++);
-    M2C_FIELD(cp, s32*, 0x60)--;
+    ret = func_8003821C(cp->fx_sample_bank, cp->fx_block, id, cp->volume_scale, cp->sweep_amount, 0, cp->priority++);
+    cp->priority--;
     if (ret == 0) {
         return ptr;
     }
     p = D_800B3640;
-    for (i = 0; i < D_800B3638; i++, p += 0x148) {
-        if (ret == M2C_FIELD(p, s32*, 0x5C)) {
-            M2C_FIELD(p, s32*, 0x5C) = M2C_FIELD(cp, s32*, 0x5C);
-            M2C_FIELD(p, s32*, 0x88) = M2C_FIELD(cp, s32*, 0x88);
-            M2C_FIELD(p, s16*, 0xAA) = M2C_FIELD(cp, s16*, 0xAA);
-            M2C_FIELD(p, s32*, 0x38) = M2C_FIELD(cp, s32*, 0x38);
-            M2C_FIELD(p, s32*, 0x3C) = M2C_FIELD(cp, s32*, 0x3C);
+    for (i = 0; i < D_800B3638; i++, p++) {
+        if (ret == p->handle) {
+            p->handle = cp->handle;
+            p->sample_bank = cp->sample_bank;
+            p->volume_scale = cp->volume_scale;
+            p->duration = cp->duration;
+            p->duration_scale = cp->duration_scale;
         }
     }
     return ptr;
 }
 
-typedef struct PlayerChannelZero_1E {
-    /* 0x00 */ char unk00[0x1E];
-    /* 0x1E */ u8 unk_1E;
-    /* 0x1F */ char unk1F[0x5];
-} PlayerChannelZero_1E; // size = 0x24
-
-/* Block passed as the first argument of amCreateAudioMgr (synthesizer set-up).
- * Field meanings beyond what func_800371A4 writes are not established. */
-typedef struct SynInitCfgZero {
-    /* 0x00 */ s32 f00;
-    /* 0x04 */ s32 f04;
-    /* 0x08 */ s32 f08;
-    /* 0x0C */ s32 f0C;
-    /* 0x10 */ s32 f10;
-    /* 0x14 */ s32 f14;
-    /* 0x18 */ s32 f18;
-    /* 0x1C */ s8 f1C;
-} SynInitCfgZero;
-
-/* Block passed as the second argument of amCreateAudioMgr; filled from the init
- * configuration at offsets 0x18, 0x20 and 0x1C. */
-typedef struct SynInitRateZero {
-    /* 0x00 */ s32 f00;
-    /* 0x04 */ s32 f04;
-    /* 0x08 */ s32 f08;
-} SynInitRateZero;
 
 extern s32* D_800B3648;
-extern s8* D_800B3664;
-extern s8* D_800B3668;
+extern SoundBank* D_800B3664;
+extern SoundBank* D_800B3668;
 extern s32 D_800B365C;
 extern s32 D_800B3CC8;
 extern s32 D_800B3CCC;
 extern s32 D_800B3CD0;
 void func_800374E0(s32, s32);
-void func_8003A2B8(s8*);
+void func_8003A2B8(channel_t*);
 extern s32 D_80000300;
 extern s32 D_80075C34;
-extern s32 D_800B3644;
+extern u32* D_800B3644; // PORT: was s32
+static AudioFxBlock* sPortFxBlock; // PORT: the block whose offsets D_800B3644 holds
 extern s32 D_800B3650;
 extern s32 D_800B3660;
 extern u32 D_800B3CC4;
-extern PlayerChannelZero_1E D_800B3670[45];
+extern audio_voice_t D_800B3670[45];
 extern ALPlayer D_800B3610;
 extern ALHeap D_800B3628;
 extern void* D_800B363C;
@@ -587,38 +552,39 @@ s32 func_800388BC(void*);
  * The `pad` local only reserves the stack slot the retail frame has there.
  * What the 0x1C-byte table and several configuration words are is not established.
  */
-s32 func_800371A4(s8* arg0) {
+s32 func_800371A4(AudioInitConfig* arg0) {
     s32 i;
-    s32 off;
     UNUSED s32* pad;
-    SynInitCfgZero cfg;
-    SynInitRateZero rate;
+    ALSynConfig cfg; // PORT: was a 0x20-byte block of s32s; amCreateAudioMgr stores host pointers into it
+    amConfig rate;
 
-    D_800B3638 = M2C_FIELD(arg0, s32*, 0);
-    D_800B3644 = M2C_FIELD(arg0, s32*, 0xC);
-    D_800B3648 = M2C_FIELD(arg0, s32**, 0x10);
+    D_800B3638 = arg0->channels;
+    D_800B3644 = arg0->unk_0C;
+    sPortFxBlock = arg0->portFxBlock; // PORT
+    D_800B3648 = arg0->unk_10;
     if (D_80000300 == 0) {
         D_800B364C = 0x32;
     } else {
         D_800B364C = 0x3C;
     }
     D_800B3650 = 0xF4240 / (s32)D_800B364C;
-    D_800B363C = alHeapDBAlloc(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x1C);
-    D_800B3640 = alHeapDBAlloc(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x148);
+    D_800B363C = alHeapDBAlloc(0, 0, arg0->heap, 1, D_800B3638 * 0x1C);
+    // PORT: sizeof(channel_t) instead of 0x148 (the host struct holds 64-bit pointers)
+    D_800B3640 = alHeapDBAlloc(0, 0, arg0->heap, 1, D_800B3638 * sizeof(channel_t));
     func_8003A564(D_800B363C, 0, D_800B3638 * 0x1C);
-    func_8003A564(D_800B3640, 0, D_800B3638 * 0x148);
-    D_800B3668 = D_800B3664 = M2C_FIELD(arg0, s8**, 8);
-    cfg.f00 = 0x2D;
-    cfg.f04 = D_800B3638;
-    cfg.f08 = M2C_FIELD(arg0, s32*, 0x14);
-    cfg.f10 = 0;
-    cfg.f1C = 2;
-    cfg.f18 = 0;
-    cfg.f14 = M2C_FIELD(arg0, s32*, 4);
-    rate.f00 = M2C_FIELD(arg0, s32*, 0x18);
-    rate.f04 = M2C_FIELD(arg0, s32*, 0x20);
-    rate.f08 = M2C_FIELD(arg0, s32*, 0x1C);
-    amCreateAudioMgr(&cfg, &rate, M2C_FIELD(arg0, s32*, 0x24), M2C_FIELD(arg0, s32*, 0x28), D_800B364C);
+    func_8003A564(D_800B3640, 0, D_800B3638 * sizeof(channel_t));
+    D_800B3668 = D_800B3664 = arg0->bank;
+    cfg.maxVVoices = 0x2D;
+    cfg.maxPVoices = D_800B3638;
+    cfg.maxUpdates = arg0->synUpdates;
+    cfg.dmaproc = NULL;
+    cfg.fxType = 2;
+    cfg.outputRate = 0;
+    cfg.heap = arg0->heap;
+    rate.outputRate = arg0->outputRate;
+    rate.framesPerField = arg0->synRetraceCount;
+    rate.maxACMDSize = arg0->synRspCmds;
+    amCreateAudioMgr(&cfg, &rate, arg0->synNumDmaBufs, arg0->synDmaBufSize, D_800B364C);
     func_800374E0(7, 0x7FFF);
     D_800B365C = 1;
     D_800B3660 = 0x12345678;
@@ -631,16 +597,16 @@ s32 func_800371A4(s8* arg0) {
     D_800B3610.handler = func_800388BC;
     D_800B3610.clientData = &D_800B3610;
     func_800468F0(&D_800B3610);
-    for (i = 0, off = 0; i < D_800B3638; i++, off += 0x148) {
-        M2C_FIELD(D_800B3640 + off, s8*, 0xDD) = 0;
-        M2C_FIELD(D_800B3640 + off, s32*, 0x30) = 0;
-        func_8003A2B8(off + D_800B3640);
+    for (i = 0; i < D_800B3638; i++) {
+        D_800B3640[i].playing = 0;
+        D_800B3640[i].pdata = NULL;
+        func_8003A2B8(&D_800B3640[i]);
     }
     for (i = 0; i < 45; i++) {
-        D_800B3670[i].unk_1E = 5;
+        D_800B3670[i].env_phase = 5;
     }
-    D_800B3628 = *M2C_FIELD(arg0, ALHeap**, 4);
-    return D_800B3628.cur - D_800B3628.base;
+    D_800B3628 = *arg0->heap;
+    return (s32)(D_800B3628.cur - D_800B3628.base);
 }
 
 extern s16 D_800B3654;
@@ -656,49 +622,69 @@ void func_800374E0(s32 arg0, s32 arg1) {
 
 extern s32 D_800B3CC8;
 extern s32 D_800B365C;
-extern s32 D_800B366C;
+extern SoundBank* D_800B366C; // PORT: was s32
 void func_8003A598(void*, void*, s32);
-void func_8003A2B8(s8*);
-u32 func_8003A4A8();
-s32 func_80037508(s32* song) {
+void func_8003A2B8(channel_t*);
+u32 func_8003A4A8(song_t*, s32);
+/**
+ * PORT: first use of a freshly loaded song: byte-swap the header and the channel / volume / pitch-bend offset tables
+ * to host order. They stay offsets from the song (on the N64 Audio_RelocatePointerArray turns them into addresses).
+ * A fresh big-endian header reads as a byte-swapped channel_data offset (>= 0x10000; songs are smaller than 64 KiB);
+ * the N64 code tests `< 0x400` on the big-endian word for the same purpose.
+ */
+static void Audio_PortRelocateSong(song_t* song) {
+    u32 n;
+
+    if (song->channel_data >= 0x10000) {
+        Port_SwapWords(song, 6);
+        n = song->num_channels;
+        Port_SwapWords(PORT_BLOB_AT(song, song->channel_data), n);
+        if (song->volume_data != song->channel_data) {
+            Port_SwapWords(PORT_BLOB_AT(song, song->volume_data), n);
+        }
+        if (song->pitchbend_data != song->channel_data && song->pitchbend_data != song->volume_data) {
+            Port_SwapWords(PORT_BLOB_AT(song, song->pitchbend_data), n);
+        }
+    }
+}
+
+s32 func_80037508(song_t* song) {
     UNUSED s32 pad; // FAKE: stack padding
     s32 handle;
     s32 mask;
     s32 count;
     s32 i;
-    s8* cp;
+    channel_t* cp;
     s32 index;
+    u32 off;
 
     mask = osSetIntMask(1);
     D_800B3CC8 = 1;
     osSetIntMask(mask);
-    count = song[0];
-    if ((u32)song[1] < 0x400) {
-        func_8003A598(&song[1], song, 5);
-        func_8003A598(song[1], song, count);
-        func_8003A598(song[2], song, count);
-        func_8003A598(song[3], song, count);
-    }
+    Audio_PortRelocateSong(song); // PORT: replaces the in-place relocation (Audio_RelocatePointerArray)
+    count = song->num_channels;
     mask = osSetIntMask(1);
     handle = D_800B365C++;
     osSetIntMask(mask);
     for (i = 0; i < count; i++) {
-        if (((s32*)song[1])[i] == 0) {
+        if (PORT_SONG_TABLE(song, channel_data, i) == 0) {
             continue;
         }
         index = func_8003A4A8(song, i);
         if (index == -1) {
             continue;
         }
-        cp = D_800B3640 + index * 0x148;
+        cp = &D_800B3640[index];
         func_8003A2B8(cp);
         mask = osSetIntMask(1);
-        M2C_FIELD(cp, s32*, 0x88) = D_800B366C;
-        M2C_FIELD(cp, s32*, 0x84) = (uintptr_t)song;
-        M2C_FIELD(cp, s32*, 0x58) = M2C_FIELD(cp, s32*, 0x98) = ((s32*)song[2])[i];
-        M2C_FIELD(cp, s32*, 0x54) = M2C_FIELD(cp, s32*, 0x94) = ((s32*)song[3])[i];
-        M2C_FIELD(cp, s32*, 0x30) = M2C_FIELD(cp, s32*, 0x8C) = ((s32*)song[1])[i];
-        M2C_FIELD(cp, s32*, 0x5C) = handle;
+        cp->sample_bank = D_800B366C;
+        cp->song_addr = song;
+        off = PORT_SONG_TABLE(song, volume_data, i);
+        cp->pvolumebase = cp->pvolumebase_offset = PORT_BLOB_PTR_OR_NULL(song, off);
+        off = PORT_SONG_TABLE(song, pitchbend_data, i);
+        cp->ppitchbendbase = cp->ppitchbendbase_offset = PORT_BLOB_PTR_OR_NULL(song, off);
+        cp->pdata = cp->pbase = PORT_BLOB_AT(song, PORT_SONG_TABLE(song, channel_data, i));
+        cp->handle = handle;
         osSetIntMask(mask);
     }
     mask = osSetIntMask(1);
@@ -1079,8 +1065,8 @@ s32 func_80037E84(s32 handle, s32 value) {
     return count;
 }
 
-void Audio_RelocateSoundBankWrapper(s32 arg0, s32 arg1) {
-    Audio_RelocateSoundBank(arg0, arg1);
+void Audio_RelocateSoundBankWrapper(SoundBank* arg0, uintptr_t arg1) { // PORT: were s32
+    Audio_RelocateSoundBank((u8*)arg0, arg1);
 }
 
 /**
@@ -1088,26 +1074,27 @@ void Audio_RelocateSoundBankWrapper(s32 arg0, s32 arg1) {
  * arg0 in D_800B366C if it is non-NULL and bit 0 of its word at offset 0x10 is
  * set, restores the interrupt mask, then calls func_80037508(arg1).
  */
-void func_80037F68(void* arg0, s32* arg1) {
+// PORT: returns func_80037508's handle (declared void; on the N64 it is left in $v0 and callers use it)
+s32 func_80037F68(SoundBank* arg0, song_t* arg1) {
     if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
-        return;
+        return 0;
     }
     s32 prevMask;
 
     prevMask = osSetIntMask(1);
-    if ((arg0 != NULL) && (M2C_FIELD(arg0, s32*, 0x10) & 1)) {
-        D_800B366C = (uintptr_t)arg0;
+    if ((arg0 != NULL) && (arg0->flags & 1)) {
+        D_800B366C = arg0;
     }
     osSetIntMask(prevMask);
-    func_80037508(arg1);
+    return func_80037508(arg1);
 }
 
-M2C_UNK func_800376E8(M2C_UNK);                     /* extern */
-extern s8 *D_800B3664;
-extern s8 *D_800B3668;
+s32 func_800376E8(s32);
+extern SoundBank* D_800B3664;
+extern SoundBank* D_800B3668;
 
-void func_80037FCC(s8 *arg0, M2C_UNK arg1) {
-    if ((arg0 != NULL) && (M2C_FIELD(arg0, s32 *, 0x10) & 1)) {
+void func_80037FCC(SoundBank* arg0, s32 arg1) {
+    if ((arg0 != NULL) && (arg0->flags & 1)) {
         D_800B3664 = arg0;
     }
     func_800376E8(arg1);
@@ -1115,11 +1102,11 @@ void func_80037FCC(s8 *arg0, M2C_UNK arg1) {
 }
 
 M2C_UNK func_80037828(s32, s32, s32, s32, s32);     /* extern */
-extern s8 *D_800B3664;
-extern s8 *D_800B3668;
+extern SoundBank* D_800B3664;
+extern SoundBank* D_800B3668;
 
-void func_80038014(s8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
-    if ((arg0 != NULL) && (M2C_FIELD(arg0, s32 *, 0x10) & 1)) {
+void func_80038014(SoundBank* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+    if ((arg0 != NULL) && (arg0->flags & 1)) {
         D_800B3664 = arg0;
     }
     func_80037828(arg1, arg2, arg3, arg4, arg5);
@@ -1127,35 +1114,37 @@ void func_80038014(s8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
 }
 
 extern s32 D_800B3638;
-extern s8* D_800B3640;
+extern channel_t* D_800B3640;
 s32 Team_IsOpponentIndexUsed(s32 arg0) {
     s32 i;
-    s8* p;
+    channel_t* p;
 
     if (arg0 == 0) {
         return 0;
     }
     p = D_800B3640;
-    for (i = 0; i < D_800B3638; i++, p += 0x148) {
-        if (arg0 == M2C_FIELD(p, s32*, 0x5C)) {
-            return M2C_FIELD(p, s32*, 0x88);
+    for (i = 0; i < D_800B3638; i++, p++) {
+        if (arg0 == p->handle) {
+            // PORT: returned the bank pointer as an s32 (no callers; battle.h declares it s32)
+            return p->sample_bank != NULL;
         }
     }
 
     return 0;
 }
 
-extern u8 D_800B368E;
-extern PlayerChannelZero_1E D_800B3694[44];
+// PORT: D_800B368E and D_800B3694 are D_800B3670[0].env_phase and &D_800B3670[1] at N64 offsets; index the voice
+// array instead (the host struct is larger).
+extern audio_voice_t D_800B3670[45];
 
 s32 func_800380D0(void) {
     s32 i;
 
-    if (D_800B368E) {
+    if (D_800B3670[0].env_phase) {
         return 1;
     }
     for (i = 0; i < 44; i++) {
-        if (D_800B3694[i].unk_1E) {
+        if (D_800B3670[1 + i].env_phase) {
             return 1;
         }
     }
@@ -1171,66 +1160,53 @@ s32 func_800380D0(void) {
  * ((s32*)arg1[+0xC])[arg3] into offsets 0x8C and 0x30 (`pbase` / `pdata`).
  * Returns the new handle. What arg0, arg1 and arg3 index is not established.
  */
-s32 func_8003815C(s32 arg0, s32 arg1, s8* cp, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+s32 func_8003815C(SoundBank* arg0, AudioFxBlock* arg1, channel_t* cp, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
     s32 mask;
-    s32 table;
-    s32 val;
 
     func_8003A2B8(cp);
-    M2C_FIELD(cp, s32*, 0x88) = arg0;
-    M2C_FIELD(cp, s16*, 0xB2) = arg3 + 0x100;
-    M2C_FIELD(cp, s16*, 0xAA) = arg4;
-    M2C_FIELD(cp, s16*, 0xBC) = arg5;
-    M2C_FIELD(cp, s32*, 0x60) = arg6;
-    table = M2C_FIELD(arg1, s32*, 0xC);
-    M2C_FIELD(cp, s32*, 0x140) = arg0;
-    M2C_FIELD(cp, s32*, 0x13C) = arg1;
+    cp->sample_bank = arg0;
+    cp->IsFX = arg3 + 0x100;
+    cp->volume_scale = arg4;
+    cp->sweep_amount = arg5;
+    cp->priority = arg6;
+    cp->fx_sample_bank = arg0;
+    cp->fx_block = arg1;
     mask = osSetIntMask(1);
-    M2C_FIELD(cp, s32*, 0x5C) = D_800B365C;
+    cp->handle = D_800B365C;
     D_800B365C++;
-    val = ((s32*)table)[arg3];
-    M2C_FIELD(cp, s32*, 0x8C) = val;
-    M2C_FIELD(cp, s32*, 0x30) = val;
+    cp->pbase = cp->pdata = AUDIO_FX_ENTRY(arg1, arg3); // PORT: the table holds offsets from the block
     osSetIntMask(mask);
-    return M2C_FIELD(cp, s32*, 0x5C);
+    return cp->handle;
 }
 
-void Block_RelocateSelf(void *);
-// FAKE: decomp slop. Raw pointer-offset casts stand in for struct fields.
-s32 func_8003821C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6)
-{
-  s32 found;
-  int four; // FAKE: the offset has to go through a temporary to match
-  s32 *tbl;
-  s8 *p;
-  u32 i;
-  u32 mask;
-  found = 0;
-  if (!((*((s32 *) (((s8 *) arg1) - (-(four = 4))))) & 1))
-  {
-    Block_RelocateSelf((void *) arg1);
-  }
-  if (((u32) arg6) == 0xFFFFFFFFU)
-  {
-    tbl = (s32 *) (*((s32 *) (((s8 *) arg1) + 8)));
-    arg6 = *((s32 *) ((arg2 * 4) + ((uintptr_t) tbl)));
-  }
-  for (i = 0, p = D_800B3640; i < ((u32) D_800B3638); i++, p += 0x148)
-  {
-    mask = osSetIntMask(1);
-    if ((*((s32 *) (((s8 *) p) + 0x30))) == 0)
-    {
-      *((s32 *) (((s8 *) p) + 0x30)) = -1;
-      found = 1;
-    }
-    osSetIntMask(mask);
-    if (found != 0)
-    {
-      return func_8003815C(arg0, arg1, p, arg2, arg3, arg4, arg6);
-    }
-  }
+void Block_RelocateSelf(AudioFxBlock*);
+// PORT: written with the block's fields; the matching version spelled them as raw pointer-offset casts (FAKE)
+s32 func_8003821C(SoundBank* arg0, AudioFxBlock* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+    s32 found;
+    channel_t* p;
+    u32 i;
+    u32 mask;
 
-  return 0;
+    found = 0;
+    if (!(arg1->flags & 1)) {
+        Block_RelocateSelf(arg1);
+    }
+    if ((u32)arg6 == 0xFFFFFFFFU) {
+        arg6 = AUDIO_FX_UNK08_AT(arg1, arg2);
+    }
+    for (i = 0, p = D_800B3640; i < (u32)D_800B3638; i++, p++) {
+        mask = osSetIntMask(1);
+        if (p->pdata == NULL) {
+            p->pdata = (u8*)-1;
+            found = 1;
+        }
+        osSetIntMask(mask);
+        if (found != 0) {
+            return func_8003815C(arg0, arg1, p, arg2, arg3, arg4, arg6);
+        }
+    }
+
+    return 0;
 }
 
 /*
@@ -1244,9 +1220,9 @@ s32 func_8003821C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
  * returned is restored.  What the flag is used for is not established.
  */
 extern s32 D_800B3CCC;
-s32 func_8003821C(s32, s32, s32, s32, s32, s32, s32); /* extern */
+s32 func_8003821C(SoundBank*, AudioFxBlock*, s32, s32, s32, s32, s32); /* extern */
 
-s32 func_8003834C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
+s32 func_8003834C(SoundBank* arg0, AudioFxBlock* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
     if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
         return 0;
     }
@@ -1263,8 +1239,6 @@ s32 func_8003834C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     return ret;
 }
 
-void Block_RelocateSelf(void*);
-
 /**
  * Starts a sound on the first free channel without masking interrupts (compare
  * func_8003821C, which does the same with osSetIntMask(1) around each claim). Returns -1
@@ -1276,29 +1250,27 @@ void Block_RelocateSelf(void*);
  * no channel is free it returns 0. arg5 is not used. What arg0 and arg1 point to is not
  * established (func_8003815C stores them at channel offsets 0x88/0x140 and 0x13C).
  */
-s32 func_800383DC(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, UNUSED s32 arg5, s32 arg6) {
+s32 func_800383DC(SoundBank* arg0, AudioFxBlock* arg1, s32 arg2, s32 arg3, s32 arg4, UNUSED s32 arg5, s32 arg6) {
     if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
         return 0;
     }
     s32 ret;
-    s32* tbl;
-    s8* p;
+    channel_t* p;
     u32 i;
 
     ret = 0;
     if ((D_800B3CCC != 0) || (D_800B3CC8 != 0)) {
         return -1;
     }
-    if (!(M2C_FIELD(arg1, s32*, 4) & 1)) {
-        Block_RelocateSelf((void*)arg1);
+    if (!(arg1->flags & 1)) {
+        Block_RelocateSelf(arg1);
     }
     if ((u32)arg6 == 0xFFFFFFFFU) {
-        tbl = (s32*)M2C_FIELD(arg1, s32*, 8);
-        arg6 = *(s32*)(arg2 * 4 + (uintptr_t)tbl);
+        arg6 = AUDIO_FX_UNK08_AT(arg1, arg2);
     }
-    for (i = 0, p = D_800B3640; i < (u32)D_800B3638; i++, p += 0x148) {
-        if (M2C_FIELD(p, s32*, 0x30) == 0) {
-            M2C_FIELD(p, s32*, 0x30) = -1;
+    for (i = 0, p = D_800B3640; i < (u32)D_800B3638; i++, p++) {
+        if (p->pdata == NULL) {
+            p->pdata = (u8*)-1;
             ret = func_8003815C(arg0, arg1, p, arg2, arg3, arg4, arg6);
             break;
         }
@@ -1322,7 +1294,7 @@ s32 func_800383DC(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, UNUSED s32 a
  * loop over D_800B3694 gives different register allocation.
  */
 s32 Audio_IsSoundPlaying(M2C_UNK);                         /* extern */
-extern PlayerChannelZero_1E D_800B3670[45];
+extern audio_voice_t D_800B3670[45];
 /**
  * Seen in play (2026-11-13) ran when Start was pressed at the title screen (console reset, then N64
  * logo, opening, title and main menu).
@@ -1334,8 +1306,8 @@ s32 Audio_GetActivityScore(void) {
         return 1;
     }
     for (i = 0; i < 45; i++) {
-        if (D_800B3670[i].unk_1E != 5) {
-            return D_800B3670[i].unk_1E + 0xA;
+        if (D_800B3670[i].env_phase != 5) {
+            return D_800B3670[i].env_phase + 0xA;
         }
     }
     return 0;
@@ -1352,8 +1324,7 @@ void Audio_StopAllSoundEffects(void) {
     UNUSED s32 pad[4]; // FAKE: stack padding
     s32 mask;
     u32 i;
-    s8* p;
-    s8* voice;
+    channel_t* p;
 
     mask = osSetIntMask(1);
     D_800B3CC8 = 1;
@@ -1361,27 +1332,27 @@ void Audio_StopAllSoundEffects(void) {
 
     mask = osSetIntMask(1);
     p = D_800B3640;
-    for (i = 0; i < D_800B3638; i++, p += 0x148) {
-        if ((M2C_FIELD(p, u16*, 0xB2) != 0) || (M2C_FIELD(p, s32*, 0x30) == 0)) {
+    for (i = 0; i < D_800B3638; i++, p++) {
+        if ((p->IsFX != 0) || (p->pdata == NULL)) {
             continue;
         }
 
-        M2C_FIELD(p, s32*, 0x30) = func_80036640(p, 0);
+        p->pdata = func_80036640(p, 0);
 
-        if (M2C_FIELD(p, u8*, 0xDD) == 0) {
-            M2C_FIELD(p, s32*, 0x34) = 0;
+        if (p->playing == 0) {
+            p->sample = NULL;
             continue;
         }
 
-        M2C_FIELD(M2C_FIELD(p, s8**, 0x144), s8*, 0x1E) = 4;
-        M2C_FIELD(M2C_FIELD(p, s8**, 0x144), s32*, 0x20) = D_800B3CC4 + 2;
-        n_alSynSetVol(M2C_FIELD(p, N_ALVoice**, 0x144), 0, D_800B3650 * 2);
-        n_alSynSetPriority(M2C_FIELD(p, N_ALVoice**, 0x144), 0);
+        p->voice->env_phase = 4;
+        p->voice->release_end_frame = D_800B3CC4 + 2;
+        n_alSynSetVol(&p->voice->voice, 0, D_800B3650 * 2);
+        n_alSynSetPriority(&p->voice->voice, 0);
 
-        M2C_FIELD(p, s8**, 0x144) = NULL;
-        M2C_FIELD(p, s32*, 0xD8) = 1;
-        M2C_FIELD(p, u8*, 0xDD) = 0;
-        M2C_FIELD(p, s32*, 0x34) = 0;
+        p->voice = NULL;
+        p->pending = 1;
+        p->playing = 0;
+        p->sample = NULL;
     }
     osSetIntMask(mask);
 
@@ -1391,14 +1362,14 @@ void Audio_StopAllSoundEffects(void) {
 }
 
 extern s32 D_800B3638;
-extern s8 *D_800B3640;
+extern channel_t* D_800B3640;
 
 s32 func_800386E4(s32 arg0, s32 arg1) {
     s32 temp_a0;
     s32 var_s1;
     s32 var_s2;
     s32 var_s3;
-    s8 *var_s0;
+    channel_t* var_s0;
 
     if (arg0 == 0) {
         return 0;
@@ -1414,14 +1385,14 @@ s32 func_800386E4(s32 arg0, s32 arg1) {
     if (D_800B3638 > 0) {
         do {
             temp_a0 = osSetIntMask(1);
-            if (arg0 == M2C_FIELD(var_s0, s32 *, 0x5C)) {
-                M2C_FIELD(var_s0, s32 *, 0x38) = arg1;
-                M2C_FIELD(var_s0, s32 *, 0x3C) = var_s3;
+            if (arg0 == var_s0->handle) {
+                var_s0->duration = arg1;
+                var_s0->duration_scale = var_s3;
                 var_s2 += 1;
             }
             osSetIntMask(temp_a0);
             var_s1 += 1;
-            var_s0 += 0x148;
+            var_s0++;
         } while (var_s1 < D_800B3638);
     }
     return var_s2;
@@ -1449,7 +1420,7 @@ void Audio_FadeCategoriesAndStreams(s32 arg0) {
     s32 mask;
     s32 hi;
     s32 i;
-    s8* p;
+    channel_t* p;
 
     if (arg0 == 0) {
         arg0 = 1;
@@ -1463,9 +1434,9 @@ void Audio_FadeCategoriesAndStreams(s32 arg0) {
     D_8007754C = 0;
     osSetIntMask(mask);
     mask = osSetIntMask(1);
-    for (i = 0, p = D_800B3640; i < D_800B3638; i++, p += 0x148) {
-        M2C_FIELD(p, s32*, 0x38) = arg0;
-        M2C_FIELD(p, s32*, 0x3C) = hi;
+    for (i = 0, p = D_800B3640; i < D_800B3638; i++, p++) {
+        p->duration = arg0;
+        p->duration_scale = hi;
     }
     osSetIntMask(mask);
     mask = osSetIntMask(1);
@@ -1492,19 +1463,19 @@ void Audio_FadeCategoriesAndStreamsDefault(void) {
 
 void func_800395D0(channel_t* cp);
 void func_80039010(channel_t*);
-s32 func_80039328(s8*);
-f32 func_800393F8(s8*, f32);
+s32 func_80039328(channel_t*);
+f32 func_800393F8(channel_t*, f32);
 
-void func_80039A60(s8*);
-f32 func_80039B2C(s8*);
-f32 func_80039B7C(s8*);
-void func_80039C10(s8*);
-void func_80039D08(s8*);
+void func_80039A60(channel_t*);
+f32 func_80039B2C(channel_t*);
+f32 func_80039B7C(channel_t*);
+void func_80039C10(channel_t*);
+void func_80039D08(channel_t*);
 extern s32 D_80075E00;
 void func_80046860(N_ALVoice* v, u8 fxmix); /* n_alSynSetFXMix */
 
-#define CH_FRAME(ch) M2C_FIELD(ch, u64*, 0x00)
-#define CH_VOICE(ch) M2C_FIELD(ch, PlayerChannelZero_1E**, 0x144)
+#define CH_FRAME(ch) ch->unk_000
+#define CH_VOICE(ch) ch->voice
 
 //@unverified
 /**
@@ -1516,7 +1487,7 @@ void func_80046860(N_ALVoice* v, u8 fxmix); /* n_alSynSetFXMix */
 s32 func_800388BC(void* node) {
     u32 i;
     u32 j;
-    s8* ch;
+    channel_t* ch;
     UNUSED s32 pad; // FAKE
     f32 detune;
     f32 pitch;
@@ -1524,141 +1495,141 @@ s32 func_800388BC(void* node) {
     u32 pan;
     u32 fxmix;
     ALVoiceConfig config;
-    u32 pdata;
+    u8* pdata; // PORT: was u32
 
-    for (i = 0, ch = D_800B3640; i < D_800B3638; i++, ch += 0x148) {
-        pdata = M2C_FIELD(ch, u32*, 0x30);
-        if ((pdata == 0) || (pdata == 0xFFFFFFFF)) {
+    for (i = 0, ch = D_800B3640; i < D_800B3638; i++, ch++) {
+        pdata = ch->pdata;
+        if ((pdata == NULL) || (pdata == (u8*)-1)) {
             continue;
         }
-        CH_FRAME(ch) = M2C_FIELD(ch, u16*, 0xA8) + CH_FRAME(ch);
-        if ((M2C_FIELD(ch, u16*, 0xA6) != 0x7FFF) && (D_800B3CC8 == 0)) {
-            while ((CH_FRAME(ch) > M2C_FIELD(ch, u64*, 0x18)) && (M2C_FIELD(ch, s32*, 0x30) != 0)) {
-                func_80039010((channel_t*)ch);
+        CH_FRAME(ch) = ch->channel_tempo + CH_FRAME(ch);
+        if ((ch->note_duration != 0x7FFF) && (D_800B3CC8 == 0)) {
+            while ((CH_FRAME(ch) > ch->pitchbend_frame) && (ch->pdata != NULL)) {
+                func_80039010(ch);
             }
         }
         if (D_800B3CC8 == 0) {
-            if (M2C_FIELD(ch, s32*, 0x58) != 0) {
-                if (CH_FRAME(ch) > M2C_FIELD(ch, u64*, 0x08)) {
+            if (ch->pvolumebase != NULL) {
+                if (CH_FRAME(ch) > ch->channel_frame) {
                     func_80039C10(ch);
                 }
             }
-            if (M2C_FIELD(ch, s32*, 0x54) != 0) {
-                if (CH_FRAME(ch) > M2C_FIELD(ch, u64*, 0x10)) {
+            if (ch->ppitchbendbase != NULL) {
+                if (CH_FRAME(ch) > ch->volume_frame) {
                     func_80039D08(ch);
                 }
             }
         }
-        if (M2C_FIELD(ch, s32*, 0x38) != -1) {
-            M2C_FIELD(ch, s32*, 0x38)--;
-            if (M2C_FIELD(ch, s32*, 0x38) == -1) {
-                M2C_FIELD(ch, s32*, 0x30) = func_80036640(ch, 0);
-                if (M2C_FIELD(ch, u8*, 0xDD) != 0) {
-                    M2C_FIELD(ch, u8*, 0xDD) = 0;
-                    n_alSynStopVoice((N_ALVoice*)CH_VOICE(ch));
-                    n_alSynFreeVoice((N_ALVoice*)CH_VOICE(ch));
-                    CH_VOICE(ch)->unk_1E = 5;
+        if (ch->duration != -1) {
+            ch->duration--;
+            if (ch->duration == -1) {
+                ch->pdata = func_80036640(ch, 0);
+                if (ch->playing != 0) {
+                    ch->playing = 0;
+                    n_alSynStopVoice(&CH_VOICE(ch)->voice);
+                    n_alSynFreeVoice(&CH_VOICE(ch)->voice);
+                    CH_VOICE(ch)->env_phase = 5;
                     CH_VOICE(ch) = NULL;
-                    M2C_FIELD(ch, s16*, 0xB2) = 0;
+                    ch->IsFX = 0;
                 }
-                M2C_FIELD(ch, s32*, 0x34) = 0;
+                ch->sample = 0;
             }
         }
-        if (M2C_FIELD(ch, s32*, 0x34) == 0) {
+        if (ch->sample == 0) {
             continue;
         }
         func_800395D0((channel_t*)ch);
-        if (M2C_FIELD(ch, s32*, 0x34) == 0) {
+        if (ch->sample == 0) {
             continue;
         }
-        if (M2C_FIELD(ch, u8*, 0xE7) != 0) {
-            if (CH_FRAME(ch) > M2C_FIELD(ch, u32*, 0xA0)) {
+        if (ch->wobble_counter != 0) {
+            if (CH_FRAME(ch) > ch->sweep_frame) {
                 func_80039A60(ch);
             }
         }
-        detune = M2C_FIELD(ch, f32*, 0x50);
-        if (M2C_FIELD(ch, u8*, 0xE8) != 0) {
+        detune = ch->freqoffset;
+        if (ch->vib_speed != 0) {
             detune += func_80039B7C(ch);
         }
-        if (M2C_FIELD(ch, u8*, 0xE1) != 0) {
+        if (ch->unk_0E1 != 0) {
             detune += func_80039B2C(ch);
         }
         pitch = func_800393F8(ch, detune);
-        if (M2C_FIELD(ch, s32*, 0xD8) != 0) {
+        if ((s32)ch->pending != 0) {
             vol = func_80039328(ch);
         }
         if (D_80075E00 == 0) {
             pan = 0x40;
         } else {
-            pan = ((M2C_FIELD(ch, s16*, 0xBC) * M2C_FIELD(ch, u8*, 0xCB)) >> 7) & 0x7F;
+            pan = ((ch->sweep_amount * ch->pan) >> 7) & 0x7F;
         }
-        fxmix = M2C_FIELD(ch, u8*, 0xDF);
-        fxmix += ((0x80 - fxmix) * M2C_FIELD(ch, u8*, 0xDE)) / 128;
-        M2C_FIELD(ch, s16*, 0xB6) = (u32)(CH_FRAME(ch) - M2C_FIELD(ch, u64*, 0x20)) / 256;
-        if (M2C_FIELD(ch, u8*, 0xDD) != 0) {
+        fxmix = ch->reverb_intensity;
+        fxmix += ((0x80 - fxmix) * ch->reverb) / 128;
+        ch->wobble_frame = (u32)(CH_FRAME(ch) - ch->note_end_frame) / 256;
+        if (ch->playing != 0) {
             if (pitch != 0.0f) {
-                n_alSynSetPitch((N_ALVoice*)CH_VOICE(ch), pitch);
+                n_alSynSetPitch(&CH_VOICE(ch)->voice, pitch);
             }
-            if ((M2C_FIELD(ch, s32*, 0xD8) != 0) && (vol != M2C_FIELD(ch, u16*, 0xAC))) {
-                M2C_FIELD(ch, u16*, 0xAC) = vol;
-                n_alSynSetVol((N_ALVoice*)CH_VOICE(ch), vol, D_800B3650);
+            if (((s32)ch->pending != 0) && (vol != ch->volume_current)) {
+                ch->volume_current = vol;
+                n_alSynSetVol(&CH_VOICE(ch)->voice, vol, D_800B3650);
             }
-            if (pan != M2C_FIELD(ch, u8*, 0xCC)) {
-                M2C_FIELD(ch, u8*, 0xCC) = pan;
-                n_alSynSetPan((N_ALVoice*)CH_VOICE(ch), pan);
+            if (pan != ch->pan_current) {
+                ch->pan_current = pan;
+                n_alSynSetPan(&CH_VOICE(ch)->voice, pan);
             }
-            if (M2C_FIELD(ch, u8*, 0xE0) != M2C_FIELD(ch, u8*, 0xDE)) {
-                M2C_FIELD(ch, u8*, 0xE0) = fxmix;
-                func_80046860((N_ALVoice*)CH_VOICE(ch), fxmix); /* n_alSynSetFXMix */
+            if (ch->reverb_mix != ch->reverb) {
+                ch->reverb_mix = fxmix;
+                func_80046860(&CH_VOICE(ch)->voice, fxmix); /* n_alSynSetFXMix */
             }
         } else {
             for (j = 0; j < 45; j++) {
-                if (D_800B3670[j].unk_1E == 5) {
+                if (D_800B3670[j].env_phase == 5) {
                     CH_VOICE(ch) = &D_800B3670[j];
                     goto found;
                 }
             }
             for (j = 0; j < 45; j++) {
-                if (D_800B3670[j].unk_1E == 4) {
+                if (D_800B3670[j].env_phase == 4) {
                     CH_VOICE(ch) = &D_800B3670[j];
                     goto found;
                 }
             }
-            M2C_FIELD(ch, s32*, 0x34) = 0;
+            ch->sample = 0;
             continue;
         found:
-            CH_VOICE(ch)->unk_1E = M2C_FIELD(ch, u8*, 0xD1);
-            M2C_FIELD(CH_VOICE(ch), s16*, 0x1C) = M2C_FIELD(ch, u8*, 0xDC);
+            CH_VOICE(ch)->env_phase = ch->env_state;
+            CH_VOICE(ch)->env_release_speed = ch->env_release_speed;
             config.priority = 0x3C;
             config.unityPitch = 0;
             config.fxBus = 0;
-            n_alSynAllocVoice((N_ALVoice*)CH_VOICE(ch), &config);
-            M2C_FIELD(ch, u16*, 0xAC) = vol;
-            M2C_FIELD(ch, u8*, 0xCC) = pan;
-            M2C_FIELD(ch, u8*, 0xE0) = fxmix;
+            n_alSynAllocVoice(&CH_VOICE(ch)->voice, &config);
+            ch->volume_current = vol;
+            ch->pan_current = pan;
+            ch->reverb_mix = fxmix;
             if (pitch == 0.0f) {
-                pitch = Audio_ExpApproximation(M2C_FIELD(ch, f32*, 0x48) * (5.0 / 60.0));
+                pitch = Audio_ExpApproximation(ch->pitch_current * (5.0 / 60.0));
                 if (pitch > 2.0) {
                     pitch = 2.0f;
                 }
             }
-            n_alSynStartVoiceParams((N_ALVoice*)CH_VOICE(ch), M2C_FIELD(ch, ALWaveTable**, 0x34), pitch, vol, pan,
-                                    fxmix, M2C_FIELD(ch, s32*, 0xD8));
-            M2C_FIELD(ch, s32*, 0xD8) = 0;
-            M2C_FIELD(ch, u8*, 0xDD) = 1;
-            CH_VOICE(ch)->unk_1E = 1;
+            n_alSynStartVoiceParams(&CH_VOICE(ch)->voice, ch->sample, pitch, vol, pan,
+                                    fxmix, (s32)ch->pending);
+            ch->pending = 0;
+            ch->playing = 1;
+            CH_VOICE(ch)->env_phase = 1;
         }
     }
 
     for (i = 0; i < 45; i++) {
-        if (D_800B3670[i].unk_1E == 4) {
-            if (M2C_FIELD(&D_800B3670[i], u32*, 0x20) < D_800B3CC4) {
-                n_alSynStopVoice((N_ALVoice*)&D_800B3670[i]);
-                n_alSynFreeVoice((N_ALVoice*)&D_800B3670[i]);
-                D_800B3670[i].unk_1E = 5;
-            } else if ((D_80075C34 != 0) && (D_80075C34 < (M2C_FIELD(&D_800B3670[i], u32*, 0x20) - D_800B3CC4))) {
-                n_alSynSetVol((N_ALVoice*)&D_800B3670[i], 0, D_800B3650 * D_80075C34);
-                M2C_FIELD(&D_800B3670[i], u32*, 0x20) = D_800B3CC4 + 1 + D_80075C34;
+        if (D_800B3670[i].env_phase == 4) {
+            if (D_800B3670[i].release_end_frame < D_800B3CC4) {
+                n_alSynStopVoice(&D_800B3670[i].voice);
+                n_alSynFreeVoice(&D_800B3670[i].voice);
+                D_800B3670[i].env_phase = 5;
+            } else if ((D_80075C34 != 0) && (D_80075C34 < (D_800B3670[i].release_end_frame - D_800B3CC4))) {
+                n_alSynSetVol(&D_800B3670[i].voice, 0, D_800B3650 * D_80075C34);
+                D_800B3670[i].release_end_frame = D_800B3CC4 + 1 + D_80075C34;
             }
         }
     }
@@ -1669,13 +1640,13 @@ s32 func_800388BC(void* node) {
     }
     if (D_800B3CD0 != 0) {
         for (i = 0; i < 45; i++) {
-            n_alSynStopVoice((N_ALVoice*)&D_800B3670[i]);
-            n_alSynFreeVoice((N_ALVoice*)&D_800B3670[i]);
-            D_800B3670[i].unk_1E = 5;
+            n_alSynStopVoice(&D_800B3670[i].voice);
+            n_alSynFreeVoice(&D_800B3670[i].voice);
+            D_800B3670[i].env_phase = 5;
         }
-        for (i = 0, ch = D_800B3640; i < D_800B3638; i++, ch += 0x148) {
-            M2C_FIELD(ch, u8*, 0xDD) = 0;
-            M2C_FIELD(ch, s32*, 0x30) = 0;
+        for (i = 0, ch = D_800B3640; i < D_800B3638; i++, ch++) {
+            ch->playing = 0;
+            ch->pdata = 0;
             func_8003A2B8(ch);
         }
         D_800B3CC8 = 0;
@@ -1702,89 +1673,90 @@ void func_80039010(channel_t* arg0) {
     u8 temp_a0;
     u32 tmp;
     u8 tmp1;
-    u32 sample;
+    ALWaveTable* sample; // PORT: was u32
     u16 wave;
-    song_t* bank;
+    PortSoundBank* bank; // PORT: was song_t*
 
-    var_s0 = M2C_FIELD(arg0, u8**, 0x30);
+    var_s0 = arg0->pdata;
     while (var_s0 != NULL && (tmp1 = *var_s0) >= 0x80) {
         var_s0 = D_80075C38[tmp1 & 0x7F](arg0, var_s0 + 1);
     }
-    M2C_FIELD(arg0, u8**, 0x30) = var_s0;
+    arg0->pdata = var_s0;
 
-    if (M2C_FIELD(arg0, u8**, 0x30) != NULL) {
-        M2C_FIELD(arg0, f32*, 0x64) = M2C_FIELD(arg0, f32*, 0x68);
-        tmp = *M2C_FIELD(arg0, u8**, 0x30)++;
+    if (arg0->pdata != NULL) {
+        arg0->last_note = arg0->port_base;
+        tmp = *arg0->pdata++;
 
-        if (M2C_FIELD(arg0, u8*, 0xE5) != 0) {
-            M2C_FIELD(arg0, u8*, 0xC9) = *M2C_FIELD(arg0, u8**, 0x30)++;
+        if (arg0->wobble_on_speed != 0) {
+            arg0->velocity = *arg0->pdata++;
         } else {
-            M2C_FIELD(arg0, u8*, 0xC9) = M2C_FIELD(arg0, u8*, 0xE6);
+            arg0->velocity = arg0->wobble_off_speed;
         }
 
-        if (M2C_FIELD(arg0, u16*, 0xB8) != 0) {
-            if (M2C_FIELD(arg0, u8*, 0xC5) == 0) {
-                M2C_FIELD(arg0, u16*, 0xA6) = M2C_FIELD(arg0, u16*, 0xB8);
+        if (arg0->fixed_length != 0) {
+            if (arg0->ignore == 0) {
+                arg0->note_duration = arg0->fixed_length;
             } else {
-                M2C_FIELD(arg0, u8*, 0xC5) = 0;
-                temp_a0 = *M2C_FIELD(arg0, u8**, 0x30)++;
+                arg0->ignore = 0;
+                temp_a0 = *arg0->pdata++;
                 if (temp_a0 < 0x80) {
-                    M2C_FIELD(arg0, u16*, 0xA6) = (s32)temp_a0; // FAKE: no-op cast; the plain assignment changes register allocation
+                    arg0->note_duration = (s32)temp_a0; // FAKE: no-op cast; the plain assignment changes register allocation
                 } else {
-                    M2C_FIELD(arg0, u16*, 0xA6) = *M2C_FIELD(arg0, u8**, 0x30)++ + ((temp_a0 & 0x7F) << 8);
+                    arg0->note_duration = *arg0->pdata++ + ((temp_a0 & 0x7F) << 8);
                 }
             }
         } else {
-            temp_a0 = *M2C_FIELD(arg0, u8**, 0x30)++;
+            temp_a0 = *arg0->pdata++;
             if (temp_a0 < 0x80) {
-                M2C_FIELD(arg0, u16*, 0xA6) = temp_a0;
+                arg0->note_duration = temp_a0;
             } else {
-                M2C_FIELD(arg0, u16*, 0xA6) = *M2C_FIELD(arg0, u8**, 0x30)++ + ((temp_a0 & 0x7F) << 8);
+                arg0->note_duration = *arg0->pdata++ + ((temp_a0 & 0x7F) << 8);
             }
         }
 
-        M2C_FIELD(arg0, u64*, 0x20) = M2C_FIELD(arg0, u64*, 0x18);
-        M2C_FIELD(arg0, u64*, 0x18) = (M2C_FIELD(arg0, u16*, 0xA6) << 8) + M2C_FIELD(arg0, u64*, 0x18);
+        arg0->note_end_frame = arg0->pitchbend_frame;
+        arg0->pitchbend_frame = (arg0->note_duration << 8) + arg0->pitchbend_frame;
 
-        M2C_FIELD(arg0, u16*, 0xB6) = 0;
-        M2C_FIELD(arg0, s8*, 0xE4) = 0;
-        M2C_FIELD(arg0, u8*, 0xE3) = M2C_FIELD(arg0, u8*, 0xE2);
+        arg0->wobble_frame = 0;
+        arg0->unk_0E4 = 0;
+        arg0->unk_0E3 = arg0->unk_0E2;
 
         if (tmp != 0x60) {
-            bank = M2C_FIELD(arg0, song_t**, 0x88);
-            if (M2C_FIELD(arg0, u8**, 0x90) != NULL) {
-                M2C_FIELD(arg0, u16*, 0xBA) = M2C_FIELD(arg0, u8**, 0x90)[tmp * 4];
-                M2C_FIELD(arg0, u8*, 0xCB) = M2C_FIELD(arg0, u8**, 0x90)[tmp * 4 + 2] / 2;
-                Audio_SetVoiceVolumeEnvelope(arg0, (u8*)&M2C_FIELD(arg0, song_t**, 0x84)->env_table[M2C_FIELD(arg0, u8**, 0x90)[tmp * 4 + 1]]);
-                tmp = M2C_FIELD(arg0, u8**, 0x90)[tmp * 4 + 3];
+            bank = PortA_Bank(arg0->sample_bank); // PORT: host view of the bank (audio_port.c)
+            if (arg0->pdrums != NULL) {
+                arg0->wave = arg0->pdrums[tmp * 4];
+                arg0->pan = arg0->pdrums[tmp * 4 + 2] / 2;
+                Audio_SetVoiceVolumeEnvelope(arg0, PORT_BLOB_AT(arg0->song_addr, arg0->song_addr->env_table) +
+                                                       arg0->pdrums[tmp * 4 + 1] * sizeof(envelope_t)); // PORT
+                tmp = arg0->pdrums[tmp * 4 + 3];
             }
             Audio_UpdateVoicePlaybackEnd(arg0);
 
-            if (M2C_FIELD(arg0, u8*, 0xE7) != 0) {
+            if (arg0->wobble_counter != 0) {
                 func_80039A44(arg0);
             }
 
-            if (M2C_FIELD(arg0, u8*, 0xDD) != 0) {
-                M2C_FIELD(arg0, s32*, 0x34) = 0;
+            if (arg0->playing != 0) {
+                arg0->sample = NULL;
                 func_800395D0(arg0);
             }
 
-            wave = M2C_FIELD(arg0, u16*, 0xBA);
-            sample = bank->samples[wave];
-            M2C_FIELD(arg0, s32*, 0x34) = sample;
-            M2C_FIELD(arg0, f32*, 0x4C) = bank->detune[wave] + tmp;
+            wave = arg0->wave;
+            sample = bank->wave_list[wave];
+            arg0->sample = sample;
+            arg0->base_note = bank->detune[wave] + tmp;
         } else {
-            M2C_FIELD(arg0, s32*, 0x34) = 0;
-            if (M2C_FIELD(arg0, u8*, 0xDD) != 0) {
-                M2C_FIELD(arg0, s64*, 0x28) = M2C_FIELD(arg0, s64*, 0x0);
+            arg0->sample = 0;
+            if (arg0->playing != 0) {
+                arg0->note_start_frame = (s64)arg0->unk_000;
                 func_800395D0(arg0);
             }
-            M2C_FIELD(arg0, u8*, 0xDD) = 0;
+            arg0->playing = 0;
         }
     } else {
-        M2C_FIELD(arg0, s32*, 0x34) = 0;
-        if (M2C_FIELD(arg0, u8*, 0xDD) != 0) {
-            M2C_FIELD(arg0, s64*, 0x28) = M2C_FIELD(arg0, s64*, 0x0);
+        arg0->sample = 0;
+        if (arg0->playing != 0) {
+            arg0->note_start_frame = (s64)arg0->unk_000;
             func_800395D0(arg0);
         }
     }
@@ -1851,12 +1823,12 @@ f32 Audio_AdvanceVoicePitch(channel_t* arg0, f32 offset) {
 void Audio_UpdateVoicePlaybackEnd(channel_t* arg0) {
     if (arg0->note_duration != 0x7FFF) {
         if (arg0->cutoff != 0) {
-            M2C_FIELD(arg0, s64*, 0x28) = (s32)(arg0->cutoff << 8) + M2C_FIELD(arg0, s64*, 0x20);
+            arg0->note_start_frame = (s32)(arg0->cutoff << 8) + (s64)arg0->note_end_frame;
         } else {
-            M2C_FIELD(arg0, s64*, 0x28) = M2C_FIELD(arg0, s64*, 0x18) - (s32)(arg0->endit << 8);
+            arg0->note_start_frame = (s64)arg0->pitchbend_frame - (s32)(arg0->endit << 8);
         }
     } else {
-        M2C_FIELD(arg0, s64*, 0x28) = 0x7FFFFFFF;
+        arg0->note_start_frame = 0x7FFFFFFF;
     }
 
     arg0->env_current_vol = arg0->env_init_vol;
@@ -1877,41 +1849,40 @@ void func_800395D0(channel_t* arg0) {
     u32 temp_ft4;
     u32 temp_a0;
 
-    if (M2C_FIELD(arg0, u8**, 0x144) != NULL) {
-        if (((M2C_FIELD(arg0, u64*, 0x0) >= M2C_FIELD(arg0, u64*, 0x28)) && (M2C_FIELD(arg0, u8**, 0x144)[0x1E] < 4)) ||
-            (M2C_FIELD(arg0, s32*, 0x34) == 0)) {
-            M2C_FIELD(arg0, u8**, 0x144)[0x1E] = 4;
-            temp_ft4 = (f32)M2C_FIELD(M2C_FIELD(arg0, u8**, 0x144), u16*, 0x1C) /
-                       ((f32)M2C_FIELD(arg0, u16*, 0xA8) * 0.00390625);
+    if (arg0->voice != NULL) {
+        if (((arg0->unk_000 >= arg0->note_start_frame) && (arg0->voice->env_phase < 4)) ||
+            (arg0->sample == NULL)) {
+            arg0->voice->env_phase = 4;
+            temp_ft4 = (f32)arg0->voice->env_release_speed / ((f32)arg0->channel_tempo * 0.00390625);
             if (temp_ft4 == 0) {
                 temp_ft4++;
             }
-            M2C_FIELD(M2C_FIELD(arg0, u8**, 0x144), s32*, 0x20) = (u32)D_800B3CC4 + temp_ft4 + 2;
-            n_alSynSetVol((N_ALVoice*)M2C_FIELD(arg0, u8**, 0x144), 0, (u32)D_800B3650 * temp_ft4);
-            func_8003A800(M2C_FIELD(arg0, u8**, 0x144), 0);
-            M2C_FIELD(arg0, u8**, 0x144) = NULL;
-            M2C_FIELD(arg0, u32*, 0xD8) = 1;
-            M2C_FIELD(arg0, u8*, 0xDD) = 0;
-            M2C_FIELD(arg0, s32*, 0x34) = 0;
+            arg0->voice->release_end_frame = (u32)D_800B3CC4 + temp_ft4 + 2;
+            n_alSynSetVol(&arg0->voice->voice, 0, (u32)D_800B3650 * temp_ft4);
+            func_8003A800(arg0->voice, 0);
+            arg0->voice = NULL;
+            arg0->pending = 1;
+            arg0->playing = 0;
+            arg0->sample = NULL;
         } else {
-            switch (M2C_FIELD(arg0, u8**, 0x144)[0x1E]) {
+            switch (arg0->voice->env_phase) {
                 case 0:
                 case 1:
-                    temp_a0 = (u32)(M2C_FIELD(arg0, u64*, 0x0) - M2C_FIELD(arg0, u64*, 0x20)) >> 8;
-                    if (temp_a0 >= M2C_FIELD(arg0, u8*, 0xD4)) {
-                        M2C_FIELD(arg0, u8**, 0x144)[0x1E]++;
-                        M2C_FIELD(arg0, u8*, 0xD2) = M2C_FIELD(arg0, u8*, 0xCF);
+                    temp_a0 = (u32)(arg0->unk_000 - arg0->note_end_frame) >> 8;
+                    if (temp_a0 >= arg0->env_attack_speed) {
+                        arg0->voice->env_phase++;
+                        arg0->env_current_vol = arg0->env_max_vol;
                     }
                     break;
 
                 case 2:
-                    M2C_FIELD(arg0, u32*, 0xD8) = 1;
-                    temp_a0 = ((u32)(M2C_FIELD(arg0, u64*, 0x0) - M2C_FIELD(arg0, u64*, 0x20)) >> 8) - M2C_FIELD(arg0, u8*, 0xD4);
-                    if (temp_a0 < M2C_FIELD(arg0, u8*, 0xD5)) {
-                        M2C_FIELD(arg0, u8*, 0xD2) = (u32)(M2C_FIELD(arg0, f32*, 0x70) * temp_a0) + M2C_FIELD(arg0, u8*, 0xCF);
+                    arg0->pending = 1;
+                    temp_a0 = ((u32)(arg0->unk_000 - arg0->note_end_frame) >> 8) - arg0->env_attack_speed;
+                    if (temp_a0 < arg0->env_decay_speed) {
+                        arg0->env_current_vol = (u32)(arg0->env_decay_calc * temp_a0) + arg0->env_max_vol;
                     } else {
-                        M2C_FIELD(arg0, u8**, 0x144)[0x1E]++;
-                        M2C_FIELD(arg0, u8*, 0xD2) = M2C_FIELD(arg0, u8*, 0xD0);
+                        arg0->voice->env_phase++;
+                        arg0->env_current_vol = arg0->env_sustain_vol;
                     }
                     break;
 
@@ -1920,22 +1891,22 @@ void func_800395D0(channel_t* arg0) {
             }
         }
     } else {
-        u32 attack = M2C_FIELD(arg0, u8*, 0xD4);
-        M2C_FIELD(arg0, u32*, 0xD8) = (f32)attack / ((f32)M2C_FIELD(arg0, u16*, 0xA8) * 0.00390625) *
+        u32 attack = arg0->env_attack_speed;
+        arg0->pending = (f32)attack / ((f32)arg0->channel_tempo * 0.00390625) *
                                       (f32)D_800B3650;
-        M2C_FIELD(arg0, u8*, 0xD2) = M2C_FIELD(arg0, u8*, 0xCF);
-        temp_a0 = (u32)(M2C_FIELD(arg0, u64*, 0x0) - M2C_FIELD(arg0, u64*, 0x20)) >> 8;
+        arg0->env_current_vol = arg0->env_max_vol;
+        temp_a0 = (u32)(arg0->unk_000 - arg0->note_end_frame) >> 8;
         if (temp_a0 < attack) {
-            M2C_FIELD(arg0, u8*, 0xD1) = 1;
+            arg0->env_state = 1;
         } else {
-            M2C_FIELD(arg0, u8*, 0xD1) = 2;
+            arg0->env_state = 2;
         }
     }
 }
 
 void func_80039A44(channel_t* cp) {
     cp->sweep_frame = cp->note_end_frame;
-    M2C_FIELD(cp, u8*, 0xEC) = 0;
+    cp->wobble_value = 0;
     cp->env_trigger_off = cp->sweep_amount & 0x80;
 }
 
@@ -1946,13 +1917,13 @@ void Audio_AdvancePanModulation(channel_t* arg0) {
     do {
         arg0->sweep_frame += 0x100;
 
-        temp_v1 = (arg0->wobble_counter * 2) + M2C_FIELD(arg0, u8*, 0xEC);
+        temp_v1 = (arg0->wobble_counter * 2) + arg0->wobble_value;
         if (temp_v1 < 0x80) {
-            M2C_FIELD(arg0, u8*, 0xEC) = temp_v1;
+            arg0->wobble_value = temp_v1;
             continue;
         }
 
-        M2C_FIELD(arg0, u8*, 0xEC) = temp_v1 & 0x7F;
+        arg0->wobble_value = temp_v1 & 0x7F;
         temp_v1 >>= 7;
         if (arg0->env_trigger_off == 0) {
             var_v0 = arg0->sweep_amount;
@@ -1971,31 +1942,27 @@ void Audio_AdvancePanModulation(channel_t* arg0) {
             }
             arg0->sweep_amount = var_v0;
         }
-    } while (arg0->sweep_frame < M2C_FIELD(arg0, u64*, 0x0));
+    } while (arg0->sweep_frame < arg0->unk_000);
 
     arg0->pan_current = 0xFF;
 }
 
-#define CH_U8(ch, off) (*(u8*)((u8*)(ch) + (off)))
-#define CH_S8(ch, off) (*(s8*)((u8*)(ch) + (off)))
 
 f32 Audio_AdvancePeriodicPitchModulation(channel_t* arg0) {
-    CH_U8(arg0, 0xE3)--;
-    if (!CH_U8(arg0, 0xE3)) {
-        if (CH_S8(arg0, 0xE4) == 0) {
-            CH_S8(arg0, 0xE4) = CH_S8(arg0, 0xEB);
-            CH_U8(arg0, 0xE3) = CH_U8(arg0, 0xE1);
+    arg0->unk_0E3--;
+    if (!arg0->unk_0E3) {
+        if (arg0->unk_0E4 == 0) {
+            arg0->unk_0E4 = (s8)arg0->sweep_speed;
+            arg0->unk_0E3 = arg0->unk_0E1;
         } else {
-            CH_S8(arg0, 0xE4) = 0;
-            CH_U8(arg0, 0xE3) = CH_U8(arg0, 0xE2);
+            arg0->unk_0E4 = 0;
+            arg0->unk_0E3 = arg0->unk_0E2;
         }
     }
 
-    return CH_S8(arg0, 0xE4);
+    return arg0->unk_0E4;
 }
 
-#undef CH_U8
-#undef CH_S8
 
 f32 Audio_ComputeSinePitchModulation(channel_t* arg0) {
     s32 temp_v0 = arg0->wobble_frame - arg0->vib_delay;
@@ -2034,7 +2001,7 @@ void Audio_AdvancePitchEnvelope(channel_t* arg0) {
             arg0->volume = tmp;
             arg0->cont_vol_repeat_count = 1;
         }
-    } while (arg0->channel_frame < M2C_FIELD(arg0, u64*, 0x0));
+    } while (arg0->channel_frame < arg0->unk_000);
 }
 
 void Audio_AdvanceVolumeEnvelope(channel_t* arg0) {
@@ -2064,7 +2031,7 @@ void Audio_AdvanceVolumeEnvelope(channel_t* arg0) {
             arg0->pitchbend_calc = arg0->pitchbend * arg0->bendrange;
             arg0->cont_pb_repeat_count = 1;
         }
-    } while (arg0->volume_frame < M2C_FIELD(arg0, u64*, 0x0));
+    } while (arg0->volume_frame < arg0->unk_000);
 }
 
 f32 Audio_ExpApproximation(f32 arg0) {
@@ -2091,21 +2058,18 @@ f32 Audio_ExpApproximation(f32 arg0) {
     }
 }
 
-void Audio_RelocateSoundBank(u8* arg0, s32 arg1) {
+void Audio_RelocateSoundBank(u8* arg0, uintptr_t arg1) { // PORT: arg1 (wave data ROM address) was s32
     UNUSED s32 pad; // FAKE: stack padding
     u32 i;
     f32 var_fv0;
-    SoundBank* soundbank = arg0;
     u8 temp_v1;
+    // PORT: builds the host wave tables (audio_port.c) instead of relocating the blob's pointer fields in place;
+    // NULL when the bank was already relocated
+    PortSoundBank* soundbank = PortA_RelocateSoundBank(arg0, arg1);
 
-    if (soundbank->flags & 1) {
+    if (soundbank == NULL) {
         return;
     }
-
-    soundbank->flags |= 1;
-
-    Audio_RelocatePointerArray(&soundbank->basenote, arg0, 3);
-    Audio_RelocatePointerArray(soundbank->wave_list, arg0, soundbank->count);
 
     for (i = 0; i < soundbank->count; i++) {
         f32* ptr = &soundbank->detune[i];
@@ -2125,27 +2089,6 @@ void Audio_RelocateSoundBank(u8* arg0, s32 arg1) {
             var_fv0 = (s32)temp_v1;
         }
         *ptr += var_fv0;
-
-        if (soundbank->wave_list[i]->flags == 0) {
-            u32 tmp = soundbank->wave_list[i]->base;
-
-            if ((tmp & 0xFF000000) != 0xFF000000) {
-                tmp += arg1;
-                soundbank->wave_list[i]->base = tmp;
-            }
-
-            soundbank->wave_list[i]->flags = 1;
-
-            if (soundbank->wave_list[i]->waveInfo.rawWave.loop != NULL) {
-                soundbank->wave_list[i]->waveInfo.rawWave.loop =
-                    (uintptr_t)soundbank + (uintptr_t)soundbank->wave_list[i]->waveInfo.rawWave.loop;
-            }
-
-            if (soundbank->wave_list[i]->type == AL_ADPCM_WAVE) {
-                soundbank->wave_list[i]->waveInfo.adpcmWave.book =
-                    (uintptr_t)soundbank + (uintptr_t)soundbank->wave_list[i]->waveInfo.adpcmWave.book;
-            }
-        }
     }
 
     osWritebackDCacheAll();
@@ -2169,75 +2112,76 @@ s32 Audio_RandomScale(s32 arg0) {
     return arg0 * tmpf;
 }
 
-void func_8003A2B8(s8* cp) {
+void func_8003A2B8(channel_t* cp) {
     u8* ptr;
     s32 i;
     s32 tempo;
 
-    M2C_FIELD(cp, s32*, 0x34) = 0;
-    M2C_FIELD(cp, s32*, 0x144) = 0;
-    M2C_FIELD(cp, s64*, 0x0) = 0;
-    M2C_FIELD(cp, s64*, 0x8) = 0;
-    M2C_FIELD(cp, s64*, 0x10) = 0;
-    M2C_FIELD(cp, s64*, 0x18) = 0;
-    M2C_FIELD(cp, s64*, 0x20) = 0;
-    M2C_FIELD(cp, s64*, 0x28) = 0;
+    cp->sample = NULL;
+    cp->voice = NULL;
+    cp->unk_000 = 0;
+    cp->channel_frame = 0;
+    cp->volume_frame = 0;
+    cp->pitchbend_frame = 0;
+    cp->note_end_frame = 0;
+    cp->note_start_frame = 0;
 
-    ptr = (u8*)cp + 0x34;
-    for (i = 0x34; i < 0x148; i++) {
+    // PORT: from `sample` to the end of the host struct (was offsets 0x34 to 0x148)
+    ptr = (u8*)&cp->sample;
+    for (i = 0; i < (s32)(sizeof(channel_t) - offsetof(channel_t, sample)); i++) {
         *ptr++ = 0;
     }
 
-    M2C_FIELD(cp, u16*, 0xAC) = 0xFFFF;
-    M2C_FIELD(cp, u8*, 0xE0) = 0xFF;
-    M2C_FIELD(cp, u8*, 0xCC) = 0xFF;
-    M2C_FIELD(cp, f32*, 0x48) = 99.9f;
+    cp->volume_current = 0xFFFF;
+    cp->reverb_mix = 0xFF;
+    cp->pan_current = 0xFF;
+    cp->pitch_current = 99.9f;
     tempo = 0x6000 / (s32)D_800B364C;
-    M2C_FIELD(cp, s16*, 0xB4) = tempo;
-    M2C_FIELD(cp, s16*, 0xA8) = tempo;
-    M2C_FIELD(cp, s64*, 0x18) = M2C_FIELD(cp, s64*, 0x0) = 0;
-    M2C_FIELD(cp, s16*, 0xA6) = 1;
-    M2C_FIELD(cp, u8*, 0xE5) = 0;
-    M2C_FIELD(cp, u8*, 0xE6) = 0x7F;
-    M2C_FIELD(cp, s16*, 0xB8) = 0;
-    M2C_FIELD(cp, u8*, 0xC5) = 0;
-    M2C_FIELD(cp, u8*, 0xCA) = 0x7F;
-    M2C_FIELD(cp, u8*, 0xCB) = 0x40;
-    M2C_FIELD(cp, s16*, 0xAE) = 1;
-    M2C_FIELD(cp, s16*, 0xB0) = 1;
-    M2C_FIELD(cp, s32*, 0x38) = -1;
-    M2C_FIELD(cp, u8*, 0xE7) = 0;
-    M2C_FIELD(cp, f32*, 0x7C) = 0.03125f;
+    cp->channel_tempo_save = tempo;
+    cp->channel_tempo = tempo;
+    cp->pitchbend_frame = cp->unk_000 = 0;
+    cp->note_duration = 1;
+    cp->wobble_on_speed = 0;
+    cp->wobble_off_speed = 0x7F;
+    cp->fixed_length = 0;
+    cp->ignore = 0;
+    cp->volume = 0x7F;
+    cp->pan = 0x40;
+    cp->cont_vol_repeat_count = 1;
+    cp->cont_pb_repeat_count = 1;
+    cp->duration = -1;
+    cp->wobble_counter = 0;
+    cp->bendrange = 0.03125f;
     func_80036640(cp, 0);
-    M2C_FIELD(cp, s16*, 0xAA) = 0x80;
-    M2C_FIELD(cp, s16*, 0xBC) = 0x80;
-    M2C_FIELD(cp, s16*, 0xA4) = 0x80;
-    M2C_FIELD(cp, u8*, 0xCD) = 1;
-    M2C_FIELD(cp, u8*, 0xD4) = 1;
-    M2C_FIELD(cp, u8*, 0xCF) = 0x7F;
-    M2C_FIELD(cp, u8*, 0xD5) = 0xFF;
-    M2C_FIELD(cp, f32*, 0x6C) = 1.0f;
-    M2C_FIELD(cp, f32*, 0x70) = 0.003921568859f;
-    M2C_FIELD(cp, f32*, 0x44) = 0.0f;
-    M2C_FIELD(cp, f32*, 0x50) = 0.0f;
-    M2C_FIELD(cp, f32*, 0x68) = 0.0f;
-    M2C_FIELD(cp, f32*, 0x9C) = 0.0f;
-    M2C_FIELD(cp, u8*, 0xD0) = 0x7F;
-    M2C_FIELD(cp, u8*, 0xDC) = 0xF;
-    M2C_FIELD(cp, u32*, 0xD8) = 1;
-    M2C_FIELD(cp, u8*, 0xE8) = 0;
-    M2C_FIELD(cp, u8*, 0xE1) = 0;
-    M2C_FIELD(cp, s16*, 0xB2) = 0;
-    M2C_FIELD(cp, u8*, 0xDD) = 0;
+    cp->volume_scale = 0x80;
+    cp->sweep_amount = 0x80;
+    cp->temscale = 0x80;
+    cp->env_speed = 1;
+    cp->env_attack_speed = 1;
+    cp->env_max_vol = 0x7F;
+    cp->env_decay_speed = 0xFF;
+    cp->env_attack_calc = 1.0f;
+    cp->env_decay_calc = 0.003921568859f;
+    cp->pitchbend_calc = 0.0f;
+    cp->freqoffset = 0.0f;
+    cp->port_base = 0.0f;
+    cp->distort = 0.0f;
+    cp->env_sustain_vol = 0x7F;
+    cp->env_release_speed = 0xF;
+    cp->pending = 1;
+    cp->vib_speed = 0;
+    cp->unk_0E1 = 0;
+    cp->IsFX = 0;
+    cp->playing = 0;
 }
 
-extern s8 *D_800B3640;
+extern channel_t* D_800B3640;
 
-u32 func_8003A4A8(s32 arg0, M2C_UNK arg1) {
+u32 func_8003A4A8(UNUSED song_t* arg0, UNUSED s32 arg1) { // PORT: arg0 was s32
     s32 temp_a0;
     s32 var_s2;
     u32 var_s1;
-    s8 *var_s0;
+    channel_t* var_s0;
 
     var_s2 = 0;
     var_s0 = D_800B3640;
@@ -2245,8 +2189,8 @@ u32 func_8003A4A8(s32 arg0, M2C_UNK arg1) {
     if (D_800B3638 != 0) {
 loop_2:
         temp_a0 = osSetIntMask(1);
-        if (M2C_FIELD(var_s0, s32 *, 0x30) == 0) {
-            M2C_FIELD(var_s0, s32 *, 0x30) = -1;
+        if (var_s0->pdata == NULL) {
+            var_s0->pdata = (u8*)-1;
             var_s2 = 1;
         }
         osSetIntMask(temp_a0);
@@ -2254,7 +2198,7 @@ loop_2:
             return var_s1;
         }
         var_s1 += 1;
-        var_s0 += 0x148;
+        var_s0++;
         if (var_s1 >= (u32) D_800B3638) {
             goto block_7;
         }
@@ -2272,8 +2216,9 @@ void Audio_FillBytes(u8* arg0, u8 arg1, u32 arg2) {
     }
 }
 
+// PORT: no longer called on the host (songs and sound banks keep their offsets); u32 entries cannot hold host addresses
 void Audio_RelocatePointerArray(u8* arg0, u32 arg1, u32 arg2) {
-    u32* ptr = arg0;
+    u32* ptr = (u32*)arg0;
     u32 i;
 
     for (i = 0; i < arg2; i++) {
@@ -2299,18 +2244,17 @@ s32 func_8003A638(channel_t* cp, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     s32 uninit;
     s32 mask;
 
-    func_8003A2B8((s8*)cp);
-    M2C_FIELD(cp, s32*, 0x88) = (uintptr_t)D_800B3668;
-    M2C_FIELD(cp, s16*, 0xB2) = arg1;
+    func_8003A2B8(cp);
+    cp->sample_bank = D_800B3668;
+    cp->IsFX = arg1;
     cp->volume_scale = arg2;
     cp->sweep_amount = arg3;
     cp->priority = arg4;
     mask = osSetIntMask(uninit);
     cp->handle = D_800B365C;
     D_800B365C++;
-    val = ((s32*)D_800B3644)[arg1];
-    M2C_FIELD(cp, s32*, 0x8C) = val;
-    M2C_FIELD(cp, s32*, 0x30) = val;
+    // PORT: D_800B3644 holds big-endian offsets from sPortFxBlock (see AudioFxBlock)
+    cp->pbase = cp->pdata = PORT_BLOB_AT(sPortFxBlock, Port_ReadBE32(&D_800B3644[arg1]));
     osSetIntMask(mask);
     return cp->handle;
 }

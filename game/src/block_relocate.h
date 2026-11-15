@@ -4,12 +4,10 @@
 
 #include "global.h"
 
-typedef struct RelocHeader8003A710 {
-    /* 0x00 */ u32 count;
-    /* 0x04 */ s32 flags;
-    /* 0x08 */ u32 unk08;
-    /* 0x0C */ u32 table;
-} RelocHeader8003A710;
+#include "libnumus/player.h"
+
+// PORT: the header is the sound player's FX block (AudioFxBlock in libnumus/player.h)
+typedef AudioFxBlock RelocHeader8003A710;
 
 typedef struct Unk8003A7AC {
     /* 0x00 */ s32 size;
@@ -19,8 +17,7 @@ typedef struct Unk8003A7AC {
 } Unk8003A7AC;
 
 // block_relocate.c
-void Audio_RelocateSoundBankInPlace(s32 arg0);
-void Block_RelocateSelf(RelocHeader8003A710* arg0);
-s32 Audio_RelocateSoundBankHeader(Unk8003A7AC* arg0);
+void Audio_RelocateSoundBankInPlace(SoundBank* arg0); // PORT: arg0 was s32
+u8* Audio_RelocateSoundBankHeader(Unk8003A7AC* arg0); // PORT: returned s32
 
 #endif // BLOCK_RELOCATE_H

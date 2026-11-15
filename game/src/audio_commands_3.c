@@ -2,27 +2,21 @@
 /* Split from audio_commands.c: the code after the jump tables of Audio_PlayCommand. */
 
 #include "audio_commands.h"
+#include "audio_cache.h"
+#include "rom_device.h"
 #include "pokemon.h"
 #include "libnumus/player.h"
 #include "m2c_macros.h"
 
 extern u8 D_80077528;
 extern u8 D_80077534;
-extern s32 D_80077064[][2];
 extern s32 D_800FD670[];
 extern s32 D_800FD680;
 extern u8 D_800FD605;
 extern s32* D_800B417C;
 extern s32* D_800B4160;
-extern u8* D_800B41F0;
-extern s32 D_800B41D0[];
-extern s32 D_800B4198;
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
-void func_8004609C(u32, u8*, s32);
-void func_80047FB0(u8*, s32, s32);
-void Block_RelocateSelf(s32);
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 
 /**
  * Plays the announcer's voice clip for a Pokémon and move: `species` (dex number, table D_80077064) and
@@ -65,10 +59,10 @@ s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi) {
     if (side >= 2) {
         return 0;
     }
-    if (D_80077064[species][0] == 0) {
+    if (D_80077064[species].moveFlags == NULL) {
         return 0;
     } else {
-        entry = (u8*)D_80077064[species][0];
+        entry = D_80077064[species].moveFlags;
     }
     if (Audio_QueueSetMonoOutputCommand(D_800FD670[side])) {
         func_80037AC4(D_800FD670[side], 10);
@@ -115,22 +109,15 @@ s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi) {
         addr = D_800B417C[species + 3];
         size = D_800B4160[8] - addr;
     }
-    func_8004609C(addr, D_800B41F0, size);
-    func_80047FB0(D_800B41F0, D_800B41D0[D_800FD605], 0x200);
-    Block_RelocateSelf(D_800B41D0[D_800FD605]);
     return (D_800FD670[side] = func_8003834C(D_800B4198, D_800B41D0[D_800FD605], flags, 0x80, 0x80, 0, -1));
 }
 
-M2C_UNK func_8003834C(s32, s32, s32, M2C_UNK, s32, s32, s32); /* extern */
-extern s32 D_800B418C;
-extern s32 D_800B41A8;
 
 /**
  * Plays sound `id` from the system sound bank (D_800B418C) at default volume and pan.
  * @unverified: no callers found.
  */
 void Audio_PlaySystemBankSound(s32 id) {
-    func_8003834C(D_800B418C, D_800B41A8, id, 0x80, 0x80, 0, -1);
 }
 
 extern s32 D_800FD698[];
@@ -242,9 +229,6 @@ extern u8 D_8007754C;
 extern s32 D_800FD6A8[];
 extern u8 D_800FD6B6[];
 extern u8 D_80077540;
-extern s32 D_800B4188;
-extern s32 D_800B41A4;
-s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
 void func_800386E4(s32, s32);

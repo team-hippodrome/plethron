@@ -4,36 +4,24 @@
 #include "m2c_macros.h"
 #include "block_relocate.h"
 
-void func_80037F48(s32, s32);
-
 /**
  * Relocates a sound bank against its own address (Audio_RelocateSoundBankWrapper(bank, bank)).
  * @unverified: no callers found.
  */
-void Audio_RelocateSoundBankInPlace(s32 bank) {
-    func_80037F48(bank, bank);
+void Audio_RelocateSoundBankInPlace(SoundBank* bank) { // PORT: bank was s32
+    Audio_RelocateSoundBankWrapper(bank, (uintptr_t)bank);
 }
 
 /**
  * Relocates a loaded block in place: adds the block's own address to the word at +0x08, to the
  * table offset at +0x0C, and to each of the `count` words of that table, then sets bit 0 of the flags
  * word at +0x04 so it is not relocated twice. Used on sequence and audio data after loading.
- * `i` doubles as the offset temporary, which reproduces the retail register choice.
+ * PORT: 32-bit words cannot hold host addresses. On the host only the (big-endian) header is swapped to host
+ * order; `unk08`, `table` and the table's entries stay big-endian offsets from the block, read through the
+ * AUDIO_FX_* macros in libnumus/player.h.
  */
 void Block_RelocateSelf(RelocHeader8003A710* arg0) {
-    u32 n;
-    u32 i;
-    u32* p;
-
-    n = arg0->count;
-    i = arg0->unk08;
-    arg0->unk08 = (uintptr_t)arg0 + i;
-    i = arg0->table;
-    arg0->table = (uintptr_t)arg0 + i;
-    p = (u32*)arg0->table;
-    for (i = 0; i < n; i++) {
-        *p++ += (uintptr_t)arg0;
-    }
+    Port_SwapWords(arg0, 4);
     arg0->flags |= 1;
 }
 
@@ -41,10 +29,10 @@ void Block_RelocateSelf(RelocHeader8003A710* arg0) {
  * Relocates the sound bank that follows this header against the header's end, marks it relocated
  * (flags bit 0) and returns the bank data. @unverified: no callers found.
  */
-s32 Audio_RelocateSoundBankHeader(Unk8003A7AC* arg0) {
-    s32 end = arg0->size + (uintptr_t)arg0;
+u8* Audio_RelocateSoundBankHeader(Unk8003A7AC* arg0) { // PORT: returned s32
+    uintptr_t end = arg0->size + (uintptr_t)arg0;
 
-    func_80037F48((uintptr_t)arg0->data, end);
+    Audio_RelocateSoundBankWrapper((SoundBank*)arg0->data, end);
     arg0->flags |= 1;
-    return (uintptr_t)arg0->data;
+    return arg0->data;
 }
