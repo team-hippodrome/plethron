@@ -359,12 +359,25 @@ void Fragment_FreeCallback(uintptr_t base_addr, u32 addr) { // PORT: block addre
 // before the relocation table (which lies past sizeInRam) is released by the shrink below.
 int gPortRelocateDataBlob;
 
+// PORT: callers compute a fragment's slot id from a fragment symbol's address ((&D_8F900000 & 0x0FF00000) >> 20) -
+// 0x10, which is a host address here. Take it from the image instead: its entry `j target` is linked in its slot.
+static s32 Port_FragmentSlotOf(Fragment* f, s32 fallback) {
+    u32 insn = PORT_BE32(f->inst[0]);
+    u32 link = (((insn & 0x03FFFFFF) << 2) | 0x80000000) & 0xFFF00000;
+
+    if ((insn >> 26) == 2 && link >= 0x81000000 && link < 0x90000000) {
+        return ((link & 0x0FF00000) >> 0x14) - 0x10;
+    }
+    return fallback;
+}
+
 /** Registers a loaded fragment so it is freed with its block. */
 void Fragment_Register(s32 arg0, Fragment* addr) {
     UNUSED s32 pad; // FAKE: stack padding
     u32 sp20;
 
     Memmap_NormalizeFragmentHeader(addr); // PORT: the header words are big-endian
+    arg0 = Port_FragmentSlotOf(addr, arg0);
     sp20 = MainPool_GetBlockDist(addr);
 
     MainPool_SetFunc(addr, arg0 + 0x81000000, &Fragment_FreeCallback);
@@ -389,6 +402,7 @@ ret_func_80004454 Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end) {
     void* addr = Asset_LoadCompressed(rom_start, rom_end, 0, 0);
 
     if (addr != NULL) {
+        arg0 = Port_FragmentSlotOf((Fragment*)addr, arg0); // PORT
         Fragment_Register(arg0, (Fragment*)addr);
     }
 #ifdef PORT_STATIC_FRAGMENTS

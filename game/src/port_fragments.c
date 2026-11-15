@@ -82,3 +82,10 @@ void Port_FragmentLoaded(u32 slot, u8* romStart) {
         Port_FragmentResetData(e->entry);
     }
 }
+
+// A slot holding a data-only fragment (one with no statically linked code, e.g. fragment026's stage textures): its
+// link addresses are read from the loaded image, not from the lifted copy of its data.
+int Port_SlotIsDataBlob(u32 slot) {
+    unsigned rom = Port_SlotRom(slot);
+    return rom != 0 && Port_FindFragment((u8*)(uintptr_t)rom) == NULL;
+}

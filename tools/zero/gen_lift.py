@@ -172,6 +172,10 @@ class Gen:
     def pick_union(s, r):
         fs = r['fields']
         if not fs: return None
+        if r.get('name') == 'Color_RGBA8_u32':
+            # numeric 0xRRGGBBAA, the form the game code writes (color.h orders the bytes to match on the host)
+            for f in fs:
+                if f.get('name') == 'rgba': return f
         if any(f['t']['k'] in ('ptr', 'fnptr') for f in fs) and any(
                 f['t']['k'] == 's' and f['t']['size'] == 4 for f in fs):
             return 'maybeptr'

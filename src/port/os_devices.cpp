@@ -1554,6 +1554,7 @@ void Port::StopDevices() {
 extern "C" uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask);
 extern "C" uintptr_t Memmap_GetFragmentVaddr(void* addr);
 
+extern "C" void* Port_VResolve(uintptr_t addr);
 extern "C" void* Port_ResolveN64Address(uintptr_t addr) {
     uintptr_t r = addr;
     if ((addr >> 28) == 0) {
@@ -1561,7 +1562,8 @@ extern "C" void* Port_ResolveN64Address(uintptr_t addr) {
     } else if (addr >= 0x81000000 && addr < 0x90000000) {
         r = Memmap_GetFragmentVaddr((void*)addr);
     } else if (addr >= 0x30000000 && addr < 0x50000000) {
-        r = Memmap_GetFragmentVaddr((void*)addr); // pseudo address of a relocated data blob
+        void* v = Port_VResolve(addr); // pseudo address of a relocated data blob (model textures)
+        return v;
     }
     return (r == addr) ? nullptr : (void*)r; // unresolved (< 4 GB can never be a host pointer) // unresolvable segment address: let Fast3D skip it
 }

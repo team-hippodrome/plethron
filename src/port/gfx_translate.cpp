@@ -106,6 +106,7 @@ bool InRaw(const void* p) {
 // the address names a segment that is only known to the GPU at run time (e.g. 0x0E dynamic vertex buffers); the
 // caller then keeps the numeric value and Fast3D resolves it through its own segment table.
 const void* ResolveRaw0(uint32_t addr, bool* resolved);
+extern "C" int Port_SlotIsDataBlob(uint32_t slot);
 const void* ResolveRaw(uint32_t addr, bool* resolved) {
     const void* r = ResolveRaw0(addr, resolved);
     if (*resolved && (uintptr_t)r < 0x100000000ull) { // not a host pointer: treat as unresolved
@@ -130,6 +131,14 @@ const void* ResolveRaw0(uint32_t addr, bool* resolved) {
     if (void* v = Port_VResolve(addr)) {
         *resolved = true;
         return v;
+    }
+    if (addr >= 0x81000000 && addr < 0x90000000 && Port_SlotIsDataBlob(((addr & 0x0FF00000) >> 20) - 0x10)) {
+        // a loaded data-only fragment (stage textures): read the image, not the lifted copy of its bytes
+        uintptr_t r = Memmap_GetFragmentVaddr((void*)(uintptr_t)addr);
+        if (r != addr) {
+            *resolved = true;
+            return (const void*)r;
+        }
     }
     if (addr >= 0x80000000u) { // Stadium Zero: a link address in lifted data
         void* z = ZLift_Resolve(addr);

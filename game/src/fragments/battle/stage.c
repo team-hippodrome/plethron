@@ -130,9 +130,10 @@ extern u8 D_82198D28[];
  * @unverified Name from the header prototype; comment guessed from the code.
  */
 void Battle_SetStageTintColor(u8 r, u8 g, u8 b) {
-    D_82198D28[0] = r;
-    D_82198D28[1] = g;
-    D_82198D28[2] = b;
+    // PORT: D_82198D28 is sTintColor; write the named bytes (on the N64 bytes 0-2 of the word are r, g, b)
+    sTintColor.r = r;
+    sTintColor.g = g;
+    sTintColor.b = b;
 }
 
 // Called at the start of battles

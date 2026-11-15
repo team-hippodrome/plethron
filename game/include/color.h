@@ -28,7 +28,13 @@ typedef struct {
 // only use when necessary for alignment purposes
 typedef union Color_RGBA8_u32 {
     struct {
+#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        // PORT: the game writes .rgba as the number 0xRRGGBBAA and reads the bytes by name, which agree on the
+        // big-endian N64; on a little-endian host the named bytes are laid out in reverse to keep them agreeing.
+        u8 a, b, g, r;
+#else
         u8 r, g, b, a;
+#endif
     };
     u32 rgba;
 } Color_RGBA8_u32;

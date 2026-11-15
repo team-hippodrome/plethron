@@ -1167,8 +1167,7 @@ u32 Color_AdjustRGBA8(u32 arg0, arg1_func_80010CA8 arg1) {
     s32 a;
     s32 b;
 
-    arg.rgba = PORT_BE32(arg0); /* PORT: from stadion: .rgba holds the bytes r,g,b,a in memory order; the numeric
-                                   0xRRGGBBAA form needs a swap on this host */
+    arg.rgba = arg0; // numeric 0xRRGGBBAA (color.h keeps the named bytes in step on the host)
 
     if (arg.a > 0) {
         Color_RGBA8ToHSV(arg, &sp2C);
@@ -1200,5 +1199,5 @@ u32 Color_AdjustRGBA8(u32 arg0, arg1_func_80010CA8 arg1) {
         Color_HSVToRGBA8(&arg, &sp2C, arg.a);
     }
 
-    return PORT_BE32(arg.rgba);
+    return arg.rgba;
 }

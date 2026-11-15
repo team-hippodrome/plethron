@@ -611,9 +611,9 @@ extern arg1_func_81407874_014_000_010 D_80060534[];
  * Seen in play (2026-11-14): runs once per model root, from GeoRender_DrawModelLayers.
  */
 void GeoRender_InitLayerState(GeoLayerRenderState* state) {
-    bzero(state, 0x20);
-    M2C_FIELD(state, u8 *, 0x19) = 0xFF;
-    M2C_FIELD(state, u32 *, 4) = 0xFFFFFFFF;
+    bzero(state, sizeof(GeoLayerRenderState)); // PORT: was 0x20; the host struct is wider
+    state->primLodFraction = 0xFF;
+    state->primColor = 0xFFFFFFFF;
     gDPPipeSync(gDisplayListHead++);
     gDPSetCycleType(gDisplayListHead++, G_CYC_2CYCLE);
     gDPSetPrimColor(gDisplayListHead++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFFFF
@@ -665,7 +665,9 @@ void GeoRender_ResetMaterialState(GeoLayerRenderState* state) {
     state->lastMatrix = 0;
     state->unk_1A = 0;
     gDPPipeSync(gDisplayListHead++);
-    gDPSetPrimColor(gDisplayListHead++, 0, state->primLodFraction, color.c.r, color.c.g, color.c.b, color.c.a);
+    // PORT: numeric 0xRRGGBBAA, see GeoRender_ApplyEntryPrimColor
+    gDPSetPrimColor(gDisplayListHead++, 0, state->primLodFraction, (u32)color.word >> 24, (color.word >> 16) & 0xFF,
+                    (color.word >> 8) & 0xFF, color.word & 0xFF);
     gDPSetTextureLUT(gDisplayListHead++, G_TT_NONE);
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     GeoRender_SetCombineMode(gDisplayListHead++, &D_80060534[state->combineMode]);
@@ -717,7 +719,9 @@ void GeoRender_ApplyEntryPrimColor(GeoLayerRenderState* state, GeoLayerEntry* en
             gDPPipeSync(gDisplayListHead++);
         }
         color.word = entry->primColor;
-        gDPSetPrimColor(gDisplayListHead++, 0, entry->lodFraction, color.c.r, color.c.g, color.c.b, color.c.a);
+        // PORT: the word is the numeric 0xRRGGBBAA (the N64 read its bytes in big-endian memory order)
+        gDPSetPrimColor(gDisplayListHead++, 0, entry->lodFraction, (u32)color.word >> 24, (color.word >> 16) & 0xFF,
+                        (color.word >> 8) & 0xFF, color.word & 0xFF);
         state->primColor = entry->primColor;
         state->primLodFraction = entry->lodFraction;
     }
@@ -1233,8 +1237,9 @@ void Geo_NodeLight(GraphNode* arg0) {
     light = &D_80060490->lights->l[D_80060490->lightCount];
     ambient = &D_80060490->lights->a;
 
-    *(u32*)light->l.col = arg->color.rgba;
-    *(u32*)light->l.colc = arg->color.rgba;
+    // PORT: Light colors are bytes r, g, b in memory; .rgba is the number 0xRRGGBBAA (color.h)
+    *(u32*)light->l.col = PORT_BE32(arg->color.rgba);
+    *(u32*)light->l.colc = PORT_BE32(arg->color.rgba);
 
     light->l.dir[0] = (120.0f * COSS(arg->rotationX)) * SINS(arg->rotationY);
     light->l.dir[1] = (120.0f) * SINS(arg->rotationX);
@@ -1659,9 +1664,13 @@ void Geo_NodeMaterial(GeoMaterialNode *arg0)
   }
   if (D_8006049C != 0)
   {
-    (*((Color_RGBA8_u32 *) (&D_800AB450))).r = ((*((Color_RGBA8_u32 *) (&D_800AB450))).r * D_8006049C->textureTint.r) / 255;
-    (*((Color_RGBA8_u32 *) (&D_800AB450))).g = ((*((Color_RGBA8_u32 *) (&D_800AB450))).g * D_8006049C->textureTint.g) / 255;
-    (*((Color_RGBA8_u32 *) (&D_800AB450))).b = ((*((Color_RGBA8_u32 *) (&D_800AB450))).b * D_8006049C->textureTint.b) / 255;
+    // PORT: D_800AB450 is the numeric 0xRRGGBBAA; scale its r, g and b bytes (big-endian memory order on the N64)
+    u32 c = (u32)D_800AB450;
+    u32 t = D_8006049C->textureTint.rgba; // numeric 0xRRGGBBAA too (GeoNode_CreateModelPart, stage.c)
+    u32 r = (((c >> 24) & 0xFF) * ((t >> 24) & 0xFF)) / 255;
+    u32 g = (((c >> 16) & 0xFF) * ((t >> 16) & 0xFF)) / 255;
+    u32 b = (((c >> 8) & 0xFF) * ((t >> 8) & 0xFF)) / 255;
+    D_800AB450 = (s32)((r << 24) | (g << 16) | (b << 8) | (c & 0xFF));
   }
   switch (D_800AC6A8.active)
   {
