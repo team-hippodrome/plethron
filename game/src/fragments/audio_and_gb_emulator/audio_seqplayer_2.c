@@ -198,11 +198,9 @@ extern u8 D_81138690[];
 extern u32 D_811859CC;
 extern f32 D_81135F78[];
 extern f32 D_81136378[];
-s32 AudioHeap_SearchCaches(s32, s32, s32);
 void AudioHeap_LoadFilter(s16*, s32, s32);
 s32 AudioLoad_SlowLoadSample(s32, u8, s8*);
-void AudioPlayback_NotePoolFill(void*, s32);
-void func_81112B84(void*);
+void AudioPlayback_NotePoolFill(NotePool*, s32);
 s32 AudioSeq_SeqChannelSetLayer(void*, s32);
 void AudioSeq_SeqLayerProcessScript(void*);
 s32 AudioSeq_HandleScriptFlowControl(void*, void*, s32, s32);
@@ -258,7 +256,7 @@ void AudioSeq_SequenceChannelProcessScript(SequenceChannel* channel) {
                 result = AudioSeq_HandleScriptFlowControl(seq_player, script_state, command, parameters[0]);
                 if (result != 0) {
                     if (result == -1) {
-                        func_81112B84(channel);
+                        AudioSeq_SequenceChannelDisable(channel);
                     } else {
                         channel->delay = result;
                     }
@@ -421,7 +419,7 @@ void AudioSeq_SequenceChannelProcessScript(SequenceChannel* channel) {
                         break;
                     case 0xCD:
                         command = (u8)parameters[0];
-                        func_81112B84(seq_player->channels[command]);
+                        AudioSeq_SequenceChannelDisable(seq_player->channels[command]);
                         break;
                     case 0xCA:
                         command = (u8)parameters[0];
@@ -587,7 +585,7 @@ void AudioSeq_SequenceChannelProcessScript(SequenceChannel* channel) {
                     }
                     break;
                 case 0x90:
-                    AudioSeq_SeqLayerFree((s8**)channel, low_bits);
+                    AudioSeq_SeqLayerFree(channel, low_bits);
                     break;
                 case 0x98:
                     if (script_state->value != -1 && AudioSeq_SeqChannelSetLayer(channel, low_bits) != -1) {

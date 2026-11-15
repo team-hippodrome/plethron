@@ -4,7 +4,9 @@
  * OoT. See docs/annotation/audio-driver.md for the per-function mapping. */
 /* C ported from the Stadium 1 decomp: src/fragments/battle_engine/battle_engine_309ED0.c. */
 
+#include <string.h>
 #include "audio_and_gb_emulator.h"
+#include "zero_lift.h" // PORT: AudioLoad_PortClearContext
 
 #include "m2c_macros.h"
 
@@ -53,8 +55,6 @@ extern u8 D_81184655[];
 extern u8 D_81184656[];
 s32 AudioLoad_SearchCaches(s32, s32);
 AudioTable* AudioLoad_GetLoadTable(s32);
-s32 AudioHeap_AllocPermanent(s32, s32, s32);
-s32 AudioHeap_AllocCached(s32, s32, s32, s32);
 void AudioLoad_SetFontLoadStatus(s32, s32);
 void AudioLoad_SetSeqLoadStatus(s32, s32);
 void AudioLoad_SetSampleLoadStatus(s32, s32);
@@ -103,7 +103,7 @@ s32 AudioLoad_AsyncLoadInner(s32 table_type, s32 id, s32 n_chunks, s32 ret_data,
     ram_addr = AudioLoad_SearchCaches(table_type, id);
     if (ram_addr != 0) {
         load_status = 2;
-        osSendMesg(ret_queue, (OSMesg)(ret_data << 0x18), 0);
+        osSendMesg(ret_queue, OS_MESG_32(ret_data << 0x18), 0); // PORT: OS_MESG_32
     } else {
         table = (AudioTable*)AudioLoad_GetLoadTable(table_type);
         size = table->entries[id].size;
@@ -177,7 +177,6 @@ extern SoundFont* D_811858B0;
 
 extern volatile s32 D_811859D4;
 extern s32 D_811526FC;
-extern u64 D_81186270[];
 extern u64 D_81184100;
 extern u64 D_81186258;
 extern f32 D_811859B0;
@@ -202,8 +201,6 @@ extern s32 D_811858F4;
 extern s32 D_8118568C;
 extern s32 D_81152700;
 extern s32 D_81152704;
-extern u8 D_811842B0[];
-extern AudioPermanentCache D_81184440;
 extern volatile s8 D_81184657;
 extern s8 D_81184658;
 extern AudioTable* D_8118589C;
@@ -220,10 +217,29 @@ extern u8 D_0015A9B0[];
 extern u8 D_0015AA60[];
 void func_8111016C(void);
 void AudioHeap_InitMainPools(s32);
-void* func_81109868(void*, s32);
-void func_811098C0(void*, void*, s32);
 s32 AudioHeap_ResetStep(void);
-void AudioLoad_InitTable(AudioTable*, u8*, s32);
+void AudioLoad_InitTable(AudioTable*, u32, u16); // PORT: was (AudioTable*, u8*, s32); the definition takes the ROM address as u32
+
+// PORT: the audio context (0x81184100 up to and including D_81186258) is many separate lifted globals on the host, not
+// one block, so clear each symbol's host storage instead of the address range.
+// Other fragments load at the same addresses, so only this fragment's image (the one D_81184100 belongs to) is cleared.
+static void AudioLoad_PortClearContext(void) {
+    u32 i;
+    s32 image = -1;
+
+    for (i = 0; i < gZLiftSymCount; i++) {
+        if (gZLiftSyms[i].host == (void*)&D_81184100) {
+            image = gZLiftSyms[i].image;
+        }
+    }
+    for (i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* sym = &gZLiftSyms[i];
+
+        if (sym->image == image && sym->addr >= 0x81184100 && sym->addr < 0x81186260 && sym->host != NULL) {
+            memset(sym->host, 0, (size_t)gZLiftTypes[sym->type].hostSize * sym->count);
+        }
+    }
+}
 
 /**
  * Initializes the audio system: clears the heap and the audio globals, sets up
@@ -248,14 +264,9 @@ void AudioLoad_Init(void) {
 
     D_811859D4 = 0;
 
-    for (i = 0; i < D_811526FC / 8; i++) {
-        D_81186270[i] = 0;
-    }
-
-    ptr = &D_81184100;
-    for (count = ((uintptr_t)&D_81186258 - (uintptr_t)&D_81184100) / 8; count >= 0; count--) {
-        *ptr++ = 0;
-    }
+    // PORT: was a u64 loop over D_81186270 (the heap) and one over D_81184100..D_81186258
+    memset(AudioHeap_PortHeap(), 0, 2 * D_811526FC);
+    AudioLoad_PortClearContext();
 
     D_811859B0 = 16.713f;
     D_811859B4 = 60;
@@ -282,7 +293,7 @@ void AudioLoad_Init(void) {
     AudioHeap_InitMainPools(D_81152700);
 
     for (i = 0; i < 3; i++) {
-        buf = D_811859B8[i] = func_81109868(D_811842B0, 0xFC0);
+        buf = D_811859B8[i] = AudioHeap_Alloc(&D_811842B0, 0xFC0);
         for (j = 0; j < 2016; j++) {
             *buf++ = 0;
         }
@@ -298,12 +309,12 @@ void AudioLoad_Init(void) {
     D_811858A8 = D_81152710;
     D_811858AC = D_8118589C->numEntries;
 
-    AudioLoad_InitTable(D_8118589C, D_0015AE60, 0);
-    AudioLoad_InitTable(D_811858A0, D_0015A9B0, 0);
-    AudioLoad_InitTable((AudioTable*)D_811858A4, D_0015AA60, 0);
+    AudioLoad_InitTable(D_8118589C, (u32)(uintptr_t)D_0015AE60, 0); // PORT: ROM addresses as u32
+    AudioLoad_InitTable(D_811858A0, (u32)(uintptr_t)D_0015A9B0, 0);
+    AudioLoad_InitTable((AudioTable*)D_811858A4, (u32)(uintptr_t)D_0015AA60, 0);
 
     num_fonts = D_811858A0->numEntries;
-    D_811858B0 = func_81109868(D_811842B0, num_fonts * sizeof(SoundFont));
+    D_811858B0 = AudioHeap_Alloc(&D_811842B0, num_fonts * sizeof(SoundFont));
     for (i = 0; i < num_fonts; i++) {
         D_811858B0[i].sampleBankId1 = D_811858A0->entries[i].shortData1 >> 8 & 0xFF;
         D_811858B0[i].sampleBankId2 = D_811858A0->entries[i].shortData1 & 0xFF;
@@ -311,11 +322,11 @@ void AudioLoad_Init(void) {
         D_811858B0[i].numDrums = D_811858A0->entries[i].shortData2 & 0xFF;
     }
 
-    ram_addr = func_81109868(D_811842B0, D_81152704);
+    ram_addr = AudioHeap_Alloc(&D_811842B0, D_81152704);
     if (ram_addr == NULL) {
         D_81152704 = 0;
     }
-    func_811098C0(&D_81184440, ram_addr, D_81152704);
+    AudioHeap_InitPool(&D_81184440.pool, ram_addr, D_81152704);
 }
 
 typedef struct SlowLoads8110E500 {
@@ -324,7 +335,6 @@ typedef struct SlowLoads8110E500 {
 } SlowLoads8110E500;
 
 extern SlowLoads8110E500 D_81180610;
-s32 AudioHeap_AllocTemporarySampleCache(s32, s32, s32, s8);
 s32 AudioLoad_GetFontSample(s32 arg0, s32 arg1);
 
 /**
@@ -799,7 +809,6 @@ void AudioLoad_RelocateFont(s32, s32, RelocInfo8110EF7C*);
 void AudioLoad_SyncDmaUnkMedium(s32, s32, u32, s16);
 void AudioLoad_SyncDma(s32, s32, u32, s32);
 
-s32 AudioHeap_AllocPersistentSampleCache(s32, s32, s32, s8);
 
 
 /**
@@ -907,16 +916,18 @@ s32 AudioLoad_ProcessSamplePreloads(s32 arg0) {
     u32 key;
     u32 n_chunks;
     s32 pad; // FAKE: stack padding
+    OSMesg msg; // PORT: osRecvMesg stores a host-sized OSMesg
 
     if (D_8118557C > 0) {
         if (arg0 != 0) {
-            osRecvMesg(&D_811855F8, &preload_index, 0);
+            osRecvMesg(&D_811855F8, &msg, 0);
             D_8118557C = 0;
             return 0;
         }
-        if (osRecvMesg(&D_811855F8, &preload_index, 0) == -1) {
+        if (osRecvMesg(&D_811855F8, &msg, 0) == -1) {
             return 0;
         }
+        preload_index = (u32)(uintptr_t)msg; // PORT: the message is a 32-bit value
 
         preload_index >>= 24;
         if (D_81184B78[preload_index].isFree == 0) {
@@ -1162,7 +1173,6 @@ void AudioLoad_PreloadSamplesForFont(s32 font_id, s32 async, RelocInfo8110EF7C* 
     }
 }
 
-extern s32 D_8118444C;
 s32 AudioLoad_GetRealTableIndex(s32, s32);
 void AudioLoad_PreloadSamplesForFont(s32, s32, RelocInfo8110EF7C*);
 /**
@@ -1178,7 +1188,7 @@ void AudioLoad_LoadPermanentSamples(void) {
     s32 buf[8];
     s32 id;
 
-    for (i = 0; i < D_8118444C; i++) {
+    for (i = 0; i < D_81184440.pool.numEntries; i++) { // PORT: was D_8118444C, the pool's entry count
         if (D_81184440.entries[i].tableType == 1) {
             id = AudioLoad_GetRealTableIndex(1, D_81184440.entries[i].id);
             buf[0] = D_811858B0[id].sampleBankId1;
@@ -1188,7 +1198,7 @@ void AudioLoad_LoadPermanentSamples(void) {
             buf[4] = base->entries[buf[0]].medium;
             idx = buf[1];
             buf[5] = base->entries[idx].medium;
-            AudioLoad_PreloadSamplesForFont(id, 0, buf);
+            AudioLoad_PreloadSamplesForFont(id, 0, (RelocInfo8110EF7C*)buf); // PORT: cast (all s32 fields)
         }
     }
 }

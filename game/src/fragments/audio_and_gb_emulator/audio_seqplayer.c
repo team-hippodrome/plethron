@@ -5,20 +5,17 @@
 #include "audio_and_gb_emulator.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-extern SequencePlayer D_81184668[];
 extern AudioBufferParameters D_811858B8;
 extern volatile u32 D_811859D4;
-void AudioPlayback_NotePoolClear(s8*);
+void AudioPlayback_NotePoolClear(NotePool*);
 void AudioPlayback_SeqLayerNoteDecay(SequenceLayer*);
-void AudioSeq_AudioListPushBack(s8 *arg0, s8 *arg1);
 
 extern u8 D_81138690[];
-void AudioSeq_SequencePlayerDisableChannels(u8*, s32);
+void AudioSeq_SequencePlayerDisableChannels(SequencePlayer*, s32);
 s32 AudioLoad_IsFontLoadComplete(s32);
 s32 AudioLoad_IsSeqLoadComplete(s32);
 void AudioLoad_SetFontLoadStatus(s32, s32);
 void AudioLoad_SetSeqLoadStatus(s32, s32);
-extern M2C_UNK D_81184380;
 u8* AudioPlayback_GetInstrumentInner(s32, s32);
 extern u16 D_81138A96;
 extern u32 D_81138A90;
@@ -54,11 +51,8 @@ extern u8 D_81138B40[0x10];
 extern u32 D_81138B50[9];
 extern s32 D_81138B80;
 extern GbAudioStream D_81138B84;
-extern struct AudioListItem D_81184928;
-extern AudioListItem D_81184928;
 extern SequenceLayer D_811847C8[1];
 extern s16 D_811858CC;
-extern SequencePlayer D_81184668[];
 
 /**
  * Reads the argument of a control-flow command of kind `kind` from the script stream.
@@ -166,7 +160,6 @@ s32 AudioSeq_HandleScriptFlowControl(SequencePlayer* seq_player, SeqScriptState8
 
 extern SequenceChannel D_81184850;
 
-void AudioPlayback_InitNoteLists(void*);
 extern u8 D_81136998[];
 /**
  * Resets a sequence channel to its defaults.
@@ -227,8 +220,6 @@ void AudioSeq_InitSequenceChannel(void* obj) {
     }
 }
 
-extern struct AudioListItem D_81184928;
-s32 AudioSeq_AudioListPopBack(AudioListItem* list);
 void AudioPlayback_SeqLayerNoteDecay();
 /**
  * Gives channel `arg0` a layer in slot `arg1`, taking one from the free list when needed.
@@ -241,7 +232,7 @@ s32 AudioSeq_SeqChannelSetLayer(SequenceChannel* arg0, s32 arg1) {
     SequenceLayer* p;
     s32 pad; // FAKE: stack padding
     if (arg0->layers[arg1] == NULL) {
-        arg0->layers[arg1] = (SequenceLayer*)AudioSeq_AudioListPopBack((s8*)&D_81184928);
+        arg0->layers[arg1] = (SequenceLayer*)AudioSeq_AudioListPopBack(&D_81184928);
         if (arg0->layers[arg1] == NULL) {
             arg0->layers[arg1] = NULL;
             return -1;
@@ -301,13 +292,13 @@ void AudioSeq_SeqLayerDisable(SequenceLayer* arg0) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioSeq_SequenceChannelDisable.
  */
-void AudioSeq_SeqLayerFree(s8** arg0, s32 arg1) {
-    s8* temp = arg0[arg1 + 0x14];
+void AudioSeq_SeqLayerFree(SequenceChannel* arg0, s32 arg1) { // PORT: typed (was s8** indexed by N64 word offset 0x14)
+    SequenceLayer* temp = arg0->layers[arg1];
 
     if (temp != NULL) {
-        AudioSeq_AudioListPushBack((s8*)&D_81184928, temp + 0x74);
-        AudioSeq_SeqLayerDisable((SequenceLayer*)temp);
-        arg0[arg1 + 0x14] = NULL;
+        AudioSeq_AudioListPushBack(&D_81184928, &temp->listItem);
+        AudioSeq_SeqLayerDisable(temp);
+        arg0->layers[arg1] = NULL;
     }
 }
 
@@ -318,15 +309,15 @@ void AudioSeq_SeqLayerFree(s8** arg0, s32 arg1) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioSeq_SequencePlayerDisableChannels.
  */
-void AudioSeq_SequenceChannelDisable(DisplayObject* arg0) {
+void AudioSeq_SequenceChannelDisable(SequenceChannel* arg0) { // PORT: typed (was DisplayObject* with N64 offsets)
     s32 i;
 
     for (i = 0; i < 4; i++) {
         AudioSeq_SeqLayerFree(arg0, i);
     }
-    AudioPlayback_NotePoolClear((s8*)arg0 + 0x84);
-    ((SequenceChannel*)arg0)->enabled = 0;
-    ((SequenceChannel*)arg0)->finished = 1;
+    AudioPlayback_NotePoolClear(&arg0->notePool);
+    arg0->enabled = 0;
+    arg0->finished = 1;
 }
 
 /**
@@ -351,7 +342,6 @@ void AudioSeq_SequencePlayerSetupChannels(SequencePlayer* seq_player, u16 mask) 
     }
 }
 
-void func_81112B84(SequenceChannel*);
 
 /**
  * Disables each channel selected in `channel_bits`.
@@ -361,14 +351,14 @@ void func_81112B84(SequenceChannel*);
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioSeq_SequencePlayerDisable.
  */
-void AudioSeq_SequencePlayerDisableChannels(u8* seq_player, s32 channel_bits) {
+void AudioSeq_SequencePlayerDisableChannels(SequencePlayer* seq_player, s32 channel_bits) { // PORT: typed (was u8* with N64 offsets)
     SequenceChannel* channel;
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        channel = M2C_FIELD(seq_player, SequenceChannel**, 0x34 + i * 4);
+        channel = seq_player->channels[i];
         if (((uintptr_t)channel != (uintptr_t)&D_81184850) == 1) {
-            func_81112B84(channel);
+            AudioSeq_SequenceChannelDisable(channel);
         }
     }
 }
@@ -391,7 +381,7 @@ void AudioSeq_SequenceChannelEnable(SequencePlayer* seq_player, u8 channel_index
     p->delay = 0;
     for (i = 0; i < 4; i++) {
         if (p->layers[i] != NULL) {
-            AudioSeq_SeqLayerFree((s8**)p, i);
+            AudioSeq_SeqLayerFree(p, i);
         }
     }
 }
@@ -405,21 +395,21 @@ void AudioSeq_SequenceChannelEnable(SequencePlayer* seq_player, u8 channel_index
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioSeq_ResetSequencePlayer.
  */
-void AudioSeq_SequencePlayerDisable(u8* arg0) {
+void AudioSeq_SequencePlayerDisable(SequencePlayer* arg0) { // PORT: typed (was u8* with N64 offsets)
     AudioSeq_SequencePlayerDisableChannels(arg0, 0xFFFF);
-    AudioPlayback_NotePoolClear((s8*)arg0 + 0x98);
-    ((SequencePlayer*)arg0)->finished = 1;
-    ((SequencePlayer*)arg0)->enabled = 0;
-    if (AudioLoad_IsSeqLoadComplete(arg0[4]) != 0) {
-        AudioLoad_SetSeqLoadStatus(arg0[4], 3);
+    AudioPlayback_NotePoolClear(&arg0->notePool);
+    arg0->finished = 1;
+    arg0->enabled = 0;
+    if (AudioLoad_IsSeqLoadComplete(arg0->seqId) != 0) {
+        AudioLoad_SetSeqLoadStatus(arg0->seqId, 3);
     }
-    if (AudioLoad_IsFontLoadComplete(arg0[5]) != 0) {
-        AudioLoad_SetFontLoadStatus(arg0[5], 4);
+    if (AudioLoad_IsFontLoadComplete(arg0->defaultFont) != 0) {
+        AudioLoad_SetFontLoadStatus(arg0->defaultFont, 4);
     }
-    if (arg0[5] == M2C_FIELD(&D_81184380, s16*, 0x3E)) {
-        M2C_FIELD(&D_81184380, s32*, 0x20) = 1;
-    } else if (arg0[5] == M2C_FIELD(&D_81184380, s16*, 0x4A)) {
-        M2C_FIELD(&D_81184380, s32*, 0x20) = 0;
+    if (arg0->defaultFont == D_81184380.temporary.entries[0].id) {
+        D_81184380.temporary.nextSide = 1;
+    } else if (arg0->defaultFont == D_81184380.temporary.entries[1].id) {
+        D_81184380.temporary.nextSide = 0;
     }
 }
 
@@ -431,17 +421,15 @@ void AudioSeq_SequencePlayerDisable(u8* arg0) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioPlayback_InitNoteFreeList.
  */
-void AudioSeq_AudioListPushBack(s8 *arg0, s8 *arg1)
-{
-  if ((*((s8 **) (((s8 *) arg1) + 0))) == 0) // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  {
-    *((s8 **) (((s8 *) (*((s8 **) (((s8 *) arg0) + 0)))) + 4)) = arg1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    *((s8 **) (((s8 *) arg1) + 0)) = (s8 *) (*((s8 **) (((s8 *) arg0) + 0))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    *((s8 **) (((s8 *) arg1) + 4)) = arg0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    *((s8 **) (((s8 *) arg0) + 0)) = arg1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    *((s32 *) (((s8 *) arg0) + 8)) = ((s32) ((*((s32 *) (((s8 *) arg0) + 8))) + 1)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-    *((s32 *) (((s8 *) arg1) + 0xC)) = (s32) (*((s32 *) (((s8 *) arg0) + 0xC))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  }
+void AudioSeq_AudioListPushBack(AudioListItem* arg0, AudioListItem* arg1) { // PORT: typed (was s8* with N64 offsets)
+    if (arg1->prev == NULL) {
+        arg0->prev->next = arg1;
+        arg1->prev = arg0->prev;
+        arg1->next = arg0;
+        arg0->prev = arg1;
+        arg0->u.count++;
+        arg1->pool = arg0->pool;
+    }
 }
 
 /**
@@ -451,18 +439,18 @@ void AudioSeq_AudioListPushBack(s8 *arg0, s8 *arg1)
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioSeq_AudioListPopBack(AudioListItem* list) {
+void* AudioSeq_AudioListPopBack(AudioListItem* list) { // PORT: returns the value as a pointer (was s32)
     AudioListItem* item;
 
     item = list->prev;
     if (item == list) {
-        return 0;
+        return NULL;
     }
     item->prev->next = list;
     list->prev = item->prev;
     item->prev = NULL;
     list->u.count = (s32)(list->u.count - 1);
-    return (uintptr_t)item->u.value;
+    return item->u.value;
 }
 
 /**
@@ -483,7 +471,7 @@ void AudioSeq_InitLayerFreelist(void) {
     for (i = 0; i < 1; i++) {
         D_811847C8[i].listItem.u.value = &D_811847C8[i];
         D_811847C8[i].listItem.prev = NULL;
-        AudioSeq_AudioListPushBack((s8*)&D_81184928, (s8*)&D_811847C8[i].listItem);
+        AudioSeq_AudioListPushBack(&D_81184928, &D_811847C8[i].listItem);
     }
 }
 
@@ -603,7 +591,7 @@ void AudioSeq_SeqLayerProcessScriptStep1(SequenceLayer* arg0) {
     arg0->notePropertiesNeedInit = 1;
 }
 
-s8* AudioPlayback_AllocNote(s8*);
+Note* AudioPlayback_AllocNote(SequenceLayer*);
 void AudioEffects_InitVibrato(void*);
 
 /* SequenceLayer and Sample as AudioSeq_SeqLayerProcessScriptStep5 reads them. The layouts are the same as
@@ -661,7 +649,7 @@ s32 AudioSeq_SeqLayerProcessScriptStep5(SequenceLayerFlagsU32* layer, u32 same_s
         if (same_sound == 0) {
             AudioPlayback_SeqLayerNoteDecay((SequenceLayer*)layer);
         }
-        layer->note = (Note*)AudioPlayback_AllocNote((s8*)layer);
+        layer->note = AudioPlayback_AllocNote(layer);
     }
     if (layer->note != NULL && layer->note->playbackState.parentLayer == (SequenceLayer*)layer) {
         note = layer->note;

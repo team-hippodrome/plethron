@@ -216,11 +216,8 @@ extern s32 D_811858E8;
 extern f32 D_811858D0;
 extern f32 D_811858D4;
 void AudioPlayback_SeqLayerNoteRelease(Particle* arg0);
-void AudioPlayback_AudioListRemove(s8*);
-void AudioPlayback_AudioListPushFront(M2C_UNK* arg0, M2C_UNK* arg1);
-s32 AudioSeq_AudioListPushBack(s8*, struct Note*);
-void AudioPlayback_NoteInitForLayer(s8* arg0, s8* arg1);
-void func_81112B84(SequenceChannel*);
+void AudioPlayback_AudioListPushFront(AudioListItem* arg0, AudioListItem* arg1);
+void AudioPlayback_NoteInitForLayer(Note* arg0, SequenceLayer* arg1);
 void AudioEffects_InitVibrato(Note*);
 f32 AudioEffects_UpdateAdsr(u8*);
 void AudioEffects_UpdatePortamentoAndVibrato(Note*);
@@ -268,7 +265,7 @@ void AudioPlayback_ProcessNotes(void)
       else
         if (playback_state->parentLayer->channel->seqPlayer == 0)
       {
-        func_81112B84(playback_state->parentLayer->channel);
+        AudioSeq_SequenceChannelDisable(playback_state->parentLayer->channel);
         playback_state->priority = 1;
         playback_state->unk_04 = 1;
         continue;
@@ -282,8 +279,8 @@ void AudioPlayback_ProcessNotes(void)
         goto d;
       }
       AudioPlayback_SeqLayerNoteRelease((Particle *) playback_state->parentLayer);
-      AudioPlayback_AudioListRemove((s8 *) note);
-      AudioPlayback_AudioListPushFront((M2C_UNK*)&note->listItem.pool->decaying, (M2C_UNK *) note);
+      AudioPlayback_AudioListRemove(&note->listItem);
+      AudioPlayback_AudioListPushFront(&note->listItem.pool->decaying, &note->listItem);
       playback_state->priority = 1;
       playback_state->unk_04 = 2;
     }
@@ -308,16 +305,16 @@ void AudioPlayback_ProcessNotes(void)
             AudioPlayback_NoteDisable((Note *) note);
             if (playback_state->wantedParentLayer->channel != 0)
             {
-              AudioPlayback_NoteInitForLayer((s8 *) note, (s8 *) playback_state->wantedParentLayer);
+              AudioPlayback_NoteInitForLayer(note, playback_state->wantedParentLayer);
               AudioEffects_InitVibrato(note);
-              AudioPlayback_AudioListRemove((s8 *) note);
-              AudioSeq_AudioListPushBack(&note->listItem.pool->active, (struct Note *) note);
+              AudioPlayback_AudioListRemove(&note->listItem);
+              AudioSeq_AudioListPushBack(&note->listItem.pool->active, &note->listItem);
               playback_state->wantedParentLayer = (SequenceLayer *) (-1);
               goto process;
             }
             AudioPlayback_NoteDisable((Note *) note);
-            AudioPlayback_AudioListRemove((s8 *) note);
-            AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, (struct Note *) note);
+            AudioPlayback_AudioListRemove(&note->listItem);
+            AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, &note->listItem);
             playback_state->wantedParentLayer = (SequenceLayer *) (-1);
           }
           else
@@ -327,8 +324,8 @@ void AudioPlayback_ProcessNotes(void)
               playback_state->parentLayer->bit1 = 1;
             }
             AudioPlayback_NoteDisable((Note *) note);
-            AudioPlayback_AudioListRemove((s8 *) note);
-            AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, (struct Note *) note);
+            AudioPlayback_AudioListRemove(&note->listItem);
+            AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, &note->listItem);
           }
         }
         else
@@ -344,8 +341,8 @@ void AudioPlayback_ProcessNotes(void)
           playback_state->parentLayer->bit1 = 1;
         }
         AudioPlayback_NoteDisable((Note *) note);
-        AudioPlayback_AudioListRemove((s8 *) note);
-        AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, (struct Note *) note);
+        AudioPlayback_AudioListRemove(&note->listItem);
+        AudioSeq_AudioListPushBack(&note->listItem.pool->disabled, &note->listItem);
       }
       else
       {
@@ -483,8 +480,7 @@ u8* AudioPlayback_GetDrum(s32 arg0, s32 arg1) {
 
 extern f32 D_811858D4;
 extern f32 D_811858D8;
-void AudioPlayback_AudioListRemove(s8*);
-void AudioPlayback_AudioListPushFront(M2C_UNK* arg0, M2C_UNK* arg1);
+void AudioPlayback_AudioListPushFront(AudioListItem* arg0, AudioListItem* arg1);
 
 /**
  * Starts the decay (6) or release (7) of the note a sequence layer is playing.
@@ -559,8 +555,8 @@ void AudioPlayback_SeqLayerDecayRelease(SequenceLayer* layer, s32 target) {
     }
 
     if (target == 6) {
-        AudioPlayback_AudioListRemove((s8*)note);
-        AudioPlayback_AudioListPushFront((M2C_UNK*)&note->listItem.pool->decaying, (M2C_UNK*)note);
+        AudioPlayback_AudioListRemove(&note->listItem);
+        AudioPlayback_AudioListPushFront(&note->listItem.pool->decaying, &note->listItem);
     }
 }
 
@@ -594,10 +590,10 @@ void AudioPlayback_SeqLayerNoteRelease(Particle* arg0) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioPlayback_InitNoteLists.
  */
-void AudioPlayback_InitNoteList(s8 *arg0) {
-    M2C_FIELD(arg0, s8 **, 0) = arg0;
-    M2C_FIELD(arg0, s8 **, 4) = arg0;
-    M2C_FIELD(arg0, s32 *, 8) = 0;
+void AudioPlayback_InitNoteList(AudioListItem* arg0) { // PORT: typed (was s8* with N64 offsets)
+    arg0->prev = arg0;
+    arg0->next = arg0;
+    arg0->u.count = 0;
 }
 
 /**
@@ -610,20 +606,18 @@ void AudioPlayback_InitNoteList(s8 *arg0) {
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioPlayback_InitNoteFreeList.
  */
-void AudioPlayback_InitNoteLists(s8 *arg0) {
-    AudioPlayback_InitNoteList(arg0);
-    AudioPlayback_InitNoteList(arg0 + 0x10);
-    AudioPlayback_InitNoteList(arg0 + 0x20);
-    AudioPlayback_InitNoteList(arg0 + 0x30);
-    M2C_FIELD(arg0, s8 **, 0xC) = arg0;
-    M2C_FIELD(arg0, s8 **, 0x1C) = arg0;
-    M2C_FIELD(arg0, s8 **, 0x2C) = arg0;
-    M2C_FIELD(arg0, s8 **, 0x3C) = arg0;
+void AudioPlayback_InitNoteLists(NotePool* arg0) { // PORT: typed (was s8* with N64 offsets)
+    AudioPlayback_InitNoteList(&arg0->disabled);
+    AudioPlayback_InitNoteList(&arg0->decaying);
+    AudioPlayback_InitNoteList(&arg0->releasing);
+    AudioPlayback_InitNoteList(&arg0->active);
+    arg0->disabled.pool = arg0;
+    arg0->decaying.pool = arg0;
+    arg0->releasing.pool = arg0;
+    arg0->active.pool = arg0;
 }
 
-s32 AudioSeq_AudioListPushBack(s8*, Note*);
 extern Note* D_81184664;
-extern s8 D_81184938;
 extern s32 D_811858E8;
 
 /**
@@ -643,14 +637,10 @@ void AudioPlayback_InitNoteFreeList(void) {
     for (i = 0; i < D_811858E8; i++) {
         D_81184664[i].listItem.u.value = &D_81184664[i];
         D_81184664[i].listItem.prev = 0;
-        AudioSeq_AudioListPushBack(&D_81184938, &D_81184664[i]);
+        AudioSeq_AudioListPushBack(&D_81184938.disabled, &D_81184664[i].listItem);
     }
 }
 
-extern s8 D_81184948;
-extern s8 D_81184958;
-extern s8 D_81184968;
-void AudioPlayback_AudioListRemove(s8*);
 
 /**
  * Moves every note in the four lists of a note pool back to the matching
@@ -666,28 +656,28 @@ void AudioPlayback_NotePoolClear(NotePool* pool) {
     s32 i;
     AudioListItem* source;
     AudioListItem* cur;
-    s8* dest;
+    AudioListItem* dest; // PORT: typed (was s8*; D_81184948..D_81184968 are the lists of D_81184938)
 
     for (i = 0; i < 4; i++) {
         switch (i) {
             case 0:
                 source = &pool->disabled;
-                dest = &D_81184938;
+                dest = &D_81184938.disabled;
                 break;
 
             case 1:
                 source = &pool->decaying;
-                dest = &D_81184948;
+                dest = &D_81184938.decaying;
                 break;
 
             case 2:
                 source = &pool->releasing;
-                dest = &D_81184958;
+                dest = &D_81184938.releasing;
                 break;
 
             case 3:
                 source = &pool->active;
-                dest = &D_81184968;
+                dest = &D_81184938.active;
                 break;
         }
 
@@ -699,13 +689,12 @@ void AudioPlayback_NotePoolClear(NotePool* pool) {
             if (cur == NULL) {
                 break;
             }
-            AudioPlayback_AudioListRemove((s8*)cur);
-            AudioSeq_AudioListPushBack(dest, (Note*)cur);
+            AudioPlayback_AudioListRemove(cur);
+            AudioSeq_AudioListPushBack(dest, cur);
         }
     }
 }
 
-s32 AudioSeq_AudioListPopBack(AudioListItem* list);
 /**
  * Takes `arg1` notes from the global free lists into a pool.
  * Corresponds to OoT Audio_NotePoolFill (original name Nas_AllocVoices).
@@ -713,43 +702,43 @@ s32 AudioSeq_AudioListPopBack(AudioListItem* list);
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_NotePoolFill(s8* arg0, s32 arg1) {
+void AudioPlayback_NotePoolFill(NotePool* arg0, s32 arg1) { // PORT: typed (was s8* with N64 offsets)
     s32 pad[3]; // FAKE: stack padding; places src/dst at sp+0x48/0x44 and the frame at 0x58 as in the ROM
-    s8* src;
-    s8* dst;
+    AudioListItem* src;
+    AudioListItem* dst;
     s32 n;
     s32 pass;
-    s32 r;
+    Note* r;
 
-    AudioPlayback_NotePoolClear((NotePool*)arg0);
+    AudioPlayback_NotePoolClear(arg0);
     for (pass = 0, n = 0; n < arg1; pass++) {
         if (pass == 4) {
             return;
         }
         switch (pass) {
             case 0:
-                src = &D_81184938;
-                dst = arg0;
+                src = &D_81184938.disabled;
+                dst = &arg0->disabled;
                 break;
             case 1:
-                src = &D_81184948;
-                dst = arg0 + 0x10;
+                src = &D_81184938.decaying;
+                dst = &arg0->decaying;
                 break;
             case 2:
-                src = &D_81184958;
-                dst = arg0 + 0x20;
+                src = &D_81184938.releasing;
+                dst = &arg0->releasing;
                 break;
             case 3:
-                src = &D_81184968;
-                dst = arg0 + 0x30;
+                src = &D_81184938.active;
+                dst = &arg0->active;
                 break;
         }
         while (n < arg1) {
-            r = AudioSeq_AudioListPopBack(src);
-            if (r == 0) {
+            r = (Note*)AudioSeq_AudioListPopBack(src);
+            if (r == NULL) {
                 break;
             }
-            AudioSeq_AudioListPushBack(dst, (Note*)r);
+            AudioSeq_AudioListPushBack(dst, &r->listItem);
             n++;
         }
     }
@@ -762,14 +751,14 @@ void AudioPlayback_NotePoolFill(s8* arg0, s32 arg1) {
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_AudioListPushFront(M2C_UNK *arg0, M2C_UNK *arg1) {
-    if (M2C_FIELD(arg1, M2C_UNK **, 0) == NULL) {
-        M2C_FIELD(arg1, M2C_UNK **, 0) = arg0;
-        M2C_FIELD(arg1, M2C_UNK **, 4) = (M2C_UNK *) M2C_FIELD(arg0, M2C_UNK **, 4);
-        *M2C_FIELD(arg0, M2C_UNK **, 4) = arg1;
-        M2C_FIELD(arg0, M2C_UNK **, 4) = arg1;
-        M2C_FIELD(arg0, s32 *, 8) = (s32) (M2C_FIELD(arg0, s32 *, 8) + 1);
-        M2C_FIELD(arg1, s32 *, 0xC) = (s32) M2C_FIELD(arg0, s32 *, 0xC);
+void AudioPlayback_AudioListPushFront(AudioListItem* arg0, AudioListItem* arg1) { // PORT: typed (was N64 offsets)
+    if (arg1->prev == NULL) {
+        arg1->prev = arg0;
+        arg1->next = arg0->next;
+        arg0->next->prev = arg1;
+        arg0->next = arg1;
+        arg0->u.count++;
+        arg1->pool = arg0->pool;
     }
 }
 
@@ -780,14 +769,11 @@ void AudioPlayback_AudioListPushFront(M2C_UNK *arg0, M2C_UNK *arg1) {
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_AudioListRemove(s8 *arg0) {
-    s8 *temp_v0;
-
-    temp_v0 = M2C_FIELD(arg0, s8 **, 0);
-    if (temp_v0 != NULL) {
-        M2C_FIELD(temp_v0, s8 ***, 4) = (s8 **) M2C_FIELD(arg0, s8 ***, 4);
-        *M2C_FIELD(arg0, s8 ***, 4) = M2C_FIELD(arg0, s8 **, 0);
-        M2C_FIELD(arg0, s8 **, 0) = NULL;
+void AudioPlayback_AudioListRemove(AudioListItem* arg0) { // PORT: typed (was s8* with N64 offsets)
+    if (arg0->prev != NULL) {
+        arg0->prev->next = arg0->next;
+        arg0->next->prev = arg0->prev;
+        arg0->prev = NULL;
     }
 }
 
@@ -798,29 +784,29 @@ void AudioPlayback_AudioListRemove(s8 *arg0) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s8 *AudioPlayback_FindNodeWithPrioLessThan(s8 *arg0, s32 arg1) {
-    s8 *temp_a0;
-    s8 *var_v0;
-    s8 *var_v1;
+Note* AudioPlayback_FindNodeWithPrioLessThan(AudioListItem* arg0, s32 arg1) { // PORT: typed (was s8* with N64 offsets)
+    Note* temp_a0;
+    AudioListItem* var_v0;
+    AudioListItem* var_v1;
 
-    var_v0 = M2C_FIELD(arg0, s8 **, 4);
+    var_v0 = arg0->next;
     if (var_v0 == arg0) {
         return NULL;
     }
     var_v1 = var_v0;
     if (var_v0 != arg0) {
         do {
-            if ((s32) M2C_FIELD(M2C_FIELD(var_v1, s8 **, 8), u8 *, 0x30) >= (s32) M2C_FIELD(M2C_FIELD(var_v0, s8 **, 8), u8 *, 0x30)) {
+            if ((s32)((Note*)var_v1->u.value)->playbackState.priority >= (s32)((Note*)var_v0->u.value)->playbackState.priority) {
                 var_v1 = var_v0;
             }
-            var_v0 = M2C_FIELD(var_v0, s8 **, 4);
+            var_v0 = var_v0->next;
         } while (var_v0 != arg0);
     }
     if (var_v1 == NULL) {
         return NULL;
     }
-    temp_a0 = M2C_FIELD(var_v1, s8 **, 8);
-    if ((s32) M2C_FIELD(temp_a0, u8 *, 0x30) >= arg1) {
+    temp_a0 = (Note*)var_v1->u.value;
+    if ((s32)temp_a0->playbackState.priority >= arg1) {
         return NULL;
     }
     return temp_a0;
@@ -834,34 +820,34 @@ s8 *AudioPlayback_FindNodeWithPrioLessThan(s8 *arg0, s32 arg1) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_NoteInitForLayer(s8* arg0, s8* arg1) {
+void AudioPlayback_NoteInitForLayer(Note* arg0, SequenceLayer* arg1) { // PORT: typed (was s8* with N64 offsets)
     NoteSampleState* flags;
     s32 v;
 
-    M2C_FIELD(arg0, s32*, 0x40) = -1;
-    M2C_FIELD(arg0, s8**, 0x44) = arg1;
-    M2C_FIELD(arg0, u8*, 0x30) = M2C_FIELD(M2C_FIELD(arg1, u8**, 0x54), u8*, 5);
-    ((SequenceLayer*)arg1)->notePropertiesNeedInit = 1;
-    M2C_FIELD(arg1, u8*, 3) = 3;
-    M2C_FIELD(arg1, s8**, 0x48) = arg0;
-    M2C_FIELD(M2C_FIELD(arg1, s8**, 0x54), s8**, 0x40) = arg0;
-    M2C_FIELD(M2C_FIELD(arg1, s8**, 0x54), s8**, 0x44) = arg1;
-    M2C_FIELD(arg1, f32*, 0x34) = 0.0f;
-    AudioPlayback_NoteInit((Note*)arg0);
-    v = M2C_FIELD(arg1, u8*, 2);
-    flags = (NoteSampleState*)(arg0 + 0xB4);
+    arg0->playbackState.prevParentLayer = (SequenceLayer*)-1;
+    arg0->playbackState.parentLayer = arg1;
+    arg0->playbackState.priority = arg1->channel->notePriority;
+    arg1->notePropertiesNeedInit = 1;
+    arg1->status = 3;
+    arg1->note = arg0;
+    arg1->channel->noteUnused = arg0;
+    arg1->channel->layerUnused = arg1;
+    arg1->noteVelocity = 0.0f;
+    AudioPlayback_NoteInit(arg0);
+    v = arg1->instOrWave;
+    flags = &arg0->sampleState;
     if (v == 0xFF) {
-        v = M2C_FIELD(M2C_FIELD(arg1, s8**, 0x54), s16*, 0x22);
+        v = arg1->channel->instOrWave;
     }
-    flags->tunedSample = M2C_FIELD(arg1, s32*, 0x50);
+    flags->tunedSample = arg1->sound;
     if (v >= 0x80 && v < 0xC0) {
         flags->isSyntheticWave = 1;
     } else {
         flags->isSyntheticWave = 0;
     }
-    M2C_FIELD(arg0, u8*, 0x33) = M2C_FIELD(M2C_FIELD(arg1, u8**, 0x54), u8*, 7);
-    flags->stereoHeadsetEffects = M2C_FIELD(arg1, SequenceChannel**, 0x54)->stereoHeadsetEffects;
-    flags->reverbIndex = M2C_FIELD(M2C_FIELD(arg1, u8**, 0x54), u8*, 8) & 3;
+    arg0->playbackState.fontId = arg1->channel->fontId;
+    flags->stereoHeadsetEffects = arg1->channel->stereoHeadsetEffects;
+    flags->reverbIndex = arg1->channel->reverbIndex & 3;
 }
 
 
@@ -873,9 +859,9 @@ void AudioPlayback_NoteInitForLayer(s8* arg0, s8* arg1) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_NoteReleaseOwnerAndQueueLayer(s8 *arg0, s32 arg1) {
-    AudioPlayback_SeqLayerNoteRelease(M2C_FIELD(arg0, s32 *, 0x44));
-    M2C_FIELD(arg0, s32 *, 0x48) = arg1;
+void AudioPlayback_NoteReleaseOwnerAndQueueLayer(Note* arg0, SequenceLayer* arg1) { // PORT: typed (was N64 offsets)
+    AudioPlayback_SeqLayerNoteRelease((Particle*)arg0->playbackState.parentLayer);
+    arg0->playbackState.wantedParentLayer = arg1;
 }
 
 extern f32 D_FLT_811858D4;
@@ -886,16 +872,13 @@ extern f32 D_FLT_811858D4;
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-void AudioPlayback_NoteReleaseAndTakeOwnership(s8 *arg0, s8 *arg1)
-{
-  *((s8 **) (((s8 *) arg0) + 0x48)) = arg1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) arg0) + 0x30)) = (u8) (*((u8 *) (((s8 *) (*((s8 **) (((s8 *) arg1) + 0x54)))) + 5))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((f32 *) (((s8 *) arg0) + 0x6C)) = (f32) D_FLT_811858D4; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((u8 *) (((s8 *) arg0) + 0x5C)) = (u8) ((*((u8 *) (((s8 *) arg0) + 0x5C))) | 0x10); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+void AudioPlayback_NoteReleaseAndTakeOwnership(Note* arg0, SequenceLayer* arg1) { // PORT: typed (was N64 offsets)
+    arg0->playbackState.wantedParentLayer = arg1;
+    arg0->playbackState.priority = arg1->channel->notePriority;
+    arg0->playbackState.adsr.fadeOutVel = D_FLT_811858D4;
+    arg0->playbackState.adsr.action |= 0x10;
 }
 
-s32 AudioSeq_AudioListPopBack(AudioListItem* list);
-void AudioPlayback_NoteInitForLayer(s8*, s8*);
 
 /**
  * Allocates a note for a layer from a pool's disabled list.
@@ -904,18 +887,17 @@ void AudioPlayback_NoteInitForLayer(s8*, s8*);
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioPlayback_AllocNoteFromDisabled(s8 *arg0, s32 arg1) {
-    s32 ret;
+Note* AudioPlayback_AllocNoteFromDisabled(NotePool* arg0, SequenceLayer* arg1) { // PORT: typed (was N64 offsets)
+    Note* ret;
 
-    ret = AudioSeq_AudioListPopBack(arg0);
-    if (ret != 0) {
-        AudioPlayback_NoteInitForLayer((s8*)ret, (s8*)arg1);
-        AudioPlayback_AudioListPushFront((M2C_UNK *) (arg0 + 0x30), (M2C_UNK *) ret);
+    ret = (Note*)AudioSeq_AudioListPopBack(&arg0->disabled);
+    if (ret != NULL) {
+        AudioPlayback_NoteInitForLayer(ret, arg1);
+        AudioPlayback_AudioListPushFront(&arg0->active, &ret->listItem);
     }
     return ret;
 }
 
-s32 AudioSeq_AudioListPopBack(AudioListItem* list);
 
 /**
  * Takes over a decaying note for a layer.
@@ -924,13 +906,13 @@ s32 AudioSeq_AudioListPopBack(AudioListItem* list);
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioPlayback_AllocNoteFromDecaying(s8 *arg0, s8 *arg1) {
-    s32 ret;
+Note* AudioPlayback_AllocNoteFromDecaying(NotePool* arg0, SequenceLayer* arg1) { // PORT: typed (was N64 offsets)
+    Note* ret;
 
-    ret = AudioSeq_AudioListPopBack(arg0 + 0x10);
-    if (ret != 0) {
-        AudioPlayback_NoteReleaseAndTakeOwnership((s8 *) ret, arg1);
-        AudioSeq_AudioListPushBack(arg0 + 0x20, (s8 *) ret);
+    ret = (Note*)AudioSeq_AudioListPopBack(&arg0->decaying);
+    if (ret != NULL) {
+        AudioPlayback_NoteReleaseAndTakeOwnership(ret, arg1);
+        AudioSeq_AudioListPushBack(&arg0->releasing, &ret->listItem);
     }
     return ret;
 }
@@ -942,33 +924,33 @@ s32 AudioPlayback_AllocNoteFromDecaying(s8 *arg0, s8 *arg1) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s8* AudioPlayback_AllocNoteFromActive(s8* pool, s8* layer) {
-    s8* r_note;
-    s8* a_note;
+Note* AudioPlayback_AllocNoteFromActive(NotePool* pool, SequenceLayer* layer) { // PORT: typed (was N64 offsets)
+    Note* r_note;
+    Note* a_note;
     s32 r_priority;
     s32 a_priority;
 
     r_priority = a_priority = 0x10;
-    r_note = AudioPlayback_FindNodeWithPrioLessThan(pool + 0x20, M2C_FIELD(M2C_FIELD(layer, u8**, 0x54), u8*, 5));
+    r_note = AudioPlayback_FindNodeWithPrioLessThan(&pool->releasing, layer->channel->notePriority);
     if (r_note != NULL) {
-        r_priority = M2C_FIELD(r_note, u8*, 0x30);
+        r_priority = r_note->playbackState.priority;
     }
-    a_note = AudioPlayback_FindNodeWithPrioLessThan(pool + 0x30, M2C_FIELD(M2C_FIELD(layer, u8**, 0x54), u8*, 5));
+    a_note = AudioPlayback_FindNodeWithPrioLessThan(&pool->active, layer->channel->notePriority);
     if (a_note != NULL) {
-        a_priority = M2C_FIELD(a_note, u8*, 0x30);
+        a_priority = a_note->playbackState.priority;
     }
     if ((r_note == NULL) && (a_note == NULL)) {
         return NULL;
     }
     if (a_priority < r_priority) {
-        AudioPlayback_AudioListRemove(a_note);
-        AudioPlayback_NoteReleaseOwnerAndQueueLayer(a_note, (uintptr_t)layer);
-        AudioSeq_AudioListPushBack(pool + 0x20, (Note*)a_note);
-        M2C_FIELD(a_note, u8*, 0x30) = M2C_FIELD(M2C_FIELD(layer, u8**, 0x54), u8*, 5);
+        AudioPlayback_AudioListRemove(&a_note->listItem);
+        AudioPlayback_NoteReleaseOwnerAndQueueLayer(a_note, layer);
+        AudioSeq_AudioListPushBack(&pool->releasing, &a_note->listItem);
+        a_note->playbackState.priority = layer->channel->notePriority;
         return a_note;
     }
-    M2C_FIELD(r_note, s8**, 0x48) = layer;
-    M2C_FIELD(r_note, u8*, 0x30) = M2C_FIELD(M2C_FIELD(layer, u8**, 0x54), u8*, 5);
+    r_note->playbackState.wantedParentLayer = layer;
+    r_note->playbackState.priority = layer->channel->notePriority;
     return r_note;
 }
 
@@ -979,57 +961,57 @@ s8* AudioPlayback_AllocNoteFromActive(s8* pool, s8* layer) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s8* AudioPlayback_AllocNote(s8* arg0) {
-    s8* voice;
-    s32 flags = M2C_FIELD(arg0, u8**, 0x54)[2];
+Note* AudioPlayback_AllocNote(SequenceLayer* arg0) { // PORT: typed (was s8* with N64 offsets)
+    Note* voice;
+    s32 flags = arg0->channel->noteAllocPolicy;
+    NotePool* chPool = &arg0->channel->notePool;
+    NotePool* playerPool = &arg0->channel->seqPlayer->notePool;
 
     if (flags & 1) {
-        voice = M2C_FIELD(arg0, s8**, 0x48);
-        if ((voice != NULL) && (arg0 == M2C_FIELD(voice, s8**, 0x40)) && (M2C_FIELD(voice, s32*, 0x48) == -1)) {
+        voice = arg0->note;
+        if ((voice != NULL) && (arg0 == voice->playbackState.prevParentLayer) && (voice->playbackState.wantedParentLayer == (SequenceLayer*)-1)) {
             AudioPlayback_NoteReleaseAndTakeOwnership(voice, arg0);
-            AudioPlayback_AudioListRemove(voice);
-            AudioSeq_AudioListPushBack(M2C_FIELD(voice, s8**, 0xC) + 0x20, (Note*)voice);
+            AudioPlayback_AudioListRemove(&voice->listItem);
+            AudioSeq_AudioListPushBack(&voice->listItem.pool->releasing, &voice->listItem);
             return voice;
         }
     }
     if (flags & 2) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
-            ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL)) {
+        if (((voice = AudioPlayback_AllocNoteFromDisabled(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromActive(chPool, arg0)) != NULL)) {
             return voice;
         }
     } else if (flags & 4) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, arg0)) != NULL) ||
-            ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
-            ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(M2C_FIELD(arg0, s8**, 0x54), s8**, 0x4C) + 0x98, arg0)) != NULL)) {
+        if (((voice = AudioPlayback_AllocNoteFromDisabled(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDisabled(playerPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(playerPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromActive(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromActive(playerPool, arg0)) != NULL)) {
             return voice;
         }
     } else if (flags & 8) {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
+        if (((voice = AudioPlayback_AllocNoteFromDisabled(&D_81184938, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(&D_81184938, arg0)) != NULL)) {
             return voice;
         }
     } else {
-        if (((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(M2C_FIELD(arg0, s8**, 0x54) + 0x84, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDisabled(&D_81184938, (uintptr_t)arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
-            ((voice = (s8*)AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
-            ((voice = AudioPlayback_AllocNoteFromActive(M2C_FIELD(arg0, s8**, 0x54) + 0x84, arg0)) != NULL) ||
+        if (((voice = AudioPlayback_AllocNoteFromDisabled(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDisabled(&D_81184938, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(chPool, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromDecaying(&D_81184938, arg0)) != NULL) ||
+            ((voice = AudioPlayback_AllocNoteFromActive(chPool, arg0)) != NULL) ||
             ((voice = AudioPlayback_AllocNoteFromActive(&D_81184938, arg0)) != NULL)) {
             return voice;
         }
     }
-    arg0[3] = 0;
+    arg0->status = 0;
     return NULL;
 }
 
 extern NoteSampleState D_811369A8;
-extern s8 D_811842C0;
-s32 func_81109868(s8 *, s32);
 /**
  * Resets every note's state and sample buffers.
  * Corresponds to OoT Audio_NoteInitAll (original name Nas_ChannelInit). Zero allocates with
@@ -1059,6 +1041,6 @@ void AudioPlayback_NoteInitAll(void) {
         rec->playbackState.vibratoState.active = 0;
         rec->playbackState.portamento.cur = 0.0f;
         rec->playbackState.portamento.speed = 0.0f;
-        rec->synthesisState.synthesisBuffers = func_81109868(&D_811842C0, 0x80);
+        rec->synthesisState.synthesisBuffers = AudioHeap_Alloc(&D_811842C0, 0x80);
     }
 }

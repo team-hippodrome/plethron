@@ -6,10 +6,9 @@
 #include "audio_and_gb_emulator.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK AudioEffects_SequencePlayerProcessSound(s8 *);
-extern SequencePlayer D_81184668[];
+void AudioEffects_SequencePlayerProcessSound(SequencePlayer*);
 void AudioPlayback_NotePoolClear(s8*);
-void AudioThread_QueueCmdS8(s32 cmd, s8 arg1);
+void AudioThread_QueueCmdS8(u32 cmd, s8 arg1);
 void AudioThread_ScheduleProcessCmds(void);
 
 s32 AudioLoad_IsFontLoadComplete(s32);
@@ -19,11 +18,10 @@ void AudioLoad_SetSeqLoadStatus(s32, s32);
 u16 AudioSeq_GetScriptControlFlowArgument(u8** stream, u8 kind);
 s32 AudioSeq_HandleScriptFlowControl(void*, void*, s32, s32);
 void AudioSeq_SequencePlayerSetupChannels(SequencePlayer* seq_player, u16 mask);
-void AudioSeq_SequencePlayerDisable(u8* arg0);
-void func_81112B84(SequenceChannel*);
+void AudioSeq_SequencePlayerDisable(SequencePlayer* arg0);
 
 extern s16 D_811858EC;
-void AudioPlayback_NotePoolFill(void*, s32);
+void AudioPlayback_NotePoolFill(NotePool*, s32);
 void AudioSeq_SequenceChannelProcessScript(SequenceChannel*);
 
 /**
@@ -46,7 +44,7 @@ void AudioSeq_SequencePlayerProcessSequence(SequencePlayer* seq_player) {
         return;
     }
     if (!AudioLoad_IsSeqLoadComplete(seq_player->seqId) || !AudioLoad_IsFontLoadComplete(seq_player->defaultFont)) {
-        AudioSeq_SequencePlayerDisable((u8*)seq_player);
+        AudioSeq_SequencePlayerDisable(seq_player);
         return;
     }
     AudioLoad_SetSeqLoadStatus(seq_player->seqId, 2);
@@ -79,7 +77,7 @@ void AudioSeq_SequencePlayerProcessSequence(SequencePlayer* seq_player) {
                 value = AudioSeq_HandleScriptFlowControl(seq_player, state, cmd, AudioSeq_GetScriptControlFlowArgument(&state->pc, cmd));
                 if (value != 0) {
                     if (value == -1) {
-                        AudioSeq_SequencePlayerDisable((u8*)seq_player);
+                        AudioSeq_SequencePlayerDisable(seq_player);
                     } else {
                         seq_player->delay = value;
                     }
@@ -224,7 +222,7 @@ void AudioSeq_SequencePlayerProcessSequence(SequencePlayer* seq_player) {
                         }
                         break;
                     case 0x40:
-                        func_81112B84((SequenceChannel*)seq_player->channels[lo_bits]);
+                        AudioSeq_SequenceChannelDisable((SequenceChannel*)seq_player->channels[lo_bits]);
                         break;
                     case 0x90:
                         temp = AudioSeq_ScriptReadS16(&state->pc);
@@ -255,8 +253,8 @@ void AudioSeq_ProcessSequences(s32 arg0) {
 
     for (i = 0; i < D_811858CC; i++) {
         if (D_81184668[i].enabled == 1) {
-            AudioSeq_SequencePlayerProcessSequence((s8*)&D_81184668[i]);
-            AudioEffects_SequencePlayerProcessSound((s8*)&D_81184668[i]);
+            AudioSeq_SequencePlayerProcessSequence(&D_81184668[i]);
+            AudioEffects_SequencePlayerProcessSound(&D_81184668[i]);
         }
     }
     AudioPlayback_ProcessNotes();
@@ -267,13 +265,13 @@ void AudioSeq_ProcessSequences(s32 arg0) {
  * Corresponds to OoT AudioSeq_SkipForwardSequence (original name Nas_SeqSkip).
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioSeq_SkipForwardSequence(s8* arg0) {
-    if (M2C_FIELD(arg0, s32*, 0xD8) > 0) {
+void AudioSeq_SkipForwardSequence(SequencePlayer* arg0) { // PORT: typed (was s8* with N64 offsets)
+    if (arg0->skipTicks > 0) {
         do {
             AudioSeq_SequencePlayerProcessSequence(arg0);
             AudioEffects_SequencePlayerProcessSound(arg0);
-            M2C_FIELD(arg0, s32*, 0xD8)--;
-        } while (M2C_FIELD(arg0, s32*, 0xD8) > 0);
+            arg0->skipTicks--;
+        } while (arg0->skipTicks > 0);
     }
 }
 
@@ -290,7 +288,7 @@ void AudioSeq_ResetSequencePlayer(s32 arg0) {
     SequencePlayer* chan = (SequencePlayer*)&D_81184668[arg0];
     s32 i;
 
-    AudioSeq_SequencePlayerDisable((u8*)chan);
+    AudioSeq_SequencePlayerDisable(chan);
     chan->stopScript = 0;
     chan->delay = 0;
     chan->state = 1;
@@ -314,9 +312,7 @@ void AudioSeq_ResetSequencePlayer(s32 arg0) {
     }
 }
 
-extern u8 D_811842C0[];
 extern SequenceChannel D_81184850;
-void* func_811097E8(void*, s32);
 /**
  * Allocates sequence player `arg0`'s 16 channels, falling back to the shared dummy channel.
  * Corresponds to OoT AudioSeq_InitSequencePlayerChannels (original name Nas_AssignSubTrack).
@@ -330,7 +326,7 @@ void AudioSeq_InitSequencePlayerChannels(s32 arg0) {
     SequenceChannel* item;
 
     for (i = 0; i < 16; i++) {
-        rec->channels[i] = func_811097E8(D_811842C0, 0xD4);
+        rec->channels[i] = AudioHeap_AllocZeroed(&D_811842C0, sizeof(SequenceChannel)); // PORT: was 0xD4
         if (rec->channels[i] == NULL) {
             rec->channels[i] = &D_81184850;
         } else {
@@ -344,7 +340,6 @@ void AudioSeq_InitSequencePlayerChannels(s32 arg0) {
     }
 }
 
-void AudioPlayback_InitNoteLists(void*);
 /**
  * Sets up the layer free list, the sequence layers and the one sequence player.
  * Corresponds to OoT AudioSeq_InitSequencePlayers (original name Nas_InitPlayer). Zero has OoT's
