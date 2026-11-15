@@ -27,6 +27,9 @@ extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern s8 D_8007356C;
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 func_80020CE4(u8* arg0, s32 arg1, DeckHandle* arg2); // PORT: matches Deck_ReadEntries
+DeckHandle* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+s32 Deck_WriteEntries(u8* arg0, s32 arg1, DeckHandle* arg2);
+s32 Deck_CloseAndFlush(DeckHandle* arg0);
 u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
 void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
@@ -52,7 +55,7 @@ extern Move8A201D3C D_8006B190[];
 extern BinArchive* sMoveBackdropArchive;
 extern void* D_8A21DA58;
 extern void* sMoveBackdropPools[4];
-extern s32 sMoveBackdrops[];
+extern Fragment* sMoveBackdrops[]; // PORT: loaded files (was s32)
 
 /**
  * Draws a 282x130 YUV image at (x, y) as 16x16 tiles (the last column and row are cut
@@ -123,15 +126,15 @@ extern Entry8006A9DC D_8006A9DC[];
  * Seen in play (2026-11-14): タイプ/でんき いりょく/ 40 めいちゅう/100% for でんきショック and
  * タイプ/ノーマル いりょく/--- for なきごえ.
  */
-s32 MonSummary_DrawMoveInfo(s32 x, s32 y, s32 mon, s32 slot)
+s32 MonSummary_DrawMoveInfo(s32 x, s32 y, BattleMon* mon, s32 slot) // PORT: mon typed (was s32)
 {
     s32 move;
-    MonSummary_DrawMoveBackdrop(x + 4, y + 2, (u8*)sMoveBackdrops[slot]);
+    MonSummary_DrawMoveBackdrop(x + 4, y + 2, (u8*)sMoveBackdrops[slot]); // PORT: sMoveBackdrops was s32
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(x, y, 290, 2, D_8A203424);
     func_80029028(x, y + 2, 4, 130, D_8A203424);
     func_80029028(x + 286, y + 2, 4, 130, D_8A203424);
-    move = BattleMon_GetMoveIndexChecked(mon, slot);
+    move = BattleMon_GetMoveIndexChecked((u8*)mon, slot);
     if (move != (-2)) {
         s32 type_id;
         Entry80066AD8 *type;
@@ -169,7 +172,7 @@ s32 MonSummary_DrawMoveInfo(s32 x, s32 y, s32 mon, s32 slot)
  * Draws the rendered 3D model preview texture, 8 rows at a time.
  * Seen in play (2026-11-14): the turning Pikachu model on the left of both summary pages.
  */
-void MonSummary_DrawModelPreview(s32 x, s32 y, s32 mon) {
+void MonSummary_DrawModelPreview(s32 x, s32 y, BattleMon* mon) { // PORT: mon typed (was s32)
     u8* tex;
     s32 i;
     s32 n;
@@ -195,11 +198,11 @@ void MonSummary_DrawModelPreview(s32 x, s32 y, s32 mon) {
  * Sets up the summary window (552x362) for `mon` and loads one move-type backdrop per move.
  * Seen in play (2026-11-14): ran when つよさをみる was picked.
  */
-void MonSummary_InitPageWindow(MonSummaryWindow* window, s32 x, s32 y, s32 mon) {
+void MonSummary_InitPageWindow(MonSummaryWindow* window, s32 x, s32 y, BattleMon* mon) { // PORT: mon typed (was s32)
     s32 unused; // FAKE: stack padding
     s32 count;
     s32 i;
-    s32 handle;
+    MainPoolState* handle; // PORT: was s32
     s32 move;
 
     Window_SetRect((s8*)window, x, y, 552, 362);
@@ -214,7 +217,7 @@ void MonSummary_InitPageWindow(MonSummaryWindow* window, s32 x, s32 y, s32 mon) 
     }
     for (i = 0; i < count; i++) {
         handle = func_80002BA4(sMoveBackdropPools[i], 0x14800);
-        move = BattleMon_GetMoveIndexChecked(mon, i);
+        move = BattleMon_GetMoveIndexChecked((u8*)mon, i);
         sMoveBackdrops[i] = func_80017304(handle, sMoveBackdropArchive, Type_ToTableIndex((move == -2) ? 0 : D_8006B190[move].type), D_8A21DA58, 0x3000);
     }
 }
@@ -281,7 +284,7 @@ s32 MonSummary_UpdateMoveCursor(MonSummaryWindow* window) {
             var_s0 = 3;
         }
         if (var_s0 >= 0) {
-            if (BattleMon_GetMoveIndexChecked(window->mon, var_s0) == -1) {
+            if (BattleMon_GetMoveIndexChecked((u8*)window->mon, var_s0) == -1) {
                 Audio_PlaySystemSound(8);
             } else {
                 Audio_PlaySystemSound(2);
@@ -345,15 +348,15 @@ s32 MonSummary_GetExpForLevel(s32 species, s32 level) {
  * Seen in play (2026-11-14): ran once as the てもち screen opened and filled the 3 Pokémon of the save.
  */
 void PartyScreen_ReadParty(ByteMatrix* table) {
-    s32 sp1C;
-    s32 sp18;
-    s32 temp_v0;
+    u8* sp1C; // PORT: the deck pointers were s32, and func_80020AFC/func_80020C60 are called by their names because their header prototypes take s32
+    DeckHandle* sp18;
+    DeckHandle* temp_v0;
 
-    sp1C = (uintptr_t)table->rows;
-    temp_v0 = func_80020AFC(0x20, sPartyGbPort, 0, 0);
+    sp1C = table->rows;
+    temp_v0 = Deck_Open(0x20, sPartyGbPort, 0, 0);
     sp18 = temp_v0;
     table->count = func_80020CE4(sp1C, table->capacity, temp_v0);
-    func_80020C60(sp18);
+    Deck_CloseAndFlush(sp18);
 }
 
 /**
@@ -361,23 +364,23 @@ void PartyScreen_ReadParty(ByteMatrix* table) {
  * Seen in play (2026-11-14): after swapping ハナ and カコ, the pak .sav's species list changed from
  * 99 B0 54 to B0 99 54.
  */
-void PartyScreen_WriteParty(s32* mon_list, s32 screen) {
-    s32* sp2C;
+void PartyScreen_WriteParty(PointerList* mon_list, PartyScreen* screen) { // PORT: typed (were s32* and s32)
+    u8** sp2C;
     s32 i;
-    s32 temp_s3;
+    DeckHandle* temp_s3; // PORT: was s32; the Deck functions are called by their names (their header prototypes take s32)
 
-    sp2C = (s32*)mon_list[0];
+    sp2C = (u8**)mon_list->items;
     func_80022118(sPartyGbPort);
-    temp_s3 = func_80020AFC(0x20, sPartyGbPort, 0, 1);
+    temp_s3 = Deck_Open(0x20, sPartyGbPort, 0, 1);
 
-    for (i = 0; i < mon_list[2]; i++) {
-        func_80020DF0(sp2C[i], 1, temp_s3);
+    for (i = 0; i < mon_list->count; i++) {
+        Deck_WriteEntries(sp2C[i], 1, temp_s3);
     }
 
-    func_80020C60(temp_s3);
+    Deck_CloseAndFlush(temp_s3);
     if (func_8002207C(sPartyGbPort) == 0) {
         GbSave_RunReportErrorLoop(sPartyGbPort);
-        PartyScreen_Draw((M2C_UNK*)screen);
+        PartyScreen_Draw(screen);
     }
     func_80022188(sPartyGbPort);
 }
@@ -397,14 +400,14 @@ void PartyScreen_SetupList(PartyScreen* screen) {
     for (i = 0; i < 6; i++) {
         screen->monPointers[i] = &screen->mons[i];
     }
-    func_80027410((s8*)&screen->monTable, (s8*)screen->mons, 0x50, 6, 0);
-    PartyScreen_ReadParty((s8*)&screen->monTable);
-    func_80027804((s8*)&screen->monList, (s8*)screen->monPointers, 6, screen->monTable.count);
+    func_80027410(&screen->monTable, screen->mons, sizeof(BattleMon), 6, 0);
+    PartyScreen_ReadParty(&screen->monTable);
+    func_80027804(&screen->monList, (void**)screen->monPointers, 6, screen->monTable.count);
     for (i = 0; i < screen->monTable.count; i++) {
         PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, i, (BattleMon*)(screen->monTable.rows + i * 0x50),
                       GPACK_RGBA5551(D_8A203304.r, D_8A203304.g, D_8A203304.b, 1));
     }
-    PartyScreen_InitList(&screen->listWindow, 47, 77, (uintptr_t)&screen->monList);
+    PartyScreen_InitList(&screen->listWindow, 47, 77, &screen->monList);
 }
 
 s32 Window_UpdateAnimation(Window* arg0);
@@ -484,10 +487,10 @@ void PartyScreen_Draw(void* screen) {
  * Starts closing the active window; when it has closed, PartyScreen_Update switches to
  * `next_state` and `next_window`. Seen in play (2026-11-14): on つよさをみる, ならびかえ and on leaving.
  */
-void PartyScreen_CloseWindow(PartyScreen* screen, s32 next_state, s32 next_window) {
+void PartyScreen_CloseWindow(PartyScreen* screen, s32 next_state, Window* next_window) { // PORT: next_window typed (was s32)
     screen->activeWindow->animTimer = 7;
     screen->nextState = next_state;
-    screen->nextWindow = (Window*)next_window;
+    screen->nextWindow = next_window;
 }
 
 s32 Menu_UpdateCursor(s8*);
@@ -498,7 +501,7 @@ s32 SavePrompt_Update(s8*);
 void Save_DrawReportingWindow(s8*);
 s32 PartyScreen_UpdateActionMenu(PartyActionMenuWindow*);
 void PartyScreen_InitActionMenu(PartyActionMenuWindow* window, s32 x, s32 y, u8* mon);
-void PartyScreen_WriteParty(s32* monList, s32 screen);
+void PartyScreen_WriteParty(PointerList* mon_list, PartyScreen* screen); // PORT: matches the definition
 /**
  * Runs the てもち screen's state machine for one frame. Returns 1 when the screen is done.
  * Seen in play (2026-11-14): list, action menu, stats page, moves page, ならびかえ and the save prompt
@@ -528,7 +531,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             if (Menu_UpdateCursor(&arg0->listWindow.menu) != 0) {
                 arg0->listWindow.window.animTimer = (arg0->listWindow.window.state <= 0) ? arg0->listWindow.window.animTimer : 4;
             } else {
-                res = func_8002BC14((uintptr_t)D_800603C0);
+                res = func_8002BC14(D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     if (arg0->dirty != 0) {
@@ -550,19 +553,19 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             res = PartyScreen_UpdateActionMenu(&arg0->actionMenu);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
-                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (Window*)&arg0->listWindow);
             } else if (res > 0) {
                 switch (res) {
                     case 1:
                         Audio_PlaySystemSound(2);
-                        PartyScreen_CloseWindow(arg0, 4, (uintptr_t)&arg0->summaryWindow);
+                        PartyScreen_CloseWindow(arg0, 4, (Window*)&arg0->summaryWindow);
                         arg0->summaryWindow.moveSlot = 0;
                         arg0->listWindow.window.animTimer = 7;
                         MonSummary_InitPageWindow(&arg0->summaryWindow, 44, 84, arg0->monPointers[arg0->listWindow.menu.cursor]);
                         break;
                     case 2:
                         Audio_PlaySystemSound(2);
-                        PartyScreen_CloseWindow(arg0, 3, (uintptr_t)&arg0->listWindow);
+                        PartyScreen_CloseWindow(arg0, 3, (Window*)&arg0->listWindow);
                         arg0->listWindow.menu.itemFlags[arg0->listWindow.menu.cursor] |= 8;
                         arg0->swapIndex = arg0->listWindow.menu.cursor;
                         break;
@@ -570,7 +573,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
                         Audio_PlaySystemSound(3);
                         if (arg0->dirty != 0) {
                             SavePrompt_Init(&arg0->savePrompt, 212, 173);
-                            PartyScreen_CloseWindow(arg0, 6, (uintptr_t)&arg0->savePrompt);
+                            PartyScreen_CloseWindow(arg0, 6, (Window*)&arg0->savePrompt);
                         } else {
                             PartyScreen_CloseWindow(arg0, 7, 0);
                             arg0->listWindow.window.animTimer = 7;
@@ -583,7 +586,7 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             if (Menu_UpdateCursor(&arg0->listWindow.menu) != 0) {
                 arg0->listWindow.window.animTimer = (arg0->listWindow.window.state <= 0) ? arg0->listWindow.window.animTimer : 4;
             } else {
-                res = func_8002BC14((uintptr_t)D_800603C0);
+                res = func_8002BC14(D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     arg0->state = 1;
@@ -592,9 +595,10 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
                     Menu_ClearItemFlags(&arg0->listWindow.menu);
                 } else if (res == 1) {
                     Audio_PlaySystemSound(24);
-                    res = arg0->monPointers[arg0->swapIndex];
+                    BattleMon* tmp = arg0->monPointers[arg0->swapIndex]; // PORT: the swap went through the s32 res
+
                     arg0->monPointers[arg0->swapIndex] = arg0->monPointers[arg0->listWindow.menu.cursor];
-                    arg0->monPointers[arg0->listWindow.menu.cursor] = res;
+                    arg0->monPointers[arg0->listWindow.menu.cursor] = tmp;
                     PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, arg0->swapIndex, (BattleMon*)arg0->monPointers[arg0->swapIndex], 0);
                     PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, arg0->listWindow.menu.cursor, (BattleMon*)arg0->monPointers[arg0->listWindow.menu.cursor], 0);
                     arg0->dirty = 1;
@@ -606,10 +610,10 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             }
             break;
         case 4:
-            res = func_8002BC14((uintptr_t)D_800603C0);
+            res = func_8002BC14(D_800603C0);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
-                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (Window*)&arg0->listWindow);
                 arg0->listWindow.window.animTimer = 0;
             } else if (res == 1) {
                 Audio_PlaySystemSound(2);
@@ -619,14 +623,14 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             break;
         case 5:
             if (MonSummary_UpdateMoveCursor(&arg0->summaryWindow) == 0) {
-                res = func_8002BC14((uintptr_t)D_800603C0);
+                res = func_8002BC14(D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
                     arg0->state = 4;
                     arg0->summaryWindow.window.animTimer = (arg0->summaryWindow.window.state <= 0) ? arg0->summaryWindow.window.animTimer : 4;
                 } else if (res == 1) {
                     Audio_PlaySystemSound(2);
-                    PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
+                    PartyScreen_CloseWindow(arg0, 1, (Window*)&arg0->listWindow);
                     arg0->listWindow.window.animTimer = 0;
                 }
             }
@@ -634,12 +638,12 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
         case 6:
             res = SavePrompt_Update(&arg0->savePrompt);
             if (res == -1) {
-                PartyScreen_CloseWindow(arg0, 1, (uintptr_t)&arg0->listWindow);
+                PartyScreen_CloseWindow(arg0, 1, (Window*)&arg0->listWindow);
             } else if (res > 0) {
                 switch (res) {
                     case 1:
                         Save_DrawReportingWindow(&arg0->savePrompt);
-                        PartyScreen_WriteParty((s32*)(&arg0->monList), (uintptr_t)arg0);
+                        PartyScreen_WriteParty(&arg0->monList, arg0);
                         PartyScreen_CloseWindow(arg0, 7, 0);
                         arg0->listWindow.window.animTimer = 7;
                         break;
@@ -746,7 +750,7 @@ s32 PartyScreen_Init(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2) {
     Font_Init(0x1C, 0);
     sMoveBackdropArchive = BinArchive_Open(D_003DCB60, D_003F53C0, 1, 1);
     D_8A21DA48 = (ModelLoadContext*)PokeIcon_AllocFramebuffers(1);
-    sPartyModelPreview = (uintptr_t)PokeIcon_CreateModelPreview(D_8A21DA48, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, D_8A203438);
+    sPartyModelPreview = PokeIcon_CreateModelPreview(D_8A21DA48, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, D_8A203438);
     sPartyIconList = (s8*)PokeIcon_CreateRenderList(D_8A21DA48, 6, 0x28, 0x28);
     PokeIcon_OpenModelArchives();
 

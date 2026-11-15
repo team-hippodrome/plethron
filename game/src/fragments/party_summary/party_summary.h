@@ -90,7 +90,7 @@ typedef struct PartyActionMenuWindow {
 /* The summary page of one party Pokémon (MonSummary_InitPageWindow, MonSummary_DrawPage). */
 typedef struct MonSummaryWindow {
     /* 0x00 */ Window window; // @unverified: typed from the function it is passed to
-    /* 0x2C */ s32 mon; // the BattleMon shown: &PartyScreen.mons[0] (ハナ) after つよさをみる on it
+    /* 0x2C */ BattleMon* mon; // PORT: was s32; the BattleMon shown: &PartyScreen.mons[0] (ハナ) after つよさをみる on it
     /* 0x30 */ s32 moveSlot; // the move picked with the C buttons (MonSummary_UpdateMoveCursor): C-Right framed なきごえ, slot 1
     /* 0x34 */ s32 modelLoaded; // 1 once func_80019008 loaded the Pokémon's model (the ピカチュウ model was up)
 } MonSummaryWindow; // size = 0x38
@@ -129,7 +129,7 @@ extern Entry80066AD8 D_80066AD8[];
 
 extern Gfx D_80060270[];
 
-extern s32 sPartyModelPreview;
+extern PokeModelPreview* sPartyModelPreview; // PORT: was s32
 
 extern Color_RGBA8 D_8A203300;
 
@@ -159,28 +159,28 @@ extern void* sMoveBackdropPools[4];
 void MonSummary_DrawStatusCondition(s32 x, s32 y, BattleMon* mon);
 void PartyScreen_DrawRowText(s32 x, s32 y, BattleMon* mon, s32 flags);
 void PartyScreen_DrawIcon(s32 x, s32 y, s32 slot);
-void PartyScreen_InitList(PartyListWindow* window, s32 x, s32 y, s32 monList);
+void PartyScreen_InitList(PartyListWindow* window, s32 x, s32 y, PointerList* monList); // PORT: monList typed (was s32)
 void PartyScreen_DrawActionMenuRow(s32 x, s32 y, char* label, s32 index, s32 flags);
 void PartyScreen_DrawActionMenu(PartyActionMenuWindow* window);
-void MonSummary_DrawTypeName(s32 x, s32 y, s32 fontSize, s32 mon, s32 typeSlot);
+void MonSummary_DrawTypeName(s32 x, s32 y, s32 fontSize, BattleMon* mon, s32 typeSlot); // PORT: mon typed (was s32)
 void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon);
 void MonSummary_DrawStats(s32 x, s32 y, BattleMon* mon);
 void MonSummary_DrawHeader(s32 x, s32 y, BattleMon* mon); // PORT: matches the definition
-void MonSummary_DrawTrainerInfo(s32 x, s32 y, s32 mon);
-void MonSummary_DrawMoveList(s32 baseX, s32 baseY, s32 mon, s32 selectedSlot);
+void MonSummary_DrawTrainerInfo(s32 x, s32 y, BattleMon* mon); // PORT: mon typed (was s32)
+void MonSummary_DrawMoveList(s32 baseX, s32 baseY, BattleMon* mon, s32 selectedSlot); // PORT: mon typed (was s32)
 
 // mon_summary.c
 void PartyScreen_Load(void);
 s32 MonSummary_GetExpForLevel(s32 species, s32 level);
-void MonSummary_DrawModelPreview(s32 x, s32 y, s32 mon);
-s32 MonSummary_DrawMoveInfo(s32 x, s32 y, s32 mon, s32 slot);
+void MonSummary_DrawModelPreview(s32 x, s32 y, BattleMon* mon);
+s32 MonSummary_DrawMoveInfo(s32 x, s32 y, BattleMon* mon, s32 slot);
 void MonSummary_DrawPage(MonSummaryWindow* window, s32 page);
 s32 MonSummary_UpdateMoveCursor(MonSummaryWindow* window);
 void PartyScreen_DrawBackground(void);
 void PartyScreen_ReadParty(ByteMatrix* table);
 void PartyScreen_Draw(void* screen);
-void PartyScreen_WriteParty(s32* monList, s32 screen);
-void PartyScreen_CloseWindow(PartyScreen* screen, s32 nextState, s32 nextWindow);
+void PartyScreen_WriteParty(PointerList* monList, PartyScreen* screen);
+void PartyScreen_CloseWindow(PartyScreen* screen, s32 nextState, Window* nextWindow);
 M2C_UNK PartyScreen_Update(PartyScreen* screen);
 void PartyScreen_RunFrame(s32 unused);
 s32 PartyScreen_FadeFrame(u8 unused);

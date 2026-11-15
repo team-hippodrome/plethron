@@ -129,13 +129,13 @@ void PartyScreen_DrawListRow(s32 x, s32 y, BattleMon *mon, s32 index, s32 flags,
  * Sets up the てもち list window (545x360) and its menu of PartyScreen_DrawListRow rows over `mon_list`.
  * Seen in play (2026-11-14): ran once from PartyScreen_SetupList when the てもち screen opened.
  */
-void PartyScreen_InitList(PartyListWindow* window, s32 x, s32 y, s32 mon_list) {
+void PartyScreen_InitList(PartyListWindow* window, s32 x, s32 y, PointerList* mon_list) { // PORT: mon_list typed (was s32)
     Window_SetRect((s8*)window, x, y, 545, 360);
     window->window.animTimer = 0;
     window->window.title = NULL;
     window->window.state = 0;
     window->window.frame.style = 0x1001;
-    Menu_Init((s8*)&window->menu, mon_list, (s8*)window->itemFlags, (M2C_UNK *)PartyScreen_DrawListRow, 533, 51);
+    Menu_Init((s8*)&window->menu, (ByteMatrix*)mon_list, (s8*)window->itemFlags, (M2C_UNK *)PartyScreen_DrawListRow, 533, 51);
 }
 
 extern s8 D_8007356C;
@@ -282,7 +282,7 @@ s32 PartyScreen_UpdateActionMenu(PartyActionMenuWindow* window) {
     s32 idx;
 
     if (Menu_UpdateCursor((s8*)&window->menu) == 0) {
-        dir = func_8002BC14((uintptr_t)D_800603C0);
+        dir = func_8002BC14(D_800603C0);
         if (dir == -1) {
             sp1C = -1;
         } else if (dir == 1) {
@@ -363,7 +363,7 @@ void MonSummary_DrawHeader(s32 x, s32 y, BattleMon* mon) {
  * Draws the name of the species' type 1 or 2 (`type_slot`) in its type color at `font_size`;
  * nothing for a missing type 2. Seen in play (2026-11-14): でんき for Pikachu on both pages.
  */
-void MonSummary_DrawTypeName(s32 x, s32 y, s32 font_size, s32 mon, s32 type_slot) {
+void MonSummary_DrawTypeName(s32 x, s32 y, s32 font_size, BattleMon* mon, s32 type_slot) { // PORT: mon typed (was s32)
     Color82000BC4 c;
     s32 idx = Pokemon_GetTypeIndex(mon, type_slot);
 
@@ -398,16 +398,16 @@ s32 MonSummary_GetExpForLevel(s32, s32);
  * Seen in play (2026-11-14): タイプ1/ でんき, ID No./ 12345, おやのなまえ/ サトシ, けいけんち/ 1728 and
  * あと 469で L13 for the save's Pikachu.
  */
-void MonSummary_DrawTrainerInfo(s32 x, s32 y, s32 mon) {
+void MonSummary_DrawTrainerInfo(s32 x, s32 y, BattleMon* mon) { // PORT: mon typed (was s32)
     s32 next_level;
     s32 to_next;
 
-    if (((BattleMon*)mon)->level == 100) {
+    if (mon->level == 100) {
         next_level = 100;
     } else {
-        next_level = ((BattleMon*)mon)->level + 1;
+        next_level = mon->level + 1;
     }
-    to_next = MonSummary_GetExpForLevel(((BattleMon*)mon)->species.id, next_level) - ((BattleMon*)mon)->exp;
+    to_next = MonSummary_GetExpForLevel(mon->species.id, next_level) - mon->exp;
     Ui_FillRectPrimEnvColor(x, y, 290, 200, D_8A203370, D_8A203374);
     func_8001AB6C();
     func_8001A384(8, 0);
@@ -427,9 +427,9 @@ void MonSummary_DrawTrainerInfo(s32 x, s32 y, s32 mon) {
     Font_Printf(x + 165, y + 168, D_8A21D964);
     Font_Printf(x + 195, y + 168, D_8A21D968);
     func_8001AA9C(((Color_RGBA8*)&D_800734A8)->r, ((Color_RGBA8*)&D_800734A8)->g, ((Color_RGBA8*)&D_800734A8)->b, ((Color_RGBA8*)&D_800734A8)->a);
-    Font_Printf(x + 175, y + 76, D_8A21D96C, ((BattleMon*)mon)->otId);
-    Font_Printf(x + 175, y + 104, (char*)mon + 0x40);
-    Font_Printf(x + 135, y + 140, D_8A21D974, ((BattleMon*)mon)->exp);
+    Font_Printf(x + 175, y + 76, D_8A21D96C, mon->otId);
+    Font_Printf(x + 175, y + 104, (char*)mon->otName); // PORT: was (char*)mon + 0x40
+    Font_Printf(x + 135, y + 140, D_8A21D974, mon->exp);
     Font_Printf(x + 0x40, y + 168, D_8A21D978, to_next);
     Font_Printf(x + 215, y + 168, D_8A21D97C, next_level);
     func_8001ABBC();
@@ -454,7 +454,7 @@ typedef struct Entry8A203384 {
     /* 0x18 */ s32 ppY;
     /* 0x1C */ s32 iconX;
     /* 0x20 */ s32 iconY;
-    /* 0x24 */ s32 icon;
+    /* 0x24 */ void* icon; // PORT: was s32 (holds a pointer)
 } Entry8A203384; // size = 0x28
 extern Entry8A203384 D_8A203384[];
 extern Color_RGBA8 D_8A203378;
@@ -471,7 +471,7 @@ s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
  * Seen in play (2026-11-14): でんきショック 30/48 (3 PP Ups), なきごえ 40/47 (1 PP Up),
  * でんこうせっか 30/30, でんじは 20/20; C-Right moved the frame to なきごえ.
  */
-void MonSummary_DrawMoveList(s32 base_x, s32 base_y, s32 mon, s32 selected_slot) {
+void MonSummary_DrawMoveList(s32 base_x, s32 base_y, BattleMon* mon, s32 selected_slot) { // PORT: mon typed (was s32)
     s32 pad; // FAKE
     s32 count;
     s32 pad2; // FAKE
@@ -512,7 +512,7 @@ void MonSummary_DrawMoveList(s32 base_x, s32 base_y, s32 mon, s32 selected_slot)
         Font_Printf(x, D_8A203384[i].nameY + base_y, str);
         func_8001ABBC();
         if (move != -2) {
-            cur = ((u8*)mon)[i + 0x20];
+            cur = mon->pp[i]; // PORT: was ((u8*)mon)[i + 0x20]
             step = gMoveData[move].pp / 5;
             if (step >= 7) {
                 step = 7;
@@ -552,7 +552,7 @@ void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon) {
     if (Pokemon_GetTypeIndex(mon, 1) != -1) {
         Font_Printf(x + 185, y + 60, "2/");
     }
-    MonSummary_DrawTypeName(x + 111, y + 60, 4, (uintptr_t)mon, 0);
-    MonSummary_DrawTypeName(x + 217, y + 60, 4, (uintptr_t)mon, 1);
+    MonSummary_DrawTypeName(x + 111, y + 60, 4, mon, 0);
+    MonSummary_DrawTypeName(x + 217, y + 60, 4, mon, 1);
     func_8001ABBC();
 }
