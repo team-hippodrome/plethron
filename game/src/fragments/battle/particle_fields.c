@@ -18,7 +18,7 @@ s16 Particle_ScratchA_GetS16_0C068(Particle* arg0);
 s16 Particle_GetParam1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_fields.c)
 void BattleAnim_ClearEffectState(void);
 
-void Particle_SetPrimAlpha(s8 *arg0, char arg1);
+void Particle_SetPrimAlpha(Particle* arg0, char arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_Param0_SetS16_0BCA8(Particle* arg0, s16 arg1);
 void Particle_Countdown_SetS16_0BE14(Particle* arg0, s16 arg1);
 void Particle_SpawnIndex_SetS16_0BED8(Particle* arg0, s16 arg1);
@@ -93,7 +93,7 @@ void Particle_SetByteParam0Checked(Particle* particle, unsigned char value) // P
   new_var = particle != ((s8 *) (-1)); // FAKE
   if (new_var) // FAKE
   {
-    *((s8 *) (((s8 *) particle) + 0xC9)) = (s8) (value & 0xFF); // FAKE
+    particle->byteParam0 = (s8) (value & 0xFF); // FAKE
   }
 }
 

@@ -362,7 +362,7 @@ void BattleScene_BRollShotFrontClose(CameraNode*);
  * the close shot BattleScene_BRollShotFrontClose, returning 1. Otherwise returns 0.
  * @unverified Name guessed from the code.
  */
-s32 BattleScene_BRollCloseShotForChanseyStarmie(UNUSED s32 unused, CameraNode* camera) {
+s32 BattleScene_BRollCloseShotForChanseyStarmie(UNUSED ActivePokemon* unused, CameraNode* camera) { // PORT: unused was s32
     ActivePokemon* p = sActivePokemon[sBattleScene.scene->actingSide];
 
     if ((p->displayObject.objectType == 0x71) || (p->displayObject.objectType == 0x79)) {

@@ -44,10 +44,10 @@ extern s8 *D_8219A580;
  * Pokemon, plays its camera shot 3, starts its model reaction 9, stops music and advances.
  * @unverified Name guessed from the code.
  */
-void SceneMode7_StepInit(s32 camera) {
+void SceneMode7_StepInit(CameraNode* camera) { // PORT: camera was s32
     s8 *sp1C;
 
-    sp1C = D_82199DE0 + 0x78C;
+    sp1C = (s8*)&((ActivePokemon*)D_82199DE0)->state; // PORT: was the N64 offset 0x78C
     sBattleScene.scene->cameraPresetId = 0;
     BattleScene_SetCameraClipPlanes(camera, 20.0f /* PORT: was 0x41A00000 */, 4000.0f /* PORT: was 0x457A0000 */);
     BattleScene_ResetCameraFrameCounter();
@@ -133,7 +133,7 @@ s32 StageFade_Start(s32 duration); // PORT: signature from the definition (stage
  * @unverified Name guessed from the code.
  */
 void SceneMode7_StepFadeOutOrFinish(CameraNode* camera) {
-    s8* st = D_8219A580 + 0x78C;
+    s8* st = (s8*)&((ActivePokemon*)D_8219A580)->state; // PORT: was the N64 offset 0x78C
     if ((u32)(M2C_FIELD(st, s32*, 8) + 1) >= 6U) {
         sBattleScene.scene->winner = 3;
         sBattleScene.scene->phaseStep = 7;

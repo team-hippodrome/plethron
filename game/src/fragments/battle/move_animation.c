@@ -1850,7 +1850,7 @@ void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the de
  * row 5.
  * @unverified Name guessed from the code.
  */
-void BattleScene_ResetAndEnterRow5(s32 active_pokemon) {
+void BattleScene_ResetAndEnterRow5(ActivePokemon* active_pokemon) { // PORT: active_pokemon was s32
     BattleAnim_CleanupEffects(2);
     BattleScene_ClearStateTickCallbacks();
     BattleScene_EnterStateRow(active_pokemon, 5);
@@ -1865,7 +1865,7 @@ void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the de
  * row 6.
  * @unverified Name guessed from the code.
  */
-void BattleScene_ResetAndEnterRow6(s32 active_pokemon) {
+void BattleScene_ResetAndEnterRow6(ActivePokemon* active_pokemon) { // PORT: active_pokemon was s32
     BattleAnim_CleanupEffects(2);
     BattleScene_ClearStateTickCallbacks();
     BattleScene_EnterStateRow(active_pokemon, 6);
@@ -2242,7 +2242,7 @@ s32 ActivePokemon_SetStateFlags(s8 *arg0, unsigned short arg1)
  */
 s32 Battle_ClearRuntimeFlags(ActivePokemon* arg0, unsigned short arg1) // PORT: was s8*
 {
-  *((u16 *) (((s8 *) arg0) + 0x7C2)) = (u16) ((*((u16 *) (((s8 *) arg0) + 0x7C2))) & (~arg1)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  arg0->state.flags = (u16) ((arg0->state.flags) & (~arg1)); // PORT: was raw N64 offsets
 }
 
 /**
@@ -2366,7 +2366,7 @@ void BattleScene_CleanupOpponentSpecialAnimFlag(ActivePokemon* active_pokemon) {
     }
 }
 
-void BattleAnim_QueueEffectList(u8 arg0, s32 arg1);
+void BattleAnim_QueueEffectList(u8 arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 /**
  * When state flag 0x40 is set, swaps it for 0x80 and queues effect list 2.
  * @unverified Name guessed from the code.
@@ -2653,7 +2653,7 @@ void BattleAnim_StartFreezeEffectIfFrozen(ActivePokemon* active_pokemon) {
     }
 }
 
-void BattleAnim_QueueEffectList(u8 arg0, s32 arg1);
+void BattleAnim_QueueEffectList(u8 arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 
 
 /**
@@ -2768,7 +2768,7 @@ void BattleScene_SetCameraClipMaskBothSides(s32);
 void BattleScene_InitializeParticipantModel(ActivePokemon*);
 
 void BattleScene_InitializeParticipantOwnerModel(ActivePokemon*);
-void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s32* secondary_models); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, PokemonAfterimage* secondary_models); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleScene_InitializeParticipantAuxiliaryModel(ActivePokemon*);
 void BattleScene_SetCameraModeAndStep(s32, s32);
 void ActivePokemon_SetModelTransform(ActivePokemon*, s32, s32);
@@ -2788,8 +2788,8 @@ void BattleScene_InitializePresentation(UNUSED BattleSide* session_teams) {
     BattleScene_InitializeParticipantModel(sActivePokemon[1]);
     BattleScene_InitializeParticipantOwnerModel(sActivePokemon[0]);
     BattleScene_InitializeParticipantOwnerModel(sActivePokemon[1]);
-    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[0], &sActivePokemon[0]->afterimages);
-    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[1], &sActivePokemon[1]->afterimages);
+    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[0], sActivePokemon[0]->afterimages);
+    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[1], sActivePokemon[1]->afterimages);
     BattleScene_InitializeParticipantAuxiliaryModel(sActivePokemon[0]);
     BattleScene_InitializeParticipantAuxiliaryModel(sActivePokemon[1]);
 

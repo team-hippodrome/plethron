@@ -480,7 +480,7 @@ void BattleScene_InitializeParticipantOwnerModel(ActivePokemon* active_pokemon) 
  * menu.
  * @unverified Name matches Stadium 1. Comment from Stadium 1.
  */
-void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s32* secondary_models) {
+void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, PokemonAfterimage* secondary_models) { // PORT: secondary_models was s32*
     ModelNodeView* model_node;
     s16 object_type;
     s32 i;
@@ -491,9 +491,9 @@ void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s3
         afterimage = &pokemon->afterimages[i];
         ModelRenderer_AttachDisplayObject(&afterimage->displayObject);
         if (pokemon == sActivePokemon[0]) {
-            M2C_FIELD(secondary_models, u8*, 0xA6) = 2;
+            secondary_models->displayObject.effectSlot = 2; // PORT: was the N64 offset 0xA6
         } else {
-            M2C_FIELD(secondary_models, u8*, 0xA6) = 3;
+            secondary_models->displayObject.effectSlot = 3;
         }
         Model_InitDisplayObject(&afterimage->displayObject, 0, object_type, model_node);
         ModelAnim_SetFrame(&afterimage->displayObject, 0);

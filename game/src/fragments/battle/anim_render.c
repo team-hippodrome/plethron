@@ -23,8 +23,8 @@ void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
 }
 
 void BattleAnim_RenderEffectsFrameNop(void);
-void BattleAnim_DrawWorldParticleChainsThunk(s32, M2C_UNK);
-void BattleAnim_DrawScreenParticlesThunk(s32, M2C_UNK);
+void BattleAnim_DrawWorldParticleChainsThunk(s32 unused, CameraNode* camera); // PORT: signature from the definition (fragments/battle/anim_render.c)
+void BattleAnim_DrawScreenParticlesThunk(s32 unused, CameraNode* camera); // PORT: signature from the definition (fragments/battle/anim_render.c)
 extern Gfx D_82190100[];
 extern Gfx D_821900B0[];
 extern s32 D_8219A7CC;
@@ -63,7 +63,7 @@ void BattleAnim_RenderEffectsFrame(CameraNode* arg0) {
     ParticleGfx_SetEnvColor(D_8219A8C2, D_8219A8C4, D_8219A8C6, D_8219A8C8);
     ParticleGfx_SetBlendColor(gBlendColorR, gBlendColorG, D_8219A8D6, D_8219A8D8);
     Battle_SetStageTintColor(gSavedPrimColorR, gSavedPrimColorG, gSavedPrimColorB);
-    BattleAnim_DrawWorldParticleChainsThunk(0, (M2C_UNK)arg0);
+    BattleAnim_DrawWorldParticleChainsThunk(0, arg0);
     guOrtho(&gParticleMatrixPool->orthoMatrix, 0.0f, 320.0f, 240.0f, 0.0f, -2.0f, 2.0f, 1.0f);
 
     gSPMatrix(gDisplayListHead++, (uintptr_t)&gParticleMatrixPool->orthoMatrix,
@@ -71,27 +71,27 @@ void BattleAnim_RenderEffectsFrame(CameraNode* arg0) {
     gSPDisplayList(gDisplayListHead++, gDL_BeginUIOverlay);
 
     ParticleGfx_PipeSync();
-    BattleAnim_DrawScreenParticlesThunk(0, (M2C_UNK)arg0);
+    BattleAnim_DrawScreenParticlesThunk(0, arg0);
 
     gSPDisplayList(gDisplayListHead++, D_821900B0);
 }
 
-M2C_UNK BattleAnim_DrawScreenParticles(M2C_UNK);                     /* extern */
+void BattleAnim_DrawScreenParticles(CameraNode* camera); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Forwards arg1 to BattleAnim_DrawScreenParticles.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_DrawScreenParticlesThunk(s32 unused, M2C_UNK camera) {
+void BattleAnim_DrawScreenParticlesThunk(s32 unused, CameraNode* camera) { // PORT: camera was M2C_UNK
     BattleAnim_DrawScreenParticles(camera);
 }
 
-M2C_UNK BattleAnim_DrawWorldParticleChains(M2C_UNK);                     /* extern */
+void BattleAnim_DrawWorldParticleChains(CameraNode* camera); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Forwards arg1 to BattleAnim_DrawWorldParticleChains.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_DrawWorldParticleChainsThunk(s32 unused, M2C_UNK camera) {
+void BattleAnim_DrawWorldParticleChainsThunk(s32 unused, CameraNode* camera) { // PORT: camera was M2C_UNK
     BattleAnim_DrawWorldParticleChains(camera);
 }

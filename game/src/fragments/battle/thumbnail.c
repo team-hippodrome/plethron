@@ -87,7 +87,7 @@ void BattleThumbnail_TickOwnerCameraFraming(ActivePokemon* active_pokemon); // P
  * Gives both Pokémon their thumbnail camera, frames each owner in it and resets both thumbnails.
  * @unverified Name guessed from the code.
  */
-void BattleThumbnail_InitializeOwnerCameraFraming(s32 camera0, ActivePokemon* pokemon0, s32 camera1, ActivePokemon* pokemon1) {
+void BattleThumbnail_InitializeOwnerCameraFraming(CameraNode* camera0, ActivePokemon* pokemon0, CameraNode* camera1, ActivePokemon* pokemon1) { // PORT: camera0 was s32 PORT: camera1 was s32
     pokemon0->thumbnail.camera = camera0;
     pokemon1->thumbnail.camera = camera1;
     BattleThumbnail_SetupOwnerCameraFraming(pokemon0, pokemon1);

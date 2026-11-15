@@ -404,7 +404,7 @@ s32 BattleScene_IsCameraAngleSettled(s16 arg0, s16 arg1) {
  * scene rotationY (+0x5A) by -0xB6 per frame and rebuilt the eye from rotationX (+0x58) and the
  * distance, orbiting the camera about the vertical axis.
  */
-s32 BattleScene_ApproachCameraRotationY(s32 arg0, s16 arg1, s16 arg2) {
+s32 BattleScene_ApproachCameraRotationY(CameraNode* arg0, s16 arg1, s16 arg2) { // PORT: arg0 was s32
     s16 var_v0;
 
     if (arg1 > 0) {
@@ -465,8 +465,8 @@ void BattleScene_SetCameraAnglesAndDistance(s16 arg0, s16 arg1, f32 arg2) {
  * @unverified Name guessed from the code.
  */
 void BattleScene_ClampCameraEyeHeight(CameraNode* camera) { // PORT: was s8*
-    if (M2C_FIELD(camera, f32 *, 0xAC) <= 15.0f) {
-        M2C_FIELD(camera, f32 *, 0xAC) = 15.0f;
+    if (camera->view.eyePosition.y <= 15.0f) {
+        camera->view.eyePosition.y = 15.0f;
     }
 }
 
@@ -623,7 +623,7 @@ void BattleScene_EaseSideOnCameraDistance(CameraNode* camera, ActivePokemon* act
         } else {
             BattleAnim_ApproachF(&sp38, sp30, 0.5f);
         }
-        Camera_ComputeEyeFromAngles((uintptr_t)camera + 0xB4, (uintptr_t)camera + 0xA8, sp38, sp36, sp34);
+        Camera_ComputeEyeFromAngles(&camera->view.targetPosition, &camera->view.eyePosition, /* PORT: were N64 offsets 0xB4, 0xA8 */ sp38, sp36, sp34);
     }
 }
 

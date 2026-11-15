@@ -138,7 +138,7 @@ void Particle_AddPositionOffsetAlongRotationYMinus90(Particle* arg0, f32 arg1); 
 void BattleAnim_OffsetParticleForSpecies(Particle* arg0) { // PORT: was s8*
     f32 var_f20 = 0.0f;
 
-    switch (BattleAnim_GetOwnerSpecies(M2C_FIELD(arg0, s32*, 0x10))) {
+    switch (BattleAnim_GetOwnerSpecies(((uintptr_t)arg0->pokemon))) {
         case 0xF:
             var_f20 = -10.0f;
             break;
@@ -235,7 +235,7 @@ void BattleAnim_InitializeScreenMove(void) {
  * Barrier: ran at sample 252 as the shiny reflective wall rose in front of Onix (only move that ran
  * it).
  */
-void BattleAnim_BuildReflectiveTextureDisplayList(Gfx* arg0, s32 arg1, u16 arg2) {
+void BattleAnim_BuildReflectiveTextureDisplayList(Gfx* arg0, u8* arg1, u16 arg2) { // PORT: arg1 was s32
     BattleAnim_SetupReflectiveCamera();
 
     switch (BattleAnim_GetQueuedMoveId()) {
@@ -730,7 +730,7 @@ void BattleAnim_CallbackMove73End31SpawnDesc42(Particle* particle) {
         }
         return;
     case 3:
-        if (ModelAnim_IsFinished(((uintptr_t)particle->displayObject)) != 0) {
+        if (ModelAnim_IsFinished(particle->displayObject) != 0) {
             Particle_AdvanceLifecycle(particle);
         }
         break;
@@ -837,7 +837,7 @@ void BattleAnim_SetupBlizzardHitSpark(Particle* arg0) {
 void BattleAnim_BlizzardParticleUpdate(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupBlizzardHitSpark(arg0);
@@ -948,7 +948,7 @@ void BattleAnim_InitializeBlizzardHit(void) {
  * breakpoint): ran only for Blizzard.
  * @unverified Name from Stadium 1.
  */
-void ParticleEffect_DrawNode(Gfx* arg0, s32 arg1, u16 arg2) {
+void ParticleEffect_DrawNode(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2) { // PORT: arg1 was s32
     Particle* temp_v0 = BattleAnim_GetOwnerContextParticle(D_8006049C);
 
     gDPPipeSync(arg0++);
@@ -1542,7 +1542,7 @@ void BattleAnim_RunFallingRock(Particle* arg0) {
     case 3:
         Particle_ApproachPrimRed(arg0, 0, 0x10);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
-        if (ModelAnim_IsFinished(((uintptr_t)arg0->displayObject)) != 0) {
+        if (ModelAnim_IsFinished(arg0->displayObject) != 0) {
             Particle_AdvanceLifecycle(arg0);
             return;
         }
@@ -1662,7 +1662,7 @@ void BattleAnim_RockModelFadeIn(Particle* arg0) {
  * breakpoint): ran only for Rock Slide, Rock Throw, Strength.
  * @unverified Name from Stadium 1.
  */
-void Gfx_DrawParticleAlpha(Gfx* arg0, s32 arg1, u16 arg2) {
+void Gfx_DrawParticleAlpha(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2) { // PORT: arg1 was s32
     Particle* temp_v0 = BattleAnim_GetOwnerContextParticle(D_8006049C);
 
     gDPPipeSync(arg0++);
@@ -1871,7 +1871,7 @@ void BattleAnim_SetupStrongWinds(Particle* arg0) {
 void BattleAnim_CallbackStartEffect10Model60AlphaFadeIn(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
-    temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
         BattleAnim_SetupStrongWinds(arg0);
@@ -2596,7 +2596,7 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(Particle* arg0) { // PORT: 
     s16 temp_v1;
 
     sp26 = Particle_GetByteParam1(arg0); // PORT: the particle was passed through a0
-    temp_v1 = M2C_FIELD(arg0, s16 *, 0xAE);
+    temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
         BattleAnim_SetupBitingEffect(arg0);
@@ -2615,7 +2615,7 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(Particle* arg0) { // PORT: 
         Particle_ApproachPrimAlpha(arg0, 0, 0x11);
         break;
     case 4:
-        if (ModelAnim_IsFinished(M2C_FIELD(arg0, s32 *, 0x14)) != 0) {
+        if (ModelAnim_IsFinished(arg0->displayObject) != 0) {
             Particle_MarkInactive(arg0);
         }
         break;
@@ -2637,7 +2637,7 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(Particle* arg0) { // PORT: 
  * breakpoint): ran only for Bite, Clamp, Guillotine, Hyper Fang, Super Fang, Vicegrip.
  * @unverified Name from Stadium 1.
  */
-void Gfx_DrawParticleFromTempColors(Gfx* arg0, s32 arg1, u16 arg2) {
+void Gfx_DrawParticleFromTempColors(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2) { // PORT: arg1 was s32
     Particle* temp_v0 = BattleAnim_GetOwnerContextParticle(D_8006049C);
 
     gDPPipeSync(arg0++);
@@ -3099,7 +3099,7 @@ void Gfx_ParticlePaletteCallback(s32 arg0, arg1_func_84344CE8* arg1) {
  */
 void Gfx_ParticlePaletteDL(Gfx* arg0, UNUSED arg1_func_8434E21C* arg1, UNUSED u16 arg2) {
     DisplayObject* sp24 = D_8006049C;
-    s32 tmp = BattleAnim_GetOwnerContextParticle(D_8006049C);
+    Particle* tmp = BattleAnim_GetOwnerContextParticle(D_8006049C); // PORT: tmp was s32
     UNUSED u8 sp1F;
     UNUSED u8 sp1E;
     u8 sp1D;
@@ -3624,14 +3624,14 @@ void BattleAnim_CallbackStart95To97End62And63Fade_Init(Particle* arg0) { // PORT
 
     sp26 = Particle_GetByteParam0(arg0); // PORT: the particle was passed through a0
     temp_v0 = BattleAnim_AllocOwnerDisplayContext(arg0);
-    M2C_FIELD(arg0, s32 *, 0x14) = temp_v0;
+    arg0->displayObject = temp_v0;
     if (temp_v0 != 0) {
         if ((sp26 == 0) || (sp26 == 1)) {
-            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8C);
+            BattleAnim_InitModel(arg0->displayObject, 0x8C);
         } else if ((sp26 == 2) || (sp26 == 3)) {
-            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8E);
+            BattleAnim_InitModel(arg0->displayObject, 0x8E);
         } else {
-            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8D);
+            BattleAnim_InitModel(arg0->displayObject, 0x8D);
         }
         Particle_SetScaleScaled(arg0, 1.0f /* PORT: was 0x3F800000 */); // 1.0f
         Particle_SetPrimAlpha(arg0, 0);
@@ -5036,7 +5036,7 @@ void BattleAnim_CallbackEnd79DefaultDescPaletteFade(Particle* particle) {
     case 2:
         ParticleGfx_ApproachPrimEnvPalettePair(particle, 0x33, 0x24);
         Particle_ApproachPrimAlpha(particle, 0xFF, 0x1D);
-        if (ModelAnim_IsFinished(((uintptr_t)particle->displayObject)) != 0) {
+        if (ModelAnim_IsFinished(particle->displayObject) != 0) {
             Particle_MarkInactive(particle);
         }
         return;

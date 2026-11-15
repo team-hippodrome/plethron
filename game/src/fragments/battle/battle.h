@@ -1315,7 +1315,7 @@ extern M2C_UNK D_8218E6C8;
 
 extern M2C_UNK D_8218E6D0;
 
-extern s32 D_8219A814;
+extern ActivePokemon* D_8219A814; // PORT: was s32, holds a pointer
 
 extern M2C_UNK D_8218E6D8;
 
@@ -1803,7 +1803,7 @@ s16 BattleScene_GetHitCueAlternateAnchor(ActivePokemon*);
 void BattleScene_PositionParticipantModel(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleScene_InitializeParticipantModel(ActivePokemon* active_pokemon);
 void BattleScene_InitializeParticipantOwnerModel(ActivePokemon* active_pokemon);
-void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s32* secondary_models); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, PokemonAfterimage* secondary_models); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleScene_InitializeParticipantAuxiliaryModel(ActivePokemon* active_pokemon);
 void BattleScene_PositionParticipantModel(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 f32 BattleScene_GetParticipantModelXOffset(ActivePokemon* active_pokemon);
@@ -1877,53 +1877,53 @@ void BattleAnim_WithdrawContinue(ActivePokemon* owner, UNUSED ActivePokemon* ani
 void BattleAnim_DrawParticleNoop(UNUSED Particle* arg0, UNUSED CameraNode* arg1);
 void BattleAnim_PokeBallThrowStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_PokeBallThrowContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_PokeBallThrow(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_PokeBallThrow(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_PokeBallLandStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_PokeBallLandContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_PokeBallLandStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_PokeBallLandContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
-void BattleAnim_PokeBallLand(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_PokeBallLand(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_FlyStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_FlyContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_FlyStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_FlyContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
-void BattleAnim_Fly(ActivePokemon* arg0, ActivePokemon* arg1);
+void BattleAnim_Fly(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_WaterfallStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_WaterfallContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_Waterfall(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_InitSwayTransform(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_StepSwayTransformUntilGrounded(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_RunSwayTransform(s32 arg0, ActivePokemon* arg1);
-void BattleAnim_SubmissionStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_RunSwayTransform(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
+void BattleAnim_SubmissionStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleScene_UpdateSecondaryModelTrailPosition(ActivePokemon* pokemon, s16 new_position); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 s32 BattleAnim_ApproachAngleAndCheckThreshold(ActivePokemon* pokemon, s16 phase, s16 camera_offset_scale); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
-void BattleAnim_SubmissionContinue(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_SubmissionContinue(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_SubmissionEnd(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_SubmissionEnd(UNUSED ActivePokemon* owner, UNUSED ActivePokemon* animated_pokemon);
 void BattleAnim_Submission(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_DigStart(s32 arg0, ActivePokemon* arg1);
-void BattleAnim_DigContinue(s32 arg0, ActivePokemon* arg1);
-void BattleAnim_DigSinkUnderground(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_DigStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
+void BattleAnim_DigContinue(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
+void BattleAnim_DigSinkUnderground(ActivePokemon* transform, ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_Dig(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_AgilityStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_AgilityStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_AgilityContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_AgilityEnd(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_AgilityContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_AgilityEnd(UNUSED ActivePokemon* owner, UNUSED ActivePokemon* animated_pokemon);
 void BattleAnim_Agility(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_DoubleTeamStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_DoubleTeamStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_DoubleTeamContinue(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_DoubleTeam(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_ResetOwnerFacingAndExitStatusIdle(ActivePokemon* arg0);
-void BattleAnim_SeismicTossStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_SeismicTossStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_SeismicTossContinue(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_SeismicTossContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_SeismicToss(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleScene_ResetParticipantModelFlags(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_MinimizeStart(DisplayObject* arg0, ActivePokemon* arg1);
-void BattleAnim_MinimizeContinue(s32 arg0, s32 arg1);
+void BattleAnim_MinimizeContinue(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_Minimize(ActivePokemon* owner, ActivePokemon* animated_pokemon);
-void BattleAnim_WithdrawStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_WithdrawStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_WithdrawContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_Withdraw(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_MeditateStart(UNUSED ActivePokemon* owner, ActivePokemon* animated_pokemon);
@@ -1937,12 +1937,12 @@ void BattleAnim_SquishHitReactionStart(ActivePokemon* owner, ActivePokemon* anim
 void BattleAnim_SquishHitReactionContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_SquishHitReactionStart(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_SquishHitReactionContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
-void BattleAnim_SquishHitReaction(ActivePokemon* arg0, ActivePokemon* arg1);
+void BattleAnim_SquishHitReaction(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_BindHitReactionStart(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_BindHitReactionContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_BindHitReactionContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
-void BattleAnim_BindHitReaction(s32 arg0, ActivePokemon* arg1);
-void BattleAnim_SurfStart(s32 arg0, ActivePokemon* arg1);
+void BattleAnim_BindHitReaction(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
+void BattleAnim_SurfStart(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/model_transforms_2.c)
 void BattleAnim_SurfContinue(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_Surf(ActivePokemon* owner, ActivePokemon* animated_pokemon);
 void BattleAnim_PlayTransformInducingAnimation(s32 side_index);
@@ -2100,8 +2100,8 @@ s32 BattleHud_DrawBorderTile(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4);
 void ParticleEffect_InitNoop(void);
 void BattleHud_DrawLevelNumber(s32 arg0, s32 arg1, s32 arg2);
 void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, s32 arg3, s32 arg4);
-void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, s32 arg3, u16 arg4, s32 arg5);
+void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, const char* arg3, s32 arg4); // PORT: signature from the definition (fragments/battle/hud_mon_info.c)
+void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, const char* arg3, u16 arg4, s32 arg5); // PORT: signature from the definition (fragments/battle/hud_mon_info.c)
 void BattleHud_DrawTrainerNameLabelAuto(ActivePokemon* arg0, TeamRoster* arg1, s16 arg2, s16 arg3, s32 arg4, u16 arg5, s32 arg6);
 void BattleHud_DrawMonInfoBox(ActivePokemon* arg0, BattleMon* arg1, StatusLabel* arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 argA);
 
@@ -2173,7 +2173,7 @@ void BattleScene_SetCameraAtFromAnchor(ActivePokemon* arg0, CameraNode* arg1, Ve
 void BattleScene_GetParticipantCameraAnchor(ActivePokemon* arg0, Vec3f* arg1);
 void BattleScene_SetDamageShakeAmplitude(ActivePokemon* arg0);
 void BattleScene_ApplyCameraShake(CameraNode* arg0);
-s32 BattleScene_ApproachCameraRotationY(s32 arg0, s16 arg1, s16 arg2);
+s32 BattleScene_ApproachCameraRotationY(CameraNode* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 s32 BattleScene_ApproachCameraRotationYNoEyeUpdate(UNUSED CameraNode* arg0, s16 arg1, s16 arg2);
 void BattleScene_ClearCameraOffsetVectors(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 void BattleScene_EaseSideOnCameraDistance(CameraNode*, ActivePokemon*);
@@ -2281,9 +2281,9 @@ void BattleScene_UseMoveCameraRandomWithShot4(CameraNode* arg0);
 void BattleScene_UseMoveStepConfusionSelfHit(CameraNode* arg0);
 void BattleScene_ActionSetupAnimationVariantB(CameraNode* arg0);
 void BattleScene_ImpactCameraAbove(CameraNode* arg0);
-void BattleScene_ImpactCameraBelow(s32 arg0);
+void BattleScene_ImpactCameraBelow(CameraNode* camera); // PORT: signature from the definition (fragments/battle/action_steps.c)
 void BattleScene_ImpactCameraOrbit(CameraNode* arg0);
-void BattleScene_ImpactCameraWideOrbit(s32 arg0);
+void BattleScene_ImpactCameraWideOrbit(CameraNode* camera); // PORT: signature from the definition (fragments/battle/action_steps.c)
 void BattleScene_ActionSetupAnimationVariantB(CameraNode*);
 void BattleScene_ImpactCameraRandom3(CameraNode* arg0);
 void BattleScene_ImpactCameraRandom4(CameraNode* arg0);
@@ -2304,12 +2304,12 @@ void BattleScene_ReactionSideEffect(CameraNode* arg0, void* arg1);
 void BattleScene_ActionStepReaction(CameraNode* arg0, void* arg1);
 void BattleScene_PhaseFirstAction(CameraNode* arg0);
 void BattleScene_PhaseSecondAction(CameraNode* arg0);
-void BattleCamera_PlayRandomUserShot3(s32 arg0);
-void BattleCamera_PlayRandomUserShot4(s32 arg0);
-void BattleCamera_PlayRandomUserShotWith4(s32 arg0);
-void BattleCamera_PlayUserShot(s32 arg0, s32 arg1);
+void BattleCamera_PlayRandomUserShot3(CameraNode* camera); // PORT: signature from the definition (fragments/battle/phases.c)
+void BattleCamera_PlayRandomUserShot4(CameraNode* camera); // PORT: signature from the definition (fragments/battle/phases.c)
+void BattleCamera_PlayRandomUserShotWith4(CameraNode* camera); // PORT: signature from the definition (fragments/battle/phases.c)
+void BattleCamera_PlayUserShot(CameraNode* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/phases.c)
 void BattleCamera_PlayTargetShot(ActivePokemon* arg0, CameraNode* arg1, s32 arg2);
-void BattleCamera_PlayMoveUserShot(s32 arg0);
+void BattleCamera_PlayMoveUserShot(CameraNode* camera); // PORT: signature from the definition (fragments/battle/phases.c)
 void BattleScene_PhaseSelfEffect(CameraNode* arg0);
 void BattleScene_PhaseExplosion(CameraNode* arg0);
 void BattleScene_PhaseMoveFailedMessage(CameraNode* arg0);
@@ -2411,7 +2411,7 @@ void ParticipantModels_UnusedNopD(void);
 
 // anim_effect_queue.c
 void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
-void BattleAnim_QueueEffectList(u8 arg0, s32 arg1);
+void BattleAnim_QueueEffectList(u8 arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 s16 BattleAnim_GetQueuedMoveId(void); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 s32 BattleAnim_IsModelAnimComplete(DisplayObject* arg0);
 DisplayObject* BattleAnim_AllocOwnerDisplayContext(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
@@ -2421,7 +2421,7 @@ u8 BattleAnim_GetCurrentEffectList(void);
 void BattleAnim_SetQueuedResourceListId(u8 arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 u8 BattleAnim_GetQueuedResourceListId(void);
 s16 BattleAnim_GetQueuedMoveId(void); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
-void BattleAnim_QueueMoveEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4);
+void BattleAnim_QueueMoveEffect(s32 arg0, ActivePokemon* arg1, ActivePokemon* arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_QueueMoveEffectScript(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
 void BattleAnim_QueueMoveEffectEnd(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
 void BattleAnim_QueueChargingMoveEffectScript(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
@@ -2682,7 +2682,7 @@ s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: si
 void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_AddPositionOffsetAlongRotationY(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
-void Particle_SetPrimAlpha(s8 *arg0, char arg1);             /* extern */
+void Particle_SetPrimAlpha(Particle* arg0, char arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_ApproachRotationXTo(Particle* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_SetPosition(Particle* arg0, f32 arg1, f32 arg2, f32 arg3);
 void Particle_SetRandomVelocityXYZ(Particle* arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/particle.c)
@@ -3138,7 +3138,7 @@ void BattleAnim_ApplyModelSpeciesOffset(Particle* arg0);
 // anim_model_effects.c
 void BattleAnim_InitModelAnimationSlot(Particle* arg0, s16 arg1);
 void BattleAnim_InitializeAmnesiaUse(void);
-void BattleAnim_BuildReflectiveTextureDisplayList(Gfx* arg0, s32 arg1, u16 arg2);
+void BattleAnim_BuildReflectiveTextureDisplayList(Gfx* arg0, u8* arg1, u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_AllocateReflectiveTextureDisplayList(s32 arg0, arg1_func_84344CE8* arg1);
 void BattleAnim_BuildEffect125DisplayList(Gfx* arg0, u16 arg1);
 void BattleAnim_AllocateEffect125DisplayList(s32 arg0, arg1_func_84344CE8* arg1);
@@ -3220,7 +3220,7 @@ void BattleAnim_InitializeGlareLeerUse(void);
 void BattleAnim_InitializeHyperBeamUseSequence(void); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_InitializeEarthquakeFissureHit(void);
 void BattleAnim_InitializeEarthquakeHit(void);
-void Gfx_PokemonPortraitCallback(Gfx* arg0, u8 arg1, UNUSED u16 arg2);
+void Gfx_PokemonPortraitCallback(Gfx* arg0, u8 arg1, UNUSED u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void Gfx_PokemonPortraitAllocCallback(s32 arg0, arg1_func_84344CE8* arg1);
 void BattleAnim_InitializeSpeedLines(void);
 void BattleAnim_InitializeWithdrawUse(void);
@@ -3257,28 +3257,28 @@ void ParticleEffect_CreateSmokeHighPriority(void);
 void BattleAnim_CallbackStart132Desc39Rise_InitParticle(Particle* arg0);
 void ParticleEffect_CreateDual(void);
 void BattleAnim_ConfuseRayAmnesiaModelAnimWait(Particle* arg0);
-void ParticleEffect_DrawNode(Gfx* arg0, s32 arg1, u16 arg2);
+void ParticleEffect_DrawNode(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_RunDizzyPunchHitEffect(Particle* arg0);
 void BattleAnim_CallbackEnd49Model33Anim34WaitCleanup(Particle* arg0);
-void BattleAnim_BuildEffect49DisplayList(Gfx* arg0, UNUSED s32 arg1, UNUSED u16 arg2);
+void BattleAnim_BuildEffect49DisplayList(Gfx* arg0, UNUSED s32 arg1, UNUSED u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_RunFlyUpwardMovementEffect(Particle* arg0);
-void BattleAnim_BuildEffect63DisplayList(Gfx* arg0, s32 arg1, u16 arg2);
-void BattleAnim_BuildEffect75DisplayList(Gfx* arg0, UNUSED s32 arg1, UNUSED u16 arg2);
+void BattleAnim_BuildEffect63DisplayList(Gfx* arg0, s32 arg1, u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
+void BattleAnim_BuildEffect75DisplayList(Gfx* arg0, UNUSED s32 arg1, UNUSED u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_RockModelAnimWait(Particle* arg0);
 void BattleAnim_RockModelFadeIn(Particle* arg0);
-void Gfx_DrawParticleAlpha(Gfx* arg0, s32 arg1, u16 arg2);
+void Gfx_DrawParticleAlpha(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void Gfx_DrawParticleTexture4b(Gfx* arg0, u8* arg1, UNUSED u16 arg2);
 void Gfx_DrawParticleGreenPrim(Gfx* arg0, u8* arg1, UNUSED u16 arg2);
 void Gfx_DrawParticleBluePrim(Gfx* arg0, arg1_func_8434E21C* arg1, UNUSED u16 arg2);
 void Gfx_DrawParticleCustomColors(Gfx* arg0, arg1_func_8434E21C* arg1, UNUSED u16 arg2);
-void Gfx_DrawParticleFromTempColors(Gfx* arg0, s32 arg1, u16 arg2);
+void Gfx_DrawParticleFromTempColors(Gfx* arg0, arg1_func_8434E21C* arg1, u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void BattleAnim_SludgeModelAnimFinish(Particle* arg0);
 void BattleAnim_RunSlimePuddle(Particle* arg0);
 s16 BattleAnim_GetMoveKeyedTintRampParam(void);
 void Gfx_ParticleRedPrimCallback(Gfx* arg0, UNUSED arg1_func_8434E21C* arg1, UNUSED u16 arg2);
 void BattleAnim_RunPsychedelicOverlay(Particle* arg0);
 void Gfx_PaletteParticleDL(Gfx* arg0, u8* arg1, UNUSED u16 arg2);
-void Gfx_WaterAnimPrimEnvDL(Gfx* arg0, u8 arg1, UNUSED u16 arg2);
+void Gfx_WaterAnimPrimEnvDL(Gfx* arg0, u8 arg1, UNUSED u16 arg2); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 void Gfx_WaterAnimDL(Gfx* arg0, u8* arg1, UNUSED u16 arg2);
 void BattleAnim_CallbackStartEffect101ModelBurstEmitter(Particle* arg0);
 void BattleAnim_RunPsywaveEffect(Particle* arg0);
@@ -3517,7 +3517,7 @@ void BattleAnim_CallbackDesc26BurstChild_InitParticle(Particle* arg0);
 
 // anim_contact_effects_3.c
 void BattleAnim_CallbackDescriptor26BurstChild(Particle* arg0);
-void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0);
+void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_contact_effects_3.c)
 void BattleAnim_CallbackDescriptor26BurstEmitter(Particle* arg0);
 void BattleAnim_SetupUnusedGrowingSparkVariant(Particle* arg0);
 
@@ -3990,7 +3990,7 @@ s32 BattleAnim_PollAssetLoadBusy(ActivePokemon* active_pokemon);
 s32 BattleAnim_IsModelBusy(ActivePokemon* active_pokemon);
 void Battle_MarkIllegalMoves(ActivePokemon* pokemon, u16 pokemon_id, SpeciesLearnsetBuffer* red_blue_learnset, SpeciesLearnsetBuffer* yellow_learnset);
 void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon);
-void BattleThumbnail_InitializeOwnerCameraFraming(s32 camera0, ActivePokemon* pokemon0, s32 camera1, ActivePokemon* pokemon1);
+void BattleThumbnail_InitializeOwnerCameraFraming(CameraNode* camera0, ActivePokemon* pokemon0, CameraNode* camera1, ActivePokemon* pokemon1); // PORT: signature from the definition (fragments/battle/thumbnail.c)
 void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, s32 delta);
 s32 BattleScene_GetTeamMemberTeamSize(ActivePokemon* active_pokemon);
 s32 BattleScene_GetPartnerTeamSize(ActivePokemon* active_pokemon);
@@ -4002,10 +4002,10 @@ void BattleScene_BindParticipantTeamRoster(ActivePokemon* active_pokemon, s32 te
 void BattleScene_SetParticipantTeamMember(ActivePokemon* active_pokemon, s32 team_member_index);
 s32 BattleScene_ApplyForcedActionDelay(ActivePokemon* active_pokemon);
 void BattleScene_HandlePlayerMoveSelection(ActivePokemon* active_pokemon);
-s32 BattleScene_HandlePlayerMoveSelectionLocked(ActivePokemon* active_pokemon, M2C_UNK unused); // PORT: signature from the definition (fragments/battle/command_menu.c)
+s32 BattleScene_HandlePlayerMoveSelectionLocked(ActivePokemon* active_pokemon, Controller* unused); // PORT: signature from the definition (fragments/battle/command_menu.c)
 void Battle_DrawSpectatorModeBackgroundPanel(); // the caller passes three unused arguments
 void BattleScene_PhaseSendOut(CameraNode* arg0);
-void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNUSED s32 arg2);
+void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED ActivePokemon* arg1, UNUSED ActivePokemon* arg2); // PORT: signature from the definition (fragments/battle/scene_memory.c)
 s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_GetOwnerSizeRatio(ActivePokemon* active_pokemon);
 s32 BattleCamera_StepPathLateEase(CameraNode* camera, ActivePokemon* active_pokemon);
@@ -4137,18 +4137,18 @@ u8* ActivePokemon_GetNickname(ActivePokemon* arg0);
 f32 ActivePokemon_GetSizeRatio(ActivePokemon* active_pokemon);
 void ActivePokemon_SetController(ActivePokemon* arg0, Controller* arg1);
 void ActivePokemon_ShowCaption(ActivePokemon* arg0, s8* arg1, ...);
-s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1);
+s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1); // PORT: signature from the definition (fragments/battle/com_ai_2.c)
 void BattleAnim_StartQueuedCategory2Effect(ActivePokemon* active_pokemon);
-void BattleCamera_PlayReactionFraming(ActivePokemon* active_pokemon, CameraNode* camera, s32 arg2);
+void BattleCamera_PlayReactionFraming(ActivePokemon* active_pokemon, CameraNode* camera, s32 arg2); // PORT: signature from the definition (fragments/battle/action_steps_2.c)
 void BattleCamera_PlayShot(void* arg0, void* arg1, s32 arg2);
-void BattleCamera_StoreShotIndex(s32 shot);
+void BattleCamera_StoreShotIndex(s32 shot); // PORT: signature from the definition (fragments/battle/action_steps_2.c)
 void BattleHud_DrawActingPokemonNickname(void);
-void BattleHud_DrawCaptionBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3);
+void BattleHud_DrawCaptionBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3); // PORT: signature from the definition (fragments/battle/menu_panels.c)
 void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, const char* arg2); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
-void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
-void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
-void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
-void BattleMessage_DrawBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3);
+void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
+void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
+void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
+void BattleMessage_DrawBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3); // PORT: signature from the definition (fragments/battle/menu_panels.c)
 void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...);
 void BattleMessage_ShowForSide(s8* arg0, s32 side);
 void BattleScene_CameraShotTargetHighThunk(CameraNode* arg0, ActivePokemon* arg1);
@@ -4167,8 +4167,8 @@ void BattleScene_InitTurnPresentation(CameraNode* arg0);
 void BattleScene_IntroStepWaitForAssets(CameraNode* arg0);
 void BattleScene_OpeningStepThrowSide1(CameraNode* arg0);
 void BattleScene_OpeningStepWaitSide0Ball(CameraNode* arg0);
-void BattleScene_ReactionCritical(CameraNode* arg0, s32 arg1);
-void BattleScene_ReactionNormal(CameraNode* arg0, s32 arg1);
+void BattleScene_ReactionCritical(CameraNode* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/action_steps_2.c)
+void BattleScene_ReactionNormal(CameraNode* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/action_steps_2.c)
 void BattleScene_ResetCameraShake(CameraNode* camera);
 void BattleScene_ResetSideFlagsAtActionStart(ActivePokemon* active_pokemon);
 void BattleScene_ResidualPhaseNop(void);

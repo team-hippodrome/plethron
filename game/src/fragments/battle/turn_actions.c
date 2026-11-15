@@ -13,8 +13,8 @@ void BattleScene_ClearCameraOffsetVectors(void); // PORT: signature from the def
 void BattleScene_ResetAnimationStep(void); // PORT: signature from the definition (fragments/battle/owner_animation.c)
 extern Vec3f D_8218B630; // PORT: was M2C_UNK, its floats were passed as int bits
 extern f32 D_FLT_82189354[][4];
-extern s32 D_82199DE0;
-extern s32 D_82199DE4;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
+extern ActivePokemon* D_82199DE4; // PORT: was s32, holds a pointer
 // FAKE: sBattleScene.scene under a second symbol at the same address; BattleScene_MoveIntroCameraBelow
 // mixes it with sBattleScene, which is needed to match (IDO does not see the two alias).
 extern BattleScene* D_8219A5A0;
@@ -184,7 +184,7 @@ void BattleScene_InitializeSwitchActions(void) {
     }
 }
 
-extern s32 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
 M2C_UNK Announcer_SetActive();
 void BattleScene_SetCameraSubstate(s32 arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 /**

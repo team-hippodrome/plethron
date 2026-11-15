@@ -75,7 +75,7 @@ extern ModelNodeView* D_82203250;
 extern ModelNodeView* D_82203254;
 extern ModelNodeView* D_82203258;
 extern BinArchive* D_8220325C;
-extern s32 D_82203264;
+extern PokeIconRenderer* D_82203264; // PORT: was s32, holds a pointer
 extern DisplayObject D_82203268;
 extern DisplayObject D_822033D0;
 extern s16 D_822033E8;
@@ -142,7 +142,7 @@ void VsScene_StoreNodeCallback(s32 phase, s8 *node)
   s8 **new_var; // FAKE: permuter temp
   if (phase == 0)
   {
-    new_var = *((s8 ***) (((s8 *) node) + 0x14)); // FAKE: permuter temp
+    new_var = (s8**)((GraphNode*)node)->callbackArg; // PORT: was the N64 offset 0x14
     *new_var = node; // FAKE: permuter temp
   }
 }

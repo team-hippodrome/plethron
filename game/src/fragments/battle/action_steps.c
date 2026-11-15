@@ -21,9 +21,9 @@ void BattleScene_CleanupParticipantEffectMode(ActivePokemon* active_pokemon); //
 M2C_UNK BattleScene_SetCameraClipMaskBothSides(M2C_UNK);
 void BattleScene_ResetCameraSubstepCounter(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 void BattleScene_ClearCameraOffsetVectors(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
-M2C_UNK BattleScene_StepOrbitFraming(s32, s32, M2C_UNK);
+void BattleScene_StepOrbitFraming(CameraNode* camera, ActivePokemon* active_pokemon, s16 rotation_x); // PORT: signature from the definition (fragments/battle/scene_camera_2.c)
 void BattleScene_ResetAnimationStep(void); // PORT: signature from the definition (fragments/battle/owner_animation.c)
-extern s32 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
 extern u8 D_82199F31;
 void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleAnim_ApproachF(f32* dest, f32 value, f32 speed); // PORT: signature from the definition (fragments/battle/anim_math.c)
@@ -33,7 +33,7 @@ void BattleScene_ResetCameraFrameCounter(void); // PORT: signature from the defi
 extern s32 D_8219A570;
 extern s32 D_8219A574;
 void BattleAi_RecordUsedMove(s32, s32, s32);
-extern s32 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
 M2C_UNK Announcer_SetActive();
 void BattleScene_SetCameraSubstate(s32 arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 f32 Math_StepToF(f32, f32, f32, f32);
@@ -616,7 +616,7 @@ void BattleScene_ImpactCameraAbove(CameraNode* camera) {
  * heights) with camera preset 2.
  * @unverified Name guessed from the code.
  */
-void BattleScene_ImpactCameraBelow(s32 camera) {
+void BattleScene_ImpactCameraBelow(CameraNode* camera) { // PORT: camera was s32
     s32 temp_v0;
 
     sBattleScene.scene->cameraPresetId = 2;
@@ -676,7 +676,7 @@ void BattleScene_ImpactCameraOrbit(CameraNode* camera) {
  * breakpoint): ran only for Fly, Strength.
  * @unverified Name guessed from the code.
  */
-void BattleScene_ImpactCameraWideOrbit(s32 camera) {
+void BattleScene_ImpactCameraWideOrbit(CameraNode* camera) { // PORT: camera was s32
     s32 temp_v0;
 
     sBattleScene.scene->cameraPresetId = 2;

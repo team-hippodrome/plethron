@@ -2,9 +2,9 @@
 #include "battle.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-extern s32 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
 s32 BattleAnim_TryRegisterAssetTables(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
-void BattleScene_OpeningStepLandSide0Ball(CameraNode* arg0);
+void BattleScene_OpeningStepLandSide0Ball(CameraNode* arg0); // PORT: signature from the definition (fragments/battle/phases_2.c)
 
 /**
  * Battle opening, step 12: does nothing (the opening has ended).
@@ -79,7 +79,7 @@ void BattleScene_UpdateIntroSequence(CameraNode* arg0) {
     }
 }
 
-extern s32 D_82199DE0;
+extern ActivePokemon* D_82199DE0; // PORT: was s32, holds a pointer
 void BattleScene_ResetCameraFrameCounter(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 Vec3f* Vec3f_SetComponentsDuplicate(Vec3f* dest, f32 x, f32 y, f32 z); // PORT: signature from the definition (matrix.c)
 void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)

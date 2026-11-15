@@ -18,9 +18,9 @@ void BattleEffect_Explosion(void);
 void MoveEffect_UnusedNop(void) {
 }
 
-extern s32 D_8218C7BC;
-extern s32 D_8218C7C0;
-extern s32 D_8218C7C4;
+extern s8* D_8218C7BC; // PORT: was s32, holds a pointer
+extern s8* D_8218C7C0; // PORT: was s32, holds a pointer
+extern s8* D_8218C7C4; // PORT: was s32, holds a pointer
 /**
  * Move effects 0x01 and 0x20 (Gen 1 SleepEffect): puts the target to sleep for 1-3 turns unless
  * it already has a status, the move misses or Sleep Clause applies. Sets moveEffectKind 0x16.
@@ -65,10 +65,10 @@ block_9:
     }
 }
 
-extern s32 D_8218C7C8;
-extern s32 D_8218C7CC;
-extern s32 D_8218C7D0;
-extern s32 D_8218C7D4;
+extern s8* D_8218C7C8; // PORT: was s32, holds a pointer
+extern s8* D_8218C7CC; // PORT: was s32, holds a pointer
+extern s8* D_8218C7D0; // PORT: was s32, holds a pointer
+extern s8* D_8218C7D4; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -81,7 +81,7 @@ extern s32 D_8218C7D4;
  * @unverified Name guessed from the code.
  */
 void Battle_Effect_Poison(void) {
-    s32 sp1C = (uintptr_t)gBattleMessageQueues->messageBuffers[0];
+    s8* sp1C = (uintptr_t)gBattleMessageQueues->messageBuffers[0]; // PORT: sp1C was s32
 
     if (!(sBattleTarget->volatileStatusFlags & 0x10) && (sBattleTarget->statusCondition == 0) && (sBattleTarget->type1 != 3) &&
         (sBattleTarget->type2 != 3)) {
@@ -136,8 +136,8 @@ void Battle_Effect_Poison(void) {
     }
 }
 
-extern s32 D_8218C7D8;
-extern s32 D_8218C7DC;
+extern s8* D_8218C7D8; // PORT: was s32, holds a pointer
+extern s8* D_8218C7DC; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -177,10 +177,10 @@ void BattleEffect_Explosion(void) {
     sBattleUser->volatileStatusFlags &= ~0x80;
 }
 
-extern s32 D_8218C7E0;
-extern s32 D_8218C7E4;
-extern s32 D_8218C7E8;
-extern s32 D_8218C7EC;
+extern s8* D_8218C7E0; // PORT: was s32, holds a pointer
+extern s8* D_8218C7E4; // PORT: was s32, holds a pointer
+extern s8* D_8218C7E8; // PORT: was s32, holds a pointer
+extern s8* D_8218C7EC; // PORT: was s32, holds a pointer
 /**
  * Move effects 0x04-0x06 and 0x22-0x24 (Gen 1 FreezeBurnParalyzeEffect): the 10% or 30% side
  * effect that burns, freezes or paralyzes the target. A Fire move thaws a frozen target.
@@ -237,9 +237,9 @@ void Battle_Effect_FreezeBurnParalyze(void) {
 }
 
 extern StatStageMultiplier D_8218ADF4[];
-extern s32 D_8218C7F0;
-extern s32 D_8218C808;
-extern s32 D_8218C820;
+extern s8* D_8218C7F0[6]; // PORT: was s32 indexed through its address, a table of message pointers
+extern s8* D_8218C808[6]; // PORT: was s32 indexed through its address, a table of message pointers
+extern s8* D_8218C820; // PORT: was s32, holds a pointer
 /**
  * Apply the Rage follow-up stat boost, using its separate message queue.
  * Seen in play (2026-11-13) (Free Battle, 1P Metronome pinned to Rage, then COM's pinned to
@@ -307,9 +307,9 @@ void BattleEffect_ApplyStatBoost(void) {
         }
 
         if (var_a3 == 2) {
-            BattleMessage_Format(gBattleMessageQueues->messageBuffers[9], (s8)(sp24 + 0x8D), (&D_8218C7F0)[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
+            BattleMessage_Format(gBattleMessageQueues->messageBuffers[9], (s8)(sp24 + 0x8D), D_8218C7F0[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
         } else {
-            BattleMessage_Format(gBattleMessageQueues->messageBuffers[9], (s8)(sp24 + 0x93), (&D_8218C808)[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
+            BattleMessage_Format(gBattleMessageQueues->messageBuffers[9], (s8)(sp24 + 0x93), D_8218C808[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
         }
 
         Battle_ApplyParalysisSpeedCut(sActivePokemon[!sBattleScene.scene->actingSide]);
@@ -387,9 +387,9 @@ void Battle_Effect_StatUp(void) {
         }
 
         if (var_a3 == 2) {
-            BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], (s8)(sp24 + 0x8D), (&D_8218C7F0)[sp24], ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
+            BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], (s8)(sp24 + 0x8D), D_8218C7F0[sp24], ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
         } else {
-            BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], (s8)(sp24 + 0x93), (&D_8218C808)[sp24], ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
+            BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], (s8)(sp24 + 0x93), D_8218C808[sp24], ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
         }
 
         Battle_ApplyParalysisSpeedCut(sActivePokemon[sBattleScene.scene->actingSide]);
@@ -403,10 +403,10 @@ void Battle_Effect_StatUp(void) {
 
 extern StatStageMultiplier D_8218ADF4[];
 extern u8 D_82199F36;
-extern s32 D_8218C824;
-extern s32 D_8218C83C;
-extern s32 D_8218C854;
-extern s32 D_8218C858;
+extern s8* D_8218C824[6]; // PORT: was s32 indexed through its address, a table of message pointers
+extern s8* D_8218C83C[6]; // PORT: was s32 indexed through its address, a table of message pointers
+extern s8* D_8218C854; // PORT: was s32, holds a pointer
+extern s8* D_8218C858; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -501,9 +501,9 @@ void Battle_Effect_LowerStat(void) {
             }
 
             if (sp20 == 2) {
-                BattleMessage_Format(gBattleMessageQueues->messageBuffers[6], (s8)(sp24 + 0x9A), (&D_8218C824)[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
+                BattleMessage_Format(gBattleMessageQueues->messageBuffers[6], (s8)(sp24 + 0x9A), D_8218C824[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
             } else {
-                BattleMessage_Format(gBattleMessageQueues->messageBuffers[6], (s8)(sp24 + 0xA0), (&D_8218C83C)[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
+                BattleMessage_Format(gBattleMessageQueues->messageBuffers[6], (s8)(sp24 + 0xA0), D_8218C83C[sp24], ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
             }
 
             Battle_ApplyParalysisSpeedCut(sActivePokemon[!sBattleScene.scene->actingSide]);

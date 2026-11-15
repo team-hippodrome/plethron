@@ -43,8 +43,8 @@ void BattleEffect_Thrash(void) {
     sBattleUser->effectTurnsLeft = (Battle_Random() & 1) + 2;
 }
 
-extern s32 D_8218C870;
-extern s32 D_8218C874;
+extern s8* D_8218C870; // PORT: was s32, holds a pointer
+extern s8* D_8218C874; // PORT: was s32, holds a pointer
 
 /**
  * Move effect for Whirlwind, Roar and Teleport. It only shows a message (Teleport's own,
@@ -147,12 +147,12 @@ void BattleEffect_OHKO(void) {
     sBattleCritFlag = 2;
 }
 
-extern s32 D_8218C878;
-extern s32 D_8218C87C;
-extern s32 D_8218C880;
-extern s32 D_8218C884;
-extern s32 D_8218C888;
-extern s32 D_8218C88C;
+extern s8* D_8218C878; // PORT: was s32, holds a pointer
+extern s8* D_8218C87C; // PORT: was s32, holds a pointer
+extern s8* D_8218C880; // PORT: was s32, holds a pointer
+extern s8* D_8218C884; // PORT: was s32, holds a pointer
+extern s8* D_8218C888; // PORT: was s32, holds a pointer
+extern s8* D_8218C88C; // PORT: was s32, holds a pointer
 
 /**
  * Move effects 0x27 and 0x2B (Gen 1 ChargeEffect): the first turn of Razor Wind, Solar Beam,
@@ -220,8 +220,8 @@ void Battle_Effect_Trapping(void) {
     }
 }
 
-extern s32 D_8218C890;
-extern s32 D_8218C894;
+extern s8* D_8218C890; // PORT: was s32, holds a pointer
+extern s8* D_8218C894; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -241,8 +241,8 @@ void Battle_Effect_Mist(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x4A, D_8218C894, ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
 }
 
-extern s32 D_8218C898;
-extern s32 D_8218C89C;
+extern s8* D_8218C898; // PORT: was s32, holds a pointer
+extern s8* D_8218C89C; // PORT: was s32, holds a pointer
 
 /**
  * Focus Energy: sets the user's volatile flag 0x04 and shows the message, or the failure
@@ -260,7 +260,7 @@ void Battle_Effect_FocusEnergy(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x48, D_8218C89C, ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]));
 }
 
-extern s32 D_8218C8A0;
+extern s8* D_8218C8A0; // PORT: was s32, holds a pointer
 
 /**
  * Recoil: the user loses 1/4 of the damage dealt (1/2 for Struggle), at least 1 HP,
@@ -295,7 +295,7 @@ void Battle_Effect_Recoil(void) {
 }
 
 extern u8 D_82199FCD;
-extern s32 D_8218C8A4;
+extern s8* D_8218C8A4; // PORT: was s32, holds a pointer
 /**
  * Side effect with a 26/256 chance to confuse the target for 2 to 5 turns, unless it
  * is already confused.
@@ -312,8 +312,8 @@ void Battle_Effect_ConfuseChance(void) {
     }
 }
 
-extern s32 D_8218C8A8;
-extern s32 D_8218C8AC;
+extern s8* D_8218C8A8; // PORT: was s32, holds a pointer
+extern s8* D_8218C8AC; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 extern u8 D_82199F36;
@@ -344,9 +344,9 @@ void Battle_Effect_Confuse(void) {
     }
 }
 
-extern s32 D_8218C8B0;
-extern s32 D_8218C8B4;
-extern s32 D_8218C8B8;
+extern s8* D_8218C8B0; // PORT: was s32, holds a pointer
+extern s8* D_8218C8B4; // PORT: was s32, holds a pointer
+extern s8* D_8218C8B8; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -377,9 +377,9 @@ void Battle_Effect_Paralyze(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x41, D_8218C8B8, ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
 }
 
-extern s32 D_8218C910;
-extern s32 D_8218C914;
-extern s32 D_8218C918;
+extern s8* D_8218C910; // PORT: was s32, holds a pointer
+extern s8* D_8218C914; // PORT: was s32, holds a pointer
+extern s8* D_8218C918; // PORT: was s32, holds a pointer
 void ActivePokemon_SetStateFlags(ActivePokemon*, s32);
 
 /**
@@ -430,8 +430,8 @@ void BattleEffect_Rage(void) {
 
 extern MoveNameView D_8006A9CC[];
 extern u8 D_82199F37;
-extern s32 D_8218C8BC;
-extern s32 D_8218C8C0;
+extern s8* D_8218C8BC; // PORT: was s32, holds a pointer
+extern s8* D_8218C8C0; // PORT: was s32, holds a pointer
 
 /**
  * Replace the selected move slot with a randomly chosen nonempty target move.
@@ -465,8 +465,8 @@ void BattleEffect_Mimic(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x3F, D_8218C8C0);
 }
 
-extern s32 D_8218C8C4;
-extern s32 D_8218C8C8;
+extern s8* D_8218C8C4; // PORT: was s32, holds a pointer
+extern s8* D_8218C8C8; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -490,7 +490,7 @@ void Battle_Effect_LeechSeed(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x3D, D_8218C8C8, ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
 }
 
-extern s32 D_8218C8CC;
+extern s8* D_8218C8CC; // PORT: was s32, holds a pointer
 
 /**
  * Move effect 0x55 (Gen 1 SplashEffect).
@@ -501,8 +501,8 @@ void Battle_Effect_Splash(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x3C, D_8218C8CC);
 }
 
-extern s32 D_8218C8D0;
-extern s32 D_8218C8D4;
+extern s8* D_8218C8D0; // PORT: was s32, holds a pointer
+extern s8* D_8218C8D4; // PORT: was s32, holds a pointer
 /**
  * Move effect 0x56 (Gen 1 DisableEffect): disables a random move of the target for 1-8 turns.
  * Sets moveEffectKind 0x20, or 8 when it fails.
@@ -533,7 +533,7 @@ void Battle_Effect_Disable(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x3A, D_8218C8D4);
 }
 
-extern s32 D_8218C8D8;
+extern s8* D_8218C8D8; // PORT: was s32, holds a pointer
 
 /**
  * Move effect 0x10 (Gen 1 PayDayEffect).
@@ -543,8 +543,8 @@ void Battle_Effect_PayDay(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x39, D_8218C8D8);
 }
 
-extern s32 D_8218C8DC;
-extern s32 D_8218C8E0;
+extern s8* D_8218C8DC; // PORT: was s32, holds a pointer
+extern s8* D_8218C8E0; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -564,7 +564,7 @@ void Battle_Effect_Conversion(void) {
     }
 }
 
-extern s32 D_8218C8E4;
+extern s8* D_8218C8E4; // PORT: was s32, holds a pointer
 
 /**
  * Haze: resets all stat stages and stats of both Pokémon, cures the target's status
@@ -614,10 +614,10 @@ void Battle_Effect_Haze(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x36, D_8218C8E4);
 }
 
-extern s32 D_8218C8E8;
-extern s32 D_8218C8EC;
-extern s32 D_8218C8F0;
-extern s32 D_8218C8F4;
+extern s8* D_8218C8E8; // PORT: was s32, holds a pointer
+extern s8* D_8218C8EC; // PORT: was s32, holds a pointer
+extern s8* D_8218C8F0; // PORT: was s32, holds a pointer
+extern s8* D_8218C8F4; // PORT: was s32, holds a pointer
 
 /**
  * Move effect 0x38 (Gen 1 HealEffect): Recover and Soft-Boiled restore half the max HP, Rest
@@ -665,8 +665,8 @@ void Battle_Effect_Heal(void) {
     BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x32, D_8218C8F4);
 }
 
-extern s32 D_8218C8F8;
-extern s32 D_8218C8FC;
+extern s8* D_8218C8F8; // PORT: was s32, holds a pointer
+extern s8* D_8218C8FC; // PORT: was s32, holds a pointer
 /* Transform: the user copies the target's species, moves, stats and stat stages. */
 /**
  * Move effect 0x39 (Gen 1 TransformEffect): copies the target's species, types, moves (5 PP
@@ -725,10 +725,10 @@ void Battle_Effect_Transform(void) {
     }
 }
 
-extern s32 D_8218C900;
-extern s32 D_8218C904;
-extern s32 D_8218C908;
-extern s32 D_8218C90C;
+extern s8* D_8218C900; // PORT: was s32, holds a pointer
+extern s8* D_8218C904; // PORT: was s32, holds a pointer
+extern s8* D_8218C908; // PORT: was s32, holds a pointer
+extern s8* D_8218C90C; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**

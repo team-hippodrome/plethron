@@ -10,7 +10,7 @@ void Particle_SetRotationStepY(Particle*, s16);
 void Particle_SetStepMagnitudeScaled(Particle*, f32);
 void Particle_SetMotionStepYScaled(Particle*, f32);
 void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
-void Particle_SetPrimAlpha(s8 *arg0, char arg1);
+void Particle_SetPrimAlpha(Particle* arg0, char arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_SetParam0(Particle*, s32);
 void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 

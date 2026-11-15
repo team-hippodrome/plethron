@@ -44,7 +44,7 @@ void BattleScene_StartOrbitFraming(CameraNode* camera, ActivePokemon* active_pok
  * ramping up to 2.5) at rotation_x.
  * @unverified Name guessed from the code.
  */
-void BattleScene_StepOrbitFraming(s32 camera, s32 active_pokemon, s16 rotation_x) {
+void BattleScene_StepOrbitFraming(CameraNode* camera, ActivePokemon* active_pokemon, s16 rotation_x) { // PORT: active_pokemon was s32 PORT: camera was s32
     f32 temp = 0.35f;
 
     sBattleScene.scene->easeRates.z = Math_StepToF(sBattleScene.scene->easeRampRates.z, 2.5f, temp, temp);

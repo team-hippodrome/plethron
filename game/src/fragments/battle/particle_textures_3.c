@@ -50,8 +50,8 @@ void ParticleGfx_LoadTextureTileI4Alias(u8* texture, s32 width, s32 height); // 
  * Whip, Water Gun, Waterfall.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackTileI4FrameC3_24x24(Particle* particle, s32 texture) { // PORT: was s8*
-    ParticleGfx_LoadTextureTileI4Alias((M2C_FIELD(particle, s8 *, 0xC3) * 0x120) + texture, 0x18, 0x18);
+void ParticleGfx_LoadTexCallbackTileI4FrameC3_24x24(Particle* particle, u8* texture) { // PORT: particle was s8*, texture was s32
+    ParticleGfx_LoadTextureTileI4Alias((particle->textureFrame * 0x120) + texture, 0x18, 0x18);
 }
 
 /**
@@ -69,8 +69,8 @@ void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height); // PORT
  * Texture callback: loads 32x64 I4 frame (byte 0xC3) of the texture at arg1.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackI4FrameC3_32x64(Particle* particle, s32 texture) { // PORT: was s8*
-    ParticleGfx_LoadTextureI4Alias((M2C_FIELD(particle, s8 *, 0xC3) << 0xA) + texture, 0x20, 0x40);
+void ParticleGfx_LoadTexCallbackI4FrameC3_32x64(Particle* particle, u8* texture) { // PORT: particle was s8*, texture was s32
+    ParticleGfx_LoadTextureI4Alias((particle->textureFrame << 0xA) + texture, 0x20, 0x40);
 }
 
 /**

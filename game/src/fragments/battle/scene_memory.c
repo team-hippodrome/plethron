@@ -62,7 +62,7 @@ void BattleCamera_StartNextBRollShot(CameraNode* arg0);
 void BattleScene_SetPhase(CameraNode* arg0, s32 arg1);
 void BattleScene_OpeningStepInitCamera(CameraNode* arg0);
 void BattleScene_IntroStepInitOverheadCamera(CameraNode* arg0);
-void SceneMode7_StepInit(s32 arg0);
+void SceneMode7_StepInit(CameraNode* camera); // PORT: signature from the definition (fragments/battle/showcase_mode7.c)
 void SceneMode11_StepInit(CameraNode* arg0);
 /**
  * Starts the battle scene: clears the winner, sets the field of view to 30 and runs the
@@ -70,7 +70,7 @@ void SceneMode11_StepInit(CameraNode* arg0);
  * the B-roll), then stores the camera.
  * @unverified Name guessed from the code.
  */
-void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED s32 arg1, UNUSED s32 arg2) {
+void BattleScene_StartPresentationForMode(CameraNode* arg0, UNUSED ActivePokemon* arg1, UNUSED ActivePokemon* arg2) { // PORT: arg1 was s32 PORT: arg2 was s32
     sBattleScene.scene->winner = 0;
     sBattleScene.scene->verticalFieldOfView = 30.0f;
     switch (sBattleScene.scene->mode) {

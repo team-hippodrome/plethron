@@ -619,7 +619,7 @@ s32 Particle_LacksFlags(Particle* arg0, s32 arg1); // PORT: signature from the d
  * with flag 4 and lifecycle 2 or more is drawn.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_DrawWorldParticleChains(s32 camera) {
+void BattleAnim_DrawWorldParticleChains(CameraNode* camera) { // PORT: camera was s32
     s32 var_s3;
     Particle* var_s0;
     Particle* var_s2;
@@ -653,7 +653,7 @@ s32 Particle_HasFlags(Particle* arg0, s32 arg1); // PORT: signature from the def
  * more.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_DrawScreenParticles(s32 camera) {
+void BattleAnim_DrawScreenParticles(CameraNode* camera) { // PORT: camera was s32
     s32 var_s1;
     Particle* var_s0;
 

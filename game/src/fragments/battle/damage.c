@@ -159,8 +159,8 @@ s32 Battle_CalcDamage(void) {
     return 1;
 }
 
-extern s32 D_8218C7B0;
-extern s32 D_8218C7B4;
+extern s8* D_8218C7B0; // PORT: was s32, holds a pointer
+extern s8* D_8218C7B4; // PORT: was s32, holds a pointer
 void ActivePokemon_SetStateFlags(ActivePokemon*, s32);
 /**
  * Subtract damage from Substitute or target HP and update the associated continuation state.
@@ -205,11 +205,11 @@ extern u8 D_8218ABF0[];
 extern u8 D_8218ABF4[];
 extern u8 D_8218ABFC[];
 extern u8 D_8218AC04[];
-extern s32 D_8218C754;
-extern s32 D_8218C758;
-extern s32 D_8218C75C;
-extern s32 D_8218C760;
-extern s32 D_8218C764;
+extern s8* D_8218C754; // PORT: was s32, holds a pointer
+extern s8* D_8218C758; // PORT: was s32, holds a pointer
+extern s8* D_8218C75C; // PORT: was s32, holds a pointer
+extern s8* D_8218C760; // PORT: was s32, holds a pointer
+extern s8* D_8218C764; // PORT: was s32, holds a pointer
 s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
 s32 ActivePokemon_GetMoveName(ActivePokemon*);
 
@@ -603,7 +603,7 @@ void Battle_LoadMoveCache(void) {
     sBattleUser->moveCache.pp = gMoveData[sBattleUser->usedMove - 1].pp;
 }
 
-extern s32 D_8218C780;
+extern s8* D_8218C780; // PORT: was s32, holds a pointer
 /**
  * Gen 1 HandleBuildingRage: when the target is using Rage and its Attack stage isn't maxed,
  * queues the rage message and raises its Attack through BattleEffect_ApplyStatBoost.
@@ -636,8 +636,8 @@ void Battle_HandleBuildingRage(void) {
 extern u8 D_843C4DB3;
 extern u8 D_82199F3F;
 
-extern s32 D_8218C7A8;
-extern s32 D_8218C7AC;
+extern s8* D_8218C7A8; // PORT: was s32, holds a pointer
+extern s8* D_8218C7AC; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -654,8 +654,8 @@ void Battle_DisplayEffectiveness(void) {
     }
 }
 
-extern s32 D_8218C778;
-extern s32 D_8218C77C;
+extern s8* D_8218C778; // PORT: was s32, holds a pointer
+extern s8* D_8218C77C; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 /**
@@ -739,10 +739,10 @@ void Battle_ApplyAttackToTarget(void) {
 }
 
 extern u8 D_82199F3F;
-extern s32 D_8218C768;
-extern s32 D_8218C76C;
-extern s32 D_8218C770;
-extern s32 D_8218C774;
+extern s8* D_8218C768; // PORT: was s32, holds a pointer
+extern s8* D_8218C76C; // PORT: was s32, holds a pointer
+extern s8* D_8218C770; // PORT: was s32, holds a pointer
+extern s8* D_8218C774; // PORT: was s32, holds a pointer
 /**
  * Gen 1 PrintMoveFailureText: queues the doesn't affect / missed / failed message for a move that
  * failed. A Jump Kick or Hi Jump Kick miss (effect 0x2D) then deals the user crash damage
@@ -913,9 +913,9 @@ void Battle_ApplyLeechSeedDamage(void) {
 void Battle_ResidualEffectsNop(void) {
 }
 
-extern s32 D_8218C704;
-extern s32 D_8218C708;
-extern s32 D_8218C70C;
+extern s8* D_8218C704; // PORT: was s32, holds a pointer
+extern s8* D_8218C708; // PORT: was s32, holds a pointer
+extern s8* D_8218C70C; // PORT: was s32, holds a pointer
 
 // Matches the ROM, but uses rodata data that is not placed in this file yet.
 void Battle_ApplyLeechSeedDamage(void);

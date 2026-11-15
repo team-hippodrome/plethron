@@ -252,7 +252,7 @@ s32 HypnosisScreechTrail_IsComplete(void) {
 void* Gfx_AllocDisplayList(s32 size); // PORT: signature from the definition (gfx_buffer.c)
 void Vec3f_NormalizeComponents(f32*, f32*, f32*);
 void Mtx_BuildTranslatedDirectionRotation(Mtx* mtx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6); // PORT: signature from the definition (vector_math.c)
-extern s32 D_821A6F60;
+extern MtxS * D_821A6F60; // PORT: was s32, holds a pointer
 /**
  * Allocates the grid's 64-byte matrix (D_821A6F60) and fills it from the camera context: the point
  * at +0xA8 is moved 140 units toward the point at +0xB4 (times 30 over the field of view at +0x2C),

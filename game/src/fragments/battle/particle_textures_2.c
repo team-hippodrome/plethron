@@ -40,8 +40,8 @@ void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height); // PORT
  * breakpoint): ran only for Fire Punch, Thunder Punch.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackI4FrameC3_64x64(Particle* arg0, s32 arg1) { // PORT: was s8*
-    ParticleGfx_LoadTextureI4Alias((M2C_FIELD(arg0, s8 *, 0xC3) << 0xB) + arg1, 0x40, 0x40);
+void ParticleGfx_LoadTexCallbackI4FrameC3_64x64(Particle* arg0, u8* arg1) { // PORT: particle was s8*, arg1 was s32
+    ParticleGfx_LoadTextureI4Alias((arg0->textureFrame << 0xB) + arg1, 0x40, 0x40);
 }
 
 /**
