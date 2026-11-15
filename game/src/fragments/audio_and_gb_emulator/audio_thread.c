@@ -59,15 +59,16 @@ void AudioThread_Unused3(void) {
 extern u8 D_811861DA;
 extern u8 D_811861DB;
 extern s8 D_811861DC;
-extern M2C_UNK D_811861E0;
-extern M2C_UNK D_811861E8;
-extern M2C_UNK *D_81186200;
-extern M2C_UNK D_81186208;
-extern M2C_UNK D_81186218;
+// PORT: typed so the lifter gives host-sized storage (the queues hold pointers)
+extern OSMesg D_811861E0[1];
+extern OSMesgQueue D_811861E8;
+extern OSMesgQueue* D_81186200;
+extern OSMesg D_81186208[4];
+extern OSMesgQueue D_81186218;
 extern OSMesgQueue* D_81186230;
-extern M2C_UNK D_81186234;
-extern M2C_UNK D_81186238;
-extern M2C_UNK *D_81186250;
+extern OSMesg D_81186234[1];
+extern OSMesgQueue D_81186238;
+extern OSMesgQueue* D_81186250;
 
 /**
  * Corresponds to OoT AudioThread_InitMesgQueuesImpl (original name Nap_AudioPortInit). Same three
@@ -84,9 +85,9 @@ void AudioThread_InitMesgQueuesImpl(void) {
     D_81186200 = &D_811861E8;
     D_81186230 = &D_81186218;
     D_81186250 = &D_81186238;
-    osCreateMesgQueue(D_81186200, &D_811861E0, 1);
-    osCreateMesgQueue(D_81186230, &D_81186208, 4);
-    osCreateMesgQueue(D_81186250, &D_81186234, 1);
+    osCreateMesgQueue(D_81186200, D_811861E0, 1);
+    osCreateMesgQueue(D_81186230, D_81186208, 4);
+    osCreateMesgQueue(D_81186250, D_81186234, 1);
 }
 
 extern s32 D_811859D8[][2];
@@ -96,17 +97,17 @@ extern s32 D_811859D8[][2];
  * Corresponds to OoT AudioThread_QueueCmd (original name Nap_PortSet).
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1) {
+void AudioThread_QueueCmd(u32 arg0, s32* arg1) { // PORT: arg0 is the 32-bit command word (was DisplayObject*)
     s32* entry = D_811859D8[D_811861DA & 0xFF]; // FAKE: no-op mask on a u8
 
-    entry[0] = (uintptr_t)arg0;
+    entry[0] = arg0;
     entry[1] = *arg1;
     if (D_811861DB == ++D_811861DA) {
         D_811861DA--;
     }
 }
 
-void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1);
+void AudioThread_QueueCmd(u32 arg0, s32* arg1);
 /**
  * Queues a command with an f32 argument, passed by pointer from a stack copy.
  * Corresponds to OoT AudioThread_QueueCmdF32 (original name Nap_SetF32). Compiles to the same
@@ -114,10 +115,10 @@ void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1);
  * @unverified Name follows the counterpart; not checked in play.
  */
 void AudioThread_QueueCmdF32(s32 arg0, s32 arg1) {
-    AudioThread_QueueCmd((DisplayObject*)arg0, &arg1);
+    AudioThread_QueueCmd(arg0, &arg1);
 }
 
-void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1);
+void AudioThread_QueueCmd(u32 arg0, s32* arg1);
 /**
  * Queues a command with an s32 argument, passed by pointer from a stack copy. Callers pass a 32-bit
  * command word such as 0xF9000000 or 0xF1000000 as arg0.
@@ -125,16 +126,16 @@ void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1);
  * @unverified Name follows the counterpart; not checked in play.
  */
 void AudioThread_QueueCmdS32(s32 arg0, s32 arg1) {
-    AudioThread_QueueCmd((DisplayObject*)arg0, &arg1);
+    AudioThread_QueueCmd(arg0, &arg1);
 }
 
-void AudioThread_QueueCmd(DisplayObject* arg0, s32* arg1);
+void AudioThread_QueueCmd(u32 arg0, s32* arg1);
 /**
  * Queues a command with an s8 argument in the top byte.
  * Corresponds to OoT AudioThread_QueueCmdS8 (original name Nap_SetS8).
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioThread_QueueCmdS8(DisplayObject* arg0, s8 arg1) {
+void AudioThread_QueueCmdS8(u32 arg0, s8 arg1) { // PORT: was DisplayObject*
     s32 sp1C = arg1 << 24;
 
     AudioThread_QueueCmd(arg0, &sp1C);
@@ -145,7 +146,7 @@ void AudioThread_QueueCmdS8(DisplayObject* arg0, s8 arg1) {
  * Corresponds to OoT AudioThread_QueueCmdU16 (original name Nap_SetU16).
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioThread_QueueCmdU16(DisplayObject* arg0, s16 arg1) {
+void AudioThread_QueueCmdU16(u32 arg0, s16 arg1) { // PORT: was DisplayObject*
     s32 sp1C = arg1 << 16;
 
     AudioThread_QueueCmd(arg0, &sp1C);
@@ -168,7 +169,7 @@ s32 AudioThread_ScheduleProcessCmds(void) {
         D_811381D8 = count;
     }
     head = ((u8)tail << 8) | (u8)head; // FAKE: reuses head for the message
-    if (osSendMesg(D_81186230, head, 0) != -1) {
+    if (osSendMesg(D_81186230, OS_MESG_32(head), 0) /* PORT: OS_MESG_32 */ != -1) {
         D_811861DB = D_811861DA;
     }
 }
@@ -194,7 +195,7 @@ void AudioThread_ResetCmdQueue(void) {
 void AudioThread_Unused4(void) {
 }
 
-extern M2C_UNK D_811855D8;
+extern OSMesgQueue D_811855D8; // PORT: typed
 
 /**
  * Polls the external load queue: returns the message's top byte and stores its low 24 bits in
@@ -203,12 +204,14 @@ extern M2C_UNK D_811855D8;
  * @unverified Name follows the counterpart; not checked in play.
  */
 u32 AudioThread_GetExternalLoadQueueMsg(s32 *arg0) {
+    OSMesg msg; // PORT: osRecvMesg stores a host-sized OSMesg
     u32 sp1C;
 
-    if (osRecvMesg(&D_811855D8, &sp1C, 0) == -1) {
+    if (osRecvMesg(&D_811855D8, &msg, 0) == -1) {
         *arg0 = 0;
         return 0U;
     }
+    sp1C = (u32)(uintptr_t)msg; // PORT: the message is a 32-bit value
     *arg0 = sp1C & 0xFFFFFF;
     return sp1C >> 0x18;
 }
@@ -237,12 +240,12 @@ extern u8 D_81184658;
  */
 s32 AudioThread_CheckSpecChange(void) {
     UNUSED s32 pad; // FAKE: stack padding
-    u32 sp18;
+    OSMesg sp18; // PORT: was u32; osRecvMesg stores a host-sized OSMesg
 
     if (osRecvMesg(D_81186250, &sp18, 0) == -1) {
         return 0;
     }
-    if (sp18 != D_81184658) {
+    if ((u32)(uintptr_t)sp18 != D_81184658) { // PORT: the message is a 32-bit value
         return 0;
     }
     return 1;
@@ -260,7 +263,7 @@ s32 AudioThread_CheckSpecChange(void) {
  */
 void AudioThread_ClearSpecChangeQueue(void) {
     s32 neg;
-    u32 sp28;
+    OSMesg sp28; // PORT: was u32; osRecvMesg stores a host-sized OSMesg
 
     do {
         neg = -1;
@@ -279,7 +282,7 @@ extern u8 D_81184658;
  */
 s32 AudioThread_ResetAudioHeap(s32 arg0) {
     s32 v;
-    u32 sp18;
+    OSMesg sp18; // PORT: was u32; osRecvMesg stores a host-sized OSMesg
 
     AudioThread_ClearSpecChangeQueue();
     v = D_81184657;
@@ -312,7 +315,6 @@ void AudioThread_PreNMIInternal(void) {
     D_81184657 = 0;
 }
 
-extern SequencePlayer D_81184668[];
 
 /**
  * Returns IO port `arg2` of channel `arg1` of sequence player `arg0`, or -1 when the player is off.
@@ -321,35 +323,32 @@ extern SequencePlayer D_81184668[];
  */
 s8 AudioThread_GetChannelIO(s32 arg0, s32 arg1, s32 arg2) {
     SequencePlayer* ch = &D_81184668[arg0];
-    s8* p;
+    SequenceChannel* p; // PORT: typed (was s8* indexed by N64 offset 0xC4)
 
     if (ch->enabled) {
         p = ch->channels[arg1];
-        return (p + arg2)[0xC4];
+        return p->soundScriptIO[arg2];
     }
     return -1;
 }
 
-extern s8 D_811847BC;
 /**
  * Returns IO port `arg1` of sequence player `arg0`.
  * Corresponds to OoT AudioThread_GetSeqPlayerIO (original name Nap_ReadGrpPort).
  * @unverified Name follows the counterpart; not checked in play.
  */
 s8 AudioThread_GetSeqPlayerIO(s32 arg0, s32 arg1) {
-    return *(&D_811847BC + ((arg0 * 0x15C) + arg1));
+    return D_81184668[arg0].soundScriptIO[arg1]; // PORT: was D_811847BC (player 0's IO ports) + arg0 * 0x15C
 }
 
-M2C_UNK func_811098C0(M2C_UNK *, s32, M2C_UNK);     /* extern */
-extern M2C_UNK D_811842A0;
 
 /**
  * Sets up the external allocation pool.
  * Corresponds to OoT AudioThread_InitExternalPool.
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioThread_InitExternalPool(s32 arg0, M2C_UNK arg1) {
-    func_811098C0(&D_811842A0, arg0, arg1);
+void AudioThread_InitExternalPool(void* arg0, s32 arg1) { // PORT: arg0 is the pool's memory (was s32)
+    AudioHeap_InitPool(&D_811842A0, arg0, arg1);
 }
 
 /**
@@ -358,7 +357,7 @@ void AudioThread_InitExternalPool(s32 arg0, M2C_UNK arg1) {
  * BattleAnim_ClearEffectStateFlag did not fit.
  */
 void AudioThread_ResetExternalPool(void) {
-    D_811842A0 = 0;
+    D_811842A0.startRamAddr = NULL; // PORT: was D_811842A0 = 0 (the pool's first word)
 }
 
 /**

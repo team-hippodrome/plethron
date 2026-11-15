@@ -108,8 +108,58 @@ typedef struct AudioCache {
 /* The permanent pool and the entries allocated from it (D_81184440). */
 typedef struct AudioPermanentCache {
     /* 0x00 */ AudioAllocPool pool; // @unverified: allocated from by AudioLoad's permanent alloc; pool.numEntries indexes the next entry (OoT's permanentPool)
-    /* 0x10 */ AudioCacheEntry entries[1]; // @unverified: same use as OoT's AudioContext.permanentCache
+    /* 0x10 */ AudioCacheEntry entries[32]; // @unverified: same use as OoT's AudioContext.permanentCache. PORT: was [1]; 32 fill the 0x190 bytes up to D_811845D0
 } AudioPermanentCache;
+
+/* A sample cache (OoT's AudioSampleCache): D_811845D0 persistent, D_811845F8 temporary. */
+typedef struct SampleCacheEntry8110BA8C {
+    /* 0x00 */ s8 inUse;
+    /* 0x01 */ s8 origMedium;
+    /* 0x02 */ s8 sampleBankId;
+    /* 0x04 */ s32 sampleAddr;
+    /* 0x08 */ u8* allocatedAddr;
+    /* 0x0C */ s32 unk_0C;
+    /* 0x10 */ u32 size;
+} SampleCacheEntry8110BA8C; // size = 0x14
+
+typedef struct SampleCache8110BA8C {
+    /* 0x00 */ u8* startRamAddr; // the first four fields are an AudioAllocPool
+    /* 0x04 */ u8* curRamAddr;
+    /* 0x08 */ s32 size;
+    /* 0x0C */ s32 numAllocatedEntries;
+    /* 0x10 */ SampleCacheEntry8110BA8C entries[1];
+    /* 0x24 */ s32 numEntries;
+} SampleCache8110BA8C; // size = 0x28
+
+/*
+ * PORT: the audio heap (OoT's AudioContext pools and caches). The decomp declared these M2C_UNK/s32 per file and reached
+ * the fields inside them by N64 offset or by the address of the next symbol (D_81184298 for D_81184290's size,
+ * D_81184324 for D_81184320's persistent pool, ...); on the host each is its own typed storage.
+ */
+void* AudioHeap_AllocZeroed(AudioAllocPool* pool, s32 size); // PORT: returned the address as u32
+void* AudioHeap_Alloc(AudioAllocPool* pool, s32 size); // PORT: returned the address as s32
+void AudioHeap_InitPool(AudioAllocPool* pool, void* ramAddr, s32 size); // PORT: ramAddr was s32
+u8* AudioHeap_PortHeap(void); // PORT: the host audio heap (was D_81186270)
+void* AudioHeap_SearchCaches(s32 tableType, s32 cache, s32 id); // PORT: the cache lookups and allocators return
+void* AudioHeap_SearchRegularCaches(s32 tableType, s32 cache, s32 id); // pointers (they returned addresses as s32)
+void* AudioHeap_SearchPermanentCache(s32 tableType, s32 id);
+void* AudioHeap_AllocPermanent(s32 tableType, s32 id, s32 size);
+void* AudioHeap_AllocCached(s32 tableType, s32 size, s32 cache, s32 id);
+u8* AudioHeap_AllocTemporarySampleCache(s32 size, s32 sampleBankId, s32 sampleAddr, s8 medium);
+u8* AudioHeap_AllocPersistentSampleCache(s32 size, s32 sampleBankId, s32 sampleAddr, s8 medium);
+extern AudioAllocPool D_81184290; // session pool
+extern AudioAllocPool D_811842A0; // external pool (startRamAddr NULL when unset)
+extern AudioAllocPool D_811842B0; // init pool
+extern AudioAllocPool D_811842C0; // misc pool
+extern AudioAllocPool D_811842F0; // cache pool
+extern AudioAllocPool D_81184300; // persistent common pool
+extern AudioAllocPool D_81184310; // temporary common pool
+extern AudioCache D_81184320; // sequence cache
+extern AudioCache D_81184380; // font cache
+extern AudioCache D_811843E0; // sample bank cache
+extern AudioPermanentCache D_81184440;
+extern SampleCache8110BA8C D_811845D0; // persistent sample cache
+extern SampleCache8110BA8C D_811845F8; // temporary sample cache
 
 
 
@@ -554,6 +604,15 @@ typedef struct NotePool {
     /* 0x30 */ AudioListItem active; // @unverified: same offset/use as OoT's NotePool.active
 } NotePool; // size = 0x40
 
+/* PORT: the note and layer list helpers, typed (the decomp passed s8* and reached the links by N64 offset) */
+void AudioSeq_AudioListPushBack(AudioListItem* list, AudioListItem* item);
+void* AudioSeq_AudioListPopBack(AudioListItem* list); // PORT: returned the item's value as s32
+void AudioPlayback_AudioListRemove(AudioListItem* item);
+void AudioPlayback_InitNoteList(AudioListItem* list);
+void AudioPlayback_InitNoteLists(NotePool* pool);
+extern NotePool D_81184938; // the free note lists (disabled, decaying, releasing, active; were s8 D_81184938..D_81184968)
+extern AudioListItem D_81184928; // the free sequence layer list
+
 typedef struct SeqScriptState {
     /* 0x00 */ u8* pc; // @unverified: same offset/use as OoT's SeqScriptState.pc (read by the script step functions)
     /* 0x04 */ u8* stack[4]; // @unverified: same offset/use as OoT's SeqScriptState.stack (call/loop return addresses)
@@ -645,6 +704,7 @@ typedef struct SequencePlayer {
     /* 0x0E0 */ u8 unk_0E0[0x154 - 0xE0];
     /* 0x154 */ s8 soundScriptIO[8]; // @unverified: same offset/use as OoT's SequencePlayer.soundScriptIO
 } SequencePlayer; // size = 0x15C
+extern SequencePlayer D_81184668[]; // PORT: the sequence players, declared once here
 
 typedef struct SequenceChannel {
     /* 0x00 */ u8 enabled : 1; // @unverified: same bit/use as OoT's SequenceChannel.enabled
@@ -844,7 +904,7 @@ typedef struct NoteSampleState {
     /* 0x08 */ u16 targetVolLeft; // @unverified: same offset/use as OoT's NoteSampleState.targetVolLeft
     /* 0x0A */ u16 targetVolRight; // @unverified: same offset/use as OoT's NoteSampleState.targetVolRight
     /* 0x0C */ u8 unk_0C[4];
-    /* 0x10 */ s32 tunedSample; // @unverified: same offset/use as OoT's NoteSampleState.tunedSample
+    /* 0x10 */ SoundFontSound* tunedSample; // @unverified: same offset/use as OoT's NoteSampleState.tunedSample. PORT: was s32
     /* 0x14 */ s16* filter; // @unverified: same offset/use as OoT's NoteSampleState.filter
 } NoteSampleState; // size = 0x18
 
@@ -984,10 +1044,9 @@ void AudioPlayback_ProcessNotes(void);
 
 // audio_seqplayer.c
 void AudioSeq_SeqLayerDisable(SequenceLayer* arg0);
-void AudioSeq_SeqLayerFree(s8** arg0, s32 arg1);
-void AudioSeq_SequenceChannelDisable(DisplayObject* arg0);
+void AudioSeq_SeqLayerFree(SequenceChannel* arg0, s32 arg1);
+void AudioSeq_SequenceChannelDisable(SequenceChannel* arg0); // PORT: was DisplayObject*
 void AudioSeq_SequenceChannelEnable(SequencePlayer* seq_player, u8 channel_index, void* script);
-s32 AudioSeq_AudioListPopBack(AudioListItem* list);
 void AudioSeq_InitLayerFreelist(void);
 u8 AudioSeq_ScriptReadU8(u8 **arg0);
 s16 AudioSeq_ScriptReadS16(u8** arg0);
@@ -1011,7 +1070,7 @@ void Audio_ClearSfxSeqPlayerIo4(void);
 void GbApu_SetNoiseLoopBounds(s32 arg0, s32 arg1);
 void AudioSeq_SequencePlayerProcessSequence(struct SequencePlayer*);
 void AudioSeq_ProcessSequences(s32 arg0);
-void AudioSeq_SkipForwardSequence(s8 *arg0);
+void AudioSeq_SkipForwardSequence(SequencePlayer* arg0);
 
 // gb_apu.c
 u32 GbApu_FreqToStep(u16 arg0);

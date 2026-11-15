@@ -22,65 +22,23 @@ extern volatile s32 D_811859D4;
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void AudioHeap_DiscardFont(s32 arg0);
 
-u32 AudioHeap_AllocZeroed(AudioAllocPool* arg0, s32 arg1);
-s32 AudioHeap_Alloc(AudioAllocPool* arg0, s32 arg1);
-void AudioHeap_InitPool(AudioAllocPool* arg0, s32 arg1, s32 arg2);
 
 extern u8 D_81184654[1];
 extern u8 D_81184655[1];
 extern u8 D_81184656[1];
 
 /* Declarations copied from audio_heap.c (Stadium 1: gb_tower_emulator_86920.c). */
-s32 AudioHeap_SearchCaches(s32, M2C_UNK, s32);
 s32 AudioPlayback_NoteDisable(Note*);
-s32 AudioPlayback_AudioListRemove(Note*);
-s32 AudioSeq_AudioListPushBack(s8*, Note*);
 extern Note* D_81184664;
-extern s8 D_81184938;
 extern s32 D_811858E8;
 M2C_UNK AudioSeq_SequencePlayerDisable(M2C_UNK *);                   /* extern */
-extern s8 D_81184668;
 extern s16 D_811858CC;
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);
-extern M2C_UNK D_81184290;
-extern M2C_UNK D_811842B0;
 extern u8 D_81186270[];
 extern s32 D_811526FC;
-extern s32 D_811842A0;
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);         /* extern */
-extern M2C_UNK D_81184290;
-extern M2C_UNK D_811842C0;
-extern M2C_UNK D_811842F0;
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);         /* extern */
-extern M2C_UNK D_811842F0;
-extern M2C_UNK D_81184300;
-extern M2C_UNK D_81184310;
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);         /* extern */
-extern M2C_UNK D_81184300;
-extern M2C_UNK D_81184320;
-extern M2C_UNK D_81184324;
-extern M2C_UNK D_81184380;
-extern M2C_UNK D_81184384;
-extern M2C_UNK D_811843E0;
-extern M2C_UNK D_811843E4;
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);         /* extern */
-extern M2C_UNK D_81184310;
-extern M2C_UNK D_81184340;
-extern M2C_UNK D_81184344;
-extern M2C_UNK D_811843A0;
-extern M2C_UNK D_811843A4;
-extern M2C_UNK D_81184400;
-extern M2C_UNK D_81184404;
 extern u8 D_81184654[1];
 extern u8 D_81184655[1];
 extern u8 D_81184656[1];
 void AudioLoad_SetFontLoadStatus(s32, s32);
-s32 AudioHeap_SearchRegularCaches(s32 arg0, s32 arg1, s32 arg2);
-s32 AudioHeap_SearchPermanentCache(s32 arg0, s32 arg1);
 extern s16 D_811371D8[];
 extern s16 D_811373C8[];
 extern SynthesisReverb D_81184110[];
@@ -91,7 +49,6 @@ extern s16 D_811526F8;
 extern u16 D_81184278;
 extern s16 D_8118427C;
 extern void* D_81184288;
-extern s32 D_81184298;
 extern AudioSessionPoolSplit D_81184620;
 extern AudioCachePoolSplit D_81184630;
 extern AudioCommonPoolSplit D_81184638;
@@ -111,11 +68,10 @@ void AudioPlayback_InitNoteFreeList(void);
 void AudioPlayback_NoteInitAll(void);
 void AudioSeq_InitSequencePlayerChannels(s32);
 void AudioSeq_InitSequencePlayers(void);
-#define EXTERNAL_POOL_AFF0 (*(AudioAllocPool*)&D_811842A0)
+#define EXTERNAL_POOL_AFF0 (*&D_811842A0)
 
 
 
-extern AudioPermanentCache D_81184440;
 /**
  * Returns the permanent cache entry for table `arg0`, id `arg1`, or 0.
  * Corresponds to OoT AudioHeap_SearchPermanentCache (original name EmemOnCheck).
@@ -123,7 +79,7 @@ extern AudioPermanentCache D_81184440;
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioHeap_SearchPermanentCache(s32 arg0, s32 arg1) {
+void* AudioHeap_SearchPermanentCache(s32 arg0, s32 arg1) { // PORT: returns a pointer (was s32)
     s32 i;
 
     for (i = 0; i < D_81184440.pool.numEntries; i++) {
@@ -132,7 +88,7 @@ s32 AudioHeap_SearchPermanentCache(s32 arg0, s32 arg1) {
         }
     }
 
-    return 0;
+    return NULL;
 }
 
 /**
@@ -142,18 +98,19 @@ s32 AudioHeap_SearchPermanentCache(s32 arg0, s32 arg1) {
  * tables or fragment headers.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioHeap_AllocPermanent(s32 x, s32 y, s32 size) {
+void* AudioHeap_AllocPermanent(s32 x, s32 y, s32 size) { // PORT: returns a pointer (was s32)
     UNUSED s32 pad; // FAKE: stack padding
     s32 index = D_81184440.pool.numEntries;
 
-    D_81184440.entries[index].ramAddr = func_81109868((M2C_UNK*)&D_81184440, size);
-    if (D_81184440.entries[index].ramAddr == 0) {
-        return 0;
+    D_81184440.entries[index].ramAddr = AudioHeap_Alloc(&D_81184440.pool, size);
+    if (D_81184440.entries[index].ramAddr == NULL) {
+        return NULL;
     }
     D_81184440.entries[index].tableType = x;
     D_81184440.entries[index].id = y;
     D_81184440.entries[index].size = size;
     // No return here; the original falls off the end with the allocation still in v0.
+    return D_81184440.entries[index].ramAddr; // PORT: return the allocation explicitly (v0 on the N64)
 }
 
 struct SampleCacheEntry8110BA8C* AudioHeap_AllocTemporarySampleCacheEntry(u32);
@@ -166,19 +123,19 @@ struct SampleCacheEntry8110BA8C* AudioHeap_AllocTemporarySampleCacheEntry(u32);
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioHeap_AllocTemporarySampleCache(s32 arg0, s32 arg1, s32 arg2, s8 arg3) {
-    s8* p = (s8*)AudioHeap_AllocTemporarySampleCacheEntry(arg0);
+u8* AudioHeap_AllocTemporarySampleCache(s32 arg0, s32 arg1, s32 arg2, s8 arg3) { // PORT: typed (was s8* with N64 offsets)
+    SampleCacheEntry8110BA8C* p = AudioHeap_AllocTemporarySampleCacheEntry(arg0);
 
     if (p != NULL) {
-        M2C_FIELD(p, u8*, 2) = arg1;
-        M2C_FIELD(p, s32*, 0xC) = arg2;
-        M2C_FIELD(p, s8*, 1) = arg3;
-        return M2C_FIELD(p, s32*, 8);
+        p->sampleBankId = arg1;
+        p->unk_0C = arg2;
+        p->origMedium = arg3;
+        return p->allocatedAddr;
     }
-    return 0;
+    return NULL;
 }
 
-s8* AudioHeap_AllocPersistentSampleCacheEntry(s32 arg0);
+SampleCacheEntry8110BA8C* AudioHeap_AllocPersistentSampleCacheEntry(s32 arg0);
 /**
  * Allocates a persistent sample cache entry of `arg0` bytes for font `arg1`.
  * Corresponds to OoT AudioHeap_AllocSampleCache (original name Nas_Alloc_Single). See
@@ -187,47 +144,20 @@ s8* AudioHeap_AllocPersistentSampleCacheEntry(s32 arg0);
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-s32 AudioHeap_AllocPersistentSampleCache(s32 arg0, s32 arg1, s32 arg2, s8 arg3) {
-    s8* p = AudioHeap_AllocPersistentSampleCacheEntry(arg0);
+u8* AudioHeap_AllocPersistentSampleCache(s32 arg0, s32 arg1, s32 arg2, s8 arg3) { // PORT: typed (was s8* with N64 offsets)
+    SampleCacheEntry8110BA8C* p = AudioHeap_AllocPersistentSampleCacheEntry(arg0);
 
     if (p != NULL) {
-        M2C_FIELD(p, u8*, 2) = arg1;
-        M2C_FIELD(p, s32*, 0xC) = arg2;
-        M2C_FIELD(p, s8*, 1) = arg3;
-        return M2C_FIELD(p, s32*, 8);
+        p->sampleBankId = arg1;
+        p->unk_0C = arg2;
+        p->origMedium = arg3;
+        return p->allocatedAddr;
     }
-    return 0;
+    return NULL;
 }
 
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
-M2C_UNK func_811098C0(M2C_UNK *, s32, s32);         /* extern */
-extern M2C_UNK D_81184300;
-extern M2C_UNK D_81184310;
-extern M2C_UNK D_811845D0;
-extern s32 D_811845D8;
-extern s32 D_811845F4;
-typedef struct SampleCacheEntry8110BA8C {
-    /* 0x00 */ s8 inUse;
-    /* 0x01 */ s8 origMedium;
-    /* 0x02 */ s8 sampleBankId;
-    /* 0x04 */ s32 sampleAddr;
-    /* 0x08 */ u8* allocatedAddr;
-    /* 0x0C */ s32 unk_0C;
-    /* 0x10 */ u32 size;
-} SampleCacheEntry8110BA8C; // size = 0x14
 
-typedef struct SampleCache8110BA8C {
-    /* 0x00 */ u8* startRamAddr;
-    /* 0x04 */ u8* curRamAddr;
-    /* 0x08 */ s32 size;
-    /* 0x0C */ s32 numAllocatedEntries;
-    /* 0x10 */ SampleCacheEntry8110BA8C entries[1];
-    /* 0x24 */ s32 numEntries;
-} SampleCache8110BA8C;
 
-extern SampleCache8110BA8C D_811845F8;
-extern s32 D_81184600;
-extern s32 D_8118461C;
 
 /**
  * Sets up the persistent and temporary sample caches from the misc pool.
@@ -238,24 +168,24 @@ extern s32 D_8118461C;
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from AudioHeap_Init.
  */
-void AudioHeap_InitSampleCaches(s32 arg0, s32 arg1) {
-    s32 temp_v0;
-    s32 temp_v0_2;
+void AudioHeap_InitSampleCaches(s32 arg0, s32 arg1) { // PORT: the caches are typed (D_811845D8/D_81184600 were their sizes, D_811845F4/D_8118461C their entry counts)
+    void* temp_v0;
+    void* temp_v0_2;
 
-    temp_v0 = func_81109868(&D_81184300, arg0);
-    if (temp_v0 == 0) {
-        D_811845D8 = 0;
+    temp_v0 = AudioHeap_Alloc(&D_81184300, arg0);
+    if (temp_v0 == NULL) {
+        D_811845D0.size = 0;
     } else {
-        func_811098C0(&D_811845D0, temp_v0, arg0);
+        AudioHeap_InitPool((AudioAllocPool*)&D_811845D0, temp_v0, arg0);
     }
-    temp_v0_2 = func_81109868(&D_81184310, arg1);
-    if (temp_v0_2 == 0) {
-        D_81184600 = 0;
+    temp_v0_2 = AudioHeap_Alloc(&D_81184310, arg1);
+    if (temp_v0_2 == NULL) {
+        D_811845F8.size = 0;
     } else {
-        func_811098C0((M2C_UNK*)&D_811845F8, temp_v0_2, arg1);
+        AudioHeap_InitPool((AudioAllocPool*)&D_811845F8, temp_v0_2, arg1);
     }
-    D_811845F4 = 0;
-    D_8118461C = 0;
+    D_811845D0.numEntries = 0;
+    D_811845F8.numEntries = 0;
 }
 
 extern AudioPreloadReq D_81184B78[];
@@ -284,12 +214,12 @@ SampleCacheEntry8110BA8C* AudioHeap_AllocTemporarySampleCacheEntry(u32 size) {
 
     cache = &D_811845F8;
     alloc_before = cache->curRamAddr;
-    mem = (void*)func_81109868((M2C_UNK*)cache, size);
+    mem = AudioHeap_Alloc((AudioAllocPool*)cache, size);
     if (mem == NULL) {
         u8* old = cache->curRamAddr;
 
         cache->curRamAddr = cache->startRamAddr;
-        mem = (void*)func_81109868((M2C_UNK*)cache, size);
+        mem = AudioHeap_Alloc((AudioAllocPool*)cache, size);
         if (mem == NULL) {
             cache->curRamAddr = old;
             return NULL;
@@ -434,7 +364,6 @@ void AudioHeap_UnapplySampleCache(u8* arg0, SampleMedium8110D4E0* arg1) {
     }
 }
 
-s32 func_81109868(M2C_UNK *, s32);                  /* extern */
 /**
  * Takes `arg0` bytes from the persistent sample cache.
  * Corresponds to OoT AudioHeap_AllocPersistentSampleCacheEntry (original name
@@ -443,22 +372,19 @@ s32 func_81109868(M2C_UNK *, s32);                  /* extern */
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-s8 *AudioHeap_AllocPersistentSampleCacheEntry(s32 arg0)
-{
-  s32 temp_v0_2;
-  s8 *temp_v0;
-  s32 *new_var; // FAKE: permuter temp
-  new_var = (s32 *) (&D_811845F4); // FAKE: permuter temp
-  temp_v0_2 = func_81109868(&(*((s8 *) (&D_811845D0))), arg0); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  if (temp_v0_2 == 0)
+SampleCacheEntry8110BA8C* AudioHeap_AllocPersistentSampleCacheEntry(s32 arg0) { // PORT: typed (was N64 offsets)
+  u8* temp_v0_2;
+  SampleCacheEntry8110BA8C* temp_v0;
+  temp_v0_2 = AudioHeap_Alloc((AudioAllocPool*)&D_811845D0, arg0);
+  if (temp_v0_2 == NULL)
   {
-    return 0;
+    return NULL;
   }
-  temp_v0 = (((*new_var) * 0x14) + 0x10) + (&(*((s8 *) (&D_811845D0)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((s8 *) (((s8 *) temp_v0) + 0)) = 1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((s32 *) (((s8 *) temp_v0) + 8)) = temp_v0_2; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *((s32 *) (((s8 *) temp_v0) + 0x10)) = arg0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-  *new_var += 1; // FAKE: permuter temp
+  temp_v0 = &D_811845D0.entries[D_811845D0.numEntries];
+  temp_v0->inUse = 1;
+  temp_v0->allocatedAddr = temp_v0_2;
+  temp_v0->size = arg0;
+  D_811845D0.numEntries += 1;
   return temp_v0;
 }
 
@@ -491,8 +417,8 @@ void AudioHeap_DiscardSampleCaches(void) {
         if ((a != 0xFF) || (b != 0xFFU)) {
             off = 0x12; // FAKE: the same offset through a local, only for register allocation
             if ((AudioHeap_SearchCaches(1, 3, i) != 0) && (AudioLoad_IsFontLoadComplete(i) != 0)) {
-                slot = (s8*)&D_811845D0;
-                for (j = 0; j < D_811845F4; j++, slot += 0x14) {
+                slot = (s8*)&D_811845D0.entries[0] - 0x10; // PORT: was (s8*)&D_811845D0; slot + 0x10 is the entry
+                for (j = 0; j < D_811845D0.numEntries; j++, slot += sizeof(SampleCacheEntry8110BA8C)) { // PORT: was D_811845F4 and 0x14
                     if ((a != slot[off]) && (b != slot[0x12]) && (slot[0x12] != 0)) {
                         break;
                     }
@@ -672,13 +598,13 @@ void AudioLoad_InitSampleDmaBuffers(s32 num_notes) {
     s32 i;
 
     D_811858E0 = 0xA0;
-    D_81185688 = (SampleDma8110C1C0*)func_81109868(&D_811842C0, 4 * D_811858E8 * sizeof(SampleDma8110C1C0) * D_811858B8.specUnk4);
+    D_81185688 = (SampleDma8110C1C0*)AudioHeap_Alloc(&D_811842C0, 4 * D_811858E8 * sizeof(SampleDma8110C1C0) * D_811858B8.specUnk4);
     for (i = 0; i < 3 * D_811858E8 * D_811858B8.specUnk4; i++) {
-        if ((D_81185688[D_8118568C].ramAddr = (u8*)func_81109868(&D_811842C0, D_811858E0)) == NULL) {
-            if (D_811842A0 == 0) {
+        if ((D_81185688[D_8118568C].ramAddr = (u8*)AudioHeap_Alloc(&D_811842C0, D_811858E0)) == NULL) {
+            if (D_811842A0.startRamAddr == NULL) { // PORT: was D_811842A0 == 0 (the pool's first word)
                 break;
             }
-            if ((D_81185688[D_8118568C].ramAddr = (u8*)func_81109868((M2C_UNK*)&D_811842A0, D_811858E0)) == NULL) {
+            if ((D_81185688[D_8118568C].ramAddr = (u8*)AudioHeap_Alloc(&D_811842A0, D_811858E0)) == NULL) {
                 break;
             }
         }
@@ -705,11 +631,11 @@ void AudioLoad_InitSampleDmaBuffers(s32 num_notes) {
     D_811858E0 = 0xA0;
 
     for (i = 0; i < D_811858E8; i++) {
-        if ((D_81185688[D_8118568C].ramAddr = (u8*)func_81109868(&D_811842C0, D_811858E0)) == NULL) {
-            if (D_811842A0 == 0) {
+        if ((D_81185688[D_8118568C].ramAddr = (u8*)AudioHeap_Alloc(&D_811842C0, D_811858E0)) == NULL) {
+            if (D_811842A0.startRamAddr == NULL) { // PORT: was D_811842A0 == 0 (the pool's first word)
                 break;
             }
-            if ((D_81185688[D_8118568C].ramAddr = (u8*)func_81109868((M2C_UNK*)&D_811842A0, D_811858E0)) == NULL) {
+            if ((D_81185688[D_8118568C].ramAddr = (u8*)AudioHeap_Alloc(&D_811842A0, D_811858E0)) == NULL) {
                 break;
             }
         }
@@ -805,7 +731,7 @@ void AudioLoad_SetFontLoadStatus(s32 arg0, s32 arg1) {
     u8 *temp_v0;
 
     if (arg0 != 0xFF) {
-        temp_v0 = arg0 + &D_81184655;
+        temp_v0 = &D_81184655[arg0]; // PORT: was arg0 + &D_81184655 (a pointer to u8[1])
         if (*temp_v0 != 5) {
             *temp_v0 = arg1;
         }
@@ -824,7 +750,7 @@ void AudioLoad_SetSeqLoadStatus(s32 arg0, s32 arg1) {
     u8 *temp_v0;
 
     if (arg0 != 0xFF) {
-        temp_v0 = arg0 + &D_81184656;
+        temp_v0 = &D_81184656[arg0]; // PORT: was arg0 + &D_81184656 (a pointer to u8[1])
         if (*temp_v0 != 5) {
             *temp_v0 = arg1;
         }
@@ -843,7 +769,7 @@ void AudioLoad_SetSampleLoadStatus(s32 arg0, s32 arg1) {
     u8 *temp_v0;
 
     if (arg0 != 0xFF) {
-        temp_v0 = arg0 + &D_81184654;
+        temp_v0 = &D_81184654[arg0]; // PORT: was arg0 + &D_81184654 (a pointer to u8[1])
         if (*temp_v0 != 5) {
             *temp_v0 = arg1;
         }
@@ -1146,7 +1072,6 @@ s32 AudioLoad_SyncInitSeqPlayerSkipTicks(s32 arg0, s32 arg1, s32 arg2) {
 
 s32 AudioLoad_SyncLoadSeq(s32);
 void AudioSeq_ResetSequencePlayer(s32);
-void AudioSeq_SkipForwardSequence(s8*);
 /**
  * Loads the sequence and its fonts, then initializes player `arg0` to play it.
  * Corresponds to OoT AudioLoad_SyncInitSeqPlayerInternal (original name __Nas_StartSeq).
@@ -1155,7 +1080,7 @@ void AudioSeq_SkipForwardSequence(s8*);
  * @unverified Name and comment guessed from the code.
  */
 s32 AudioLoad_SyncInitSeqPlayerInternal(s32 arg0, s32 arg1, s32 arg2) {
-    s8* slot;
+    SequencePlayer* slot; // PORT: typed (was s8* with N64 offsets)
     u8 id;
     s32 count;
     s32 off;
@@ -1165,7 +1090,7 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 >= D_811858AC) {
         return 0;
     }
-    slot = &D_81184668 + arg0 * 0x15C;
+    slot = &D_81184668[arg0];
     arg1 = AudioLoad_GetRealTableIndex(0, arg1);
     AudioSeq_SequencePlayerDisable(slot);
     id = 0xFF;
@@ -1182,14 +1107,14 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 arg0, s32 arg1, s32 arg2) {
     }
     r = AudioLoad_SyncLoadSeq(arg1);
     AudioSeq_ResetSequencePlayer(arg0);
-    M2C_FIELD(slot, s8*, 4) = arg1;
-    M2C_FIELD(slot, u8*, 5) = id;
-    ((SequencePlayer*)slot)->enabled = 1;
-    M2C_FIELD(slot, s32*, 0x18) = r;
-    M2C_FIELD(slot, s32*, 0x74) = r;
-    M2C_FIELD(slot, s8*, 0x8C) = 0;
-    M2C_FIELD(slot, s16*, 0x10) = 0;
-    ((SequencePlayer*)slot)->finished = 0;
+    slot->seqId = arg1;
+    slot->defaultFont = id;
+    slot->enabled = 1;
+    slot->seqData = r; // PORT: r is the N64 load chain's 32-bit address; not host-capable (never runs in Zero)
+    slot->scriptState.pc = r;
+    slot->scriptState.depth = 0;
+    slot->delay = 0;
+    slot->finished = 0;
     AudioSeq_SkipForwardSequence(slot);
     for (i = 0; i < 16; i++) { // karodo: empty loop over the 16 channels
     }
@@ -1289,7 +1214,6 @@ s32 AudioLoad_SyncLoadFont(s32 arg0) {
     return ret;
 }
 
-s32 AudioHeap_AllocCached(s32, s32, s32, s32);
 
 /**
  * Loads entry id of audio table tableType (0 sequences, 1 sound fonts, 2 sample
@@ -1392,7 +1316,6 @@ s32 AudioLoad_GetRealTableIndex(s32 arg0, s32 arg1) {
     return arg1;
 }
 
-s32 AudioHeap_SearchCaches(s32, M2C_UNK, s32);               /* extern */
 
 /**
  * Looks entry `arg1` of table `arg0` up in the permanent cache, then the other caches.
