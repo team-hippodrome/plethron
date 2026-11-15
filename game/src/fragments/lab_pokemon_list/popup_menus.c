@@ -88,7 +88,7 @@ void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) 
 }
 
 s32 func_8002AE6C();
-M2C_UNK Menu_DrawItems(s32, s32, s32, s32, s8*);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 typedef struct Box89104E38 {
     s32 x;
@@ -179,7 +179,7 @@ void LabMoveSelect_DrawMoveRow(s32 x, s32 y, s32* move, s32 index, s32 flags, s3
 typedef struct Str89104FC0 { s8 c[4]; } Str89104FC0;
 extern Str89104FC0 D_8910A91C;
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 void func_80027410(void*, void*, s32, s32, s32);
 void LabMoveSelect_DrawMoveRow();
 
@@ -224,7 +224,7 @@ void LabMoveSelect_DisableHmMoves(LabMoveSelectWindow* window) {
     }
 }
 
-M2C_UNK Menu_DrawInlineItems(s8*, s32, s32, s32, s8*);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the move list.
@@ -440,7 +440,7 @@ void LabBoxList_Init(LabBoxListWindow* box_list, s32 x, s32 y, ByteMatrix* boxes
 
 M2C_UNK Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, M2C_UNK *); /* extern */
 M2C_UNK Window_DrawFrame(s8 *);                      /* extern */
-M2C_UNK Menu_DrawInlineItems(s8 *, s32, s32, s32, s8 *); /* extern */
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern M2C_UNK D_80073554;
 
 /**
@@ -1273,7 +1273,7 @@ void LabPCList_InitTypeFilter(LabTypeFilterWindow* window, s32 x, s32 y, s32* fi
 }
 
 extern u8 D_800735C4[];
-void ScrollList_DrawItems(s8*, s32, s32, s32, s32);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the type filter window.
@@ -1474,7 +1474,7 @@ void LabPCList_InitMoveFilter(LabMoveFilterWindow* window, s32 x, s32 y, u8* fil
     window->mode = 0;
 }
 
-void ScrollList_DrawInlineItems(s8*, s32, s32, s32, s32);
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the move filter window.

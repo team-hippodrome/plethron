@@ -134,7 +134,7 @@ void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
 s32 func_8002AE6C();
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
-void ScrollList_DrawInlineItems(void*, s32, s32, s32, s32);
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C;
 extern u8 D_800734A8[];
 extern Gfx D_80060270[];
@@ -298,7 +298,7 @@ void Pokedex_InitActionMenuWindow(PokedexMenuWindow* menu_window, s32 x, s32 y) 
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, s32, s32);  /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the action menu's rows; `flags` is ORed into the row flags (2 while it has focus).

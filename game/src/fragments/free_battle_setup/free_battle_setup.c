@@ -189,7 +189,7 @@ typedef struct {
 
 s32 GbSave_EnsureMainDataLoaded(s32);
 s32 GbSave_GetTrainerId(s32 arg0);
-s32 GbSave_GetPlayerName(s32, void*);
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 s32 Deck_IsSaveEntryPresent(s32, s32);
 s32 Deck_GetSaveEntryTrainerId(s32, s32);
 s32 Deck_GetSaveEntryName(s32 arg0, s32 arg1, u8* arg2);
@@ -273,7 +273,7 @@ typedef struct Rec82000594 {
 typedef struct List82000594 { Rec82000594* records; s32 unk04; s32 count; } List82000594;
 extern Src82000594* D_8200AD04;
 void func_8000A460(char*, void*);
-void* Memmap_GetSegmentVaddr(s32);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 /**
  * Appends the 8 preset teams in D_8200AD04 (type 4, six Pokemon each, named via Memmap_GetSegmentVaddr) to
  * the entry list.
@@ -548,7 +548,7 @@ void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002AE6C(Screen82000C5C*);
 void Window_DrawLabeled(char*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(Mon82000C5C*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws a Pokemon's status window: LV, HP, Type 1/2, Attack, Defense, Speed, Special.
  * Seen in play: draws the rental status window (name, LV 50, HP, タイプ1/タイプ2, こうげき/ぼうぎょ/すばやさ/とくしゅ,
@@ -1239,7 +1239,7 @@ typedef struct MenuDef8200288C {
 } MenuDef8200288C;
 extern s32 D_8200AC58[];
 extern Color82001CCC D_82008F60;
-void GridMenu_DrawInlineItems(void*, s32, s32, s32, MenuDef8200288C*);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 // FAKE: decomp slop. Raw pointer-offset casts stand in for struct fields.
 /**
  * Draws the rental Pokemon list window; `cursorStyle` picks the cursor style.

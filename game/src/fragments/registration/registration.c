@@ -139,7 +139,7 @@ void Registration_LoadRegisteredTeams(ByteMatrix* table) {
 
 s32 GbSave_EnsureMainDataLoaded(s32);
 s32 GbSave_GetTrainerId(s32 arg0);
-void GbSave_GetPlayerName(s32, u8*);
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 /**
  * Reads the party of each Game Boy cartridge in the four Transfer Paks (deck 0x20).
  * Seen in play (2026-11-12): ポケモンを とうろくする listed the 1P cartridge's party.
@@ -223,7 +223,7 @@ s32 func_8002AE6C();
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color88100D9C);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color88100D9C, Color88100D9C);
-void Menu_DrawItems(void*, s32, s32, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern u8 D_800734A8[4];
 extern Gfx D_80060270[];
@@ -845,7 +845,7 @@ void Registration_DrawCursorTeamRow(RegistrationTeamList* list) {
 
 void func_800189C0(s32, s32);
 void BgStage_DrawFrame(void);
-void ScrollList_DrawItems(void*, s32, s32, s32, s32);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 /**
  * Draws the team list window for its current state.
  * Seen in play (2026-11-12): the ポケモンを とうろくする list window.

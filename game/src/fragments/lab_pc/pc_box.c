@@ -339,7 +339,7 @@ void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002AE6C();
 void Window_DrawLabeled(void*, s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(BattleMon*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws a Pokemon's status window: LV, HP, Type 1/2, Attack, Defense, Speed, Special.
  * Seen in play (2026-11-13) in the せいとん > ポケモンをにがす confirm it drew フシギダネ's window (LV 10, HP 30,
@@ -547,7 +547,7 @@ void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box,
 void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK func_800189C0(s32, M2C_UNK);                /* extern */
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK GridMenu_DrawInlineItems(void*, s32, s32, s32, s32);  /* extern */
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the box contents grid, refreshing the icons unless flag 0x10 is set (it is while the
@@ -816,7 +816,7 @@ void PcBox_DrawHelpText(PcBoxOperationWindow* win) {
 void Window_DrawFrame(void*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
-void Menu_DrawInlineItems(void*, s32, s32, s32, s32);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
 extern u8 D_8007356C[];
 extern u8 D_800735C4[];
@@ -1032,8 +1032,8 @@ s32 PcBox_StepViewCursorSkipEmpty(PcBoxOperationWindow* win, s32 buttons) {
 
 s32 func_8000B30C(void);
 s32 func_8002B2B0(void*);
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(void*);
 extern void* D_8900A954[];
 extern u8 D_8900A96C[];

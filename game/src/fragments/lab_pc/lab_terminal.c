@@ -11,7 +11,7 @@ extern s32 pad_D_8831A4DC[8];
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 Audio_PlaySystemSound(s32 sound_id);
 void LabItem_DrawBackground(void);
-void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b);
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
@@ -85,8 +85,8 @@ s32 func_80031CC8(u8);
 void Font_SetColorForFlags(s32);
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 void LabItem_DrawItemCountRow(s32 x, s32 y, u8* row, s32 index, s32 flags); // PORT: matches the definition
-void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
-void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
 extern Gfx D_80073450[];
@@ -142,7 +142,7 @@ void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s
 void func_80027410(s8*, s8*, s32, s32, s32);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
-void Menu_DrawInlineItems(void*, s32, s32, s32, s32);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern u8 D_89018688[];
 s32 Menu_UpdateCursor(void*);

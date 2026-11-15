@@ -130,7 +130,7 @@ void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: 
 void PokeIcon_OpenModelArchives(void);
 void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
 u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
-s32 Memmap_GetSegmentVaddr(u8*);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 void FreeBattle_RestoreMenuState(FreeBattleScreen* screen); // PORT: matches the definition
 s32 StageFade_Start(s32);
 void func_80006828(s32, void*);
@@ -246,7 +246,7 @@ void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 
 }
 
 s32 func_8002AE6C();
-void Menu_DrawItems(void*, s32, s32, s32, s8 *);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern Color_RGBA8 D_82009104;
 extern Color_RGBA8 D_82009108;
 
@@ -364,7 +364,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
 }
 
 s32 func_8002AE6C();                                /* extern */
-void Menu_DrawItems(void*, s32, s32, s32, s8 *);  /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 // FAKE: permuter output (the new_var temp and the no-op test).
 /**
  * Draws a popup menu's items.
@@ -977,7 +977,7 @@ void FreeBattle_InitBattleModeWindow(FreeBattleModeWindow* window, s32 x, s32 y,
 
 extern Color_RGBA8 D_820091BC;
 extern Color_RGBA8 D_820091C0;
-M2C_UNK GridMenu_DrawInlineItems(s8*, s32, s32, s32, s32);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the FreeBattleModeWindow window (window.frame.x at +0, y at +4, width at +8)
@@ -1117,7 +1117,7 @@ void FreeBattle_InitCupSelect(FreeBattleCupWindow* window, s32 x, s32 y, s32 cup
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawInlineItems(s8 *, s32, s32, s32, s32);  /* extern */
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the choose cup window.

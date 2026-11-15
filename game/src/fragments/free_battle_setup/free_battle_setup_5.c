@@ -767,7 +767,7 @@ void* BinArchive_Open(u8* rom_start, u8* rom_end, s32 arg2, s32 arg3); // PORT: 
 void PokeIcon_OpenModelArchives(void);
 void* Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: matches the definition
 u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3); // PORT: matches the definition
-s32 Memmap_GetSegmentVaddr(u8*);
+uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 void FreeBattle_RestoreMenuState(FreeBattleScreen*);
 s32 StageFade_Start(s32);
 void func_80006828(s32, void*);

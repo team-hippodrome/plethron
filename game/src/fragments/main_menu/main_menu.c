@@ -90,7 +90,7 @@ extern char D_88002328[];
 void Ui_DrawTexturedDivider(s32, s32, s32, u8 *);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Window_DrawFrame(void*);
-void Menu_DrawItems(s8 *, s32, s32, s32, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 /**
  * Draws トーナメントのつづきをする？ (Continue the tournament?) with its note
  * 「たいせんちゅうに ゲームを やめると 1かいせんから やりなおしに なります！」 (If you quit
@@ -366,7 +366,7 @@ s32 MainMenu_StepItemFade(MainMenuItemList* item_list) {
 }
 
 extern u8 D_05018868[];
-void GridMenu_DrawInlineItems(void*, s32, s32, s32, f32*);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the main menu items with the current fade. `cursor_flags` (2) is OR'd into the item flags

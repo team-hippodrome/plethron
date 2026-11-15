@@ -321,7 +321,7 @@ typedef struct {
 
 extern Color82001CCC D_820090C0;
 extern s32 D_8200AC58[];
-void ScrollGrid_DrawItems(void*, s32, s32, s32, TableArgs*);
+void ScrollGrid_DrawItems(ScrollGrid* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws using the menu object entry (layout not established; it reads the words
@@ -383,7 +383,7 @@ void FreeBattle_DrawRentalTeamPanels(s8* entry) {
 s32 func_8002AE6C(s8*);
 void func_800189C0(s32, s32);
 void BgStage_DrawFrame(void);
-void ScrollList_DrawItems(s8*, s32, s32, s32, s32);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void FreeBattle_DrawRentalListWindow(s8*, s32);
 void FreeBattle_DrawDuplicateWarning(s8*);
 void FreeBattle_DrawShortageWarning(s8*);
@@ -602,7 +602,7 @@ s32 FreeBattle_UpdateRentalConfirm(FreeBattleRentalConfirm* window); // PORT: no
 s32 FreeBattle_UpdateRentalConfirmChoice(s8* window); // PORT: no prototype in the decomp
 s32 FreeBattle_UpdateShortageWarning(FreeBattleShortageWarning* window); // PORT: no prototype in the decomp
 void GridMenu_Init(GridMenu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5, s32 arg6); // PORT: no prototype in the decomp
-void TextBox_Init(TextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: no prototype in the decomp
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: no prototype in the decomp
 /**
  * Runs the entry Pokemon list: pick, rental, confirm and warnings.

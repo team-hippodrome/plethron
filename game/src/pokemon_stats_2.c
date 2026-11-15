@@ -1203,14 +1203,15 @@ extern s8 D_800AD210;
  * (Text_UntranscodeFixedName). Returns 0 when the port has no loaded save.
  * @unverified: the trainer slot names shown in Free Battle come from here, not checked with a breakpoint.
  */
-s32 GbSave_GetPlayerName(s32 port, M2C_UNK dst) {
+s32 GbSave_GetPlayerName(s32 port, char* dst) { // PORT: dst is a pointer (was M2C_UNK)
     GbSavePort* temp_v0;
 
-    temp_v0 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+    temp_v0 = &((GbSavePort*)&D_800AD210)[port]; // PORT: host stride (0x48 on the N64)
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
-    return func_8001FCC0(dst & 0xFFFFFFFFFFFFFFFF, (uintptr_t)temp_v0->mainData->playerName, dst); // FAKE
+    // PORT: was a FAKE cast chain returning the char* as s32; callers only test it against 0
+    return Text_UntranscodeFixedName(dst, (char*)temp_v0->mainData->playerName) != NULL;
 }
 
 extern s8 D_800AD210;

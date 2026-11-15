@@ -11,7 +11,7 @@ s32 GbSave_GetTrainerId(s32 arg0);
 void* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3); // PORT: matches the definition
 s32 Deck_ReadEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
 s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
-void GbSave_GetPlayerName(s32, void*);
+s32 GbSave_GetPlayerName(s32 port, char* dst); // PORT: matches the definition
 void _bcopy(void*, void*, s32);
 char* HAL_Strcpy(char* dest, char* src); // PORT: matches the definition
 

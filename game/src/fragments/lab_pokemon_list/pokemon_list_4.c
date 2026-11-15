@@ -57,7 +57,7 @@ void Window_DrawHeaderStripe(s32, s32, s32);
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void ScrollList_DrawScrollArrows(s8*, s32, s32, s32, s32);
-void ScrollList_DrawItems(s8*, s32, s32, s32, s8*);
+void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void LabPCList_DrawDetailColumns(s8*, s32, s32, s32);
 void LabPCList_DrawPopupMenu(LabPopupMenu*, s32);
 void LabPCList_DrawLevelInputWindow(LabLevelInputWindow*);

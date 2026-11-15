@@ -117,7 +117,7 @@ s32 LabPCList_UpdateLevelInput(void*);
 M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen); // PORT: matches the definition
 extern u8 D_8910A8DC[];
 extern s32 D_8910DD34[];
-void TextBox_Init(s8* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 extern Info891033A0 D_80065D00[];
 extern s8 D_8910DD40[];
 extern s8 D_8910DD58[];
@@ -475,7 +475,7 @@ s32 LabPCList_RunLevelFilter(s8*);
 s32 LabPCList_UpdateMonMenu(LabPCListScreen*);
 s32 LabPCList_UpdateGbBoxMenu();
 s32 LabPCList_UpdateStadiumBoxMenu();
-s32 Ui_CheckConfirmPressed(void*);
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 /**
  * Runs the list window's state machine (browse, sort menu, filters, moves).
  * Seen in play (2026-11-12): ran the list window.

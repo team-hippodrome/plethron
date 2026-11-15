@@ -488,8 +488,8 @@ void LabItem_DrawCountSelector(LabItemCountSelector* sel) {
 
 s32 func_8002B638(s8 *);                          /* extern */
 s32 func_8002BC14(s32);                             /* extern */
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 M2C_UNK Audio_PlaySystemSound(M2C_UNK);                     /* extern */
 extern s32 D_800603C0;
 extern M2C_UNK D_89018474;
@@ -638,7 +638,7 @@ void LabItem_InitMenuWindow(LabItemMenuWindow* win, s32 x, s32 y, s32 names, s32
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32); /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the menu window's items.
@@ -739,8 +739,8 @@ void LabItem_InitItemList(LabItemList* list, s32 x, s32 y, s32 table) {
     list->list.options |= 0x10000;
 }
 
-void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
-void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
 extern Gfx D_80073450[];
@@ -1442,7 +1442,7 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
 
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
-void Menu_DrawInlineItems(void*, s32, s32, s32, s32);
+void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern u8 D_8007356C[];
 extern u8 D_89018688[];
 /**

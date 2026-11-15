@@ -11,7 +11,7 @@
 void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 extern Entry80066AA0 D_80066AA0[];
@@ -463,7 +463,7 @@ extern char D_8A21D980[];
 extern char D_8A21D990[];
 void Ui_DrawImageInStrips(void*arg0, s32 x, s32 y); // PORT: matches the definition
 
-s32 BattleMon_GetMoveIndex(u8*, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
  * Draws the moves page's move list: each move name in its type color with PP cur/max,
  * laid out by the C button that picks it, and a frame on `selected_slot`. Max PP adds

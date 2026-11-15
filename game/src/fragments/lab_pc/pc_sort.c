@@ -161,7 +161,7 @@ void PcSort_InitMenuWindow(PcSortMenuWindow* win, s32 x, s32 y, s32 names, s32 c
 }
 
 s32 func_8002AE6C();                                /* extern */
-M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32); /* extern */
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 
 /**
  * Draws the menu window's items.
@@ -253,8 +253,8 @@ void PcSort_InitMonList(PcSortMonList* list, s32 x, s32 y, s32 table) {
     list->list.options |= 0x10000;
 }
 
-void ScrollList_DrawSmoothScroll(void *, s32, s32, s32, s32);
-void ScrollList_DrawInlineItems(void *, s32, s32, s32, s32);
+void ScrollList_DrawSmoothScroll(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
+void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void func_8001BCB4(s32, s32, s32, s32, void *, s32, s32);
 extern Gfx D_80073450[];
@@ -447,7 +447,7 @@ typedef struct Slot890056A4 {
     void* tex;
 } Slot890056A4;
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndex(s32, s32);
+s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 void PcBox_DrawMoveName(s32, s32, s32, s32);
 extern Slot890056A4 D_8900A79C[];
 extern char D_89018AC4[];
@@ -567,7 +567,7 @@ void PcSort_DrawHelpText(s32* win) {
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, void*);
-void GridMenu_DrawInlineItems(s8*, s32, s32, s32, s32);
+void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
 extern u8 D_8007356C[];
 extern u8 D_800735C4[];
@@ -702,8 +702,8 @@ void PcSort_OpenBox(PcSortOrganizeWindow* win) {
     win->state = 4;
 }
 
-void TextBox_Init(TextBox*, char*, s32, s32, s32);
-s32 Ui_CheckConfirmPressed(TextBox*);
+void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
+s32 Ui_CheckConfirmPressed(void* arg0); // PORT: matches the definition
 void Menu_ClearItemFlags(s8*);
 void Menu_SkipDisabledForward(s8*);
 s32 GridMenu_UpdateCursor(s8*);
