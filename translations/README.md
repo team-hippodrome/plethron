@@ -29,6 +29,10 @@ md5,ja,en,es,de,pt,ko,ru,ar,hi,note
 - `note` is context for translators (where the string appears, what `%s` stands
   for). It never holds the original text.
 - An empty cell falls through: `human.csv`, then `ai.csv`, then the original.
+- `ru`, `ar` and `hi` are there mainly to prove Cyrillic, right-to-left and Devanagari
+  text work. Menus, rules, battle messages, types and species names (transliterated)
+  are translated. Pokédex entries, move and item descriptions, move and item names and
+  categories are copied from `en` for now, so those columns never fall through to kana.
 
 The runtime hooks the game's printf-style text calls. It looks up the format string
 by its md5 and every `%s` argument separately by its own md5, so a Pokémon or move
