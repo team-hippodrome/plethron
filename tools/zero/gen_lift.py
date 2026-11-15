@@ -41,6 +41,7 @@ class Gen:
         if k == 'f': return 'f%d' % t['size']
         if k == 'ptr': return 'p'
         if k == 'fnptr': return 'fp'
+        if k == 'iptr': return 'ip'
         if k == 'rec': return 'r:' + t['id']
         if k == 'array': return 'a%s[%s]' % (s.key(t['of']), t['n'])
         return k + ':' + t.get('name', '')
@@ -49,7 +50,7 @@ class Gen:
         """(size, align) on the N64."""
         k = t['k']
         if k in ('s', 'f'): return t['size'], t['size']
-        if k in ('ptr', 'fnptr'): return 4, 4
+        if k in ('ptr', 'fnptr', 'iptr'): return 4, 4
         if k == 'array':
             sz, al = s.n64(t['of'])
             return sz * (t['n'] or 0), al
@@ -60,7 +61,7 @@ class Gen:
     def host(s, t):
         k = t['k']
         if k in ('s', 'f'): return t['size'], t['size']
-        if k in ('ptr', 'fnptr'): return 8, 8
+        if k in ('ptr', 'fnptr', 'iptr'): return 8, 8
         if k == 'array':
             sz, al = s.host(t['of'])
             return sz * (t['n'] or 0), al
@@ -101,7 +102,7 @@ class Gen:
 
     def has_ptr(s, t, seen=()):
         k = t['k']
-        if k in ('ptr', 'fnptr'): return True
+        if k in ('ptr', 'fnptr', 'iptr'): return True
         if k == 'array': return s.has_ptr(t['of'], seen)
         if k == 'rec':
             if t['id'] in seen: return False
@@ -132,6 +133,8 @@ class Gen:
             ops.append([K_SCALAR, n, h, t['size'], count, ns or t['size'], hs or t['size'], -1, 0, 0, 0, 0])
         elif k == 'ptr':
             ops.append([K_PTR, n, h, 4, count, ns or 4, hs or 8, s.tid(t['to']) if t['to'] else -1, 0, 0, 0, 0])
+        elif k == 'iptr':  # an address-sized integer: relocated when it holds a link address
+            ops.append([K_MAYBEPTR, n, h, 4, count, ns or 4, hs or 8, -1, 0, 0, 0, 0])
         elif k == 'fnptr':
             ops.append([K_FNPTR, n, h, 4, count, ns or 4, hs or 8, -1, 0, 0, 0, 0])
         elif k == 'array':

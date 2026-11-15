@@ -33,6 +33,8 @@ def tref(t, cx):
         return {'k': 'rec', 'id': record(t, cx)}
     if k == K.ENUM:
         return {'k': 's', 'size': t.get_size(), 'sg': True}
+    if k in (K.LONG, K.ULONG):  # uintptr_t, intptr_t, size_t: 32 bits on the N64, often an address
+        return {'k': 'iptr'}
     if k in (K.FLOAT, K.DOUBLE, K.LONGDOUBLE):
         return {'k': 'f', 'size': t.get_size()}
     if k in (K.FUNCTIONPROTO, K.FUNCTIONNOPROTO): return {'k': 'function'}
