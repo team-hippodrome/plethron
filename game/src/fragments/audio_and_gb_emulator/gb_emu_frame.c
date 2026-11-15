@@ -9,7 +9,7 @@
 #include "m2c_macros.h"
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
-uintptr_t GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1); // PORT: returns an address
+u8* GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1); // PORT: returns an address
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void GbAudio_UpdateFrame();
@@ -178,7 +178,7 @@ s32 GbEmu_UpdateFrame(void) {
                             break;
                     }
                     GB_MEM[0x101B9] = j;
-                    GbEmu_DrawSpeedIndicator(GB_RUN->framebuffer);
+                    GbEmu_DrawSpeedIndicator((uintptr_t)(GB_RUN->framebuffer));
                 }
             }
         } else if (D_811561C8[D_811565A0].error != 0) {
@@ -664,8 +664,8 @@ void GbEmu_DrawTransferAnimation(uintptr_t addr, s32 frame) { // PORT: addr is a
     func_81103C40(addr, (u8*)D_81129638, 0, 8, 8);
 }
 
-extern uintptr_t D_811565C0; // PORT: buffer addresses (were s32)
-extern uintptr_t D_811565C4;
+extern u8* D_811565C0; // PORT: buffer addresses (were s32)
+extern u8* D_811565C4;
 extern u32 D_811565C8;
 extern u32 D_811565CC;
 extern u16* D_811565D0;
@@ -700,7 +700,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
     s32 step;
     s32 i;
 
-    D_811565C0 = (uintptr_t)dst;
+    D_811565C0 = (u8*)((uintptr_t)dst);
     step = 0x5000;
     for (y = 0; y < 0x14000; y += step) {
         row = dst + y;
@@ -742,16 +742,16 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     switch (port) {
         case 1:
-            D_811565C4 = (uintptr_t)((u8*)dst + 2);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 2));
             break;
         case 2:
-            D_811565C4 = (uintptr_t)((u8*)dst + 4);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 4));
             break;
         case 3:
-            D_811565C4 = (uintptr_t)((u8*)dst + 6);
+            D_811565C4 = (u8*)((uintptr_t)((u8*)dst + 6));
             break;
         default:
-            D_811565C4 = (uintptr_t)dst;
+            D_811565C4 = (u8*)((uintptr_t)dst);
             break;
     }
 
@@ -774,7 +774,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
     }
 
     D_811565E1 = port;
-    GbEmu_DrawTransferAnimation(D_811565C4 + 0x87BA, 0);
+    GbEmu_DrawTransferAnimation((uintptr_t)(D_811565C4 + 0x87BA), 0);
     osWritebackDCacheAll();
     D_811565E0 = 0;
     D_811565D8 = 0x800000;
@@ -818,10 +818,10 @@ void GbEmu_BlendScrollingLayer(u16* arg0, u16* arg1, s16* arg2, s32 arg3, s32 ar
 extern u32 D_811565DC;
 extern u32 D_811565D8;
 extern u8 D_811565E0;
-extern uintptr_t D_811565C4; // PORT: a buffer address (was s32)
+extern u8* D_811565C4; // PORT: a buffer address (was s32)
 extern u32 D_811565C8;
 extern u32 D_811565CC;
-extern uintptr_t D_811565C0; // PORT: a buffer address (was s32)
+extern u8* D_811565C0; // PORT: a buffer address (was s32)
 extern u16* D_811565D4;
 extern u16* D_811565D0;
 void GbEmu_DrawTransferAnimation(uintptr_t, s32);
@@ -835,7 +835,7 @@ void GbEmu_AnimateLoadingScreen(void) {
     if ((osGetCount() - D_811565DC) > D_811565D8) {
         D_811565DC = osGetCount();
         D_811565E0 = (D_811565E0 + 1) & 7;
-        GbEmu_DrawTransferAnimation(D_811565C4 + 0x87BA, D_811565E0);
+        GbEmu_DrawTransferAnimation((uintptr_t)(D_811565C4 + 0x87BA), D_811565E0);
         if (D_811565D8 > 0x80000) {
             D_811565D8 -= D_811565D8 >> 8;
         }

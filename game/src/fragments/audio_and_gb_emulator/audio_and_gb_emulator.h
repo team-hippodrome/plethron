@@ -423,7 +423,7 @@ typedef struct GbEmuState {
     /* 0x40 */ u32 sramSize; // @unverified: 0x8000 (GbEmu_LoadCartridge)
     /* 0x44 */ u8* unk_44;
     /* 0x48 */ u8* unk_48;
-    /* 0x4C */ uintptr_t framebuffer; // PORT: a buffer address (s32 on the N64)
+    /* 0x4C */ u8* framebuffer; // PORT: a buffer address (s32 on the N64)
     /* 0x50 */ u8* unk_50;
     /* 0x54 */ s32 colorIndex;
 } GbEmuState; // size = 0x58
@@ -475,7 +475,7 @@ typedef struct GbEmuTask {
     /* 0x04 */ u32 flags;
     /* 0x08 */ void* ucode;
     /* 0x0C */ s32 ucodeSize;
-    /* 0x10 */ uintptr_t unk_10; // frame buffer address (D_81154C00)
+    /* 0x10 */ u8* unk_10; // frame buffer address (D_81154C00)
     /* 0x14 */ u8 unk_14;
     /* 0x15 */ u8 unk_15;
     /* 0x16 */ u8 unk_16[2];
@@ -486,7 +486,7 @@ typedef struct GbEmuTask {
     } unk_1C;
     /* 0x20 */ u8* unk_20;
     /* 0x24 */ u8 unk_24[4];
-    /* 0x28 */ uintptr_t outputBuff; // the other frame buffer (GbEmu_RunFrame; GbPlayerTask.unk_48 before)
+    /* 0x28 */ u8* outputBuff; // the other frame buffer (GbEmu_RunFrame; GbPlayerTask.unk_48 before)
     /* 0x2C */ u8 unk_2C[4];
     /* 0x30 */ s32 unk_30;
     /* 0x34 */ u8 unk_34[4];

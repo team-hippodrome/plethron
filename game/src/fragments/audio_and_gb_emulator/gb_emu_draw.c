@@ -745,7 +745,7 @@ void GbEmu_BlitWithPixelOp(u16* dst, u16* src, s32 mode, s32 width, s32 height) 
   }
 }
 
-extern uintptr_t D_8115658C; // PORT: GbEmuState.framebuffer, a buffer address
+extern u8* D_8115658C; // PORT: GbEmuState.framebuffer, a buffer address
 
 /**
  * Clears the 0x2800-byte status bar image below the GB screen and writes back the data cache.
@@ -907,9 +907,9 @@ void GbEmu_DrawSpeedIndicator(uintptr_t fb) { // PORT: fb is a buffer address
     }
 }
 
-extern uintptr_t D_81156590; // PORT: GbEmuState.unk_50, a buffer address
+extern u8* D_81156590; // PORT: GbEmuState.unk_50, a buffer address
 extern u16 D_811223E0[];
-extern uintptr_t D_81154C00; // PORT: frame buffer address in the GB RSP task
+extern u8* D_81154C00; // PORT: frame buffer address in the GB RSP task
 extern s32 D_81156594;
 extern u8* D_81156598;
 extern s8 D_811565A2;
@@ -928,7 +928,7 @@ void GbEmu_DrawAccessOverlay(s32 direction) {
     s32 i;
     u8* p;
 
-    pos = D_81156590;
+    pos = (uintptr_t)(D_81156590);
     bzero((void*)pos, 0x2800);
     pos += 0xAE;
     GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156594], 0x70);
@@ -957,7 +957,7 @@ extern u16 D_811223E0[];
 extern u8 D_811208F8[];
 extern u8 D_811541FC[5];
 extern u8* D_8115659C;
-extern uintptr_t D_81154C00; // PORT: frame buffer address in the GB RSP task
+extern u8* D_81154C00; // PORT: frame buffer address in the GB RSP task
 
 /**
  * Draws the status bar below the GB screen: the tinted bar, the ▲でメニュー ("▲: Menu") hint and, when a speed-up
@@ -975,22 +975,22 @@ void GbEmu_DrawStatusBar(void) {
     switch (D_8111E308) {
         case 1:
 
-            pos = D_81156540.framebuffer + 0xA4;
+            pos = (uintptr_t)(D_81156540.framebuffer + 0xA4);
             GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156540.colorIndex], 0x7C);
-            GbEmu_DrawSpeedIndicator(D_81156540.framebuffer);
+            GbEmu_DrawSpeedIndicator((uintptr_t)(D_81156540.framebuffer));
             pos += 0x2DE;
             break;
         case 2:
 
-            pos = D_81156540.framebuffer + 0x94;
+            pos = (uintptr_t)(D_81156540.framebuffer + 0x94);
             GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156540.colorIndex], 0x84);
-            GbEmu_DrawSpeedIndicator(D_81156540.framebuffer);
+            GbEmu_DrawSpeedIndicator((uintptr_t)(D_81156540.framebuffer));
             pos += 0x2EE;
             break;
         case 0:
         default:
 
-            pos = D_81156540.framebuffer + 0xCE;
+            pos = (uintptr_t)(D_81156540.framebuffer + 0xCE);
             GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156540.colorIndex], 0x50);
             pos += 0x288;
             break;
@@ -1018,8 +1018,8 @@ void GbEmu_ClearPalettes(void) {
     bzero(D_81156550 + 0x12D00, 0x20);
 }
 
-extern uintptr_t D_811565AC; // PORT: heap pointer
-extern uintptr_t D_811565B0; // PORT: heap end
+extern u8* D_811565AC; // PORT: heap pointer
+extern u8* D_811565B0; // PORT: heap end
 /**
  * Bump allocator: aligns the heap pointer to 64 bytes, reserves the size and hangs when the heap
  * runs out.
@@ -1028,21 +1028,21 @@ extern uintptr_t D_811565B0; // PORT: heap end
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
-uintptr_t GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1) // PORT: returns an address (was s32)
+u8* GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1) // PORT: returns an address (was s32)
 {
   uintptr_t new_var; // FAKE: permuter temp
   uintptr_t temp_v1;
   u32 temp_t6;
-  temp_v1 = (D_811565AC + 0x3F) & (~0x3F);
+  temp_v1 = ((uintptr_t)D_811565AC + 0x3F) & (~0x3F);
   new_var = temp_v1; // FAKE: permuter temp
   ; // FAKE: empty statement
-  if ((D_811565AC = new_var + arg0) >= ((uintptr_t) D_811565B0)) // FAKE: permuter temp
+  if ((uintptr_t)(D_811565AC = (u8*)(new_var + arg0)) >= ((uintptr_t) D_811565B0)) // FAKE: permuter temp
   {
     loop_1:
     goto loop_1; // FAKE: m2c's endless hang
 
   }
-  return new_var; // FAKE: permuter temp
+  return (u8*)new_var; // FAKE: permuter temp
 }
 
 s32 GbPak_RequestBankLoad(s32, s32);                     /* extern */
@@ -1201,8 +1201,8 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
     s32 pad[2]; // FAKE
 
     D_811565B4 = 0;
-    D_811565AC = arg1;
-    D_811565B0 = arg1 + arg2;
+    D_811565AC = (u8*)(arg1);
+    D_811565B0 = (u8*)(arg1 + arg2);
     D_811565A0 = arg3;
     D_81156598 = arg4->font1Data;
     D_8115659C = arg4->font2Data;

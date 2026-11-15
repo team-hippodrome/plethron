@@ -288,10 +288,7 @@ extern s16 D_8111E310;
 extern u8 D_8111E314[2];
 extern u8 D_8112A960[];
 extern GbPlayerTask D_81154B20[2];
-extern u8 D_81154B24[];
-extern u8 D_81154B88[];
-extern u8 D_81154B8C[];
-extern uintptr_t D_81154C38; // PORT: the emulator heap address
+extern u8* D_81154C38; // PORT: the emulator heap address
 extern s32 D_81154C40;
 extern s32 D_81154C44;
 extern s32 D_81154C48;
@@ -322,7 +319,7 @@ void GbEmu_Init(GbPlayerEmuBlock* params) { // PORT: the emulator thread block (
 
     D_81154C30[0] = func_800051F0(0, 2, 0x140, 0xF0, 1);
     D_81154C30[1] = func_800051F0(0, 2, 0x140, 0xF0, 1);
-    D_81154C38 = func_800023C4((u32)((uintptr_t) D_0015A9B0 - (uintptr_t) D_000DA9B0 + 0x158000), 0, (uintptr_t) D_000DA9B0);
+    D_81154C38 = (u8*)(func_800023C4((u32)((uintptr_t) D_0015A9B0 - (uintptr_t) D_000DA9B0 + 0x158000), 0, (uintptr_t) D_000DA9B0));
     if (D_81154C38 == 0) {
         D_81154C4E = 1;
         D_81154C48 = 3;
@@ -330,12 +327,13 @@ void GbEmu_Init(GbPlayerEmuBlock* params) { // PORT: the emulator thread block (
     }
     D_81154C3C = 0;
     AudioLoad_Init();
-    func_80003824(D_81154C38, (uintptr_t)D_000DA9B0, (uintptr_t)D_0015A9B0, 0);
+    func_80003824((uintptr_t)(D_81154C38), (uintptr_t)D_000DA9B0, (uintptr_t)D_0015A9B0, 0);
     func_81117288((u8*)D_81154C38);
     D_81154C38 = (D_81154C38 + (uintptr_t) D_0015A9B0) - (uintptr_t) D_000DA9B0;
     func_811171DC();
-    osCreateMesgQueue(D_81154B24, (u8*)D_81154B20, 1);
-    osCreateMesgQueue(D_81154B8C, D_81154B88, 1);
+    // PORT: D_81154B24/D_81154B88/D_81154B8C were the queues and message buffers of D_81154B20[0] and [1]
+    osCreateMesgQueue(&D_81154B20[0].queue, D_81154B20[0].mesg, 1);
+    osCreateMesgQueue(&D_81154B20[1].queue, D_81154B20[1].mesg, 1);
     osViSetMode(D_80077F40);
     osViSetSpecialFeatures(0x2A);
     osViSetSpecialFeatures(0x80);
@@ -347,7 +345,7 @@ void GbEmu_Init(GbPlayerEmuBlock* params) { // PORT: the emulator thread block (
         D_8111E308 = 0;
     }
     D_81154C4F = D_8111E308;
-    switch (GbEmu_LoadCartridge((uintptr_t)D_81154C30[D_81154C3C]->img_p, D_81154C38, 0x158000, func_80025BD8(), params)) {
+    switch (GbEmu_LoadCartridge((uintptr_t)D_81154C30[D_81154C3C]->img_p, (uintptr_t)(D_81154C38), 0x158000, func_80025BD8(), params)) {
         case 1:
         default:
             D_81154C4E = 1;
@@ -436,7 +434,7 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
     }
     GbAudio_FrameStub();
     bcopy(&D_81154BF0, &D_81154B20[D_81154C3C].task, sizeof(GbEmuTask)); // PORT: host size (0x40 on the N64)
-    D_81154B20[D_81154C3C].task.outputBuff = (uintptr_t)D_81154C30[D_81154C3C ^ 1]->img_p;
+    D_81154B20[D_81154C3C].task.outputBuff = (u8*)((uintptr_t)D_81154C30[D_81154C3C ^ 1]->img_p);
     if (D_81154C4C != 0) {
         osRecvMesg(&D_81154B20[D_81154C3C ^ 1].queue, NULL, 1);
     }
