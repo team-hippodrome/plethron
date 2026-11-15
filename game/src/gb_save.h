@@ -175,7 +175,7 @@ void BattleInfoWidget_DrawLabel(s32 arg0, s32 arg1, char* arg2, s32 arg3, s32 ar
 s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
 s32 Window_UpdateAnimation(Window* arg0);
 void Font_SetColorForFlags(s32);
-s32 BattleMon_GetMoveIndexChecked();                /* extern */
+s32 BattleMon_GetMoveIndexChecked(u8* arg0, s32 arg1); // PORT: was unprototyped
 void Trade_DrawSolidFillRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGB8 arg4);
 
 // functions defined in assembly

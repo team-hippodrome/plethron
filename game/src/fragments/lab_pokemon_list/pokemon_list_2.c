@@ -183,7 +183,7 @@ typedef struct Label89100FC4 {
 extern Entry89100FC4 D_8006A9D4[];
 extern u8 D_800734A8[];
 extern char D_8910DBAC[];
-s32 BattleMon_GetMoveIndexChecked(s32, s32);
+s32 BattleMon_GetMoveIndexChecked(u8* mon, s32 slot); // PORT: matches the definition
 /**
  * Draws move slot `slot` of a Pokémon in its type's color, or the empty-slot dash; nothing for a missing slot.
  * Seen in play (2026-11-14) in いちらん: drew the わざ1-4 columns of page 2/3.
@@ -193,7 +193,7 @@ void LabPCList_DrawMoveName(s32 x, s32 y, s32 mon, s32 slot) {
     Color82000BC4 color;
     s32 idx;
 
-    idx = BattleMon_GetMoveIndexChecked(mon, slot);
+    idx = BattleMon_GetMoveIndexChecked((u8*)(uintptr_t)mon, slot); // PORT: mon becomes a pointer in the いちらん cleanup
     if (idx != -1) {
         if (idx == -2) {
             color = *(Color82000BC4*)&D_800734A8;

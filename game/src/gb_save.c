@@ -1607,8 +1607,8 @@ s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
  * Seen in play (2026-11-12) in いちらん page 2/3: slots 0-1 returned the move index and the empty
  * slots 2-3 returned -1.
  */
-s32 BattleMon_GetMoveIndexChecked(s32 arg0, s32 arg1) {
-    if (arg1 >= BattleMon_CountMoves((u8*)arg0)) {
+s32 BattleMon_GetMoveIndexChecked(u8* arg0, s32 arg1) { // PORT: arg0 is a pointer (was s32)
+    if (arg1 >= BattleMon_CountMoves(arg0)) {
         return -1;
     }
     return BattleMon_GetMoveIndex(arg0, arg1);

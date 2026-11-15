@@ -76,7 +76,7 @@ typedef struct LabMonEntryList {
 } LabMonEntryList; // size = 0xC
 
 typedef struct unk_func_8830867C_04C_030_02C_000_000_00C {
-    /* 0x00 */ s32 items;
+    /* 0x00 */ s16* items; // PORT: was s32 (holds a pointer)
     /* 0x04 */ s32 capacity;
     /* 0x08 */ s32 count;
 } unk_func_8830867C_04C_030_02C_000_000_00C; // size >= 0xC

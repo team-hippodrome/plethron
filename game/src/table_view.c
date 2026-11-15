@@ -158,7 +158,7 @@ s32 WordList_Remove(unk_func_8830867C_04C_030_02C_000_000_00C* arg0, s32 arg1) {
         return 1;
     }
 
-    var_v1 = (s16*)arg0->items + arg1;
+    var_v1 = arg0->items + arg1;
 
     arg0->count--;
 
