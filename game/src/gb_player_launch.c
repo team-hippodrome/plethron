@@ -7,8 +7,6 @@
 M2C_UNK (*func_80002C80(M2C_UNK *))(s32);           /* extern */
 M2C_UNK SchedClient_WaitMessage(s32);                         /* extern */
 M2C_UNK Sched_AddClient(s32);                         /* extern */
-M2C_UNK func_800567E0(s32, s32, M2C_UNK);           /* extern */
-M2C_UNK func_800594D0(M2C_UNK);                     /* extern */
 extern M2C_UNK D_800A9710;
 extern s32 D_800AAF44;
 extern M2C_UNK D_81106830;
@@ -22,8 +20,8 @@ void GbPlayer_OutputThreadEntry(s32 arg0) {
     M2C_UNK (*temp_s2)(s32);
 
     temp_s2 = func_80002C80(&D_81106830);
-    func_800594D0(0x01000F00);
-    func_800567E0(D_800AAF44 + 0x21C0, D_800AAF44 + 0x21B0, 1);
+    __osSetFpcCsr(0x01000F00);
+    osCreateMesgQueue(D_800AAF44 + 0x21C0, D_800AAF44 + 0x21B0, 1);
     Sched_AddClient(D_800AAF44 + 0x21B0);
 loop_1:
     SchedClient_WaitMessage(D_800AAF44 + 0x21B0);
@@ -37,9 +35,6 @@ loop_1:
 M2C_UNK (*func_80002C80(M2C_UNK *))(s32);           /* extern */
 M2C_UNK SchedClient_WaitMessage(s32);                         /* extern */
 M2C_UNK Sched_AddClient(s32);                         /* extern */
-M2C_UNK func_800567E0(s32, s32, M2C_UNK);           /* extern */
-M2C_UNK func_800594D0(M2C_UNK);                     /* extern */
-M2C_UNK func_8005C130(s32);                         /* extern */
 extern M2C_UNK D_800A9710;
 extern s32 D_800AAF40;
 extern s32 D_800AAF44;
@@ -55,11 +50,11 @@ void GbPlayer_EmulatorThreadEntry(s32 arg0) {
 
     temp_s1 = func_80002C80(&D_811008DC);
     temp_s2 = func_80002C80(&D_81100C84);
-    func_800594D0(0x01000F00);
-    func_800567E0(D_800AAF40 + 0x21E4, D_800AAF40 + 0x21D4, 1);
+    __osSetFpcCsr(0x01000F00);
+    osCreateMesgQueue(D_800AAF40 + 0x21E4, D_800AAF40 + 0x21D4, 1);
     Sched_AddClient(D_800AAF40 + 0x21D4);
     temp_s1(D_800AAF40);
-    func_8005C130(D_800AAF44);
+    osStartThread(D_800AAF44);
 loop_1:
     SchedClient_WaitMessage(D_800AAF40 + 0x21D4);
     if (M2C_FIELD(&D_800A9710, s16 *, 0xA38) >= 21) {
@@ -100,8 +95,6 @@ void* MainPool_Alloc(u32 size, s32 side);
 M2C_UNK Fragment_Load(s32 id, u8* romStart, u8* romEnd);
 void* BinArchive_Open(u8* romStart, u8* romEnd, s32 arg2, s32 arg3);
 void* BinArchive_GetFile(void* archive, s32 index);
-M2C_UNK func_800567E0(s32, s32, M2C_UNK);
-M2C_UNK func_80051B20(s32, s32, void (*)(s32), s32, s32, s32);
 u8 func_8000C610(u8);
 
 /**
@@ -122,14 +115,13 @@ void GbPlayer_Start(GbPlayerLaunchParams* arg0) {
     M2C_FIELD(D_800AAF40, void**, 0x21CC) = BinArchive_GetFile(temp_v0, 0);
     M2C_FIELD(D_800AAF40, void**, 0x21D0) = BinArchive_GetFile(temp_v0, 1);
     M2C_FIELD(D_800AAF40, GbPlayerLaunchParams*, 0x2200) = *arg0;
-    func_800567E0(D_800AAF40 + 0x21B4, D_800AAF40 + 0x21B0, 1);
-    func_80051B20(D_800AAF44, 9, GbPlayer_OutputThreadEntry, 0, D_800AAF44 + 0x21B0, 17);
-    func_80051B20(D_800AAF40, 8, GbPlayer_EmulatorThreadEntry, 0, D_800AAF40 + 0x21B0, 15);
+    osCreateMesgQueue(D_800AAF40 + 0x21B4, D_800AAF40 + 0x21B0, 1);
+    osCreateThread(D_800AAF44, 9, GbPlayer_OutputThreadEntry, 0, D_800AAF44 + 0x21B0, 17);
+    osCreateThread(D_800AAF40, 8, GbPlayer_EmulatorThreadEntry, 0, D_800AAF40 + 0x21B0, 15);
     D_800AAF48 = func_8000C610(0);
-    func_8005C130(D_800AAF40);
+    osStartThread(D_800AAF40);
 }
 
-M2C_UNK func_8004D1C0(s32, s32 *, M2C_UNK);         /* extern */
 extern s32 D_800AAF40;
 
 /**
@@ -139,15 +131,13 @@ extern s32 D_800AAF40;
 s32 GbPlayer_WaitForExit(void) {
     s32 sp1C;
 
-    func_8004D1C0(D_800AAF40 + 0x21B4, &sp1C, 1);
+    osRecvMesg(D_800AAF40 + 0x21B4, &sp1C, 1);
     return sp1C;
 }
 
 extern u8 D_800AAF48;
-void func_80052DC0(s32);
 void Display_ApplyPendingVideoMode(void);
 void func_80004EF0(s32);
-void func_8004D9B0(s32);
 void func_80002620(s32);
 
 /**
@@ -160,11 +150,11 @@ void func_80002620(s32);
 void GbPlayer_Stop(GbPlayerLaunchParams* arg0) {
     *arg0 = M2C_FIELD(D_800AAF40, GbPlayerLaunchParams*, 0x2200);
     func_8000C610(D_800AAF48);
-    func_80052DC0(1);
+    osViBlack(1);
     Display_ApplyPendingVideoMode();
     func_80004EF0(D_800AAF40 + 0x21D4);
     func_80004EF0(D_800AAF44 + 0x21B0);
-    func_8004D9B0(D_800AAF40);
-    func_8004D9B0(D_800AAF44);
+    osDestroyThread(D_800AAF40);
+    osDestroyThread(D_800AAF44);
     func_80002620('GBEM');
 }

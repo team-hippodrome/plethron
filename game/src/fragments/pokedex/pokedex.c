@@ -20,6 +20,10 @@ extern s32 sGbPort;
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5);
+void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
+
 extern Gfx D_80060290[];
 extern Gfx D_80060398[];
 extern u8 D_04002BA8[];

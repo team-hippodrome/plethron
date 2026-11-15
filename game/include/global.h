@@ -4,7 +4,7 @@
 #include <ultra64.h>
 #include <PR/sched.h>
 
-typedef unsigned int uintptr_t;
+// PORT: uintptr_t comes from <stdint.h> via libultraship (64-bit on this host).
 
 #include "macros.h"
 #include "versions.h"

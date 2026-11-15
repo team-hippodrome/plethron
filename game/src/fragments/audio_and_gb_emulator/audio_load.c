@@ -19,6 +19,9 @@ extern volatile s32 D_811859D4;
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void AudioHeap_DiscardFont(s32 arg0);
+
 u32 AudioHeap_AllocZeroed(AudioAllocPool* arg0, s32 arg1);
 s32 AudioHeap_Alloc(AudioAllocPool* arg0, s32 arg1);
 void AudioHeap_InitPool(AudioAllocPool* arg0, s32 arg1, s32 arg2);
@@ -103,8 +106,6 @@ extern u32 D_8118568C;
 extern s32 D_8118557C;
 void AudioLoad_InitSampleDmaBuffers(s32);
 void AudioSeq_ResetSequencePlayer(s32);
-s32 func_80058100(s32);
-void func_8005C0A0(void);
 void AudioLoad_LoadPermanentSamples(void);
 void AudioPlayback_InitNoteFreeList(void);
 void AudioPlayback_NoteInitAll(void);
@@ -995,7 +996,6 @@ s32 AudioLoad_SyncLoadInstrument(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 
-M2C_UNK func_8004CFB0(s32, M2C_UNK, M2C_UNK);       /* extern */
 s32 AudioLoad_GetRealTableIndex(M2C_UNK, s32);                    /* extern */
 s32 AudioLoad_AsyncLoadInner(M2C_UNK, s32, s32, s32, s32);     /* extern */
 
@@ -1010,7 +1010,7 @@ s32 AudioLoad_AsyncLoadInner(M2C_UNK, s32, s32, s32, s32);     /* extern */
  */
 void AudioLoad_AsyncLoadSampleBank(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     if (AudioLoad_AsyncLoadInner(2, AudioLoad_GetRealTableIndex(2, arg0), arg1, arg2, arg3) == 0) {
-        func_8004CFB0(arg3, 0, 0);
+        osSendMesg(arg3, 0, 0);
     }
 }
 
@@ -1520,8 +1520,6 @@ extern s8 D_81137C1C[];
 extern s8 D_81137C28[];
 extern u8 D_81185650[];
 extern u8 D_81185670[];
-void func_80056730(s32, u32);
-void func_8004D1C0(void*, s32, s32);
 s32 AudioLoad_Dma();
 /**
  * Copies `arg2` bytes (rounded up to 16) from ROM `arg0` to RAM `arg1` in 1 KB DMA chunks and waits for each.
@@ -1533,20 +1531,20 @@ s32 AudioLoad_Dma();
 void AudioLoad_SyncDma(s32 arg0, s32 arg1, u32 arg2, s32 arg3) {
 
     arg2 = (arg2 + 0xF) & ~0xF;
-    func_80056730(arg1, arg2);
+    osInvalDCache(arg1, arg2);
     while (TRUE) {
         if (arg2 < 0x400) {
             break;
         }
         AudioLoad_Dma(D_81185670, 1, 0, arg0, arg1, 0x400, D_81185650, arg3, D_81137C1C);
-        func_8004D1C0(D_81185650, 0, 1);
+        osRecvMesg(D_81185650, NULL, 1);
         arg2 -= 0x400;
         arg0 += 0x400;
         arg1 += 0x400;
     }
     if (arg2 != 0) {
         AudioLoad_Dma(D_81185670, 1, 0, arg0, arg1, arg2, D_81185650, arg3, D_81137C28);
-        func_8004D1C0(D_81185650, 0, 1);
+        osRecvMesg(D_81185650, NULL, 1);
     }
 }
 
@@ -1568,9 +1566,6 @@ typedef struct IoMesg8110DBA0 {
     /* 0x0C */ u32 devAddr;
     /* 0x10 */ u32 size;
 } IoMesg8110DBA0;
-s32 func_800593D0(void);
-s32 func_80051E60(void);
-void func_80056530(s32, IoMesg8110DBA0*, s32);
 /**
  * Starts a PI DMA for audio data that replies to the message queue `mq`; refuses (-1) while the audio
  * reset timer D_811859D4 is above 16 (OoT's resetTimer).
@@ -1587,10 +1582,10 @@ s32 AudioLoad_Dma(IoMesg8110DBA0* mb, s32 pri, s32 direction, u32 dev_addr, void
     }
     switch (kind) {
         case 2:
-            handle = func_800593D0();
+            handle = osCartRomInit();
             break;
         case 3:
-            handle = func_80051E60();
+            handle = osDriveRomInit();
             break;
         default:
             return 0;
@@ -1604,6 +1599,6 @@ s32 AudioLoad_Dma(IoMesg8110DBA0* mb, s32 pri, s32 direction, u32 dev_addr, void
     mb->devAddr = dev_addr;
     mb->size = size;
     M2C_FIELD(handle, s32*, 0x14) = 2;
-    func_80056530(handle, mb, direction);
+    osEPiStartDma(handle, mb, direction);
     return 0;
 }

@@ -944,7 +944,7 @@ s32 AudioLoad_ProcessSamplePreloads(s32 arg0);
 void AudioLoad_ProcessAsyncLoads(s32 arg0);
 
 // audio_thread.c
-s32 AudioThread_GetFontsForSequence(s32 arg0);
+s32 AudioThread_GetFontsForSequence(s32 arg0, s32* arg1); // PORT: second argument passed through
 void AudioThread_QueueCmdS32(s32 cmd, s32 arg1);
 void AudioThread_Unused1(void);
 void AudioThread_Unused4(void);

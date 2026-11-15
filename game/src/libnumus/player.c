@@ -564,7 +564,6 @@ extern void* D_800B363C;
 void func_8003A564(void*, s32, s32);
 void amCreateAudioMgr(ALSynConfig* c, amConfig* amc, u32 num_dma_buffers, s32 arg3, s32 arg4);
 void func_800468F0(ALPlayer*);
-void* func_8005C0D0(s32, s32, void*, s32, s32);
 s32 func_800388BC(void*);
 
 /**
@@ -603,8 +602,8 @@ s32 func_800371A4(s8* arg0) {
         D_800B364C = 0x3C;
     }
     D_800B3650 = 0xF4240 / (s32)D_800B364C;
-    D_800B363C = func_8005C0D0(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x1C);
-    D_800B3640 = func_8005C0D0(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x148);
+    D_800B363C = alHeapDBAlloc(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x1C);
+    D_800B3640 = alHeapDBAlloc(0, 0, M2C_FIELD(arg0, void**, 4), 1, D_800B3638 * 0x148);
     func_8003A564(D_800B363C, 0, D_800B3638 * 0x1C);
     func_8003A564(D_800B3640, 0, D_800B3638 * 0x148);
     D_800B3668 = D_800B3664 = M2C_FIELD(arg0, s8**, 8);
@@ -654,7 +653,6 @@ void func_800374E0(s32 arg0, s32 arg1) {
     }
 }
 
-s32 func_8004D300(s32);
 extern s32 D_800B3CC8;
 extern s32 D_800B365C;
 extern s32 D_800B366C;
@@ -670,9 +668,9 @@ s32 func_80037508(s32* song) {
     s8* cp;
     s32 index;
 
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CC8 = 1;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     count = song[0];
     if ((u32)song[1] < 0x400) {
         func_8003A598(&song[1], song, 5);
@@ -680,9 +678,9 @@ s32 func_80037508(s32* song) {
         func_8003A598(song[2], song, count);
         func_8003A598(song[3], song, count);
     }
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     handle = D_800B365C++;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     for (i = 0; i < count; i++) {
         if (((s32*)song[1])[i] == 0) {
             continue;
@@ -693,18 +691,18 @@ s32 func_80037508(s32* song) {
         }
         cp = D_800B3640 + index * 0x148;
         func_8003A2B8(cp);
-        mask = func_8004D300(1);
+        mask = osSetIntMask(1);
         M2C_FIELD(cp, s32*, 0x88) = D_800B366C;
         M2C_FIELD(cp, s32*, 0x84) = (s32)song;
         M2C_FIELD(cp, s32*, 0x58) = M2C_FIELD(cp, s32*, 0x98) = ((s32*)song[2])[i];
         M2C_FIELD(cp, s32*, 0x54) = M2C_FIELD(cp, s32*, 0x94) = ((s32*)song[3])[i];
         M2C_FIELD(cp, s32*, 0x30) = M2C_FIELD(cp, s32*, 0x8C) = ((s32*)song[1])[i];
         M2C_FIELD(cp, s32*, 0x5C) = handle;
-        func_8004D300(mask);
+        osSetIntMask(mask);
     }
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CC8 = 0;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     return handle;
 }
 
@@ -1079,18 +1077,18 @@ void Audio_RelocateSoundBankWrapper(s32 arg0, s32 arg1) {
 }
 
 /**
- * With interrupts masked (func_8004D300 is libultra's osSetIntMask), records
+ * With interrupts masked (osSetIntMask is libultra's osSetIntMask), records
  * arg0 in D_800B366C if it is non-NULL and bit 0 of its word at offset 0x10 is
  * set, restores the interrupt mask, then calls func_80037508(arg1).
  */
 void func_80037F68(void* arg0, s32* arg1) {
     s32 prevMask;
 
-    prevMask = func_8004D300(1);
+    prevMask = osSetIntMask(1);
     if ((arg0 != NULL) && (M2C_FIELD(arg0, s32*, 0x10) & 1)) {
         D_800B366C = (s32)arg0;
     }
-    func_8004D300(prevMask);
+    osSetIntMask(prevMask);
     func_80037508(arg1);
 }
 
@@ -1158,7 +1156,7 @@ s32 func_800380D0(void) {
  * Initializes channel `cp` as a new sound: calls func_8003A2B8(cp) to reset it, then
  * stores arg0 at offsets 0x88 and 0x140, arg1 at 0x13C, arg3 + 0x100 at 0xB2 (the
  * type word that Audio_IsSoundPlaying and func_8003798C test), arg4 at 0xAA, arg5 at 0xBC and
- * arg6 at 0x60 (`priority`). With interrupts masked (func_8004D300(1) is osSetIntMask),
+ * arg6 at 0x60 (`priority`). With interrupts masked (osSetIntMask(1) is osSetIntMask),
  * it assigns the next handle D_800B365C++ to offset 0x5C and loads
  * ((s32*)arg1[+0xC])[arg3] into offsets 0x8C and 0x30 (`pbase` / `pdata`).
  * Returns the new handle. What arg0, arg1 and arg3 index is not established.
@@ -1177,13 +1175,13 @@ s32 func_8003815C(s32 arg0, s32 arg1, s8* cp, s32 arg3, s32 arg4, s32 arg5, s32 
     table = M2C_FIELD(arg1, s32*, 0xC);
     M2C_FIELD(cp, s32*, 0x140) = arg0;
     M2C_FIELD(cp, s32*, 0x13C) = arg1;
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     M2C_FIELD(cp, s32*, 0x5C) = D_800B365C;
     D_800B365C++;
     val = ((s32*)table)[arg3];
     M2C_FIELD(cp, s32*, 0x8C) = val;
     M2C_FIELD(cp, s32*, 0x30) = val;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     return M2C_FIELD(cp, s32*, 0x5C);
 }
 
@@ -1231,7 +1229,7 @@ s32 func_8003821C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
  * Calls func_8003821C with all seven of its own arguments and returns the
  * result, with a flag word around the call: D_800B3CCC is set to 1 before
  * the call and back to 0 after it.  Each write to the flag is made with
- * interrupts masked: osSetIntMask (func_8004D300, per symbol_addrs.txt) is
+ * interrupts masked: osSetIntMask (osSetIntMask, per symbol_addrs.txt) is
  * called with 1 (OS_IM_NONE), the flag is written, and the previous mask it
  * returned is restored.  What the flag is used for is not established.
  */
@@ -1242,13 +1240,13 @@ s32 func_8003834C(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s3
     s32 ret;
     s32 mask;
 
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CCC = 1;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     ret = func_8003821C(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CCC = 0;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     return ret;
 }
 
@@ -1328,7 +1326,6 @@ s32 Audio_GetActivityScore(void) {
 }
 
 /* osSetIntMask, declared with an int mask: the constant 1 is then shared with the int stores below. */
-s32 func_8004D300(s32);
 /**
  * Stop all active songs (not FX), fade them out
  * Seen in play (2026-11-13) ran when つづける was picked at トーナメントをつづけますか？ after winning tournament
@@ -1342,11 +1339,11 @@ void Audio_StopAllSoundEffects(void) {
     s8* p;
     s8* voice;
 
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CC8 = 1;
-    func_8004D300(mask);
+    osSetIntMask(mask);
 
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     p = D_800B3640;
     for (i = 0; i < D_800B3638; i++, p += 0x148) {
         if ((M2C_FIELD(p, u16*, 0xB2) != 0) || (M2C_FIELD(p, s32*, 0x30) == 0)) {
@@ -1370,14 +1367,13 @@ void Audio_StopAllSoundEffects(void) {
         M2C_FIELD(p, u8*, 0xDD) = 0;
         M2C_FIELD(p, s32*, 0x34) = 0;
     }
-    func_8004D300(mask);
+    osSetIntMask(mask);
 
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_800B3CC8 = 0;
-    func_8004D300(mask);
+    osSetIntMask(mask);
 }
 
-s32 func_8004D300(s32);                             /* extern */
 extern s32 D_800B3638;
 extern s8 *D_800B3640;
 
@@ -1401,13 +1397,13 @@ s32 func_800386E4(s32 arg0, s32 arg1) {
     var_s2 = 0;
     if (D_800B3638 > 0) {
         do {
-            temp_a0 = func_8004D300(1);
+            temp_a0 = osSetIntMask(1);
             if (arg0 == M2C_FIELD(var_s0, s32 *, 0x5C)) {
                 M2C_FIELD(var_s0, s32 *, 0x38) = arg1;
                 M2C_FIELD(var_s0, s32 *, 0x3C) = var_s3;
                 var_s2 += 1;
             }
-            func_8004D300(temp_a0);
+            osSetIntMask(temp_a0);
             var_s1 += 1;
             var_s0 += 0x148;
         } while (var_s1 < D_800B3638);
@@ -1417,11 +1413,10 @@ s32 func_800386E4(s32 arg0, s32 arg1) {
 
 extern s32 D_80075C34;
 extern s8 D_8007754C;
-s32 func_8004D300(s32);
 
 /**
  * Sets a new value for every channel and for D_80075C34. A zero `arg0` is replaced by 1.
- * Each part runs with interrupts masked via func_8004D300(1) (osSetIntMask) and the
+ * Each part runs with interrupts masked via osSetIntMask(1) (osSetIntMask) and the
  * previous mask restored afterwards: first the byte D_8007754C is cleared; then every
  * entry of the D_800B3640 channel array (D_800B3638 entries of 0x148 bytes) gets the value
  * in offsets 0x38 and 0x3C (the compiled code derives the second copy through a
@@ -1448,21 +1443,20 @@ void Audio_FadeCategoriesAndStreams(s32 arg0) {
     } else {
         hi = 1;
     }
-    mask = func_8004D300(1);
+    mask = osSetIntMask(1);
     D_8007754C = 0;
-    func_8004D300(mask);
-    mask = func_8004D300(1);
+    osSetIntMask(mask);
+    mask = osSetIntMask(1);
     for (i = 0, p = D_800B3640; i < D_800B3638; i++, p += 0x148) {
         M2C_FIELD(p, s32*, 0x38) = arg0;
         M2C_FIELD(p, s32*, 0x3C) = hi;
     }
-    func_8004D300(mask);
-    mask = func_8004D300(1);
+    osSetIntMask(mask);
+    mask = osSetIntMask(1);
     D_80075C34 = arg0;
-    func_8004D300(mask);
+    osSetIntMask(mask);
 }
 
-s32 func_8004D300(s32);                             /* extern */
 extern s8 D_8007754C;
 extern s32 D_800B3CD0;
 
@@ -1474,10 +1468,10 @@ extern s32 D_800B3CD0;
 void Audio_FadeCategoriesAndStreamsDefault(void) {
     s32 temp_v0;
 
-    temp_v0 = func_8004D300(1);
+    temp_v0 = osSetIntMask(1);
     D_8007754C = 0;
     D_800B3CD0 = 1;
-    func_8004D300(temp_v0);
+    osSetIntMask(temp_v0);
 }
 
 void func_800395D0(channel_t* cp);
@@ -2221,7 +2215,6 @@ void func_8003A2B8(s8* cp) {
     M2C_FIELD(cp, u8*, 0xDD) = 0;
 }
 
-s32 func_8004D300(s32);                             /* extern */
 extern s8 *D_800B3640;
 
 u32 func_8003A4A8(s32 arg0, M2C_UNK arg1) {
@@ -2235,12 +2228,12 @@ u32 func_8003A4A8(s32 arg0, M2C_UNK arg1) {
     var_s1 = 0;
     if (D_800B3638 != 0) {
 loop_2:
-        temp_a0 = func_8004D300(1);
+        temp_a0 = osSetIntMask(1);
         if (M2C_FIELD(var_s0, s32 *, 0x30) == 0) {
             M2C_FIELD(var_s0, s32 *, 0x30) = -1;
             var_s2 = 1;
         }
-        func_8004D300(temp_a0);
+        osSetIntMask(temp_a0);
         if (var_s2 != 0) {
             return var_s1;
         }
@@ -2278,9 +2271,9 @@ void Audio_RelocatePointerArray(u8* arg0, u32 arg1, u32 arg2) {
  * Initializes channel `cp` as a new sound (a sibling of func_8003815C): calls
  * func_8003A2B8(cp) to reset it, then stores D_800B3668 at offset 0x88, arg1 at the
  * s16 at 0xB2 (the type word), arg2 at 0xAA, arg3 at 0xBC and arg4 at 0x60 (`priority`).
- * It then raises the interrupt mask with func_8004D300, takes the next handle
+ * It then raises the interrupt mask with osSetIntMask, takes the next handle
  * D_800B365C++ for offset 0x5C, loads ((s32*)D_800B3644)[arg1] into offsets 0x8C and 0x30,
- * restores the mask and returns the handle. The argument of the first func_8004D300 call is
+ * restores the mask and returns the handle. The argument of the first osSetIntMask call is
  * an uninitialised stack local in the retail code (`lw $a0, 0x20($sp)`, not the constant
  * 1 that func_8003815C passes); `uninit` reproduces that and must not be given a value.
  * What the table at D_800B3644 holds is not established.
@@ -2296,12 +2289,12 @@ s32 func_8003A638(channel_t* cp, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     cp->volume_scale = arg2;
     cp->sweep_amount = arg3;
     cp->priority = arg4;
-    mask = func_8004D300(uninit);
+    mask = osSetIntMask(uninit);
     cp->handle = D_800B365C;
     D_800B365C++;
     val = ((s32*)D_800B3644)[arg1];
     M2C_FIELD(cp, s32*, 0x8C) = val;
     M2C_FIELD(cp, s32*, 0x30) = val;
-    func_8004D300(mask);
+    osSetIntMask(mask);
     return cp->handle;
 }

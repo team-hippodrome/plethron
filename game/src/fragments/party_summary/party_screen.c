@@ -7,6 +7,9 @@
 #include "input.h"
 #include "ui_graphics.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Menu_DrawItems(s8 *, s32, s32, M2C_UNK, s32);
 M2C_UNK Menu_Init(s8 *, s32, s8 *, M2C_UNK *, s32, s32);
@@ -461,7 +464,6 @@ extern char D_8A21D990[];
 void Ui_DrawImageInStrips(s32, s32, s32);
 
 s32 BattleMon_GetMoveIndex(u8*, s32);
-u32 func_800566BC(const char*);
 /**
  * Draws the moves page's move list: each move name in its type color with PP cur/max,
  * laid out by the C button that picks it, and a frame on `selected_slot`. Max PP adds
@@ -505,7 +507,7 @@ void MonSummary_DrawMoveList(s32 base_x, s32 base_y, s32 mon, s32 selected_slot)
         func_8001A384(8, 0);
         x = D_8A203384[i].nameX + base_x;
         if (D_8A203384[i].center) {
-            x = x - (func_800566BC(str) >> 1) * 0x14 + 0x8C;
+            x = x - (strlen(str) >> 1) * 0x14 + 0x8C;
         }
         Font_Printf(x, D_8A203384[i].nameY + base_y, str);
         func_8001ABBC();

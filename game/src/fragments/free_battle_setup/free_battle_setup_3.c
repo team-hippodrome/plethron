@@ -5,6 +5,14 @@
 #include "m2c_macros.h"
 
 #include "free_battle_setup.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void PokeIcon_ResetSlots(PokeIconRenderer* arg0);
+void Ui_DrawTexturedFrameDecal(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Menu_UpdateCursor(Menu* arg0);
+s32 Menu_UpdateCursorSkipDisabled(Menu* arg0);
 s32 Deck_Open(s32, s32, s32, s32);
 s32 Deck_ReadEntries(void*, s32, s32);
 void Deck_CloseAndFlush(s32);
@@ -38,7 +46,6 @@ typedef struct Entry8006A9D4 {
 extern Entry8006A9D4 D_8006A9D4[];
 extern u8 D_800734A8[];
 extern char D_82009B90[];
-u32 func_800566BC(const char*);
 
 void FreeBattle_DrawMoveName(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
@@ -293,7 +300,7 @@ s32 FreeBattle_UpdateMenuWindow(MenuWindow* window) {
     if ((tmp != 1) && (tmp != 2)) {
         return 0;
     }
-    if (Menu_UpdateCursor(&window->menu, window) == 0) {
+    if (Menu_UpdateCursor(&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
         tmp = Ui_GetSelectionDirection(D_800603C0);
         if (tmp == -1) {
             Audio_PlaySystemSound(3);
@@ -338,7 +345,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
     s32 h;
 
     for (i = 0; i < items->count; i++) {
-        w = func_800566BC(items->items[i]) >> 1;
+        w = strlen(items->items[i]) >> 1;
         if (max < w) {
             max = w;
         }
@@ -584,7 +591,7 @@ s32 FreeBattle_UpdateOpponentSelect(FreeBattleOpponentWindow* window) {
     if ((tmp != 1) && (tmp != 2)) {
         return 0;
     }
-    if (Menu_UpdateCursorSkipDisabled(&window->menu, window) == 0) {
+    if (Menu_UpdateCursorSkipDisabled(&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
         tmp = Ui_GetSelectionDirection(D_800603C0);
         if (tmp == -1) {
             Audio_PlaySystemSound(3);
@@ -815,7 +822,7 @@ s32 FreeBattle_UpdateTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
     }
     switch (window->focus) {
         case 1:
-            if (Menu_UpdateCursorSkipDisabled((u8*)&window->sideMenu, window) == 0) {
+            if (Menu_UpdateCursorSkipDisabled((u8*)&window->sideMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
                 res = Ui_GetSelectionDirection(D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
@@ -863,7 +870,7 @@ s32 FreeBattle_UpdateTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
             }
             break;
         case 0:
-        if (Menu_UpdateCursorSkipDisabled((u8*)&window->opponentMenu, window) == 0) {
+        if (Menu_UpdateCursorSkipDisabled((u8*)&window->opponentMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
             res = Ui_GetSelectionDirection(D_800603C0);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
@@ -1023,7 +1030,7 @@ s32 FreeBattle_UpdateBattleModeWindow(FreeBattleModeWindow* window) {
     if ((tmp != 1) && (tmp != 2)) {
         return 0;
     }
-    if (GridMenu_UpdateCursor(&window->menu, window) == 0) {
+    if (GridMenu_UpdateCursor(&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
         tmp = Ui_GetSelectionDirection(D_800603C0);
         if (tmp == -1) {
             Audio_PlaySystemSound(3);
@@ -1140,7 +1147,7 @@ s32 FreeBattle_UpdateCupSelect(FreeBattleCupWindow* window) {
     if ((tmp != 1) && (tmp != 2)) {
         return 0;
     }
-    if (Menu_UpdateCursorSkipDisabled((u8*)&window->menu, window) == 0) {
+    if (Menu_UpdateCursorSkipDisabled((u8*)&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
         tmp = Ui_GetSelectionDirection(D_800603C0);
         if (tmp == -1) {
             Audio_PlaySystemSound(3);

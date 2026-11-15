@@ -20,6 +20,9 @@ typedef struct unk_func_88313894 {
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Window_DrawAnimatedFrame(Window* arg0);
+
 void func_8001A384(s32, s32);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void func_8001AB6C(void);
@@ -54,7 +57,6 @@ extern Str89104D14 D_8910A914;
 void func_80027804(s8 *, s32 *, s32, s32);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void Menu_Init(s8 *, s8 *, s32, void *, s32, s32);
-u32 func_800566BC(s32);
 void LabTextMenu_DrawRow();
 /**
  * Sets up a plain popup menu of text rows sized to its longest row.
@@ -68,7 +70,7 @@ void LabTextMenu_Init(s8 *menu, s32 x, s32 y, s32 *texts, s32 flags, s32 count) 
     s32 h;
 
     for (i = 0; i < count; i++) {
-        w = func_800566BC(texts[i]) >> 1;
+        w = strlen(texts[i]) >> 1;
         if (max < w) {
             max = w;
         }
@@ -814,7 +816,7 @@ void LabPCList_InitPopupMenu(LabPopupMenu* popup, s32 *labels, s32 item_flags, s
 
     popup->title = message;
     for (i = 0; i < count; i++) {
-        w = func_800566BC(labels[i]) >> 1;
+        w = strlen(labels[i]) >> 1;
         if (max < w) {
             max = w;
         }
@@ -1017,7 +1019,7 @@ void LabPCList_DrawLevelInputWindow(LabLevelInputWindow* window) {
     if (func_8002AE6C() == 0) {
         func_8001AB6C();
         func_8001A384(4, 0);
-        func_8001AA9C(0xC8, 0xC8, 0xFF, 0xFF); // #C8C8FFFF
+        Gfx_SetEnvColor(0xC8, 0xC8, 0xFF, 0xFF); // #C8C8FFFF
         Font_Printf(window->window.frame.x + 84, window->window.frame.y + 19, D_8910E094);
         func_8001ABBC();
         LabPCList_DrawLevelInput((s8*)&window->minLevel, window->window.frame.x + 14, window->window.frame.y + 0x10, (window->focus == 0) ? 2 : 0);
@@ -1705,7 +1707,7 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, s32 items, s3
     window->window.state = 0;
     window->window.frame.style = 0x801;
     func_8000A460(D_89119BD0, *(s8**)D_80064C44[mon[8]]);
-    *(Str891084B4*)(func_800566BC((s32)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
+    *(Str891084B4*)(strlen((s32)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;
@@ -1733,7 +1735,7 @@ void LabPCList_DrawItemWindow(LabItemWindow* window) {
     s32 y;
     char buf[0x70];
 
-    if (Window_DrawAnimatedFrame() == 0) {
+    if (Window_DrawAnimatedFrame((Window*)window) /* PORT: was implicit a0 */ == 0) {
         Window_DrawFrame(&window->textFrame);
         Ui_DrawTexturedDivider(window->window.frame.x, window->textFrame.y - 7, window->window.frame.width, D_8007356C);
         flags = 0xFFED;

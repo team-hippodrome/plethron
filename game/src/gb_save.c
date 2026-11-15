@@ -15,9 +15,17 @@ extern u8 pad_D_80075944[];
 extern ParticleDescriptor gDefaultParticleDescriptor;
 
 #include "m2c_macros.h"
+// PORT: declared before its first use (IDO allowed the implicit declaration)
+void Gfx_DrawTextureIa8(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Font_BeginTranslucentTextRendering(void);
+void Font_EndTexturedTextRendering(void);
+void Font_SetActive(s32 mask, s32 arg1);
+void Gfx_DrawTextureIa16(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode);
 
 void GbSave_BuildPortSummary(GbSavePortSummary* arg0, s32 arg1);
-void Window_UpdateAndDrawFrame(Window* window);
+s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
 s32 Ui_AdjustVerticalSelection(UiSelection* arg0, s32 arg1);
 s32 Ui_HandleVerticalSelectionInput(s32 arg0);
 s32 Ui_AdjustHorizontalSelection(UiSelection* arg0, s32 arg1);
@@ -130,7 +138,6 @@ void Ui_FillRectRgba5551(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg
 s32 GbSave_GameToCategoryIndex(s32 arg0);
 void Font_DrawCharAt(s32 x, s32 y, s32 chr);
 void Ui_DrawNumberZeroPadded(s32 x, s32 y, s32 value, s32 digits);
-u32 func_800566BC(s32);
 
 /**
  * Draws a save summary bar at `y`, colored by the summary's game, with `label`.
@@ -199,7 +206,7 @@ void GbSave_DrawSummaryBar(s32 y, GbSaveSummary* summary, char* label, s32 arg3)
     func_8001AB6C();
     func_8001A384(8, 0);
     func_8001AA9C(((u8*)&D_800734A8)[0], ((u8*)&D_800734A8)[1], ((u8*)&D_800734A8)[2], ((u8*)&D_800734A8)[3]);
-    Font_Printf(596 - ((func_800566BC((s32)label) * 20) >> 1), (y + 32), (s32)label);
+    Font_Printf(596 - ((strlen((s32)label) * 20) >> 1), (y + 32), (s32)label);
     func_8001ABBC();
 }
 
@@ -728,9 +735,9 @@ s32 Window_DrawAnimatedFrame(Window* arg0) {
  * prompt's frame and background vanished and only its text stayed; restoring it brought them back.
  * Every main menu message window calls it each frame through MainMenu_DrawMessageWindow.
  */
-void Window_UpdateAndDrawFrame(Window* window) {
+s32 Window_UpdateAndDrawFrame(Window* window) { // PORT: returns what the tail call left in v0 (callers test it)
     Window_UpdateAnimation(window);
-    Window_DrawAnimatedFrame(window);
+    return Window_DrawAnimatedFrame(window);
 }
 
 /**
@@ -1049,7 +1056,7 @@ void Ui_DrawNumberUnpadded(s32 arg0, s32 arg1, s32 arg2) {
         temp_lo = arg2 / var_s0;
         i--;
         if ((temp_lo != 0) || (var_s4 != 0) || (i == 0)) {
-                        func_8001BCB4(arg0, arg1, 8, 12, D_80073584[temp_lo], 8, 0);
+                        Gfx_DrawTextureIa8(arg0, arg1, 8, 12, D_80073584[temp_lo], 8, 0);
             arg0 += 9;
             var_s4 = 1;
         }
@@ -1076,7 +1083,7 @@ void Ui_DrawNumber(s32 x, s32 y, s32 value, s32 digits) {
     while (digits > 0) {
         digits--;
         if (value > 0 || first) {
-            func_8001BCB4(x + digits * 9, y, 8, 12, D_80073584[value % 10], 8, 0);
+            Gfx_DrawTextureIa8(x + digits * 9, y, 8, 12, D_80073584[value % 10], 8, 0);
         }
         value /= 10;
         first = 0;
@@ -1096,7 +1103,7 @@ void Ui_DrawNumberZeroPadded(s32 x, s32 y, s32 value, s32 digits) {
     gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGBA, G_CC_DECALRGBA);
     while (digits > 0) {
         digits--;
-        func_8001BCB4(x + digits * 9, y, 8, 12, D_80073584[value % 10], 8, 0);
+        Gfx_DrawTextureIa8(x + digits * 9, y, 8, 12, D_80073584[value % 10], 8, 0);
         value /= 10;
     }
 }
@@ -1194,7 +1201,6 @@ void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b) {
 extern u8 D_04010E10[];
 extern u8 D_04010FD8[];
 extern Img8002A3F8 D_800735F4;
-u32 func_800566BC(s32);
 
 /**
  * Draws a window's title tab above it at (x, y): a stretched tab sized to the title `str`, its end
@@ -1206,7 +1212,7 @@ void Window_DrawTitleTab(s32 x, s32 y, s32 str, s32 flags) {
     s32 width;
     s32 text_x;
 
-    width = (func_800566BC(str) >> 1) * 20;
+    width = (strlen(str) >> 1) * 20;
     text_x = x + 8;
     if (flags & 0x2000) {
         text_x += 40;
@@ -1428,7 +1434,6 @@ s32 Window_DrawBlinkingFrame(BlinkingTextBox* arg0) {
 typedef struct Ent8002D188 { s32 w; s32 h; s32 unk8; } Ent8002D188;
 typedef struct Rgba8002D188 { u8 r, g, b, a; } Rgba8002D188;
 extern Ent8002D188 D_800736D0[];
-u32 func_800566BC(s32);
 extern u8 D_800736E8[];
 extern u8 D_800736EC[];
 /**
@@ -1444,7 +1449,7 @@ void TextBox_Init(TextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4) {
     s32 ch;
 
     if (arg4 == 0) {
-        len = func_800566BC(arg1) >> 1;
+        len = strlen(arg1) >> 1;
     } else {
         len = arg4;
     }
@@ -1503,7 +1508,6 @@ s32 Ui_CheckConfirmPressed(UNUSED s32 arg0) {
 
 extern u8 D_800736F8[];
 extern u8 D_800736FC[];
-u32 func_800566BC(s32);
 /**
  * Sets up a blinking text box sized to string `arg1`.
  * Seen in play (2026-11-13) ran when the COM entry was confirmed (このデータでエントリーします, はい), just before
@@ -1519,7 +1523,7 @@ void BlinkingTextBox_Init(BlinkingTextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u
     s32 ch;
 
     if (arg4 == 0) {
-        len = func_800566BC(arg1) >> 1;
+        len = strlen(arg1) >> 1;
     } else {
         len = arg4;
     }

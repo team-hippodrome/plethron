@@ -46,7 +46,6 @@ void GbEmu_BlendColorWithAlphaMap(u16* dst, u8* alpha_map, s32 color, s32 width,
 void GbEmu_Delay(OSTime arg0);
 void GbEmu_BlendScrollingLayer(u16* arg0, u16* arg1, s16* arg2, s32 arg3, s32 arg4);
 
-M2C_UNK func_8005C670(s32, M2C_UNK, u16, M2C_UNK *, s32); /* extern */
 extern M2C_UNK D_81156480;
 s32 GbPak_WriteMapperRegister(void *arg0, s32 address, s32 value);
 
@@ -60,27 +59,25 @@ s32 GbPak_InitializeCartridgeMapper(unk_D_8122B2C0* arg0);
  * but that is inferred from those uses only. Sets the byte at 0xA2 to 2 and
  * saves then clears the byte at 0x98. Calls func_81102344(arg0, word94 >> 13) (the same
  * bank-select helper GbPak_TransferBankedRam uses with address / 0x2000);
- * if that returns 0, calls func_8005C670 with the handle at 0x50, the
+ * if that returns 0, calls osGbpakReadWrite with the handle at 0x50, the
  * mode 0 (GbPak_WriteMapperRegister passes 1 here), the address (word94 & 0x1FFF) | 0xA000,
  * the buffer D_811564A0 and a length of 0x20; if that also returns 0, calls
- * func_80057910(D_811564A0, entry, 0x20) where entry is the 0x20-byte record
+ * bcmp(D_811564A0, entry, 0x20) where entry is the 0x20-byte record
  * number byte9C of the table at D_811564C0. If the last result is 0 the byte
  * at 0xA2 is reset to 0. The saved byte at 0x98 is restored and the first
  * non-zero (or final) result is returned.
  *
- * What func_8005C670 mode 0 and func_80057910 do, and what the two tables
+ * What osGbpakReadWrite mode 0 and bcmp do, and what the two tables
  * hold, is not established. Matching notes: the unused first local `pad`
  * places `sp28` at sp+0x28, and the table index is scaled as
  * `(x << 1) << 4` because a single `<< 5` (or `* 0x20`) uses one temporary
  * register fewer and does not match.
  */
 s32 func_81102344(u8*, s32);
-s32 func_80057910(M2C_UNK *, void *, u32); /* extern */
 extern M2C_UNK D_811564A0;
 extern M2C_UNK D_811564C0;
 s32 GbPak_VerifyProbeBlock(void *arg0);
 
-s32 func_80051110(s32, s8 *, s8 *);             /* extern */
 
 s32 GbPak_CheckCartInserted(s8 *arg0);
 
@@ -132,7 +129,6 @@ s32 GbPak_TransferBankedRam(u8* arg0, s32 arg1);
 extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 
 s32 GbPak_RequestBankLoad(s32 chan, s32 bank);
 
@@ -140,7 +136,6 @@ extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern volatile u8 D_81156477;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 
 s32 GbPak_WriteBackDirtySramBlock(s32 arg0);
 
@@ -187,13 +182,13 @@ restart:
             ch->addr = i << 8;
             ch->size = 0x100;
             ch->buf = ch->verifyBuf;
-            func_8004CFB0(&D_81156458, arg0, 1);
+            osSendMesg(&D_81156458, arg0, 1);
             while (D_81156475 != 0) {
             }
             if (ch->error != 0) {
                 goto fail;
             }
-            if (func_80057910(ch->verifyBuf, ch->ramBuf + (i << 8), 0x100) != 0) {
+            if (bcmp(ch->verifyBuf, ch->ramBuf + (i << 8), 0x100) != 0) {
                 if (retries == 0) {
                     goto fail;
                 }
@@ -205,7 +200,7 @@ restart:
                 ch->addr = off;
                 ch->buf = ch->ramBuf + off;
                 ch->size = 0x100;
-                func_8004CFB0(&D_81156458, arg0, 1);
+                osSendMesg(&D_81156458, arg0, 1);
                 while (D_81156475 != 0) {
                 }
                 if (ch->error) {
@@ -218,9 +213,6 @@ restart:
     return 0;
 }
 
-void func_80058260(u32*);
-u32 func_80053A80(void);
-M2C_UNK func_8005C0A0();
 
 /**
  * Fills the 32-byte probe block (probePattern and unk_5D90) for the writable-RAM
@@ -245,11 +237,11 @@ void GbPak_PrepareProbeBlock(u32* arg0, s32 arg1) {
             }
             break;
         case 1:
-            func_80058260(arg0);
-            arg0[3] = func_80053A80();
-            func_8005C0A0();
-            func_80058260(arg0 + 4);
-            arg0[7] = func_80053A80();
+            osDpGetCounters(arg0);
+            arg0[3] = osGetCount();
+            osWritebackDCacheAll();
+            osDpGetCounters(arg0 + 4);
+            arg0[7] = osGetCount();
             break;
     }
 }
@@ -283,9 +275,9 @@ s32 GbPak_WriteVerifiedSramBlock(s32 arg0, s32 arg1, s32 arg2) {
         addr = (arg1 & 0x1FFF) | 0xA000;
         do {
             func_81102EB0(entry, n);
-            ret = func_8005C670((s32)ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
-            if (ret == 0 && (ret = func_8005C670((s32)ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
-                (ret = func_80057910(&D_811564A0, entry, 0x20)) == 0 && --n == 0) {
+            ret = osGbpakReadWrite((s32)ch->pfs, 1, addr, (M2C_UNK*)entry, 0x20);
+            if (ret == 0 && (ret = osGbpakReadWrite((s32)ch->pfs, 0, addr, &D_811564A0, 0x20)) == 0 &&
+                (ret = bcmp(&D_811564A0, entry, 0x20)) == 0 && --n == 0) {
                 ch->unk98 = arg2;
                 ch->sramAddr = arg1;
                 ch->unkA2 = 0;
@@ -473,10 +465,6 @@ extern OSPfs D_81156018[4];
 extern OSMesg D_811561B8[4];
 extern OSThread D_81154C68;
 extern u8 D_81155E18[];
-void func_800567E0(OSMesgQueue*, OSMesg*, s32);
-void func_80051B20(OSThread*, s32, void (*)(), s32, u8*, s32);
-void func_8005C130(OSThread*);
-void func_8004FD20(s32, s32);
 void GbPak_IoThreadMain();
 /**
  * Clears the four Transfer Pak channel records, gives each its OSPfs and starts the Game Boy Pak
@@ -495,16 +483,16 @@ void GbPak_StartIoThread(s32 arg0, s32 arg1, s32 arg2) {
     D_81156477 = 0;
     D_81156478 = 0;
     D_81156479 = 0;
-    func_8004FD20((s32) D_811561C8, 0x290);
-    func_8004FD20((s32) &D_81156480, 0x20);
+    bzero((s32) D_811561C8, 0x290);
+    bzero((s32) &D_81156480, 0x20);
     for (i = 0; i < 4; i++) {
         D_811561C8[i].channel = i;
         D_811561C8[i].unkA1 = 0x18;
         D_811561C8[i].pfs = &D_81156018[i];
     }
-    func_800567E0(&D_81156458, D_811561B8, 4);
-    func_80051B20(&D_81154C68, arg0, GbPak_IoThreadMain, 0, D_81155E18, arg1);
-    func_8005C130(&D_81154C68);
+    osCreateMesgQueue(&D_81156458, D_811561B8, 4);
+    osCreateThread(&D_81154C68, arg0, GbPak_IoThreadMain, 0, D_81155E18, arg1);
+    osStartThread(&D_81154C68);
 }
 
 extern volatile u8 D_81156474;
@@ -515,8 +503,6 @@ extern s8 D_81156478;
 extern s8 D_81156479;
 extern s32 D_81156470;
 extern OSMesgQueue D_81156458;
-void func_800515B0(s32, s32);
-s32 func_8004CFB0(OSMesgQueue *, s32, s32);
 /**
  * Waits for the I/O thread to go idle, sends it the 0xFF quit message and waits until it has
  * exited.
@@ -533,12 +519,12 @@ void GbPak_StopIoThread(s32 arg0) {
     }
     for (i = 0; i < 4; i++) {
         if ((1 << i) & arg0) {
-            func_800515B0(*(s32 *)((u8 *)&D_811561C8[i] + 0x50), 0);
+            osGbpakPower(*(s32 *)((u8 *)&D_811561C8[i] + 0x50), 0);
         }
     }
     while (D_81156475 != 0) {
     }
-    func_8004CFB0(&D_81156458, 0xFF, 1);
+    osSendMesg(&D_81156458, 0xFF, 1);
     while (D_81156474 != 0) {
     }
     D_81156470 = 0;
@@ -753,8 +739,6 @@ void GbEmu_BlitWithPixelOp(u16* dst, u16* src, s32 mode, s32 width, s32 height) 
   }
 }
 
-void func_8004FD20(s32, s32);                /* extern */
-M2C_UNK func_8005C0A0();                            /* extern */
 extern s32 D_8115658C;
 
 /**
@@ -763,8 +747,8 @@ extern s32 D_8115658C;
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
 void GbEmu_ClearStatusBar(void) {
-    func_8004FD20(D_8115658C, 0x2800);
-    func_8005C0A0();
+    bzero(D_8115658C, 0x2800);
+    osWritebackDCacheAll();
 }
 
 /**
@@ -843,7 +827,6 @@ void GbEmu_DrawTintedBar(u8* arg0, s32 arg1, s32 arg2) {
 }
 
 extern u16 D_81120FD8[];
-void func_80052100(void*, s32);
 /**
  * Draws one 12x11 frame of the animated Transfer Pak access icon; direction selects
  * the mirrored (zero) or normal direction, frame selects the frame (0-10).
@@ -876,7 +859,7 @@ void GbEmu_DrawAccessIcon(u16* arg0, s32 arg1, s32 arg2) {
             src += arg1;
         }
     }
-    func_80052100(arg0, 0x1E00);
+    osWritebackDCache(arg0, 0x1E00);
 }
 
 extern s32 D_81156550;
@@ -940,7 +923,7 @@ void GbEmu_DrawAccessOverlay(s32 direction) {
     u8* p;
 
     pos = D_81156590;
-    func_8004FD20(pos, 0x2800);
+    bzero(pos, 0x2800);
     pos += 0xAE;
     GbEmu_DrawTintedBar((u8*)pos, D_811223E0[D_81156594], 0x70);
     i = 0;
@@ -1016,7 +999,6 @@ void GbEmu_DrawStatusBar(void) {
     D_81154C00 = D_81156540.framebuffer;
 }
 
-void func_8004FD20(s32, s32);                /* extern */
 extern s32 D_81156550;
 
 /**
@@ -1027,7 +1009,7 @@ extern s32 D_81156550;
  * GbEmu_RunFrame.
  */
 void GbEmu_ClearPalettes(void) {
-    func_8004FD20(D_81156550 + 0x12D00, 0x20);
+    bzero(D_81156550 + 0x12D00, 0x20);
 }
 
 extern u32 D_811565AC;
@@ -1088,7 +1070,6 @@ void GbEmu_Delay(OSTime arg0) {
   osRecvMesg(&sp68, NULL, 1);
 }
 
-void func_80058410(void*, void*, s32);
 extern u8 D_81122854[];
 
 /**
@@ -1105,10 +1086,10 @@ s32 GbPak_IdentifyCartridge(u8* arg0) {
     u8* entry = D_81122854;
     s32 i;
 
-    func_80058410(arg0 + 0x44, buf, 8);
+    bcopy(arg0 + 0x44, buf, 8);
     for (i = 4; i != 0; i--, entry += 0x18) {
         buf[3] = entry[0x13];
-        if ((func_80057910(arg0 + 0x34, entry, 0x10) == 0) && (func_80057910(buf, entry + 0x10, 8) == 0)) {
+        if ((bcmp(arg0 + 0x34, entry, 0x10) == 0) && (bcmp(buf, entry + 0x10, 8) == 0)) {
             break;
         }
     }
@@ -1168,8 +1149,6 @@ s32 GbEmu_BlackScreenAndFail(s32 arg0) {
 void GbEmu_AnimateLoadingScreen(void);
 void func_800093E0(void*, void*);
 s32 func_80025BD8(void);
-void func_80052DC0(s32);
-void func_8005C280(f32);
 void GbEmu_PauseAndBlankScreen(void);
 void GbPak_QueueNextBankLoad(GbPakChannel*);
 void GbEmu_DrawLoadingScreen(u16*, u8 (*)[0xC80], s32, s32);
@@ -1235,7 +1214,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     D_811565A1 = 0;
     D_811565A5 = 0x20;
     D_811565A4 = 0;
-    func_8004FD20((s32)D_81156540.mem, 0xFF80);
+    bzero((s32)D_81156540.mem, 0xFF80);
     for (i = 0, p = D_81156540.mem + 0x16B20; i < 0x40; i++) {
         *p++ = 1;
     }
@@ -1245,7 +1224,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     GbEmu_ClearStatusBar();
     i = func_80025BD8();
     D_811561C8[i].request = 0x80;
-    func_8004CFB0(&D_81156458, i, 1);
+    osSendMesg(&D_81156458, i, 1);
     while (D_81156475 != 0) {
     }
 
@@ -1303,14 +1282,14 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     if (cur->bankList == NULL) {
         GbEmu_DrawLoadingScreen((u16*)arg0, M2C_FIELD(arg4, u8 (**)[0xC80], 0x2204), func_80025BD8(), D_81156540.colorIndex);
         GbEmu_DrawStatusBar();
-        func_8005C0A0();
-        func_80052DC0(0);
+        osWritebackDCacheAll();
+        osViBlack(0);
         for (i = 0; i < 4; i++) {
             cur->request = 2;
             cur->addr = i * 0x2000;
             cur->buf = i * 0x2000 + D_81156540.sram;
             cur->size = 0x2000;
-            func_8004CFB0(&D_81156458, D_811565A0, 1);
+            osSendMesg(&D_81156458, D_811565A0, 1);
             while (D_81156475 != 0) {
                 GbEmu_AnimateLoadingScreen();
             }
@@ -1327,7 +1306,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
             cur->addr = i * 0x2000;
             cur->buf = i * 0x2000 + D_81156540.rom;
             cur->size = 0x2000;
-            func_8004CFB0(&D_81156458, D_811565A0, 1);
+            osSendMesg(&D_81156458, D_811565A0, 1);
             while (D_81156475 != 0) {
                 GbEmu_AnimateLoadingScreen();
             }
@@ -1346,7 +1325,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
         func_800093E0(D_81130024, D_811725F0);
     } else {
         GbEmu_DrawAccessOverlay(0);
-        func_8005C0A0();
+        osWritebackDCacheAll();
         D_81156476 = 1;
         GbPak_RequestBankLoad(D_811565A0, 0);
         while (*cur->bankState != 0) {
@@ -1370,7 +1349,7 @@ s32 GbEmu_LoadCartridge(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
     }
     D_81156540.unk_06 = 0;
     GbEmu_PauseAndBlankScreen();
-    func_8005C280(D_FLT_81154254);
-    func_80052DC0(0);
+    osViSetXScale(D_FLT_81154254);
+    osViBlack(0);
     return 0;
 }

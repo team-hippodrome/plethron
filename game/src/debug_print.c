@@ -12,7 +12,6 @@ Gfx* Gfx_DrawTriangleMarker(Gfx* arg0, Vec3f* arg1, u8 arg2, u8 arg3, u8 arg4, u
 extern char D_8007DBA0[];
 extern char D_8007DBA8[];
 extern char D_8007DBAC[];
-void func_8005666C();
 /**
  * Prints an Mtx as 8 rows of 2 hex words via rmonPrintf.
  * No caller (2026-11-13): nothing in the built ROM jumps to it or holds its address (no jal or j,
@@ -26,15 +25,14 @@ void Debug_PrintMtx(s32 *arg0) {
 
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 2; j++) {
-            func_8005666C(D_8007DBA0, *p);
+            rmonPrintf(D_8007DBA0, *p);
             p++;
         }
-        func_8005666C(D_8007DBA8);
+        rmonPrintf(D_8007DBA8);
     }
-    func_8005666C(D_8007DBAC);
+    rmonPrintf(D_8007DBAC);
 }
 
-void rmonPrintf(const char* fmt, ...);
 extern char D_8007DBB0[];
 extern char D_8007DBBC[];
 extern char D_8007DBC0[];

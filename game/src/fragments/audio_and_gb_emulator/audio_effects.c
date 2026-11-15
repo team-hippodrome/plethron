@@ -202,10 +202,10 @@ f32 AudioEffects_UpdateVibrato(); // The caller passes a second argument the cal
  */
 void AudioEffects_UpdatePortamentoAndVibrato(s8 *arg0) {
     if (M2C_FIELD(arg0, u8 *, 0x80) != 0) {
-        M2C_FIELD(arg0, f32 *, 0x38) = AudioEffects_UpdatePortamento(arg0 + 0x80, arg0);
+        M2C_FIELD(arg0, f32 *, 0x38) = AudioEffects_UpdatePortamento(arg0 + 0x80) /* PORT: dropped the ignored second argument */;
     }
     if ((M2C_FIELD(arg0, u8 *, 0xA4) != 0) && (M2C_FIELD(arg0, s32 *, 0x44) != -1)) {
-        M2C_FIELD(arg0, f32 *, 0x3C) = AudioEffects_UpdateVibrato(arg0 + 0x90, arg0);
+        M2C_FIELD(arg0, f32 *, 0x3C) = AudioEffects_UpdateVibrato(arg0 + 0x90) /* PORT: dropped the ignored second argument */;
     }
 }
 

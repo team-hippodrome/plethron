@@ -20,6 +20,12 @@
 #include "stage_loader.h"
 #include "ui_graphics.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Announcer_SetEnabled(s32 enabled);
+void Audio_SetOutputMode(s32 mode);
+GraphNode* GeoLayout_Process(MemoryBlock* pool, void* segptr);
+uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK StageFade_Start(M2C_UNK);
 M2C_UNK func_80006828(M2C_UNK, M2C_UNK *);

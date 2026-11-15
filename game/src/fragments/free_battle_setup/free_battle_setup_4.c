@@ -5,6 +5,11 @@
 #include "free_battle_setup.h"
 #include "game_state.h"
 
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u16 ScrollGrid_UpdateCursor(ScrollGrid *menu);
+u16 ScrollList_UpdateCursor(ScrollList* menu);
+
 typedef struct {
     /* 0x00 */ u8 id;
     /* 0x01 */ char unk01[0x4F];
@@ -48,6 +53,9 @@ void FreeBattle_InitLevelSumWarning(s8* arg0, s32 arg1, s32 arg2, s32 arg3);
 void FreeBattle_InitRentalConfirm(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void ScrollGrid_SyncCursor(FlagOwner*);
 
+void FreeBattle_ClearIndices(s32* indices, s32 start, s32 count); // PORT: no prototype in the decomp
+void FreeBattle_InitConfirmWindow(s8* window, s32 x, s32 y, s32 mon, s32 prompt, s32 controller); // PORT: no prototype in the decomp
+void FreeBattle_MarkPickedRentals(FlagOwner* grid, TeamMonSlot* slots, s32 except_species); // PORT: no prototype in the decomp
 /**
  * Enters an entry screen state and picks its panel: 1 the team list, 2 the duplicate warning,
  * 3/7/9 a Pokémon's confirm window, 4 the shortage warning, 5 the level-sum warning, 6 and 8 the
@@ -500,6 +508,8 @@ void FreeBattle_InitShortageWarning(s8*, s32, s32, s32, s32);
 s32 FreeBattle_CountDuplicateSpecies(void*, s32*);
 s32 FreeBattle_AllTriosOverLevelLimit(TeamMonSlot*);
 
+void FreeBattle_DisableNonDuplicateRows(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
+TeamMonSlot* FreeBattle_FindFlaggedSlot(TeamMonSlot* slots, s32* out_count); // PORT: no prototype in the decomp
 /**
  * Decides the next state of the six-slot menu. Clears `picked`, then, if `mode`
  * is non-zero, inspects the slots in this order and returns the first result
@@ -581,6 +591,19 @@ typedef struct Blk820038B0 {
 extern u8 D_82009D04[];
 void FreeBattle_DrawSlotCell();
 
+s32 Audio_PlaySystemSound(s32 sound_id); // PORT: no prototype in the decomp
+void FreeBattle_EnableNonDuplicateRows(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
+void FreeBattle_InitNamedTeam(void* /* SlotList* */ team, s32 name_index); // PORT: no prototype in the decomp
+void FreeBattle_KeepChosenDuplicate(TeamMonSlot* slots, s32 keep); // PORT: no prototype in the decomp
+void FreeBattle_MarkIneligibleSlots(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
+void FreeBattle_MarkSlotsToReplace(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
+s32 FreeBattle_UpdateLevelSumWarning(FreeBattleLevelSumWarning* window); // PORT: no prototype in the decomp
+s32 FreeBattle_UpdateRentalConfirm(FreeBattleRentalConfirm* window); // PORT: no prototype in the decomp
+s32 FreeBattle_UpdateRentalConfirmChoice(s8* window); // PORT: no prototype in the decomp
+s32 FreeBattle_UpdateShortageWarning(FreeBattleShortageWarning* window); // PORT: no prototype in the decomp
+void GridMenu_Init(GridMenu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5, s32 arg6); // PORT: no prototype in the decomp
+void TextBox_Init(TextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: no prototype in the decomp
+s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: no prototype in the decomp
 /**
  * Runs the entry Pokemon list: pick, rental, confirm and warnings.
  * Seen in play: runs while 1P picks a team on 「エントリーポケモンのせんたく」.
@@ -887,7 +910,6 @@ typedef struct Src82004020 {
 extern char D_82009D28[];
 extern char D_82009D40[];
 char* HAL_Strcpy(char*, const char*);
-void func_80058410(void*, void*, s32, s32);
 /**
  * Copies a picked team into a battle roster: its name (the preset or saved name), source buffer
  * and its non-empty Pokemon, then builds the display copy.
@@ -929,7 +951,7 @@ void FreeBattle_CopyTeamToRoster(TeamRoster* slot, ExtendedRosterInfo* info, s32
     slot->rosterInfo = info;
     info->unk_000 = 0;
     info->numberOfPokemonCanBePicked = slot->numberOfPokemonBrought;
-    func_80058410(slot->pokemonPicked, info->battleMon, 0x1E0, n);
+    bcopy(slot->pokemonPicked, info->battleMon, 0x1E0); // PORT: dropped an ignored fourth argument
     *(Str82009D40*)info->title = *(Str82009D40*)D_82009D40;
     HAL_Strcpy(info->fullName, name);
 }

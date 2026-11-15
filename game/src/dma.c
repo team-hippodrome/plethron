@@ -4,6 +4,9 @@
 #include "global.h"
 #include "dma.h"
 #include "rsp.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void* Util_Malloc(s32 size);
 extern s16 D_8008704C;
 
 s32 Storage_QueueRomRead(s32 arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);

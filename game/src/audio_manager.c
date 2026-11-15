@@ -93,6 +93,9 @@ void Audio_UpdateBattleAudioFrame(void);
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 GbMusic_CountActiveHighChannels(void);
+
 s32 __amDMA(s32 addr, s32 len, void* state);
 ALDMAproc __amDmaNew(AMDMAState** state);
 void __clearAudioDMA(void);
@@ -744,7 +747,7 @@ void Cry_PlayFromPokedex(s32 arg0) {
 void Cry_Update(void) {
     switch (D_80075E10[0]) {
         case 1:
-            func_8003C110(D_80075E14);
+            GbMusic_StartTableSequence(D_80075E14);
             D_80075E10[0]++;
             D_80075E18 = 0;
             break;
@@ -756,7 +759,7 @@ void Cry_Update(void) {
             }
             break;
         case 3:
-            if (func_8003E058() == 0) {
+            if (GbMusic_CountActiveHighChannels() == 0) {
                 D_80075E10[0]++;
                 D_80075E18 = 0;
             }
@@ -784,7 +787,6 @@ s32 Cry_IsPlaying(void) {
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 s32 Audio_GetActivityScore();                                /* extern */
-M2C_UNK func_80058100(s32);                         /* extern */
 extern u8 D_80075E0C;
 extern s32 D_80075E30;
 extern s8 D_800B3F78;
@@ -806,7 +808,7 @@ s32 Audio_SetEnabled(s32 arg0) {
         D_80075E0C = 1;
         goto block_5; // FAKE: goto
     }
-    func_80058100(D_800B3F94);
+    osAiSetFrequency(D_800B3F94);
     D_80075E30 = 0;
     D_800B3F78 = 0;
     D_80075E0C = 0;

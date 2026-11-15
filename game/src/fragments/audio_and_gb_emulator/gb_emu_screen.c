@@ -5,12 +5,8 @@
 
 void func_811177D0(s32);
 void GbEmu_PauseEmulation(void);
-void func_80052DC0(s32);
 void func_81104B88(OSTime);
-void func_8005C280(f32);
-void func_80057470(s32);
 void func_80008014(s32, s32, s32);
-void func_8004FD20(s32, s32);
 extern s8* D_81154C30[];
 extern s32 D_81154C3C;
 /**
@@ -22,12 +18,12 @@ extern s32 D_81154C3C;
 void GbEmu_PauseAndBlankScreen(void) {
     func_811177D0(0);
     GbEmu_PauseEmulation();
-    func_80052DC0(1);
+    osViBlack(1);
     func_81104B88(20);
-    func_8005C280(1.0f);
-    func_80057470(*(s32*)(D_81154C30[D_81154C3C] + 8));
+    osViSetXScale(1.0f);
+    osViSwapBuffer(*(s32*)(D_81154C30[D_81154C3C] + 8));
     func_80008014(*(s32*)(D_81154C30[D_81154C3C] + 8), 0x140, 0x10);
-    func_8004FD20(*(s32*)(D_81154C30[D_81154C3C] + 8), 0x25800);
+    bzero(*(s32*)(D_81154C30[D_81154C3C] + 8), 0x25800);
 }
 
 extern u8 D_8111E318[];
@@ -310,9 +306,6 @@ s32 func_800023C4(s32, s32, u32);
 void func_80003824(s32, u8*, u8*, s32);
 void func_800093E0(u8*, u8*);
 s32 func_80025BD8(void);
-void func_800535A0(u8*);
-void func_800567E0(u8*, u8*, s32);
-void func_80058FB0(s32);
 void GbPak_StartIoThread(s32, s32, u8*);
 s32 GbEmu_LoadCartridge(s32, s32, s32, s32, s8*);
 void AudioLoad_Init(void);
@@ -342,11 +335,11 @@ void GbEmu_Init(s8* params) {
     func_81117288(D_81154C38);
     D_81154C38 = (D_81154C38 + (u32) D_0015A9B0) - (u32) D_000DA9B0;
     func_811171DC();
-    func_800567E0(D_81154B24, (u8*)D_81154B20, 1);
-    func_800567E0(D_81154B8C, D_81154B88, 1);
-    func_800535A0(D_80077F40);
-    func_80058FB0(0x2A);
-    func_80058FB0(0x80);
+    osCreateMesgQueue(D_81154B24, (u8*)D_81154B20, 1);
+    osCreateMesgQueue(D_81154B8C, D_81154B88, 1);
+    osViSetMode(D_80077F40);
+    osViSetSpecialFeatures(0x2A);
+    osViSetSpecialFeatures(0x80);
     GbEmu_PauseAndBlankScreen();
     func_800093E0(D_8112A960, D_811565F0);
     GbPak_StartIoThread(0xC, 0x12, D_800AAFE0);
@@ -446,7 +439,7 @@ void GbEmu_RunFrame(s8* params) {
     bcopy(D_81154BF0, D_81154B20[D_81154C3C].task, 0x40);
     D_81154B20[D_81154C3C].unk_48 = *(s32*)(D_81154C30[D_81154C3C ^ 1] + 8);
     if (D_81154C4C != 0) {
-        osRecvMesg(&D_81154B20[D_81154C3C ^ 1].queue, 0, 1);
+        osRecvMesg(&D_81154B20[D_81154C3C ^ 1].queue, NULL, 1);
     }
     if ((D_81154C40 == -1) || (D_81154C40 == -2)) {
         if ((D_81154C4D < 20) && (GbPak_HasUnsavedSramBlocks() != 0)) {
@@ -598,11 +591,11 @@ void GbEmu_RunFrame(s8* params) {
         osWritebackDCacheAll();
         task = &D_81154B20[D_81154C3C ^ 1];
         if (task->queue.validCount != 0) {
-            osRecvMesg(&task->queue, 0, 1);
+            osRecvMesg(&task->queue, NULL, 1);
         }
         task = &D_81154B20[D_81154C3C];
         if (task->queue.validCount != 0) {
-            osRecvMesg(&task->queue, 0, 1);
+            osRecvMesg(&task->queue, NULL, 1);
         }
         *(s16*)(params + 0x2200) = (D_8111E314[0] << 8) | ((D_8111E314[1] - 1) & 0xFF);
         osSendMesg((OSMesgQueue*)(params + 0x21B4), D_81154C48, 1);

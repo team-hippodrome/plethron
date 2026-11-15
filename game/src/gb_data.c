@@ -229,7 +229,6 @@ char* Text_GetTmHmName(s32 arg0, char* arg1) {
 
 s16 func_8001FAB0(s8 *);                          /* extern */
 s32 func_8001FAC8(s8 *);                          /* extern */
-M2C_UNK func_80056690(s8 *, s8 *, M2C_UNK);     /* extern */
 
 /** Converts a Game Boy Pokémon record (big-endian, internal species index) to a battle Pokémon. */
 void Pokemon_FromGbRecord(BattleMon* arg0, GbPokemonRecord* arg1) {
@@ -249,8 +248,8 @@ void Pokemon_FromGbRecord(BattleMon* arg0, GbPokemonRecord* arg1) {
     arg0->statExp[3] = func_8001FAB0(arg1->statExp[3]);
     arg0->statExp[4] = func_8001FAB0(arg1->statExp[4]);
     arg0->dvs = func_8001FAB0(arg1->dvs);
-    func_80056690(arg0->moves, arg1->moves, 4);
-    func_80056690(arg0->pp, arg1->pp, 4);
+    memcpy(arg0->moves, arg1->moves, 4);
+    memcpy(arg0->pp, arg1->pp, 4);
 }
 
 /** Converts an extended Game Boy Pokemon record to a battle Pokemon. */
@@ -266,7 +265,6 @@ void Pokemon_FromGbRecordExt(BattleMon* arg0, GbPokemonRecordExt* arg1) {
 
 M2C_UNK func_8001FAE8(s8 *, u16);                 /* extern */
 M2C_UNK func_8001FAF8(s8 *, s32);                 /* extern */
-M2C_UNK func_80056690(s8 *, s8 *, M2C_UNK);     /* extern */
 
 /** Converts a battle Pokemon to a Game Boy Pokemon record. */
 void Pokemon_ToGbRecord(BattleMon* arg0, GbPokemonRecord* arg1) {
@@ -285,8 +283,8 @@ void Pokemon_ToGbRecord(BattleMon* arg0, GbPokemonRecord* arg1) {
     func_8001FAE8(arg1->statExp[3], arg0->statExp[3]);
     func_8001FAE8(arg1->statExp[4], arg0->statExp[4]);
     func_8001FAE8(arg1->dvs, arg0->dvs);
-    func_80056690(arg1->moves, arg0->moves, 4);
-    func_80056690(arg1->pp, arg0->pp, 4);
+    memcpy(arg1->moves, arg0->moves, 4);
+    memcpy(arg1->pp, arg0->pp, 4);
 }
 
 /** Converts a battle Pokemon to an extended Game Boy Pokemon record. */

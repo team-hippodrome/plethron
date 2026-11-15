@@ -486,24 +486,24 @@ void BattleScene_UpdateDisplayedHpAndTransition(CameraNode* arg0) {
 
 /**
  * Steps both parties' displayed HP toward their real HP, storing whether each is done in
- * D_8219A560/D_8219A564, then runs the HP bar step func_82125AC8.
+ * D_8219A560/D_8219A564, then runs the HP bar step BattleScene_UpdateDisplayedHpAndTransition.
  * @unverified Name guessed from the code.
  */
 void BattleScene_StepPartyHpAndUpdateHpBar(s32 camera) {
     D_8219A560 = Battle_StepPartyHpToDisplay(D_82199DE0);
     D_8219A564 = Battle_StepPartyHpToDisplay(D_82199DE4);
-    func_82125AC8(camera);
+    BattleScene_UpdateDisplayedHpAndTransition(camera);
 }
 
 /**
  * Once both parties' displayed HP has caught up, sets camera preset 1 and runs the HP bar
- * step func_82125AC8.
+ * step BattleScene_UpdateDisplayedHpAndTransition.
  * @unverified Name guessed from the code.
  */
 void BattleScene_UpdateHpBarWhenHpSettled(s32 camera) {
     if ((D_8219A560 == 1) && (D_8219A564 == 1)) {
         sBattleScene.scene->cameraPresetId = 1;
-        func_82125AC8(camera);
+        BattleScene_UpdateDisplayedHpAndTransition(camera);
     }
 }
 

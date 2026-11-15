@@ -1,10 +1,11 @@
 /* Stadium Zero resident code. */
-/* C ported from the Stadium 1 decomp: src/libleo/leointerrupt.c. */
+/* PORT: replaced with the Stadium 1 port's copy of this libleo file (stadion game/src/libleo/leointerrupt.c), which
+ * builds against libultraship's headers. The 64DD is not emulated, so this code never runs. */
 
 #include "global.h"
 #include "libleo/internal.h"
 #include "PR/os_system.h"
-#include "lib/ultralib/src/os/osint.h"
+
 extern OSThread* __osRunQueue;
 extern OSThread* __osPopThread(OSThread**);
 extern void __osEnqueueThread(OSThread**, OSThread*);
@@ -13,156 +14,155 @@ void __osLeoAbnormalResume(void);
 void __osLeoResume(void);
 extern s32 osEPiRawStartDma(OSPiHandle*, s32, u32, void*, u32);
 
-void __osLeoAbnormalResume(void);
-void __osLeoResume(void);
-
-#include "lib/ultralib/src/io/piint.h"
-s32 __osLeoInterrupt() {
+s32 __osLeoInterrupt(void) {
     u32 stat = 0;
     volatile u32 pi_stat;
     u32 bm_stat;
-    __OSTranxInfo *info = &__osDiskHandle->transferInfo;
-    __OSBlockInfo *block_info = &info->block[info->blockNum];
+    __OSTranxInfo* info = &__osDiskHandle->transferInfo;
+    __OSBlockInfo* blockInfo = &info->block[info->blockNum];
 
-    pi_stat = IO_READ(PI_STATUS_REG);
+    pi_stat = HW_REG(PI_STATUS_REG, u32);
     if (pi_stat & PI_STATUS_DMA_BUSY) {
-        __OSGlobalIntMask = __OSGlobalIntMask & ~SR_IBIT4; //cart interrupt
-        block_info->errStatus = LEO_ERROR_29;
+        __OSGlobalIntMask &= ~0x800;
+        blockInfo->errStatus = 0x1D;
         __osLeoResume();
         return 1;
     }
 
-    WAIT_ON_IOBUSY(pi_stat);
-    stat = IO_READ(LEO_STATUS);
-    if (stat & LEO_STATUS_MECHANIC_INTERRUPT) {
-        WAIT_ON_IOBUSY(pi_stat);
-        IO_WRITE(LEO_BM_CTL, info->bmCtlShadow | LEO_BM_CTL_CLR_MECHANIC_INTR);
-        block_info->errStatus = LEO_ERROR_GOOD;
+    pi_stat = HW_REG(PI_STATUS_REG, u32);
+    while (pi_stat & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) {
+        pi_stat = HW_REG(PI_STATUS_REG, u32);
+    }
+
+    stat = HW_REG(0x5000508, u32);
+    if (stat & 0x2000000) {
+        pi_stat = HW_REG(PI_STATUS_REG, u32);
+        while (pi_stat & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) {
+            pi_stat = HW_REG(PI_STATUS_REG, u32);
+        }
+
+        HW_REG(0x5000510, u32) = info->bmCtlShadow | 0x1000000;
+        blockInfo->errStatus = 0;
         return 0;
     }
-
-    if (info->cmdType == LEO_CMD_TYPE_2) {
+    if (info->cmdType == 2) {
         return 1;
     }
+    if (stat & 0x8000000) {
+        pi_stat = HW_REG(PI_STATUS_REG, u32);
+        while (pi_stat & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) {
+            pi_stat = HW_REG(PI_STATUS_REG, u32);
+        }
 
-    if (stat & LEO_STATUS_BUFFER_MANAGER_ERROR) {
-        WAIT_ON_IOBUSY(pi_stat);
-        stat = IO_READ(LEO_STATUS);
-        block_info->errStatus = LEO_ERROR_22;
+        stat = HW_REG(0x5000508, u32);
+        blockInfo->errStatus = 0x16;
         __osLeoResume();
-        IO_WRITE(PI_STATUS_REG, PI_STATUS_CLR_INTR);
-        __OSGlobalIntMask |= OS_IM_PI;
+        HW_REG(PI_STATUS_REG, u32) = 2;
+        __OSGlobalIntMask |= 0x100401;
         return 1;
     }
-
-    if (info->cmdType == LEO_CMD_TYPE_1) {
-        if ((stat & LEO_STATUS_DATA_REQUEST) == 0) {
-            if (info->sectorNum + 1 != info->transferMode * 85) {
-                block_info->errStatus = LEO_ERROR_24;
+    if (info->cmdType == 1) {
+        if (!(stat & 0x40000000)) {
+            if ((info->sectorNum + 1) != (info->transferMode * 0x55)) {
+                blockInfo->errStatus = 0x18;
                 __osLeoAbnormalResume();
                 return 1;
             }
-
-            IO_WRITE(PI_STATUS_REG, PI_STATUS_CLR_INTR);
-            __OSGlobalIntMask |= OS_IM_PI;
-            block_info->errStatus = LEO_ERROR_GOOD;
+            HW_REG(PI_STATUS_REG, u32) = 2;
+            __OSGlobalIntMask |= 0x100401;
+            blockInfo->errStatus = 0;
             __osLeoResume();
             return 1;
         } else {
-            block_info->dramAddr = (void *)((u32)block_info->dramAddr + block_info->sectorSize);
+            blockInfo->dramAddr = (u8*)(blockInfo->dramAddr) + blockInfo->sectorSize;
             info->sectorNum++;
-            __osEPiRawStartDma(__osDiskHandle, OS_WRITE, LEO_SECTOR_BUFF, block_info->dramAddr, block_info->sectorSize);
+            osEPiRawStartDma(__osDiskHandle, 1, 0x5000400, blockInfo->dramAddr, blockInfo->sectorSize);
             return 1;
         }
-    } else if (info->cmdType == LEO_CMD_TYPE_0) {
-        if (info->transferMode == LEO_SECTOR_MODE) {
-            if (info->sectorNum > (s32)block_info->C1ErrNum + 17) {
-                block_info->errStatus = LEO_ERROR_GOOD;
+    } else if (info->cmdType == 0) {
+        if (info->transferMode == 3) {
+            if (((s32)blockInfo->C1ErrNum + 0x11) < info->sectorNum) {
+                blockInfo->errStatus = 0;
                 __osLeoAbnormalResume();
                 return 1;
             }
-
-            if ((stat & LEO_STATUS_DATA_REQUEST) == 0) {
-                block_info->errStatus = LEO_ERROR_23;
+            if ((stat & 0x40000000) == 0) {
+                blockInfo->errStatus = 0x17;
                 __osLeoAbnormalResume();
                 return 1;
             }
         } else {
-            block_info->dramAddr = (void *)((u32)block_info->dramAddr + block_info->sectorSize);
+            blockInfo->dramAddr = (u8*)(blockInfo->dramAddr) + blockInfo->sectorSize;
         }
 
-        bm_stat = IO_READ(LEO_BM_STATUS);
-        if ((bm_stat & LEO_BM_STATUS_C1SINGLE && bm_stat & LEO_BM_STATUS_C1DOUBLE) || bm_stat & LEO_BM_STATUS_MICRO) {
-            if (block_info->C1ErrNum > 3) {
-                if (info->transferMode != LEO_SECTOR_MODE || info->sectorNum > 0x52) {
-                    block_info->errStatus = LEO_ERROR_23;
+        bm_stat = HW_REG(0x5000510, u32);
+        if (((bm_stat & 0x200000) && (bm_stat & 0x400000)) || (bm_stat & 0x2000000)) {
+            if (blockInfo->C1ErrNum >= 4) {
+                if ((info->transferMode != 3) || (info->sectorNum >= 0x53)) {
+                    blockInfo->errStatus = 0x17;
                     __osLeoAbnormalResume();
                     return 1;
                 }
             } else {
-                int err_num = block_info->C1ErrNum;
-                block_info->C1ErrSector[err_num] = info->sectorNum + 1;
-            }
+                int errNum = blockInfo->C1ErrNum;
 
-            block_info->C1ErrNum++;
+                blockInfo->C1ErrSector[errNum] = info->sectorNum + 1;
+            }
+            blockInfo->C1ErrNum++;
         }
 
-        if (stat & LEO_STATUS_C2_TRANSFER) {
-            if (info->sectorNum + 1 != 88) {
-                block_info->errStatus = LEO_ERROR_24;
+        if (stat & 0x10000000) {
+            if (info->sectorNum != 0x57) {
+                blockInfo->errStatus = 0x18;
                 __osLeoAbnormalResume();
+                return 1;
             }
-
-            if (info->transferMode == LEO_TRACK_MODE && info->blockNum == 0) {
+            if ((info->transferMode == 2) && (info->blockNum == 0)) {
                 info->blockNum = 1;
                 info->sectorNum = -1;
-                info->block[1].dramAddr = (void *)((u32)info->block[1].dramAddr - info->block[1].sectorSize);
-
-                block_info->errStatus = LEO_ERROR_22;
+                info->block[1].dramAddr = (u8*)(info->block[1].dramAddr) - info->block[1].sectorSize;
+                blockInfo->errStatus = 0x16;
             } else {
-                IO_WRITE(PI_STATUS_REG, PI_STATUS_CLR_INTR);
-                __OSGlobalIntMask |= OS_IM_PI;
-                info->cmdType = LEO_CMD_TYPE_2;
-                block_info->errStatus = LEO_ERROR_GOOD;
+                HW_REG(PI_STATUS_REG, u32) = 2;
+                __OSGlobalIntMask |= 0x100401;
+                info->cmdType = 2;
+                blockInfo->errStatus = 0;
             }
-
-            __osEPiRawStartDma(__osDiskHandle, OS_READ, LEO_C2_BUFF, block_info->C2Addr, block_info->sectorSize * 4);
+            osEPiRawStartDma(__osDiskHandle, 0, 0x5000000U, blockInfo->C2Addr, blockInfo->sectorSize * 4);
             return 1;
         }
+        if ((info->sectorNum == -1) && (info->transferMode == 2) && (info->blockNum == 1)) {
+            __OSBlockInfo* bptr = info->block;
 
-        if (info->sectorNum == -1 && info->transferMode == LEO_TRACK_MODE && info->blockNum == 1) {
-            __OSBlockInfo *bptr = &info->block[0];
             if (bptr->C1ErrNum == 0) {
-                if (((u32 *)bptr->C2Addr)[0] | ((u32 *)bptr->C2Addr)[1] | ((u32 *)bptr->C2Addr)[2] | ((u32 *)bptr->C2Addr)[3]) {
-                    bptr->errStatus = LEO_ERROR_23;
+                if (((u32*)bptr->C2Addr)[0] | ((u32*)bptr->C2Addr)[1] | ((u32*)bptr->C2Addr)[2] |
+                    ((u32*)bptr->C2Addr)[3]) {
+                    bptr->errStatus = 0x17;
                     __osLeoAbnormalResume();
                     return 1;
                 }
             }
-
             bptr->errStatus = 0;
             __osLeoResume();
         }
         info->sectorNum++;
-        if (stat & LEO_STATUS_DATA_REQUEST) {
-            if (info->sectorNum > 0x54) {
-                block_info->errStatus = LEO_ERROR_24;
+        if (stat & 0x40000000) {
+            if (info->sectorNum >= 0x55) {
+                blockInfo->errStatus = 0x18;
                 __osLeoAbnormalResume();
                 return 1;
             }
-
-            __osEPiRawStartDma(__osDiskHandle, 0, LEO_SECTOR_BUFF, block_info->dramAddr, block_info->sectorSize);
-            block_info->errStatus = LEO_ERROR_GOOD;
+            osEPiRawStartDma(__osDiskHandle, 0, 0x5000400, blockInfo->dramAddr, blockInfo->sectorSize);
+            blockInfo->errStatus = 0;
             return 1;
-        } else if (info->sectorNum <= 0x54) {
-            block_info->errStatus = LEO_ERROR_24;
+        } else if (info->sectorNum < 0x55) {
+            blockInfo->errStatus = 0x18;
             __osLeoAbnormalResume();
             return 1;
         }
-
         return 1;
     } else {
-        block_info->errStatus = LEO_ERROR_4;
+        blockInfo->errStatus = 4;
         __osLeoAbnormalResume();
         return 1;
     }
@@ -196,12 +196,12 @@ void __osLeoResume(void) {
     s32 last;
 
     es = &__osEventStateTab[8];
-    mq = es->messageQueue;
+    mq = es->queue;
     if ((mq == 0) || (mq->validCount >= mq->msgCount)) {
         return;
     }
     last = (mq->first + mq->validCount) % mq->msgCount;
-    mq->msg[last] = es->message;
+    mq->msg[last] = es->msg;
     mq->validCount++;
     if (mq->mtqueue->next != NULL) {
         __osEnqueueThread(&__osRunQueue, __osPopThread(&mq->mtqueue));

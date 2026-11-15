@@ -10,7 +10,6 @@ M2C_UNK Ui_DrawPrimColorRect(s32, s32, s32, s32, s32, s32, s32, s32);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 M2C_UNK func_8001AA9C(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK func_8001AB6C();
-u32 func_800566BC(s8*);
 void func_8001A384(M2C_UNK, M2C_UNK);
 void func_8001ABBC(void);
 
@@ -123,7 +122,7 @@ void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, s32 arg3, s32 
     if (arg4 != 0) {
         func_8001AA9C(0xFF, 0x64, 0xFF, 0xFF); // #FF64FF
     }
-    sp24 = func_800566BC(arg3) >> 1;
+    sp24 = strlen(arg3) >> 1;
     func_8001A384(2, 0);
     Font_Printf((arg0 - (sp24 * 5)) + 30, arg1 + 2, arg3);
     func_8001ABBC();
@@ -155,7 +154,7 @@ void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, s32 arg3,
     } else {
         func_8001AA9C(0xFF, 0xFF, 0xFF, (s8)alpha); // #FFFFFF
     }
-    half = func_800566BC(arg3) >> 1;
+    half = strlen(arg3) >> 1;
     if (wave > 0) {
         Font_Printf(arg0 + 14, arg1 + 2, (s32)&D_8219597C);
     } else {
@@ -213,7 +212,7 @@ void BattleHud_DrawMonInfoBox(ActivePokemon* arg0, BattleMon* arg1, StatusLabel*
     BattleHud_DrawHpFractionText(arg3 + 0xC, arg4 + 0x1F, arg1->hp, arg1->maxHp);
     func_8001AB6C();
     func_8001A384(2, 0);
-    half = func_800566BC((s32)arg1->nickname) >> 1;
+    half = strlen((s32)arg1->nickname) >> 1;
     Font_Printf((arg3 - (half * 5)) + 29, arg4 + 2, arg1->nickname);
     func_8001A384(1, 0);
     func_8001AA9C(arg2->color.r, arg2->color.g, arg2->color.b, 0xFF);

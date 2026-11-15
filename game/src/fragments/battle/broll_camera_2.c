@@ -1,6 +1,14 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void BattleScene_BRollDollyIn(CameraNode* camera);
+void BattleScene_BRollHoldFollow60Frames(CameraNode* camera);
+void BattleScene_BRollHoldOrbit(CameraNode* camera);
+void BattleScene_BRollRaiseRotationXRestoreFov(CameraNode* camera);
+void BattleScene_BRollTiltUpHigh(CameraNode* camera);
+void BattleScene_BRollTiltUpToHead(CameraNode* camera);
 void BattleScene_BRollStepNop(void);
 void BattleScene_BRollCameraUpdateRotatingArenaOverview(CameraNode* arg0);
 void BattleScene_SelectNextBRollCameraShot(CameraNode* arg0);
@@ -59,10 +67,10 @@ void BattleScene_UpdateBRollCameraSequence(CameraNode* arg0) {
     }
     switch (sBattleScene.scene->phaseStep) {
         case 1:
-            func_82120A34(arg0);
+            BattleScene_BRollCameraUpdateArenaOrbit(arg0);
             break;
         case 3:
-            func_82120A90(arg0);
+            BattleScene_BRollCameraUpdateRotatingArenaOverview(arg0);
             break;
         case 5:
             BattleScene_BRollTiltUpToHead(arg0);

@@ -107,7 +107,9 @@ void Gfx_DrawTextureIa8(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture,
  * green 1P, red 2P, blue 3P and yellow 4P.
  */
 void CartridgeCheck_DrawGameBoyIcon(s32 x, s32 y, s32 port, s32 game) {
-    u8* icons[4] = D_88402F6C;
+    u8* icons[4]; // PORT: C cannot initialise an array from another array
+
+    memcpy(icons, D_88402F6C, sizeof(icons));
 
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     if (game == 0) {

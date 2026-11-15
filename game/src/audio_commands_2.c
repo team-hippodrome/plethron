@@ -4,6 +4,10 @@
 #include "audio_commands.h"
 #include "libnumus/player.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Audio_PlayMoveSound(u32 move_id, u32 species, u32 sound_kind);
+s32 Audio_StartMusicTrack(u32 track_id);
+
 typedef struct SoundBank8 {
     /* 0x0 */ u8 unk_0;
     /* 0x1 */ u8 unk_1;

@@ -91,6 +91,10 @@ s32 Completion_LightAngleCallbackB(s32, GraphNode*);
 
 #include "math.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Audio_PlayMusicIfChanged(s32 arg0);
+uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
+
 
 s32 VsScene_LightFollowCameraCallback(s32 phase, GraphNode* node);
 void VsScene_UnusedStubA(void);

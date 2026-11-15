@@ -190,10 +190,10 @@ void Display_ClearForReset(void) {
             for (i = 0; i < 16; i++) { for (j = 0; j < width; j++) { *(p++) = 0; } p += width * 14; }
             // clang-format on
         } else {
-            func_80052DC0(1, width);
+            osViBlack(1); // PORT: dropped an ignored second argument
         }
         D_800870D0.nmiClearStep++;
-        func_8005C0A0();
+        osWritebackDCacheAll();
     }
     SchedClient_WaitMessage(&D_800870D0.client);
     while (D_800870D0.client.queue.validCount > 0) {
@@ -202,13 +202,10 @@ void Display_ClearForReset(void) {
     SchedClient_WaitMessage(&D_800870D0.client);
 }
 
-void func_800594D0(u32);
 void func_80001A30(void*, u8, u8, u8, u8, s32, s32, s32);
 void Sched_AddClient(SchedClient*);
 void func_80001140(void*);
 void func_800081E0(s32);
-s32 func_8004D1C0(OSMesgQueue*, OSMesg*, s32);
-s32 func_8004CFB0(OSMesgQueue*, OSMesg, s32);
 void Display_AcceptFrameRequest(DisplayFrame* arg0);
 void func_80001328(void);
 void Display_ClearForReset(void);
@@ -221,10 +218,10 @@ void Display_ClearForReset(void);
 void DisplayWorker_ThreadMain(UNUSED void* arg0) {
     OSMesg msg;
 
-    func_800594D0(0x01000F00);
+    __osSetFpcCsr(0x01000F00);
     func_80001A30(&D_800870D0.shownFrame, 0, 1, 2, 0xFF, 0, 0, 0);
     func_80001A30(&D_800870D0.renderFrame, 0, 1, 2, 0xFF, 0, 0, 0);
-    func_800567E0(&D_800870D0.client.queue, D_800870D0.client.mesgBuf, 4);
+    osCreateMesgQueue(&D_800870D0.client.queue, D_800870D0.client.mesgBuf, 4);
     Sched_AddClient(&D_800870D0.client);
     func_80001140(&D_800870D0.task);
     while (1) {
@@ -234,13 +231,13 @@ void DisplayWorker_ThreadMain(UNUSED void* arg0) {
         }
         func_800081E0(0);
         D_800870D0.isWaitingForRequest = 1;
-        func_8004D1C0(&D_800870D0.frameQueue, &msg, 1);
+        osRecvMesg(&D_800870D0.frameQueue, &msg, 1);
         D_800870D0.isWaitingForRequest = 0;
         func_800081E0(1);
         func_800081E0(2);
         Display_AcceptFrameRequest(msg);
         func_80001328();
-        func_8004CFB0(&D_800870D0.doneQueue, (OSMesg)0x444F4E45, 0);
+        osSendMesg(&D_800870D0.doneQueue, (OSMesg)0x444F4E45, 0);
     }
 }
 

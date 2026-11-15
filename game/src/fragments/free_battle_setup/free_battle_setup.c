@@ -431,7 +431,6 @@ typedef struct Entry8006A9D4 {
 extern Entry8006A9D4 D_8006A9D4[];
 extern M2C_UNK D_800734A8;
 extern char D_82009B90[];
-u32 func_800566BC(const char*);
 
 /**
  * Draws a move name in its type's color (D_80066AD8 by D_8006A9D4[move].type), centered if asked;
@@ -455,7 +454,7 @@ void FreeBattle_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
         str = entry->name;
     }
     if (centered != 0) {
-        x = x - (func_800566BC(str) >> 1) * 20 + 140;
+        x = x - (strlen(str) >> 1) * 20 + 140;
     }
     Font_Printf(x, y, str);
 }

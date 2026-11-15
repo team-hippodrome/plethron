@@ -9,7 +9,7 @@
 #include "gb_player_launch.h"
 #include "gfx_buffer.h"
 #include "graphics_textures.h"
-#include "leo.h"
+#include "src/leo.h" // PORT: the SDK has a leo.h too
 #include "matrix.h"
 #include "memory_main.h"
 #include "menu.h"
@@ -208,7 +208,6 @@ void Tournament_SaveContinueData(void) {
     Save_CommitTypedRecord(0x15, 0);
 }
 
-M2C_UNK func_80058410();
 extern SaveContinueSession gContinueSession;
 
 /**
@@ -222,7 +221,7 @@ void Session_RestoreContinueSession(void) {
     gSessionContext.ruleCategory = (u8) gContinueSession.mode;
     gSessionContext.modeSelection = (u8) gContinueSession.modeSelection;
     gSessionContext.roundOrDemoId = (u8) gContinueSession.round;
-    func_80058410(gContinueSession.opponentHistory, gSessionContext.opponentHistory, 8, &gContinueSession);
+    bcopy(gContinueSession.opponentHistory, gSessionContext.opponentHistory, 8); // PORT: dropped an ignored fourth argument
 }
 
 typedef struct { u8 b[3]; } Unk3Bytes;
@@ -260,7 +259,7 @@ void Session_InitContinueTrainer(s32 is_gb_team)
   st->rosterInfo[0].unk_000 = 0;
   st->rosterInfo[0].numberOfPokemonCanBePicked = st->trainerSlots[0].numberOfPokemonBrought;
   st->rosterInfo[0].trainerIndex = 0;
-  func_80058410(st->trainerSlots[0].pokemonPicked, st->rosterInfo[0].battleMon, 0x1E0);
+  bcopy(st->trainerSlots[0].pokemonPicked, st->rosterInfo[0].battleMon, 0x1E0);
   *((Unk11Bytes *) st->rosterInfo[0].title) = *((Unk11Bytes *) (&D_8007B7C4));
   func_8000A460(st->rosterInfo[0].fullName, st->trainerSlots[0].trainerName);
   BattleSide_InitSingleTrainer(&st->battleSides[0], &st->trainerSlots[0]);
@@ -268,7 +267,6 @@ void Session_InitContinueTrainer(s32 is_gb_team)
 
 s8 Save_ReadContinueData(M2C_UNK *, s8 *, M2C_UNK *);       /* extern */
 void Session_InitContinueTrainer(s32);                          /* extern */
-s32 func_80057910(s8 *, M2C_UNK *, M2C_UNK);        /* extern */
 
 /**
  * Loads the continue record. A rental team is always accepted; a GB team only if the cartridge's
@@ -295,7 +293,7 @@ s32 Tournament_LoadContinueData(void) {
             gSessionContext.teamGbPort = 0xFF;
             Session_LoadPortSnapshot(-1);
             ret = 1;
-        } else if ((gActiveGbPort >= 0) && (gActiveGbPort < 4) && (GbSave_CopyPortSnapshot(gActiveGbPort, &gSessionGbSnapshot) != 0) && (func_80057910(buf, &gSessionGbSnapshot, 0x162) == 0)) {
+        } else if ((gActiveGbPort >= 0) && (gActiveGbPort < 4) && (GbSave_CopyPortSnapshot(gActiveGbPort, &gSessionGbSnapshot) != 0) && (bcmp(buf, &gSessionGbSnapshot, 0x162) == 0)) {
             Session_InitContinueTrainer(buf[0]);
             gSessionContext.sessionFlags = (u8) (gSessionContext.sessionFlags | 1);
             gSessionContext.teamGbPort = (s8) gActiveGbPort;
@@ -784,7 +782,6 @@ void Game_ResetStorageDevice(void) {
     Storage_ResetDisk();
 }
 
-u32 func_800594D0(u32);
 void func_8000B170(s32);
 void func_8000D20C(void);
 void func_800177DC(void);
@@ -802,7 +799,7 @@ void func_800268A8(void);
 void Game_RunStateLoop(s32 arg0) {
     s32 state;
 
-    func_800594D0(0x01000F00);
+    __osSetFpcCsr(0x01000F00);
     func_8000B170(0);
     func_8000D20C();
     func_800177DC();
@@ -1022,22 +1019,24 @@ s32 BezierPath_Step(Obj80027168* path, Vec3f* out) {
     return 1;
 }
 
-M2C_UNK BezierPath_LoadNextSegment();                            /**
+M2C_UNK BezierPath_LoadNextSegment(Obj80027168* path); // PORT: prototyped
+/**
  * Starts a Bezier path over the keys at `keys` with linear time.
  * @unverified Name read from the code.
  */
 void BezierPath_InitLinear(s8 *path, s32 keys) {
     M2C_FIELD(path, s32 *, 4) = keys;
     M2C_FIELD(path, s32 *, 0) = 0;
-    BezierPath_LoadNextSegment();
+    BezierPath_LoadNextSegment((Obj80027168*)path); // PORT: was implicit a0
 }
 
-M2C_UNK BezierPath_LoadNextSegment();                            /**
+M2C_UNK BezierPath_LoadNextSegment(Obj80027168* path); // PORT: prototyped
+/**
  * Starts a Bezier path over the keys at `keys` with eased (smoothstep) time.
  * @unverified Name read from the code.
  */
 void BezierPath_InitEased(s8 *path, s32 keys) {
     M2C_FIELD(path, s32 *, 4) = keys;
     M2C_FIELD(path, s32 *, 0) = 1;
-    BezierPath_LoadNextSegment();
+    BezierPath_LoadNextSegment((Obj80027168*)path); // PORT: was implicit a0
 }

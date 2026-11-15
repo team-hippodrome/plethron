@@ -38,12 +38,12 @@ s32 PokeIcon_CapturePreviewGeoNode(s32 arg0, GraphNode* arg1) {
 
 /** Initializes the preview scene of a Pokemon model. */
 void PokeIcon_InitPreviewScene(PokeModelPreview* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
-    static u32 D_8006F3E0[] = {
+    static uintptr_t D_8006F3E0[] = { // PORT64: geo layout slots hold addresses (one uintptr_t per original word)
         0x0C00FFFF, 0x05000000, 0x0B00001E, 0x00000000, 0x010000E0, 0x00000000,
         0x0000000A, 0x015404E2, 0x05000000, 0x0D000000, 0x05000000, 0x14000000,
         0x002D013B, 0xFFFFFF32, 0x16FFFFFF, 0x0F000001, 0x05000000, 0x1F000000,
         0x00000000, 0x00000000, 0xFF060000, 0x00640064, 0x00640000, 0x08000000,
-        PokeIcon_CapturePreviewGeoNode, 0x00000000, 0x06000000, 0x06000000, 0x06000000, 0x06000000,
+        (uintptr_t)PokeIcon_CapturePreviewGeoNode, 0x00000000, 0x06000000, 0x06000000, 0x06000000, 0x06000000,
         0x01000000, 0x00000000,
     };
     MemoryBlock* sp24;

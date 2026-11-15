@@ -15,7 +15,7 @@ extern s32 D_800AAF3C;
 u16 Save_Checksum(u8* arg0, s32 arg1);
 s32 Save_RecordIsValid(u8* arg0, s32 arg1);
 void Save_WriteFooter(u8* arg0, s32 arg1, s32 arg2);
-s32 Save_GetBuffer(void);
+intptr_t Save_GetBuffer(void);
 void Save_UnusedStub(void);
 void Save_ResetAndCommitTypedRecord(s32 arg0, s32 arg1);
 s32 Deck_IsSaveEntryPresent(s32 arg0, s32 arg1);
@@ -85,18 +85,17 @@ void Save_WriteFooter(u8* arg0, s32 arg1, s32 arg2) {
     }
 }
 
-M2C_UNK func_80058410(s32, s32, s32);
-M2C_UNK func_80003774(s32, M2C_UNK, M2C_UNK, M2C_UNK);
-extern s32 gSaveBuffer;
+M2C_UNK func_80003774(intptr_t, M2C_UNK, M2C_UNK, M2C_UNK);
+extern intptr_t gSaveBuffer; // PORT64: the SRAM image's address (was s32)
 #define gSaveSram (*(SaveSram**)&gSaveBuffer)
 /**
  * Repairs one copy of a save record: copies arg2 bytes from arg0 to arg1 and writes arg1 to its SRAM offset.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): after a corrupted primary team record, the boot rewrote it from its backup.
  */
-void Save_CopyRecordAndWrite(s32 arg0, s32 arg1, s32 arg2) {
+void Save_CopyRecordAndWrite(intptr_t arg0, intptr_t arg1, s32 arg2) {
     s32 sp1C = arg1 - gSaveBuffer;
 
-    func_80058410(arg0, arg1, arg2);
+    bcopy(arg0, arg1, arg2);
     func_80003774(arg1, sp1C, arg2, 1);
 }
 
@@ -107,9 +106,7 @@ void Save_CopyRecordAndWrite(s32 arg0, s32 arg1, s32 arg2) {
  * left unspecified and the definition is K&R. The unused pad[2] only reproduces the retail stack frame.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): registering a team wrote 0x250 bytes at SRAM 0x0000, a 64 box 0xAC0 bytes at 0x2500.
  */
-void Save_CommitRecord(arg0, arg1)
-    s32 arg0;
-    s32 arg1;
+void Save_CommitRecord(intptr_t arg0, s32 arg1) // PORT: prototyped; arg0 is the record's address
 {
     UNUSED s32 pad[2]; // FAKE: stack padding
     s32 offset;
@@ -119,7 +116,7 @@ void Save_CommitRecord(arg0, arg1)
         offset = arg0 - gSaveBuffer;
         *(s16*)arg0 = flags & 0xFFFD;
         Save_WriteFooter((u8*)arg0, arg1, 1);
-        func_80058410(arg0, arg0 + arg1, arg1);
+        bcopy(arg0, arg0 + arg1, arg1);
         func_80003774(arg0, offset, arg1 * 2, 1);
     }
 }
@@ -131,9 +128,7 @@ void Save_CommitRecord(arg0, arg1)
  * A third argument passed by Save_InvalidateTypedRecord is ignored (K&R definition); pad[2] reproduces the frame.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): moving a Pokémon into 64のボックス1 (N64 Box 1) wrote 'XXXX' first, then 'POKE' once the GB save was written.
  */
-void Save_InvalidateRecord(arg0, arg1)
-    s32 arg0;
-    s32 arg1;
+void Save_InvalidateRecord(intptr_t arg0, s32 arg1) // PORT: prototyped; arg0 is the record's address
 {
     UNUSED s32 pad[2]; // FAKE: stack padding
     s32 offset;
@@ -141,36 +136,35 @@ void Save_InvalidateRecord(arg0, arg1)
     if (*(s16*)arg0 & 2) {
         offset = arg0 - gSaveBuffer;
         Save_WriteFooter((u8*)arg0, arg1, 0);
-        func_80058410(arg0, arg0 + arg1, arg1);
+        bcopy(arg0, arg0 + arg1, arg1);
         func_80003774(arg0, offset, arg1 * 2, 1);
     }
 }
 
-M2C_UNK func_80058410(s32, s32, s32);               /**
+/**
  * Copies a save record's backup copy (at arg0 + arg1) back over the primary copy, undoing unsaved edits.
  * @unverified Read from the code.
  */
-void Save_RevertRecordFromBackup(s32 arg0, s32 arg1) {
-    func_80058410(arg0 + arg1, arg0, arg1);
+void Save_RevertRecordFromBackup(intptr_t arg0, s32 arg1) {
+    bcopy(arg0 + arg1, arg0, arg1);
 }
 
 
-M2C_UNK func_8004FD20();                            /**
+/**
  * Zeroes a save record (bzero with the caller's a0/a1 still in place) and marks it dirty.
  * The size argument passed by Save_ClearTypedRecord is used only through that register.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): つづきのデータをけす (Erase continue data) wrote the continue record back as zeroes with a valid footer.
  */
-void Save_ClearRecord(arg0)
-    s16* arg0;
+void Save_ClearRecord(s16* arg0, s32 arg1) // PORT: prototyped; arg1 (the size) reached bzero only through a1
 {
   if (1) // FAKE: if (1) wrapper
   {
-    func_8004FD20();
+    bzero(arg0, arg1);
     *arg0 |= 2;
   }
 }
 
-s32 func_800237AC(s32, s32);
+s32 func_800237AC(intptr_t, s32);
 void func_800245E0(s32, s32);
 /**
  * Validates both copies of save record (arg0 kind, arg1 slot) after the SRAM read. Both bad: the record is reset
@@ -180,39 +174,39 @@ void func_800245E0(s32, s32);
 void Save_LoadTypedRecordWithRepair(s32 arg0, s32 arg1) {
     UNUSED s32 pad; // FAKE: stack padding
     s32 size;
-    s32 primary;
-    s32 backup;
+    intptr_t primary; // PORT64: addresses (were s32)
+    intptr_t backup;
     s32 status;
 
     switch (arg0) {
         case 16:
-            primary = (s32)&gSaveSram->teams[arg1][0];
-            backup = (s32)&gSaveSram->teams[arg1][1];
+            primary = (intptr_t)&gSaveSram->teams[arg1][0];
+            backup = (intptr_t)&gSaveSram->teams[arg1][1];
             size = 0x128;
             break;
         case 17:
-            primary = (s32)&gSaveSram->boxes[arg1][0];
-            backup = (s32)&gSaveSram->boxes[arg1][1];
+            primary = (intptr_t)&gSaveSram->boxes[arg1][0];
+            backup = (intptr_t)&gSaveSram->boxes[arg1][1];
             size = 0x560;
             break;
         case 18:
-            primary = (s32)&gSaveSram->items[arg1][0];
-            backup = (s32)&gSaveSram->items[arg1][1];
+            primary = (intptr_t)&gSaveSram->items[arg1][0];
+            backup = (intptr_t)&gSaveSram->items[arg1][1];
             size = 0xE0;
             break;
         case 19:
-            primary = (s32)&gSaveSram->list[0];
-            backup = (s32)&gSaveSram->list[1];
+            primary = (intptr_t)&gSaveSram->list[0];
+            backup = (intptr_t)&gSaveSram->list[1];
             size = 0x11A0;
             break;
         case 20:
-            primary = (s32)&gSaveSram->options[0];
-            backup = (s32)&gSaveSram->options[1];
+            primary = (intptr_t)&gSaveSram->options[0];
+            backup = (intptr_t)&gSaveSram->options[1];
             size = 0x10;
             break;
         case 21:
-            primary = (s32)&gSaveSram->continueData[0];
-            backup = (s32)&gSaveSram->continueData[1];
+            primary = (intptr_t)&gSaveSram->continueData[0];
+            backup = (intptr_t)&gSaveSram->continueData[1];
             size = 0x288;
             break;
     }
@@ -232,7 +226,7 @@ void Save_LoadTypedRecordWithRepair(s32 arg0, s32 arg1) {
 }
 
 extern s32 gSaveBufferLoaded;
-extern s32 gSaveBuffer;
+extern intptr_t gSaveBuffer; // PORT64: the SRAM image's address (was s32)
 
 /**
  * Free callback of the 'BU64' block that holds the SRAM image: clears gSaveBuffer and gSaveBufferLoaded.
@@ -245,17 +239,17 @@ void Save_OnBufferFreed(s32 arg0, s32 arg1) {
     }
 }
 
-s32 func_8000234C(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *); /* extern */
-M2C_UNK func_80003774(s32, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
+intptr_t func_8000234C(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *); /* extern */
+M2C_UNK func_80003774(intptr_t, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
 void Save_LoadTypedRecordWithRepair(s32, s32);
-M2C_UNK func_8004FD20(s32, M2C_UNK);                /**
+/**
  * Loads the 32 KiB SRAM image into a new 'BU64' block once (gSaveBufferLoaded) and validates or repairs every record.
  * Returns whether the image is loaded.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): the image sits at gSaveBuffer while menus are open; a blank SRAM is formatted on first boot.
  */
 s32 Save_LoadSram(void)
 {
-  s32 temp_v0;
+  intptr_t temp_v0;
   s32 i;
   if (gSaveBufferLoaded == 0)
   {
@@ -263,7 +257,7 @@ s32 Save_LoadSram(void)
     if (temp_v0 != 0)
     {
       gSaveBufferLoaded = 1;
-      func_8004FD20(temp_v0, 0x8000);
+      bzero(temp_v0, 0x8000);
       func_80003774(gSaveBuffer, 0, 0x8000, 0);
       for (i = 0; i < 16; i++)
       {
@@ -286,30 +280,29 @@ s32 Save_LoadSram(void)
  * Returns the address of the SRAM image (gSaveBuffer).
  * @unverified Read from the code; no caller was found.
  */
-s32 Save_GetBuffer(void) {
+intptr_t Save_GetBuffer(void) {
     return gSaveBuffer;
 }
 
-M2C_UNK func_8001FB10(s32, s32);                    /* extern */
-M2C_UNK func_800203FC(s32);                         /* extern */
-M2C_UNK func_80058410(s32, s32, M2C_UNK);           /* extern */
+M2C_UNK func_8001FB10(intptr_t, intptr_t);                    /* extern */
+M2C_UNK func_800203FC(intptr_t);                         /* extern */
 
 /**
  * Unpacks a 0x2D-byte Game Boy save record (box struct, nickname at +0x21, OT name at +0x27) into the BattleMon at arg0.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): registered and boxed Pokémon came back with their names and stats.
  */
-void BattleMon_FromGbSaveRecord(s32 arg0, s32 arg1) {
-    s32 sp24;
-    s32 temp_a0;
+void BattleMon_FromGbSaveRecord(intptr_t arg0, intptr_t arg1) {
+    intptr_t sp24; // PORT64: addresses (were s32)
+    intptr_t temp_a0;
 
     Pokemon_FromGbRecord((BattleMon*)arg0, (GbPokemonRecord*)arg1);
     func_800203FC(arg0);
-    temp_a0 = (s32)((SaveMonRecord*)arg1)->otName;
+    temp_a0 = (intptr_t)((SaveMonRecord*)arg1)->otName;
     sp24 = temp_a0;
-    func_80058410(temp_a0, (s32)((BattleMon*)arg0)->gbOtNameHead, 3);
-    func_80058410((s32)&((SaveMonRecord*)arg1)->otName[3], (s32)((BattleMon*)arg0)->gbOtNameTail, 3);
-    func_8001FB10((s32)((BattleMon*)arg0)->nickname, (s32)((SaveMonRecord*)arg1)->nickname);
-    func_8001FB10((s32)((BattleMon*)arg0)->otName, sp24);
+    bcopy(temp_a0, (intptr_t)((BattleMon*)arg0)->gbOtNameHead, 3);
+    bcopy((intptr_t)&((SaveMonRecord*)arg1)->otName[3], (intptr_t)((BattleMon*)arg0)->gbOtNameTail, 3);
+    func_8001FB10((intptr_t)((BattleMon*)arg0)->nickname, (intptr_t)((SaveMonRecord*)arg1)->nickname);
+    func_8001FB10((intptr_t)((BattleMon*)arg0)->otName, sp24);
 }
 
 /**
@@ -320,8 +313,8 @@ void BattleMon_ToGbSaveRecord(BattleMon* arg0, SaveMonRecord* arg1) {
     arg0->boxLevel = arg0->level;
     Pokemon_ToGbRecord(arg0, &arg1->mon);
     Text_TranscodeName((char*)arg1->nickname, (char*)arg0->nickname);
-    func_80058410((s32)arg0->gbOtNameHead, (s32)arg1->otName, 3);
-    func_80058410((s32)arg0->gbOtNameTail, (s32)&arg1->otName[3], 3);
+    bcopy((intptr_t)arg0->gbOtNameHead, (intptr_t)arg1->otName, 3);
+    bcopy((intptr_t)arg0->gbOtNameTail, (intptr_t)&arg1->otName[3], 3);
 }
 
 /**
@@ -394,7 +387,7 @@ M2C_UNK Save_SetTypedRecordFlags(arg0, arg1, arg2)
 void Save_UnusedStub(void) {
 }
 
-void Save_CommitRecord(); // Called with two or three arguments.
+void Save_CommitRecord(intptr_t arg0, s32 arg1); // PORT: the decomp passed an ignored third argument
 /**
  * Commits save record (arg0 kind 16-21, arg1 slot) to SRAM if it is dirty (Save_CommitRecord).
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): options, team, box, item and continue records were each written through it.
@@ -402,29 +395,29 @@ void Save_CommitRecord(); // Called with two or three arguments.
 void Save_CommitTypedRecord(s32 arg0, s32 arg1) {
     switch (arg0) {
     case 16:
-        Save_CommitRecord((s32)gSaveSram->teams[arg1], 0x128, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->teams[arg1], 0x128);
         return;
     case 17:
-        Save_CommitRecord((s32)gSaveSram->boxes[arg1], 0x560, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->boxes[arg1], 0x560);
         return;
     case 18:
-        Save_CommitRecord((s32)gSaveSram->items[arg1], 0xE0, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->items[arg1], 0xE0);
         return;
     case 19:
-        Save_CommitRecord((s32)gSaveSram->list, 0x11A0, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->list, 0x11A0);
         return;
     case 20:
-        Save_CommitRecord((s32)gSaveSram->options, 0x10, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->options, 0x10);
         return;
     case 21:
-        Save_CommitRecord((s32)gSaveSram->continueData, 0x288, arg1);
+        Save_CommitRecord((intptr_t)gSaveSram->continueData, 0x288);
         /* fallthrough */
     default:
         return;
     }
 }
 
-void Save_InvalidateRecord(); // Called with three arguments; the third is ignored.
+void Save_InvalidateRecord(intptr_t arg0, s32 arg1); // PORT: the decomp passed an ignored third argument
 /**
  * Writes save record (arg0 kind, arg1 slot) to SRAM marked invalid while a Game Boy transfer is open (Save_InvalidateRecord).
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): the 'XXXX' write before a 64 box and an item record were committed.
@@ -432,22 +425,22 @@ void Save_InvalidateRecord(); // Called with three arguments; the third is ignor
 void Save_InvalidateTypedRecord(s32 arg0, s32 arg1) {
     switch (arg0) {
     case 16:
-        Save_InvalidateRecord((s32)gSaveSram->teams[arg1], 0x128, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->teams[arg1], 0x128);
         return;
     case 17:
-        Save_InvalidateRecord((s32)gSaveSram->boxes[arg1], 0x560, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->boxes[arg1], 0x560);
         return;
     case 18:
-        Save_InvalidateRecord((s32)gSaveSram->items[arg1], 0xE0, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->items[arg1], 0xE0);
         return;
     case 19:
-        Save_InvalidateRecord((s32)gSaveSram->list, 0x11A0, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->list, 0x11A0);
         return;
     case 20:
-        Save_InvalidateRecord((s32)gSaveSram->options, 0x10, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->options, 0x10);
         return;
     case 21:
-        Save_InvalidateRecord((s32)gSaveSram->continueData, 0x288, arg1);
+        Save_InvalidateRecord((intptr_t)gSaveSram->continueData, 0x288);
         /* fallthrough */
     default:
         return;
@@ -461,22 +454,22 @@ void Save_InvalidateTypedRecord(s32 arg0, s32 arg1) {
 void Save_RevertTypedRecord(s32 arg0, s32 arg1) {
     switch (arg0) {
     case 16:
-        Save_RevertRecordFromBackup((s32)gSaveSram->teams[arg1], 0x128);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->teams[arg1], 0x128);
         break;
     case 17:
-        Save_RevertRecordFromBackup((s32)gSaveSram->boxes[arg1], 0x560);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->boxes[arg1], 0x560);
         break;
     case 18:
-        Save_RevertRecordFromBackup((s32)gSaveSram->items[arg1], 0xE0);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->items[arg1], 0xE0);
         break;
     case 19:
-        Save_RevertRecordFromBackup((s32)gSaveSram->list, 0x11A0);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->list, 0x11A0);
         break;
     case 20:
-        Save_RevertRecordFromBackup((s32)gSaveSram->options, 0x10);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->options, 0x10);
         break;
     case 21:
-        Save_RevertRecordFromBackup((s32)gSaveSram->continueData, 0x288);
+        Save_RevertRecordFromBackup((intptr_t)gSaveSram->continueData, 0x288);
         break;
     }
 }
@@ -489,15 +482,15 @@ void Save_CommitPokemonRecords(void) {
     s32 i;
 
     for (i = 0; i < 0x2500; i += 0x250) {
-        Save_CommitRecord(*(s32*)&gSaveBuffer + i, 0x128);
+        Save_CommitRecord(gSaveBuffer + i, 0x128);
     }
     for (i = 0; i < 0x2B00; i += 0xAC0) {
-        Save_CommitRecord(*(s32*)&gSaveBuffer + i + 0x2500, 0x560);
+        Save_CommitRecord(gSaveBuffer + i + 0x2500, 0x560);
     }
     for (i = 0; i < 0x700; i += 0x1C0) {
-        Save_CommitRecord(*(s32*)&gSaveBuffer + i + 0x5000, 0xE0);
+        Save_CommitRecord(gSaveBuffer + i + 0x5000, 0xE0);
     }
-    Save_CommitRecord(*(s32*)&gSaveBuffer + 0x5700, 0x11A0);
+    Save_CommitRecord(gSaveBuffer + 0x5700, 0x11A0);
 }
 
 /**
@@ -645,24 +638,24 @@ s32 func_800246A8(s32, s32);
  */
 s32 Deck_GetSaveEntryName(s32 arg0, s32 arg1, u8* arg2) {
     s32 ret = 0;
-    s32 src;
+    intptr_t src; // PORT64: address (was s32)
 
     *arg2 = 0;
     if (func_800246A8(arg0, arg1) != 0) {
         src = 0;
         switch (arg0) {
             case 16:
-                src = (s32)gSaveSram->teams[arg1][0].trainerName;
+                src = (intptr_t)gSaveSram->teams[arg1][0].trainerName;
                 break;
             case 17:
-                src = (s32)gSaveSram->boxes[arg1][0].trainerName;
+                src = (intptr_t)gSaveSram->boxes[arg1][0].trainerName;
                 break;
             case 18:
-                src = (s32)gSaveSram->items[arg1][0].trainerName;
+                src = (intptr_t)gSaveSram->items[arg1][0].trainerName;
                 break;
         }
         if (src != 0) {
-            ret = func_8001FB10((s32)arg2, src);
+            ret = func_8001FB10((intptr_t)arg2, src);
         }
     }
     return ret;
@@ -675,21 +668,21 @@ s32 func_800246A8(s32, s32);
  */
 s32 Deck_GetSaveEntrySecondName(s32 arg0, s32 arg1, u8* arg2) {
     s32 ret = 0;
-    s32 src;
+    intptr_t src; // PORT64: address (was s32)
 
     *arg2 = 0;
     if (func_800246A8(arg0, arg1) != 0) {
         src = 0;
         switch (arg0) {
             case 16:
-                src = (s32)gSaveSram->teams[arg1][0].secondName;
+                src = (intptr_t)gSaveSram->teams[arg1][0].secondName;
                 break;
             case 17:
-                src = (s32)gSaveSram->boxes[arg1][0].secondName;
+                src = (intptr_t)gSaveSram->boxes[arg1][0].secondName;
                 break;
         }
         if (src != 0) {
-            ret = func_8001FB10((s32)arg2, src);
+            ret = func_8001FB10((intptr_t)arg2, src);
         }
     }
     return ret;
@@ -766,14 +759,14 @@ s32 Deck_GetSaveEntryCount(arg0, arg1) s32 arg0; s32 arg1; {
 }
 
 M2C_UNK Save_SetTypedRecordFlags(s32, s32, M2C_UNK);           /* extern */
-s32 Deck_GetSaveEntryCount();                                /* extern */
+s32 Deck_GetSaveEntryCount(s32 arg0, s32 arg1); // PORT: prototyped; callers that passed nothing now pass their own arg0/arg1
 
 /**
  * Sets the entry count of a save record when arg2 is below the current count, and marks it dirty.
  * @unverified Read from the code.
  */
 void Deck_SetSaveEntryCount(s32 arg0, s32 arg1, s32 arg2) {
-    if (arg2 < Deck_GetSaveEntryCount()) {
+    if (arg2 < Deck_GetSaveEntryCount(arg0, arg1)) {
         switch (arg0) {                             /* irregular */
         case 16:
             gSaveSram->teams[arg1][0].count = (s16) arg2;
@@ -794,14 +787,15 @@ void Deck_SetSaveEntryCount(s32 arg0, s32 arg1, s32 arg2) {
 
 M2C_UNK Save_SetTypedRecordFlags(s32, s32, M2C_UNK);           /* extern */
 s32 Deck_GetSaveRecordCapacity(s32);                             /* extern */
-s32 Deck_GetSaveEntryCount();                                /**
+s32 Deck_GetSaveEntryCount(s32 arg0, s32 arg1); // PORT: prototyped; callers that passed nothing now pass their own arg0/arg1
+/**
  * Adds one to a save record's entry count when it is below the kind's capacity, and marks it dirty.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): the 64 box count went from 0 to 1 when ハナ was moved in.
  */
 void Deck_IncrementSaveEntryCount(s32 arg0, s32 arg1) {
     s32 sp1C;
 
-    sp1C = Deck_GetSaveEntryCount();
+    sp1C = Deck_GetSaveEntryCount(arg0, arg1);
     if (sp1C < Deck_GetSaveRecordCapacity(arg0)) {
         switch (arg0) {                             /* irregular */
         case 16:
@@ -829,7 +823,7 @@ void Deck_IncrementSaveEntryCount(s32 arg0, s32 arg1) {
 s32 Deck_ReadSaveEntry(s32 arg0, s32 arg1, s32 arg2, u8* arg3) {
     s32 ret = 0;
 
-    if (arg2 < Deck_GetSaveEntryCount()) {
+    if (arg2 < Deck_GetSaveEntryCount(arg0, arg1)) {
         switch (arg0) {
             case 16:
                 BattleMon_FromGbSaveRecord((s32)arg3, (s32)&gSaveSram->teams[arg1][0].mons[arg2]);

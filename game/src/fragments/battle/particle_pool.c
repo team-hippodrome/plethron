@@ -83,7 +83,6 @@ void Particle_UpdateWorldTransform(Particle* arg0);
 void Particle_UpdateFrameCounters(void);
 
 s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
-M2C_UNK func_8004FD20(s32, M2C_UNK);                /* extern */
 
 /**
  * Allocates and zeroes the effect slot table (0x20D0 bytes) and the 300-particle pool, and resets
@@ -95,8 +94,8 @@ M2C_UNK func_8004FD20(s32, M2C_UNK);                /* extern */
 void BattleAnim_InitParticleSystem(void) {
     gBattleAnimEffectSlots = (void*)func_800023C4(0x20D0, 0);
     gParticlePool = (Particle*)func_800023C4(sizeof(Particle) * 300, 0);
-    func_8004FD20((s32)gBattleAnimEffectSlots, 0x20D0);
-    func_8004FD20((s32)gParticlePool, sizeof(Particle) * 300);
+    bzero((s32)gBattleAnimEffectSlots, 0x20D0);
+    bzero((s32)gParticlePool, sizeof(Particle) * 300);
     gBattleAnimEffectSlotIndex = 0;
     gParticlePoolIndex = 0;
 }

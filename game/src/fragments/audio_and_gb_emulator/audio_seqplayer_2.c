@@ -4,6 +4,10 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "audio_and_gb_emulator.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u8* AudioPlayback_GetInstrumentInner(s32 arg0, s32 arg1);
+u16 AudioSeq_ScriptReadCompressedU16(u8** arg0);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 void AudioPlayback_NotePoolClear(s8*);
 

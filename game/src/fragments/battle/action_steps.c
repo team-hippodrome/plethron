@@ -3,6 +3,18 @@
 #include "audio_commands.h"
 #include "geo_node.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void BattleScene_MoveIntroCameraBelow(CameraNode* camera);
+void BattleScene_MoveIntroCameraFacing(CameraNode* camera);
+void BattleScene_MoveIntroCameraFront(CameraNode* camera);
+void BattleScene_MoveIntroCameraHigh(CameraNode* camera);
+void BattleScene_MoveIntroCameraLow(CameraNode* camera);
+void BattleScene_MoveIntroCameraRandom(CameraNode* camera);
+void BattleScene_MoveIntroCameraSwing(CameraNode* arg0);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 BattleScene_TryStartSwitchAction(void);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Announcer_SetActive();
 M2C_UNK func_82106374(s32);

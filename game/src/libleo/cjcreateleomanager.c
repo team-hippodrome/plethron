@@ -11,7 +11,6 @@
 
 #include "libleo/internal.h"
 OSPiHandle* osLeoDiskInit(void);
-OSPiHandle* osDriveRomInit(void);
 s32 __osLeoInterrupt(void);
 void leoInitialize(OSPri compri, OSPri intpri, OSMesg* command_que_buf, u32 cmd_buff_size);
 void leoCommand(void* cmd_blk_addr);
@@ -37,7 +36,7 @@ s32 LeoCJCreateLeoManager(OSPri com_pri, OSPri int_pri, OSMesg* cmd_buf, s32 cmd
     }
     __leoActive = 1;
 
-    __osSetHWIntrRoutine(1, __osLeoInterrupt);
+    __osSetHWIntrRoutine(1, __osLeoInterrupt, NULL); // PORT: libultraship takes a stack argument (unused here)
     leoInitialize(com_pri, int_pri, cmd_buf, cmd_msg_cnt);
 
     if (osResetType == 1) {

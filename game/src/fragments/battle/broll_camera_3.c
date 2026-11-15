@@ -1,6 +1,16 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void BattleScene_BRollShotAimPokemon0(CameraNode* camera);
+void BattleScene_BRollShotAimPokemon1(CameraNode* camera);
+void BattleScene_BRollShotFrontHigh(CameraNode* camera);
+void BattleScene_BRollShotFrontLow(CameraNode* camera);
+void BattleScene_BRollShotFrontWide(CameraNode* camera);
+void BattleScene_BRollShotRandomPokemon0(CameraNode* camera);
+void BattleScene_BRollShotRandomPokemon1(CameraNode* camera);
+void BattleScene_BRollShotWideFovRotatedX(CameraNode* camera);
 void BattleScene_BRollStepNop(void);
 void BattleScene_BRollCameraUpdateRotatingArenaOverview(CameraNode* arg0);
 void BattleScene_SelectNextBRollCameraShot(CameraNode* arg0);
@@ -65,10 +75,10 @@ void BattleCamera_StartNextBRollShot(CameraNode* camera) {
     func_8212188C();
     switch (sBattleScene.scene->phaseStep) {
         case 0:
-            func_8211F6B8(camera);
+            BattleScene_BRollCameraSetupArenaOrbit(camera);
             break;
         case 2:
-            func_8211F84C(camera);
+            BattleScene_BRollCameraSetupRotatingArenaOverview(camera);
             break;
         case 4:
             BattleScene_BRollShotFrontHigh(camera);

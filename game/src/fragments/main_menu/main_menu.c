@@ -24,6 +24,9 @@ typedef struct unk_D_88218070 {
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Audio_PlaySystemSound(s32 sound_id);
+
 void func_8800075C(void);
 void func_88000FE0(void);
 

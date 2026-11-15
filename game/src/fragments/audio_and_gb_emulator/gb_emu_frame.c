@@ -8,6 +8,9 @@
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 GbEmu_AllocAligned64(s32 arg0, M2C_UNK arg1);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 void GbAudio_UpdateFrame();
 
@@ -20,17 +23,13 @@ extern GbPakChannel D_811561C8[4];
 extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 s32 GbPak_WriteBackDirtySramBlock(s32 arg0);
-u32 func_80053A80(void);
-M2C_UNK func_8005C0A0();
 extern s32 D_81156550;
 extern u8 D_8111E308;
 void func_81103C40(s32, u8*, s32, s32, s32);
 extern u8 D_811565A2;
 extern GbEmuState D_81156540;
 extern u8 D_811565A0;
-void func_80058410(void*, void*, s32);
 extern s32 D_81154C48;
 
 void GbEmu_ClearStatusBar(void);
@@ -100,7 +99,6 @@ void GbPak_QueueNextBankLoad(GbPakChannel*);
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
 u8 GbCpu_Run(void*, s32);
-void func_80056730(void*, s32);
 void func_811177D0(s32);
 
 /**
@@ -176,7 +174,7 @@ s32 GbEmu_UpdateFrame(void) {
             Cont_ReadInputs();
             if ((++*timer & 3) == 0) {
                 D_811561C8[D_811565A0].request = 8;
-                func_8004CFB0(&D_81156458, D_811565A0, 1);
+                osSendMesg(&D_81156458, D_811565A0, 1);
             }
             remap_a = (gPlayer1Controller->buttonDown & D_8111E30C) ? 0x1000 : 0;
             remap_b = (gPlayer1Controller->buttonDown & D_8111E310) ? 0x2000 : 0;
@@ -359,7 +357,7 @@ s32 GbEmu_UpdateFrame(void) {
             } else {
                 GB_MEM[0x1018D]--;
                 if (GB_MEM[0x1018D] == 0) {
-                    func_80056730(GB_MEM + 0x12F00, 0x1000);
+                    osInvalDCache(GB_MEM + 0x12F00, 0x1000);
                     GB_MEM[0x10181] = 0;
                     GB_MEM[0x10185] = GB_MEM[0x10181];
                 }
@@ -413,8 +411,8 @@ s32 GbEmu_UpdateFrame(void) {
                             src = D_811565F0; dst = D_81135178;
                             break;
                     }
-                    func_80058410(src, GB_RUN->unk_48 + 0x800, 0xE000);
-                    func_80058410(dst, GB_MEM + 0x27D80, 0x200);
+                    bcopy(src, GB_RUN->unk_48 + 0x800, 0xE000);
+                    bcopy(dst, GB_MEM + 0x27D80, 0x200);
                     GB_MEM[0x1019D] = 1;
                 }
             }
@@ -472,7 +470,7 @@ s32 GbPak_ReidentifyCartridge(void) {
 
     ch->request = 0x80;
     ch->error = 0;
-    func_8004CFB0(&D_81156458, D_811565A0, 1);
+    osSendMesg(&D_81156458, D_811565A0, 1);
     while (D_81156475 != 0) {
     }
 
@@ -497,7 +495,7 @@ s32 GbPak_IsCartridgeInserted(void) {
 
     ch->status = 0;
     ch->request = 8;
-    func_8004CFB0(&D_81156458, idx, 1);
+    osSendMesg(&D_81156458, idx, 1);
     while (D_81156475 != 0) {
     }
     return D_811561C8[D_811565A0].status & 0x80;
@@ -576,7 +574,6 @@ extern s16 D_8260854E;
 extern s16 D_800AA148;
 extern s32 D_81156550;
 void GbAudio_UpdateFrame(void);
-void osViBlack(u8);
 /**
  * Per-frame tail of the GB Player emulator: unless emulation is paused (D_81156546) or
  * the screen is being blanked (D_800AA148), runs the GB audio frame and mirrors the
@@ -710,8 +707,6 @@ extern u16 D_81127B88[];
 extern u8 D_8112A938[];
 void GbEmu_DrawTextCommands(u16*, u8*);
 void GbEmu_DrawFramedPanel(u16* arg0);
-u32 func_80053A80(void);
-M2C_UNK func_8005C0A0();
 /**
  * Draws the cartridge loading screen: the background, the six party icons in framed panels, the
  * Game Boy for `port` and the cartridge picture for `version`, then starts the cable animation.
@@ -802,10 +797,10 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     D_811565E1 = port;
     GbEmu_DrawTransferAnimation(D_811565C4 + 0x87BA, 0);
-    func_8005C0A0();
+    osWritebackDCacheAll();
     D_811565E0 = 0;
     D_811565D8 = 0x800000;
-    D_811565C8 = func_80053A80();
+    D_811565C8 = osGetCount();
     D_811565CC = 0;
 }
 
@@ -874,6 +869,6 @@ void GbEmu_AnimateLoadingScreen(void) {
             D_811565CC = 0;
         }
         GbEmu_BlendScrollingLayer(D_811565D4, D_811565D0, (s16*)(D_811565C0 + 0x20A80), 0xF, D_811565CC);
-        func_8005C0A0();
+        osWritebackDCacheAll();
     }
 }

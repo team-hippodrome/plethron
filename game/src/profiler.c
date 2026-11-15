@@ -4,6 +4,12 @@
 #include "global.h"
 #include "profiler.h"
 #include "scheduler.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 HAL_Printf(s16 x, s16 y, const char* fmt, ...);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 StageContext_IsHighResolution(void);
 extern struct Profiler gProfiler;
 #define UNK_FPS_60_APPROX_VALUE 770296
 

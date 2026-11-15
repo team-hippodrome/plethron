@@ -33,6 +33,20 @@ extern s16 sRoomDescriptionHeight;
 extern s16 sEliteFourTransition;
 #include "math.h"
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void BattleAi_AddRandomPickScore(ComBattler* arg0);
+s32 BattleAi_CalcAttack(s32 arg0, s32 arg1);
+s32 BattleAi_CalcMaxHp(s32 arg0, s32 arg1);
+s32 BattleAi_GetHpPercent(ComBattler* arg0);
+void BattleAi_StirRandom(void);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 BattleAi_CanUseMove(ComBattler* arg0, s32 arg1);
+u8* BattleAi_FindByte(u8* arg0, s32 arg1, s32 arg2, s32 arg3);
+u8 BattleAi_FindUsableHealingMove(ComBattler* arg0);
+s32 BattleAi_GetTypeMultiplier(ComBattler* arg0, ComBattler* arg1, s32 move);
+s32 BattleAi_HasType(ComBattler* arg0, s32 arg1);
 void ComAi_UnusedNopA(void);
 void ComAi_UnusedNopB(void);
 void ComAi_UnusedNopC(void);
@@ -1133,7 +1147,6 @@ void BattleAi_CopyMoveList(u8* arg0, u8* arg1) {
     }
 }
 
-M2C_UNK func_80058410(s8*, s8*, M2C_UNK);
 
 /**
  * Fills a battle Pokemon record (BattleMonRuntime layout) from a party Pokemon
@@ -1155,7 +1168,7 @@ void BattleAi_LoadBattlerFromPartyMon(BattleMonRuntime* arg0, BattleMon* arg1) {
     arg0->modifiedDefense = arg1->defense;
     arg0->speed = arg1->speed;
     arg0->modifiedSpecial = arg1->special;
-    func_80058410(arg1->pp, arg0->pp, 4);
+    bcopy(arg1->pp, arg0->pp, 4);
 }
 
 typedef struct BaseStats821868E8 { u8 species; u8 hp; u8 atk; u8 def; u8 spd; u8 spc; u8 type1; u8 type2; char unk08[0xF]; } BaseStats821868E8;
@@ -1186,7 +1199,6 @@ void BattleAi_LoadBattlerFromSpecies(BattleMonRuntime* arg0, s32 species, s32 le
     }
 }
 
-M2C_UNK func_80058410(s8 *, s8 *, M2C_UNK);     /* extern */
 extern ComBattler* D_821CF2A0;
 /**
  * Copies what the COM can see of the opponent's battle Pokemon arg1 into the COM's
@@ -1203,7 +1215,7 @@ void BattleAi_CopyVisibleBattleState(BattleMonRuntime* arg0, BattleMonRuntime* a
     arg0->maxHp = arg1->maxHp;
     arg0->hp = arg1->hp;
     arg0->statusCondition = arg1->statusCondition;
-    func_80058410(&arg1->moveCache, &arg0->moveCache, 6);
+    bcopy(&arg1->moveCache, &arg0->moveCache, 6);
     arg0->unk_4A = arg1->unk_4A;
     arg0->unk_4B = arg1->unk_4B;
     arg0->immobilizedReason = arg1->immobilizedReason;
@@ -1216,10 +1228,10 @@ void BattleAi_CopyVisibleBattleState(BattleMonRuntime* arg0, BattleMonRuntime* a
     arg0->substituteHp = arg1->substituteHp;
     arg0->usedMove = arg1->usedMove;
     arg0->receivedCritFlag = arg1->receivedCritFlag;
-    func_80058410(arg1->statStages, arg0->statStages, 8);
+    bcopy(arg1->statStages, arg0->statStages, 8);
     if (arg1->uniqueStatusFlags & 8) {
         BattleAi_CopyMoveList(arg1->moves, arg0->moves);
-        func_80058410(arg1->pp, arg0->pp, 4);
+        bcopy(arg1->pp, arg0->pp, 4);
         return;
     }
     idx = D_821CF2A0->moveCount;
@@ -1229,7 +1241,6 @@ void BattleAi_CopyVisibleBattleState(BattleMonRuntime* arg0, BattleMonRuntime* a
     }
 }
 
-void func_8004FD20(void*, s32);
 
 /**
  * Initializes one side of the COM's model from a party: links each battler to the
@@ -1254,7 +1265,7 @@ void BattleAi_InitSide(ComSide *arg0, TeamRoster *arg1, s32 arg2)
   }
   for (i = 0; i < 6; i++)
   {
-    func_8004FD20(&arg0->battlers[i], sizeof(ComBattler));
+    bzero(&arg0->battlers[i], sizeof(ComBattler));
     arg0->battlers[i].partyBit = 1 << i;
     arg0->battlers[i].side = arg0;
     arg0->battlers[i].species = arg1->pokemonPicked[i].species.id;
@@ -1543,12 +1554,12 @@ s32 BattleAi_PickTeam(s32 arg0)
 
   for (i = 0; i < D_821CF288; i++)
   {
-    func_80058410(&D_821CF294->battlers[D_821CF280[i]], (s8 *) &D_821CF2B8[i * 0x90], 0x90);
+    bcopy(&D_821CF294->battlers[D_821CF280[i]], (s8 *) &D_821CF2B8[i * 0x90], 0x90);
   }
 
   for (i = 0; i < D_821CF288; i++)
   {
-    func_80058410((s8 *) &D_821CF2B8[i * 0x90], &D_821CF294->battlers[i], 0x90);
+    bcopy((s8 *) &D_821CF2B8[i * 0x90], &D_821CF294->battlers[i], 0x90);
     D_821CF294->battlers[i].partyBit = 1 << i;
   }
 
@@ -1559,7 +1570,6 @@ s32 BattleAi_PickTeam(s32 arg0)
 extern ComSide D_821CF618;
 extern ComSide D_821CF998;
 extern s32 D_821CF2A4;
-void func_8004FD20(void*, s32);
 void BattleAi_InitSide(); /* real types are declared with the definition below */
 s32 BattleAi_PickTeam(s32);
 
@@ -1576,7 +1586,7 @@ s32 BattleAi_SelectTeam(u8* arg0, u8* arg1, s32 arg2, s8* arg3, s32 arg4) {
     D_821CF2B0 = 0x3039;
     D_821CF2B4 = 0x1A85;
     BattleAi_StirRandom();
-    func_8004FD20(&D_821CF618, 0x700);
+    bzero(&D_821CF618, 0x700);
     D_821CF2A4 = 0xFEDC;
     if (*arg0 & 2) {
         D_821CF294 = &D_821CF618;

@@ -7,6 +7,15 @@
 #include "memory_main.h"
 extern s32 pad_D_8831A4DC[8];
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Audio_PlaySystemSound(s32 sound_id);
+void LabItem_DrawBackground(void);
+void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
 void ScrollList_SetItems(s8*, s32, s8*);
 void LabItem_Unused(void);
 s32 LabItem_ComputeRemainingCapacity(s32 arg0, ByteMatrix* arg1);
@@ -401,7 +410,7 @@ void LabTerminal_DrawMenuWindow(LabTerminalMenuWindow* win) {
     s32 sp38;
     s32 h;
 
-    if (func_8002AE6C() == 0) {
+    if (Window_UpdateAndDrawFrame((Window*)win) /* PORT: was implicit a0 */ == 0) {
         h = (win->menu.items->count << 5) + 8;
         Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + h + 5, win->window.frame.width, D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);

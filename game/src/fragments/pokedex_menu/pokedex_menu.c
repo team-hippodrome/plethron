@@ -23,6 +23,13 @@
 #include "stage_loader.h"
 #include "ui_graphics.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3);
+void Audio_PlayMusicIfChanged(s32 arg0);
+void Input_ResetRepeatState(void);
+u32 MainPool_PopState(u32 arg);
+u32 MainPool_PushState(u32 arg);
+
 M2C_UNK Gfx_DrawPatternRows(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
 void Audio_PlaySystemSound(s32); // Audio_PlaySoundEffectById
 extern s32 sPokedexMenuSelection; // the selected item, 0-5

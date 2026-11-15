@@ -169,15 +169,13 @@ void* MainPool_Alloc(u32 size, s32 side) {
 
 M2C_UNK func_80002230(s32, M2C_UNK);                /* extern */
 s32 MainPool_GetAvailable(void);
-M2C_UNK func_8004CFB0(M2C_UNK *, M2C_UNK, M2C_UNK); /* extern */
-M2C_UNK func_8004D1C0(M2C_UNK *, M2C_UNK, M2C_UNK); /* extern */
 extern M2C_UNK D_800A94A4;
 
 /** Waits on the pool lock and frees a block if it is valid. */
 void MainPool_TryFree(s32 arg0) {
-    func_8004D1C0(&D_800A94A4, 0, 1);
+    osRecvMesg(&D_800A94A4, NULL, 1);
     func_80002230(arg0, 1);
-    func_8004CFB0(&D_800A94A4, 0, 0);
+    osSendMesg(&D_800A94A4, 0, 0);
     MainPool_GetAvailable();
 }
 

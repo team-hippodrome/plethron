@@ -4,7 +4,6 @@
 #include "global.h"
 #include "libleo/internal.h"
 extern s32 currentCommand;
-s32 osEPiWriteIo(OSPiHandle*, u32, u32);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 

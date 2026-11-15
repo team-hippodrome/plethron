@@ -16,6 +16,9 @@
 #include "memory_main.h"
 #include "ui_graphics.h"
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
 extern OrderSidebarIcons D_82302B20[2];
 extern u16 D_82302800[];
 

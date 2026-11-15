@@ -84,8 +84,6 @@ typedef struct Synth800443C4 {
     /* 0x0C */ ALLink800443C4 pAllocList;
     /* 0x14 */ ALLink800443C4 pLameList;
 } Synth800443C4;
-void func_8004D600(ALLink800443C4*);
-void func_8004D630(ALLink800443C4*, ALLink800443C4*);
 /**
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the main menu, the Pokédex,
  * the party screen, the Lab list, Lab sort, registration, the Lab PC, Free Battle setup, the battle
@@ -99,12 +97,12 @@ s32 _allocatePVoice(void** pvoice, s16 priority) {
 
     if ((dl = ((Synth800443C4*)D_80075E44)->pLameList.next) != NULL) {
         *pvoice = dl;
-        func_8004D600(dl);
-        func_8004D630(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
+        alUnlink(dl);
+        alLink(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
     } else if ((dl = ((Synth800443C4*)D_80075E44)->pFreeList.next) != NULL) {
         *pvoice = dl;
-        func_8004D600(dl);
-        func_8004D630(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
+        alUnlink(dl);
+        alLink(dl, &((Synth800443C4*)D_80075E44)->pAllocList);
     } else {
         for (dl = ((Synth800443C4*)D_80075E44)->pAllocList.next; dl != NULL; dl = dl->next) {
             pv = (PVoice800443C4*)dl;

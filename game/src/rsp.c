@@ -243,10 +243,7 @@ void Storage_ThreadEntry(UNUSED void* arg) {
     }
 }
 
-M2C_UNK func_80051B20(M2C_UNK *, M2C_UNK, M2C_UNK *, M2C_UNK, M2C_UNK *, s32); /* extern */
 M2C_UNK func_80054AB0(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
-M2C_UNK func_800567E0(M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
-M2C_UNK func_8005C130(M2C_UNK *);                   /* extern */
 extern M2C_UNK D_80084D30;
 extern M2C_UNK D_80086EE0;
 extern M2C_UNK D_80086EFC;
@@ -258,11 +255,11 @@ extern M2C_UNK D_80086FFC;
  * Storage_ThreadEntry) that serves ROM, SRAM and 64DD requests. Called from Idle_ThreadEntry at boot.
  */
 void Storage_StartThread(void) {
-    func_800567E0(&D_80087000.ioDoneQueue, &D_80086FFC, 1);
-    func_800567E0(&D_80087000.requestQueue, &D_80086FBC, 0x10);
+    osCreateMesgQueue(&D_80087000.ioDoneQueue, &D_80086FFC, 1);
+    osCreateMesgQueue(&D_80087000.requestQueue, &D_80086FBC, 0x10);
     func_80054AB0(0x96, &D_80087000.piCmdQueue, &D_80086EFC, 0x20);
-    func_80051B20(&D_80084D30, 0xA, &Storage_ThreadEntry, 0, &D_80086EE0, 0x5A);
-    func_8005C130(&D_80084D30);
+    osCreateThread(&D_80084D30, 0xA, &Storage_ThreadEntry, 0, &D_80086EE0, 0x5A);
+    osStartThread(&D_80084D30);
 }
 
 /** Resets the 64DD drive if it was initialized. */

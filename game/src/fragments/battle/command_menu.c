@@ -4,6 +4,9 @@
 #include "battle.h"
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 BattleScene_ValidateSelectedPartyMember(ActivePokemon* arg0);
+
 extern f32 D_82199EB0;
 extern s32 D_82199EB8;
 
@@ -259,7 +262,7 @@ void BattleMenu_HandleMoveButtons(ActivePokemon* arg0) {
     }
 }
 
-s32 BattleMenu_HandleNoUsableMoves();                                /* extern */
+s32 BattleMenu_HandleNoUsableMoves(ActivePokemon* arg0);                              /* extern */
 void func_82134D40(s8 *);
 M2C_UNK func_82134D80(s8 *);                        /* extern */
 void ActivePokemon_ClearCaption();
@@ -295,7 +298,7 @@ void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
     UNUSED s32 pad; // FAKE: stack padding
 
     temp_v1 = M2C_FIELD(arg0, void **, 0x858);
-    if ((M2C_FIELD(arg0, s32 *, 0x790) == 1) && (BattleMenu_HandleNoUsableMoves() == 0)) {
+    if ((M2C_FIELD(arg0, s32 *, 0x790) == 1) && (BattleMenu_HandleNoUsableMoves(arg0) == 0 /* PORT: was implicit a0 */)) {
         temp_v0 = &arg0->state;
         if (arg0->captionState.active != 0) {
             if (M2C_FIELD(temp_v1, u16 *, 8) & 0xE03F) {
@@ -533,11 +536,11 @@ void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
     }
     if (M2C_FIELD(arg1, u16*, 8) & 0xC00F) {
         if ((state->rosterIndex == state->actionChosen) && (state->teamMemberIndex == state->menuTeamMemberIndex)) {
-            if (func_8210CD7C(arg0) != 0) {
+            if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
                 BattleMenu_ShowNicknameCaption((s32)arg0);
             }
         } else if (state->actionChosen <= (u32)(team[2] - 1)) {
-            if (func_8210CD7C(arg0) != 0) {
+            if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
                 func_82134D60();
                 state->showingCommandOptions = 0;
                 state->actionDelayTimer = 0;

@@ -112,7 +112,6 @@ void Cont_InitControllers(void) {
 
 extern u8 D_800AAFFA;
 extern u8 D_800AAFF8;
-s32 func_80053A90(OSMesgQueue*);
 
 /**
  * Setup the controllers for initial use by initializing the EEPROM queue
@@ -129,17 +128,16 @@ u8 Cont_SetupControllers(u8 arg0) {
     osCreateMesgQueue(&gSIEventMesgQueue, gSIEventMesgBuf, 1);
     osSetEventMesg(OS_EVENT_SI, &gSIEventMesgQueue, NULL);
     osContInit(&gSIEventMesgQueue, &D_800AAFF8, &gControllerStatuses[0]);
-    gEepromProbe = func_80053A90(&gSIEventMesgQueue);
+    gEepromProbe = osEepromProbe(&gSIEventMesgQueue);
     Cont_InitControllers();
     return D_800AAFF8;
 }
 
-M2C_UNK func_80051C70(M2C_UNK *);                   /* extern */
 extern M2C_UNK D_800AAFE0;
 
 /** Requests a read of the controller inputs. */
 void Cont_StartReadInputs(void) {
-    func_80051C70(&D_800AAFE0);
+    osContStartReadData(&D_800AAFE0);
 }
 
 void GbPlayer_PollPakConnection(void);

@@ -72,7 +72,6 @@ s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
 s32 LabPCList_FilterByBattleEligible();
 void func_8000A460(s8*, s8*);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -86,7 +85,6 @@ s32 ScrollList_UpdateCursor(void*);
 void ScrollList_SetCursor(void*, s32);
 void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 void func_8000A460(s8 *, s8 *);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -114,7 +112,6 @@ extern s8 D_8910DD58[];
 
 typedef struct LocationText7 { char s[7]; } LocationText7;
 typedef struct LocationText9 { char s[9]; } LocationText9;
-u32 func_800566BC(s8*);
 /**
  * Writes the name of a location: てもち (party), ＧＢ N (GB box N) and so on.
  * Seen in play (2026-11-12) in いちらん: kind 0 gave てもち, kind 1 box 0 gave GB 1, and kind 2 box 0
@@ -127,11 +124,11 @@ void LabPCList_FormatLocationName(s8* buf, s32 source_kind, s32 box) {
             break;
         case 1:
             *(LocationText9*)buf = *(LocationText9*)"ＧＢ　０"; // "GB 0"
-            buf[func_800566BC(buf) - 1] += box + 1;
+            buf[strlen(buf) - 1] += box + 1;
             break;
         case 2:
             *(LocationText9*)buf = *(LocationText9*)"６４　０"; // "64 0"
-            buf[func_800566BC(buf) - 1] += box + 1;
+            buf[strlen(buf) - 1] += box + 1;
             break;
     }
 }

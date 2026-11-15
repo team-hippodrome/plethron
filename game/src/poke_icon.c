@@ -77,7 +77,7 @@ PokeIconRenderer* PokeIcon_CreateRenderList(ModelLoadContext* arg0, s16 arg1, s1
 }
 
 M2C_UNK func_800199E4(s32);                         /* extern */
-M2C_UNK func_8004FD20(s32, s32, u16, u16);          /**
+/**
  * Waits for any pending model load, then clears every slot's image and marks the slots empty. Free Battle
  * setup calls it before refilling its portraits.
  */
@@ -106,7 +106,7 @@ void PokeIcon_ResetSlots(PokeIconRenderer* arg0) {
             temp_a3 = temp_v1->height;
             temp_v0->flags = 0;
             ((PokeIconSlot*)((s8*)arg0->slots + var_s0))->source.raw = 0;
-            func_8004FD20((s32)((PokeIconSlot*)((s8*)arg0->slots + var_s0))->image->img_p, temp_a2 * temp_a3 * 2, temp_a2, temp_a3);
+            bzero(((PokeIconSlot*)((s8*)arg0->slots + var_s0))->image->img_p, temp_a2 * temp_a3 * 2) /* PORT: the decomp passed two ignored arguments */;
             var_s2 += 1;
             var_s0 += 0x14;
         } while (var_s2 < (s32) arg0->slotCount);
@@ -123,7 +123,7 @@ void PokeIcon_SetSpeciesSlot(PokeIconRenderer* renderer, s32 slot, s32 species, 
 
     if (slot < renderer->slotCount) {
         buf = renderer->slots[slot].image;
-        func_8004FD20((s32)buf->img_p, buf->width * buf->height * 2, buf->width, buf->height);
+        bzero(buf->img_p, buf->width * buf->height * 2); // PORT: dropped two ignored arguments
         if ((species <= 0) || (species >= 0x98)) {
             species = 0x98;
         }
@@ -147,7 +147,7 @@ void PokeIcon_SetMonSlot(PokeIconRenderer* renderer, s32 slot, BattleMon* mon, u
 
     if (slot < renderer->slotCount) {
         buf = renderer->slots[slot].image;
-        func_8004FD20((s32)buf->img_p, buf->width * buf->height * 2, buf->width, buf->height);
+        bzero(buf->img_p, buf->width * buf->height * 2); // PORT: dropped two ignored arguments
         if ((mon->species.id > 0) && (mon->species.id < 0x98)) {
             renderer->slots[slot].flags = 3;
             renderer->slots[slot].source.ptr = (u8*)mon;

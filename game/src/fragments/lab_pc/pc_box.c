@@ -7,6 +7,11 @@
 #include "memory_main.h"
 #include "pokemon_stats.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Font_BeginTranslucentTextRendering(void);
+void Font_EndTexturedTextRendering(void);
+void Font_SetActive(s32 mask, s32 arg1);
+
 extern s32 D_89019108;
 
 /**
@@ -244,7 +249,6 @@ typedef struct Entry8006A9D4 {
 extern Entry8006A9D4 D_8006A9D4[];
 extern M2C_UNK D_800734A8;
 extern char D_89018E70[];
-u32 func_800566BC(const char*);
 
 /**
  * Draws a move name in its type color, or the empty label for -2.
@@ -266,7 +270,7 @@ void PcBox_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
         str = entry->name;
     }
     if (centered != 0) {
-        x = x - (func_800566BC(str) >> 1) * 20 + 0x8C;
+        x = x - (strlen(str) >> 1) * 20 + 0x8C;
     }
     Font_Printf(x, y, str);
 }
@@ -521,8 +525,8 @@ void PcBox_InitListWindow(PcBoxListWindow* win, s32 x, s32 y, PcBoxStorage* box,
     u8* p;
 
     func_8000A460((char*)D_890289E0, (is_stadium == 0) ? D_89018EE8 : D_89018EF0);
-    *(Str8900806C*)(func_800566BC((char*)D_890289E0) + D_890289E0) = *(Str8900806C*)D_89018EF8;
-    D_890289E0[func_800566BC((char*)D_890289E0) - 1] += box_index + 1;
+    *(Str8900806C*)(strlen((char*)D_890289E0) + D_890289E0) = *(Str8900806C*)D_89018EF8;
+    D_890289E0[strlen((char*)D_890289E0) - 1] += box_index + 1;
     Window_SetRect((s8*)&win->window, x, y, 552, 342);
     win->window.animTimer = 0;
     win->window.state = 0;

@@ -94,7 +94,6 @@ void Vec3f_CrossProductArrays(const f32* a, const f32* b, f32* out) {
 }
 
 extern char D_8007DB30[];
-void func_8005666C(char*, ...);
 
 /** Normalizes a vector, leaving it unchanged when its length is zero. */
 void Vec3f_NormalizeSafe(Vec3f* vec) {
@@ -114,7 +113,7 @@ void Vec3f_NormalizeSafe(Vec3f* vec) {
         y = y / len;
         z = z / len;
     } else {
-        func_8005666C(D_8007DB30);
+        rmonPrintf(D_8007DB30);
     }
 
     vec->x = x;

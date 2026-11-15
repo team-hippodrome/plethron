@@ -3,6 +3,9 @@
 #include "input.h"
 extern s32 pad_D_8831A4DC[8];
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void LabItem_DrawBackground(void);
 void ScrollList_SetItems(s8*, s32, s8*);
 void LabItem_Unused(void);
 s32 LabItem_ComputeRemainingCapacity(s32 arg0, ByteMatrix* arg1);

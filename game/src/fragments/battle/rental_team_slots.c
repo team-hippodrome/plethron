@@ -2,6 +2,17 @@
 #include "battle.h"
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void BattleScene_BRollDollyIn(CameraNode* camera);
+void BattleScene_BRollHoldFollow60Frames(CameraNode* camera);
+void BattleScene_BRollHoldOrbit(CameraNode* camera);
+void BattleScene_BRollRaiseRotationXRestoreFov(CameraNode* camera);
+void BattleScene_BRollStepOrbitUntilEnd(CameraNode* camera);
+void BattleScene_BRollTiltUpHigh(CameraNode* camera);
+void BattleScene_BRollTiltUpToHead(CameraNode* camera);
+void BattleScene_BRollWait440Frames(s32 camera);
+void BattleScene_BRollWaitForButtonToExit(CameraNode* camera);
+
 extern f32 D_FLT_8218935C[][4];
 extern Vec3f D_8218B630;
 extern Vec3f D_8218B63C;

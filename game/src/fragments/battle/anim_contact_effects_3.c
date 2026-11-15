@@ -68,7 +68,7 @@ void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0) {
     Particle_SetParam0(arg0, (s16) (sp26 + 1));
     func_82143408(arg0, 8);
     ParticleGfx_RecolorEnv(arg0, 0x33);
-    func_8213CB5C(arg0);
+    Particle_DisableRendering(arg0);
     func_8213C9D0(arg0);
 }
 

@@ -3,6 +3,11 @@
 
 #include "global.h"
 #include "gfx_buffer.h"
+#include "memory.h" // PORT: AllocateFunc
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void* MainPool_AllocWithFunc(u32 size, s32 side, s32 arg, AllocateFunc func);
+void MainPool_TryFree(s32 arg0);
 typedef struct DisplayListBuffers {
     /* 0x00 */ u32* buffers[2];  // @unverified: 'DYN0'/'DYN1' allocations in Gfx_InitDisplayListBuffers
     /* 0x08 */ u32 allocEnd;     // @unverified: Gfx_AllocDisplayList takes space down from here toward gDisplayListHead

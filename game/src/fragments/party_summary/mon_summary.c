@@ -13,6 +13,9 @@
 #include "pokemon_stats.h"
 #include "ui_graphics.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32);
@@ -659,10 +662,10 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
  * Seen in play (2026-11-14): ran first after the entry point.
  */
 void PartyScreen_Load(void) {
-    sPartyGbPort = func_80025BD8();
+    sPartyGbPort = GbSave_GetActivePort();
     D_8A21DE08 = sPartyGbPort;
     if (D_8A21DE08 != -1) {
-        func_80027FF8(&D_8A21DE10, D_8A21DE08);
+        GbSave_BuildPortSummary(&D_8A21DE10, D_8A21DE08);
     }
     PartyScreen_SetupList(&sPartyScreen);
 }

@@ -55,7 +55,6 @@ s32 AudioLoad_SearchCaches(s32, s32);
 AudioTable* AudioLoad_GetLoadTable(s32);
 s32 AudioHeap_AllocPermanent(s32, s32, s32);
 s32 AudioHeap_AllocCached(s32, s32, s32, s32);
-s32 func_8004CFB0(OSMesgQueue*, OSMesg, s32);
 void AudioLoad_SetFontLoadStatus(s32, s32);
 void AudioLoad_SetSeqLoadStatus(s32, s32);
 void AudioLoad_SetSampleLoadStatus(s32, s32);
@@ -104,7 +103,7 @@ s32 AudioLoad_AsyncLoadInner(s32 table_type, s32 id, s32 n_chunks, s32 ret_data,
     ram_addr = AudioLoad_SearchCaches(table_type, id);
     if (ram_addr != 0) {
         load_status = 2;
-        func_8004CFB0(ret_queue, (OSMesg)(ret_data << 0x18), 0);
+        osSendMesg(ret_queue, (OSMesg)(ret_data << 0x18), 0);
     } else {
         table = (AudioTable*)AudioLoad_GetLoadTable(table_type);
         size = table->entries[id].size;
@@ -438,7 +437,6 @@ void AudioLoad_FinishSlowLoad(AudioSlowLoad* arg0) {
     }
 }
 
-s32 func_8004D1C0(OSMesgQueue*, u32*, s32);
 void AudioLoad_DmaSlowCopy(AudioSlowLoad* arg0, s32 arg1);
 void AudioLoad_DmaSlowCopyUnkMedium(s32 arg0, M2C_UNK arg1, M2C_UNK arg2, M2C_UNK arg3);
 
@@ -459,7 +457,7 @@ void AudioLoad_ProcessSlowLoads(s32 reset_status) {
         load = &D_81180610.slots[i];
         switch (D_81180610.slots[i].state) {
             case 2:
-                func_8004D1C0(&load->msgQueue, NULL, 1);
+                osRecvMesg(&load->msgQueue, NULL, 1);
                 if (reset_status != 0) {
                     load->state = 3;
                     break;
@@ -536,7 +534,6 @@ extern Entry8110EABC D_81185580[1];
 
 Entry8110EABC* AudioLoad_StartAsyncLoad(s32, s32, u32, s32, s32, OSMesgQueue*, u32);
 
-void func_800567E0(OSMesgQueue*, OSMesg*, s32);
 /**
  * Claims the free async load slot and starts a chunked DMA of size bytes from
  * dev_addr to ram_addr. n_chunks == 0 means 0x1000-byte chunks; otherwise the size
@@ -578,7 +575,7 @@ Entry8110EABC* AudioLoad_StartAsyncLoad(s32 dev_addr, s32 ram_addr, u32 size, s3
     load->state = 3;
     load->medium = medium;
     load->info = (OSMesg)ret_msg;
-    func_800567E0(&load->queue, &load->msg, 1);
+    osCreateMesgQueue(&load->queue, &load->msg, 1);
     return load;
 }
 
@@ -610,7 +607,6 @@ typedef struct RelocInfo8110EF7C {
     /* 0x14 */ u32 medium2;
 } RelocInfo8110EF7C;
 
-s32 func_8004D1C0(OSMesgQueue*, u32*, s32);
 s32 AudioLoad_TrySyncLoadSampleBank(s32, u32*);
 void AudioLoad_AsyncDma(s8* arg0, u32 arg1);
 void AudioLoad_AsyncDmaUnkMedium(s32 arg0, M2C_UNK arg1, u32 arg2, M2C_UNK arg3);
@@ -639,10 +635,10 @@ void AudioLoad_ProcessAsyncLoad(Entry8110EABC* load, s32 reset_status) {
     if (load->state == 1) {
         load->state = 0;
     } else if (reset_status != 0) {
-        func_8004D1C0(&load->queue, 0, 1);
+        osRecvMesg(&load->queue, NULL, 1);
         load->active = 0;
         return;
-    } else if (func_8004D1C0(&load->queue, 0, 0) == -1) {
+    } else if (osRecvMesg(&load->queue, NULL, 0) == -1) {
         return;
     }
     if (load->size == 0) {
@@ -667,7 +663,7 @@ void AudioLoad_ProcessAsyncLoad(Entry8110EABC* load, s32 reset_status) {
                 break;
         }
         load->active = 0;
-        func_8004CFB0(load->doneQueue, load->info, 0);
+        osSendMesg(load->doneQueue, load->info, 0);
         return;
     }
     if (load->size < load->chunkSize) {
@@ -897,7 +893,6 @@ void AudioLoad_RelocateFontAndPreloadSamples(s32 font_id, s32 font_data, RelocIn
     }
 }
 
-s32 func_8004D1C0(OSMesgQueue*, u32*, s32);
 /**
  * Finishes queued sample preloads. When the message for a finished DMA arrives,
  * the sample is pointed at its RAM copy (if it still matches the request), and
@@ -915,11 +910,11 @@ s32 AudioLoad_ProcessSamplePreloads(s32 arg0) {
 
     if (D_8118557C > 0) {
         if (arg0 != 0) {
-            func_8004D1C0(&D_811855F8, &preload_index, 0);
+            osRecvMesg(&D_811855F8, &preload_index, 0);
             D_8118557C = 0;
             return 0;
         }
-        if (func_8004D1C0(&D_811855F8, &preload_index, 0) == -1) {
+        if (osRecvMesg(&D_811855F8, &preload_index, 0) == -1) {
             return 0;
         }
 

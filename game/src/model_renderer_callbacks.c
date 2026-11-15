@@ -9,6 +9,11 @@
 #include "matrix.h"
 #include "model_vertex_draw.h"
 #include "vector_math.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+Gfx* Model_Draw(Gfx* gfx, StadiumModel* model, Vtx* vtx_buf);
+void Model_InitSkinned(StadiumModel* model, void* normal_buf, void* mtx_seg, void* segment_src);
+void Model_UpdateVertexPositions(StadiumModel* model, MtxF* mtx);
 typedef struct StadiumModelSlot {
     /* 0x000 */ StadiumModel model;
     /* 0x204 */ char pad204[0x5CC];

@@ -27,6 +27,9 @@ void MainPool_FinalizeAllocation(struct MemoryBlock* block);
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Ui_DrawGradientPanel(s32 x1, s32 y1, s32 width, s32 height, Color_RGB8* top_color, Color_RGB8* bottom_color);
+
 void CupClear_PollInput(void);
 void func_8180006C(UNUSED CameraNode* arg0);
 void func_8180050C(void);

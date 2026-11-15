@@ -10,7 +10,6 @@ void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 M2C_UNK func_8001AB6C();
 extern StatusLabel D_80066AA0[];
 u32 func_8001FA30(s32);
-u32 func_800566BC(s8*);
 void func_8001A384(M2C_UNK, M2C_UNK);
 void func_8001ABBC(void);
 
@@ -464,5 +463,5 @@ void BattleMenu_DrawConfirmButton(s32 arg0, s16 arg1, s16 arg2, s32 arg3) {
  * @unverified Name from the code.
  */
 void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, s32 arg2) {
-    Font_Printf(arg0 - ((func_800566BC(arg2) >> 1) * 0xA), arg1, arg2);
+    Font_Printf(arg0 - ((strlen(arg2) >> 1) * 0xA), arg1, arg2);
 }

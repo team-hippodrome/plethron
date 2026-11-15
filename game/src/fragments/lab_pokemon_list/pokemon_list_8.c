@@ -5,6 +5,16 @@
 #include "memory_main.h"
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 Font_Init(s32 load_size, s32 side);
+void LabPCList_DrawListScreen(LabPCListScreen* screen);
+void LabPCList_FormatLocationName(s8* buf, s32 source_kind, s32 box);
+void LabPCList_InitListWindow(LabPCListScreen* screen, s32 x, s32 y, s32 msg_box);
+void LabPCList_ReindexBoxSlots(u8* box);
+s32 LabPCList_RunMoveFilter(LabPCListScreen* screen);
+s32 LabPCList_RunTypeFilter(LabPCListScreen* screen);
+s32 LabPCList_UpdateSourceSelect(LabPCListScreen* screen);
+
 typedef struct Color82000BC4 {
     u8 r, g, b, a;
 } Color82000BC4;
@@ -74,7 +84,6 @@ s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
 s32 LabPCList_FilterByBattleEligible();
 void func_8000A460(s8*, s8*);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -88,7 +97,6 @@ s32 ScrollList_UpdateCursor(void*);
 void ScrollList_SetCursor(void*, s32);
 void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 void func_8000A460(s8 *, s8 *);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -113,7 +121,6 @@ void TextBox_Init(s8* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
 extern Info891033A0 D_80065D00[];
 extern s8 D_8910DD40[];
 extern s8 D_8910DD58[];
-u32 func_800566BC(s8*);
 
 typedef struct Head89103740 { char unk00[0xC]; s32 unkC; } Head89103740;
 typedef struct Sub89103740 { Head89103740* head; s32 unk04; char unk08[8]; s32 unk10; char unk14[8]; s32 count; } Sub89103740; // 0x20
@@ -417,7 +424,7 @@ void LabPCList_ApplyPpUpItem(u8** entry, s32 item, s32 slot, Msg891041D8* msg) {
 
     func_8000A460(D_8910E3B8, D_8006A9CC[*(u8*)((u32)entry + slot + 0x11)].name); // FAKE: integer cast keeps entry + slot from being reused
     ptr = (u8*)entry + slot + 8;
-    end = D_8910E3B8 + func_800566BC(D_8910E3B8);
+    end = D_8910E3B8 + strlen(D_8910E3B8);
     *(Str891041D8*)end = *(Str891041D8*)D_8910DE3C;
     if (1) {} // karodo
     msg->text = D_8910E3B8;
@@ -698,7 +705,7 @@ extern LabPCList D_8910E3D0;
  * 1 name for the same address.
  */
 void LabPCList_Setup(void) {
-    D_8910E37C = func_80025BD8();
+    D_8910E37C = GbSave_GetActivePort();
     if (D_8910E37C != -1) {
         func_80027FF8(&D_8910E380, D_8910E37C);
     }

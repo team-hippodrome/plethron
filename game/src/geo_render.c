@@ -42,6 +42,9 @@ typedef union AnimFixedFrame {
 } AnimFixedFrame;
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void* MainPool_AllocAligned(struct MainPoolState* state, s32 arg1, s32 arg2);
+
 void GeoRender_InitMatrixStack(void);
 void GeoRender_CommitMatrix(void);
 void GeoRender_SetMatrix(MtxF* arg0);
@@ -669,13 +672,13 @@ void GeoRender_ApplyEntryFog(GeoLayerRenderState* state, GeoLayerEntry* entry) {
     }
 }
 
-M2C_UNK GeoRender_SetLayerRenderMode();                            /**
+s32 GeoRender_SetLayerRenderMode(GeoLayerRenderState* state);                          /**
  * Entry without fog: restores the layer's plain render mode if fog was on.
  * @unverified Name read from the code.
  */
 void GeoRender_ClearEntryFog(GeoLayerRenderState* state, GeoLayerEntry* entry) {
     if (state->fogColor & 0xFF) {
-        GeoRender_SetLayerRenderMode();
+        GeoRender_SetLayerRenderMode(state); // PORT: the decomp passed state in a0 implicitly
     }
     state->fogColor = (s32) entry->fogColor;
 }
@@ -1611,7 +1614,7 @@ void Geo_NodeDisplayList(GeoDisplayListPartNode* arg0) {
 
     if (dl != NULL) {
         if (arg0) {} // karodo
-        func_800135FC(arg0->node.renderLayer, (s32)dl, 0, arg0->node.renderFlags & 4);
+        GeoRender_SubmitLayerDisplayList(arg0->node.renderLayer, (s32)dl, 0, arg0->node.renderFlags & 4);
     }
     func_8001380C(arg0);
 }

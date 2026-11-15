@@ -244,8 +244,6 @@ extern s32 D_800B41A4;
 s32 func_8003834C(s32, s32, s32, s32, s32, s32, s32);
 s32 Audio_QueueSetMonoOutputCommand(s32 handle);
 s32 func_80037AC4(s32, s32);
-s32 func_8004D300(s32);
-u32 func_80053A80(void);
 void func_800386E4(s32, s32);
 extern u8 D_80077548;
 extern u8 D_80077550;
@@ -282,13 +280,13 @@ void Announcer_SetActive(u32 enable) {
 
     if (enable != 0) {
         if ((D_80077528 == 0) && (D_8007754C == 0)) {
-            mask = func_8004D300(mask); // mask is read uninitialized here, as in the original
+            mask = osSetIntMask(mask); // mask is read uninitialized here, as in the original
             D_8007754C = 1;
             D_80077598 = 0;
             D_80077594 = 0;
             D_800775A4 = 0;
             D_800775A0 = 0;
-            func_8004D300(mask);
+            osSetIntMask(mask);
             if (D_800775A4 == 0) {
                 D_800775A4 = func_8003834C(D_800B4188, D_800B41A4, 24, 0x80, 0x80, 0, -1);
             }
@@ -307,18 +305,18 @@ void Announcer_SetActive(u32 enable) {
             ratio[1] = (u32)(D_800FD698[1] * 100) / (u32)D_800FD6A8[1];
             if (D_80077548 >= 21) {
                 if ((D_800FD698[0] != 0) && (D_800FD698[1] != 0)) {
-                    if ((u8)func_80053A80() & 1) {
+                    if ((u8)osGetCount() & 1) {
                         d = (ratio[1] < ratio[0]) ? ratio[0] - ratio[1] : ratio[1] - ratio[0];
                         if (d >= 51) {
                             Announcer_QueueLine(48, 0.0f, 0x80);
                             return;
                         }
                     }
-                    if (((u8)func_80053A80() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
+                    if (((u8)osGetCount() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
                         Announcer_QueueLine(45, 0.0f, 0x80);
                         return;
                     }
-                    if (((u8)func_80053A80() & 8) && (ratio[0] >= 61) && (ratio[1] >= 61) && (ratio[0] < 100) && (ratio[1] < 100)) {
+                    if (((u8)osGetCount() & 8) && (ratio[0] >= 61) && (ratio[1] >= 61) && (ratio[0] < 100) && (ratio[1] < 100)) {
                         d = (ratio[1] < ratio[0]) ? ratio[0] - ratio[1] : ratio[1] - ratio[0];
                         if (d < 10) {
                             Announcer_QueueLine(87, 0.0f, 0x80);
@@ -327,7 +325,7 @@ void Announcer_SetActive(u32 enable) {
                         Announcer_QueueLine(44, 0.0f, 0x80);
                         return;
                     }
-                    if ((u8)func_80053A80() & 2) {
+                    if ((u8)osGetCount() & 2) {
                         d = (((u8*)&D_800FD6B4)[1] < ((u8*)&D_800FD6B4)[0]) ? ((u8*)&D_800FD6B4)[0] - ((u8*)&D_800FD6B4)[1] : ((u8*)&D_800FD6B4)[1] - ((u8*)&D_800FD6B4)[0];
                         if ((d >= 4) && (((u8*)&D_800FD6B2)[0] >= 3) && (((u8*)&D_800FD6B2)[1] >= 3)) {
                             Announcer_QueueLine(88, 0.0f, 0x80);
@@ -346,12 +344,12 @@ void Announcer_SetActive(u32 enable) {
                         D_80077578 = 2;
                         return;
                     }
-                    if (((u8)func_80053A80() & 2) && (D_80077578 != 1)) {
+                    if (((u8)osGetCount() & 2) && (D_80077578 != 1)) {
                         Announcer_QueueLine(52, 0.0f, 0x80);
                         D_80077578 = 1;
                         return;
                     }
-                    if (((u8)func_80053A80() & 1) && (D_80077578 != 2)) {
+                    if (((u8)osGetCount() & 1) && (D_80077578 != 2)) {
                         Announcer_QueueLine(93, 0.0f, 0x80);
                         D_80077578 = 2;
                         return;
@@ -369,26 +367,26 @@ void Announcer_SetActive(u32 enable) {
                     Announcer_QueueLine(93, 0.0f, 0x80);
                     D_80077578 = 2;
                 }
-                mask = func_8004D300(1);
+                mask = osSetIntMask(1);
                 D_80077598 = 800;
                 D_8007759C = 1;
-                func_8004D300(mask);
+                osSetIntMask(mask);
                 return;
             }
             if (D_80077548 >= 4) {
                 if ((D_800FD698[0] != 0) && (D_800FD698[1] != 0)) {
-                    if ((u8)func_80053A80() & 1) {
+                    if ((u8)osGetCount() & 1) {
                         d = (ratio[1] < ratio[0]) ? ratio[0] - ratio[1] : ratio[1] - ratio[0];
                         if (d >= 51) {
                             Announcer_QueueLine(48, 0.0f, 0x80);
                             return;
                         }
                     }
-                    if (((u8)func_80053A80() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
+                    if (((u8)osGetCount() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
                         Announcer_QueueLine(45, 0.0f, 0x80);
                         return;
                     }
-                    if (((u8)func_80053A80() & 8) && (ratio[0] >= 81) && (ratio[1] >= 81) && (ratio[0] < 100) && (ratio[1] < 100)) {
+                    if (((u8)osGetCount() & 8) && (ratio[0] >= 81) && (ratio[1] >= 81) && (ratio[0] < 100) && (ratio[1] < 100)) {
                         if ((D_800FD6B6[0] == 0) && (D_800FD6B6[1] == 0)) {
                             Announcer_QueueLine(94, 0.0f, 0x80);
                             return;
@@ -396,7 +394,7 @@ void Announcer_SetActive(u32 enable) {
                         Announcer_QueueLine(44, 0.0f, 0x80);
                         return;
                     }
-                    if ((u8)func_80053A80() & 2) {
+                    if ((u8)osGetCount() & 2) {
                         d = (((u8*)&D_800FD6B4)[1] < ((u8*)&D_800FD6B4)[0]) ? ((u8*)&D_800FD6B4)[0] - ((u8*)&D_800FD6B4)[1] : ((u8*)&D_800FD6B4)[1] - ((u8*)&D_800FD6B4)[0];
                         if ((d >= 4) && (((u8*)&D_800FD6B2)[0] >= 3) && (((u8*)&D_800FD6B2)[1] >= 3)) {
                             Announcer_QueueLine(88, 0.0f, 0x80);
@@ -411,22 +409,22 @@ void Announcer_SetActive(u32 enable) {
                             D_80077578 = 1;
                             return;
                         }
-                        if ((u8)func_80053A80() & 2) {
+                        if ((u8)osGetCount() & 2) {
                             Announcer_QueueLine(93, 0.0f, 0x80);
                             D_80077578 = 2;
                         }
                     } else {
-                        if (((u8)func_80053A80() & 1) && (D_80077578 != 2)) {
+                        if (((u8)osGetCount() & 1) && (D_80077578 != 2)) {
                             Announcer_QueueLine(93, 0.0f, 0x80);
                             D_80077578 = 2;
                             return;
                         }
-                        if (((u8)func_80053A80() & 2) && (D_80077578 != 1)) {
+                        if (((u8)osGetCount() & 2) && (D_80077578 != 1)) {
                             Announcer_QueueLine(52, 0.0f, 0x80);
                             D_80077578 = 1;
                             return;
                         }
-                        if ((u8)func_80053A80() & 0x40) {
+                        if ((u8)osGetCount() & 0x40) {
                             Announcer_QueueLine(53, 0.0f, 0x80);
                             D_80077578 = 0;
                         }
@@ -439,21 +437,21 @@ void Announcer_SetActive(u32 enable) {
                         Announcer_QueueLine(93, 0.0f, 0x80);
                         D_80077578 = 2;
                     }
-                    mask = func_8004D300(1);
+                    mask = osSetIntMask(1);
                     D_80077598 = 800;
                     D_8007759C = 1;
-                    func_8004D300(mask);
+                    osSetIntMask(mask);
                 }
             } else if ((D_800FD698[0] != 0) && (D_800FD698[1] != 0)) {
-                if ((u8)func_80053A80() & 1) {
+                if ((u8)osGetCount() & 1) {
                     d = (ratio[1] < ratio[0]) ? ratio[0] - ratio[1] : ratio[1] - ratio[0];
                     if (d >= 51) {
                         Announcer_QueueLine(48, 0.0f, 0x80);
                         return;
                     }
                 }
-                if (((u8)func_80053A80() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
-                    if ((u8)func_80053A80() & 1) {
+                if (((u8)osGetCount() & 4) && (ratio[0] < 21) && (ratio[1] < 21)) {
+                    if ((u8)osGetCount() & 1) {
                         Announcer_QueueLine(45, 0.0f, 0x80);
                         return;
                     }
@@ -465,16 +463,16 @@ void Announcer_SetActive(u32 enable) {
                 }
             } else {
                 Announcer_QueueLine(89, 0.0f, 0x80);
-                mask = func_8004D300(1);
+                mask = osSetIntMask(1);
                 D_80077598 = 800;
                 D_8007759C = 1;
-                func_8004D300(mask);
+                osSetIntMask(mask);
             }
         }
     } else {
-        mask = func_8004D300(1);
+        mask = osSetIntMask(1);
         D_8007754C = 0;
-        func_8004D300(mask);
+        osSetIntMask(mask);
         func_80037AC4(D_800775A4, 120);
         func_80037AC4(D_800775A0, 120);
         for (i = 0; i < 4; i++) {

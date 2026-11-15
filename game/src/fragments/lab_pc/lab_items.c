@@ -37,6 +37,9 @@ typedef struct unk_D_88218070 {
 } unk_D_88218070;
 
 #include "m2c_macros.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Menu_ClearItemFlags(Menu* arg0);
 void ScrollList_SetItems(s8*, s32, s8*);
 
 void LabItem_Unused(void);
@@ -53,7 +56,7 @@ void LabItem_ReadDeckEntries(s32 arg0, s32 arg1, s32 arg2, ByteMatrix* arg3);
  * cursor picked in the destination list (ホ went to the top of てもち).
  */
 void LabList_InsertRowAtCursor(LabMonEntryList* list, s32 (*row)(s32, s32)) {
-    func_800274E0(list->items, row, list->count);
+    ByteMatrix_InsertRow(list->items, row, list->count);
 }
 
 void func_800275E4(s32, s32);
@@ -95,7 +98,7 @@ void LabList_RemoveSelectedEntry(ScrollList* list) {
 }
 
 void func_800275E4(s32, s32);
-int func_800274E0();
+int ByteMatrix_InsertRow();
 void ScrollList_SetCursorKeepOffset(s32*, s32);
 
 /**
@@ -145,7 +148,7 @@ void LabItem_InsertItemStacks(s32* list, s32 item_id, s32 quantity) {
         }
         quantity -= var_v0;
         sp3C[1] = var_v0;
-        func_800274E0(temp_s4, sp3C, var_s3++);
+        ByteMatrix_InsertRow(temp_s4, sp3C, var_s3++);
     }
 
     ScrollList_SetCursorKeepOffset(list, list[2]);
@@ -790,7 +793,6 @@ s32 LabItem_UpdateItemList(void* menu, u32 flags) {
 }
 
 void func_80027410(s8*, s8*, s32, s32, s32);
-s32 func_800564D4(char*, const char*, ...);
 extern Color_RGBA8 D_8900A600;
 extern Color_RGBA8 D_8900A604;
 extern u8 D_8900A580[];
@@ -835,7 +837,7 @@ void LabItem_InitOrganizeWindow(LabItemOrganizeWindow* win, s32 x, s32 y, ByteMa
     win->exchangeButton.highlightColor = D_8900A5BC;
     win->rightBox = 1;
     win->leftBox = 0;
-    func_800564D4(D_890190F0, D_890184CC, &D_8901911C);
+    sprintf(D_890190F0, D_890184CC, &D_8901911C);
     win->boxNames = D_8900A5F4;
     win->boxCount = 3;
     win->operationCursor.count = 4;
@@ -905,7 +907,6 @@ M2C_UNK func_8001AB6C();                            /* extern */
 M2C_UNK func_8001ABBC();                            /* extern */
 M2C_UNK func_8001ABE8();                            /* extern */
 M2C_UNK func_8001AC3C();                            /* extern */
-u32 func_800566BC(s32);                             /* extern */
 
 /**
  * Draws title text with the two-color (prim/env) font style from `colors`.
@@ -917,7 +918,7 @@ void LabItem_DrawTitleText(s32 x, s32 y, s32 text, PrimEnvColor* colors) {
     func_8001AA9C(colors->prim.r, colors->prim.g, colors->prim.b, colors->prim.a);
     func_8001ABE8();
     func_8001AAE4(colors->env.r, colors->env.g, colors->env.b, colors->env.a);
-    Font_Printf(((u32) (376 - ((func_800566BC(text) >> 1) << 5)) >> 1) + x, y + 12, text);
+    Font_Printf(((u32) (376 - ((strlen(text) >> 1) << 5)) >> 1) + x, y + 12, text);
     func_8001AC3C();
     func_8001ABBC();
 }

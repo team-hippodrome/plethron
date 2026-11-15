@@ -9,6 +9,10 @@
 #include "rom_device.h"
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Audio_FadeCategoriesAndStreamsDefault(void);
+void Audio_FadeCategoriesAndStreamsWithDuration(s32 arg0);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 s32 Audio_StartMusicTrack(s32 track_id);
 void Audio_FadeOutAll(s32);
@@ -90,8 +94,6 @@ M2C_UNK __amHandleFrame(s8 *);                      /* extern */
 M2C_UNK Audio_SetOutputMode(M2C_UNK);                     /* extern */
 M2C_UNK Audio_LoadSoundData();                            /* extern */
 void Audio_SetChannelVolume(s32 arg0, u32 arg1);            /* extern */
-M2C_UNK func_8004CFB0(M2C_UNK *, M2C_UNK, M2C_UNK); /* extern */
-M2C_UNK func_800567E0(M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
 extern s32 D_800AAE30;
 extern s8 D_800AAE38;
 extern s8 D_800AAE48;
@@ -107,15 +109,15 @@ extern s32 D_800AAF3C;
  * the console is not about to reset.
  */
 void Audio_ThreadEntry(s32 arg0) {
-    func_800567E0(&D_800AAE48, &D_800AAE38, 1);
+    osCreateMesgQueue(&D_800AAE48, &D_800AAE38, 1);
     Sched_AddClient(&D_800AAE38);
     D_800AAE30 = 1;
     D_800AAF3C = -1;
     D_800AAF38 = 0;
-    func_800567E0(&D_800AAE6C, &D_800AAE68, 1);
-    func_800567E0(&D_800AAED4, &D_800AAED0, 1);
-    func_8004CFB0(&D_800AAE6C, 0x444F4E45, 0); // 'DONE'
-    func_8004CFB0(&D_800AAED4, 0x444F4E45, 0); // 'DONE'
+    osCreateMesgQueue(&D_800AAE6C, &D_800AAE68, 1);
+    osCreateMesgQueue(&D_800AAED4, &D_800AAED0, 1);
+    osSendMesg(&D_800AAE6C, 0x444F4E45, 0); // 'DONE'
+    osSendMesg(&D_800AAED4, 0x444F4E45, 0); // 'DONE'
     Audio_LoadSoundData();
     Audio_SetOutputMode(1);
     Audio_SetChannelVolume(3, 4);

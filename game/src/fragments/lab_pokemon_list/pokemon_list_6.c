@@ -3,6 +3,10 @@
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
 
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 LabPCList_ToggleFilterFlag(void* /* unk_func_89101D80* */ arg0, s32 flag);
+
 typedef struct Color82000BC4 {
     u8 r, g, b, a;
 } Color82000BC4;
@@ -72,7 +76,6 @@ s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
 s32 LabPCList_FilterByBattleEligible();
 void func_8000A460(s8*, s8*);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -86,7 +89,6 @@ s32 ScrollList_UpdateCursor(void*);
 void ScrollList_SetCursor(void*, s32);
 void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 void func_8000A460(s8 *, s8 *);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -203,6 +205,8 @@ s32 LabPCList_UpdateColumnMenu(LabPCListScreen* screen) {
 
 s32 LabPCList_UpdateLevelInput(void*);
 M2C_UNK LabPCList_ApplyFiltersAndSort();
+void LabPCList_ClearFilterFlag(LabPCListScreen* screen, M2C_UNK flag); // PORT: no prototype in the decomp
+void LabPCList_SetFilterFlag(LabPCListScreen* screen, s32 flag); // PORT: no prototype in the decomp
 /**
  * Runs the レベルのにゅうりょく (level input) window and applies the level range filter.
  * Seen in play (2026-11-12) in いちらん: あつめる with 006から100 stored 6 and 100 at +0x9828/+0x9829, set
@@ -212,7 +216,7 @@ s32 LabPCList_RunLevelFilter(s8 *screen_arg)
 {
   LabPCListScreen *screen = (LabPCListScreen *) screen_arg;
   s32 ret;
-  ret = func_89106C98(&screen->levelInputWindow);
+  ret = LabPCList_UpdateLevelInput(&screen->levelInputWindow);
   if (ret == (-1))
   {
     screen->state = 0;

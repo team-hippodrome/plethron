@@ -330,7 +330,6 @@ extern ComSide D_821CF618;
 extern ComSide D_821CF998;
 extern ComSide* D_821CF298;
 extern s32 D_821CF288;
-void func_80058410(u8 *, u8 *, s32);
 void BattleAi_CopyVisibleBattleState(BattleMonRuntime*, BattleMonRuntime*);
 void BattleAi_ResetBattleStats(BattleMonRuntime*, BattleMon *);
 s32 BattleAi_ChooseSwitch(void);
@@ -351,7 +350,7 @@ s32 BattleAi_ChooseTurnAction(BattleMonRuntime* arg0, BattleMonRuntime* arg1, s3
     D_821CF2A0 = &D_821CF298->battlers[arg3];
     D_821CF2A8 = arg0;
     D_821CF2AC = arg1;
-    func_80058410((u8*)arg0, (u8*)&D_821CF29C->mon, sizeof(BattleMonRuntime));
+    bcopy((u8*)arg0, (u8*)&D_821CF29C->mon, sizeof(BattleMonRuntime));
     if (D_821CF29C->prevHp != D_821CF29C->mon.hp) {
         if (D_821CF29C->mon.receivedCritFlag != 0) {
             D_821CF29C->damageTaken = (D_821CF29C->prevHp - D_821CF29C->mon.hp) / 2;

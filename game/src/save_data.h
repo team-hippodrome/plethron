@@ -152,10 +152,10 @@ s32 Deck_ReadSaveEntry(s32 arg0, s32 arg1, s32 arg2, u8* arg3);
 s32 Save_WriteTypedRecord(s32 arg0, s32 arg1, s32 arg2, u8* arg3);
 void Save_WriteContinueData(SaveContinueSession* arg0, GbSavePortSnapshot* arg1, BattleMon* arg2, s32 arg3);
 void Save_UnusedStub(void);
-s32 Save_GetBuffer(void);
+intptr_t Save_GetBuffer(void); // PORT64: was s32
 void func_800245E0(s32 arg0, s32 arg1);
 
 // functions defined in assembly
-s32 Deck_GetSaveEntryCount(); // Some callers pass no arguments and reuse their own a0/a1.
+s32 Deck_GetSaveEntryCount(s32 arg0, s32 arg1); // PORT: prototyped; callers that passed nothing now pass their own arg0/arg1
 
 #endif // SAVE_DATA_H

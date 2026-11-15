@@ -63,6 +63,10 @@ extern SessionContext gSessionContext;
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Audio_PlayMusicIfChanged(s32 arg0);
+void Audio_StopMusic(s32 arg0);
+
 s32 PikachuReward_SpinSunburst(s32 stage, DisplayObject* sunburst);
 void Controller_PollInputs(void);
 void PikachuReward_UpdateQuestionMarks(void);

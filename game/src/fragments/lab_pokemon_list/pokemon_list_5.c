@@ -3,6 +3,7 @@
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
 
+
 typedef struct Color82000BC4 {
     u8 r, g, b, a;
 } Color82000BC4;
@@ -71,7 +72,6 @@ s32 LabPCList_FilterBySpeciesId();
 s32 LabPCList_FilterByExactTypePair();
 s32 LabPCList_FilterByBattleEligible();
 void func_8000A460(s8*, s8*);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -85,7 +85,6 @@ s32 ScrollList_UpdateCursor(void*);
 void ScrollList_SetCursor(void*, s32);
 void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 void func_8000A460(s8 *, s8 *);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -104,6 +103,9 @@ M2C_UNK LabPCList_ApplyFiltersAndSort();
 extern s32 D_8910D9D0;
 extern s32 D_8910D9D4;
 
+void LabPCList_ClearFilterFlags(LabPCListScreen* screen); // PORT: no prototype in the decomp
+void LabPCList_ResetFilterState(LabPCListScreen* state); // PORT: no prototype in the decomp
+s32 LabPCList_ToggleFilterFlag(void* /* unk_func_89101D80* */ arg0, s32 flag); // PORT: no prototype in the decomp
 /**
  * Handles the sort menu: sort by name or number, gather battle Pokemon, clear selections, or choose the boxes to list.
  * Seen in play (2026-11-12) in いちらん: handled that menu: ポケモンばんごうでならべる sorted the party as フシギダネ,

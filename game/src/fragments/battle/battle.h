@@ -1103,7 +1103,7 @@ extern u8* D_8218AFDC[];
 
 extern M2C_UNK D_82195BE4;
 
-extern s32 D_8218B15C[];
+extern char* D_8218B15C[]; // PORT64: string pointers (were s32)
 
 extern s32 D_8219A5A4;
 

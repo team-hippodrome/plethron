@@ -6,6 +6,12 @@
 #include "gfx_buffer.h"
 #include "memory_main.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 GbSave_ScanAllPorts(void);
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3);
+
 void N64Logo_DrawLogoTexture(void);
 s32 N64Logo_DrawFrame(UNUSED u8 fade_mode);
 void N64Logo_HoldForOneSecond(u64 start_time);

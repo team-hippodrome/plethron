@@ -78,15 +78,14 @@ s32 BattleAi_RandomPercent(void) {
     return (u8)((D_821CF2B0 ^ D_821CF2B4) % 100);
 }
 
-s32 func_80053A80();                                /* extern */
 
 /**
- * Advances BattleAi_RandomPercent 0..31 times, using bits 4..8 of func_80053A80.
+ * Advances BattleAi_RandomPercent 0..31 times, using bits 4..8 of osGetCount.
  */
 void BattleAi_StirRandom(void) {
     u32 var_s0;
 
-    var_s0 = (u32) (func_80053A80() & 0x1F0) >> 4;
+    var_s0 = (u32) (osGetCount() & 0x1F0) >> 4;
     if (var_s0 != 0) {
         do {
             BattleAi_RandomPercent();
@@ -102,14 +101,13 @@ void BattleAi_StirRandom(void) {
 void ComAi_UnusedNopA(void) {
 }
 
-f32 func_80055340(f32);                             /* extern */
 
 /**
  * Gen 1 stat formula without DVs: ((sqrt(statExp) / 4 + base * 2) * level) / 100 + 5.
  * The callers pass statExp 0xFFFF (maximum stat experience).
  */
 s32 BattleAi_CalcStat(s32 arg0, s32 arg1, s32 arg2) {
-    return ((s32) ((((s32) func_80055340((f32) arg1) / 4) + (arg0 * 2)) * arg2) / 100) + 5;
+    return ((s32) ((((s32) sqrtf((f32) arg1) / 4) + (arg0 * 2)) * arg2) / 100) + 5;
 }
 
 /**

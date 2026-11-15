@@ -2,6 +2,9 @@
 #include "battle.h"
 #include "audio_commands.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK func_8211EE8C();
 M2C_UNK BattleScene_BeginCameraReturnTransition();

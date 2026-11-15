@@ -10,7 +10,7 @@
 #include "ui_graphics.h"
 #include "string.h"
 #include "stdarg.h"
-#include "lib/ultralib/src/libc/xstdio.h"
+// PORT: _Printf is declared in port_compat.h (xstdio.h is libultra-internal)
 extern FontContext* font_context;
 
 #include "m2c_macros.h"

@@ -1,6 +1,6 @@
 /* Declarations for src/leo.c. */
-#ifndef LEO_H
-#define LEO_H
+#ifndef GAME_LEO_H // PORT: LEO_H is also the guard of the SDK leo.h
+#define GAME_LEO_H
 
 #include "global.h"
 

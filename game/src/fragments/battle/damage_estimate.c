@@ -460,13 +460,12 @@ void BattleScene_IntroInitNop(void) {
 extern u8 D_82199F7C;
 extern f64 D_DBL_82195770;
 extern f64 D_DBL_82195778;
-u32 func_80053A80(void);
 //@unverified
 /**
- * Battle random byte: adds a scaled value from func_80053A80 to D_82199F7C and
+ * Battle random byte: adds a scaled value from osGetCount to D_82199F7C and
  * returns the new value.
  */
 u8 Battle_Random(void)
 {
-  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (func_80053A80() / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
+  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (osGetCount() / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
 }

@@ -5,6 +5,11 @@
 #include "pokemon_types.h"
 #include "battle.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 BattleAi_CountUnfainted(ComSide* arg0);
+s32 BattleAi_GetHpPercent(ComBattler* arg0);
+s32 BattleAi_SleepClauseAllows(ComSide *arg0);
+
 extern ComSide* D_821CF294;
 extern ComSide* D_821CF298;
 extern ComBattler* D_821CF29C;

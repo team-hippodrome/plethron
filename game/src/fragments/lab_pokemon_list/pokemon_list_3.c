@@ -4,6 +4,16 @@
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+void Font_BeginTranslucentTextRendering(void);
+void Font_EndTexturedTextRendering(void);
+void Font_Printf(s32 x, s32 y, const char* fmt, ...);
+void Font_SetActive(s32 mask, s32 arg1);
+void Gfx_SetEnvColor(s32 r, s32 g, s32 b, s32 a);
+void LabPCList_DrawLocation(s32 x, s32 y, s8 ***entry);
+void LabPCList_DrawMoveName(s32 x, s32 y, s32 mon, s32 slot);
+void LabPCList_DrawTypeIcon(s32 x, s32 y, u8* mon, s32 type_slot);
+
 extern u8 D_80073520[];
 M2C_UNK Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 
@@ -85,26 +95,26 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
     Ui_DrawNumberZeroPadded(x + 1, y + 4, row + 1, 4);
     if ((entry->species <= 0) || (entry->species >= 152))
     {
-      func_8001AB6C();
+      Font_BeginTranslucentTextRendering();
       Font_SetColorForFlags(flags);
-      func_8001A384(4, -1);
+      Font_SetActive(4, -1);
       Font_Printf(x + 40, y + 2, (M2C_UNK *) D_8910DBCC);
-      func_8001ABBC();
+      Font_EndTexturedTextRendering();
     }
     else
     {
-      func_8001AB6C();
+      Font_BeginTranslucentTextRendering();
       if (1 & D_80064C5C[entry->species - 1].cupEligibilityFlags)
       {
-        func_8001AA9C(0xFF, 0xC8, 0xA0, 0xFF); // #FFC8A0FF
+        Gfx_SetEnvColor(0xFF, 0xC8, 0xA0, 0xFF); // #FFC8A0FF
       }
       else
       {
         Font_SetColorForFlags(flags);
       }
-      func_8001A384(4, -1);
+      Font_SetActive(4, -1);
       Font_Printf(x + 40, y + 2, (M2C_UNK *) D_80064C5C[entry->species - 1].name);
-      func_8001ABBC();
+      Font_EndTexturedTextRendering();
     }
     cx = x + 120;
     for (col = c->pageColumnStart[c->page]; cx < c->listFrame.width; col++)
@@ -222,13 +232,13 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
  * Seen in play (2026-11-12): Lタテ／ヨコきりかえR and ページおくり1／3.
  */
 void LabPCList_DrawPageHint(LabPCListScreen* screen) {
-    func_8001AB6C();
-    func_8001AA9C(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
-    func_8001A384(8, 0);
+    Font_BeginTranslucentTextRendering();
+    Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
+    Font_SetActive(8, 0);
     Font_Printf(screen->headerFrame.x + 34, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DBF0);
     Font_Printf(screen->headerFrame.x + 338, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DC04,
                   screen->page + 1);
-    func_8001ABBC();
+    Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, D_80060290);
     Gfx_DrawTextureRgba16(screen->headerFrame.x + 4, screen->headerFrame.y + 3, 26, 24, D_8910C370, 0x20, 0x200000);
     Gfx_DrawTextureRgba16(screen->headerFrame.x + 218, screen->headerFrame.y + 3, 26, 24, D_8910C978, 0x20, 0x200000);

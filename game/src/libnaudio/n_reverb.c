@@ -6,6 +6,8 @@
 #include <os.h>
 #include <os_internal.h>
 #include <stdio.h>
+// PORT: declared before use (IDO allowed the implicit declaration)
+extern f32 _doModFunc(ALDelay* d, s32 count);
 #define RANGE 2.0
 #define SWAP(in, out) \
     {                 \
@@ -17,7 +19,6 @@ Acmd* _n_loadOutputBuffer(ALFx* r, ALDelay* d, s32 buff, Acmd* p);
 Acmd* _n_loadBuffer(ALFx* r, s16* curr_ptr, s32 buff, s32 count, Acmd* p);
 Acmd* _n_saveBuffer(ALFx* r, s16* curr_ptr, s32 buff, Acmd* p);
 Acmd* _n_filterBuffer(ALLowPass* lp, s32 buff, Acmd* p);
-extern f32 _doModFunc(ALDelay* d, s32 count);
 extern s32 L_INC[];
 
 Acmd* n_alFxPull(s32 sampleOffset, Acmd* p);

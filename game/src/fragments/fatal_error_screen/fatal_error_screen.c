@@ -9,6 +9,9 @@
 #include "stage_loader.h"
 #include "ui_graphics.h"
 #include "fatal_error_screen.h"
+
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u8* Asset_LoadToSegment(s32 id, u8* rom_start, u8* rom_end, s32 arg3);
 extern s32 sFatalErrorPort;
 extern s32 sFatalErrorMessageId;
 

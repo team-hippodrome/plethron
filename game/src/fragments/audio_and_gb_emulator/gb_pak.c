@@ -45,7 +45,6 @@ void GbEmu_BlendColorWithAlphaMap(u16* dst, u8* alpha_map, s32 color, s32 width,
 void GbEmu_Delay(OSTime arg0);
 void GbEmu_BlendScrollingLayer(u16* arg0, u16* arg1, s16* arg2, s32 arg3, s32 arg4);
 
-M2C_UNK func_8005C670(s32, M2C_UNK, u16, M2C_UNK *, s32); /* extern */
 extern M2C_UNK D_81156480;
 /**
  * Writes `value` to cartridge address `address` (an MBC1 register) through the Transfer Pak: puts
@@ -57,7 +56,7 @@ extern M2C_UNK D_81156480;
  */
 s32 GbPak_WriteMapperRegister(void *arg0, s32 address, s32 value) {
     M2C_FIELD(&D_81156480, s8 *, 0x1F) = value;
-    return func_8005C670(M2C_FIELD(arg0, s32 *, 0x50), 1, address, &D_81156480, 0x20);
+    return osGbpakReadWrite(M2C_FIELD(arg0, s32 *, 0x50), 1, address, &D_81156480, 0x20);
 }
 
 /**
@@ -90,22 +89,21 @@ s32 GbPak_InitializeCartridgeMapper(unk_D_8122B2C0* arg0) {
  * but that is inferred from those uses only. Sets the byte at 0xA2 to 2 and
  * saves then clears the byte at 0x98. Calls func_81102344(arg0, word94 >> 13) (the same
  * bank-select helper GbPak_TransferBankedRam uses with address / 0x2000);
- * if that returns 0, calls func_8005C670 with the handle at 0x50, the
+ * if that returns 0, calls osGbpakReadWrite with the handle at 0x50, the
  * mode 0 (GbPak_WriteMapperRegister passes 1 here), the address (word94 & 0x1FFF) | 0xA000,
  * the buffer D_811564A0 and a length of 0x20; if that also returns 0, calls
- * func_80057910(D_811564A0, entry, 0x20) where entry is the 0x20-byte record
+ * bcmp(D_811564A0, entry, 0x20) where entry is the 0x20-byte record
  * number byte9C of the table at D_811564C0. If the last result is 0 the byte
  * at 0xA2 is reset to 0. The saved byte at 0x98 is restored and the first
  * non-zero (or final) result is returned.
  *
- * What func_8005C670 mode 0 and func_80057910 do, and what the two tables
+ * What osGbpakReadWrite mode 0 and bcmp do, and what the two tables
  * hold, is not established. Matching notes: the unused first local `pad`
  * places `sp28` at sp+0x28, and the table index is scaled as
  * `(x << 1) << 4` because a single `<< 5` (or `* 0x20`) uses one temporary
  * register fewer and does not match.
  */
 s32 func_81102344(u8*, s32);
-s32 func_80057910(M2C_UNK *, void *, u32); /* extern */
 extern M2C_UNK D_811564A0;
 extern M2C_UNK D_811564C0;
 /**
@@ -126,10 +124,10 @@ s32 GbPak_VerifyProbeBlock(void *ch) {
     var_v0 = func_81102344(ch, (u32) M2C_FIELD(ch, u32 *, 0x94) >> 0xD);
     var_v1 = var_v0;
     if (var_v0 == 0) {
-        var_v0 = func_8005C670(M2C_FIELD(ch, s32 *, 0x50), 0, ((M2C_FIELD(ch, u32 *, 0x94) & 0x1FFF) | 0xA000) & 0xFFFF, &D_811564A0, 0x20);
+        var_v0 = osGbpakReadWrite(M2C_FIELD(ch, s32 *, 0x50), 0, ((M2C_FIELD(ch, u32 *, 0x94) & 0x1FFF) | 0xA000) & 0xFFFF, &D_811564A0, 0x20);
         var_v1 = var_v0;
         if (var_v0 == 0) {
-            var_v0 = func_80057910(&D_811564A0, (u8 *)&D_811564C0 + ((M2C_FIELD(ch, u8 *, 0x9C) << 1) << 4), 0x20);
+            var_v0 = bcmp(&D_811564A0, (u8 *)&D_811564C0 + ((M2C_FIELD(ch, u8 *, 0x9C) << 1) << 4), 0x20);
             var_v1 = var_v0;
         }
     }
@@ -140,7 +138,6 @@ s32 GbPak_VerifyProbeBlock(void *ch) {
     return var_v1;
 }
 
-s32 func_80051110(s32, s8 *, s8 *);             /* extern */
 
 /**
  * Reads the Transfer Pak status into status (0x9B) and fails with 0x63 unless bits 0 and 3 are
@@ -154,7 +151,7 @@ s32 GbPak_CheckCartInserted(s8 *arg0) {
     s32 var_v1;
 
     M2C_FIELD(arg0, s8 *, 0xA2) = 1;
-    temp_v0 = func_80051110(M2C_FIELD(arg0, s32 *, 0x50), arg0 + 0x9B, arg0);
+    temp_v0 = osGbpakCheckConnector(M2C_FIELD(arg0, OSPfs **, 0x50), arg0 + 0x9B) /* PORT: dropped an ignored third argument */;
     var_v1 = temp_v0;
     if ((temp_v0 == 0) && ((M2C_FIELD(arg0, u8 *, 0x9B) & 9) != 9)) {
         var_v1 = 0x63;
@@ -408,7 +405,6 @@ typedef struct GbpakBankEntry {
 } GbpakBankEntry; // size = 0x6
 extern volatile u8 D_81156476;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 /**
  * Called once a frame while the cartridge streams in. Queues the next ROM bank (request 6) or
  * SRAM bank (request 7) from the channel's bank list that is not loaded yet. Once all are loaded
@@ -461,19 +457,18 @@ void GbPak_QueueNextBankLoad(GbPakChannel* ch) {
             return;
         }
         ch->request = 4;
-        func_8004CFB0(&D_81156458, ch->channel, 1);
+        osSendMesg(&D_81156458, ch->channel, 1);
         D_81156476 = 2;
         return;
     found:
         ch->bankEntry = (u8*)entry;
-        func_8004CFB0(&D_81156458, ch->channel, 1);
+        osSendMesg(&D_81156458, ch->channel, 1);
     }
 }
 
 extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 
 /**
  * Queues the ROM bank `bank` for loading (request 6, state 3) ahead of the bank list order and
@@ -509,7 +504,7 @@ found:
         D_811561C8[chan].size = 0x2000;
         D_811561C8[chan].bankEntry = entry;
         if (!entry && !entry && !entry) {} // FAKE: empty test found by the permuter; only changes instruction scheduling
-        func_8004CFB0(&D_81156458, D_811561C8[chan].channel, 1);
+        osSendMesg(&D_81156458, D_811561C8[chan].channel, 1);
         while (D_81156475 != 0) {
         }
     }
@@ -523,7 +518,6 @@ extern volatile u8 D_81156475;
 extern volatile u8 D_81156476;
 extern volatile u8 D_81156477;
 extern OSMesgQueue D_81156458;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 
 /**
  * Once the ROM has loaded, finds the first 256-byte block of cartridge RAM whose blockState is 0
@@ -557,7 +551,7 @@ s32 GbPak_WriteBackDirtySramBlock(s32 arg0) {
                 ch->addr = i << 8;
                 ch->buf = ch->ramBuf + (i << 8);
                 ch->size = 0x100;
-                func_8004CFB0(&D_81156458, chan, 1);
+                osSendMesg(&D_81156458, chan, 1);
                 return 2;
             }
             return 3;
@@ -565,7 +559,7 @@ s32 GbPak_WriteBackDirtySramBlock(s32 arg0) {
     }
     if (ch2->error == 0 && (ch2->status & 1)) {
         ch->request = 4;
-        func_8004CFB0(&D_81156458, chan, 1);
+        osSendMesg(&D_81156458, chan, 1);
     }
     return 0;
 }

@@ -1,6 +1,9 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "audio_and_gb_emulator.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 osGbSetNextBuffer(void* buf_ptr, u32 size);
+
 // Declared here instead of in a header: the callers of these disagree on their types.
 extern AudioBufferParameters D_811858B8;
 extern volatile u32 D_811859D4;

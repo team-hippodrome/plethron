@@ -3,7 +3,8 @@
 #include "global.h"
 #include "m2c_macros.h"
 #include "title_screen.h"
-#include "leo.h"
+#include "src/leo.h" // PORT: the SDK has a leo.h too
+
 
 s32 Cont_GetConnectedMask(void);
 void Font_BeginTranslucentTextRendering(void);
@@ -52,7 +53,6 @@ void TitleScreen_DrawNoControllerTicker(void) {
     }
 }
 
-u32 osGetCount(void);
 f32 MathUtil_Random_ZeroOne(void);
 void Session_InitTwoTrainers(s32, s32, s32);
 extern u8 sDemoBattleSpecies[];
@@ -101,6 +101,7 @@ extern char sDiskErrorWrongDiskText2[];
 extern char sDiskErrorPleaseCheckText[];
 void Ui_DrawPrimColorRect(s32, s32, s32, s32, s32, s32, s32, s32);
 
+void Font_Printf(s32 x, s32 y, const char* fmt, ...); // PORT: no prototype in the decomp
 /**
  * Draws the 64DD disk error box over the title screen. `boot_error` is the low halfword of
  * Leo_RunBootStateMachine's result: LeoBootState.errorKind << 8 | LeoBootState.leoError.
@@ -303,6 +304,7 @@ M2C_UNK Audio_PlaySystemSound(M2C_UNK);
 extern void *D_800603C0;
 extern LeoBootDescriptor* sDiskBootBlock;
 
+s32 Leo_RunBootStateMachine(LeoBootDescriptor* arg0); // PORT: no prototype in the decomp
 /**
  * The title screen's per-frame callback for BgStage_WaitForCondition; `fade_mode` is the stage's
  * fade mode, and input is read only while it is 0 (no fade running). Each frame it polls the
@@ -390,6 +392,7 @@ extern s32 sTitleBackgroundImage;
 extern s32 sTitleAudioHeap;
 extern s32 sPushStartBlinkTimer;
 
+void Leo_AbortPendingBootRequest(void); // PORT: no prototype in the decomp
 /**
  * Title screen fragment entry. Loads the title assets to segments 1 and 2 and the background
  * picture, allocates the 64DD boot block buffer and a 1 MiB audio heap, then runs

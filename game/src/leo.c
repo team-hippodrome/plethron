@@ -1,7 +1,7 @@
 /* Stadium Zero resident code. */
 /* C ported from the Stadium 1 decomp: src/leo.c. */
 
-#include "leo.h"
+#include "src/leo.h" // PORT: the SDK has a leo.h too
 #include "dma.h"
 #include "PR/leo.h"
 extern LeoBootDescriptor D_800AB200;
@@ -29,8 +29,6 @@ void Leo_ResetBootStateIfReady(void);
 
 s32 Leo_ValidateBootDiskId(void);
 
-s32 func_80057910(M2C_UNK *, M2C_UNK *, M2C_UNK);   /* extern */
-M2C_UNK func_80058410(M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
 extern M2C_UNK D_800001A0;
 extern u32 D_80000318;
 extern M2C_UNK D_80060400;
@@ -47,10 +45,10 @@ s32 Leo_ValidateBootDiskId(void) {
     if ((u32) D_80000318 < 0x800000U) {
         return 2;
     }
-    if (func_80057910(&D_80084D28, &D_80060404, 2) != 0) {
+    if (bcmp(&D_80084D28, &D_80060404, 2) != 0) {
         return 1;
     }
-    if (func_80057910(&D_80084D11, &D_80060400, 3) != 0) {
+    if (bcmp(&D_80084D11, &D_80060400, 3) != 0) {
         return 1;
     }
     if ((s32) D_80084D10.gameName[0] < 0x45) {
@@ -62,7 +60,7 @@ s32 Leo_ValidateBootDiskId(void) {
     if (D_80084D10.diskNumber != 1) {
         return 1;
     }
-    func_80058410(&D_80084D10, &D_800001A0, 0x20);
+    bcopy(&D_80084D10, &D_800001A0, 0x20);
     return 0;
 }
 

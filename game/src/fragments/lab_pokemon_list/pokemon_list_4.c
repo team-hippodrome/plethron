@@ -300,7 +300,6 @@ void LabPCList_OpenColumnMenu(LabPCListScreen* screen) {
 
 typedef struct Str891020F8 { char s[13]; } Str891020F8;
 void func_8000A460(s8*, s8*);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
@@ -317,9 +316,9 @@ extern s8 D_8910E312[];
  */
 void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
     func_8000A460(D_8910E2D0, *(s8**)D_80064C44[M2C_FIELD(((PointerList*)screen->list.items)->items[screen->list.cursor], u8*, 8)]);
-    func_8000A460(D_8910E2D0 + func_800566BC(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
+    func_8000A460(D_8910E2D0 + strlen(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
     *(Str891020F8*)D_8910E312 = *(Str891020F8*)D_8910DC50;
-    func_8000A460(D_8910E2D0 + (func_800566BC(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
+    func_8000A460(D_8910E2D0 + (strlen(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
     LabPCList_InitPopupMenu(&screen->popup, D_8910A898, (s8*)screen->popupItemFlags, 4, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38,
                   screen->listFrame.y + screen->list.cursorY - screen->list.scrollY + 22, 0, 20);
@@ -375,7 +374,6 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
 }
 
 void func_8000A460(s8 *, s8 *);
-u32 func_800566BC(s8*);
 void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
@@ -391,7 +389,7 @@ extern s8 D_8910E358[];
  */
 void LabPCList_InitSortMenu(LabPCListScreen *screen) {
     func_8000A460(D_8910E358, D_8910A8B0);
-    func_8000A460(D_8910E358 + func_800566BC(D_8910E358), D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]);
+    func_8000A460(D_8910E358 + strlen(D_8910E358), D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]);
     LabPCList_InitPopupMenu(&screen->popup, D_8910A8C8, (s8*)&screen->popupItemFlags, 5, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38, screen->listFrame.y, 0, 22);
     screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;
@@ -570,7 +568,7 @@ M2C_UNK func_800230C4(s32);                         /* extern */
 M2C_UNK Save_CommitPokemonRecords();                            /* extern */
 M2C_UNK GbSave_RunReportErrorLoop(s32);                         /* extern */
 void LabPCList_DrawListScreen(LabPCListScreen*);
-s32 LabPCList_GetChangedSaveFlags();                                /* extern */
+s32 LabPCList_GetChangedSaveFlags(s8* screen);                              /* extern */
 M2C_UNK LabPCList_SaveDirtyBoxes(s32);                         /* extern */
 extern s32 D_8910E37C;
 
@@ -583,7 +581,7 @@ void LabPCList_SaveChanges(s32 screen) {
     s32 sp1C;
     s32 temp_v0;
 
-    temp_v0 = LabPCList_GetChangedSaveFlags();
+    temp_v0 = LabPCList_GetChangedSaveFlags((s8*)(intptr_t)screen); // PORT: was implicit a0
     sp1C = temp_v0;
     if (temp_v0 & 3) {
         func_80022118(D_8910E37C);

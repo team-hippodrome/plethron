@@ -11,11 +11,14 @@
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+u8* AudioLoad_GetFontsForSequence(s32 arg0, s32* arg1);
+
 void AudioThread_Unused1(void);
 void AudioThread_Unused2(void);
 void AudioThread_Unused3(void);
 void AudioThread_Unused4(void);
-s32 AudioThread_GetFontsForSequence(s32 arg0);
+s32 AudioThread_GetFontsForSequence(s32 arg0, s32* arg1); // PORT: second argument passed through
 void AudioThread_ResetExternalPool(void);
 void AudioThread_Unused5(void);
 void AudioThread_InitMesgQueues(void);
@@ -53,7 +56,6 @@ void AudioThread_Unused2(void) {
 void AudioThread_Unused3(void) {
 }
 
-M2C_UNK func_800567E0(M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
 extern u8 D_811861DA;
 extern u8 D_811861DB;
 extern s8 D_811861DC;
@@ -82,9 +84,9 @@ void AudioThread_InitMesgQueuesImpl(void) {
     D_81186200 = &D_811861E8;
     D_81186230 = &D_81186218;
     D_81186250 = &D_81186238;
-    func_800567E0(D_81186200, &D_811861E0, 1);
-    func_800567E0(D_81186230, &D_81186208, 4);
-    func_800567E0(D_81186250, &D_81186234, 1);
+    osCreateMesgQueue(D_81186200, &D_811861E0, 1);
+    osCreateMesgQueue(D_81186230, &D_81186208, 4);
+    osCreateMesgQueue(D_81186250, &D_81186234, 1);
 }
 
 extern s32 D_811859D8[][2];
@@ -150,7 +152,6 @@ void AudioThread_QueueCmdU16(DisplayObject* arg0, s16 arg1) {
 }
 
 extern s32 D_811381D8;
-s32 func_8004CFB0(OSMesgQueue*, s32, s32);
 
 /**
  * Sends the queued command range to the audio thread and tracks the largest batch seen.
@@ -167,7 +168,7 @@ s32 AudioThread_ScheduleProcessCmds(void) {
         D_811381D8 = count;
     }
     head = ((u8)tail << 8) | (u8)head; // FAKE: reuses head for the message
-    if (func_8004CFB0(D_81186230, head, 0) != -1) {
+    if (osSendMesg(D_81186230, head, 0) != -1) {
         D_811861DB = D_811861DA;
     }
 }
@@ -193,7 +194,6 @@ void AudioThread_ResetCmdQueue(void) {
 void AudioThread_Unused4(void) {
 }
 
-s32 func_8004D1C0(M2C_UNK *, u32 *, M2C_UNK);       /* extern */
 extern M2C_UNK D_811855D8;
 
 /**
@@ -205,7 +205,7 @@ extern M2C_UNK D_811855D8;
 u32 AudioThread_GetExternalLoadQueueMsg(s32 *arg0) {
     u32 sp1C;
 
-    if (func_8004D1C0(&D_811855D8, &sp1C, 0) == -1) {
+    if (osRecvMesg(&D_811855D8, &sp1C, 0) == -1) {
         *arg0 = 0;
         return 0U;
     }
@@ -219,14 +219,14 @@ u32 AudioThread_GetExternalLoadQueueMsg(s32 *arg0) {
  * Corresponds to OoT AudioThread_GetFontsForSequence. Stadium 1's name Audio_CountCategorySounds
  * did not fit.
  */
-s32 AudioThread_GetFontsForSequence(s32 arg0) {
-    return AudioLoad_GetFontsForSequence(arg0);
+s32 AudioThread_GetFontsForSequence(s32 arg0, s32* arg1) { // PORT: arg1 was passed through in a1 implicitly
+    return (s32)(intptr_t)AudioLoad_GetFontsForSequence(arg0, arg1);
 }
 
 extern u8 D_81184658;
 
 /**
- * Polls the audio reset queue D_81186250 once without blocking (func_8004D1C0 is osRecvMesg): returns 1 when the audio thread has reported the reset to the
+ * Polls the audio reset queue D_81186250 once without blocking (osRecvMesg is osRecvMesg): returns 1 when the audio thread has reported the reset to the
  * current spec D_81184658 as done, otherwise 0.
  * Matching note: the unused leading `pad` local moves `sp18` to the ROM's
  * stack offset (sp+0x18); the two returns are written as separate
@@ -239,7 +239,7 @@ s32 AudioThread_CheckSpecChange(void) {
     UNUSED s32 pad; // FAKE: stack padding
     u32 sp18;
 
-    if (func_8004D1C0(D_81186250, &sp18, 0) == -1) {
+    if (osRecvMesg(D_81186250, &sp18, 0) == -1) {
         return 0;
     }
     if (sp18 != D_81184658) {
@@ -249,7 +249,7 @@ s32 AudioThread_CheckSpecChange(void) {
 }
 
 /**
- * Empties the audio reset queue D_81186250: receives from it without blocking (func_8004D1C0
+ * Empties the audio reset queue D_81186250: receives from it without blocking (osRecvMesg
  * with flag 0) until it reports that it is empty (-1), discarding the messages.
  * Matching note: the -1 is kept in a local assigned inside the loop body.
  * With a literal -1 in the condition the compiler hands out the saved
@@ -264,7 +264,7 @@ void AudioThread_ClearSpecChangeQueue(void) {
 
     do {
         neg = -1;
-    } while (func_8004D1C0(D_81186250, &sp28, 0) != neg);
+    } while (osRecvMesg(D_81186250, &sp28, 0) != neg);
 }
 
 void AudioThread_ClearSpecChangeQueue(void);
@@ -291,7 +291,7 @@ s32 AudioThread_ResetAudioHeap(s32 arg0) {
         if (v >= 3) {
             return 0;
         }
-        func_8004D1C0(D_81186250, &sp18, 1);
+        osRecvMesg(D_81186250, &sp18, 1);
     }
     AudioThread_ClearSpecChangeQueue();
     AudioThread_QueueCmdS32(0xF9000000, arg0);

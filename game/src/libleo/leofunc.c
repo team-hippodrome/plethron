@@ -28,11 +28,6 @@ extern OSMesg LEOdma_que_buf[2];
 s32 __leoSetReset(void);
 s32 LeoResetClear(void);
 
-M2C_UNK func_8004CFB0(M2C_UNK *, M2C_UNK, M2C_UNK); /* extern */
-M2C_UNK func_80051B20(M2C_UNK *, M2C_UNK, M2C_UNK *, M2C_UNK, M2C_UNK *, s32); /* extern */
-M2C_UNK func_800552D0(M2C_UNK, M2C_UNK *, M2C_UNK); /* extern */
-M2C_UNK func_800567E0(M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
-M2C_UNK func_8005C130(M2C_UNK *);                   /* extern */
 extern M2C_UNK D_80100190;
 extern M2C_UNK D_801001A8;
 extern M2C_UNK D_80100298;
@@ -51,18 +46,18 @@ extern M2C_UNK func_800487A0;
 extern M2C_UNK func_800491A0;
 
 void func_800483E0(s32 arg0, s32 arg1, M2C_UNK *arg2, M2C_UNK arg3) {
-    func_800567E0(&D_80100DF8, arg2, arg3);
-    func_800567E0(&D_80100E28, &D_80100E74, 1);
-    func_800567E0(&D_80100E10, &D_80100E70, 1);
-    func_800567E0(&D_80100E40, &D_80100E78, 2);
-    func_800567E0(&D_80100E58, &D_80100E80, 1);
-    func_800567E0(&D_80100190, &D_801001A8, 1);
-    func_80051B20(&D_80100298, 1, &func_800491A0, 0, &D_801009F8, arg0);
-    func_8005C130(&D_80100298);
-    func_80051B20(&D_80100448, 1, &func_800487A0, 0, &D_80100DF8, arg1);
-    func_8005C130(&D_80100448);
-    func_800552D0(2, &D_80100E10, 0x30000);
-    func_8004CFB0(&D_80100E58, 0, 0);
+    osCreateMesgQueue(&D_80100DF8, arg2, arg3);
+    osCreateMesgQueue(&D_80100E28, &D_80100E74, 1);
+    osCreateMesgQueue(&D_80100E10, &D_80100E70, 1);
+    osCreateMesgQueue(&D_80100E40, &D_80100E78, 2);
+    osCreateMesgQueue(&D_80100E58, &D_80100E80, 1);
+    osCreateMesgQueue(&D_80100190, &D_801001A8, 1);
+    osCreateThread(&D_80100298, 1, &func_800491A0, 0, &D_801009F8, arg0);
+    osStartThread(&D_80100298);
+    osCreateThread(&D_80100448, 1, &func_800487A0, 0, &D_80100DF8, arg1);
+    osStartThread(&D_80100448);
+    osSetEventMesg(2, &D_80100E10, 0x30000);
+    osSendMesg(&D_80100E58, 0, 0);
 }
 
 /*

@@ -12,6 +12,9 @@ s32 StageContext_IsHighResolution(void);
 
 #include "m2c_macros.h"
 
+// PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+s32 HAL_Printf(s16 x, s16 y, const char* fmt, ...);
+
 uintptr_t Util_ConvertAddrToVirtAddr(uintptr_t addr);
 void Util_Memcpy(u32* dest, u32* src, int size);
 void* Util_Malloc(s32 size);

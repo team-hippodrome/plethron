@@ -6,6 +6,7 @@
 #include "game_state.h"
 
 
+
 void FreeBattle_SetScreenState(FreeBattleScreen*, s32, s32);
 extern s32 D_8200ACFC;
 extern s32 D_8200AD00;
@@ -218,6 +219,10 @@ void FreeBattle_InitBattleModeScreen(FreeBattleScreen* screen) {
 void FreeBattle_AddPresetTeams(void*);
 void FreeBattle_LoadGbTeams(void*);
 void func_80027804(void*, void*, s32, s32);
+void FreeBattle_AddRentalEntry(void* /* RecordList* */ list); // PORT: no prototype in the decomp
+void FreeBattle_BuildTeamPointers(s32* dest, s32* teams); // PORT: no prototype in the decomp
+void FreeBattle_InitEntrySelect(s8* entry, s32 x, s32 y, s32 teams, s32 picks, s32 rule_category); // PORT: no prototype in the decomp
+void FreeBattle_MarkIneligibleMons(void* /* TeamList8200140C* */ list, s32 rule_category); // PORT: no prototype in the decomp
 /**
  * Builds the team list from the GB cartridges and rentals and opens the entry list.
  * Seen in play: A on COM opens 「エントリーポケモンのせんたく」 and runs this.

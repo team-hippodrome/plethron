@@ -56,7 +56,7 @@ void* MemPool_Alloc(MemoryPool* node, s32 size) {
     struct MemoryBlock* free_block;
     void* addr;
 
-    osRecvMesg(&node->queue, 0, 1);
+    osRecvMesg(&node->queue, NULL, 1);
 
     addr = NULL;
     size = ALIGN4(size) + sizeof(struct MemoryBlock);

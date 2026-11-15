@@ -150,7 +150,7 @@ void Sched_HandleRdpCompletion(SchedTask* arg0) {
     arg0->rdpState = 2;
 }
 
-M2C_UNK func_8004D1C0(s32, s32 *, M2C_UNK);         /**
+/**
  * Blocks until the scheduler posts a message to `client`'s queue and returns it (for example 'VTRE'
  * from Sched_BroadcastMessage on each retrace). Used by the audio thread, the GB Player threads and the
  * 64DD intro to wait a frame.
@@ -158,7 +158,7 @@ M2C_UNK func_8004D1C0(s32, s32 *, M2C_UNK);         /**
 s32 SchedClient_WaitMessage(SchedClient* client) {
     s32 sp1C;
 
-    func_8004D1C0((s32*)&client->queue, &sp1C, 1);
+    osRecvMesg((s32*)&client->queue, &sp1C, 1);
     return sp1C;
 }
 
@@ -171,7 +171,7 @@ s32 SchedClient_PollMessage(SchedClient* client) {
 
     sp1C = 0x4E554C4C;
     if (client->queue.validCount != 0) {
-        func_8004D1C0((s32*)&client->queue, &sp1C, 1);
+        osRecvMesg((s32*)&client->queue, &sp1C, 1);
     }
     return sp1C;
 }
@@ -195,7 +195,7 @@ void Sched_PromotePendingTasks(void) {
 void Sched_UnusedStub(void) {
 }
 
-M2C_UNK func_8004CFB0(s8 *, s32, M2C_UNK);        /**
+/**
  * Posts `msg` (non-blocking) to the queue of every client registered with Sched_AddClient. The
  * retrace handler sends 'VTRE' each frame.
  */
@@ -205,7 +205,7 @@ void Sched_BroadcastMessage(s32 msg) {
     var_s0 = D_800A9710.clients;
     if (var_s0 != NULL) {
         do {
-            func_8004CFB0((s8*)&var_s0->queue, msg, 0);
+            osSendMesg((s8*)&var_s0->queue, msg, 0);
             var_s0 = var_s0->next;
         } while (var_s0 != NULL);
     }
