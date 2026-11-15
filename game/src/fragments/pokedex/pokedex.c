@@ -14,8 +14,8 @@
 extern StageContext* sMenuStageContext;
 extern StageContext* sAreaMapStageContext;
 extern ModelLoadContext* sIconFramebuffers;
-extern s32 sAreaMapPool;
-extern s32 sAreaMapLoadBuffer;
+extern u8* sAreaMapPool; // PORT: was s32 (holds a pointer)
+extern u8* sAreaMapLoadBuffer; // PORT: was s32 (holds a pointer)
 extern s32 sGbPort;
 
 #include "m2c_macros.h"
@@ -472,7 +472,7 @@ extern u8 D_8A11FC18;
  * on top, opaque when `progress` (GbSave_GetSpeciesProgressLevel) is 2 or more (caught), else at alpha 100.
  * Seen in play (2026-11-14): フシギダネ's page, and キャタピー's see-through model when only seen.
  */
-void Pokedex_DrawEntryWindow(Window* window, s32 preview, s32 progress) {
+void Pokedex_DrawEntryWindow(Window* window, u8* preview, s32 progress) { // PORT: preview typed (was s32)
     s32 temp_v0;
 
     if ((window->state != 2) && (Window_DrawAnimatedFrame(window /* PORT: m2c dropped the argument left in a0 */) == 0)) {
@@ -707,11 +707,11 @@ s32 Pokedex_RunActionMenu(void) {
     return var_s3;
 }
 
-extern s32 sModelPreview;
+extern PokeModelPreview* sModelPreview; // PORT: was s32
 extern u8 sEntryWindow[];
 u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
 s32 Window_UpdateAnimation(Window* arg0);
-void Pokedex_DrawEntryWindow(Window*, s32, s32);
+void Pokedex_DrawEntryWindow(Window*, u8*, s32); // PORT: matches the definition
 
 /**
  * Draws one frame of the データをみる page: renders the model preview (PokeIcon_RenderPreview) and draws the
@@ -720,7 +720,7 @@ void Pokedex_DrawEntryWindow(Window*, s32, s32);
  */
 s32 Pokedex_DrawEntryScreen(s32 unused, s32 progress) {
     UNUSED s32 pad[4]; // FAKE: stack padding
-    s32 sp1C;
+    u8* sp1C; // PORT: was s32
 
     GeoRender_AdvanceFrameCounter();
     sp1C = func_800196F8(sModelPreview);
@@ -761,10 +761,10 @@ extern u8 D_8A105818;
  * store sequence.
  * Seen in play (2026-11-14): species 1 for フシギダネ's page; the model turned in the preview box.
  */
-void Pokedex_CreateModelPreview(s32 framebuffers, s32 species) {
+void Pokedex_CreateModelPreview(ModelLoadContext* framebuffers, s32 species) { // PORT: framebuffers typed (was s32)
     MainPool_PushState(0x50494354);
-    sModelPreview = (uintptr_t)PokeIcon_CreateModelPreview((ModelLoadContext*)framebuffers, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, &D_8A105818);
-    PokeIcon_SetPreviewSpecies((PokeModelPreview*)sModelPreview, species, 0x108D);
+    sModelPreview = PokeIcon_CreateModelPreview(framebuffers, 0x100, 0xD2, 0, 0, 0xF4, 0xD2, &D_8A105818);
+    PokeIcon_SetPreviewSpecies(sModelPreview, species, 0x108D);
 }
 
 void func_800199E4(DisplayObject* arg0); // PORT: matches ModelRenderer_ClearDisplayObject
@@ -781,7 +781,7 @@ void Pokedex_FreeModelPreview(void) {
 
 void Cont_StartReadInputs(void);
 void Cont_ReadInputs(void);
-void Pokedex_CreateModelPreview(s32 framebuffers, s32 species);
+void Pokedex_CreateModelPreview(ModelLoadContext* framebuffers, s32 species); // PORT: matches the definition
 extern s32 sSelectedDexIndex;
 
 /**
@@ -792,7 +792,7 @@ extern s32 sSelectedDexIndex;
 s32 Pokedex_ShowEntry(void) {
     s32 temp_s1;
 
-    Pokedex_CreateModelPreview((uintptr_t)sIconFramebuffers, sSelectedDexIndex + 1);
+    Pokedex_CreateModelPreview(sIconFramebuffers, sSelectedDexIndex + 1);
     temp_s1 = GbSave_GetSpeciesProgressLevel(sGbPort, sSelectedDexIndex + 1);
     do {
         Cont_StartReadInputs();
@@ -834,8 +834,8 @@ s32 Pokedex_PlayCry(void) {
 }
 
 void Pokedex_LoadAreaMap(s32 species, MainPoolState* pool, s32 pool_size, PERSSZP* load_buffer, s32 load_buffer_size); // PORT: matches the definition
-extern s32 sAreaMapPool;
-extern s32 sAreaMapLoadBuffer;
+extern u8* sAreaMapPool; // PORT: was s32 (holds a pointer)
+extern u8* sAreaMapLoadBuffer; // PORT: was s32 (holds a pointer)
 extern s32 sSelectedDexIndex;
 
 /**
@@ -849,7 +849,7 @@ void Pokedex_EnterAreaMapScreen(void) {
     StageLoader_RunFrames(2);
     StageContext_SaveAndSwitch(sAreaMapStageContext);
     StageLoader_RunFrames(2);
-    Pokedex_LoadAreaMap(sSelectedDexIndex + 1, sAreaMapPool, 0x70800, sAreaMapLoadBuffer, 0x4B000);
+    Pokedex_LoadAreaMap(sSelectedDexIndex + 1, (MainPoolState*)sAreaMapPool, 0x70800, (PERSSZP*)sAreaMapLoadBuffer, 0x4B000);
     StageFade_Start(8);
     BgStage_RunUntilCondition(0xA, &Pokedex_DrawAreaMapScreen);
 }
@@ -1000,18 +1000,18 @@ s32 Pokedex_GetHighestSeenSpeciesIndex(void) {
  * Seen in play (2026-11-14): ran as the Pokédex opened; the area map later rendered into these.
  */
 void Pokedex_InitFramebuffers(void) {
-    u32 sp34;
-    u32 sp30;
-    u32 sp2C;
+    uintptr_t sp34; // PORT: framebuffer addresses (were u32)
+    uintptr_t sp30;
+    uintptr_t sp2C;
     GfxImage* sp28;
 
     sp28 = MainPool_Alloc(sizeof(GfxImage), 0);
 
-    sp34 = sMenuStageContext->renderTargets[0]->img_p;
+    sp34 = (uintptr_t)sMenuStageContext->renderTargets[0]->img_p;
     sAreaMapPool = sMenuStageContext->renderTargets[0]->img_p + 0x25800;
-    sp30 = sMenuStageContext->renderTargets[1]->img_p;
+    sp30 = (uintptr_t)sMenuStageContext->renderTargets[1]->img_p;
     sAreaMapLoadBuffer = sMenuStageContext->renderTargets[1]->img_p + 0x25800;
-    sp2C = sMenuStageContext->renderTargets[1]->img_p + 0x70800;
+    sp2C = (uintptr_t)(sMenuStageContext->renderTargets[1]->img_p + 0x70800);
 
     sAreaMapStageContext->renderTargets[0] = MainPool_Alloc(sizeof(GfxImage), 0);
     sAreaMapStageContext->renderTargets[1] = MainPool_Alloc(sizeof(GfxImage), 0);

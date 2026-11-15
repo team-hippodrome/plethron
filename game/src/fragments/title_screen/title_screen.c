@@ -387,7 +387,7 @@ extern M2C_UNK D_002F0A50;
 extern M2C_UNK D_01000000;
 extern M2C_UNK D_02000000;
 extern u8* sTitleBackgroundImage; // PORT: was s32
-extern s32 sTitleAudioHeap;
+extern u8* sTitleAudioHeap; // PORT: was s32 (holds a pointer)
 extern s32 sPushStartBlinkTimer;
 
 void Leo_AbortPendingBootRequest(void); // PORT: no prototype in the decomp

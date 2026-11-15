@@ -206,7 +206,7 @@ void MainMenu_DrawTexturedFrameWithAlpha(s32 x, s32 y, s32 width, s32 height, u8
     Ui_DrawTexturedFrame(x, y, width, height, texture);
 }
 
-extern u8 D_88002034[][0x18];
+extern MainMenuImage D_88002034[]; // PORT: typed (was u8[][0x18]) so the lifter widens pixels
 /* A main menu item's frame. */
 typedef struct MainMenuRect { s32 x; s32 y; s32 w; s32 h; } MainMenuRect;
 /* A main menu item's label: x, y offset in the frame, an argument of Font_SetActive and the text (none when NULL). */
@@ -225,8 +225,8 @@ void Font_SetActive(s32, s32);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Font_EndTexturedTextRendering(void);
 
-// D_88002034 is declared as raw bytes in this file; each 0x18 byte row is one MainMenuImage.
-#define ICON(i) (((MainMenuImage*)D_88002034)[i])
+// PORT: D_88002034 is now declared as MainMenuImage rows (it was raw bytes, 0x18 per row).
+#define ICON(i) (D_88002034[i])
 
 /**
  * GridMenu draw callback for main menu item `index` (0-8; slot 1 is empty and draws nothing): its
@@ -421,7 +421,7 @@ extern char D_880023C8[];
  * Seen in play: A on バトル opens its window (「コンピュータや ともだちと たいせん する。 はいりますか？ はい いいえ」) and runs
  * this.
  */
-void MainMenu_InitMessageWindow(MainMenuMessageWindow* window, s32 x, s32 y, s32 title, s32 text, s32 text2, Color_RGBA8 color, s32 image) {
+void MainMenu_InitMessageWindow(MainMenuMessageWindow* window, s32 x, s32 y, char* title, char* text, char* text2, Color_RGBA8 color, MainMenuImage* image) { // PORT: typed (were s32)
     Window_SetRect(window, x, y, 532, 138);
     window->window.animTimer = 0;
     window->window.title = 0;
@@ -506,7 +506,10 @@ s32 MainMenu_UpdateMessageWindow(MainMenuMessageWindow* window) {
     return ret;
 }
 
-extern Color_RGBA8 D_88002230;
+// PORT: the warning window's fill color followed by the titles of GB save status 1-3; status 4's title is
+// D_88002240[0], and D_88002240[status] is the text. Typed so the lifter widens the pointers.
+typedef struct MainMenuWarningTable { Color_RGBA8 color; char* titles[3]; } MainMenuWarningTable;
+extern MainMenuWarningTable D_88002230;
 void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 
 /**
@@ -516,13 +519,13 @@ void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
  * e.g. title ポケモンセンターにいない (Not at a Pokémon Center) for a save made outside one and
  * ＧＢのポケモンがいない (No GB Pokémon) for a blank save.
  */
-void MainMenu_InitTextWindow(MainMenuTextWindow* window, s32 x, s32 y, s32 title, s32 text) {
+void MainMenu_InitTextWindow(MainMenuTextWindow* window, s32 x, s32 y, char* title, char* text) { // PORT: typed (were s32)
     Window_SetRect(window, x, y, 548, 96);
     window->window.animTimer = 0;
     window->window.title = 0;
     window->window.state = 0;
     window->window.frame.style = 0x2800;
-    window->window.frame.color = D_88002230;
+    window->window.frame.color = D_88002230.color;
     window->window.title = title;
     window->text = text;
 }
@@ -546,7 +549,7 @@ void MainMenu_DrawTextWindow(MainMenuTextWindow* window) {
 
 M2C_UNK MainMenu_InitPromptWindow(MainMenuPromptWindow*, M2C_UNK, M2C_UNK);       /* extern */
 M2C_UNK MainMenu_InitItemList(MainMenuItemList*, s32, s32);            /* extern */
-extern M2C_UNK D_88002240;
+extern char* D_88002240[]; // PORT: see D_88002230 (was M2C_UNK)
 
 /**
  * Sets up the main menu screen: the continue-tournament prompt (state 1) when
@@ -574,8 +577,9 @@ void MainMenu_InitScreen(MainMenuScreen* screen, s32 gb_save_status, s32 cursor,
     MainMenu_InitItemList(&screen->itemList, cursor, gb_save_status);
     screen->mode = gb_save_status;
     if (gb_save_status > 0) {
-        temp_v0 = gb_save_status * 4;
-        MainMenu_InitTextWindow(&screen->textWindow, 46, 83, *((M2C_UNK*)((u8*)&D_88002230 + temp_v0)), *((M2C_UNK*)((u8*)&D_88002240 + temp_v0))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        // PORT: the ROM reads words at D_88002230 + status * 4 and D_88002240 + status * 4
+        MainMenu_InitTextWindow(&screen->textWindow, 46, 83, (gb_save_status < 4) ? D_88002230.titles[gb_save_status - 1] : D_88002240[gb_save_status - 4],
+                                D_88002240[gb_save_status]);
     }
 }
 
@@ -615,11 +619,11 @@ void MainMenu_DrawScreen(MainMenuScreen* screen) {
     }
 }
 
-extern s32 D_88002258[];
-extern s32 D_8800227C[];
-extern s32 D_880022A0[];
+extern char* D_88002258[]; // PORT: string tables (were s32)
+extern char* D_8800227C[];
+extern char* D_880022A0[];
 extern Color_RGBA8 D_88001FEC[];
-extern u8 D_88002034[][0x18];
+extern MainMenuImage D_88002034[]; // PORT: typed (was u8[][0x18]) so the lifter widens pixels
 s32 GridMenu_UpdateCursorSkipDisabled(s8*);
 void Save_ResetAndCommitTypedRecord(s32, s32);
 s32 MainMenu_LoadSelectedFragment(s32);
@@ -675,7 +679,7 @@ s32 MainMenu_UpdateScreen(MainMenuScreen* screen) {
                     Audio_PlaySystemSound(2);
                     screen->state = 3;
                     idx = screen->itemList.menu.cursor;
-                    MainMenu_InitMessageWindow(&screen->messageWindow, 54, 87, D_88002258[idx], D_8800227C[idx], D_880022A0[idx], D_88001FEC[idx], (uintptr_t)D_88002034[idx]);
+                    MainMenu_InitMessageWindow(&screen->messageWindow, 54, 87, D_88002258[idx], D_8800227C[idx], D_880022A0[idx], D_88001FEC[idx], &D_88002034[idx]);
                 }
             }
             break;
