@@ -66,3 +66,17 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Roms
+*.z64
+*.n64
+*.iso
+*.gb
+*.gbc
+*.gba
+*.nds
+
+# compressed folders
+*.rar
+*.7z
+*.zip
