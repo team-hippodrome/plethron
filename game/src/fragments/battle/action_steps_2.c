@@ -6,15 +6,8 @@ M2C_UNK func_82108C0C(s32);
 M2C_UNK func_8212189C();
 M2C_UNK func_82124A40();
 M2C_UNK func_82125AC8(s32);
-s32 Battle_StepPartyHpToDisplay(s32);
-s32 BattleScene_FrameParticipantFromAboveThunk(void*, void*);
-void BattleMessage_ShowForSide(s32, s32);
-void BattleScene_CameraShotTargetHighThunk(void*, void*);
-void BattleScene_RestoreUserAfterTravel(s32);
 void func_8211EE8C(void);
 void func_8212188C(void);
-void BattleScene_FrameParticipantFromBelowClamped(void*, void*);
-void BattleScene_FrameParticipantFrontAltThunk(void*, void*);
 void BattleSound_UpdateSideHp(ActivePokemon*);
 
 /**
@@ -87,7 +80,7 @@ void BattleScene_SetReactionFlagFromByte1(s8 *arg0) {
  * ends the user's effect mode, clears the camera and message state and runs the HP bar step.
  * @unverified Name guessed from the code.
  */
-void BattleScene_FinishReactionWhenHpSettled(s32 step, s32 *user_hp_done, s32 *target_hp_done) {
+void BattleScene_FinishReactionWhenHpSettled(CameraNode* step, s32 *user_hp_done, s32 *target_hp_done) { // PORT: step is the camera (was s32)
     if ((*user_hp_done == 1) && (*target_hp_done == 1) && (func_82121820(0x1E) != 0)) {
         func_82108C0C(sActingPokemon);
         sBattleScene.scene->hitReactionKind = 0;

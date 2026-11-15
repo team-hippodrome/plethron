@@ -474,7 +474,7 @@ void BattleScene_TickRow10CleanupAndEnterState18(ActivePokemon* active_pokemon) 
     }
 }
 
-void Announcer_CallMove(u8, s32, s32, s32);
+s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi); // PORT: the real signature (5 arguments)
 /**
  * Enter callback of presentation row 3 (sBattleSceneStateRowTable): starts the user's body
  * animation for its move (the move's cue) and its event track. In play row 3 was entered on the
@@ -494,7 +494,7 @@ void BattleScene_EnterMoveUseRow(ActivePokemon* active_pokemon) {
     if (!(state->flags & ACTIVE_FREEZE)) {
         active_pokemon->animationTimer = 0;
         id = species + 1;
-        Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), runtime->usedMove, id ^ 0, 0); // FAKE
+        Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), runtime->usedMove, id ^ 0, 0, 0); // FAKE
         if ((state->flags & ACTIVE_UNDERGROUND) && (id == DUGTRIO)) {
             Battle_ClearRuntimeFlags(active_pokemon, ACTIVE_RETURN_RESET);
             active_pokemon->displayObject.node.renderFlags |= 0x20;
@@ -507,7 +507,6 @@ void BattleScene_EnterMoveUseRow(ActivePokemon* active_pokemon) {
     }
 }
 
-void BattleScene_ResetCameraShake(ActivePokemon*);
 /**
  * Row 3 tick: when the user's move cue ends, sets the model transform for the move (Seismic
  * Toss, Surf, Meditate, Waterfall, Minimize or the cue's own) and starts the move's effect script.
@@ -728,7 +727,6 @@ void BattleScene_EnterRepeatHitRow(ActivePokemon* active_pokemon) {
     }
 }
 
-void BattleScene_ResetCameraShake(ActivePokemon*);
 /**
  * Row 19 tick: when the repeated cue ends, starts the move's effect script again and sets the
  * model transform.
@@ -906,7 +904,7 @@ void BattleScene_EnterConfusionSelfHitRow(ActivePokemon* active_pokemon) {
     func_82134EBC(active_pokemon, 0x1E);
 }
 
-void Announcer_CallMove(u8, s32, s32, s32);
+s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi); // PORT: the real signature (5 arguments)
 /**
  * First enter callback of rows 1, 16 and 18: sets the idle animation (the sleeping, flying or
  * normal idle cue, depending on status) unless the Pokemon is frozen or underground. In play row
@@ -940,9 +938,9 @@ void BattleScene_EnterIdleRow(ActivePokemon* active_pokemon) {
             ModelAnim_SetFrame(&active_pokemon->displayObject, 0);
             ModelAnim_SetAnimation(&active_pokemon->displayObject, cue->id);
             if (state->flags & ACTIVE_AIRBORNE) {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1A);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1A, 0);
             } else {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xA);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xA, 0);
             }
         }
     }
@@ -1000,9 +998,9 @@ void BattleScene_TickRow16PlayCry(ActivePokemon* active_pokemon) {
                 Audio_PlayCry(species, 3);
             }
             if (state->flags & ACTIVE_AIRBORNE) {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1B);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1B, 0);
             } else {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xB);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xB, 0);
             }
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
@@ -1031,9 +1029,9 @@ void BattleScene_TickSendOutRowPlayCry(ActivePokemon* active_pokemon) {
                 Audio_PlayCry(species, 4);
             }
             if (state->flags & ACTIVE_AIRBORNE) {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1B);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0x1B, 0);
             } else {
-                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xB);
+                Announcer_CallMove(BattleScene_GetParticipantSideIndex(active_pokemon), 0, active_pokemon->displayObject.objectType, 0xB, 0);
             }
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
@@ -2750,7 +2748,6 @@ extern u8 D_800AAF50[];
 void ActivePokemon_SelectTeamRoster(ActivePokemon*, s32);
 void ActivePokemon_SetTeamMemberIndex(ActivePokemon*, s32);
 void ActivePokemon_SetReplacementState(ActivePokemon*, s32);
-void ActivePokemon_SetController(ActivePokemon*, u8*);
 /**
  * Binds the first team member, side and controller to the participant.
  * Seen in play (2026-11-13) ran during the opening of a COM Free Battle, before the first command
@@ -2782,7 +2779,6 @@ void func_82108340(ActivePokemon*);
 void func_82121D5C(s32, s32);
 void ActivePokemon_SetModelTransform(ActivePokemon*, s32, s32);
 void func_8211F430(void);
-void ActivePokemon_ClearCaption(ActivePokemon*);
 
 /**
  * Initializes controllers, all participant models, the camera mode for the

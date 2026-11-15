@@ -30,9 +30,7 @@ extern u8 sHighCritMoves[];
 
 #include "m2c_macros.h"
 
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 
-void BattleMessage_Format(s32, s32, s32, ...);
 
 void Battle_ComputeAllPokemonStats(BattleMon* arg0);
 void Damage_UnusedNopA(void);
@@ -445,7 +443,7 @@ void Battle_ApplyBurnAttackCut(ActivePokemon* arg0) {
 }
 
 void Battle_CheckMovesetLegality(ActivePokemon*);
-void Announcer_SetHp(s32, s32, s32);
+void Announcer_SetHp(u32 side, s32 hp, s32 max_hp);
 
 /**
  * Populate runtime species, HP, types, moves, stats and neutral stages from the selected roster.

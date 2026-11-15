@@ -156,7 +156,7 @@ void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, s32 arg3,
     }
     half = strlen(arg3) >> 1;
     if (wave > 0) {
-        Font_Printf(arg0 + 14, arg1 + 2, (uintptr_t)&D_8219597C);
+        Font_Printf(arg0 + 14, arg1 + 2, &D_8219597C);
     } else {
         Font_Printf((arg0 - (half * 5)) + 30, arg1 + 2, arg3);
     }
@@ -212,7 +212,7 @@ void BattleHud_DrawMonInfoBox(ActivePokemon* arg0, BattleMon* arg1, StatusLabel*
     BattleHud_DrawHpFractionText(arg3 + 0xC, arg4 + 0x1F, arg1->hp, arg1->maxHp);
     func_8001AB6C();
     func_8001A384(2, 0);
-    half = strlen((uintptr_t)arg1->nickname) >> 1;
+    half = strlen(arg1->nickname) >> 1;
     Font_Printf((arg3 - (half * 5)) + 29, arg4 + 2, arg1->nickname);
     func_8001A384(1, 0);
     func_8001AA9C(arg2->color.r, arg2->color.g, arg2->color.b, 0xFF);

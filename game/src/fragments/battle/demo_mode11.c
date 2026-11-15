@@ -33,10 +33,6 @@ void SceneMode11_StepEnd(UNUSED s32 arg0);
 void SceneMode11_UnusedNop(void) {
 }
 
-void BattleScene_CameraShotTargetHighThunk(s32, s32);
-void BattleScene_FrameParticipantFromAboveThunk(s32, s32);
-void BattleScene_FrameParticipantFromBelowClamped(s32, s32);
-void BattleScene_FrameParticipantFrontAltThunk(s32, s32);
 
 /**
  * Runs one of four camera framings on Pokemon active_pokemon with camera, chosen by framing (0 the
@@ -60,7 +56,6 @@ void SceneMode11_FrameDemoPokemon(s32 active_pokemon, s32 camera, s32 framing) {
     }
 }
 
-void BattleScene_GetParticipantAimPoint(s32, Vec3f*);
 void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);
 void func_82122628(s32, Vec3f, s32, s32, f32, f32);
 /**
@@ -76,7 +71,6 @@ void SceneMode11_FrameFromAimPoint(s32 camera, s32 active_pokemon, f32 distance,
 
 extern s16 D_8219A4F0[];
 extern s8* D_8219A590;
-void BattleCamera_PlayShot(s8* arg0, CameraNode* arg1, s32 arg2);
 
 /**
  * Scene mode 11 step 0: clears the demo indices, sets clip planes 20-4000, picks side 0 as
@@ -177,7 +171,7 @@ s32 func_821217DC(M2C_UNK);
 extern u8 D_8219A594;
 extern u8 D_8219A4F4;
 s16 func_8000F1FC(s16, M2C_UNK, M2C_UNK, M2C_UNK);
-void Announcer_CallMove(s32, s32, s32, s32);
+s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi); // PORT: the real signature (5 arguments)
 void func_82104C68(s8*, s32);
 /**
  * Fades the demo Pokemon in over 30 frames. Cuts 0-4 advance after 40 frames; cut 5 follows
@@ -200,7 +194,7 @@ void SceneMode11_StepFadeInCut(CameraNode* camera) {
         case 5:
             BattleCamera_StepDemoPath(camera, D_8219A590);
             if (sBattleScene.scene->splineSegment == 4) {
-                Announcer_CallMove(0, 0x38, 9, 0);
+                Announcer_CallMove(0, 0x38, 9, 0, 0);
                 D_8219A4F4 = 1;
                 func_82104C68(D_8219A590, 0x14);
                 sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);

@@ -5,8 +5,6 @@
 
 #include "moves.h"
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 typedef void (*MoveEffectHandler)(void);
 extern MoveEffectHandler sMoveEffectHandlers[];
 

@@ -160,7 +160,6 @@ void BattleScene_BRollShotAimPokemon1(CameraNode* camera) {
     }
 }
 
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
 /**
  * B-roll shot setup: frames the acting Pokemon from the front, aimed 1.5 heights above its
@@ -381,7 +380,6 @@ extern BRollShotSequence D_8218B240;
 extern f32 D_FLT_82189350[][4];
 void BattleCamera_StartNextBRollShot(CameraNode*);
 void func_8212188C(void);
-void BattleScene_UpdateParticipantsInView(CameraNode*);
 void func_82108C0C(ActivePokemon*);
 s32 func_8210C020(s32);
 void func_8211F6B8(CameraNode*);

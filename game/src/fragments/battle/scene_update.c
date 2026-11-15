@@ -231,7 +231,6 @@ void BattleScene_RunOpeningSendOut(CameraNode*);
 void Rental_TeamSlotsUpdate(CameraNode*);
 void SceneMode7_Update(CameraNode*);
 void SceneMode11_Update(CameraNode*);
-void BattleScene_UpdateParticipantsInView(CameraNode*);
 void DemoBattle_Update(void);
 void BattleScene_UpdateParticipantVisuals(ActivePokemon*);
 void BattleScene_UpdateCameraClipPlanes(CameraNode*);

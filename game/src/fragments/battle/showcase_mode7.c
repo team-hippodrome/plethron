@@ -35,7 +35,6 @@ void SceneMode7_UnusedNop(void) {
 M2C_UNK func_80006998(M2C_UNK);                     /* extern */
 M2C_UNK func_8212188C();                            /* extern */
 M2C_UNK func_82121D78(s32, M2C_UNK, M2C_UNK);       /* extern */
-M2C_UNK BattleCamera_PlayShot(s8 *, s32, M2C_UNK);        /* extern */
 M2C_UNK func_82136918(s32, M2C_UNK);                /* extern */
 extern s8 *D_82199DE0;
 extern s8 *D_8219A580;

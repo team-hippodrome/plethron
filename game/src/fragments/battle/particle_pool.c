@@ -94,8 +94,8 @@ s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
 void BattleAnim_InitParticleSystem(void) {
     gBattleAnimEffectSlots = (void*)func_800023C4(0x20D0, 0);
     gParticlePool = (Particle*)func_800023C4(sizeof(Particle) * 300, 0);
-    bzero((uintptr_t)gBattleAnimEffectSlots, 0x20D0);
-    bzero((uintptr_t)gParticlePool, sizeof(Particle) * 300);
+    bzero(gBattleAnimEffectSlots, 0x20D0);
+    bzero(gParticlePool, sizeof(Particle) * 300);
     gBattleAnimEffectSlotIndex = 0;
     gParticlePoolIndex = 0;
 }
@@ -400,7 +400,6 @@ Particle* BattleAnim_CreateProceduralParticle(s16 arg0, s16 arg1, s32 arg2, f32 
 }
 
 void func_80015908(ActivePokemon*, s32, Vec3f*);
-void BattleScene_GetParticipantModelSizeScaled(ActivePokemon* arg0, Vec3f* arg1);
 /**
  * Sets the particle's origin once at spawn from its anchor mode (anchorMode): the owner's model
  * position, its default anchor, bone 100 (optionally on the ground, or pushed forward or
@@ -495,7 +494,6 @@ void BattleAnim_InitializeParticleAnchor(Particle* arg0) {
     }
 }
 
-void BattleScene_GetParticipantModelSizeScaled(ActivePokemon* arg0, Vec3f* arg1);
 /**
  * Re-reads the particle's origin each frame for the anchor modes that follow the owner:
  * bone 100, optionally on the ground, pushed along the owner's facing, or raised by its

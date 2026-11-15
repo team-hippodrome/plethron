@@ -23,7 +23,6 @@ void func_8212187C(s32);
 void BattleCamera_StartSpeciesPath(CameraNode*, ActivePokemon*);
 s32 func_8211F644(ActivePokemon*, CameraNode*);
 void func_82104C68(ActivePokemon*, s32);
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
 extern f32 D_FLT_82196040;
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
@@ -51,7 +50,6 @@ void Audio_FadeCategoriesAndStreams(s32 arg0);
 extern u8 D_8219A4F4;
 extern u8* D_8218B2B8[];
 void func_8211F9C4(CameraNode*);
-void BattleScene_UpdateParticipantsInView(CameraNode*);
 void func_82108C0C(ActivePokemon*);
 
 /**

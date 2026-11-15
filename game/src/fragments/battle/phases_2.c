@@ -11,22 +11,14 @@ M2C_UNK BattleScene_BeginCameraReturnTransition();
 M2C_UNK func_821365B0(M2C_UNK, s8 *, s8 *, M2C_UNK, s32);
 extern M2C_UNK D_82199DE0;
 extern Vec3f D_8218B630;
-s32 ActivePokemon_GetNickname(ActivePokemon*);
-s32 BattleMessage_Format(s32, s32, s32, ...);
-s32 Battle_StepPartyHpToDisplay(ActivePokemon*);
 s32 func_8001101C(s8 *, M2C_UNK *);
 s32 func_82101FD4(s32);
 s32 func_82107CA0(ActivePokemon*);
-void BattleCamera_PlayShot(s32, s32, s32);
-void BattleMessage_ShowForSide(s32, s32);
-void BattleScene_InitTurnPresentation(CameraNode* arg0);
 void Announcer_SetTeamSizes(u8, u8);
 void func_82104C68(ActivePokemon*, s32);
-void BattleScene_ResidualPhaseNop(ActivePokemon*);
 void func_82106374(ActivePokemon*);
 void func_82107408(ActivePokemon*);
 void func_82108C0C(ActivePokemon*);
-void BattleScene_FrameParticipantFrontAltThunk(void*, void*);
 void func_82124A40(void);
 void BattleSound_UpdateSideHp(ActivePokemon*);
 
@@ -52,7 +44,7 @@ void BattleScene_PhaseResidualDamageWithoutMove(CameraNode* arg0) {
             break;
 
         case 1:
-            BattleScene_ResidualPhaseNop(cur);
+            BattleScene_ResidualPhaseNop(); // PORT: takes no argument
             if (BattleScene_ReloadModelForFlag2000(sActivePokemon[sBattleScene.scene->actingSide]) == 0) {
                 func_82108C0C(sActingPokemon);
                 Audio_FadeAndClearStoredSounds();
@@ -537,7 +529,7 @@ void BattleScene_IntroStepInitOverheadCamera(CameraNode* arg0) {
  * Seen in play (2026-11-13) with scene mode forced to 4 it ran on the two frames after the overhead
  * camera was set up, then the step moved to 2.
  */
-void BattleScene_IntroStepWaitForAssets(s32 arg0) {
+void BattleScene_IntroStepWaitForAssets(CameraNode* arg0) { // PORT: was s32 arg0
     if (func_82101FD4(D_82199DE0) != 0) {
         sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
     }
@@ -578,7 +570,7 @@ void BattleScene_IntroStepSpinOverheadCamera(CameraNode* arg0) {
  * (model transform 1, effect list 10).
  * Seen in play: a Poke Ball with a sparkle trail rises from the trainer box.
  */
-void BattleScene_OpeningStepThrowSide1(s32 arg0) {
+void BattleScene_OpeningStepThrowSide1(CameraNode* arg0) { // PORT: was s32 arg0
     M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 0), u8 *, 1) = (u8) (M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 0), u8 *, 1) & 0xFFFE);
     M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 4), u8 *, 1) = (u8) (M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 4), u8 *, 1) & 0xFFFE);
     if (M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 0), f32 *, 0x64C) == 0.0f) {
@@ -647,7 +639,7 @@ void BattleScene_IntroPanCamera(CameraNode* arg0) {
  * Battle opening, step 7: waits for side 0's Poke Ball animation to end.
  * Seen in play: ends with the white flash of side 0's ball opening.
  */
-void BattleScene_OpeningStepWaitSide0Ball(s32 arg0) {
+void BattleScene_OpeningStepWaitSide0Ball(CameraNode* arg0) { // PORT: was s32 arg0
     M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 0), u8 *, 1) = (u8) (M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 0), u8 *, 1) & 0xFFFE);
     M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 4), u8 *, 1) = (u8) (M2C_FIELD(M2C_FIELD(&D_82199DE0, s8 **, 4), u8 *, 1) & 0xFFFE);
     if (func_8001101C(M2C_FIELD(&D_82199DE0, s8 **, 0) + 0x624, &D_82199DE0) == 1) {

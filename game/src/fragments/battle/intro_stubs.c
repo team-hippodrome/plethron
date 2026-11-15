@@ -16,7 +16,6 @@ extern MoveData D_8219A494;
 #include "global.h"
 
 void ClefairyGame_DespawnPatternIcons(void);
-void BattleScene_FrameParticipantFront(void);
 
 extern s32 pad_86104B64[];
 

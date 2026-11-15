@@ -21,16 +21,10 @@ M2C_UNK func_82106374(s32);
 M2C_UNK BattleScene_SetCameraClipMaskBothSides(M2C_UNK);
 M2C_UNK func_8212189C();
 M2C_UNK func_821224F4();
-M2C_UNK BattleScene_FrameParticipantImpact(s32, s32, f32);
-M2C_UNK BattleScene_StepImpactFraming(s32, s32, f32);
-M2C_UNK BattleScene_StartOrbitFraming(s32, s32, f32, f32, f32, f32, s32);
 M2C_UNK BattleScene_StepOrbitFraming(s32, s32, M2C_UNK);
 M2C_UNK func_82124A40();
 extern s32 D_82199DE0;
 extern u8 D_82199F31;
-f32 BattleScene_GetParticipantHeight(s32);
-void BattleCamera_PlayShot(ActivePokemon* arg0, CameraNode* arg1, s32 arg2);
-void BattleMessage_ShowForSide(s32, s32);
 void func_82104C68(ActivePokemon*, s32);
 void func_8210C1A8(f32*, f32, f32);
 void func_8211EE8C(void);
@@ -42,7 +36,6 @@ void BattleAi_RecordUsedMove(s32, s32, s32);
 extern s32 D_82199DE0;
 M2C_UNK Announcer_SetActive();
 void func_82121D8C(s32, s32, s8 *);
-void DemoBattle_SetupDemoMove(ActivePokemonState*);
 f32 func_8000F23C(f32, f32, f32, f32);
 void func_8210C104(s16*, s16, s16);
 void ModelAnim_SetFrame(DisplayObject* display_object, s16 animation_timer);
@@ -53,7 +46,6 @@ void func_82102010(ActivePokemon*);
 s32 func_82101FD4(ActivePokemon*);
 
 s32 func_82125F54(void);
-void BattleScene_ResetSideFlagsAtActionStart(s32);
 
 /**
  * Step 0 of an action phase (2 or 3). Starts a switch instead when the action is one

@@ -36,7 +36,6 @@ void DemoBattle_CopyHpToFirstMember(ActivePokemon* arg0) {
  * code (a word-sized stack spill and no halfword mask on the argument).
  */
 M2C_UNK func_82121D8C(M2C_UNK, M2C_UNK);            /* extern */
-void DemoBattle_SetupDemoMove();
 extern M2C_UNK D_82199DE0;
 
 /**
@@ -61,7 +60,7 @@ void DemoBattle_Setup(void) {
     if (sBattleScene.scene->mode == 9) {
         sBattleScene.scene->modeAfterTransition = 0xA;
     }
-    DemoBattle_SetupDemoMove(saved);
+    DemoBattle_SetupDemoMove(); // PORT: takes no argument
     sBattleScene.scene->actingSide = saved;
 }
 

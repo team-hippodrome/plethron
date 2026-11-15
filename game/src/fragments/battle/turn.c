@@ -32,7 +32,6 @@ extern u8 sHighCritMoves[];
 
 #include "m2c_macros.h"
 
-void BattleMessage_Format(s32, s32, s32, ...);
 
 void BattleAnim_EffectEndNop(void);
 s32 Battle_CheckForDisobedience(void);
@@ -257,7 +256,6 @@ s32 Battle_CheckForDisobedience(void) {
 }
 
 
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 extern s32 D_8218C718;
 extern s32 D_8218C71C;
 extern s32 D_8218C720;
@@ -608,7 +606,6 @@ void Battle_ProcessTurn(void) {
 }
 
 s32 func_82107A5C(ActivePokemon*);
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 void func_8210F730(ActivePokemon*);
 extern s32 D_8218C710;
 /**

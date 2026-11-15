@@ -122,9 +122,6 @@ void BattleMenu_CommitMoveSelection(ActivePokemon* arg0) {
     }
 }
 
-void ActivePokemon_ClearCaption();
-s32 ActivePokemon_GetNickname(s32);
-M2C_UNK ActivePokemon_ShowCaption();
 extern s32 D_8218C6F0;
 /**
  * Fight menu check for a Pokemon with no usable PP: shows 「…は だすことの
@@ -190,8 +187,6 @@ s32 BattleMenu_HandleNoUsableMoves(arg0) ActivePokemon *arg0;
   return 0;
 }
 
-void ActivePokemon_ClearCaption();
-M2C_UNK ActivePokemon_ShowCaption();
 extern s32 D_8218C6F4;
 extern s32 D_8218C6F8;
 
@@ -265,7 +260,6 @@ void BattleMenu_HandleMoveButtons(ActivePokemon* arg0) {
 s32 BattleMenu_HandleNoUsableMoves(ActivePokemon* arg0);                              /* extern */
 void func_82134D40(s8 *);
 M2C_UNK func_82134D80(s8 *);                        /* extern */
-void ActivePokemon_ClearCaption();
 
 /**
  * Fight menu, every frame: L goes back to the command menu, holding R shows the
@@ -374,8 +368,6 @@ void BattleMenu_CommitSwitchSelection(ActivePokemon* arg0) {
     }
 }
 
-void ActivePokemon_ClearCaption();
-M2C_UNK ActivePokemon_ShowCaption();
 extern s32 D_8218C6FC;
 
 /**
@@ -395,7 +387,6 @@ s32 BattleScene_ValidateSelectedPartyMember(ActivePokemon* arg0) {
     return 0;
 }
 
-void ActivePokemon_SetController(ActivePokemon*, u8*);
 /**
  * Tag team: when either teammate's controller presses B, that teammate's
  * controller takes over this Pokemon's menu.
@@ -437,7 +428,6 @@ void BattleMenu_TakeControlOnBPress(ActivePokemon* arg0, u8* arg1, u8* arg2, s32
     }
 }
 
-void ActivePokemon_SetController(ActivePokemon*, u8*);
 /**
  * Tag team: like BattleMenu_TakeControlOnBPress, but for the C buttons (the mask
  * depends on how many Pokemon were brought).
@@ -477,17 +467,14 @@ void BattleMenu_TakeControlOnCButtonPress(ActivePokemon* arg0, u8* arg1, u8* arg
     }
 }
 
-s32 ActivePokemon_GetNickname(s32);                             /* extern */
-void ActivePokemon_ClearCaption();                            /* extern */
-M2C_UNK ActivePokemon_ShowCaption(s32, s32, s32);               /* extern */
 extern s32 D_8218C700;
 
 /**
  * Clears the caption state and shows caption D_8218C700 with the Pokemon's nickname.
  * @unverified Name guessed from the code.
  */
-void BattleMenu_ShowNicknameCaption(s32 active_pokemon) {
-    ActivePokemon_ClearCaption();
+void BattleMenu_ShowNicknameCaption(ActivePokemon* active_pokemon) { // PORT: was s32
+    ActivePokemon_ClearCaption(active_pokemon); // PORT: the Pokémon was passed through a0
     ActivePokemon_ShowCaption(active_pokemon, D_8218C700, ActivePokemon_GetNickname(active_pokemon));
 }
 
@@ -537,7 +524,7 @@ void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
     if (M2C_FIELD(arg1, u16*, 8) & 0xC00F) {
         if ((state->rosterIndex == state->actionChosen) && (state->teamMemberIndex == state->menuTeamMemberIndex)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
-                BattleMenu_ShowNicknameCaption((uintptr_t)arg0);
+                BattleMenu_ShowNicknameCaption(arg0);
             }
         } else if (state->actionChosen <= (u32)(team[2] - 1)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {

@@ -5,10 +5,8 @@
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Particle_AnimateFramesForwardLooped(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
-M2C_UNK Particle_ApplyMotionStep(s8 *);
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_IncrementPhase(s8 *);
-M2C_UNK Particle_SetMagnitudeStepScaled(s8 *, M2C_UNK);
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);
 s32 func_82140690(s8 *);
 void BattleAnim_RunDigHitDust(Particle* arg0);

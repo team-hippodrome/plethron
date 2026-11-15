@@ -6,7 +6,6 @@
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK func_80019B28(s32, u8, u8, u8, s32);
 M2C_UNK Announcer_SetActive();
-M2C_UNK BattleAnim_StartQueuedCategory2Effect();
 M2C_UNK BattleScene_SetCameraClipMaskBothSides(M2C_UNK);
 M2C_UNK func_82108C0C(s32);
 M2C_UNK func_82121D78(s32, M2C_UNK, M2C_UNK);
@@ -20,20 +19,13 @@ extern s32 D_82199DE4;
 // mixes it with sBattleScene, which is needed to match (IDO does not see the two alias).
 extern BattleScene* D_8219A5A0;
 extern u8 D_82199F31;
-f32 BattleScene_GetParticipantHeight(s32);
-s32 Battle_StepPartyHpToDisplay(s32);
 s32 Audio_StopSoundByCategory(s32, u32);
-s32 BattleScene_FrameParticipantFromAboveThunk(void*, void*);
 u16 func_82107CA0(ActivePokemon* active_pokemon);
-void BattleMessage_ShowForSide(s32, s32);
-void BattleScene_CameraShotTargetHighThunk(void*, void*);
 void func_8000EEBC(s8*, s8*, f32, s32, s32);
-void Announcer_SetHp(s32, s32, s32, s32);
+void Announcer_SetHp(u32 side, s32 hp, s32 max_hp); // PORT: the real signature
 void func_8210C1A8(f32*, f32, f32);
 void func_8211EE8C(void);
 void func_8212188C(void);
-void BattleScene_FrameParticipantFromBelowClamped(void*, void*);
-void BattleScene_FrameParticipantFrontAltThunk(void*, void*);
 
 extern s32 D_8219A570;
 extern s32 D_8219A574;
@@ -231,7 +223,6 @@ void BattleScene_BeginCameraReturnTransition(void) {
     sBattleScene.scene->phaseStep++;
 }
 
-void DemoBattle_SetupDemoMove(ActivePokemonState*);
 
 // Stadium 1 counterpart: Battle_ActSecondAttacker (no phase/arg handling here).
 /**
@@ -251,7 +242,7 @@ void BattleScene_StartSecondAction(void) {
     if ((temp_a3->faintState == 0xF) || (temp_a3->faintState == 0x10)) {
         ActivePokemon_BeginBattle(sActivePokemon[sBattleScene.scene->actingSide]);
     } else if (sBattleScene.scene->mode == 0xA) {
-        DemoBattle_SetupDemoMove(temp_a3);
+        DemoBattle_SetupDemoMove(); // PORT: takes no argument
     } else {
         Battle_ResolveMonAction();
     }
@@ -489,7 +480,7 @@ void BattleScene_UpdateDisplayedHpAndTransition(CameraNode* arg0) {
  * D_8219A560/D_8219A564, then runs the HP bar step BattleScene_UpdateDisplayedHpAndTransition.
  * @unverified Name guessed from the code.
  */
-void BattleScene_StepPartyHpAndUpdateHpBar(s32 camera) {
+void BattleScene_StepPartyHpAndUpdateHpBar(CameraNode* camera) { // PORT: was s32 camera
     D_8219A560 = Battle_StepPartyHpToDisplay(D_82199DE0);
     D_8219A564 = Battle_StepPartyHpToDisplay(D_82199DE4);
     BattleScene_UpdateDisplayedHpAndTransition(camera);
@@ -500,7 +491,7 @@ void BattleScene_StepPartyHpAndUpdateHpBar(s32 camera) {
  * step BattleScene_UpdateDisplayedHpAndTransition.
  * @unverified Name guessed from the code.
  */
-void BattleScene_UpdateHpBarWhenHpSettled(s32 camera) {
+void BattleScene_UpdateHpBarWhenHpSettled(CameraNode* camera) { // PORT: was s32 camera
     if ((D_8219A560 == 1) && (D_8219A564 == 1)) {
         sBattleScene.scene->cameraPresetId = 1;
         BattleScene_UpdateDisplayedHpAndTransition(camera);
@@ -631,7 +622,7 @@ void BattleScene_UpdateActiveOwnerPointers(void) {
 /**
  * Phase 0 of BattleScene_UpdatePhase: sets up the scene for a new turn, then the turn moves on to phase 1.
  */
-void BattleScene_InitTurnPresentation(s32 arg0) {
+void BattleScene_InitTurnPresentation(CameraNode* arg0) { // PORT: was s32 arg0
     s8 *sp34;
     s8 *sp30;
 
@@ -847,7 +838,7 @@ void BattleScene_FaintStepEnd(UNUSED CameraNode* arg0) {
 
     if (func_821217DC(2) != 0) {
         side = sBattleScene.scene->actingSide;
-        Announcer_SetHp(side == 0, 0, mon->maxHp, side);
+        Announcer_SetHp(side == 0, 0, mon->maxHp);
         func_8212188C();
         func_82125570();
         func_8211EE8C();
@@ -982,7 +973,7 @@ void BattleScene_FaintStepUpdateHudOrEndBattle(UNUSED CameraNode* camera) {
 
     if (func_821217DC(2) != 0) {
         side = sBattleScene.scene->actingSide;
-        Announcer_SetHp(side == 0, 0, mon->maxHp, side);
+        Announcer_SetHp(side == 0, 0, mon->maxHp);
         func_8212188C();
         func_82125570();
         func_8211EE8C();

@@ -59,7 +59,6 @@ void BattleScene_MemoryUnusedNop(void) {
 
 void BattleScene_SelectNextBRollCameraShot(CameraNode* arg0);
 void BattleCamera_StartNextBRollShot(CameraNode* arg0);
-void BattleScene_InitTurnPresentation(s32 arg0);
 void BattleScene_SetPhase(CameraNode* arg0, s32 arg1);
 void BattleScene_OpeningStepInitCamera(CameraNode* arg0);
 void BattleScene_IntroStepInitOverheadCamera(CameraNode* arg0);

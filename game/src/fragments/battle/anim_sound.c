@@ -493,7 +493,7 @@ void BattleAnim_PlayBattleSequenceById(ActivePokemon* active_pokemon, s32 sequen
     }
 }
 
-M2C_UNK Announcer_SetHp();
+void Announcer_SetHp(u32 side, s32 hp, s32 max_hp); // PORT: the real signature
 void Announcer_CommentOnMove(s32);
 s32 func_82107A5C(s8*);
 /**
@@ -538,6 +538,6 @@ void BattleSound_UpdateSideHp(ActivePokemon* arg0) {
 
     if (arg0->displayObject.objectType != 152) {
         side = func_82107A5C(arg0);
-        Announcer_SetHp(side, arg0->state.runtime.hp, mon->maxHp, arg0);
+        Announcer_SetHp(side, arg0->state.runtime.hp, mon->maxHp);
     }
 }

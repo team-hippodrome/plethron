@@ -191,7 +191,6 @@ s32 BattleAi_PickSetupMove(ComBattler*);
 s32 BattleAi_PickStatBoostMove(ComBattler*);
 s32 BattleAi_PickHealingMove(ComBattler*);
 s32 BattleAi_PickToxicOrLeechSeed(ComBattler*);
-s32 BattleAi_PickStatLowerMove(ComBattler*, s8 *);
 s32 BattleAi_IsMoveUseful(u8);
 s32 BattleAi_PickParalysisMove(ComBattler*, ComBattler*);
 s32 BattleAi_PickSleepMove(ComBattler*, ComBattler*);

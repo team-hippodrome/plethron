@@ -48,8 +48,6 @@ void Battle_ComputePokemonStat(s32 arg0, BattleMon* arg1);
 void TurnOrder_UnusedNopA(void) {
 }
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 extern s32 D_8218C788;
 extern s32 D_8218C78C;
 extern s32 D_8218C790;
@@ -113,7 +111,6 @@ void Battle_ResetTransientRuntimeState(s32 arg0, s32 arg1) {
     D_82199F30 = 1;
 }
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
 extern s32 D_8218C798;
 extern s32 D_8218C79C;
 extern s32 D_8218C7A0;

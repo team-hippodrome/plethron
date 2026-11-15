@@ -460,7 +460,6 @@ void BattleCamera_LoadSpeciesPathPoints(ActivePokemon* active_pokemon) {
 void ParticipantModels_UnusedNopB(UNUSED s32 unused0, UNUSED s32 unused1) {
 }
 
-void BattleScene_GetParticipantAimPoint(ActivePokemon*, f32*);
 void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
 void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
 void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);
@@ -503,7 +502,6 @@ loop:
     BattleCamera_CaptureModelOrbit(active_pokemon, camera);
 }
 
-void BattleScene_GetParticipantAimPoint(ActivePokemon*, f32*);
 void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
 void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
 extern f32 D_FLT_8219A718;
@@ -707,7 +705,6 @@ void BattleCamera_LoadDemoPathPoints(s32 unused) {
 }
 
 extern u8 D_8219A4F4;
-void BattleScene_GetParticipantAimPoint(ActivePokemon*, f32*);
 void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
 void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
 void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);

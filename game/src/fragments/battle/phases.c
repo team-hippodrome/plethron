@@ -10,36 +10,19 @@ M2C_UNK func_8211EE8C();
 M2C_UNK BattleScene_BeginCameraReturnTransition();
 extern f32 D_FLT_82189354[][4];
 extern u8* D_82189180[];
-s32 Battle_StepPartyHpToDisplay(ActivePokemon*);
 s32 func_82107A5C(ActivePokemon*);
 s32 func_82107CA0(ActivePokemon*);
 s32 func_8210C020(M2C_UNK, s32);
-s32 BattleScene_FrameParticipantFromAboveThunk(void*, void*);
 void ActivePokemon_SetStateFlags(ActivePokemon*, s32);
 void Audio_PlayMoveSound(s32, s32, s32);
-void BattleCamera_PlayShot(s32, s32, s32);
-void BattleMessage_ShowForSide(s32, s32);
-void BattleScene_CameraShotTargetHighThunk(void*, void*);
-void BattleScene_ReactionCritical(CameraNode*, void*);
-void BattleScene_ReactionNormal(CameraNode*, void*);
 void BattleAnim_SwapToSubstituteModel(ActivePokemon*);
 void func_82104C68(ActivePokemon*, s32);
-void BattleScene_ResidualPhaseNop(ActivePokemon*);
 void func_82106374(ActivePokemon*);
 void func_82107408(ActivePokemon*);
 void func_82108C0C(ActivePokemon*);
 void func_821224F4();
-void BattleScene_EaseCameraToFrontView(CameraNode*, ActivePokemon*, f32);
-void BattleScene_FrameParticipantFromBelowClamped(void*, void*);
-void BattleScene_FrameParticipantFrontAltThunk(void*, void*);
 void func_82124A40(void);
 void func_82125AC8(CameraNode*);
-void BattleScene_StepPartyHpAndUpdateHpBar(CameraNode*);
-void BattleScene_UpdateHpBarWhenHpSettled(CameraNode*);
-void BattleScene_SetReactionFlagFromByte1(s32);
-void BattleScene_FinishReactionWhenHpSettled(CameraNode*, s32*, s32*);
-void BattleCamera_StoreShotIndex(void*);
-void BattleCamera_PlayReactionFraming(ActivePokemon*, CameraNode*, void*);
 void BattleSound_UpdateSideHp(ActivePokemon*);
 
 extern s32 D_8219A560;
@@ -1327,7 +1310,6 @@ void BattleScene_PhaseFlyUp(CameraNode* arg0) {
 }
 
 void BattleScene_EaseCameraTargetHeight(CameraNode*, ActivePokemon*);
-f32 BattleScene_GetParticipantHeight(ActivePokemon*);
 /**
  * Phase 13 (moveEffectKind 0x0D, set by Battle_Effect_Charge for Dig): the first turn of Dig.
  * In the per-move sweep only Dig entered phase 13.
@@ -2008,7 +1990,7 @@ void BattleScene_PhaseResidualDamageAfterMove(CameraNode* arg0) {
             break;
 
         case 1:
-            BattleScene_ResidualPhaseNop(sp24);
+            BattleScene_ResidualPhaseNop(); // PORT: takes no argument
             if (BattleScene_ReloadModelForFlag2000(sActivePokemon[sBattleScene.scene->actingSide]) == 0) {
                 func_82108C0C(sActingPokemon);
                 Audio_FadeAndClearStoredSounds();
@@ -2171,7 +2153,7 @@ void BattleScene_Phase10(CameraNode* arg0) {
     switch (sBattleScene.scene->phaseStep) {
         case 0:
             BattleScene_CleanupParticipantEffectMode(sActingPokemon);
-            BattleScene_ResidualPhaseNop(sActivePokemon[sBattleScene.scene->actingSide]);
+            BattleScene_ResidualPhaseNop(); // PORT: takes no argument
             if (BattleScene_ReloadModelForFlag2000(sActivePokemon[sBattleScene.scene->actingSide]) == 0) {
                 func_82108C0C(sActingPokemon);
                 Audio_FadeAndClearStoredSounds();

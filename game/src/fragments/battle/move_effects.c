@@ -9,8 +9,6 @@ extern MoveEffectHandler sMoveEffectHandlers[];
 
 #include "m2c_macros.h"
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
-s32 ActivePokemon_GetNickname(ActivePokemon*);
 
 void BattleEffect_Bide(void);
 void BattleEffect_Thrash(void);
@@ -492,7 +490,6 @@ void Battle_Effect_LeechSeed(void) {
     BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], -0x3D, D_8218C8C8, ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]));
 }
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
 extern s32 D_8218C8CC;
 
 /**
@@ -536,7 +533,6 @@ void Battle_Effect_Disable(void) {
     BattleMessage_Format((uintptr_t)gBattleMessageQueues->messageBuffers[0], -0x3A, D_8218C8D4);
 }
 
-s32 BattleMessage_Format(s32, s32, s32, ...);
 extern s32 D_8218C8D8;
 
 /**
