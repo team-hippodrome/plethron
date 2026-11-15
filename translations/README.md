@@ -34,7 +34,7 @@ name is translated once and reused everywhere. Keep the same printf conversions
 (`%s`, `%d`, `%02d` …) in the same order as the original. If a language needs a
 different order, use positional forms (`%2$s … %1$s`) and say so in `note`.
 
-Some text is drawn piece by piece (a name, then `は たおれた`), and those pieces
+Some text is drawn piece by piece (a name, then "fainted"), and those pieces
 are translated as fragments. Text drawn into 3D models isn't translated yet, and
 textures are only replaced where the game can't be understood without it, using
 pictograms rather than per-language art.
