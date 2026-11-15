@@ -385,3 +385,17 @@ size_t MainPool_GetBlockDist(MainPoolBlock* block) {
 MainPool* MainPool_GetPool(void) {
     return &sMemPool;
 }
+
+// PORT: segment maps record "distance to the end of the pool" as their size, which spans unrelated later
+// allocations. The block header knows where this block really ends (the next header sits right after its data).
+size_t Port_PoolBlockSize(void* data) {
+    MainPoolBlock* node = (MainPoolBlock*)((u8*)data - sizeof(MainPoolBlock));
+
+    if ((uintptr_t)data < (uintptr_t)sMemPool.start || (uintptr_t)data >= (uintptr_t)sMemPool.end) {
+        return 0;
+    }
+    if (node->next != NULL && (uintptr_t)node->next > (uintptr_t)data) {
+        return (uintptr_t)node->next - (uintptr_t)data;
+    }
+    return 0; // newest block: size unknown
+}

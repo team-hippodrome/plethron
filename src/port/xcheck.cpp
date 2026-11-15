@@ -55,9 +55,6 @@ extern "C" const unsigned gPortHostSymbolCount;
 extern "C" void Port_XcheckWaitRetraces(uint64_t retraces);
 extern "C" unsigned long long osGetTime(void);         // libultra (port_os)
 extern "C" int gPortXcheckTraceGuRandom;              // (below)
-extern "C" unsigned int sParticleFrameCounter;        // particle_math: free-running effect frame counter
-extern "C" unsigned short D_8006F084;                 // geo_render: the scene frame counter (GeoRender_AdvanceFrameCounter)
-extern "C" short D_800AF7AE;                          // battle_hud: the model texture counter (one per Pokemon model drawn)
 
 namespace {
 // the order is the function index in the value stream (tools/ares_ref/ares_ref.cpp kRandomNames)
@@ -428,22 +425,14 @@ void Port_XcheckWriteEvent(const char* name, const void* state0, const void* sta
 void Port_XcheckMoveAnim(int side, int move) {
     Init();
     if (g.out) {
-        fprintf(g.out, "A %d move=%d side=%d frame=%llu gf=%llu pfc=%u gfc=%u mtc=%d\n", g.animCount, move, side,
-                (unsigned long long)Port_ViTick(), g.gameFrame, sParticleFrameCounter, (unsigned)D_8006F084, (int)D_800AF7AE);
+        // PORT(zero): Stadium 1's frame counters (particles, game frames, model texture frames) are not mapped for
+        // Stadium Zero yet, so this line has no counters
+        fprintf(g.out, "A %d move=%d side=%d frame=%llu gf=%llu\n", g.animCount, move, side,
+                (unsigned long long)Port_ViTick(), g.gameFrame);
         fflush(g.out);
     }
     // guRandom (MathUtil_Random16: the effects' particles) from the same state on both sides, as the ares driver does
     if (g.force) Port_GuRandomSeed(174823885);
-    // and the effects' frame counter (sParticleFrameMod8 etc. pick texture frames, e.g. Thundershock's bolts). It counts
-    // battle game frames, and the N64 can spend a frame more before an animation (its effect assets load by DMA), which
-    // put the bolts one texture frame out of phase after Dragon Rage. The ares driver does the same.
-    if (g.force) sParticleFrameCounter = 0;
-    // and the two other texture-frame counters, for the same reason. D_800AF7AE goes up for every Pokemon model drawn
-    // and is only cleared when a model is set up; animated model parts take their texture frame and scroll from it
-    // (DisplayList_InitAnimatedFrameSegment: Rapidash's mane, Moltres's wings). D_8006F084 counts game frames since boot,
-    // so each side's menus leave it at another value; effects pick frames with it (D_8006F084 & 7 and the
-    // BattleAnim_Build*DisplayList colour cycles). The ares driver does the same.
-    if (g.force) D_800AF7AE = 0, D_8006F084 = 0;
     g.osTimeCalls = 0; // (Port_XcheckOsGetTime)
     // and the animation streams (idle checks every frame: blinks, idle motions) from their start, so they line up
     // within the animation although the two games reach it after different numbers of frames

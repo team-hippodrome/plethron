@@ -24,6 +24,162 @@ u32 Memmap_GetFragmentVaddrMask(u32 i, uintptr_t addr);
 void Memmap_ClearFragmentMemmap(u32 id);
 uintptr_t Memmap_GetLoadedFragmentVaddr(uintptr_t addr);
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "StadionPort.h"
+
+// PORT: from stadion (game/src/memmap.c)
+/*
+ * PORT: fragment headers in ROM data are big-endian. The first word after the jump is always a nop (0), which is
+ * reused as the "already byte swapped" marker so this can be called from every entry point.
+ */
+#define PORT_FRAGMENT_SWAPPED 0x50525453
+void Memmap_NormalizeFragmentHeader(struct Fragment* f) {
+    if (f->inst[1] != PORT_FRAGMENT_SWAPPED) {
+        f->headerSize = PORT_BE32(f->headerSize);
+        f->relocOffset = PORT_BE32(f->relocOffset);
+        f->sizeInRom = PORT_BE32(f->sizeInRom);
+        f->sizeInRam = PORT_BE32(f->sizeInRam);
+        f->inst[1] = PORT_FRAGMENT_SWAPPED;
+    }
+}
+
+/*
+ * PORT: virtual 32-bit address space for data blobs (models) that the game relocates into RAM and keeps several of at
+ * once. All of them are linked at the same slot address (e.g. 0x8FF00000), so without relocation their addresses
+ * collide. Each loaded blob gets a pseudo base here; same-slot pointers in its data are rewritten to it (see
+ * Port_RelocateDataBlob) and Port_VResolve maps pseudo addresses back to host memory.
+ */
+#define PORT_VBASE 0x30000000u
+#define PORT_VBLOBS 512
+struct PortVBlob {
+    u8* host;
+    u32 size;
+    u32 link; // slot base the blob was linked at
+};
+static struct PortVBlob sVBlobs[PORT_VBLOBS];
+
+u32 Port_VAlloc(void* host, u32 size, u32 link) {
+    int i;
+    if (size > 0x100000) {
+        return 0;
+    }
+    // The pool hands the same memory out again after a blob is released; drop a stale entry that starts at the same
+    // address so lookups by host address (Port_VAddrOfLink) and by pseudo address cannot find the old blob.
+    for (i = 0; i < PORT_VBLOBS; i++) {
+        if (sVBlobs[i].host == (u8*)host) {
+            sVBlobs[i].host = NULL;
+        }
+    }
+    for (i = 0; i < PORT_VBLOBS; i++) {
+        if (sVBlobs[i].host == NULL) {
+            sVBlobs[i].host = host;
+            sVBlobs[i].size = size;
+            sVBlobs[i].link = link;
+            if (PORT_GETENV_ONCE("PORT_TRACE_VBLOB"))
+                fprintf(stderr, "[vblob] alloc slot %d host %p size 0x%x link 0x%08x\n", i, host, size, link);
+            return PORT_VBASE + (u32)i * 0x100000;
+        }
+    }
+    return 0;
+}
+
+void Port_VFree(void* host) {
+    int i;
+    for (i = 0; i < PORT_VBLOBS; i++) {
+        if (sVBlobs[i].host == (u8*)host) {
+            if (PORT_GETENV_ONCE("PORT_TRACE_VBLOB"))
+                fprintf(stderr, "[vblob] free slot %d host %p\n", i, host);
+            sVBlobs[i].host = NULL;
+        }
+    }
+    Port_GfxFlushCache();
+}
+
+void* Port_VResolve(uintptr_t addr) {
+    if (addr >= PORT_VBASE && addr < PORT_VBASE + PORT_VBLOBS * 0x100000u) {
+        struct PortVBlob* b = &sVBlobs[(addr - PORT_VBASE) >> 20];
+        u32 off = addr & 0xFFFFF;
+        if (b->host != NULL && off < b->size) {
+            return b->host + off;
+        }
+    }
+    return NULL;
+}
+
+int Port_VIsRaw(const void* p) {
+    int i;
+    for (i = 0; i < PORT_VBLOBS; i++) {
+        if (sVBlobs[i].host != NULL && (const u8*)p >= sVBlobs[i].host &&
+            (const u8*)p < sVBlobs[i].host + sVBlobs[i].size) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Link address of a pseudo address (0 if it is not one of a registered blob).
+u32 Port_VLinkOf(uintptr_t addr) {
+    if (addr >= PORT_VBASE && addr < PORT_VBASE + PORT_VBLOBS * 0x100000u) {
+        struct PortVBlob* b = &sVBlobs[(addr - PORT_VBASE) >> 20];
+        u32 off = addr & 0xFFFFF;
+        if (b->host != NULL && off < b->size) {
+            return b->link + off;
+        }
+    }
+    return 0;
+}
+
+// Pseudo address of a link address inside the blob that starts at 'host' (0 if the blob is not registered).
+u32 Port_VAddrOfLink(void* host, u32 linkAddr) {
+    int i;
+    for (i = PORT_VBLOBS - 1; i >= 0; i--) {
+        if (sVBlobs[i].host == (u8*)host) {
+            return PORT_VBASE + (u32)i * 0x100000 + (linkAddr & 0xFFFFF);
+        }
+    }
+    return 0;
+}
+
+// Rewrites the same-slot pointer words of a freshly loaded data blob (R_MIPS_32 entries of its relocation table) to the
+// blob's pseudo base. Code relocations are skipped: the blob's MIPS code never runs here.
+u32 Port_RelocateDataBlob(struct Fragment* f) {
+    struct RelocTable* tbl;
+    u32 link;
+    u32 vbase;
+    u32 i;
+    u32 n;
+
+    Memmap_NormalizeFragmentHeader(f);
+    {
+        // entry instruction is `j target`; the target's high bits are the slot base
+        u32 insn = PORT_BE32(f->inst[0]);
+        link = (((insn & 0x03FFFFFF) << 2) | 0x80000000) & 0xFFF00000;
+    }
+    vbase = Port_VAlloc(f, f->sizeInRam, link);
+    if (vbase == 0) {
+        return 0;
+    }
+    tbl = (struct RelocTable*)((u8*)f + f->relocOffset);
+    n = PORT_BE32(tbl->nRelocations);
+    for (i = 0; i < n; i++) {
+        u32 reloc = PORT_BE32(tbl->relocations[i]);
+        if (((reloc & 0x7F000000) >> 24) == R_MIPS_32) {
+            u8* w = (u8*)f + (reloc & 0xFFFFFF);
+            u32 v = Port_ReadBE32(w);
+            if ((v & 0xFFF00000) == link) {
+                v = vbase + (v & 0xFFFFF);
+                w[0] = v >> 24;
+                w[1] = v >> 16;
+                w[2] = v >> 8;
+                w[3] = v;
+            }
+        }
+    }
+    return vbase;
+}
+
+
 /*
  * Set the base virtual address and size of the specified segment memmap.
  */

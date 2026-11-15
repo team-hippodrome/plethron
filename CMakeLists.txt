@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
-project(PokemonStadiumPort VERSION 0.0.2 LANGUAGES C CXX ASM)
+project(Plethron VERSION 0.0.1 LANGUAGES C CXX ASM)
 # The release version (release.yml passes it as -DPORT_VERSION=<version>); defaults to the project version above.
 # Used for the Windows file version and the AppImage/app bundle metadata.
 set(PORT_VERSION "${PROJECT_VERSION}" CACHE STRING "Version of this build")
@@ -75,6 +75,11 @@ set(PORT_MAIN_SOURCES
   src/port/save_editor/save_editor_ui.cpp
   src/port/stubs.c
   src/port/port_platform.c
+  # Stadium Zero keeps its data in the decomp's assembly: host storage for it, filled from the ROM at runtime
+  # (tools/zero/gen_lift.py, src/port/zero_lift.c). Compiled without the game's headers: the storage is plain bytes.
+  src/port/zero_lift.c
+  src/port/zero_asm.c
+  src/port/generated/zero_lift_data.c
 )
 if(NOT EMSCRIPTEN)  # web: an object file written by tools/gen_wasm_abs_syms.py instead (below)
   list(APPEND PORT_MAIN_SOURCES src/port/generated/abs_syms.S)
@@ -98,6 +103,11 @@ target_include_directories(pokestadium PRIVATE
 )
 target_compile_definitions(pokestadium PRIVATE F3DEX_GBI_2)
 target_link_libraries(pokestadium PRIVATE libultraship)
+# Stadium Zero: names of the decomp that alias another symbol (tools/zero/gen_lift.py), as linker assignments
+if(NOT APPLE AND NOT MSVC AND NOT EMSCRIPTEN)
+  target_link_options(pokestadium PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld)
+  set_property(TARGET pokestadium APPEND PROPERTY LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld)
+endif()
 if(NOT ANDROID AND NOT EMSCRIPTEN)
   # the save library's command-line driver, for tools/save_editor/tests/test_native.py (not shipped)
   add_executable(stadium_save_cli EXCLUDE_FROM_ALL src/port/save_editor/cli_main.cpp src/port/save_editor/stadium_save.cpp)
@@ -126,6 +136,9 @@ endif()
 # Flags mirror tools/compile_flags.txt (used by tools/syntax_check.sh).
 # ---------------------------------------------------------------------------------------------
 file(GLOB_RECURSE STADIUM_GAME_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/game/src/*.c)
+# game/src/libultra holds the decomp's wrappers that include unmodified libultra sources: libultraship and src/port
+# provide the OS instead
+list(FILTER STADIUM_GAME_SOURCES EXCLUDE REGEX "/game/src/libultra/")
 # game/ is the vendored decomp (src, include, lib/ultralib): of its libultra sources, only the ones listed are compiled
 file(STRINGS cmake/ultralib_sources.txt PORT_ULTRALIB_SOURCES REGEX "^[^#]")
 list(TRANSFORM PORT_ULTRALIB_SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/game/lib/ultralib/src/)
@@ -164,15 +177,17 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_S
              ${STADIUM_GAME_SOURCES})
 set(PORT_WRAPPED_SOURCES)
 list(LENGTH PORT_WORD_WRAPPERS _n)
-math(EXPR _last "${_n} - 1")
-foreach(_i RANGE 0 ${_last} 2)
-  math(EXPR _j "${_i} + 1")
-  list(GET PORT_WORD_WRAPPERS ${_i} _orig)
-  list(GET PORT_WORD_WRAPPERS ${_j} _wrap)
-  list(REMOVE_ITEM STADIUM_GAME_SOURCES ${_orig})
-  list(APPEND STADIUM_GAME_SOURCES ${_wrap})
-  list(APPEND PORT_WRAPPED_SOURCES ${_orig} ${_wrap})
-endforeach()
+if(_n GREATER 0)
+  math(EXPR _last "${_n} - 1")
+  foreach(_i RANGE 0 ${_last} 2)
+    math(EXPR _j "${_i} + 1")
+    list(GET PORT_WORD_WRAPPERS ${_i} _orig)
+    list(GET PORT_WORD_WRAPPERS ${_j} _wrap)
+    list(REMOVE_ITEM STADIUM_GAME_SOURCES ${_orig})
+    list(APPEND STADIUM_GAME_SOURCES ${_wrap})
+    list(APPEND PORT_WRAPPED_SOURCES ${_orig} ${_wrap})
+  endforeach()
+endif()
 if(EMSCRIPTEN)
   # web build: FragmentEntry-typed thunks for the fragment entries (WebAssembly traps on calls through another type)
   execute_process(COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_fragment_thunks.py
@@ -259,7 +274,7 @@ target_include_directories(stadium_game PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/game/lib/ultralib)
 target_compile_definitions(stadium_game PRIVATE
   LANGUAGE_C _LANGUAGE_C F3DEX_GBI_2 NDEBUG _FINALROM N_MICRO NON_MATCHING AVOID_UB
-  BUILD_VERSION=VERSION_I_P VERSION_US
+  BUILD_VERSION=VERSION_I_P VERSION_JP=1
   PORT_STATIC_FRAGMENTS)
 target_compile_options(stadium_game PRIVATE
   ${PORT_DEBUG_INFO} ${PORT_NO_BUILTIN} ${PORT_UNSIGNED_CHAR} ${STADION_GAME_WARNINGS}
@@ -316,7 +331,7 @@ if(NOT PORT_SOURCE_REVISION)
 endif()
 string(APPEND PORT_BUILD_DESCRIPTION " revision ${PORT_SOURCE_REVISION}")
 target_compile_definitions(pokestadium PRIVATE PORT_BUILD_VERSION="${PORT_BUILD_DESCRIPTION}")
-target_compile_definitions(port_os PRIVATE LANGUAGE_C _LANGUAGE_C F3DEX_GBI_2 NDEBUG _FINALROM N_MICRO VERSION_US BUILD_VERSION=VERSION_I_P)
+target_compile_definitions(port_os PRIVATE LANGUAGE_C _LANGUAGE_C F3DEX_GBI_2 NDEBUG _FINALROM N_MICRO VERSION_JP=1 BUILD_VERSION=VERSION_I_P)
 target_compile_options(port_os PRIVATE ${PORT_DEBUG_INFO} ${PORT_FORCE_INCLUDE}${CMAKE_CURRENT_SOURCE_DIR}/src/port/sdk/port_compat.h
   ${PORT_ALL_WARNINGS} -Wno-error)
 # the GB Tower's sound output uses SDL3 directly (same SDL3 the window uses)

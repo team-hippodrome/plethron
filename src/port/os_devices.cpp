@@ -1561,3 +1561,12 @@ extern "C" void* Port_ResolveN64Address(uintptr_t addr) {
     return (r == addr) ? nullptr : (void*)r; // unresolved (< 4 GB can never be a host pointer) // unresolvable segment address: let Fast3D skip it
 }
 
+
+// C access to the cartridge image for the data lifter (src/port/zero_lift.c)
+extern "C" const uint8_t* Port_RomBytes(void) {
+    return gRom.empty() ? nullptr : gRom.data();
+}
+
+extern "C" size_t Port_RomLength(void) {
+    return gRom.size();
+}
