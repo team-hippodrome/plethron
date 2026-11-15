@@ -349,15 +349,27 @@ typedef struct GeoType3Node {
     /* 0x18 */ s16 unk_18;
 } GeoType3Node; // size = 0x1C
 
+// Projection nodes own the per-layer display list queues that GeoRender_SubmitLayerDisplayList fills
+// and GeoRender_DrawModelLayers flushes (9 layers, opaque to translucent).
+typedef struct GeoLayerListNode {
+    /* 0x00 */ GraphNode node;
+    /* 0x18 */ struct GeoLayerEntry* layerHead[9];
+    /* 0x3C */ struct GeoLayerEntry* layerTail[9];
+} GeoLayerListNode; // size = 0x60
+
 // Graph node type 0x5.
 typedef struct GeoOrthoNode {
     /* 0x00 */ GraphNode node;
-} GeoOrthoNode; // size = 0x18
+    /* 0x18 */ struct GeoLayerEntry* layerHead[9];
+    /* 0x3C */ struct GeoLayerEntry* layerTail[9];
+} GeoOrthoNode; // size = 0x60
 
 // Graph node type 0x6.
 typedef struct GeoPerspectiveNode {
     /* 0x00 */ GraphNode node;
-} GeoPerspectiveNode; // size = 0x18
+    /* 0x18 */ struct GeoLayerEntry* layerHead[9];
+    /* 0x3C */ struct GeoLayerEntry* layerTail[9];
+} GeoPerspectiveNode; // size = 0x60
 
 // Graph node type 0x7.
 typedef struct GeoBackgroundNode {

@@ -24,7 +24,7 @@ void DoduoGameBoy_ScrollScreenGlare(s32 call_context, GeoDisplayListNode* node) 
     static s32 sGlareScrollB;
 
     if (call_context == 2) {
-        node->displayList = Gfx_AllocDisplayList(0x20);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 4); // PORT: was 0x20 (4 N64 commands)
         sGlareScrollA++;
         if (sGlareScrollA >= 0x80) {
             sGlareScrollA = 0;

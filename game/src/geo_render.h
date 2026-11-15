@@ -11,8 +11,8 @@ typedef struct unk_D_800AB970 {
     /* 0x000 */ Vec3f unk_000[1];
     /* 0x00C */ char unk00C[0x174];
     /* 0x180 */ s32 unk_180;
-    /* 0x184 */ char unk184[0xC];
-} unk_D_800AB970; // size = 0x190?
+    /* 0x184 */ char unk184[0x4];
+} unk_D_800AB970; // size = 0x188 (D_800AC690 follows at 0x800AC690)
 
 typedef struct unk_D_800ABB00 {
     /* 0x00 */ void* unk_00;
@@ -22,12 +22,12 @@ typedef struct unk_D_800ABB00 {
 
 // Render state cache used while GeoRender_DrawModelLayers draws the layer lists.
 typedef struct GeoLayerRenderState {
-    /* 0x00 */ s32 unk_00;
+    /* 0x00 */ uintptr_t lastMatrix; // PORT: widened; last matrix loaded by GeoRender_DrawEntryDisplayList
     /* 0x04 */ s32 primColor; // @unverified: last gDPSetPrimColor color (GeoRender_ResetMaterialState)
     /* 0x08 */ s32 fogColor; // @unverified: last G_SETFOGCOLOR word, compared with the layer entry (GeoRender_ApplyEntryFog)
     /* 0x0C */ uintptr_t texture; // @unverified: bound texture; 0 means none (GeoRender_DisableTexture/BindTexture)
     /* 0x10 */ uintptr_t palette; // @unverified: cleared with texture in GeoRender_ResetMaterialState
-    /* 0x14 */ s32 displayList; // @unverified: last material display list (GeoRender_BindTexture)
+    /* 0x14 */ uintptr_t displayList; // @unverified: last material display list (GeoRender_BindTexture)
     /* 0x18 */ u8 combineMode; // @unverified: index into D_80060534 combine modes
     /* 0x19 */ u8 primLodFraction; // @unverified: last gDPSetPrimColor LOD fraction
     /* 0x1A */ u8 unk_1A;
@@ -53,7 +53,6 @@ typedef struct GeoLayerEntry {
     /* 0x20 */ uintptr_t materialDisplayList; // @unverified: called after the texture image is set (GeoRender_BindTexture)
 } GeoLayerEntry; // size = 0x24 (N64; PORT: pointer fields widened to uintptr_t)
 
-struct Root80013DC8;
 
 typedef struct ModelAnimChannel {
     /* 0x00 */ u8 scaleKeyCount; // @unverified: keys in the scale curve; 1 means scaleIndex is the constant value (ModelAnim_Evaluate*Channel)
@@ -89,7 +88,7 @@ extern GeoType3Node* D_8006048C;
 
 extern GeoModelRootNode* D_80060490;
 
-extern CameraNode* D_80060494;
+extern GeoLayerListNode* D_80060494;
 
 extern GeoModelRootNode* D_80060498;
 
@@ -115,7 +114,7 @@ void Geo_NodeReference(GraphNode* arg0);
 void Geo_NodeCamera(GraphNode* arg0);
 void Geo_NodeType3Pass(GraphNode* arg0);
 void Geo_NodeModelRoot(GraphNode* arg0);
-void Geo_NodeModelPartRoot(struct Root80013DC8* arg0);
+void Geo_NodeModelPartRoot(GeoLayerListNode* arg0);
 void Geo_NodeOrtho(GraphNode* arg0);
 void Geo_NodePerspective(GraphNode* arg0);
 void Geo_NodeBackground(GraphNode* arg0);
@@ -143,7 +142,7 @@ void GeoRender_AdvanceFrameCounter(void);
 s32 GeoRender_IsModelFrameCurrent(void);
 Vec3f* GeoRender_FindAnchorPosition(DisplayObject* display_object, s16 lookup_id, Vec3f* dest);
 void GeoRender_SetCombineMode(Gfx* arg0, arg1_func_81407874_014_000_010* arg1);
-void GeoRender_DisableTexture(s32* arg0, s32 arg1);
+void GeoRender_DisableTexture(GeoLayerRenderState* arg0, GeoLayerEntry* arg1);
 void GeoRender_BindTexture(GeoLayerRenderState* arg0, GeoLayerEntry* arg1);
 M2C_UNK func_8001560C(s32);                         /* extern */
 M2C_UNK func_800158C0();                            /* extern */

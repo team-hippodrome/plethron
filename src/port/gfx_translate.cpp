@@ -38,6 +38,7 @@ uintptr_t gListSegs[16]; // see TranslateList: segment bases set inside the list
 std::mutex gLock;
 std::unordered_map<const void*, Gfx*> gCache;
 std::unordered_map<const void*, void*> gDescCache; // Port_ConvertDesc
+std::unordered_map<const void*, void*> gPaletteDescCache; // Port_PaletteDescAt
 // Translated lists, vertices and matrices. When the cache is dropped the arena is retired, not freed: lists built
 // from it may still be queued for the renderer, so it is freed once a few frames have been rendered since
 // (Port_GfxFrameDone). Without this every flush kept a full copy of the scene (gigabytes within minutes in battle).
@@ -51,6 +52,7 @@ constexpr size_t kArenaLimit = 32u << 20;       // vertices and matrices are tra
 void RetireArena() {
     gCache.clear();
     gDescCache.clear();
+    gPaletteDescCache.clear();
     if (gArena.empty()) return;
     gRetired.emplace_back(gFramesDone, std::move(gArena));
     gArena.clear();
@@ -399,7 +401,8 @@ void* Port_ConvertDesc(void* link) {
     d[0] = s[0];
     d[1] = s[1];
     *(int16_t*)(d + 2) = (int16_t)Be16(s + 2);
-    memcpy(d + 4, s + 4, 4);
+    *(int16_t*)(d + 4) = (int16_t)Be16(s + 4); // Stadium Zero GeoTexture: height, texel count
+    *(int16_t*)(d + 6) = (int16_t)Be16(s + 6);
     *(uintptr_t*)(d + 8) = Be32(s + 8);
     gDescCache[p] = d;
     return d;
@@ -420,6 +423,33 @@ void* Port_DescAt(void* base, int idx, size_t hostStride) {
     g.unlock();
     if (!raw) return (uint8_t*)p + (size_t)idx * hostStride;
     return Port_ConvertDesc((void*)((const uint8_t*)p + (size_t)idx * 12));
+}
+
+// Stadium Zero GeoPalette {s32 count; s16* data; Gfx* loadDisplayList}, element idx of an array: 12 bytes apart in ROM
+// data, sizeof(GeoPalette) (24) apart on the host. The raw form becomes a host copy holding the two link addresses
+// widened (Fast3D resolves them).
+void* Port_PaletteDescAt(void* base, int idx) {
+    const size_t hostStride = 4 + 4 + 2 * sizeof(void*);
+    if (base == nullptr) return nullptr;
+    std::lock_guard<std::mutex> g(gLock);
+    uintptr_t a = (uintptr_t)base;
+    bool resolved;
+    const void* p = base;
+    if (a < 0x100000000ull) {
+        p = ResolveRaw((uint32_t)a, &resolved);
+        if (!resolved) return base;
+    }
+    if (!InRaw(p)) return (uint8_t*)p + (size_t)idx * hostStride;
+    const uint8_t* s = (const uint8_t*)p + (size_t)idx * 12;
+    auto it = gPaletteDescCache.find(s);
+    if (it != gPaletteDescCache.end()) return it->second;
+    uint8_t* d = Alloc(hostStride);
+    memset(d, 0, hostStride);
+    *(int32_t*)d = (int32_t)Be32(s);
+    *(uintptr_t*)(d + 8) = Be32(s + 4);
+    *(uintptr_t*)(d + 16) = Be32(s + 8);
+    gPaletteDescCache[s] = d;
+    return d;
 }
 
 int Port_IsRawData(const void* p) {

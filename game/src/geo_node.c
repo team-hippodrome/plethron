@@ -178,7 +178,7 @@ GeoType3Node* GeoNode_CreateType3(MemoryBlock* arg0, GeoType3Node* arg1, s16 arg
 /** Allocates a type 4 (model root) graph node. */
 GeoModelRootNode* GeoNode_CreateType4(MemoryBlock* arg0, GeoModelRootNode* arg1, s16 arg2) {
     if (arg0 != NULL) {
-        arg1 = MainPool_AllocAligned(arg0, 0x24, 4);
+        arg1 = MainPool_AllocAligned(arg0, sizeof(GeoModelRootNode), 4); // PORT: was 0x24 (the N64 size)
     }
 
     if (arg1 != NULL) {
@@ -193,7 +193,7 @@ GeoModelRootNode* GeoNode_CreateType4(MemoryBlock* arg0, GeoModelRootNode* arg1,
 /** Allocates an orthographic projection graph node. */
 GeoOrthoNode* GeoNode_CreateOrtho(MainPoolState* arg0, GeoOrthoNode* arg1, s16 arg2) {
     if (arg0 != NULL) {
-        arg1 = MainPool_AllocAligned(arg0, 0x60, 4);
+        arg1 = MainPool_AllocAligned(arg0, sizeof(GeoOrthoNode), 4); // PORT: was 0x60 (the N64 size)
     }
 
     if (arg1 != NULL) {
@@ -207,7 +207,7 @@ GeoOrthoNode* GeoNode_CreateOrtho(MainPoolState* arg0, GeoOrthoNode* arg1, s16 a
 /** Allocates a perspective projection graph node. */
 GeoPerspectiveNode* GeoNode_CreatePerspective(MainPoolState* arg0, GeoPerspectiveNode* arg1, s16 arg2) {
     if (arg0 != NULL) {
-        arg1 = MainPool_AllocAligned(arg0, 0x60 /* sizeof(GeoPerspectiveNode) */, 4);
+        arg1 = MainPool_AllocAligned(arg0, sizeof(GeoPerspectiveNode), 4); // PORT: was 0x60 (the N64 size)
     }
 
     if (arg1 != NULL) {

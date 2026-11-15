@@ -85,6 +85,8 @@ int Port_IsRawData(const void* p);
 void* Port_ConvertDesc(void* link);
 // Element idx of an array of texture descriptors: 12 bytes apart in ROM data, hostStride apart in host copies.
 void* Port_DescAt(void* base, int idx, size_t hostStride);
+// Element idx of an array of Stadium Zero GeoPalette descriptors, in the host layout.
+void* Port_PaletteDescAt(void* base, int idx);
 // The game's segment or fragment maps changed: drop translated display lists, vertices and matrices.
 void Port_GfxFlushCache(void);
 // A RAM range was freed: forget render targets that lived in it (libultraship fork, interpreter.cpp).

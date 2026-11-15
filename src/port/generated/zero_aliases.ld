@@ -324,7 +324,6 @@ D_800AB02C = gControllerPads + 28;
 D_800AB030 = gControllerPads + 32;
 D_800AB040 = gControllerPads + 48;
 D_800AB050 = gControllerPads + 64;
-D_800AC690 = D_800AC508 + 392;
 D_800AD1B0 = D_800AC7A0 + 2680;
 font_context = D_800AD200;
 max_channels = D_800B3638;

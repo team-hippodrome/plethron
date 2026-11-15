@@ -397,7 +397,7 @@ s32 Font_AddGlyphDisplayList(Gfx** list, s16 x, s16 y, s16 scale_x, s16 scale_y,
     Glyph8001AFB0* font = &((Glyph8001AFB0*)font_context)[font_context->unk_50];
     s32 offset = Font_GetGlyphIndex(chr) * font->width * font->height;
     Vtx* vtx = Font_AllocGlyphQuad(x, y, scale_x, scale_y, (u8*)font);
-    Gfx* dl = Gfx_AllocDisplayList(0xA0);
+    Gfx* dl = Gfx_AllocDisplayList(sizeof(Gfx) * 20); // PORT: was 0xA0 (20 N64 commands)
     Gfx* gfx = dl;
 
     gDPLoadTextureBlock(gfx++, font->file + offset, G_IM_FMT_IA, G_IM_SIZ_8b, font->width, font->height, 0,
@@ -419,7 +419,7 @@ s32 Font_AddGlyphDisplayList(Gfx** list, s16 x, s16 y, s16 scale_x, s16 scale_y,
  * @unverified Name read from the code.
  */
 Gfx* Gfx_WrapWithEnvColor(Gfx* inner, Color_RGBA8_u32 color) {
-    Gfx* dl = Gfx_AllocDisplayList(0x80);
+    Gfx* dl = Gfx_AllocDisplayList(sizeof(Gfx) * 16); // PORT: was 0x80 (16 N64 commands)
     Gfx* gfx = dl;
 
     gDPPipeSync(gfx++);

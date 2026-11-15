@@ -82,7 +82,7 @@ void VsPanel_PortraitCallback(s32 event, DemoGeoNode* node) {
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->displayList = Gfx_AllocDisplayList(0x10);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
         VsPanel_WritePortraitGfx(node->displayList, teams[(uintptr_t)node->node.callbackArg].trainerFile);
         node->displayList = (Gfx*)VsPanel_CheckBootCode((uintptr_t)node->displayList);
     }
@@ -154,7 +154,7 @@ void VsPanel_IconCallback(s32 event, DemoGeoNode *node)
     slot = ((uintptr_t) node->node.callbackArg) & 0xFFFF;
     if (slot < teams[team].rosterInfo[0]->numberOfPokemonCanBePicked)
     {
-      node->displayList = Gfx_AllocDisplayList(0x10);
+      node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 2); // PORT: was 0x10 (2 N64 commands)
       VsPanel_WriteIconGfx(node->displayList, teams[team].iconImages[slot]);
     }
     else

@@ -46,7 +46,7 @@ Gfx* KantoMap_BuildSeaDisplayList(Gfx* gfx) {
  */
 void KantoMap_SeaGeoCallback(s32 call_context, GeoDisplayListNode* node) {
     if (call_context == 2) {
-        node->displayList = Gfx_AllocDisplayList(0x20);
+        node->displayList = Gfx_AllocDisplayList(sizeof(Gfx) * 4); // PORT: was 0x20 (4 N64 commands)
         KantoMap_BuildSeaDisplayList(node->displayList);
     }
 }

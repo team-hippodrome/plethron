@@ -2,6 +2,9 @@
 /* C ported from the Stadium 1 decomp: src/geo_render.c, src/model_animation.c, src/model_animation_events.c. */
 
 #include "anim_raw.h"
+// PORT: from StadionPort.h (whose Port_RelocateDataBlob prototype differs from memmap.h)
+void* Port_DescAt(void* base, int idx, size_t hostStride);
+void* Port_PaletteDescAt(void* base, int idx);
 #include "geo_render.h"
 #include "battle_hud.h"
 #include "font.h"
@@ -25,7 +28,7 @@ extern u16 D_80060484;
 extern CameraNode* D_80060488;
 extern GeoType3Node* D_8006048C;
 extern GeoModelRootNode* D_80060490;
-extern CameraNode* D_80060494;
+extern GeoLayerListNode* D_80060494;
 extern GeoModelRootNode* D_80060498;
 extern DisplayObject* D_8006049C;
 extern GeoNodeRenderFunc D_8006062C[];
@@ -44,6 +47,7 @@ typedef union AnimFixedFrame {
 #include "m2c_macros.h"
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
+struct MainPoolState;
 void* MainPool_AllocAligned(struct MainPoolState* state, s32 arg1, s32 arg2);
 
 void GeoRender_InitMatrixStack(void);
@@ -88,7 +92,7 @@ Vec3f* GeoRender_FindAnchorPosition(DisplayObject* display_object, s16 lookup_id
 void GeoOverlay_SetRotatedVertex(Vtx* arg0, CameraOverlay* arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6,
                    s16 arg7);
 
-void Geo_NodeModelPartRoot(struct Root80013DC8* arg0);
+void Geo_NodeModelPartRoot(GeoLayerListNode* arg0);
 
 /** Resets the geo matrix stack to a single identity matrix. */
 void GeoRender_InitMatrixStack(void) {
@@ -658,7 +662,7 @@ void GeoRender_ResetMaterialState(GeoLayerRenderState* state) {
     color.word = state->primColor;
     state->texture = 0;
     state->palette = 0;
-    state->unk_00 = 0;
+    state->lastMatrix = 0;
     state->unk_1A = 0;
     gDPPipeSync(gDisplayListHead++);
     gDPSetPrimColor(gDisplayListHead++, 0, state->primLodFraction, color.c.r, color.c.g, color.c.b, color.c.a);
@@ -666,7 +670,7 @@ void GeoRender_ResetMaterialState(GeoLayerRenderState* state) {
     gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     GeoRender_SetCombineMode(gDisplayListHead++, &D_80060534[state->combineMode]);
     gSPClearGeometryMode(gDisplayListHead++, G_TEXTURE_GEN);
-    gSPLookAt(gDisplayListHead++, M2C_FIELD(D_80060488, u32*, 0xA4));
+    gSPLookAt(gDisplayListHead++, (uintptr_t)D_80060488->view.unk_44); // PORT: was M2C_FIELD(D_80060488, u32*, 0xA4)
 }
 
 /**
@@ -748,13 +752,14 @@ void GeoRender_ApplyEntryCombineMode(GeoLayerRenderState* state, GeoLayerEntry* 
  * texture state was set it emitted gSPTexture off (D7000000 FFFFFFFF) and cleared state words 3 and
  * 5; when it was already clear it emitted nothing.
  */
-void GeoRender_DisableTexture(s32* arg0, s32 arg1) {
-    if (arg0[3] != 0) {
+void GeoRender_DisableTexture(GeoLayerRenderState* arg0, UNUSED GeoLayerEntry* arg1) {
+    // PORT: typed fields (were words 3, 4 and 5 of the state)
+    if (arg0->texture != 0) {
         gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
     }
-    arg0[3] = 0;
-    arg0[4] = 0;
-    arg0[5] = 0;
+    arg0->texture = 0;
+    arg0->palette = 0;
+    arg0->displayList = 0;
 }
 
 extern s16 D_8006F2A4[];
@@ -831,15 +836,16 @@ void GeoRender_EnableTextureGeneration(GeoLayerRenderState* state, s32 entry) {
  * fragment).
  * @unverified Name read from the code.
  */
-void GeoRender_DrawEntryDisplayList(s32* last_matrix, void* entry) {
-    if (*last_matrix != M2C_FIELD(entry, s32*, 0xC)) {
-        *last_matrix = M2C_FIELD(entry, s32*, 0xC);
-        gSPMatrix(gDisplayListHead++, M2C_FIELD(entry, u32*, 0xC), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+void GeoRender_DrawEntryDisplayList(uintptr_t* last_matrix, GeoLayerEntry* entry) {
+    if (*last_matrix != entry->mtx) {
+        *last_matrix = entry->mtx;
+        gSPMatrix(gDisplayListHead++, entry->mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     }
-    if ((M2C_FIELD(entry, u32*, 8) >= 0x81000000U) && (M2C_FIELD(entry, u32*, 8) < 0x90000000U)) {
-        gSPDisplayList(gDisplayListHead++, Memmap_GetFragmentVaddr(M2C_FIELD(entry, void**, 8)));
+    // PORT: fragment display lists are already host pointers, Memmap_GetFragmentVaddr only applies to N64 addresses
+    if ((entry->dl >= 0x81000000U) && (entry->dl < 0x90000000U)) {
+        gSPDisplayList(gDisplayListHead++, Memmap_GetFragmentVaddr((void*)entry->dl));
     } else {
-        gSPDisplayList(gDisplayListHead++, M2C_FIELD(entry, u32*, 8));
+        gSPDisplayList(gDisplayListHead++, entry->dl);
     }
 }
 
@@ -850,84 +856,66 @@ void GeoRender_DrawEntryDisplayList(s32* last_matrix, void* entry) {
  * Verified in play (2026-11-14): stubbed at the battle command menu, both Pokémon and the stadium
  * vanished and only the 2D HUD stayed.
  */
-void GeoRender_DrawModelLayers(struct Root80013DC8 *root)
-{
-  s8 *entry;
-  GeoLayerRenderState ctx;
-  GeoRender_InitLayerState((s8 *) (&ctx));
-  ctx.flags = (*((u8 *) (((s8 *) root) + 2))) & 3; // FAKE: cast chain
-  if (ctx.flags & 1)
-  {
-    gSPSetGeometryMode(gDisplayListHead++, G_ZBUFFER);
-  }
-  else
-  {
-    gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER);
-  }
-  for (ctx.layer = 0; ctx.layer < 9; ctx.layer++)
-  {
-    entry = ((s8 **) (((s8 *) root) + 0x18))[ctx.layer];
-    if (entry != 0)
-    {
-      gDPPipeSync(gDisplayListHead++);
-      GeoRender_SetLayerRenderMode((s8 *) (&ctx));
-      for (; entry != 0; entry = *((s8 **) entry))
-      {
-        if ((*((s32 *) (((s8 *) entry) + 0x14))) & 0xFF) // FAKE: cast chain
-        {
-          GeoRender_ApplyEntryFog((s8 *) (&ctx), entry);
-        }
-        else
-        {
-          GeoRender_ClearEntryFog(&ctx, (GeoLayerEntry*) entry);
-        }
-        if ((*((u8 *) (((s8 *) entry) + 5))) != 0) // FAKE: cast chain
-        {
-          GeoRender_EnableTextureGeneration(&ctx, (uintptr_t) entry);
-        }
-        else
-        {
-          if (ctx.unk_1A == 1)
-          {
-            GeoRender_ResetMaterialState(&ctx);
-          }
-          if ((*((s32 *) (((s8 *) entry) + 0x18))) != 0) // FAKE: cast chain
-          {
-            GeoRender_BindTexture((GeoLayerRenderState *) (&ctx), (GeoLayerEntry *) entry);
-          }
-          else
-          {
-            GeoRender_DisableTexture((s32 *) (&ctx), (uintptr_t) entry);
-          }
-          GeoRender_ApplyEntryPrimColor((s8 *) (&ctx), entry);
-          GeoRender_ApplyEntryCombineMode((s8 *) (&ctx), entry);
-        }
-        GeoRender_DrawEntryDisplayList((s32 *) (&ctx), entry);
-        if ((*((u8 *) (((s8 *) entry) + 4))) != 0) // FAKE: cast chain
-        {
-          GeoRender_ResetMaterialState(&ctx);
-        }
-      }
+void GeoRender_DrawModelLayers(GeoLayerListNode* root) {
+    GeoLayerEntry* entry;
+    GeoLayerRenderState ctx;
 
+    // PORT: typed rewrite of the decomp's s8* offset reads (node +2, layer lists +0x18, entry +4/+5/+0x14/+0x18)
+    GeoRender_InitLayerState(&ctx);
+    ctx.flags = root->node.renderFlags & 3;
+    if (ctx.flags & 1) {
+        gSPSetGeometryMode(gDisplayListHead++, G_ZBUFFER);
+    } else {
+        gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER);
     }
-  }
+    for (ctx.layer = 0; ctx.layer < 9; ctx.layer++) {
+        entry = root->layerHead[ctx.layer];
+        if (entry != NULL) {
+            gDPPipeSync(gDisplayListHead++);
+            GeoRender_SetLayerRenderMode(&ctx);
+            for (; entry != NULL; entry = entry->next) {
+                if (entry->fogColor & 0xFF) {
+                    GeoRender_ApplyEntryFog(&ctx, entry);
+                } else {
+                    GeoRender_ClearEntryFog(&ctx, entry);
+                }
+                if (entry->textureMode != 0) {
+                    GeoRender_EnableTextureGeneration(&ctx, 0);
+                } else {
+                    if (ctx.unk_1A == 1) {
+                        GeoRender_ResetMaterialState(&ctx);
+                    }
+                    if (entry->texture != 0) {
+                        GeoRender_BindTexture(&ctx, entry);
+                    } else {
+                        GeoRender_DisableTexture(&ctx, entry);
+                    }
+                    GeoRender_ApplyEntryPrimColor(&ctx, entry);
+                    GeoRender_ApplyEntryCombineMode(&ctx, entry);
+                }
+                GeoRender_DrawEntryDisplayList(&ctx.lastMatrix, entry);
+                if (entry->unk_04 != 0) {
+                    GeoRender_ResetMaterialState(&ctx);
+                }
+            }
+        }
+    }
 
-  if (ctx.flags & 1)
-  {
-    gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER);
-  }
-  gDPPipeSync(gDisplayListHead++);
-  gDPSetTextureLUT(gDisplayListHead++, G_TT_NONE);
-  gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
+    if (ctx.flags & 1) {
+        gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER);
+    }
+    gDPPipeSync(gDisplayListHead++);
+    gDPSetTextureLUT(gDisplayListHead++, G_TT_NONE);
+    gSPTexture(gDisplayListHead++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF);
 }
 
-extern s32 D_800AB240;
+extern struct MainPoolState* D_800AB240; // PORT: pointer
 extern s32 D_800AB448;
 extern s32 D_800AB44C;
 extern s32 D_800AB450;
-extern s32 D_800AB454;
-extern s32 D_800AB458;
-extern s32 D_800AB45C;
+extern uintptr_t D_800AB454; // PORT: pointer
+extern uintptr_t D_800AB458; // PORT: pointer
+extern uintptr_t D_800AB45C; // PORT: pointer
 /**
  * Queues display list `arg1` on render layer `layer` with the current matrix.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the Pokédex, the party screen,
@@ -943,7 +931,7 @@ void GeoRender_SubmitLayerDisplayList(s16 layer, uintptr_t arg1, uintptr_t arg2,
     layer &= 0xF;
 
     if (!(D_80060480 & 2) && (D_80060494 != NULL) && ((D_8006049C == NULL) || (D_8006049C->alpha != 0))) {
-        entry = MainPool_AllocAligned((struct MainPoolState*)D_800AB240, sizeof(GeoLayerEntry), 4);
+        entry = MainPool_AllocAligned(D_800AB240, sizeof(GeoLayerEntry), 4);
         entry->unk_04 = (arg3 != 0);
         if (arg2 != 0) {
             entry->mtx = arg2;
@@ -975,12 +963,12 @@ void GeoRender_SubmitLayerDisplayList(s16 layer, uintptr_t arg1, uintptr_t arg2,
                 entry->textureMode = D_8006049C->textureMode;
             }
         }
-        if (M2C_FIELD(D_80060494, GeoLayerEntry**, 0x18 + layer * 4) == NULL) {
-            M2C_FIELD(D_80060494, GeoLayerEntry**, 0x18 + layer * 4) = entry;
+        if (D_80060494->layerHead[layer] == NULL) {
+            D_80060494->layerHead[layer] = entry;
         } else {
-            M2C_FIELD(D_80060494, GeoLayerEntry**, 0x3C + layer * 4)->next = entry;
+            D_80060494->layerTail[layer]->next = entry;
         }
-        M2C_FIELD(D_80060494, GeoLayerEntry**, 0x3C + layer * 4) = entry;
+        D_80060494->layerTail[layer] = entry;
     }
 }
 
@@ -1111,23 +1099,17 @@ void Geo_NodeModelRoot(GraphNode* arg0) {
     arg->unk_1A = D_80060484;
 }
 
-typedef struct Root80013DC8 {
-    /* 0x00 */ char unk00[0xC];
-    /* 0x0C */ void* children;
-    /* 0x10 */ char unk10[0x8];
-    /* 0x18 */ s32 unk18[9];
-} Root80013DC8;
-extern s32 D_800AB240;
+extern struct MainPoolState* D_800AB240; // PORT: pointer
 extern s32 D_800AB448;
 extern s32 D_800AB44C;
 extern s32 D_800AB450;
-extern s32 D_800AB454;
-extern s32 D_800AB458;
-extern s32 D_800AB45C;
+extern uintptr_t D_800AB454; // PORT: pointer
+extern uintptr_t D_800AB458; // PORT: pointer
+extern uintptr_t D_800AB45C; // PORT: pointer
 s32 MainPool_GetAvailable(void);
-s32 func_80002B10(s32, s32);
+struct MainPoolState* func_80002B10(s32, s32);
 void MainPool_TryFree(void* arg0);
-void GeoRender_DrawModelLayers(Root80013DC8*);
+void GeoRender_DrawModelLayers(GeoLayerListNode*);
 s32 func_8001380C();
 /**
  * Renders a model part root once: resets the material state, renders the children, then flushes the layers. Stadium 1 name for the same handler.
@@ -1136,12 +1118,12 @@ s32 func_8001380C();
  * a Pound turn.
  * @unverified Name and comment guessed from the code.
  */
-void Geo_NodeModelPartRoot(Root80013DC8* arg0) {
+void Geo_NodeModelPartRoot(GeoLayerListNode* arg0) {
     s32 i;
 
-    if ((D_80060494 == NULL) && (arg0->children != NULL)) {
+    if ((D_80060494 == NULL) && (arg0->node.children != NULL)) {
         for (i = 0; i < 9; i++) {
-            arg0->unk18[i] = 0;
+            arg0->layerHead[i] = NULL;
         }
         D_800AB450 = -1;
         D_800AB44C = 0xFFFFFF00;
@@ -1150,7 +1132,7 @@ void Geo_NodeModelPartRoot(Root80013DC8* arg0) {
         D_800AB458 = 0;
         D_800AB45C = 0;
         D_800AB240 = func_80002B10(MainPool_GetAvailable(), 0);
-        D_80060494 = (CameraNode*)arg0;
+        D_80060494 = arg0;
         func_8001380C(arg0);
         GeoRender_DrawModelLayers(arg0);
         D_80060494 = NULL;
@@ -1168,7 +1150,7 @@ void Geo_NodeOrtho(GraphNode* arg0) {
         gSPMatrix(gDisplayListHead++, (uintptr_t)D_80060488->orthographic.unk_00,
                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
 
-        Geo_NodeModelPartRoot(arg0);
+        Geo_NodeModelPartRoot((GeoLayerListNode*)arg0);
     }
 }
 
@@ -1187,7 +1169,7 @@ void Geo_NodePerspective(GraphNode* arg0) {
         gSPMatrix(gDisplayListHead++, (uintptr_t)D_80060488->view.fixedMatrix,
                   G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
 
-        Geo_NodeModelPartRoot(arg0);
+        Geo_NodeModelPartRoot((GeoLayerListNode*)arg0);
     }
 }
 
@@ -1396,7 +1378,7 @@ void Geo_NodeTranslate(GraphNode* arg0) {
     D_800AB460.unk_10A0--;
 }
 
-extern s32 D_800AB248[];
+extern uintptr_t D_800AB248[]; // PORT: matrix pointers
 void MtxF_ComposeBillboardTransform(MtxF* dest, Vec3f* local_position, Vec3s* rotate, Vec3f* scale, MtxF* basis, MtxF* transform);
 /**
  * Geo_NodeAnimatedPart from Stadium 1, with the joint evaluation inlined. D_800AC690 is declared as u8 in this file, so it is cast to the anim record type.
@@ -1490,7 +1472,7 @@ void Geo_NodeAnimatedPart(GraphNode* arg0) {
  * Geo_ProcessNodeChildren.  So arg0 here is probably such a node, the byte at
  * +3 its render layer and bit 4 of the byte at +2 its display-list flag.
  */
-extern s32 D_800AB248[];
+extern uintptr_t D_800AB248[]; // PORT: matrix pointers
 
 /**
  * Submits the node's display list on its layer, then renders the children. Stadium 1 name for the same handler.
@@ -1500,7 +1482,7 @@ extern s32 D_800AB248[];
  * @unverified Name and comment guessed from the code.
  */
 void Geo_NodeDisplayListPart(void *arg0) {
-    s32 temp_a1;
+    uintptr_t temp_a1;
 
     temp_a1 = (uintptr_t)((GeoDisplayListPartNode*)arg0)->displayList;
     if (temp_a1 != 0) {
@@ -1571,7 +1553,7 @@ void Geo_NodeModelPart(GraphNode* arg0) {
     }
 }
 
-M2C_UNK func_80011294(s32);                         /* extern */
+void func_80011294(MtxF*); // PORT: typed (was s32)
 M2C_UNK func_8001380C(s8 *);                      /* extern */
 
 /**
@@ -1581,9 +1563,9 @@ M2C_UNK func_8001380C(s8 *);                      /* extern */
  * @unverified Name and comment guessed from the code.
  */
 void Geo_NodeDisplayListMatrix(s8 *arg0) {
-    s32 temp_a1;
+    uintptr_t temp_a1;
 
-    func_80011294(arg0 + 0x1C);
+    func_80011294(&((GeoDisplayListMatrixNode*)arg0)->matrix); // PORT: was arg0 + 0x1C
     temp_a1 = (uintptr_t)((GeoDisplayListMatrixNode*)arg0)->displayList;
     if (temp_a1 != 0) {
         GeoRender_SubmitLayerDisplayList(((GeoDisplayListMatrixNode*)arg0)->node.renderLayer, temp_a1, 0, ((GeoDisplayListMatrixNode*)arg0)->node.renderFlags & 4);
@@ -1605,9 +1587,9 @@ M2C_UNK func_80011210(MtxF *);                      /* extern */
  */
 void Geo_NodeBillboard(s8 *arg0) {
     MtxF sp28;
-    s32 temp_a1;
+    uintptr_t temp_a1;
 
-    MtxF_SetBillboard(&sp28, &D_80060488->view.floatMatrix, &D_800AB460.unk_0000[D_800AB460.unk_10A0], arg0 + 0x1C);
+    MtxF_SetBillboard(&sp28, &D_80060488->view.floatMatrix, &D_800AB460.unk_0000[D_800AB460.unk_10A0], &((GeoBillboardNode*)arg0)->position); // PORT: was arg0 + 0x1C
     D_800AB460.unk_10A0 += 1;
     func_80011210(&sp28);
     temp_a1 = (uintptr_t)((GeoBillboardNode*)arg0)->displayList;
@@ -1661,7 +1643,7 @@ void Geo_NodeMaterial(GeoMaterialNode *arg0)
   D_800AB45C = (uintptr_t)arg0->displayList;
   if (arg0->textureIndex >= 0)
   {
-    D_800AB454 = (uintptr_t) (&D_800604A0->textures[arg0->textureIndex]);
+    D_800AB454 = (uintptr_t)Port_DescAt(D_800604A0->textures, arg0->textureIndex, sizeof(GeoTexture)); // PORT: big-endian tables in model blobs
   }
   else
   {
@@ -1669,7 +1651,7 @@ void Geo_NodeMaterial(GeoMaterialNode *arg0)
   }
   if (arg0->paletteIndex >= 0)
   {
-    D_800AB458 = (uintptr_t) (&D_800604A0->palettes[arg0->paletteIndex]);
+    D_800AB458 = (uintptr_t)Port_PaletteDescAt(D_800604A0->palettes, arg0->paletteIndex); // PORT: big-endian tables in model blobs
   }
   else
   {
@@ -1687,7 +1669,7 @@ void Geo_NodeMaterial(GeoMaterialNode *arg0)
     if ((arg0->eventIndex >= 0) && (arg0->eventIndex < ANIM_COUNT(D_800AC6A8.data))) // PORT: anim_raw.h
     {
       tex_index = ((u8 *) D_800AC6A8.frameValues)[ModelAnim_ResolveEventIndex(D_800AC6A8.frame, (unk_func_80017540_arg1 *) D_800AC6A8.trackTable, arg0->eventIndex)];
-      D_800AB454 = (uintptr_t) (&D_800604A0->textures[tex_index]);
+      D_800AB454 = (uintptr_t)Port_DescAt(D_800604A0->textures, tex_index, sizeof(GeoTexture)); // PORT: big-endian tables in model blobs
     }
     break;
   }
