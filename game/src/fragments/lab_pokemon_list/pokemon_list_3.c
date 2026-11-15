@@ -10,8 +10,8 @@ void Font_EndTexturedTextRendering(void);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Font_SetActive(s32 mask, s32 arg1);
 void Gfx_SetEnvColor(s32 r, s32 g, s32 b, s32 a);
-void LabPCList_DrawLocation(s32 x, s32 y, s8 ***entry);
-void LabPCList_DrawMoveName(s32 x, s32 y, s32 mon, s32 slot);
+void LabPCList_DrawLocation(s32 x, s32 y, LabPCEntry* entry); // PORT: matches the definition
+void LabPCList_DrawMoveName(s32 x, s32 y, u8* mon, s32 slot); // PORT: matches the definition
 void LabPCList_DrawTypeIcon(s32 x, s32 y, u8* mon, s32 type_slot);
 
 extern u8 D_80073520[];
@@ -21,25 +21,22 @@ void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_bu
 
 extern s32 D_8910A7F8[3];
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
-void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
 extern u8 D_8910A848[];
-extern u8 D_8910A804[];
-extern u8 D_8910A84C[];
+extern s32 D_8910A804[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
+extern s32 D_8910A84C[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 
-void LabPCList_SaveDirtyItemDecks(s32 screen);
 void LabPCList_ResetHeaderCursor(LabPCListScreen* screen);
 s32 LabPCList_GetColumnCursorX(LabPCListScreen* screen);
 extern u8 D_800734A8[];
@@ -134,7 +131,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
           break;
 
         case 3:
-          LabPCList_DrawLocation(cx + 4, y + 2, (s8 ***) entry);
+          LabPCList_DrawLocation(cx + 4, y + 2, (LabPCEntry*) entry);
           break;
 
         case 4:
@@ -150,7 +147,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
         case 8:
 
         case 9:
-          LabPCList_DrawMoveName(cx + 1, y + 2, (uintptr_t) (&entry->species), col - 6);
+          LabPCList_DrawMoveName(cx + 1, y + 2, &entry->species, col - 6);
           break;
 
         case 10:

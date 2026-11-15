@@ -11,25 +11,22 @@ void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_bu
 
 extern s32 D_8910A7F8[3];
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-void LabPCList_InitSourceBoxes(void*, void*, void*, s32);
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
-void LabPCList_LoadAllBoxes(s8*);
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
 void ScrollList_Init(s8*, s8*, s8*, s32, void*, s32, s32);
 void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags, LabPCListScreen *ctx); // PORT: matches the definition
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 extern Color_RGBA8 D_8910A7F4;
 extern u8 D_8910A844[];
 extern u8 D_8910A848[];
-extern u8 D_8910A804[];
-extern u8 D_8910A84C[];
+extern s32 D_8910A804[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
+extern s32 D_8910A84C[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 
-void LabPCList_SaveDirtyItemDecks(s32 screen);
 void LabPCList_ResetHeaderCursor(LabPCListScreen* screen);
 s32 LabPCList_GetColumnCursorX(LabPCListScreen* screen);
 extern M2C_UNK D_800734A8;
@@ -205,7 +202,7 @@ s32 LabPCList_ToggleFilterFlag(unk_func_89101D80* arg0, s32 flag) {
     return arg0->flags & flag;
 }
 
-extern s32 D_8910D990[];
+extern s32 (*D_8910D990[])(s32, s32); // PORT: the sort comparators (was s32)
 void ScrollList_SetItems(ScrollList*, PointerList*, u16*);
 void func_80027D94(LabMonEntryList* arg0, LabMonEntryList* arg1, s32 (*arg2)(LabMonEntry*, s32*), s32* arg3); // PORT: matches PointerList_Filter
 void func_80027D68(LabMonEntryList* arg0, s32 (*arg1)(s32, s32)); // PORT: matches PointerList_Sort
@@ -251,9 +248,9 @@ M2C_UNK LabPCList_ApplyFiltersAndSort(LabPCListScreen* screen) {
     func_80027D68(screen->list.items, D_8910D990[screen->sortKey]);
 }
 
-typedef struct Pair8910D910 { void* a; s32 b; } Pair8910D910;
+typedef struct Pair8910D910 { char** a; s32 b; } Pair8910D910;
 extern Pair8910D910 D_8910D910[];
-void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message); // PORT: matches the definition
 void LabPCList_PlacePopup(LabPopupMenu*);
 
 /**
@@ -276,7 +273,7 @@ void LabPCList_OpenColumnMenu(LabPCListScreen* screen) {
         case 14:
         case 15:
             screen->state = 3;
-            LabPCList_InitPopupMenu(&screen->popup, D_8910D910[sel].a, (s8*)&screen->popupItemFlags, D_8910D910[sel].b, 0);
+            LabPCList_InitPopupMenu(&screen->popup, D_8910D910[sel].a, (u16*)&screen->popupItemFlags, D_8910D910[sel].b, 0);
             Window_SetRect((s8*)&screen->popup.anchorX, LabPCList_GetColumnCursorX(screen), screen->listFrame.y, 0, 22);
             screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;
             screen->popup.limitY = screen->listFrame.y + screen->listFrame.height;
@@ -300,11 +297,10 @@ void LabPCList_OpenColumnMenu(LabPCListScreen* screen) {
 
 typedef struct Str891020F8 { char s[13]; } Str891020F8;
 char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
-void LabPCList_InitPopupMenu(LabPopupMenu*, void*, s8*, s32, s32);
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message); // PORT: matches the definition
 void LabPCList_PlacePopup(LabPopupMenu*);
-void LabPCList_BuildUsableItemList(s8*, s8*, s8*, s32);
 extern s8* D_8910A890[];
-extern u8 D_8910A898[];
+extern char* D_8910A898[]; // PORT: a table of string pointers (was u8)
 extern u8 D_8910DC50[];
 extern s8 D_8910E2D0[];
 extern s8 D_8910E312[];
@@ -315,11 +311,11 @@ extern s8 D_8910E312[];
  * first row, 「フシギダネをあつめる」.
  */
 void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
-    func_8000A460(D_8910E2D0, (s8*)D_80064C5C[M2C_FIELD(((PointerList*)screen->list.items)->items[screen->list.cursor], u8*, 8) - 1].name);
+    func_8000A460(D_8910E2D0, (s8*)D_80064C5C[((LabPCEntry*)((PointerList*)screen->list.items)->items[screen->list.cursor])->mon.species.id - 1].name);
     func_8000A460(D_8910E2D0 + strlen(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
     *(Str891020F8*)D_8910E312 = *(Str891020F8*)D_8910DC50;
     func_8000A460(D_8910E2D0 + (strlen(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
-    LabPCList_InitPopupMenu(&screen->popup, D_8910A898, (s8*)screen->popupItemFlags, 4, 0);
+    LabPCList_InitPopupMenu(&screen->popup, D_8910A898, (u16*)screen->popupItemFlags, 4, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38,
                   screen->listFrame.y + screen->list.cursorY - screen->list.scrollY + 22, 0, 20);
     screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;
@@ -327,10 +323,10 @@ void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
     LabPCList_PlacePopup(&screen->popup);
     screen->popup.window.frame.color = D_8910A7F4;
     screen->state = 7;
-    func_80027804((s8*)screen + 0xAFFC, (s8*)screen + 0xAD54, 0xAA, 0);
-    LabPCList_BuildUsableItemList((s8*)screen + 0xAFFC, (s8*)screen + 0xA00C, (s8*)screen->unk_9E64, 3);
-    if (M2C_FIELD(screen, s32*, 0xB004) == 0) {
-        M2C_FIELD(screen->popup.menu.itemFlags, u16*, 6) |= 1;
+    func_80027804(&screen->usableItemList, (void**)screen->usableItemPtrs, 0xAA, 0); // PORT: typed (were N64 offsets)
+    LabPCList_BuildUsableItemList(&screen->usableItemList, screen->usableItems, screen->itemDecks, 3);
+    if (screen->usableItemList.count == 0) {
+        screen->popup.menu.itemFlags[3] |= 1;
     }
 }
 
@@ -353,7 +349,7 @@ void LabPCList_FormatGatherPrompt(LabPCListScreen*);
 s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
     s32 ret;
 
-    if ((screen->list.cursorY == 0) && (*(u16*)(D_800603C0 + 6) & 0x800)) {
+    if ((screen->list.cursorY == 0) && (D_800603C0->buttonDown & 0x800)) {
         Audio_PlaySystemSound(1);
         screen->focus = 2;
         screen->headerCursor.cursor = 1;
@@ -361,7 +357,7 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
         return 1;
     }
     ret = ScrollList_UpdateCursor(&screen->list.items) != 0;
-    if ((ret == 0) && (*(u16*)(D_800603C0 + 8) & 0x8000)) {
+    if ((ret == 0) && (D_800603C0->buttonPressed & 0x8000)) {
         if ((screen->list.items->count > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] < 0x98)) {
             Audio_PlaySystemSound(2);
             LabPCList_FormatGatherPrompt((s8*)screen);
@@ -374,13 +370,13 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
 }
 
 char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
-void LabPCList_InitPopupMenu(LabPopupMenu*, void *, s8 *, s32, s32);
+void LabPCList_InitPopupMenu(LabPopupMenu* popup, char** labels, u16* item_flags, s32 count, char* message); // PORT: matches the definition
 void LabPCList_PlacePopup(LabPopupMenu*);
 void Window_SetRect(s8 *, s32, s32, s32, s32);
 extern Color_RGBA8 D_8910A7F4;
 extern s8 *D_8910A8A8[];
 extern s8 D_8910A8B0[];
-extern u8 D_8910A8C8[];
+extern char* D_8910A8C8[]; // PORT: a table of string pointers (was u8)
 extern s8 D_8910E358[];
 /**
  * Sets up the sort menu: by name, by number, gather battle Pokemon, clear selections, choose what to list.
@@ -390,14 +386,14 @@ extern s8 D_8910E358[];
 void LabPCList_InitSortMenu(LabPCListScreen *screen) {
     func_8000A460(D_8910E358, D_8910A8B0);
     func_8000A460(D_8910E358 + strlen(D_8910E358), D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]);
-    LabPCList_InitPopupMenu(&screen->popup, D_8910A8C8, (s8*)&screen->popupItemFlags, 5, 0);
+    LabPCList_InitPopupMenu(&screen->popup, D_8910A8C8, (u16*)&screen->popupItemFlags, 5, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38, screen->listFrame.y, 0, 22);
     screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;
     screen->popup.limitY = screen->listFrame.y + screen->listFrame.height;
     LabPCList_PlacePopup(&screen->popup);
     screen->popup.window.frame.color = D_8910A7F4;
     if (screen->activeFilters == 0) {
-        M2C_FIELD(screen->popup.menu.itemFlags, u16 *, 6) |= 1;
+        screen->popup.menu.itemFlags[3] |= 1;
     }
 }
 
@@ -423,7 +419,7 @@ s32 LabPCList_UpdateHeaderCursor(LabPCListScreen* screen) {
             screen->focus = (screen->headerCursor.cursor < 2) ? 2 : 1;
             ret = 1;
         }
-    } else if (*(u16*)(D_800603C0 + 8) & 0x8000) {
+    } else if (D_800603C0->buttonPressed & 0x8000) {
         if (screen->headerCursor.cursor == 0) {
             Audio_PlaySystemSound(3);
             ret = -1;
@@ -463,7 +459,7 @@ s32 LabPCList_UpdateBrowse(LabPCListScreen* screen) {
     if (result == -1) {
         done = TRUE;
     } else if (result == 0) {
-        buttons = *(u16*)(D_800603C0 + 8);
+        buttons = D_800603C0->buttonPressed;
         if (buttons & 0x4000) {
             Audio_PlaySystemSound(3);
             done = TRUE;
@@ -515,33 +511,31 @@ s32 LabPCList_UpdateSourceSelect(LabPCListScreen* screen)
   if (temp_v0 == 1)
   {
     new_var = (s8*)&screen->sourceMatrix; // FAKE: permuter temp
-    LabPCList_FlattenEntries((PointerList*)new_var2, (unk_func_8830867C_02C_144*)new_var); // FAKE: permuter temp
+    LabPCList_FlattenEntries((PointerList*)new_var2, (ByteMatrix*)new_var); // FAKE: permuter temp
     LabPCList_ApplyFiltersAndSort(screen);
-    *((s32 *) (((s8 *) screen) + 0x88)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+    screen->state = 0; // FAKE: stored twice as in the ROM (was a raw N64 offset)
     block_4:
-    *((s32 *) (((s8 *) screen) + 0x88)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+    screen->state = 0; // FAKE: stored twice as in the ROM (was a raw N64 offset)
 
   }
   return 0;
 }
 
-typedef struct Sub89102930 { char unk00[0x10]; s32 unk10; char unk14[0xC]; } Sub89102930; // 0x20
-typedef struct Item89102930 { char unk00[4]; s32 unk04; char unk08[8]; Sub89102930* subs; char unk14[4]; s32 subCount; char unk1C[8]; } Item89102930; // 0x24
 /**
  * Returns which saves need writing: 1 a Game Boy box or the party changed, 2 a Game Boy item deck, 0x10 a 64 cartridge box, 0x20 the 64 item deck.
  * Seen in play (2026-11-14) in いちらん: ran on レポートしてやめる after a TM and a move; the Game Boy save was written.
  */
-s32 LabPCList_GetChangedSaveFlags(screen) s8* screen; {
+s32 LabPCList_GetChangedSaveFlags(LabPCListScreen* screen) { // PORT: typed (was K&R s8* with N64 offsets and views)
     s32 flags = 0;
     s32 i;
     s32 j;
-    Item89102930* item = M2C_FIELD(screen, Item89102930**, 0x420);
+    Entry89100140* item = (Entry89100140*)screen->sourceMatrix.rows;
 
-    for (i = 0; i < M2C_FIELD(screen, s32*, 0x428); i++, item++) {
-        Sub89102930* sub = item->subs;
-        for (j = 0; j < item->subCount; j++, sub++) {
-            if (sub->unk10 != 0) {
-                if (item->unk04 == 0x20 || item->unk04 == 0x21) {
+    for (i = 0; i < screen->sourceMatrix.count; i++, item++) {
+        LabPCBox* sub = (LabPCBox*)item->boxes.rows;
+        for (j = 0; j < item->boxes.count; j++, sub++) {
+            if (sub->changed != 0) {
+                if (item->unk_04 == 0x20 || item->unk_04 == 0x21) {
                     flags |= 1;
                 } else {
                     flags |= 0x10;
@@ -550,7 +544,7 @@ s32 LabPCList_GetChangedSaveFlags(screen) s8* screen; {
         }
     }
     for (i = 0; i < 3; i++) {
-        if (((LabPCListScreen*)screen)->unk_9E68[i].unk00 != 0 && ((LabPCListScreen*)screen)->unk_9E68[i].unk04 != 0) {
+        if (screen->itemDecks[i].unk_04 != 0 && screen->itemDecks[i].unk_08 != 0) {
             if (i == 0 || i == 1) {
                 flags |= 2;
             } else {
@@ -568,8 +562,7 @@ void func_800230C4(s32 arg0); // PORT: matches GbSave_RebuildHeldSpecies
 M2C_UNK Save_CommitPokemonRecords();                            /* extern */
 M2C_UNK GbSave_RunReportErrorLoop(s32);                         /* extern */
 void LabPCList_DrawListScreen(LabPCListScreen*);
-s32 LabPCList_GetChangedSaveFlags(s8* screen);                              /* extern */
-void LabPCList_SaveDirtyBoxes(void* sources); // PORT: matches the definition
+s32 LabPCList_GetChangedSaveFlags(LabPCListScreen* screen);
 extern s32 D_8910E37C;
 
 /**
@@ -577,16 +570,16 @@ extern s32 D_8910E37C;
  * Seen in play (2026-11-12) in いちらん: ran on レポートしてやめる (B after an item was used, 「ないようが
  * へんこうされています」), and the Game Boy save on the Transfer Pak then held the changed party and bag.
  */
-void LabPCList_SaveChanges(s32 screen) {
+void LabPCList_SaveChanges(LabPCListScreen* screen) { // PORT: typed (was s32)
     s32 sp1C;
     s32 temp_v0;
 
-    temp_v0 = LabPCList_GetChangedSaveFlags((s8*)(intptr_t)screen); // PORT: was implicit a0
+    temp_v0 = LabPCList_GetChangedSaveFlags(screen); // PORT: was implicit a0
     sp1C = temp_v0;
     if (temp_v0 & 3) {
         func_80022118(D_8910E37C);
     }
-    LabPCList_SaveDirtyBoxes(screen + 0x420);
+    LabPCList_SaveDirtyBoxes(&screen->sourceMatrix);
     LabPCList_SaveDirtyItemDecks(screen);
     if (sp1C & 3) {
         if (sp1C & 1) {
@@ -594,7 +587,7 @@ void LabPCList_SaveChanges(s32 screen) {
         }
         if (func_8002207C(D_8910E37C) == 0) {
             GbSave_RunReportErrorLoop(D_8910E37C);
-            LabPCList_DrawListScreen((s8*)screen);
+            LabPCList_DrawListScreen(screen);
         }
         func_80022188(D_8910E37C);
     }

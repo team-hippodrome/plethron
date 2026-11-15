@@ -46,7 +46,7 @@ void* func_80002BA4(struct MainPoolState* block, s32 size); // PORT: matches Mai
 Fragment* func_80017304(MainPoolState* arg0, BinArchive* arg1, s32 arg2, PERSSZP* arg3, s32 arg4); // PORT: matches BinArchive_LoadFileToPool
 s32 Type_ToTableIndex(s32);
 s32 BattleMon_CountMoves(u8* arg0);
-s32 BattleMon_GetMoveIndexChecked();
+s32 BattleMon_GetMoveIndexChecked(u8* mon, s32 slot); // PORT: matches the definition
 typedef struct Move8A201D3C { u8 unk00; u8 unk01; u8 power; u8 type; u8 unk04; u8 unk05; } Move8A201D3C;
 extern Move8A201D3C D_8006B190[];
 extern BinArchive* sMoveBackdropArchive;
@@ -281,7 +281,7 @@ s32 MonSummary_UpdateMoveCursor(MonSummaryWindow* window) {
             var_s0 = 3;
         }
         if (var_s0 >= 0) {
-            if (BattleMon_GetMoveIndexChecked(window->mon, var_s0, window) == -1) {
+            if (BattleMon_GetMoveIndexChecked(window->mon, var_s0) == -1) {
                 Audio_PlaySystemSound(8);
             } else {
                 Audio_PlaySystemSound(2);

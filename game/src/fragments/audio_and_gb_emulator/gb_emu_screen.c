@@ -510,7 +510,7 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
             keep = 1;
             if (D_81154C51 & 4) {
                 sel = D_81154C51 & 3;
-                if (*(u16*)(D_800603C0 + 6) == 0) {
+                if (D_800603C0->buttonDown == 0) {
                     if (sel == 0) {
                         D_8111E30C = (D_8111E314[0] == 1)   ? 0x20
                                      : (D_8111E314[0] == 2) ? 0x10
@@ -538,10 +538,10 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
                     }
                 }
             } else {
-                sel = *(u16*)(D_800603C0 + 8);
+                sel = D_800603C0->buttonPressed;
                 if (sel & 0xC00) {
                     func_811177DC(7);
-                    if (*(u16*)(D_800603C0 + 8) & 0x400) {
+                    if (D_800603C0->buttonPressed & 0x400) {
                         if ((D_81154C51 & 3) >= 2) {
                             D_81154C51 &= 0xFC;
                         } else {
@@ -554,7 +554,7 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
                             D_81154C51 = (D_81154C51 & 0xFC) + 2;
                         }
                     }
-                } else if (!(*(u16*)(D_800603C0 + 6) & 8) && (sel & 0xD000)) {
+                } else if (!(D_800603C0->buttonDown & 8) && (sel & 0xD000)) {
                     if (sel & 0x4000) {
                         D_81154C51 = 4;
                     } else {
@@ -624,7 +624,7 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
             if (GbPak_CheckConnectionBlocking() != 0) {
                 goto error;
             }
-            sel = *(u16*)(D_800603C0 + 8);
+            sel = D_800603C0->buttonPressed;
             if (sel & 0xC00) {
                 func_811177DC(7);
                 D_81154C52 ^= 8;
@@ -684,13 +684,13 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
             if (GbPak_CheckConnectionBlocking() != 0) {
                 goto error;
             }
-            sel = *(u16*)(D_800603C0 + 8);
+            sel = D_800603C0->buttonPressed;
             if (sel & 0x4000) {
                 D_81154C4D = 10;
                 func_811177DC(8);
             } else if (sel & 0x300) {
                 func_811177DC(5);
-                if (*(u16*)(D_800603C0 + 8) & 0x200) {
+                if (D_800603C0->buttonPressed & 0x200) {
                     if (D_81154C52 & 7) {
                         D_81154C52--;
                         goto call9;
@@ -757,7 +757,7 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
             }
             GbEmu_DrawQuitConfirm((s8*)D_81154C30[D_81154C3C]->img_p, D_81154C51 & 1);
             if (!(D_81154C51 & 2)) {
-                sel = *(u16*)(D_800603C0 + 8);
+                sel = D_800603C0->buttonPressed;
                 if (sel & 0x4000) {
                     func_811177DC(8);
                 back4:
