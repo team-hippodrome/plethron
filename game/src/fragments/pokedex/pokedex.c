@@ -111,7 +111,6 @@ void Pokedex_DrawListRow(s32 x, s32 y, char* item, s32 row, s32 flags, s32* sort
 
 M2C_UNK func_80027410(s8 *, M2C_UNK *, M2C_UNK, M2C_UNK, s32); /* extern */
 M2C_UNK ScrollList_Init(s8 *, s8 *, s8 *, M2C_UNK, M2C_UNK *, s32, s32); /* extern */
-extern M2C_UNK D_80064C5C;
 extern M2C_UNK D_8A12FC38;
 
 /**
@@ -126,7 +125,7 @@ void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
     list_window->window.state = 0;
     list_window->window.frame.style = 0x801;
     list_window->window.title = (char*)&D_8A12FC38;
-    func_80027410((s8*)&list_window->entries, &D_80064C5C, 0x1C, 0x97, 0x97);
+    func_80027410((s8*)&list_window->entries, D_80064C5C, sizeof(SpeciesInfo), 0x97, 0x97); // PORT: host stride
     ScrollList_Init((s8*)&list_window->list, (s8*)&list_window->entries, (s8*)list_window->itemFlags, 8, &Pokedex_DrawListRow, 260, 36);
     list_window->sortByKana = 0;
     list_window->list.options |= 0x10000;
@@ -400,7 +399,7 @@ void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
  * いもむしポケモン with ??? m and ??? kg.
  */
 void Pokedex_DrawEntryInfo(s32 x, s32 y) {
-    SpeciesInfo* entry = (SpeciesInfo*)((u8*)&D_80064C5C + sSelectedDexIndex * 0x1C);
+    SpeciesInfo* entry = &D_80064C5C[sSelectedDexIndex];
 
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(x, y, 290, 210, D_8A1057D4);
@@ -446,7 +445,7 @@ extern s32 sSelectedDexIndex;
  * Seen in play (2026-11-14): フシギダネ's 「せなかの きゅうこんのような ふくろは...」; ??? for seen-only キャタピー.
  */
 void Pokedex_DrawEntryDescription(s32 x, s32 y) {
-    SpeciesInfo* entry = (SpeciesInfo*)((u8*)&D_80064C5C + sSelectedDexIndex * 0x1C);
+    SpeciesInfo* entry = &D_80064C5C[sSelectedDexIndex];
 
     Ui_FillRectPrimEnvColor(x, y, 540, 120, *(Rgba8A100F20 *)D_8A1057F8, *(Rgba8A100F20 *)D_8A1057FC);
     Font_BeginTranslucentTextRendering();

@@ -10,7 +10,7 @@ void* MainPool_AllocWithFunc(u32 size, s32 side, s32 arg, AllocateFunc func);
 void MainPool_TryFree(void* arg0);
 typedef struct DisplayListBuffers {
     /* 0x00 */ u32* buffers[2];  // @unverified: 'DYN0'/'DYN1' allocations in Gfx_InitDisplayListBuffers
-    /* 0x08 */ u32 allocEnd;     // @unverified: Gfx_AllocDisplayList takes space down from here toward gDisplayListHead
+    /* 0x08 */ uintptr_t allocEnd; // @unverified: Gfx_AllocDisplayList takes space down from here toward gDisplayListHead (PORT: uintptr_t)
     /* 0x0C */ s32 bufferSize;   // @unverified: buffer_size argument of Gfx_InitDisplayListBuffers
     /* 0x10 */ s16 current;      // @unverified: toggled by Gfx_SwapDisplayListBuffer, indexes buffers[]
 } DisplayListBuffers; // size = 0x14
@@ -42,26 +42,26 @@ void Gfx_FreeDisplayListBuffers(void) {
 
 /** Switches to the other display list buffer. */
 void Gfx_SwapDisplayListBuffer(void) {
-    s32* temp_v0 = (s32*)&D_800AA158;
+    u32* buf; // PORT: index buffers[] instead of a 4-byte stride over the struct
 
     D_800AA158.current ^= 1;
-    temp_v0 += D_800AA158.current;
+    buf = D_800AA158.buffers[D_800AA158.current];
 
-    D_800AA158.allocEnd = *temp_v0 + D_800AA158.bufferSize;
-    gDisplayListHead = *temp_v0;
+    D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize;
+    gDisplayListHead = (Gfx*)buf;
 }
 
 /** Returns the start and current end of the display list buffer. */
 void Gfx_GetDisplayListRange(Gfx** arg0, Gfx** arg1) {
-    s32* ptr = (s32*)&D_800AA158;
-    *arg1 = (Gfx*)((uintptr_t)gDisplayListHead - ptr[D_800AA158.current]);
-    *arg0 = (Gfx*)(ptr[D_800AA158.current]);
+    uintptr_t buf = (uintptr_t)D_800AA158.buffers[D_800AA158.current]; // PORT: see Gfx_SwapDisplayListBuffer
+    *arg1 = (Gfx*)((uintptr_t)gDisplayListHead - buf);
+    *arg0 = (Gfx*)buf;
 }
 
 /** Allocates space from the end of the display list buffer. */
 void* Gfx_AllocDisplayList(s32 size) {
-    u32 temp_v0;
-    u32 ret;
+    uintptr_t temp_v0; // PORT: host pointers
+    uintptr_t ret;
 
     size = ALIGN8(size);
     temp_v0 = (D_800AA158.allocEnd - size);
@@ -70,7 +70,7 @@ void* Gfx_AllocDisplayList(s32 size) {
         D_800AA158.allocEnd = temp_v0;
         ret = temp_v0;
     }
-    return ret;
+    return (void*)ret;
 }
 
 /** Returns how many bytes of the display list buffer remain. */

@@ -23,7 +23,7 @@ typedef struct unk_D_800AE520 {
     /* 0x04 */ u8* rom_start;
     /* 0x08 */ u8* rom_end;
     /* 0x0C */ s32 arg0;
-    /* 0x10 */ s32 arg1;
+    /* 0x10 */ uintptr_t arg1; // PORT: can be a pointer
 } unk_D_800AE520; // size >= 0x14
 
 typedef struct BattleMonSpecies {
@@ -245,8 +245,8 @@ extern unk_D_800AE520 D_800AF990;
 extern SessionContext gSessionContext;
 
 // game_state.c
-s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, u32 arg4);
-void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, s32 arg4);
+s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, uintptr_t arg4); // PORT: arg4 can be a pointer
+void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4);
 TeamRoster* Trainer_GetSlots(void);
 s32 GbSave_GetActivePort(void);
 void GbSave_SetActivePort(s32 arg0);

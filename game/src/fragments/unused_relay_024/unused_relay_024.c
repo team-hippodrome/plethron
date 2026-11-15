@@ -4,7 +4,7 @@
 #include "m2c_macros.h"
 #include "unused_relay_024.h"
 
-void Fragment_QueueCall(s32 fragment_id, u8* rom_start, u8* rom_end, s32 arg0, s32 arg1);
+void Fragment_QueueCall(s32 fragment_id, u8* rom_start, u8* rom_end, s32 arg0, uintptr_t arg1);
 extern u8 D_002B1360[]; // ROM start of fragment020 (main_menu_launcher)
 extern u8 D_002B13F0[]; // ROM end of fragment020
 extern M2C_UNK D_8E000000; // fragment020 link base

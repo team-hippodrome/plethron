@@ -1004,8 +1004,7 @@ typedef struct unk_D_80072338 {
 } unk_D_80072338; // size = 0xC
 extern unk_D_80072338 gMoveDisplayInfo[];
 
-extern char D_80064C44[][0x1C];
-#define gSpeciesDataById D_80064C44
+extern SpeciesInfo D_80064C5C[]; // PORT: replaces D_80064C44 (the same table seen 0x18 bytes early through raw offsets)
 
 typedef struct unk_rom_70D3A0_offset_72780 {
     /* 0x00 */ char unk00[0x20];

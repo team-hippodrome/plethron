@@ -246,7 +246,7 @@ void Memmap_SetSegments(Gfx** gfx_dl) {
     Gfx* gfx = *gfx_dl;
 
     for (i = 0; i < 16; i++) {
-        gSPSegment(gfx++, i, osVirtualToPhysical((void*)gSegments[i].vaddr));
+        gSPSegment(gfx++, i, (uintptr_t)gSegments[i].vaddr); // PORT: full host pointer, not a 29-bit physical address
     }
     *gfx_dl = gfx;
 }

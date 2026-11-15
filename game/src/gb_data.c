@@ -198,7 +198,7 @@ s8* Text_CopyString(s8* arg0, s8* arg1) {
 
 /** Copies a species' name string into a buffer. */
 char* Text_CopySpeciesName(char* arg0, s32 arg1) {
-    Text_CopyString(arg0, (char*)*(u32*)D_80064C44[arg1]);
+    Text_CopyString(arg0, D_80064C5C[arg1 - 1].name);
     return arg0;
 }
 

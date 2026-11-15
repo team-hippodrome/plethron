@@ -741,12 +741,6 @@ typedef struct TeamList8200140C {
     /* 0x4 */ s32 unk4;
     /* 0x8 */ s32 count;
 } TeamList8200140C;
-typedef struct Species8200140C {
-    /* 0x00 */ char unk00[0xC];
-    /* 0x0C */ u8 flags;
-    /* 0x0D */ char unk0D[0xF];
-} Species8200140C; // size = 0x1C
-extern Species8200140C D_80064C5C[];
 /**
  * Flags Pokemon the chosen rule forbids: 0x20 for an invalid species, 2 when L50～55 rules fail
  * (not allowed or level outside 50 to 55) or Free Battle's 40 usable species exclude it, 4 when
@@ -768,14 +762,14 @@ void FreeBattle_MarkIneligibleMons(TeamList8200140C *list, s32 rule_category) {
             if ((mon->species <= 0) || (mon->species >= 152)) {
                 mon->flags |= 0x20;
             } else if (rule_category == 1) {
-                if (!(D_80064C5C[mon->species - 1].flags & 1) || (mon->level < 50) || (mon->level >= 56)) {
+                if (!(D_80064C5C[mon->species - 1].cupEligibilityFlags & 1) || (mon->level < 50) || (mon->level >= 56)) {
                     mon->flags |= 2;
                 }
             } else if (rule_category == 2) {
-                if (!(D_80064C5C[mon->species - 1].flags & 2) || (mon->level <= 0) || (mon->level >= 31)) {
+                if (!(D_80064C5C[mon->species - 1].cupEligibilityFlags & 2) || (mon->level <= 0) || (mon->level >= 31)) {
                     mon->flags |= 4;
                 }
-            } else if (!(D_80064C5C[mon->species - 1].flags & 1)) {
+            } else if (!(D_80064C5C[mon->species - 1].cupEligibilityFlags & 1)) {
                 mon->flags |= 2;
             }
         }

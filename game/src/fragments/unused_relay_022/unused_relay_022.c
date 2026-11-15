@@ -4,7 +4,7 @@
 #include "m2c_macros.h"
 #include "unused_relay_022.h"
 
-M2C_UNK Fragment_QueueCall(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, s32); /* extern */
+M2C_UNK Fragment_QueueCall(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, uintptr_t); /* extern */
 extern M2C_UNK D_002B1360;
 extern M2C_UNK D_002B13F0;
 extern M2C_UNK D_8E000000;

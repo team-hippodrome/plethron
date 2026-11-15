@@ -1706,7 +1706,7 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, s32 items, s3
     window->window.title = 0;
     window->window.state = 0;
     window->window.frame.style = 0x801;
-    func_8000A460(D_89119BD0, *(s8**)D_80064C44[mon[8]]);
+    func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon[8] - 1].name);
     *(Str891084B4*)(strlen((uintptr_t)D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);

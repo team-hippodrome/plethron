@@ -254,12 +254,6 @@ s32 LabPCList_CompareByNickname(LabMonEntry* a, LabMonEntry* b) {
     return ret;
 }
 
-typedef struct LabNameEntryZ {
-    /* 0x00 */ u8 pad00[4];
-    /* 0x04 */ u8* name;
-    /* 0x08 */ u8 pad08[0x14];
-} LabNameEntryZ; // size = 0x1C
-extern LabNameEntryZ D_80064C5C[];
 s32 Text_CompareGlyphCodes(u8*, u8*);
 
 /**
@@ -401,7 +395,6 @@ s32 LabPCList_FilterByExactTypePair(LabMonEntry* entry, unk_func_8830867C_02C_C5
     return 1;
 }
 
-extern M2C_UNK D_80064C4C;
 /**
  * List filter: keeps the species that Free Battle accepts (bit 0 of the species table's flags at +0xC).
  * Seen in play (2026-11-14) in いちらん: バトルようのポケモンをあつめる left only ピカチュウ and カビゴン of twelve.
@@ -410,5 +403,5 @@ extern M2C_UNK D_80064C4C;
  * the 0x1C stride by 4 and read a word.
  */
 s32 LabPCList_FilterByBattleEligible(void *entry, M2C_UNK unused) {
-    return (*((u8 *)&D_80064C4C + (M2C_FIELD(entry, u8 *, 8) * 0x1C)) & 1) != 0;
+    return (D_80064C5C[M2C_FIELD(entry, u8 *, 8) - 1].cupEligibilityFlags & 1) != 0; // PORT: was D_80064C4C + species * 0x1C
 }

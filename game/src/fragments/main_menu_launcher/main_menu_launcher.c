@@ -4,7 +4,7 @@
 #include "m2c_macros.h"
 #include "main_menu_launcher.h"
 
-void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, s32 arg4);
+void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4);
 extern u8 D_00235D70[]; // main menu (fragment 014) ROM start
 extern u8 D_00238BD0[]; // main menu (fragment 014) ROM end
 extern u8 D_88000000[]; // main menu (fragment 014) load address

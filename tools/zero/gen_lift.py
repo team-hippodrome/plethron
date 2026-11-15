@@ -341,7 +341,7 @@ def main():
             if nb and gap > 0x10000 and count > declared:
                 count = max(declared, 0x10000 // en, 1)  # last bss symbol of an image: no next symbol bounds it
             syms.append(dict(name=name, addr=a, image=im, tid=ti, score=score({'t': t}), count=count, n64ext=count * en,
-                             hostsize=count * g.tab[ti][2], bss=nb is not None,
+                             hostsize=count * g.tab[ti][2], bss=bool(nb),
                              rom=(lp[1] + (a - lp[0])) if (lp and not nb) else 0))
             report['bss' if nb else ('data' if lp else 'unplaced')] += 1
 

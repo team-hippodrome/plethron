@@ -540,7 +540,7 @@ void MonSummary_DrawMovesHeader(s32 x, s32 y, BattleMon* mon) {
     func_8001ABE8();
     func_8001A384(0x10, 0);
     func_8001AAE4(0x5A, 0x6B, 0xFF, 0xFF);
-    Font_Printf(x + 37, y + 30, *(char**)D_80064C44[mon->species.id]);
+    Font_Printf(x + 37, y + 30, D_80064C5C[mon->species.id - 1].name);
     func_8001AC3C();
     func_8001A384(8, 0);
     func_8001AA9C(((Color_RGBA8*)&D_800734A8)->r, ((Color_RGBA8*)&D_800734A8)->g, ((Color_RGBA8*)&D_800734A8)->b, ((Color_RGBA8*)&D_800734A8)->a);

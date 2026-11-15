@@ -617,7 +617,7 @@ typedef struct unk_func_88205880_0098 {
     /* 0x34 */ char** unk_34;
 } unk_func_88205880_0098; // size = 0x38
 
-typedef s32 (*FragmentEntry)(s32, s32);
+typedef s32 (*FragmentEntry)(s32, intptr_t); // PORT: the second argument can be a pointer
 
 typedef struct unk_func_88201DA0 {
     /* 0x00 */ WidgetNode unk_00;

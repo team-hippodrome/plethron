@@ -1434,7 +1434,7 @@ void BattleDebug_DrawPokeBallViewer(s16 arg0, s16 arg1) {
     if (mon[0xB] >= 0x98) {
         Font_Printf(arg0 + 60, arg1 + 4, (s32)D_82195FD0);
     } else {
-        Font_Printf(arg0 + 60, arg1 + 4, *(s32*)D_80064C44[mon[0xB]]);
+        Font_Printf(arg0 + 60, arg1 + 4, D_80064C5C[mon[0xB] - 1].name);
     }
     Font_Printf(arg0 + 3, arg1 + 0x10, (s32)D_82195FD8);
     Font_Printf(arg0 + 3, arg1 + 28, (s32)D_82195FE4);

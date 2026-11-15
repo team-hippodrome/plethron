@@ -44,9 +44,9 @@ void Display_SetBufferConfig(DisplayFrame* arg0, u8 arg1, u8 arg2, u8 arg3, u8 a
 
 #include "m2c_macros.h"
 
-s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, u32 arg4);
+s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, uintptr_t arg4);
 void Port_FragmentFree(u8* romStart); // PORT: port_fragments.c
-void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, s32 arg4);
+void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4);
 TeamRoster* Trainer_GetSlots(void);
 s32 GbSave_GetActivePort(void);
 void GbSave_SetActivePort(s32 arg0);
@@ -306,7 +306,7 @@ s32 Tournament_LoadContinueData(void) {
 }
 
 /** Loads a fragment from a ROM range and calls its entry point. */
-s32 Fragment_LoadAndCall(s32 arg0, u8* rom_start, u8* rom_end, u32 arg3, u32 arg4) {
+s32 Fragment_LoadAndCall(s32 arg0, u8* rom_start, u8* rom_end, u32 arg3, uintptr_t arg4) {
     s32 result;
     FragmentEntry func;
 
@@ -324,7 +324,7 @@ s32 Fragment_LoadAndCall(s32 arg0, u8* rom_start, u8* rom_end, u32 arg3, u32 arg
 }
 
 /** Queues a fragment to be loaded and called by the game state loop. */
-void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, s32 arg4) {
+void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4) { // PORT: arg4 can be a pointer
     D_800AF990.unk_00 = 1;
     D_800AF990.fragment_id = arg0;
     D_800AF990.rom_start = arg1;
@@ -469,7 +469,7 @@ void Save_RunGbReportErrorScreen(s32 arg0) {
 }
 
 M2C_UNK Session_InitTwoTrainers(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_80025B60(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, s32); /* extern */
+M2C_UNK func_80025B60(s32, M2C_UNK *, M2C_UNK *, M2C_UNK, uintptr_t); /* extern */ // PORT: pointer argument
 extern M2C_UNK D_0015F390;
 extern M2C_UNK D_0015F8F0;
 extern M2C_UNK D_0017ED00;

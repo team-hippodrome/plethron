@@ -315,7 +315,7 @@ extern s8 D_8910E312[];
  * first row, 「フシギダネをあつめる」.
  */
 void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
-    func_8000A460(D_8910E2D0, *(s8**)D_80064C44[M2C_FIELD(((PointerList*)screen->list.items)->items[screen->list.cursor], u8*, 8)]);
+    func_8000A460(D_8910E2D0, (s8*)D_80064C5C[M2C_FIELD(((PointerList*)screen->list.items)->items[screen->list.cursor], u8*, 8) - 1].name);
     func_8000A460(D_8910E2D0 + strlen(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
     *(Str891020F8*)D_8910E312 = *(Str891020F8*)D_8910DC50;
     func_8000A460(D_8910E2D0 + (strlen(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);

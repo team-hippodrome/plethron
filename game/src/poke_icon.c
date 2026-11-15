@@ -130,7 +130,7 @@ void PokeIcon_SetSpeciesSlot(PokeIconRenderer* renderer, s32 slot, s32 species, 
         renderer->slots[slot].flags = 1;
         renderer->slots[slot].fillColor = fill_color & 0xFFFE;
         renderer->slots[slot].source.raw = species;
-        renderer->slots[slot].scale = *(s16*)&gSpeciesDataById[species - 1][0x1A] / 100.0f;
+        renderer->slots[slot].scale = D_80064C5C[species - 1].modelScale / 100.0f;
         renderer->slots[slot].colorVariant.raw = 0;
     }
 }
@@ -152,13 +152,13 @@ void PokeIcon_SetMonSlot(PokeIconRenderer* renderer, s32 slot, BattleMon* mon, u
             renderer->slots[slot].flags = 3;
             renderer->slots[slot].source.ptr = (u8*)mon;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;
-            renderer->slots[slot].scale = *(s16*)&gSpeciesDataById[mon->species.id - 1][0x1A] / 100.0f;
+            renderer->slots[slot].scale = D_80064C5C[mon->species.id - 1].modelScale / 100.0f;
             Model_ComputeNicknameColorVariant(&renderer->slots[slot].colorVariant);
         } else {
             renderer->slots[slot].flags = 1;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;
             renderer->slots[slot].source.raw = 0x98;
-            renderer->slots[slot].scale = *(s16*)&gSpeciesDataById[0x97][0x1A] / 100.0f;
+            renderer->slots[slot].scale = D_80064C5C[0x97].modelScale / 100.0f;
             renderer->slots[slot].colorVariant.raw = 0;
         }
     }

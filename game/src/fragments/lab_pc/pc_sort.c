@@ -219,7 +219,7 @@ void PcSort_DrawMonRow(s32 x, s32 y, u8* row, s32 index, s32 flags) {
     if (mon != NULL) {
         Font_BeginTranslucentTextRendering();
         Font_SetActive(8, 0);
-        if ((mon->species.id > 0) && (mon->species.id < 152) && (D_80064C44[mon->species.id][8] & 1)) {
+        if ((mon->species.id > 0) && (mon->species.id < 152) && (D_80064C5C[mon->species.id - 1].cupEligibilityFlags & 1)) {
             func_8001AA9C(0xFF, 0xC8, 0xA0, 0xFF); // #FFC8A0FF
         } else {
             Font_SetColorForFlags(flags);
@@ -486,7 +486,7 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     if ((mon[0] <= 0) || (mon[0] >= 152)) {
         name = D_89018AF4;
     } else {
-        name = *(char**)D_80064C44[mon[0]];
+        name = D_80064C5C[mon[0] - 1].name;
     }
     Font_Printf(x + 8, y + 8, name);
     Font_Printf(x + 8, y + 36, D_89018B00, *(u16*)(mon + 0x26));
