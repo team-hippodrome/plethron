@@ -15,12 +15,12 @@ void BattleScene_SelectNextBRollCameraShot(CameraNode* arg0);
 extern f32 D_FLT_8218935C[][4];
 extern Vec3f D_8218B630;
 extern Vec3f D_8218B63C;
-void func_821224F4(CameraNode*);
-void func_82121D78(CameraNode*, f32, f32);
-void func_8212187C(s32);
+void BattleScene_ClearCameraOffsetVectors(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
+void BattleScene_SetCameraClipPlanes(CameraNode* camera_node, f32 near_plane, f32 far_plane); // PORT: signature from the definition (fragments/battle/scene_camera.c)
+void BattleScene_SetActivePokemonIndex(s32);
 void BattleCamera_StartSpeciesPath(CameraNode*, ActivePokemon*);
-s32 func_8211F644(ActivePokemon*, CameraNode*);
-void func_82104C68(ActivePokemon*, s32);
+s32 BattleScene_SkipUnavailableBRollShot(ActivePokemon*, CameraNode*);
+void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
 extern f32 D_FLT_82196040;
 void BattleCamera_CaptureModelOrbit(ActivePokemon*, CameraNode*);
@@ -30,18 +30,18 @@ extern f32 D_FLT_82189358[][4];
 void BattleScene_SelectNextBRollCameraShot(CameraNode*);
 void BattleScene_SelectNextBRollCameraShot(CameraNode*);
 void BattleScene_EaseCameraTargetFromSavedEye(CameraNode*, ActivePokemon*);
-s32 func_821217DC(M2C_UNK);
+s32 BattleScene_AdvanceCameraFrameCounter(M2C_UNK);
 extern f32 D_FLT_82189358[][4];
 void BattleScene_SelectNextBRollCameraShot(CameraNode*);
 void BattleScene_SelectNextBRollCameraShot(CameraNode*);
 s32 BattleCamera_StepPath(CameraNode*, ActivePokemon*);
-s32 func_821217DC(M2C_UNK);
-void func_82122628(s32, Vec3f, s32, s32, f32, f32);
+s32 BattleScene_AdvanceCameraFrameCounter(M2C_UNK);
+void BattleScene_SetCameraEyeFromPosition(CameraNode* arg0, Vec3f arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 extern f32 D_FLT_821960A8;
-f32 func_82121750(ActivePokemon*, f32, f32);
+f32 BattleScene_ScaleCameraDistance(ActivePokemon*, f32, f32);
 void BattleScene_EaseCameraTargetToParticipant(CameraNode*, ActivePokemon*);
 s32 BattleCamera_StepPath(CameraNode*, ActivePokemon*);
-void func_8212188C(void);
+void BattleScene_ResetCameraFrameCounter(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 extern u8* D_800603C0;
 void Audio_FadeCategoriesAndStreams(s32 arg0);
 

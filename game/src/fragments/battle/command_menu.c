@@ -66,30 +66,30 @@ void BattleScene_SelectActiveController(ActivePokemon* arg0) {
     ptr->controller = &gControllers[arg0->side->teamMember[arg0->state.menuTeamMemberIndex]->controllerPort];
 }
 
-s32 func_82107A5C(void);
-void func_8210C738(ActivePokemon* arg0, ActivePokemonState* arg1, Controller* arg2);
-M2C_UNK func_82134D80();
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleScene_SelectActiveController(ActivePokemon* arg0); // PORT: signature from the definition (fragments/battle/command_menu.c)
+void BattleAnim_PlaySoundEffect3(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
 extern s8 D_82199DE0;
 
 /**
  * While the command menu option is 3, waits for L on the Pokemon's controller (unless the
- * other side's state byte is 16): then runs func_8210C738 for command 2, resets the option
+ * other side's state byte is 16): then runs BattleScene_SelectActiveController for command 2, resets the option
  * and returns 0. Until then adds 0x38E to the action timer and returns 1.
  * @unverified Name guessed from the code.
  */
 s32 BattleMenu_WaitForLAfterCommit(ActivePokemon* active_pokemon) {
     ActivePokemonState* state = &active_pokemon->state;
-    ActivePokemonState* other = &((ActivePokemon**)&D_82199DE0)[func_82107A5C() == 0]->state;
+    ActivePokemonState* other = &((ActivePokemon**)&D_82199DE0)[BattleScene_GetParticipantSideIndex(active_pokemon) == 0]->state; // PORT: the argument was passed through a0
     Controller* controller = state->controller;
     s32 pad; // FAKE: stack padding
 
     if (state->selectedCommandOption == 3) {
         if ((controller->buttonPressed & 0x20) && (other->faintState != 0x10)) {
             if (state->selectedCommand == 2) {
-                func_8210C738(active_pokemon, other, controller);
+                BattleScene_SelectActiveController(active_pokemon); // PORT: the extra arguments were ignored
             }
             state->selectedCommandOption = 0;
-            func_82134D80();
+            BattleAnim_PlaySoundEffect3();
             return 0;
         }
         state->actionDelayTimer += 0x38E;
@@ -226,7 +226,7 @@ s32 BattleMenu_TryConfirmMove(ActivePokemon* arg0) {
     return 0;
 }
 
-void func_82134D60(void);
+void BattleAnim_PlaySoundEffect2(void);
 s32 BattleMenu_TryConfirmMove(ActivePokemon*);
 /**
  * Maps the C buttons to the four move slots and tries to confirm the pressed one.
@@ -239,27 +239,27 @@ void BattleMenu_HandleMoveButtons(ActivePokemon* arg0) {
     buttons = M2C_FIELD(ctrl, u16*, 8);
 
     if ((buttons & 8) && (arg0->state.runtime.moves[0] != 0) && (arg0->state.runtime.moves[0] < 0xA6)) {
-        func_82134D60();
+        BattleAnim_PlaySoundEffect2();
         arg0->state.moveIndex = 0;
         BattleMenu_TryConfirmMove(arg0);
     } else if ((buttons & 1) && (arg0->state.runtime.moves[1] != 0) && (arg0->state.runtime.moves[1] < 0xA6)) {
-        func_82134D60();
+        BattleAnim_PlaySoundEffect2();
         arg0->state.moveIndex = 1;
         BattleMenu_TryConfirmMove(arg0);
     } else if ((buttons & 4) && (arg0->state.runtime.moves[2] != 0) && (arg0->state.runtime.moves[2] < 0xA6)) {
-        func_82134D60();
+        BattleAnim_PlaySoundEffect2();
         arg0->state.moveIndex = 2;
         BattleMenu_TryConfirmMove(arg0);
     } else if ((buttons & 2) && (arg0->state.runtime.moves[3] != 0) && (arg0->state.runtime.moves[3] < 0xA6)) {
-        func_82134D60();
+        BattleAnim_PlaySoundEffect2();
         arg0->state.moveIndex = 3;
         BattleMenu_TryConfirmMove(arg0);
     }
 }
 
 s32 BattleMenu_HandleNoUsableMoves(ActivePokemon* arg0);                              /* extern */
-void func_82134D40(s8 *);
-M2C_UNK func_82134D80(s8 *);                        /* extern */
+void BattleAnim_PlaySoundEffect1(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
+void BattleAnim_PlaySoundEffect3(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
 
 /**
  * Fight menu, every frame: L goes back to the command menu, holding R shows the
@@ -275,14 +275,14 @@ M2C_UNK func_82134D80(s8 *);                        /* extern */
  *    any of the bits 0xE03F is set in the halfword at rec + 8;
  *  - otherwise clears sub[0x20]; if sub[0x10] is 0 it sets it to 1 and
  *    returns; else if bit 0x20 of rec + 8 is set and bit 0x10 of the halfword
- *    at rec + 6 is clear, it clears sub[0x10], calls func_82134D80(arg0) and
+ *    at rec + 6 is clear, it clears sub[0x10], calls BattleAnim_PlaySoundEffect3(arg0) and
  *    returns; else it clears the byte sub[0x1C], and, when bit 0x10 of rec + 6
- *    is set, calls func_82134D40(arg0) if bit 0x10 of rec + 8 is also set and
+ *    is set, calls BattleAnim_PlaySoundEffect1(arg0) if bit 0x10 of rec + 8 is also set and
  *    sets the byte sub[0x1C] to 1; finally it calls BattleMenu_HandleMoveButtons(arg0).
  *
  * What the fields and the callees mean is not established (rec[6] and rec[8]
  * look like button/state bit masks but that is a guess from the masks only).
- * Matching notes: func_82134D40 must be declared `void` (the result is unused;
+ * Matching notes: BattleAnim_PlaySoundEffect1 must be declared `void` (the result is unused;
  * an `M2C_UNK` return changes register allocation), and the unused `pad` local,
  * declared after `temp_v1`, moves the spill slot of `temp_v0` to sp+0x18.
  */
@@ -306,13 +306,13 @@ void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
             }
             if ((M2C_FIELD(temp_v1, u16 *, 8) & 0x20) && !(M2C_FIELD(temp_v1, u16 *, 6) & 0x10)) {
                 M2C_FIELD(temp_v0, s32 *, 0x10) = 0;
-                func_82134D80(arg0);
+                BattleAnim_PlaySoundEffect3();
                 return;
             }
             M2C_FIELD(temp_v0, s8 *, 0x1C) = 0;
             if (M2C_FIELD(temp_v1, u16 *, 6) & 0x10) {
                 if (M2C_FIELD(temp_v1, u16 *, 8) & 0x10) {
-                    func_82134D40(arg0);
+                    BattleAnim_PlaySoundEffect1();
                 }
                 M2C_FIELD(temp_v0, s8 *, 0x1C) = 1;
             }
@@ -327,7 +327,7 @@ void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
  * breakpoint): ran only for Bide, Bind, Clamp, Fire Spin, Wrap.
  * @unverified Name guessed from the code.
  */
-s32 BattleScene_HandlePlayerMoveSelectionLocked(s8 *active_pokemon, M2C_UNK unused)
+s32 BattleScene_HandlePlayerMoveSelectionLocked(ActivePokemon* active_pokemon, M2C_UNK unused) // PORT: was s8*
 {
   *((s8 *) (((s8 *) active_pokemon) + 0x7B6)) = 1; // FAKE
   if (1) // FAKE
@@ -478,7 +478,7 @@ void BattleMenu_ShowNicknameCaption(ActivePokemon* active_pokemon) { // PORT: wa
     ActivePokemon_ShowCaption(active_pokemon, D_8218C700, ActivePokemon_GetNickname(active_pokemon));
 }
 
-void func_82134D60(void);
+void BattleAnim_PlaySoundEffect2(void);
 
 /**
  * Pokemon (switch) menu buttons: sets state.actionChosen to the party slot of
@@ -528,7 +528,7 @@ void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
             }
         } else if (state->actionChosen <= (u32)(team[2] - 1)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
-                func_82134D60();
+                BattleAnim_PlaySoundEffect2();
                 state->showingCommandOptions = 0;
                 state->actionDelayTimer = 0;
                 state->selectedCommandOption = 3;
@@ -679,12 +679,12 @@ void BattleMenu_UpdateSurrenderPrompt(ActivePokemon* arg0) {
     }
 }
 
-void func_82134D60(void);
+void BattleAnim_PlaySoundEffect2(void);
 
 /**
  * Reads the buttons of the Pokemon's controller(s) (both trainers in a tag battle) into its
  * command state: A sets 1, B sets 2 and lets the partner take control, Start sets 3. A, B
- * or Start (when the other side isn't in state 4) also calls func_82134D60.
+ * or Start (when the other side isn't in state 4) also calls BattleAnim_PlaySoundEffect2.
  * @unverified Name guessed from the code.
  */
 void BattleMenu_ReadCommandButtons(ActivePokemon* active_pokemon) {
@@ -720,7 +720,7 @@ void BattleMenu_ReadCommandButtons(ActivePokemon* active_pokemon) {
     }
     buttons = M2C_FIELD(c2, u16*, 8) | M2C_FIELD(c1, u16*, 8);
     if ((buttons & 0x8000) || (buttons & 0x4000) || ((buttons & 0x1000) && (M2C_FIELD(other, s32*, 0x10) != 4))) {
-        func_82134D60();
+        BattleAnim_PlaySoundEffect2();
     }
 }
 
@@ -857,7 +857,7 @@ s32 BattleScene_HandleCpuFaintedSwitch(ActivePokemon* arg0, ActivePokemon* arg1)
         state->selectedCommand = 2;
         state->selectedCommandOption = 2;
         if (D_FLT_82199EB0 == 60.0f) {
-            func_82134D60();
+            BattleAnim_PlaySoundEffect2();
             D_82199EB8 = BattleAi_ChooseTurnAction(&arg0->state.runtime, &arg1->state.runtime, state->rosterIndex, other->rosterIndex, arg1->teamRoster);
             state->showingCommandOptions = 0;
             state->actionChosen = D_82199EB8 - 4;
@@ -873,7 +873,7 @@ s32 BattleScene_HandleCpuFaintedSwitch(ActivePokemon* arg0, ActivePokemon* arg1)
         other->selectedCommandOption = 3;
         other->selectedCommand = 1;
         if (D_FLT_82199EB0 == 60.0f) {
-            func_82134D60();
+            BattleAnim_PlaySoundEffect2();
             D_82199EB8 = BattleAi_ChooseTurnAction(&arg0->state.runtime, &arg1->state.runtime, state->rosterIndex, other->rosterIndex, arg1->teamRoster);
             state->showingCommandOptions = 0;
             state->actionChosen = D_82199EB8 - 4;
@@ -1144,8 +1144,8 @@ extern s32 D_82199F18[];
  * Ditto and Jynx): ran for both sides on the demo's first turn, returning 0 for side 0 and 1 for
  * side 1. It did not run in the 165-move or Metronome Free Battle sweeps.
  */
-void BattleDemo_PlayScriptedInput() {
-    s32 i = func_82107A5C();
+void BattleDemo_PlayScriptedInput(ActivePokemon* arg0) { // PORT: arg0 was passed through a0
+    s32 i = BattleScene_GetParticipantSideIndex(arg0);
     Controller* c = &D_82199EC8[i];
 
     c->buttonPressed = 0;
@@ -1160,7 +1160,7 @@ void BattleDemo_PlayScriptedInput() {
     }
 }
 
-void BattleDemo_PlayScriptedInput();
+void BattleDemo_PlayScriptedInput(ActivePokemon* arg0);
 /**
  * Runs the scripted input, then locks move selection when a volatile or trapping
  * state forces the move.
@@ -1173,7 +1173,7 @@ void Battle_PrepareTurnInput(ActivePokemon* arg0, ActivePokemon* arg1) {
     BattleMonRuntime* temp_v0 = &arg0->state.runtime;
     BattleMonRuntime* temp_v1 = &arg1->state.runtime;
 
-    BattleDemo_PlayScriptedInput(arg0, arg1);
+    BattleDemo_PlayScriptedInput(arg0); // PORT: arg1 was ignored
     if (!(temp_v0->volatileStatusFlags & 0x60)) {
         temp_v0->immobilizedReason &= ~8;
         temp_v1->immobilizedReason &= ~8;
@@ -1275,11 +1275,11 @@ void Battle_InitParticipantRuntime(ActivePokemon* arg0, s32 arg1, s32 arg2) {
  *   - runs Battle_InitParticipantRuntime on the active-Pokemon pointers stored at D_82199DE0
  *     and D_82199DE4, passing (0, 1) for the first and (1, 0) for the second
  *     (Battle_InitParticipantRuntime ignores those two arguments);
- *   - calls func_8210F688(0, 1) and func_8210F688(1, 0);
+ *   - calls Battle_ResetTransientRuntimeState(0, 1) and Battle_ResetTransientRuntimeState(1, 0);
  *   - clears the first two words of D_82199F10 and of D_82199F18;
  *   - clears bytes +0 and +4 of D_8219A4F0, sets byte +3 to 0xFF, and clears
  *     the halfwords at +0x1A, +0x1C, +0x1E and +0x20.
- * The meaning of func_8210F688's arguments and of the cleared fields is not
+ * The meaning of Battle_ResetTransientRuntimeState's arguments and of the cleared fields is not
  * established from this function alone.
  *
  * D_82199DE0 is declared as s8 elsewhere in this file, so the pointer it holds
@@ -1289,7 +1289,7 @@ extern ActivePokemon* D_82199DE4;
 extern s32 D_82199F10[];
 extern s32 D_82199F18[];
 extern s16 D_8219A4F0[];
-void func_8210F688(s32 arg0, s32 arg1);
+void Battle_ResetTransientRuntimeState(s32 arg0, s32 arg1);
 
 /**
  * Initializes both participants and resets the demo input scripts and turn state.
@@ -1300,8 +1300,8 @@ void func_8210F688(s32 arg0, s32 arg1);
 void Battle_InitBothParticipants(void) {
     Battle_InitParticipantRuntime(*(ActivePokemon**)&D_82199DE0, 0, 1);
     Battle_InitParticipantRuntime(D_82199DE4, 1, 0);
-    func_8210F688(0, 1);
-    func_8210F688(1, 0);
+    Battle_ResetTransientRuntimeState(0, 1);
+    Battle_ResetTransientRuntimeState(1, 0);
     D_82199F10[0] = 0;
     D_82199F18[0] = 0;
     D_82199F10[1] = 0;
@@ -1315,9 +1315,9 @@ void Battle_InitBothParticipants(void) {
     D_8219A4F0[0x10] = 0;
 }
 
-void func_8210E118(ActivePokemon*, ActivePokemon*);
-void func_8210D90C(ActivePokemon*, ActivePokemon*);
-void func_82125224(void);
+s32 BattleScene_CollectCpuAction(ActivePokemon* arg0, ActivePokemon* arg1); // PORT: signature from the definition (fragments/battle/command_menu.c)
+void BattleScene_CollectPlayerAction(ActivePokemon*, ActivePokemon*);
+void BattleScene_InitializeSwitchActions(void);
 void Battle_StartTurn(void);
 extern u16 D_82199F24;
 extern u16 D_82199F50;
@@ -1332,17 +1332,17 @@ void Battle_ChooseActions(void) {
 
     if (sActivePokemon[0]->teamRoster->isHuman & 2 /* PORT: first byte of the roster */) {
         D_82199F24 = D_82199F50;
-        func_8210E118(sActivePokemon[0], sActivePokemon[1]);
+        BattleScene_CollectCpuAction(sActivePokemon[0], sActivePokemon[1]);
         D_82199F50 = D_82199F24;
     } else {
-        func_8210D90C(sActivePokemon[0], sActivePokemon[1]);
+        BattleScene_CollectPlayerAction(sActivePokemon[0], sActivePokemon[1]);
     }
     if (sActivePokemon[1]->teamRoster->isHuman & 2 /* PORT: first byte of the roster */) {
         D_82199F24 = D_82199F50;
-        func_8210E118(sActivePokemon[1], sActivePokemon[0]);
+        BattleScene_CollectCpuAction(sActivePokemon[1], sActivePokemon[0]);
         D_82199F50 = D_82199F24;
     } else {
-        func_8210D90C(sActivePokemon[1], sActivePokemon[0]);
+        BattleScene_CollectPlayerAction(sActivePokemon[1], sActivePokemon[0]);
     }
     if ((state0->selectedCommandOption == 3) && (state1->selectedCommandOption == 3)) {
         if (state0->selectedCommand == 2) {
@@ -1356,7 +1356,7 @@ void Battle_ChooseActions(void) {
             BattleMenu_CommitMoveSelection(sActivePokemon[1]);
         }
         if ((state0->selectedCommand == 2) || (state1->selectedCommand == 2)) {
-            func_82125224();
+            BattleScene_InitializeSwitchActions();
             return;
         }
         Battle_StartTurn();

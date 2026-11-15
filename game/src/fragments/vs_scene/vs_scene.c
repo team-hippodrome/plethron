@@ -149,16 +149,16 @@ void VsScene_StoreNodeCallback(s32 phase, s8 *node)
 
 void Cont_StartReadInputs(void);                            /* extern */
 void Cont_ReadInputs(void);                            /* extern */
-M2C_UNK func_8001B5F0();                            /* extern */
+void Input_ResetRepeatState(void); // PORT: signature from the definition (input.c)
 
 /**
- * Makes the per-frame calls the scene runs before drawing (Cont_StartReadInputs, Cont_ReadInputs, func_8001B5F0).
+ * Makes the per-frame calls the scene runs before drawing (Cont_StartReadInputs, Cont_ReadInputs, Input_ResetRepeatState).
  * Seen in play (2026-11-13) ran every frame of the VS screen.
  */
 s32 VsScene_BeginFrame(void) {
     Cont_StartReadInputs();
     Cont_ReadInputs();
-    func_8001B5F0();
+    Input_ResetRepeatState();
     return 0;
 }
 
@@ -333,7 +333,7 @@ extern s8 D_82202C98;
 extern s8 D_82202CB4;
 extern s8 D_82202D08;
 extern s8 D_82202D24;
-s32 StageFade_Start(s32);
+s32 StageFade_Start(s32 duration); // PORT: signature from the definition (stage_loader.c)
 M2C_UNK Audio_StopMusic(M2C_UNK);
 /**
  * The reverse of VsScene_ZoomIntoScreen: moves the camera along the path from the big screen back
@@ -550,7 +550,7 @@ void VsScene_Play(void) {
     }
 }
 
-M2C_UNK Save_GetGbPlayerSettings(s8 *, M2C_UNK);               /* extern */
+s32 Save_GetGbPlayerSettings(s8 *arg0, s32 *arg1); // PORT: signature from the definition (save_data.c)
 M2C_UNK Save_SetGbPlayerFrameTier(s8);                          /* extern */
 
 /**
@@ -853,8 +853,8 @@ s32 VsScene_AnyMonDamaged(void) {
 }
 
 M2C_UNK BgStage_AdvanceFrame();                            /* extern */
-M2C_UNK func_80006828(M2C_UNK, M2C_UNK (*)(M2C_UNK)); /* extern */
-s32 func_80018E24(s32);                             /* extern */
+s32 BgStage_RunUntilCondition(u32 timer, s32 (*f)(u8)); // PORT: signature from the definition (stage_loader.c)
+s32 PokeIcon_AreSlotsIdle(PokeIconRenderer* arg0); // PORT: signature from the definition (poke_icon.c)
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);   /* extern */
 M2C_UNK VsScene_DrawFrame(M2C_UNK);                     /* extern */
 void VsScene_DrawHpBars(s32);
@@ -874,7 +874,7 @@ void VsScene_PlayResultsBoard(void) {
     s32 var_s0_3;
 
     Audio_PlayCommand(0x3D, 0, 0);
-    func_80006828(5, VsScene_DrawFrame);
+    BgStage_RunUntilCondition(5, VsScene_DrawFrame);
     if (VsScene_AnyMonDamaged() != 0) {
         Audio_PlayCommand(0x3D, 1, 0);
     }
@@ -885,31 +885,31 @@ void VsScene_PlayResultsBoard(void) {
         BgStage_AdvanceFrame();
         var_s0 -= 4;
     } while (var_s0 >= 0);
-    if (func_80018E24(D_82203264) == 0) {
+    if (PokeIcon_AreSlotsIdle(D_82203264) == 0) {
         do {
             VsScene_DrawFrame(0);
             BgStage_AdvanceFrame();
-        } while (func_80018E24(D_82203264) == 0);
+        } while (PokeIcon_AreSlotsIdle(D_82203264) == 0);
     }
     var_s0_2 = 1;
     if ((D_822036A4->mode == 0) && (D_822036A4->ruleCategory == 0)) {
         var_s0_3 = 1;
         do {
             VsScene_MarkFaintedBatch(var_s0_3);
-            func_80006828(6, VsScene_DrawFrame);
+            BgStage_RunUntilCondition(6, VsScene_DrawFrame);
             var_s0_3 += 1;
         } while (var_s0_3 != 13);
     } else {
         do {
             VsScene_MarkFaintedBatch(var_s0_2);
-            func_80006828(8, VsScene_DrawFrame);
+            BgStage_RunUntilCondition(8, VsScene_DrawFrame);
             var_s0_2 += 1;
         } while (var_s0_2 != 7);
     }
-    func_80006828(30, VsScene_DrawFrame);
+    BgStage_RunUntilCondition(30, VsScene_DrawFrame);
 }
 
-M2C_UNK func_8001107C(M2C_UNK *, M2C_UNK, M2C_UNK *); /* extern */
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2); // PORT: signature from the definition (geo_node.c)
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);   /* extern */
 extern M2C_UNK D_8F6256E0;
 
@@ -927,8 +927,8 @@ void VsScene_PlayWinLose(void) {
         Audio_PlayCommand(0x3D, 4, 0);
     }
     D_82203268.node.renderFlags |= 0x20;
-    func_8001107C(&D_82203268, 0, &D_8F6256E0);
-    func_80006828(150, &VsScene_DrawFrame);
+    ModelAnim_BindEventTrack(&D_82203268, 0, &D_8F6256E0);
+    BgStage_RunUntilCondition(150, &VsScene_DrawFrame);
 }
 
 extern Color_RGB8 D_8220308C;
@@ -1189,7 +1189,7 @@ extern u8 D_8F619890[];
 extern u8 D_8EB300B0[];
 extern u8 D_8EB37440[];
 extern u8 D_8F20A788[];
-void ImageGrid_Create(s32 arg0, s32 arg1, s32 arg2, u8* arg3, s32 arg4, s32 arg5);
+s32 ImageGrid_Create(s16 x, s16 y, s16 z, s32 tex, s16 width, s16 height); // PORT: signature from the definition (game_state.c)
 
 /**
  * Builds the scene's geo layouts: the stadium for the current stage kind (D_822036A8: Free Battle,

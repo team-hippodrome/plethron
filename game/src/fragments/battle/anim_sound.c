@@ -374,9 +374,9 @@ extern u8* sMoveAnimEffectScripts[][5];
 
 #include "m2c_macros.h"
 
-void BattleAnim_PlaySoundEffect1(void);
+void BattleAnim_PlaySoundEffect1(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
 void BattleAnim_PlaySoundEffect2(void);
-void BattleAnim_PlaySoundEffect3(void);
+void BattleAnim_PlaySoundEffect3(void); // PORT: signature from the definition (fragments/battle/anim_sound.c)
 
 /**
  * Plays the menu scroll sound.
@@ -495,11 +495,11 @@ void BattleAnim_PlayBattleSequenceById(ActivePokemon* active_pokemon, s32 sequen
 
 void Announcer_SetHp(u32 side, s32 hp, s32 max_hp); // PORT: the real signature
 void Announcer_CommentOnMove(s32);
-s32 func_82107A5C(s8*);
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 /**
  * Takes the active Pokemon's roster entry (teamRoster->pokemonPicked indexed
  * by state.rosterIndex) and calls Announcer_SetHp with the side index of the
- * Pokemon (func_82107A5C), the entry's hp and its unk_26.  Unless the display
+ * Pokemon (BattleScene_GetParticipantSideIndex), the entry's hp and its unk_26.  Unless the display
  * object's objectType is 0x98, it then calls Announcer_CommentOnMove with the side index,
  * OR-ed with 0x10 when the entry's status byte has a sleep bit (mask 0x07) or
  * the freeze bit (0x20) set, or when the scene's unk_48 is 0x1F or 0x1B.
@@ -515,18 +515,18 @@ void BattleSound_UpdateSideHpAndStatus(ActivePokemon* active_pokemon) {
     UNUSED s32 pad; // FAKE: stack padding
     BattleMon* mon = &active_pokemon->teamRoster->pokemonPicked[active_pokemon->state.rosterIndex];
 
-    Announcer_SetHp(func_82107A5C(active_pokemon), mon->hp, mon->maxHp);
+    Announcer_SetHp(BattleScene_GetParticipantSideIndex(active_pokemon), mon->hp, mon->maxHp);
     if (active_pokemon->displayObject.objectType != 0x98) {
         if ((mon->statusCondition & 7) || (mon->statusCondition & 0x20) ||
             (sBattleScene.scene->moveEffectKind == 0x1F) || (sBattleScene.scene->moveEffectKind == 0x1B)) {
-            Announcer_CommentOnMove(func_82107A5C(active_pokemon) | 0x10);
+            Announcer_CommentOnMove(BattleScene_GetParticipantSideIndex(active_pokemon) | 0x10);
         } else {
-            Announcer_CommentOnMove(func_82107A5C(active_pokemon));
+            Announcer_CommentOnMove(BattleScene_GetParticipantSideIndex(active_pokemon));
         }
     }
 }
 
-s32 func_82107A5C(s8 *);                          /* extern */
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 /**
  * Same as BattleSound_UpdateSideHpAndStatus without the status call: passes the Pokemon's side,
  * battle HP (0x7D2) and max HP to Announcer_SetHp, unless its display object type is 0x98.
@@ -537,7 +537,7 @@ void BattleSound_UpdateSideHp(ActivePokemon* arg0) {
     BattleMon* mon = &arg0->teamRoster->pokemonPicked[arg0->state.rosterIndex];
 
     if (arg0->displayObject.objectType != 152) {
-        side = func_82107A5C(arg0);
+        side = BattleScene_GetParticipantSideIndex(arg0);
         Announcer_SetHp(side, arg0->state.runtime.hp, mon->maxHp);
     }
 }

@@ -64,9 +64,9 @@ extern char** sBattleControllerDisconnectedMessage;
 
 #include "m2c_macros.h"
 
-u16 BattleAi_ApplyMoveEffectDamageOverride(BattleMonRuntime* arg0, BattleMonRuntime* arg1);
+u16 BattleAi_ApplyMoveEffectDamageOverride(BattleMonRuntime* arg0, BattleMonRuntime* arg1); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
 void BattleAi_ClampDamageRatio(void);
-void BattleAi_PrepareDamageCalcState(BattleMonRuntime* arg0, BattleMonRuntime* arg1, u8 arg2);
+void BattleAi_PrepareDamageCalcState(BattleMonRuntime* arg0, BattleMonRuntime* arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
 s32 BattleScene_FindU16InByteArray(u16 lookup_value, u8* array, s32 array_length);
 void BattleScene_IntroInitNop(void);
 
@@ -264,17 +264,17 @@ void BattleCalc_AddBaseDamage(UNUSED u8* arg0, UNUSED u8* arg1) {
 
 extern u8 D_82199F32;
 extern u8 D_82199F33;
-void func_8210E9C0(u8*, u8*);
-void func_8210EAC4();
-void func_8210EC0C(u8*, u8*, u8);
+u16 BattleAi_ApplyMoveEffectDamageOverride(BattleMonRuntime* arg0, BattleMonRuntime* arg1); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
+void BattleAi_ClampDamageRatio();
+void BattleAi_PrepareDamageCalcState(BattleMonRuntime* arg0, BattleMonRuntime* arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
 void BattleCalc_AddBaseDamage(u8*, u8*);
 
 /**
- * Runs the sequence func_8210EC0C, BattleCalc_AddBaseDamage, BattleCalc_ApplyTypeEffectAndStab,
- * func_8210EAC4 and func_8210E9C0 for the attacker/defender pair
+ * Runs the sequence BattleAi_PrepareDamageCalcState, BattleCalc_AddBaseDamage, BattleCalc_ApplyTypeEffectAndStab,
+ * BattleAi_ClampDamageRatio and BattleAi_ApplyMoveEffectDamageOverride for the attacker/defender pair
  * (arg0, arg1). The flag D_82199F32 is saved into D_82199F33 and cleared
  * for the first four steps, and restored before the last one. arg2 is only
- * handed on to func_8210EC0C.
+ * handed on to BattleAi_PrepareDamageCalcState.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the battle opening and a
  * switch in battle.
  * @unverified Name guessed from the code; comment kept.
@@ -282,12 +282,12 @@ void BattleCalc_AddBaseDamage(u8*, u8*);
 void BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
     D_82199F33 = D_82199F32;
     D_82199F32 = 0;
-    func_8210EC0C(arg0, arg1, arg2);
+    BattleAi_PrepareDamageCalcState(arg0, arg1, arg2);
     BattleCalc_AddBaseDamage(arg0, arg1);
     BattleCalc_ApplyTypeEffectAndStab(arg0, arg1);
-    func_8210EAC4();
+    BattleAi_ClampDamageRatio();
     D_82199F32 = D_82199F33;
-    func_8210E9C0(arg0, arg1);
+    BattleAi_ApplyMoveEffectDamageOverride(arg0, arg1);
 }
 
 /**

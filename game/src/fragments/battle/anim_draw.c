@@ -567,13 +567,13 @@ void BattleAnim_DrawAssetA9I4XYScaledQuad(Particle* arg0, UNUSED CameraNode* arg
     gSPSetGeometryMode(gDisplayListHead++, G_CULL_BACK);
 }
 
-M2C_UNK func_8216D640(u8, u8, u8, u8);              /* extern */
+void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/anim_render.c)
 
 /**
  * Particle draw callback: draws a full-screen overlay in the particle's color (bytes 0xBA-0xBC,
  * alpha 0xC0).
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_DrawFullScreenColorOverlay(s8 *arg0, M2C_UNK arg1) {
-    func_8216D640(M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), M2C_FIELD(arg0, u8 *, 0xC0));
+void ParticleGfx_DrawFullScreenColorOverlay(Particle* arg0, M2C_UNK arg1) { // PORT: was s8*
+    BattleAnim_DrawFullScreenColorOverlay(M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), M2C_FIELD(arg0, u8 *, 0xC0));
 }

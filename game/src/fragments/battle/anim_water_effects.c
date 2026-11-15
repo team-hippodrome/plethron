@@ -6,34 +6,34 @@
 
 #include "m2c_macros.h"
 
-void BattleAnim_SetupSurfHitSpark(Particle* arg0);
+void BattleAnim_SetupSurfHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupBubbleBubbles(Particle* arg0, s16 arg1);
-void BattleAnim_SetupBubbleBeamBubblesSlow(Particle* arg0);
-void BattleAnim_SetupBubbleBeamBubblesFast(Particle* arg0);
-void BattleAnim_SetupUnusedRotatingSparkVariant(Particle* arg0);
+void BattleAnim_SetupBubbleBeamBubblesSlow(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupBubbleBeamBubblesFast(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupUnusedRotatingSparkVariant(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupUnusedAimedSparkVariant(Particle* arg0);
 void BattleAnim_SetupWaterGunAndHydroPumpEmitterFade(Particle* arg0);
-void BattleAnim_SetupHydroPumpBurstChild(Particle* arg0);
-void BattleAnim_SetupHydroPumpMetadataBurstChild(Particle* arg0);
+void BattleAnim_SetupHydroPumpBurstChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupHydroPumpMetadataBurstChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupHydroPumpBurstEmitter(Particle* arg0);
-void BattleAnim_SetupWaterGunProjectileChild(Particle* arg0);
-void BattleAnim_SetupWaterGunProjectileMetadata(Particle* arg0);
+void BattleAnim_SetupWaterGunProjectileChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupWaterGunProjectileMetadata(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupWaterGunProjectile(Particle* arg0);
-void BattleAnim_SetupIceBeamColdBreath(Particle* arg0);
+void BattleAnim_SetupIceBeamColdBreath(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupMegaKickAndPunchProjectile(Particle* arg0);
 void BattleAnim_SetupInitialBeamEmanator(Particle* arg0);
-void BattleAnim_SetupPulsingBeamEmanator(Particle* arg0);
+void BattleAnim_SetupPulsingBeamEmanator(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_SetupStrongBeamHitEffect(Particle* arg0);
 void BattleAnim_SetupPsybeamHitSparkFlicker(Particle* arg0);
-void BattleAnim_SetupStrongOutwardMovingLargeHitSpark(Particle* arg0);
-void BattleAnim_SetupBlizzardHitUpwardColdAir(Particle* arg0);
-void BattleAnim_SetupWaterGunHitEffect(Particle* arg0);
-void BattleAnim_SetupTriAttackHitSpark(Particle* arg0);
-void BattleAnim_SetupStrongOutwardMovingSmallHitSpark(Particle* arg0);
-void BattleAnim_SetupUnusedIndexedFadeVariantA(Particle* arg0);
-void BattleAnim_SetupUnusedIndexedFadeVariantB(Particle* arg0);
-void BattleAnim_SetupWaterGunEmitterColoration(Particle* arg0);
-void BattleAnim_SetupHydroPumpWaterGunProjectileHit(Particle* arg0);
+void BattleAnim_SetupStrongOutwardMovingLargeHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupBlizzardHitUpwardColdAir(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupWaterGunHitEffect(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupTriAttackHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupStrongOutwardMovingSmallHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupUnusedIndexedFadeVariantA(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupUnusedIndexedFadeVariantB(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupWaterGunEmitterColoration(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_SetupHydroPumpWaterGunProjectileHit(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 void BattleAnim_StartMegaPunchEffect(void);
 void BattleAnim_InitializeWaterGunUse(void);
 void BattleAnim_InitializeHydroPumpUse(void);
@@ -69,15 +69,15 @@ void BattleAnim_SetupSurfHitSpark(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-s32 func_8213CB7C(s8 *);                          /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-M2C_UNK func_8213E488(s8 *);                      /* extern */
-M2C_UNK func_82140064(s8 *, s32, s16);            /* extern */
+void Particle_ApplyMotionStepY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_UpdateRotatingVelocityXZ(Particle* arg0, f32 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);             /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_82149660(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupSurfHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the hit spark from being hit by Surf
@@ -90,16 +90,16 @@ void BattleAnim_RunSurfHitSpark(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82149660(arg0);
+        BattleAnim_SetupSurfHitSpark(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, 0xA);
         }
         break;
     case 3:
-        if (func_82140690(arg0) != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 3, 1, 1, 0);
         }
         break;
@@ -107,10 +107,10 @@ void BattleAnim_RunSurfHitSpark(Particle* arg0) {
         Particle_DisableAndDetach(arg0);
         break;
     }
-    if (func_8213CB7C(arg0) != 0) {
-        func_8213E488(arg0);
+    if (Particle_IsRenderingEnabled(arg0) != 0) {
+        Particle_ApplyMotionStepY(arg0);
         Particle_ApproachStepMagnitude(arg0, arg0->magnitudeStep, 0.5f);
-        func_82140064(arg0, (*(s32*)&arg0->stepMagnitude), arg0->scratchA);
+        Particle_UpdateRotatingVelocityXZ(arg0, (*(s32*)&arg0->stepMagnitude), arg0->scratchA);
     }
 }
 
@@ -208,15 +208,15 @@ void BattleAnim_ContinueBubbleBeamBubblesSlow(Particle* arg0) {
 
 u32 ParticleMath_RandomRange(u32 arg0);                         /* extern */
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-s32 func_8213CB7C(s8 *);                          /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-M2C_UNK func_8213D238(s8 *);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_82149ADC(s8 *);                      /* extern */
-M2C_UNK func_82149C20(s8 *);                      /* extern */
+void Particle_BeginPhase(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupBubbleBeamBubblesSlow(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_ContinueBubbleBeamBubblesSlow(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * handles the slower additional bubbles that appear when using bubble beam as opposed to bubble
@@ -229,18 +229,18 @@ void BattleAnim_RunBubbleBeamBubblesSlow(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82149ADC(arg0);
+        BattleAnim_SetupBubbleBeamBubblesSlow(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213D238(arg0);
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_BeginPhase(arg0);
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, (s16) (ParticleMath_RandomRange(0xA) + 8));
         }
         break;
     case 3:
-        func_82140228(arg0, 0x3E19999A, 0x3CA3D70A); // 0.15f, 0.02f
-        if (func_82140690(arg0) != 0) {
+        Particle_ApproachScale(arg0, 0x3E19999A, 0x3CA3D70A); // 0.15f, 0.02f
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 3, 1, 1, 0);
         }
         break;
@@ -248,8 +248,8 @@ void BattleAnim_RunBubbleBeamBubblesSlow(Particle* arg0) {
         Particle_MarkInactive(arg0);
         break;
     }
-    if (func_8213CB7C(arg0) != 0) {
-        func_82149C20(arg0);
+    if (Particle_IsRenderingEnabled(arg0) != 0) {
+        BattleAnim_ContinueBubbleBeamBubblesSlow(arg0);
     }
 }
 
@@ -290,13 +290,13 @@ void BattleAnim_SetupBubbleBeamBubblesFast(Particle* arg0) {
 
 u32 ParticleMath_RandomRange(u32 arg0);                         /* extern */
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_82149D74(s8 *);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupBubbleBeamBubblesFast(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * handles the faster additional bubbles that appear when using bubble beam as opposed to bubble
@@ -309,19 +309,19 @@ void BattleAnim_RunBubbleBeamBubblesFast(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82149D74(arg0);
+        BattleAnim_SetupBubbleBeamBubblesFast(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
             Particle_SetParam0(arg0, (s16) (ParticleMath_RandomRange(0x14) + 0xF));
-            func_8213CB3C(arg0);
+            Particle_EnableRendering(arg0);
             return;
         }
         return;
     case 3:
-        func_821402B8(arg0);
+        Particle_ApproachScaleTarget(arg0);
         Particle_AddVelocityFromRotationTemplate1(arg0);
-        if (func_82140690(arg0) != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 3, 1, 1, 0);
             return;
         }
@@ -417,13 +417,13 @@ void BattleAnim_MotionUnusedRotatingSparkVariant(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-s32 func_8213CB7C(s8 *);                          /* extern */
-M2C_UNK func_8213D238(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_BeginPhase(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);             /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_82149FD8(s8 *);                      /* extern */
-M2C_UNK func_8214A190(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupUnusedRotatingSparkVariant(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_MotionUnusedRotatingSparkVariant(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle callback (no reference found): runs BattleAnim_SetupUnusedRotatingSparkVariant on
@@ -436,24 +436,24 @@ void BattleAnim_CallbackUnusedRotatingSpark(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82149FD8(particle);
+        BattleAnim_SetupUnusedRotatingSparkVariant(particle);
         break;
     case 2:
-        if (func_821406B4(particle) != 0) {
-            func_8213D238(particle);
-            func_8213CB3C(particle);
+        if (Particle_DecrementParam0ToZeroThenAdvance(particle) != 0) {
+            Particle_BeginPhase(particle);
+            Particle_EnableRendering(particle);
             Particle_SetParam0(particle, 0x1E);
         }
         break;
     case 3:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 4:
         Particle_MarkInactive(particle);
         break;
     }
-    if (func_8213CB7C(particle) != 0) {
-        func_8214A190(particle);
+    if (Particle_IsRenderingEnabled(particle) != 0) {
+        BattleAnim_MotionUnusedRotatingSparkVariant(particle);
     }
 }
 
@@ -593,11 +593,11 @@ void BattleAnim_SetupHydroPumpBurstChild(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214A634(s8 *);                      /* extern */
+void BattleAnim_SetupHydroPumpBurstChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle lifecycle callback (start effect58 descriptor0 aburst child): steps the particle by its
@@ -612,15 +612,15 @@ void BattleAnim_CallbackStart58Desc0ABurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214A634(particle);
+        BattleAnim_SetupHydroPumpBurstChild(particle);
         return;
     case 2:
-        func_82140228(particle, 0x3E99999A, 0x3D4CCCCD); // 0.3f, 0.05f
+        Particle_ApproachScale(particle, 0x3E99999A, 0x3D4CCCCD); // 0.3f, 0.05f
         Particle_ApproachPrimAlpha(particle, 0x20, 0x10);
         Particle_ApproachStepMagnitude(particle, 0.5f, 0.05f);
         Particle_AddVelocityFromRotationTemplate1(particle);
         Particle_AddPosOffsetYScaled(particle, 0xBF800000); // -1.0f
-        func_8213CA80(particle, 0x10);
+        Particle_TickDelayAndAdvanceLifecycle(particle, 0x10);
         return;
     case 3:
         Particle_MarkInactive(particle);
@@ -649,10 +649,10 @@ void BattleAnim_SetupHydroPumpMetadataBurstChild(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);        /* extern */
-M2C_UNK func_8214A77C(s8 *);                      /* extern */
+void BattleAnim_SetupHydroPumpMetadataBurstChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle lifecycle callback (start effect58 descriptor08 metadata burst child): steps the
@@ -667,18 +667,18 @@ void BattleAnim_CallbackStart58Desc08MetadataBurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214A77C(particle);
+        BattleAnim_SetupHydroPumpMetadataBurstChild(particle);
         break;
     case 2:
         if (Particle_ApproachPrimAlpha(particle, 0x80, 0x20) != 0) {
-            func_8213C9D0(particle);
+            Particle_AdvanceLifecycle(particle);
         }
         break;
     case 3:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_82140228(particle, 0x3EB33333, 0x3D4CCCCD); // 0.35f, 0.05f
+    Particle_ApproachScale(particle, 0x3EB33333, 0x3D4CCCCD); // 0.35f, 0.05f
 }
 
 /**
@@ -738,11 +738,11 @@ void BattleAnim_SetupWaterGunProjectileChild(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214A9DC(s8 *);                      /* extern */
+void BattleAnim_SetupWaterGunProjectileChild(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle lifecycle callback (start effect6 descriptor0 aburst child): steps the particle by its
@@ -757,14 +757,14 @@ void BattleAnim_CallbackStart6Desc0ABurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214A9DC(particle);
+        BattleAnim_SetupWaterGunProjectileChild(particle);
         return;
     case 2:
-        func_82140228(particle, 0x3DCCCCCD, 0x3CA3D70A); // 0.1f, 0.02f
+        Particle_ApproachScale(particle, 0x3DCCCCCD, 0x3CA3D70A); // 0.1f, 0.02f
         Particle_ApproachPrimAlpha(particle, 0x20, 0xC);
         Particle_AddVelocityFromRotationTemplate1(particle);
         Particle_AddPosOffsetYScaled(particle, 0xBF000000); // -0.5f
-        func_8213CA80(particle, 0x10);
+        Particle_TickDelayAndAdvanceLifecycle(particle, 0x10);
         return;
     case 3:
         Particle_MarkInactive(particle);
@@ -799,10 +799,10 @@ void BattleAnim_SetupWaterGunProjectileMetadata(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);        /* extern */
-M2C_UNK func_8214AB14(s8 *);                      /* extern */
+void BattleAnim_SetupWaterGunProjectileMetadata(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle lifecycle callback (start effect6 descriptor08 metadata burst child): steps the particle
@@ -817,18 +817,18 @@ void BattleAnim_CallbackStart6Desc08MetadataBurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214AB14(particle);
+        BattleAnim_SetupWaterGunProjectileMetadata(particle);
         break;
     case 2:
         if (Particle_ApproachPrimAlpha(particle, 0x80, 0x20) != 0) {
-            func_8213C9D0(particle);
+            Particle_AdvanceLifecycle(particle);
         }
         break;
     case 3:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_82140228(particle, 0x3DCCCCCD, 0x3CA3D70A); // 0.1f, 0.02f
+    Particle_ApproachScale(particle, 0x3DCCCCCD, 0x3CA3D70A); // 0.1f, 0.02f
 }
 
 /**
@@ -911,14 +911,14 @@ void BattleAnim_ContinueIceBeamColdBreath(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-s32 func_8213CB7C(s8 *);                          /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-M2C_UNK func_8213D238(s8 *);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_8214ADB8(s8 *);                      /* extern */
-M2C_UNK func_8214AF08(s8 *);                      /* extern */
+void Particle_BeginPhase(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupIceBeamColdBreath(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
+void BattleAnim_ContinueIceBeamColdBreath(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle callback of the Ice Beam animation. Player sweep (all 165 moves used in battle): only
@@ -930,24 +930,24 @@ void BattleAnim_IceBeamParticleUpdateA(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214ADB8(arg0);
+        BattleAnim_SetupIceBeamColdBreath(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213D238(arg0);
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_BeginPhase(arg0);
+            Particle_EnableRendering(arg0);
         }
         break;
     case 3:
-        func_82140228(arg0, 0x3F333333, 0x3DCCCCCD); // 0.7f, 0.1f
+        Particle_ApproachScale(arg0, 0x3F333333, 0x3DCCCCCD); // 0.7f, 0.1f
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
         break;
     case 4:
         Particle_MarkInactive(arg0);
         break;
     }
-    if (func_8213CB7C(arg0) != 0) {
-        func_8214AF08(arg0);
+    if (Particle_IsRenderingEnabled(arg0) != 0) {
+        BattleAnim_ContinueIceBeamColdBreath(arg0);
     }
 }
 
@@ -1052,11 +1052,11 @@ void BattleAnim_SetupPulsingBeamEmanator(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821401F8(s8 *, M2C_UNK);             /* extern */
-M2C_UNK func_82140210(s8 *, M2C_UNK);             /* extern */
-s32 func_821402E4(s8 *);                          /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-M2C_UNK func_8214B280(s8 *);                      /* extern */
+void Particle_SetScaleTarget(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_SetScaleStep(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScaleTargetThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupPulsingBeamEmanator(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * handles the pulsing beam emanator for Ice Beam, Psybeam, Aurora Beam, Hyper Beam, and Solar Beam
@@ -1069,23 +1069,23 @@ void BattleAnim_RunPulsingBeamEmanator(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214B280(arg0);
+        BattleAnim_SetupPulsingBeamEmanator(arg0);
         break;
     case 2:
-        if (func_821402E4(arg0) != 0) {
-            func_821401F8(arg0, 0x3E4CCCCD); // 0.2f
+        if (Particle_ApproachScaleTargetThenAdvance(arg0) != 0) {
+            Particle_SetScaleTarget(arg0, 0x3E4CCCCD); // 0.2f
         }
         break;
     case 3:
-        func_821402E4(arg0);
+        Particle_ApproachScaleTargetThenAdvance(arg0);
         break;
     case 4:
-        func_821401F8(arg0, 0x3F333333); // 0.7f
-        func_82140210(arg0, 0x3DCCCCCD); // 0.1f
+        Particle_SetScaleTarget(arg0, 0x3F333333); // 0.7f
+        Particle_SetScaleStep(arg0, 0x3DCCCCCD); // 0.1f
         arg0->lifecycle = 2;
         break;
     }
-    if (func_82140690(arg0) != 0) {
+    if (Particle_DecrementParam0ToZero(arg0) != 0) {
         Particle_DisableAndDetach(arg0);
     }
 }
@@ -1263,9 +1263,9 @@ void BattleAnim_SetupStrongOutwardMovingLargeHitSpark(Particle* arg0) {
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214B84C(s8 *);                      /* extern */
+void BattleAnim_SetupStrongOutwardMovingLargeHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles hit effect shared by Hydro Pump, Ice Beam, Hyper Beam, Solar Beam, Waterfall, and Sky
@@ -1280,7 +1280,7 @@ void BattleAnim_RunStrongOutwardMovingLargeHitSpark(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214B84C(arg0);
+        BattleAnim_SetupStrongOutwardMovingLargeHitSpark(arg0);
         break;
     case 2:
         Particle_ApproachPrimAlpha(arg0, 0x20, 0x16);
@@ -1315,9 +1315,9 @@ void BattleAnim_SetupBlizzardHitUpwardColdAir(Particle* arg0) {
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214B9A8(s8 *);                      /* extern */
+void BattleAnim_SetupBlizzardHitUpwardColdAir(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the cold air that emanates upward from pokemon hit by blizzard
@@ -1330,7 +1330,7 @@ void BattleAnim_RunBlizzardHitUpwardColdAir(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214B9A8(arg0);
+        BattleAnim_SetupBlizzardHitUpwardColdAir(arg0);
         break;
     case 2:
         Particle_ApproachPrimAlpha(arg0, 0x20, 0x16);
@@ -1365,9 +1365,9 @@ void BattleAnim_SetupWaterGunHitEffect(Particle* arg0) {
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214BAFC(s8 *);                      /* extern */
+void BattleAnim_SetupWaterGunHitEffect(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle callback for a Water Gun hit splash: fades toward alpha 0x20 while playing frames 0 to
@@ -1382,7 +1382,7 @@ void BattleAnim_RunWaterGunHitEffect(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214BAFC(arg0);
+        BattleAnim_SetupWaterGunHitEffect(arg0);
         break;
     case 2:
         Particle_ApproachPrimAlpha(arg0, 0x20, 0x16);
@@ -1434,13 +1434,13 @@ void BattleAnim_SetupWeakBeamHitEffect(Particle* arg0) {
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821434FC(s8 *, s16);                 /* extern */
-M2C_UNK func_82143530(s8 *, s16);                 /* extern */
-M2C_UNK func_82143564(s8 *, s16);                 /* extern */
-M2C_UNK func_821435E0(s8 *, s16);                 /* extern */
-M2C_UNK func_8214BC58(s8 *);                      /* extern */
+void ParticleGfx_RecolorEnvFromPaletteSetA(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void ParticleGfx_RecolorPrimFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void ParticleGfx_RecolorEnvFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void ParticleGfx_RecolorPrimEnvFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void BattleAnim_SetupWeakBeamHitEffect(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 extern s32 D_8219A790;
 
 /**
@@ -1456,7 +1456,7 @@ void BattleAnim_RunWeakBeamHitEffect(Particle* arg0) {
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* switch 1; irregular */
     case 1:                                         /* switch 1 */
-        func_8214BC58(arg0);
+        BattleAnim_SetupWeakBeamHitEffect(arg0);
         break;
     case 2:                                         /* switch 1 */
         Particle_ApproachPrimAlpha(arg0, 0x20, 0x16);
@@ -1471,17 +1471,17 @@ void BattleAnim_RunWeakBeamHitEffect(Particle* arg0) {
         Particle_AddVelocityFromRotationTemplate1(arg0);
         switch (sp2E) {                             /* switch 2; irregular */
         case 0:                                     /* switch 2 */
-            func_821434FC(arg0, ParticleMath_RandomRange(6));
+            ParticleGfx_RecolorEnvFromPaletteSetA(arg0, ParticleMath_RandomRange(6));
             return;
         case 1:                                     /* switch 2 */
             if (D_8219A790 == 0) {
-                func_82143530(arg0, ParticleMath_RandomRange(6));
-                func_82143564(arg0, ParticleMath_RandomRange(6));
+                ParticleGfx_RecolorPrimFromPaletteSetB(arg0, ParticleMath_RandomRange(6));
+                ParticleGfx_RecolorEnvFromPaletteSetB(arg0, ParticleMath_RandomRange(6));
                 return;
             }
             break;
         case 2:                                     /* switch 2 */
-            func_821435E0(arg0, ParticleMath_RandomRange(6));
+            ParticleGfx_RecolorPrimEnvFromPaletteSetB(arg0, ParticleMath_RandomRange(6));
             break;
         }
     }
@@ -1531,13 +1531,13 @@ void BattleAnim_SetupTriAttackHitSpark(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_8214BEE8(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupTriAttackHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the Tri Attack hit spark
@@ -1551,16 +1551,16 @@ void BattleAnim_RunTriAttackHitSpark(Particle* arg0) {
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
-        func_8214BEE8(arg0);
+        BattleAnim_SetupTriAttackHitSpark(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             return;
         }
         return;
     case 3:
-        func_821402B8(arg0);
+        Particle_ApproachScaleTarget(arg0);
         Particle_ApproachPrimAlpha(arg0, 0x20, 0x16);
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
         Particle_ApproachStepMagnitude(arg0, 1.5f, 0.1f);
@@ -1597,14 +1597,14 @@ void BattleAnim_SetupStrongOutwardMovingSmallHitSpark(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);             /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-M2C_UNK func_8214C134(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupStrongOutwardMovingSmallHitSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle lifecycle callback (shared descriptor19 delayed animated grow fade): steps the particle
@@ -1619,20 +1619,20 @@ void BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214C134(particle);
+        BattleAnim_SetupStrongOutwardMovingSmallHitSpark(particle);
         return;
     case 2:
-        if (func_8213CA80(particle, particle->param0) != 0) {
+        if (Particle_TickDelayAndAdvanceLifecycle(particle, particle->param0) != 0) {
             Particle_SetParam0(particle, 2);
-            func_8213CB3C(particle);
+            Particle_EnableRendering(particle);
             return;
         }
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 1, 0);
-        func_82140228(particle, 0x3F000000, 0x3DCCCCCD); // 0.5f, 0.1f
+        Particle_ApproachScale(particle, 0x3F000000, 0x3DCCCCCD); // 0.5f, 0.1f
         Particle_AddVelocityFromRotationTemplate1(particle);
-        if (func_82140690(particle) != 0) {
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
             Particle_ApproachPrimAlpha(particle, 0, 0x20);
             return;
         }
@@ -1666,14 +1666,14 @@ void BattleAnim_SetupUnusedIndexedFadeVariantA(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);             /* extern */
-s32 func_82140690(s8 *);                          /* extern */
-M2C_UNK func_8214C300(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupUnusedIndexedFadeVariantA(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle callback (no reference found) for BattleAnim_SetupUnusedIndexedFadeVariantA: waits
@@ -1686,20 +1686,20 @@ void BattleAnim_CallbackUnusedIndexedFadeA(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214C300(particle);
+        BattleAnim_SetupUnusedIndexedFadeVariantA(particle);
         return;
     case 2:
-        if (func_8213CA80(particle, particle->param0) != 0) {
+        if (Particle_TickDelayAndAdvanceLifecycle(particle, particle->param0) != 0) {
             Particle_SetParam0(particle, 2);
-            func_8213CB3C(particle);
+            Particle_EnableRendering(particle);
             return;
         }
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 1, 0);
-        func_82140228(particle, 0x3ECCCCCD, 0x3DCCCCCD); // 0.4f, 0.1f
+        Particle_ApproachScale(particle, 0x3ECCCCCD, 0x3DCCCCCD); // 0.4f, 0.1f
         Particle_AddVelocityFromRotationTemplate1(particle);
-        if (func_82140690(particle) != 0) {
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
             Particle_ApproachPrimAlpha(particle, 0, 0x20);
             return;
         }
@@ -1733,11 +1733,11 @@ void BattleAnim_SetupUnusedIndexedFadeVariantB(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214C4C4(s8 *);                      /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupUnusedIndexedFadeVariantB(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Particle callback (no reference found) for BattleAnim_SetupUnusedIndexedFadeVariantB: waits
@@ -1750,17 +1750,17 @@ void BattleAnim_CallbackUnusedIndexedFadeB(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214C4C4(particle);
+        BattleAnim_SetupUnusedIndexedFadeVariantB(particle);
         return;
     case 2:
-        if (func_8213CA80(particle, particle->param0) != 0) {
-            func_8213CB3C(particle);
+        if (Particle_TickDelayAndAdvanceLifecycle(particle, particle->param0) != 0) {
+            Particle_EnableRendering(particle);
             Particle_SetTextureFrame(particle, 1);
             return;
         }
         return;
     case 3:
-        func_82140228(particle, 0x3F000000, 0x3CCCCCCD); // 0.5f, 0.025f
+        Particle_ApproachScale(particle, 0x3F000000, 0x3CCCCCCD); // 0.5f, 0.025f
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 2, 7, 1, 1, 0);
         Particle_AddVelocityFromRotationTemplate1(particle);
         return;
@@ -1861,47 +1861,47 @@ void BattleAnim_SetupHydroPumpColorShiftFade(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK func_82137AB4(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+s32 ParticleMath_ApproachFloat(f32* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, s32);        /* extern */
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimGreen(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimBlue(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvBlue(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvGreen(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214C8E0(s8 *);                      /* extern */
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupHydroPumpColorShiftFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the growth, color shift, and fade of a Hydro Pump particle
  * Seen in play (2026-11-12): in the per-move sweep (each of the 165 moves used once) it ran only
  * for Hydro Pump.
  */
-void BattleAnim_RunHydroPumpColorShiftFade(s8 *arg0) {
+void BattleAnim_RunHydroPumpColorShiftFade(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214C8E0(arg0);
+        BattleAnim_SetupHydroPumpColorShiftFade(arg0);
         return;
     case 2:
-        func_82140228(arg0, 0x40000000, 0x3CA3D70A); // 2.0f, 0.02f
+        Particle_ApproachScale(arg0, 0x40000000, 0x3CA3D70A); // 2.0f, 0.02f
         Particle_ApproachEnvGreen(arg0, 0xC8, 2);
-        func_821406B4(arg0);
+        Particle_DecrementParam0ToZeroThenAdvance(arg0);
         return;
     case 3:
-        func_82137AB4(arg0 + 0x70, 0x3C03126F, 0x3A83126F); // 0.008f, 0.001f
-        func_82140228(arg0, 0x40000000, M2C_FIELD(arg0, s32 *, 0x70)); // 2.0f
+        ParticleMath_ApproachFloat(arg0 + 0x70, 0x3C03126F, 0x3A83126F); // 0.008f, 0.001f
+        Particle_ApproachScale(arg0, 0x40000000, M2C_FIELD(arg0, s32 *, 0x70)); // 2.0f
         Particle_ApproachPrimRed(arg0, 0x78, 8);
         Particle_ApproachPrimBlue(arg0, 0x96, 8);
         Particle_ApproachPrimGreen(arg0, 0x96, 8);
         Particle_ApproachEnvRed(arg0, 0x78, 8);
         Particle_ApproachEnvBlue(arg0, 0x96, 8);
         Particle_ApproachEnvGreen(arg0, 0x96, 8);
-        func_82140548(arg0, 0, 0xC);
+        Particle_ApproachPrimAlphaThenAdvance(arg0, 0, 0xC);
         return;
     case 4:
         Particle_MarkInactive(arg0);
@@ -1945,16 +1945,16 @@ void BattleAnim_SetupWaterGunEmitterColoration(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimGreen(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachPrimBlue(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvRed(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvBlue(s8 *, M2C_UNK, M2C_UNK);    /* extern */
 M2C_UNK Particle_ApproachEnvGreen(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214CA90(s8 *);                      /* extern */
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupWaterGunEmitterColoration(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the coloring of the burst emitter for Water gun
@@ -1967,11 +1967,11 @@ void BattleAnim_RunWaterGunEmitterColoration(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214CA90(arg0);
+        BattleAnim_SetupWaterGunEmitterColoration(arg0);
         break;
     case 2:
         Particle_ApproachEnvGreen(arg0, 0xC8, 2);
-        func_821406B4(arg0);
+        Particle_DecrementParam0ToZeroThenAdvance(arg0);
         break;
     case 3:
         Particle_ApproachPrimRed(arg0, 0x78, 8);
@@ -1980,13 +1980,13 @@ void BattleAnim_RunWaterGunEmitterColoration(Particle* arg0) {
         Particle_ApproachEnvRed(arg0, 0x78, 8);
         Particle_ApproachEnvBlue(arg0, 0x96, 8);
         Particle_ApproachEnvGreen(arg0, 0x96, 8);
-        func_82140548(arg0, 0, 0xC);
+        Particle_ApproachPrimAlphaThenAdvance(arg0, 0, 0xC);
         break;
     case 4:
         Particle_MarkInactive(arg0);
         break;
     }
-    func_821402B8(arg0);
+    Particle_ApproachScaleTarget(arg0);
 }
 
 /**
@@ -2010,11 +2010,11 @@ void BattleAnim_SetupHydroPumpWaterGunProjectileHit(Particle* arg0) {
 }
 
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_8214CC90(s8 *);                      /* extern */
+void BattleAnim_SetupHydroPumpWaterGunProjectileHit(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_water_effects.c)
 
 /**
  * Handles the projectile shared by being hit by water gun and hydro pump
@@ -2027,14 +2027,14 @@ void BattleAnim_RunHydroPumpWaterGunProjectileHit(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214CC90(arg0);
+        BattleAnim_SetupHydroPumpWaterGunProjectileHit(arg0);
         break;
     case 2:
-        func_82140228(arg0, 0x3E99999A, 0x3CA3D70A); // 0.3f, 0.02f
+        Particle_ApproachScale(arg0, 0x3E99999A, 0x3CA3D70A); // 0.3f, 0.02f
         Particle_ApproachPrimAlpha(arg0, 0x20, 0xC);
         Particle_AddVelocityFromRotationTemplate1(arg0);
         Particle_AddPosOffsetYScaled(arg0, 0xBF800000); // -1.0f
-        func_8213CA80(arg0, 0x10);
+        Particle_TickDelayAndAdvanceLifecycle(arg0, 0x10);
         break;
     case 3:
         Particle_MarkInactive(arg0);
@@ -2054,10 +2054,9 @@ void BattleAnim_StartMegaPunchEffect(void) {
     BattleAnim_CreateEffectSlotForCurrentOwner(4, BattleAnim_RunMegaKickAndPunchProjectile, &gBattleAnimParticleDescriptors[8], 0, 4, 0x11, gBattleAnimCurrentAnchor, 0, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E5C8;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B0FC;
 
 /**
  * Effect init that spawns the Mega Kick animation. Player sweep (all 165 moves used in battle):
@@ -2066,13 +2065,12 @@ extern M2C_UNK func_8214B0FC;
  * it ran for exactly Mega Kick.
  */
 void BattleAnim_InitializeMegaKickUse(void) {
-    func_8213B560(0, &func_8214B0FC, &D_8218E5C8, 0, 4, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunMegaKickAndPunchProjectile, &D_8218E5C8, 0, 4, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E7A8;
 extern s16 D_8219A80A;
-extern M2C_UNK func_821499D4;
 
 /**
  * Effect init that spawns the Bubble animation. Player sweep (all 165 moves used in battle): only
@@ -2081,7 +2079,7 @@ extern M2C_UNK func_821499D4;
  * it ran for exactly Bubble.
  */
 void BattleAnim_InitializeBubbleUse(void) {
-    func_8213B5D8(0, 1, 60, &func_821499D4, &D_8218E7A8, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 60, &BattleAnim_RunBubbleBubbles, &D_8218E7A8, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
 extern ParticleDescriptor D_8218E580[86];
@@ -2136,15 +2134,14 @@ void BattleAnim_InitializeHydroPumpUse(void) {
     BattleAnim_CreateEffectSlotForCurrentOwner(4, BattleAnim_RunHydroPumpBurstEmitter, &gBattleAnimParticleDescriptors[8], 0, 1, 0x11, gBattleAnimCurrentAnchor, 0, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213BD78(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnBeamBoomWaterfallHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E5A8;
 extern M2C_UNK D_8218E5D8;
 extern M2C_UNK D_8218E650;
 extern M2C_UNK D_8218E7D8;
 extern s16 D_8219A80A;
-extern M2C_UNK func_82145998;
 
 /**
  * initializes hydro pump
@@ -2152,22 +2149,21 @@ extern M2C_UNK func_82145998;
  * ran for exactly Hydro Pump.
  */
 void BattleAnim_InitializeHydroPumpHit(void) {
-    func_8213BD78(4, 8, 0x33, 0x10, 0xFF);
-    func_8213B560(0, &func_82145998, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
-    func_8213B5D8(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
-    func_8213B5D8(10, 1, 8, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 3, 0x11, (s32) D_8219A80A, 0x26, 0);
-    func_8213B560(12, &BattleAnim_RunHydroPumpColorShiftFade, &D_8218E7D8, 0, 1, 0xA, 0, 0x4C, 0);
-    func_8213B5D8(2, 1, 0x10, &BattleAnim_RunHydroPumpWaterGunProjectileHit, &D_8218E5D8, 0, 4, 0x11, (s32) D_8219A80A, 0x4C, 0);
+    BattleAnim_SpawnBeamBoomWaterfallHueChange(4, 8, 0x33, 0x10, 0xFF);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunExpandingHitSpark, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(10, 1, 8, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 3, 0x11, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_RunHydroPumpColorShiftFade, &D_8218E7D8, 0, 1, 0xA, 0, 0x4C, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(2, 1, 0x10, &BattleAnim_RunHydroPumpWaterGunProjectileHit, &D_8218E5D8, 0, 4, 0x11, (s32) D_8219A80A, 0x4C, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E7D0;
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
  * initializes ice beam
@@ -2175,19 +2171,18 @@ extern M2C_UNK func_8214B1F8;
  * it ran for exactly Ice Beam.
  */
 void BattleAnim_InitializeIceBeamUse(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213B644(0, 8, 0x33);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x40, 0);
-    func_8213B560(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x6E, 1, 0x10, (s32) D_8219A80A, 0x40, 1);
-    func_8213B5D8(0, 3, 30, &BattleAnim_IceBeamParticleUpdateA, &D_8218E7D0, 0, 1, 0x11, (s32) D_8219A80A, 0x13, 0);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x33);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x40, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x6E, 1, 0x10, (s32) D_8219A80A, 0x40, 1);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 3, 30, &BattleAnim_IceBeamParticleUpdateA, &D_8218E7D0, 0, 1, 0x11, (s32) D_8219A80A, 0x13, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
  * Effect init that spawns the Psybeam animation. Player sweep (all 165 moves used in battle):
@@ -2196,14 +2191,14 @@ extern M2C_UNK func_8214B1F8;
  * it ran for exactly Psybeam.
  */
 void BattleAnim_InitializePsybeamUse(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213B644(0, 8, 6);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0xD, 0);
-    func_8213B560(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0xD, 1);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 6);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0xD, 1);
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E7A8;
 extern s16 D_8219A80A;
 
@@ -2214,17 +2209,16 @@ extern s16 D_8219A80A;
  * 165 moves used: it ran for exactly Bubble Beam.
  */
 void BattleAnim_InitializeBubbleBeamUse(void) {
-    func_8213B644(0, 8, 6);
-    func_8213B5D8(0, 1, 60, &BattleAnim_RunBubbleBeamBubblesFast, &D_8218E7A8, 0, 4, 0x11, (s32) D_8219A80A, 0, 0);
-    func_8213B5D8(0, 1, 60, &BattleAnim_RunBubbleBeamBubblesSlow, &D_8218E7A8, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 6);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 60, &BattleAnim_RunBubbleBeamBubblesFast, &D_8218E7A8, 0, 4, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 60, &BattleAnim_RunBubbleBeamBubblesSlow, &D_8218E7A8, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
  * Effect init that spawns the Aurora Beam animation. Player sweep (all 165 moves used in battle):
@@ -2233,20 +2227,19 @@ extern M2C_UNK func_8214B1F8;
  * it ran for exactly Aurora Beam.
  */
 void BattleAnim_InitializeAuroraBeamUse(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213B644(0, 8, 6);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x41, 0);
-    func_8213B560(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x41, 1);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 6);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x41, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x41, 1);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
-M2C_UNK func_8213BC00(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
-M2C_UNK func_8215B110();                            /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintRampDetach(s32 arg0, u8 arg1, s16 arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void BattleAnim_InitializeHyperBeamUseSequence(void); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
  * Effect init that spawns the Hyper Beam animation. Player sweep (all 165 moves used in battle):
@@ -2255,41 +2248,39 @@ extern M2C_UNK func_8214B1F8;
  * it ran for exactly Hyper Beam.
  */
 void BattleAnim_InitializeHyperBeamUse(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213BC00(0, 8, 0xFF, 0, 0x10);
-    func_8213B644(0, 0x20, 0xE);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x2C, 0);
-    func_8215B110();
-    func_8213B560(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x2C, 1);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x10);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 0xE);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x2C, 0);
+    BattleAnim_InitializeHyperBeamUseSequence();
+    BattleAnim_CreateEffectSlotForCurrentOwner(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x2C, 1);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
- * Starts a beam effect: sets the spawn and tint timing, then queues func_8214B1F8 at once and
+ * Starts a beam effect: sets the spawn and tint timing, then queues BattleAnim_RunInitialBeamEmanator at once and
  * the pulsing beam emanator after 6 frames (lifetime 70).
  * Seen in play (2026-11-14) (Metronome bench, one movie per move, 1P Onix vs Pinsir on Splash, exec
  * breakpoint): ran only for Solar Beam.
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartEffect70PulsingBeam(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213B644(0, 8, 0x20);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x17, 0);
-    func_8213B560(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x17, 1);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x20);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x17, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(6, &BattleAnim_RunPulsingBeamEmanator, &D_8218E818, 0x46, 1, 0x10, (s32) D_8219A80A, 0x17, 1);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B6AC(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E818;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B1F8;
 
 /**
  * Effect init that spawns the Tri Attack animation. Player sweep (all 165 moves used in battle):
@@ -2298,42 +2289,39 @@ extern M2C_UNK func_8214B1F8;
  * it ran for exactly Tri Attack.
  */
 void BattleAnim_InitializeTriAttackUse(void) {
-    func_8213B6AC(0, 0, 0x20, 8, 0xA0);
-    func_8213B644(0, 8, 0x20);
-    func_8213B560(0, &func_8214B1F8, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x17, 0);
+    BattleAnim_SpawnWhiteHueChange(0, 0, 0x20, 8, 0xA0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x20);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunInitialBeamEmanator, &D_8218E818, 0, 1, 0x10, (s32) D_8219A80A, 0x17, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213BD78(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnBeamBoomWaterfallHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E5A8;
 extern M2C_UNK D_8218E650;
 extern s16 D_8219A80A;
-extern M2C_UNK func_82145998;
 
 /**
  * Effect init that spawns the Waterfall animation. Player sweep (all 165 moves used in battle):
  * only Waterfall reached this function.
  */
 void BattleAnim_InitializeWaterfallUseB(void) {
-    func_8213BD78(4, 8, 0x33, 0xC, 0xFF);
-    func_8213B560(0, &func_82145998, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
-    func_8213B5D8(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
-    func_8213B5D8(10, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_SpawnBeamBoomWaterfallHueChange(4, 8, 0x33, 0xC, 0xFF);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunExpandingHitSpark, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(10, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x26, 0);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213BE70(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnIceBeamBlizzardHitHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E5A8;
 extern M2C_UNK D_8218E650;
 extern M2C_UNK D_8218E770;
 extern M2C_UNK D_8218E798;
 extern M2C_UNK D_8218E820;
 extern s16 D_8219A80A;
-extern M2C_UNK func_82145998;
-extern M2C_UNK func_8214B468;
 extern M2C_UNK BattleAnim_IceBeamParticleUpdateB;
 
 /**
@@ -2342,26 +2330,24 @@ extern M2C_UNK BattleAnim_IceBeamParticleUpdateB;
  * ran for exactly Ice Beam.
  */
 void BattleAnim_InitializeIceBeamHit(void) {
-    func_8213BE70(0, 8, 0x33, 0x10, 0xDC, 0x20);
-    func_8213B560(3, &func_82145998, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
-    func_8213B5D8(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
-    func_8213B5D8(4, 4, 2, &func_8214B468, &D_8218E820, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
-    func_8213B5D8(12, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x26, 0);
-    func_8213B5D8(14, 4, 2, &BattleAnim_CallbackEnd67Desc3DAnimatedGravityFade, &D_8218E770, 0, 6, 0x10, 0x64, 0, 0);
-    func_8213B5D8(0, 2, 6, &BattleAnim_IceBeamParticleUpdateB, &D_8218E798, 0, 8, 0x11, 9, 0x18, 0xB);
-    func_8213B644(48, 0x20, 8);
+    BattleAnim_SpawnIceBeamBlizzardHitHueChange(0, 8, 0x33, 0x10, 0xDC, 0x20);
+    BattleAnim_CreateEffectSlotForCurrentOwner(3, &BattleAnim_RunExpandingHitSpark, &D_8218E5A8, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 5, 3, &BattleAnim_RunStrongOutwardMovingLargeHitSpark, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 2, &BattleAnim_RunStrongBeamHitEffect, &D_8218E820, 0, 1, 0x10, (s32) D_8219A80A, 0x33, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(12, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(14, 4, 2, &BattleAnim_CallbackEnd67Desc3DAnimatedGravityFade, &D_8218E770, 0, 6, 0x10, 0x64, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 2, 6, &BattleAnim_IceBeamParticleUpdateB, &D_8218E798, 0, 8, 0x11, 9, 0x18, 0xB);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213C060(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnRainbowHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E650;
 extern M2C_UNK D_8218E660;
 extern M2C_UNK D_8218E820;
 extern s16 D_8219A80A;
-extern M2C_UNK func_82145A58;
-extern M2C_UNK func_8214B5A0;
 
 /**
  * initializes being hit by psybeam
@@ -2369,11 +2355,11 @@ extern M2C_UNK func_8214B5A0;
  * ran for exactly Psybeam.
  */
 void BattleAnim_InitializePsybeamHit(void) {
-    func_8213C060(4, 0x32, 0x20, 0xA0);
-    func_8213B5D8(4, 4, 3, &func_8214B5A0, &D_8218E820, 0, 1, 0x10, (s32) D_8219A80A, 0, 0);
-    func_8213B560(3, &func_82145A58, &D_8218E660, 0, 1, 0x10, (s32) D_8219A80A, 0x21, 0);
-    func_8213B5D8(3, 5, 3, &BattleAnim_RunWeakBeamHitEffect, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 1, 0);
-    func_8213B644(48, 0x20, 8);
+    BattleAnim_SpawnRainbowHueChange(4, 0x32, 0x20, 0xA0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 3, &BattleAnim_RunPsybeamHitSparkFlicker, &D_8218E820, 0, 1, 0x10, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(3, &BattleAnim_RunPsybeamHitSparkDrift, &D_8218E660, 0, 1, 0x10, (s32) D_8219A80A, 0x21, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(3, 5, 3, &BattleAnim_RunWeakBeamHitEffect, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 1, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
 }
 
 extern ParticleDescriptor D_8218E588[86];
@@ -2391,14 +2377,13 @@ void BattleAnim_InitializeBubbleBeamHit(void) {
     BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 0x8);
 }
 
-M2C_UNK func_8213B560(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213C060(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnRainbowHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E650;
 extern M2C_UNK D_8218E820;
 extern s16 D_8219A80A;
-extern M2C_UNK func_8214B77C;
 
 /**
  * initialize being hit by aurora beam
@@ -2406,11 +2391,11 @@ extern M2C_UNK func_8214B77C;
  * ran for exactly Aurora Beam.
  */
 void BattleAnim_InitializeAuroraBeamHit(void) {
-    func_8213C060(4, 0x32, 0x20, 0xA0);
-    func_8213B560(4, &func_8214B77C, &D_8218E820, 0, 9, 0x10, (s32) D_8219A80A, 0, 0);
-    func_8213B5D8(3, 5, 3, &BattleAnim_RunWeakBeamHitEffect, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0, 0);
-    func_8213B5D8(12, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x39, 0);
-    func_8213B644(22, 0x20, 8);
+    BattleAnim_SpawnRainbowHueChange(4, 0x32, 0x20, 0xA0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, &BattleAnim_RunAuroraBeamHitSpark, &D_8218E820, 0, 9, 0x10, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(3, 5, 3, &BattleAnim_RunWeakBeamHitEffect, &D_8218E650, 0, 8, 0x10, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(12, 1, 3, &BattleAnim_CallbackSharedDesc19DelayedAnimGrowFade, &D_8218E650, 0, 8, 0x11, (s32) D_8219A80A, 0x39, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(22, 0x20, 8);
 }
 
 extern ParticleDescriptor D_8218E588[86];

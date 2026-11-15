@@ -7,10 +7,10 @@
 
 #include "m2c_macros.h"
 
-void BattleThumbnail_SetupOwnerCameraFraming(ActivePokemon* side1_pokemon, ActivePokemon* side2_pokemon);
+void BattleThumbnail_SetupOwnerCameraFraming(ActivePokemon* side1_pokemon, ActivePokemon* side2_pokemon); // PORT: signature from the definition (fragments/battle/thumbnail.c)
 void BattleThumbnail_OwnerCameraLifecycleNop(void);
-void BattleThumbnail_TickOwnerCameraFraming(ActivePokemon* active_pokemon);
-s32 BattleThumbnail_DispatchOwnerCameraLifecycle(s32 state, CameraNode* side1_camera_node, CameraNode* side2_camera_node);
+void BattleThumbnail_TickOwnerCameraFraming(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/thumbnail.c)
+s32 BattleThumbnail_DispatchOwnerCameraLifecycle(s32 state, CameraNode* side1_camera_node, CameraNode* side2_camera_node); // PORT: signature from the definition (fragments/battle/thumbnail.c)
 
 void BattleThumbnail_ClearBothOwnerIdleFlags(void);
 void BattleThumbnail_SetBothOwnerIdleFlags(void);
@@ -80,8 +80,8 @@ void BattleThumbnail_TickOwnerCameraFraming(ActivePokemon* active_pokemon) {
     BattleThumbnail_ApplyOwnerCameraFraming(active_pokemon);
 }
 
-M2C_UNK func_82107290(s8 *, s8 *);              /* extern */
-M2C_UNK func_82107408(s8 *);                      /* extern */
+void BattleThumbnail_SetupOwnerCameraFraming(ActivePokemon* side1_pokemon, ActivePokemon* side2_pokemon); // PORT: signature from the definition (fragments/battle/thumbnail.c)
+void BattleThumbnail_TickOwnerCameraFraming(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/thumbnail.c)
 
 /**
  * Gives both Pokémon their thumbnail camera, frames each owner in it and resets both thumbnails.
@@ -90,9 +90,9 @@ M2C_UNK func_82107408(s8 *);                      /* extern */
 void BattleThumbnail_InitializeOwnerCameraFraming(s32 camera0, ActivePokemon* pokemon0, s32 camera1, ActivePokemon* pokemon1) {
     pokemon0->thumbnail.camera = camera0;
     pokemon1->thumbnail.camera = camera1;
-    func_82107290(pokemon0, pokemon1);
-    func_82107408(pokemon0);
-    func_82107408(pokemon1);
+    BattleThumbnail_SetupOwnerCameraFraming(pokemon0, pokemon1);
+    BattleThumbnail_TickOwnerCameraFraming(pokemon0);
+    BattleThumbnail_TickOwnerCameraFraming(pokemon1);
 }
 
 s32 ModelRenderer_IsSlotModelReady(s32);
@@ -135,7 +135,7 @@ void BattleThumbnail_TickOwnerSlideIn(ActivePokemon* active_pokemon, s32 delta) 
     }
 }
 
-s16 func_8000F1FC(s16, M2C_UNK, M2C_UNK, M2C_UNK);  /* extern */
+s32 Math_StepToS32(s32 current, s32 target, s32 increase, s32 decrease); // PORT: signature from the definition (matrix.c)
 
 /**
  * Slides the Pokémon's thumbnail viewport off its side of the screen (to x -72 or 351) and hides it
@@ -148,7 +148,7 @@ void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK sp
 
     if (active_pokemon->thumbnail.side == 1) {
         active_pokemon->thumbnail.status = 0;
-        active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, -0x48, speed, speed);
+        active_pokemon->thumbnail.camera->viewport.x = Math_StepToS32(active_pokemon->thumbnail.camera->viewport.x, -0x48, speed, speed);
         temp_v1 = active_pokemon->thumbnail.camera;
         if (temp_v1->viewport.x == -0x48) {
             M2C_FIELD(temp_v1, u8 *, 1) = (u8) (M2C_FIELD(temp_v1, u8 *, 1) & 0xFFFE);
@@ -156,7 +156,7 @@ void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, M2C_UNK sp
         }
     } else {
         active_pokemon->thumbnail.status = 0;
-        active_pokemon->thumbnail.camera->viewport.x = func_8000F1FC(active_pokemon->thumbnail.camera->viewport.x, 0x15F, speed, speed);
+        active_pokemon->thumbnail.camera->viewport.x = Math_StepToS32(active_pokemon->thumbnail.camera->viewport.x, 0x15F, speed, speed);
         temp_v1_2 = active_pokemon->thumbnail.camera;
         if (temp_v1_2->viewport.x == 0x15F) {
             M2C_FIELD(temp_v1_2, u8 *, 1) = (u8) (M2C_FIELD(temp_v1_2, u8 *, 1) & 0xFFFE);

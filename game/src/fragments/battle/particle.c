@@ -6,15 +6,15 @@ extern ParticleDescriptor gDefaultParticleDescriptor;
 
 #include "m2c_macros.h"
 
-s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1);
+s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_SetFlags(Particle* arg0, s32 arg1);
 void Particle_ClearFlags(Particle* arg0, s32 arg1);
 void Particle_ToggleFlags(Particle* arg0, s32 arg1);
-s32 Particle_HasFlags(Particle* arg0, s32 arg1);
-s32 Particle_LacksFlags(Particle* arg0, s32 arg1);
-void Particle_EnableRendering(Particle* arg0);
+s32 Particle_HasFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_LacksFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_DisableRendering(Particle* arg0);
-s32 Particle_IsRenderingEnabled(Particle* arg0);
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_EnableFlag40(Particle* arg0);
 void Particle_DisableFlag40(Particle* arg0);
 void Particle_HasFlag40(Particle* arg0);
@@ -26,13 +26,13 @@ void Particle_AddPositionFromRotationTemplate1(Particle* arg0, f32 arg1);
 void Particle_AddPositionFromRotationTemplate2(Particle* arg0, f32 arg1);
 void Particle_SetMotionOffsetYScaled(Particle* arg0, f32 arg1);
 void Particle_SetMotionOffsetZScaled(Particle* arg0, f32 arg1);
-void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1);
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_AddMotionOffsetZScaled(Particle* arg0, f32 arg1);
 void Particle_SubMotionOffsetYScaled(Particle* arg0, f32 arg1);
 void Particle_SubMotionOffsetZScaled(Particle* arg0, f32 arg1);
 s32 Particle_ApproachMotionOffsetY(Particle* arg0, f32 arg1);
 s32 Particle_ApproachMotionOffsetZ(Particle* arg0, f32 arg1);
-void Particle_ApplyMotionStepY(Particle* arg0);
+void Particle_ApplyMotionStepY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_ApplyMotionStepZ(Particle* arg0);
 void Particle_AddVelocityXZFromRotationYViaHelpers(Particle* arg0);
 void Particle_AddVelocityFromRotationTemplate2(Particle* arg0);
@@ -49,32 +49,32 @@ void Particle_AddRotationRandomSignedXYWithXHalfTurn(Particle* arg0, s32 arg1, s
 void Particle_AddRotationRandomSignedY(Particle* arg0, s32 arg1);
 void Particle_AddRotationRandomSignedYWithHalfTurn(Particle* arg0, s32 arg1);
 void Particle_AddRotationRandomXQuarterTurnY(Particle* arg0);
-s32 Particle_MagnitudeStep_Approach_0ADBC(Particle* arg0, f32 arg1, f32 arg2);
+s32 Particle_MagnitudeStep_Approach_0ADBC(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_MotionStep_IncrementXUntilAtLeast_0AF54(Particle* arg0, f32 arg1, f32 arg2);
 s32 Particle_MotionStep_IncrementYUntilAtLeast_0AFA8(Particle* arg0, f32 arg1, f32 arg2);
-s32 Particle_MotionStep_DecrementXUntilAtMost_0B050(Particle* arg0, f32 arg1, f32 arg2);
+s32 Particle_MotionStep_DecrementXUntilAtMost_0B050(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_MotionStep_DecrementYUntilAtMost_0B0A4(Particle* arg0, f32 arg1, f32 arg2);
-void Particle_SetScaleScaled(Particle* arg0, f32 arg1);
+void Particle_SetScaleScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_SetScale(Particle* arg0, f32 arg1);
-void Particle_SetScaleTarget(Particle* arg0, f32 arg1);
-void Particle_SetScaleStep(Particle* arg0, f32 arg1);
-s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2);
+void Particle_SetScaleTarget(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_SetScaleStep(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_ApproachScaleThenAdvance(Particle* arg0, f32 arg1, f32 arg2);
-s32 Particle_ApproachScaleTarget(Particle* arg0);
-s32 Particle_ApproachScaleTargetThenAdvance(Particle* arg0);
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScaleTargetThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_StepScaleTarget(Particle* arg0, f32 arg1, f32 arg2);
-s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2);
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_Param0_DecrementToZero_0BD08(Particle* arg0, s16 arg1);
 s32 Particle_Param0_DecrementToZeroAndStepState_0BD34(Particle* arg0, s16 arg1);
 s32 Particle_Param0_DecrementToStep1_0BD80(Particle* arg0, s16 arg1);
-s32 Particle_DecrementParam0ToZero(Particle* arg0);
-s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0);
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 s32 Particle_DecrementCountdownToZero(Particle* arg0);
 s32 Particle_Countdown_TickToZeroAndStepState(Particle* arg0);
-s32 Particle_ApproachScratchAThenAdvance(Particle* arg0, s16 arg1, s16 arg2);
+s32 Particle_ApproachScratchAThenAdvance(Particle* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 
-void Particle_AdvanceLifecycle(Particle* arg0);
-s32 Particle_TickDelayTimer(Particle* arg0, s16 arg1);
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+s32 Particle_TickDelayTimer(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 s32 Particle_AnimateFramesPingPong(Particle* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5);
 s32 Particle_AnimateFramesReverseFirstPingPong(Particle* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5);
 void Particle_PositionOffset_SetVecScaled(Particle* arg0, Vec3f arg1);
@@ -90,7 +90,7 @@ void Particle_ApproachRotationTargetY(Particle* arg0);
 void Particle_ApproachRotationTargetZ(Particle* arg0);
 void Particle_ComputeVectorFromRotationXYZAlt(Particle* arg0, f32 arg1, Vec3f* arg2);
 void Particle_ComputeVectorFromRotationYZVariant(Particle* arg0, f32 arg1, Vec3f* arg2);
-void Particle_SetMotionStepXZFromRotationY(Particle* arg0);
+void Particle_SetMotionStepXZFromRotationY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_SetMotionStepFromRotationXZ(Particle* arg0);
 s32 Particle_PrimAlpha_Approach_0BC2C(Particle* arg0, u8 arg1, u8 arg2);
 s32 Particle_StepParam0DownTo(Particle* arg0, s16 arg1, s16 arg2);
@@ -814,93 +814,93 @@ void Particle_AddPositionRotatedByRotationY(Particle* arg0, Vec3f arg1) {
     Particle_PositionOffset_AddVecScaled(arg0, sp24);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.x to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824.
+ * Sets the particle's positionOffset.x to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824.
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed positionOffset.x
  * (0x34) of the live particle, e.g. 0 -> 47.52.
  */
 void Particle_SetPosOffsetXRandomScaled(Particle* arg0, M2C_UNK arg1) {
-    arg0->positionOffset.x = (f32) ((f32) func_82137DF4(arg1) * D_FLT_8219A824);
+    arg0->positionOffset.x = (f32) ((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.y to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824.
+ * Sets the particle's positionOffset.y to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824.
  * No caller (2026-11-13): nothing in the built ROM jumps to it or holds its address (no jal,
  * no function-pointer word in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
 void Particle_SetPosOffsetYRandomScaled(Particle* arg0, M2C_UNK arg1) {
-    arg0->positionOffset.y = (f32) ((f32) func_82137DF4(arg1) * D_FLT_8219A824);
+    arg0->positionOffset.y = (f32) ((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.z to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824.
+ * Sets the particle's positionOffset.z to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824.
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed positionOffset.z
  * (0x3C) of the live particle, e.g. 0 -> 44.
  */
 void Particle_SetPosOffsetZRandomScaled(Particle* arg0, M2C_UNK arg1) {
-    arg0->positionOffset.z = (f32) ((f32) func_82137DF4(arg1) * D_FLT_8219A824);
+    arg0->positionOffset.z = (f32) ((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.x to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824, plus arg2.
+ * Sets the particle's positionOffset.x to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824, plus arg2.
  * No caller (2026-11-13): nothing in the built ROM jumps to it or holds its address (no jal,
  * no function-pointer word in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
 void Particle_SetPosOffsetXRandomScaledPlus(Particle* arg0, M2C_UNK arg1, s32 arg2) {
-    arg0->positionOffset.x = (f32) (((f32) func_82137DF4(arg1) * D_FLT_8219A824) + (f32) arg2);
+    arg0->positionOffset.x = (f32) (((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824) + (f32) arg2);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.y to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824, plus arg2.
+ * Sets the particle's positionOffset.y to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824, plus arg2.
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed positionOffset.y
  * (0x38) of the live particle, e.g. 0 -> 1.2.
  */
 void Particle_SetPosOffsetYRandomScaledPlus(Particle* arg0, M2C_UNK arg1, s32 arg2) {
-    arg0->positionOffset.y = (f32) (((f32) func_82137DF4(arg1) * D_FLT_8219A824) + (f32) arg2);
+    arg0->positionOffset.y = (f32) (((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824) + (f32) arg2);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets the particle's positionOffset.z to a random value from func_82137DF4(arg1) times the particle scale D_FLT_8219A824, plus arg2.
+ * Sets the particle's positionOffset.z to a random value from ParticleMath_RandomSigned(arg1) times the particle scale D_FLT_8219A824, plus arg2.
  * No caller (2026-11-13): nothing in the built ROM jumps to it or holds its address (no jal,
  * no function-pointer word in any fragment), so play cannot reach it.
  * @unverified Name and comment guessed from the code.
  */
 void Particle_SetPosOffsetZRandomScaledPlus(Particle* arg0, M2C_UNK arg1, s32 arg2) {
-    arg0->positionOffset.z = (f32) (((f32) func_82137DF4(arg1) * D_FLT_8219A824) + (f32) arg2);
+    arg0->positionOffset.z = (f32) (((f32) ParticleMath_RandomSigned(arg1) * D_FLT_8219A824) + (f32) arg2);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
- * Sets positionOffset.x to the random value from func_82137DF4 pushed `arg2` units away from zero, times D_FLT_8219A824.
+ * Sets positionOffset.x to the random value from ParticleMath_RandomSigned pushed `arg2` units away from zero, times D_FLT_8219A824.
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed positionOffset.x
  * (0x34) of the live particle, e.g. 0 -> 44.
  */
 void Particle_SetRandomPositionOffsetXWithGap(Particle* arg0, M2C_UNK arg1, s32 arg2) {
     f32 temp_f0;
 
-    temp_f0 = (f32) func_82137DF4(arg1);
+    temp_f0 = (f32) ParticleMath_RandomSigned(arg1);
     if (temp_f0 >= 0.0f) {
         arg0->positionOffset.x = (f32) (((f32) arg2 + temp_f0) * D_FLT_8219A824);
         return;
@@ -908,7 +908,7 @@ void Particle_SetRandomPositionOffsetXWithGap(Particle* arg0, M2C_UNK arg1, s32 
     arg0->positionOffset.x = (f32) ((temp_f0 - (f32) arg2) * D_FLT_8219A824);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
@@ -920,7 +920,7 @@ extern f32 D_FLT_8219A824;
 void Particle_SetRandomPositionOffsetYWithGap(Particle* arg0, M2C_UNK arg1, s32 arg2) {
     f32 temp_f0;
 
-    temp_f0 = (f32) func_82137DF4(arg1);
+    temp_f0 = (f32) ParticleMath_RandomSigned(arg1);
     if (temp_f0 >= 0.0f) {
         arg0->positionOffset.y = (f32) (((f32) arg2 + temp_f0) * D_FLT_8219A824);
         return;
@@ -928,7 +928,7 @@ void Particle_SetRandomPositionOffsetYWithGap(Particle* arg0, M2C_UNK arg1, s32 
     arg0->positionOffset.y = (f32) ((temp_f0 - (f32) arg2) * D_FLT_8219A824);
 }
 
-s32 func_82137DF4(M2C_UNK);                         /* extern */
+s32 ParticleMath_RandomSigned(M2C_UNK);                         /* extern */
 extern f32 D_FLT_8219A824;
 
 /**
@@ -939,7 +939,7 @@ extern f32 D_FLT_8219A824;
 void Particle_SetRandomPositionOffsetZWithGap(Particle* arg0, M2C_UNK arg1, s32 arg2) {
     f32 temp_f0;
 
-    temp_f0 = (f32) func_82137DF4(arg1);
+    temp_f0 = (f32) ParticleMath_RandomSigned(arg1);
     if (temp_f0 >= 0.0f) {
         arg0->positionOffset.z = (f32) (((f32) arg2 + temp_f0) * D_FLT_8219A824);
         return;
@@ -1273,7 +1273,7 @@ void Particle_ApplyMotionStepXY(Particle* arg0) {
  * Adds motionStep.x to motionOffset.x.
  * @unverified Name guessed from the code.
  */
-void Particle_ApplyMotionStepX(s8 *particle)
+void Particle_ApplyMotionStepX(Particle* particle) // PORT: was s8*
 {
   *((f32 *) (((s8 *) particle) + 0x4C)) = (f32) ((*((f32 *) (((s8 *) particle) + 0x78))) + (*((f32 *) (((s8 *) particle) + 0x4C)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
 }
@@ -1310,14 +1310,14 @@ void Particle_AddVelocityXZFromRotationYViaHelpers(Particle* arg0) {
     Particle_MotionOffset_AddXYFromMotionStep_09C34(arg0);
 }
 
-M2C_UNK func_8213FB14();                            /* extern */
+void Particle_SetMotionStepXZFromRotationY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the XZ motion step from rotation.y and adds it to the motion offset.
  * @unverified Name guessed from the code.
  */
 void Particle_MoveXZAlongRotationY(Particle* particle) {
-    func_8213FB14();
+    Particle_SetMotionStepXZFromRotationY(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStepXZ(particle);
 }
 
@@ -1333,14 +1333,14 @@ void Particle_AddVelocityFromRotationTemplate2(Particle* arg0) {
     Particle_ApplyMotionStepXY(arg0);
 }
 
-M2C_UNK func_8213FB50();                            /* extern */
+void Particle_SetMotionStepFromRotationXY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
- * Calls func_8213FB50 and then Particle_ApplyMotionStep on the particle; the counterpart of
+ * Calls Particle_SetMotionStepFromRotationXY and then Particle_ApplyMotionStep on the particle; the counterpart of
  * Particle_AddVelocityFromRotationTemplate2 with the full motion step.
  */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0) {
-    func_8213FB50();
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0) { // PORT: arg0 was s32
+    Particle_SetMotionStepFromRotationXY(arg0); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(arg0);
 }
 
@@ -1356,7 +1356,7 @@ void Particle_MoveAlongRotationXZ(s32 particle) {
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FC48();                            /* extern */
+void Particle_SetMotionStepFromRotationXYAlt(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the motion step from rotation.x and rotation.y (alternate form) and adds it to the motion
@@ -1366,22 +1366,22 @@ M2C_UNK func_8213FC48();                            /* extern */
  * @unverified Name guessed from the code.
  */
 void Particle_MoveAlongRotationXYAlt(Particle* particle) {
-    func_8213FC48();
+    Particle_SetMotionStepFromRotationXYAlt(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FCC8();                            /* extern */
+void Particle_SetMotionStepFromRotationYZ(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the motion step from rotation.y and rotation.z and adds it to the motion offset.
  * @unverified Name guessed from the code.
  */
-void Particle_MoveAlongRotationYZ(s32 particle) {
-    func_8213FCC8();
+void Particle_MoveAlongRotationYZ(Particle* particle) { // PORT: particle was s32
+    Particle_SetMotionStepFromRotationYZ(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FE04();                            /* extern */
+void Particle_SetMotionStepFromRotationXYZAlt(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the motion step from all three rotation angles (alternate form) and adds it to the motion
@@ -1392,41 +1392,41 @@ M2C_UNK func_8213FE04();                            /* extern */
  * @unverified Name guessed from the code.
  */
 void Particle_MoveAlongRotationXYZAlt(Particle* particle) {
-    func_8213FE04();
+    Particle_SetMotionStepFromRotationXYZAlt(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FD3C();                            /* extern */
+void Particle_SetMotionStepFromRotationXYZ(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the motion step from all three rotation angles and adds it to the motion offset.
  * @unverified Name guessed from the code.
  */
-void Particle_MoveAlongRotationXYZ(s32 particle) {
-    func_8213FD3C();
+void Particle_MoveAlongRotationXYZ(Particle* particle) { // PORT: particle was s32
+    Particle_SetMotionStepFromRotationXYZ(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FED4();                            /* extern */
+void Particle_SetMotionStepFromRotationYZAlt(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets the motion step from rotation.y and rotation.z (alternate form) and adds it to the motion
  * offset.
  * @unverified Name guessed from the code.
  */
-void Particle_MoveAlongRotationYZAlt(s32 particle) {
-    func_8213FED4();
+void Particle_MoveAlongRotationYZAlt(Particle* particle) { // PORT: particle was s32
+    Particle_SetMotionStepFromRotationYZAlt(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
-M2C_UNK func_8213FED4();                            /* extern */
+void Particle_SetMotionStepFromRotationYZAlt(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Same code as Particle_MoveAlongRotationYZAlt.
  * @unverified Name guessed from the code.
  */
 void Particle_MoveAlongRotationYZAltCopy(Particle* particle) {
-    func_8213FED4();
+    Particle_SetMotionStepFromRotationYZAlt(particle); // PORT: the argument was passed through a0
     Particle_ApplyMotionStep(particle);
 }
 
@@ -1468,7 +1468,7 @@ void Particle_StepBackwardAlongRotationY(Particle* arg0, f32 arg1) {
     Particle_ApplyMotionStepXZ(arg0);
 }
 
-M2C_UNK func_8213E488();                            /* extern */
+void Particle_ApplyMotionStepY(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Sets motionStep.y to stepMagnitude and adds it to the motion offset.
@@ -1476,7 +1476,7 @@ M2C_UNK func_8213E488();                            /* extern */
  */
 void Particle_RiseByStepMagnitude(Particle* particle) {
     particle->motionStep.y = (f32) particle->stepMagnitude;
-    func_8213E488();
+    Particle_ApplyMotionStepY(particle); // PORT: the argument was passed through a0
 }
 
 /**
@@ -1490,7 +1490,7 @@ s32 Particle_FallAtStepMagnitude(Particle* arg0) {
     s32 sp1C = 0;
 
     arg0->motionStep.y = -arg0->stepMagnitude;
-    func_8213E488(arg0);
+    Particle_ApplyMotionStepY(arg0);
 
     if (arg0->worldPosition.y <= 0.0f) {
         sp1C = 1;
@@ -1512,7 +1512,7 @@ s32 Particle_AccelerateFall(Particle* arg0) {
     arg0->stepMagnitude += arg0->magnitudeStep;
     arg0->motionStep.y = -arg0->stepMagnitude;
 
-    func_8213E488(arg0);
+    Particle_ApplyMotionStepY(arg0);
 
     if (arg0->worldPosition.y <= 0.0f) {
         sp1C = 1;
@@ -1819,7 +1819,7 @@ void Particle_ApplyRotationStep(Particle* arg0) {
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed rotation.x (0x90) of
  * the live particle, e.g. 0xb01c -> 0xae15.
  */
-void Particle_ApplyRotationStepX(s8 *arg0)
+void Particle_ApplyRotationStepX(Particle* arg0) // PORT: was s8*
 {
   s16 *new_var; // FAKE: permuter temp
   *((s16 *) (((0, (s8 *) arg0)) + 0x90)) = (s16) ((*(new_var = (s16 *) (((s8 *) arg0) + 0x96))) + (*((s16 *) (((s8 *) arg0) + 0x90)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
@@ -1828,7 +1828,7 @@ void Particle_ApplyRotationStepX(s8 *arg0)
 /**
  * Adds rotationStep.y to rotation.y.
  */
-void Particle_ApplyRotationStepY(s8 *arg0)
+void Particle_ApplyRotationStepY(Particle* arg0) // PORT: was s8*
 {
   *((s16 *) (((s8 *) arg0) + 0x92)) = (s16) ((*((s16 *) (((s8 *) arg0) + 0x98))) + (*((s16 *) (((s8 *) arg0) + 0x92)))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
  if (0) { }  // karodo
@@ -1945,7 +1945,7 @@ void Particle_Rotation_SubX_0A63C(Particle* arg0, s16 arg1) {
     arg0->rotation.z -= arg1;
 }
 
-M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
+s32 ParticleMath_ApproachAngle(s16* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's rotation.x toward a target (helper of the approach family).
@@ -1953,10 +1953,10 @@ M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
  * the live particle, e.g. 0xe02 -> 0xfe02.
  */
 void Particle_ApproachRotationX(Particle* arg0) {
-    func_82137940((s8*)&arg0->rotation.x, arg0->rotationTarget.x, arg0->rotationStep.x, (s8*)arg0);
+    ParticleMath_ApproachAngle(&arg0->rotation.x, arg0->rotationTarget.x, arg0->rotationStep.x);
 }
 
-M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
+s32 ParticleMath_ApproachAngle(s16* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's rotation.y toward a target (helper of the approach family).
@@ -1964,10 +1964,10 @@ M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
  * the live particle, e.g. 0xec64 -> 0xef64.
  */
 void Particle_ApproachRotationY(Particle* arg0) {
-    func_82137940((s8*)&arg0->rotation.y, arg0->rotationTarget.y, arg0->rotationStep.y, (s8*)arg0);
+    ParticleMath_ApproachAngle(&arg0->rotation.y, arg0->rotationTarget.y, arg0->rotationStep.y);
 }
 
-M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
+s32 ParticleMath_ApproachAngle(s16* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's rotation.z toward a target (helper of the approach family).
@@ -1976,7 +1976,7 @@ M2C_UNK func_82137940(s8 *, s16, s16, s8 *);    /* extern */
  * @unverified Name and comment guessed from the code.
  */
 void Particle_ApproachRotationZ(Particle* arg0) {
-    func_82137940((s8*)&arg0->rotation.z, arg0->rotationTarget.z, arg0->rotationStep.z, (s8*)arg0);
+    ParticleMath_ApproachAngle(&arg0->rotation.z, arg0->rotationTarget.z, arg0->rotationStep.z);
 }
 
 /**
@@ -2677,7 +2677,7 @@ s32 Particle_MotionOffset_StepArcWithTimer(Particle* arg0, f32 arg1, f32 arg2, f
         arg0->stepMagnitude = arg3 * gParticleRenderContext.scale.y;
         arg0->motionStep.y = arg1 * gParticleRenderContext.scale.y;
         arg0->rotation.y = arg4;
-        func_8213FB14(arg0);
+        Particle_SetMotionStepXZFromRotationY(arg0);
         arg0->phaseTimer = arg5;
     }
 
@@ -2796,7 +2796,7 @@ void Particle_SetPrimColor(Particle* arg0, u8 arg1, u8 arg2, u8 arg3) {
     arg0->prim_b = arg3;
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's primRed toward a target (helper of the approach family).
@@ -2804,10 +2804,10 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xffff -> 0xf7ff.
  */
 void Particle_ApproachPrimRed(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's primGreen toward a target (helper of the approach family).
@@ -2815,10 +2815,10 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xf7ff -> 0xf7f7.
  */
 void Particle_ApproachPrimGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's primBlue toward a target (helper of the approach family).
@@ -2826,7 +2826,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xffffffff -> 0xf7ffffff.
  */
 void Particle_ApproachPrimBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 extern s16 D_8219A8B2;
@@ -2872,7 +2872,7 @@ void Particle_SetEnvColor(Particle* arg0, u8 arg1, u8 arg2, u8 arg3) {
     arg0->env_b = arg3;
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's envRed toward a target (helper of the approach family).
@@ -2880,10 +2880,10 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xff0000 -> 0xdf0000.
  */
 void Particle_ApproachEnvRed(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's envBlue toward a target (helper of the approach family).
@@ -2891,10 +2891,10 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xf7c0cfff -> 0xf7c0cff7.
  */
 void Particle_ApproachEnvBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's envGreen toward a target (helper of the approach family).
@@ -2902,7 +2902,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xe7ffff00 -> 0xe7ffe700.
  */
 void Particle_ApproachEnvGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -2917,7 +2917,7 @@ void Particle_SetPrimAlpha(s8 *arg0, char arg1)
   *((s8 *) (new_var + 0xC0)) = arg1; // FAKE
 }
 
-M2C_UNK func_82137804(s32, s32, s32);               /* extern */
+s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Steps the particle's primAlpha toward a target (helper of the approach family).
@@ -2925,7 +2925,7 @@ M2C_UNK func_82137804(s32, s32, s32);               /* extern */
  * live particle, e.g. 0xc8000000 -> 0xc4000000.
  */
 void Particle_ApproachPrimAlpha(Particle* arg0, s32 arg1, s32 arg2) {
-    func_82137804((uintptr_t)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
+    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -3084,7 +3084,7 @@ s32 Particle_Countdown_TickToZeroAndStepState(Particle* arg0) {
  * Sets the effect list the particle belongs to (+0xC6).
  * @unverified Name guessed from the code.
  */
-void Particle_SetEffectList(s8 *particle, int effect_list)
+void Particle_SetEffectList(Particle* particle, int effect_list) // PORT: was s8*
 {
   int *new_var; // FAKE: permuter temp
   new_var = &effect_list; // FAKE
@@ -3103,7 +3103,7 @@ void Particle_SetSpawnIndex(Particle* arg0, s16 arg1) {
  * Sets byteParam1 (+0xCB).
  * @unverified Name guessed from the code.
  */
-void Particle_SetByteParam1(s8 *particle, unsigned char value)
+void Particle_SetByteParam1(Particle* particle, unsigned char value) // PORT: was s8*
 {
   s8 *new_var; // FAKE: permuter temp
   new_var = (s8 *) (((s8 *) particle) + 0xCB); // FAKE
@@ -3116,7 +3116,7 @@ void Particle_SetByteParam1(s8 *particle, unsigned char value)
  * breakpoint): ran only for Egg Bomb, Ember, Fire Punch.
  * @unverified Name guessed from the code.
  */
-void Particle_SetByteParam1Copy(s8 *particle, unsigned char value)
+void Particle_SetByteParam1Copy(Particle* particle, unsigned char value) // PORT: was s8*
 {
   s8 *new_var; // FAKE: permuter temp
   new_var = ((s8 *) particle) + 0xCB; // FAKE
@@ -3128,7 +3128,7 @@ void Particle_SetByteParam1Copy(s8 *particle, unsigned char value)
  * Seen in play (2026-11-13) in the 165-move sweep (Selfdestruct): arg1 = 9 set the byte at 0xC8
  * (anchorMode) from 2 to 9.
  */
-void Particle_SetAnchorMode(s8 *arg0, unsigned short arg1)
+void Particle_SetAnchorMode(Particle* arg0, unsigned short arg1) // PORT: was s8*
 {
   *((s8 *) (((s8 *) arg0) + 0xC8)) = arg1; // FAKE
 }

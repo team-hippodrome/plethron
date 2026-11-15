@@ -60,7 +60,7 @@ extern char** sBattleControllerDisconnectedMessage;
 
 void Audio_PlayMoveSound(u8, s32, s32);
 
-void BattleScene_ClearStateTickCallbacks(void);
+void BattleScene_ClearStateTickCallbacks(void); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleScene_QueueRowEffectList3(ActivePokemon* actor, s32 effect_entry);
 void BattleAnim_PlayMoveEffectScript(ActivePokemon* user, s32 move_id);
 void BattleAnim_PlayChargingMoveEffectScript(ActivePokemon* user, s32 move_id);
@@ -72,7 +72,7 @@ void BattleScene_SetOpponentEventTrackA6(ActivePokemon* active_pokemon);
 void BattleScene_PhaseStepNop(ActivePokemon* active_pokemon);
 void BattleScene_AllocateParticipants(BattleSide* battle_teams);
 void BattleScene_UpdateParticipantsAndQueueEffects(UNUSED ActivePokemon* side1_pokemon, UNUSED ActivePokemon* side2_pokemon);
-s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams);
+s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleThumbnail_SetFlagToUpdatePokemonThumbnail(CameraNode* camera);
 
 void BattleAnim_SetModelEventTrackFromRow(ActivePokemon* pokemon, s32 cue_index);
@@ -194,7 +194,7 @@ void BattleScene_TickClearAnimRecordIfLoaded(ActivePokemon* active_pokemon) {
     }
 }
 
-s32 func_82101FD4(ActivePokemon*);
+s32 BattleAnim_TryRegisterAssetTables(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleAnim_StartCueEventTrack(ActivePokemon*, s32, s32);
 
 /**
@@ -210,7 +210,7 @@ void BattleScene_TickStartRowAnimRecord(ActivePokemon* active_pokemon) {
     MovePresentationCue* cue;
 
     cue = &sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)]->moveCues[cue_index];
-    if (func_82101FD4(active_pokemon) != 0) {
+    if (BattleAnim_TryRegisterAssetTables(active_pokemon) != 0) {
         BattleAnim_StartCueEventTrack(active_pokemon, cue_index, 2);
         active_pokemon->animationTimer = 0;
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
@@ -299,7 +299,7 @@ s32 BattleAnim_IsAssetLoadBusy(ActivePokemon* arg0) {
     return arg0->side->backgroundLoadFlags & 0xD0;
 }
 
-M2C_UNK func_80019F20(BattleSide*);                      /* extern */
+void PokeIcon_PollBackgroundForObject(BattleSide* arg0); // PORT: signature from the definition (model_renderer.c)
 
 /**
  * Polls the side's background asset load (PokeIcon_PollBackgroundForObject) and returns its busy
@@ -307,7 +307,7 @@ M2C_UNK func_80019F20(BattleSide*);                      /* extern */
  * @unverified Name guessed from the code.
  */
 s32 BattleAnim_PollAssetLoadBusy(ActivePokemon* active_pokemon) {
-    func_80019F20(active_pokemon->side);
+    PokeIcon_PollBackgroundForObject(active_pokemon->side);
     return active_pokemon->side->backgroundLoadFlags & 0xC0;
 }
 
@@ -361,8 +361,8 @@ void BattleScene_LoadRowResourceList(ActivePokemon* active_pokemon) {
     BattleAnim_LoadModeResourceList(active_pokemon->side, sBattleSceneStateRowTable[row_index].mode);
 }
 
-s16 func_82107BF4(); // BattleScene_GetParticipantUsedMove with the s16 return this call needs
-M2C_UNK func_821368B0(s32, s16);                    /* extern */
+u8 BattleScene_GetParticipantUsedMove(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleAnim_LoadMoveResourceList(BattleSide* battle_session_teams, s16 move_id); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 
 /**
  * Loads the resource list of the Pokémon's used move. No caller in the C and no pointer to it in
@@ -370,7 +370,7 @@ M2C_UNK func_821368B0(s32, s16);                    /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleScene_LoadUsedMoveResourceList(ActivePokemon* active_pokemon) {
-    func_821368B0(active_pokemon->side, func_82107BF4());
+    BattleAnim_LoadMoveResourceList(active_pokemon->side, BattleScene_GetParticipantUsedMove(active_pokemon)); // PORT: the argument was passed through a0
 }
 
 /**
@@ -400,8 +400,8 @@ void BattleAnim_RestoreDisplayModel(ActivePokemon* active_pokemon) {
     active_pokemon->side->displayModel = (s16) active_pokemon->state.model;
 }
 
-void func_80003824(void*, s8*, s8*, s32);
-s32 func_82107A5C();
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3); // PORT: signature from the definition (asset_archive.c)
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 extern s8 D_00434C00;
 extern u32 D_80073B30[];
 extern u8* D_82189180[];
@@ -412,7 +412,7 @@ extern f32 D_82199DF0[][4];
 /**
  * Loads the species' model, animation and texture data for the Pokemon's side into its slots. Ran
  * in play when 1P switched and when 1P used Substitute (the doll model).
- * Copies the participant's per-species records out of ROM with func_80003824 (dest, rom start,
+ * Copies the participant's per-species records out of ROM with Dma_WriteChunks (dest, rom start,
  * rom end, 0). The ROM offsets are masked to 24 bits and added to the D_00434C00 base. Side 1 also
  * reloads its 0x20-byte record from the entry named by the record's halfword at 0x10, and keeps
  * that halfword across the copy.
@@ -427,29 +427,29 @@ void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon* arg0) {
     s16 type;
     s8* src;
 
-    side = func_82107A5C(arg0);
+    side = BattleScene_GetParticipantSideIndex(arg0);
     type = arg0->displayObject.objectType - 1;
     base = (uintptr_t)&D_00434C00;
     // FAKE: the redundant (u32) casts on base below set the addu operand order.
     src = (s8*)((D_80073B30[type] & 0xFFFFFF) + (u32)base);
-    func_80003824(D_82189180[side], src, src + 0x814, 0);
+    Dma_WriteChunks(D_82189180[side], src, src + 0x814, 0);
     if (side == 1) {
         s8** p = &D_82189188[side];
 
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
-        func_80003824(*p, src, src + 0x20, 0);
+        Dma_WriteChunks(*p, src, src + 0x20, 0);
         if (M2C_FIELD(*p, s16*, 0x10) != 0xFF) {
             saved = M2C_FIELD(*p, s16*, 0x10);
             src = (s8*)(((uintptr_t)D_0004EDA8[M2C_FIELD(*p, s16*, 0x10) - 2] & 0xFFFFFF) + (u32)base);
-            func_80003824(*p, src, src + 0x20, 0);
+            Dma_WriteChunks(*p, src, src + 0x20, 0);
             M2C_FIELD(*p, s16*, 0x10) = saved;
         }
     } else {
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
-        func_80003824(D_82189188[side], src, src + 0x20, 0);
+        Dma_WriteChunks(D_82189188[side], src, src + 0x20, 0);
     }
     src = (s8*)((u32)base + ((uintptr_t)D_00050228[type] & 0xFFFFFF));
-    func_80003824(D_82199DF0[side], src, src + 0x10, 0);
+    Dma_WriteChunks(D_82199DF0[side], src, src + 0x10, 0);
 }
 
 /**
@@ -833,9 +833,9 @@ void BattleScene_EnterHitReactionRow(ActivePokemon* active_pokemon) {
     }
 }
 
-void func_82101C24(ActivePokemon*, s32);
+void BattleAnim_PlayMoveEffectEnd(ActivePokemon*, s32);
 void ActivePokemon_SetModelTransform(ActivePokemon*, s32, s32);
-M2C_UNK func_8213B31C(M2C_UNK);
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 /**
  * Row 4 tick: at the end of the target's hurt cue, finishes the hit and starts the Bind, Wrap,
  * String Shot and Constrict squeeze (transform 16) on the target.
@@ -852,8 +852,8 @@ void BattleScene_TickHitReactionEnd(ActivePokemon* active_pokemon) {
     side = BattleScene_GetParticipantSideIndex(active_pokemon);
     if (cue->endFrame + 1 == sActivePokemon[side == 0]->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
-            func_8213B31C(1);
-            func_82101C24(sActivePokemon[side == 0], runtime->usedMove);
+            BattleAnim_CleanupEffects(1);
+            BattleAnim_PlayMoveEffectEnd(sActivePokemon[side == 0], runtime->usedMove);
             if ((runtime->moveCache.lastMove == BIND) || (runtime->moveCache.lastMove == WRAP) ||
                 (runtime->moveCache.lastMove == STRING_SHOT) || (runtime->moveCache.lastMove == CONSTRICT)) {
                 ActivePokemon_SetModelTransform(sActivePokemon[side == 0], 0x10, 0);
@@ -889,7 +889,7 @@ void BattleScene_TickHitReactionPlaySound(ActivePokemon* active_pokemon) {
     }
 }
 
-void func_82134EBC(ActivePokemon*, s32);
+void BattleAnim_PlayBattleSequenceById(ActivePokemon*, s32);
 /**
  * Enter callback of presentation row 15, which BattleScene_PhaseConfusionSelfHit starts: plays
  * the hit cue animation on the confused Pokemon. Player sweep: reached only by Supersonic and
@@ -901,7 +901,7 @@ void BattleScene_EnterConfusionSelfHitRow(ActivePokemon* active_pokemon) {
 
     ModelAnim_SetFrame(&active_pokemon->displayObject, 0);
     ModelAnim_SetAnimation(&active_pokemon->displayObject, hit_cue->id);
-    func_82134EBC(active_pokemon, 0x1E);
+    BattleAnim_PlayBattleSequenceById(active_pokemon, 0x1E);
 }
 
 s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi); // PORT: the real signature (5 arguments)
@@ -1292,7 +1292,7 @@ void BattleScene_TickFaintRowPlayLandingSound(ActivePokemon* active_pokemon) {
 
 extern f32 D_FLT_82189354[];
 extern s32 D_8219A74C;
-void func_82101B18(ActivePokemon*, s32);
+void BattleScene_QueueRowEffectList3(ActivePokemon*, s32);
 /**
  * Animation row tick: ends at once for species with a hover height (except 0x16, 0x52 and
  * 0x8E). Otherwise, when the timer reaches D_8219A74C and no asset load is pending, plays
@@ -1308,7 +1308,7 @@ void BattleScene_TickRow7PlayRowSound(ActivePokemon* active_pokemon) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             s32 idx = active_pokemon->animationState;
 
-            func_82101B18(active_pokemon, sBattleSceneStateRowTable[idx].mode); // PORT: D_8218A7D8[idx].sound, the same word (row + 0x24) on the N64
+            BattleScene_QueueRowEffectList3(active_pokemon, sBattleSceneStateRowTable[idx].mode); // PORT: D_8218A7D8[idx].sound, the same word (row + 0x24) on the N64
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
     }
@@ -1455,7 +1455,7 @@ void BattleScene_TickStatusHitEnd(ActivePokemon* active_pokemon) {
     }
 }
 
-void func_82134EBC(ActivePokemon*, s32);
+void BattleAnim_PlayBattleSequenceById(ActivePokemon*, s32);
 /**
  * Row 11 tick: when the stat could still be lowered, queues the stat-down effect on the target.
  * In the per-move sweep row 11 ran only for stat-lowering moves and side effects.
@@ -1471,7 +1471,7 @@ void BattleScene_TickStatDownPlayEffect(ActivePokemon* active_pokemon) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             if (sStatCanBeChangedFurther == 1) {
                 BattleAnim_QueueEffectList6(1, sActivePokemon[other]);
-                func_82134EBC(active_pokemon, 0x20);
+                BattleAnim_PlayBattleSequenceById(active_pokemon, 0x20);
             }
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
@@ -1506,8 +1506,8 @@ void BattleScene_TickStatDownPlaySound(ActivePokemon* active_pokemon) {
 
 extern u8 D_82189190[];
 extern s16 D_8219A50C;
-void func_800199F8(ActivePokemon*, u8);
-void func_821054C4(ActivePokemon*, s32);
+s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id); // PORT: signature from the definition (model_renderer.c)
+void BattleAnim_SetModelEventTrackFromRow(ActivePokemon*, s32);
 
 /**
  * Animation row tick: once the model is ready, resets the timer, sets the tick slot callback,
@@ -1519,11 +1519,11 @@ void BattleScene_TickRow20StartCueAnimation(ActivePokemon* active_pokemon) {
     MovePresentationCue* rec =
         &((MovePresentationCue*)D_82189180[BattleScene_GetParticipantSideIndex(active_pokemon)])[D_82189190[D_8219A50C] - 1];
 
-    if (func_82101FD4(active_pokemon) != 0) {
+    if (BattleAnim_TryRegisterAssetTables(active_pokemon) != 0) {
         active_pokemon->animationTimer = 0;
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
-        func_800199F8(active_pokemon, rec->id);
-        func_821054C4(active_pokemon, D_82189190[D_8219A50C] - 1);
+        ModelAnim_SetAnimation(active_pokemon, rec->id);
+        BattleAnim_SetModelEventTrackFromRow(active_pokemon, D_82189190[D_8219A50C] - 1);
     }
 }
 
@@ -1536,18 +1536,18 @@ extern s16 D_8219A4F0[];
  */
 void BattleScene_EnterRow20SetCueMove(ActivePokemon* active_pokemon) {
     active_pokemon->state.runtime.usedMove = D_82189190[D_8219A4F0[0xE]];
-    func_821368B0(active_pokemon->side, D_82189190[D_8219A4F0[0xE]]);
+    BattleAnim_LoadMoveResourceList(active_pokemon->side, D_82189190[D_8219A4F0[0xE]]);
 }
 
 extern s16 D_8219A50C;
-s32 func_82107A5C();
-void func_82101B54(ActivePokemon*, s32);
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleAnim_PlayMoveEffectScript(ActivePokemon*, s32);
 
 /**
  * Selects the record (D_82189190[D_8219A50C] - 1) of the table chosen by
- * func_82107A5C(). When D_8219A50C == 5, and the record's byte 4 plus one equals
+ * BattleScene_GetParticipantSideIndex(). When D_8219A50C == 5, and the record's byte 4 plus one equals
  * the word at offset 0x620 of arg0 and BattleAnim_IsAssetLoadBusy(arg0) returns 0, it calls
- * func_82101B54(arg0, D_82189190[D_8219A50C]) and stores sBattleSceneStateTickSentinel into the
+ * BattleAnim_PlayMoveEffectScript(arg0, D_82189190[D_8219A50C]) and stores sBattleSceneStateTickSentinel into the
  * callback of the current tick slot. For every other value of
  * D_8219A50C only the store is done.
  * @unverified Name guessed from the code.
@@ -1555,10 +1555,10 @@ void func_82101B54(ActivePokemon*, s32);
 void BattleScene_TickRow20PlayCueEffectScript(ActivePokemon* active_pokemon) {
     MovePresentationCue* rec;
 
-    rec = (MovePresentationCue*)D_82189180[func_82107A5C()] + (D_82189190[D_8219A50C] - 1);
+    rec = (MovePresentationCue*)D_82189180[BattleScene_GetParticipantSideIndex(active_pokemon)] + (D_82189190[D_8219A50C] - 1); // PORT: the argument was passed through a0
     if (D_8219A50C == 5) {
         if (((rec->animationDuration + 1) == active_pokemon->animationTimer) && (BattleAnim_IsAssetLoadBusy(active_pokemon) == 0)) {
-            func_82101B54((ActivePokemon*)active_pokemon, D_82189190[D_8219A50C]);
+            BattleAnim_PlayMoveEffectScript((ActivePokemon*)active_pokemon, D_82189190[D_8219A50C]);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
     } else {
@@ -1681,7 +1681,7 @@ void BattleScene_TickRow5StartMoveAnimation(ActivePokemon* active_pokemon) {
     runtime = &active_pokemon->state.runtime;
     cue = &sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)]->moveCues[runtime->usedMove - 1];
 
-    if (func_82101FD4(active_pokemon) != 0) {
+    if (BattleAnim_TryRegisterAssetTables(active_pokemon) != 0) {
         BattleAnim_SetFlagForRockThrowingMoves(active_pokemon);
         active_pokemon->animationTimer = 0;
         if (D_8219A75C == 1) {
@@ -1699,9 +1699,9 @@ void BattleScene_TickRow5StartMoveAnimation(ActivePokemon* active_pokemon) {
     }
 }
 
-s32 func_82101FD4(ActivePokemon*);
-void func_82101F00(ActivePokemon*);
-void func_821054C4(ActivePokemon*, s32);
+s32 BattleAnim_TryRegisterAssetTables(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleAnim_SetFlagForRockThrowingMoves(ActivePokemon*);
+void BattleAnim_SetModelEventTrackFromRow(ActivePokemon*, s32);
 
 /**
  * Starts the hit cue animation and event track from frame 0.
@@ -1714,9 +1714,9 @@ void BattleScene_StartHitCueAnimation(ActivePokemon* active_pokemon) {
     MovePresentationCue* cue = (MovePresentationCue*)((u8*)sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)] + 0x738);
     UNUSED s32 pad2; // FAKE: stack padding
 
-    if (func_82101FD4(active_pokemon) != 0) {
-        func_82101F00(active_pokemon);
-        func_821054C4(active_pokemon, 0xA8);
+    if (BattleAnim_TryRegisterAssetTables(active_pokemon) != 0) {
+        BattleAnim_SetFlagForRockThrowingMoves(active_pokemon);
+        BattleAnim_SetModelEventTrackFromRow(active_pokemon, 0xA8);
         active_pokemon->animationTimer = 0;
         sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         ModelAnim_SetFrame(&active_pokemon->displayObject, 0);
@@ -1752,10 +1752,10 @@ void BattleScene_TickRow5PlayMoveSound(ActivePokemon* active_pokemon) {
     }
 }
 
-void func_82101C24(ActivePokemon*, s32);
+void BattleAnim_PlayMoveEffectEnd(ActivePokemon*, s32);
 /**
  * Animation row tick: when the timer reaches D_8219A74C and no asset load is pending, calls
- * func_82101C24 for this Pokemon's side with its move id, then ends the tick slot.
+ * BattleAnim_PlayMoveEffectEnd for this Pokemon's side with its move id, then ends the tick slot.
  * @unverified Name guessed from the code.
  */
 void BattleScene_TickRow6PlayMoveEffectEnd(ActivePokemon* active_pokemon) {
@@ -1769,14 +1769,14 @@ void BattleScene_TickRow6PlayMoveEffectEnd(ActivePokemon* active_pokemon) {
     }
     if (D_8219A74C == active_pokemon->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
-            func_82101C24(sActivePokemon[side], active_pokemon->state.runtime.usedMove);
+            BattleAnim_PlayMoveEffectEnd(sActivePokemon[side], active_pokemon->state.runtime.usedMove);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
     }
 }
 
-void func_82101BBC(ActivePokemon*, s32);
-void func_82101B54(ActivePokemon*, s32);
+void BattleAnim_PlayChargingMoveEffectScript(ActivePokemon*, s32);
+void BattleAnim_PlayMoveEffectScript(ActivePokemon*, s32);
 extern s32 D_8219A75C;
 void ActivePokemon_SetModelTransform(ActivePokemon*, s32, s32);
 /**
@@ -1796,11 +1796,11 @@ void BattleScene_TickRow5PlayMoveEffectScript(ActivePokemon* active_pokemon) {
     if (D_8219A74C == active_pokemon->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             if (D_8219A75C == 1) {
-                func_82101BBC(active_pokemon, runtime->usedMove);
+                BattleAnim_PlayChargingMoveEffectScript(active_pokemon, runtime->usedMove);
             } else {
-                func_82101B54(active_pokemon, runtime->usedMove);
+                BattleAnim_PlayMoveEffectScript(active_pokemon, runtime->usedMove);
             }
-            func_821054C4(active_pokemon, runtime->usedMove - 1);
+            BattleAnim_SetModelEventTrackFromRow(active_pokemon, runtime->usedMove - 1);
             ActivePokemon_SetModelTransform(active_pokemon, cue->flags1, 0);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
@@ -1810,7 +1810,7 @@ void BattleScene_TickRow5PlayMoveEffectScript(ActivePokemon* active_pokemon) {
 extern s32 D_8219A750;
 /**
  * Animation row tick: when the timer reaches D_8219A750 and no asset load is pending, calls
- * func_821365E8(1) for the Pokemon and ends the tick slot. Ends at once if D_8219A750 is 0.
+ * BattleAnim_QueueEffectList6(1) for the Pokemon and ends the tick slot. Ends at once if D_8219A750 is 0.
  * @unverified Name guessed from the code.
  */
 void BattleScene_TickRow5QueueEffectList6(ActivePokemon* active_pokemon) {
@@ -1825,7 +1825,7 @@ void BattleScene_TickRow5QueueEffectList6(ActivePokemon* active_pokemon) {
     if (D_8219A750 == active_pokemon->animationTimer) {
         if (BattleAnim_IsAssetLoadBusy((s8*)active_pokemon) == 0) {
             if (active_pokemon) {}  // karodo
-            func_821365E8(1, active_pokemon);
+            BattleAnim_QueueEffectList6(1, active_pokemon);
             sBattleSceneStateTickSlots[sBattleSceneStateTickSlotIndex].callback = sBattleSceneStateTickSentinel;
         }
     }
@@ -1841,9 +1841,9 @@ void BattleScene_EnterRowSetQueuedMove(ActivePokemon* active_pokemon) {
     active_pokemon->state.runtime.usedMove = (s8) D_8219A740;
 }
 
-M2C_UNK func_82101AD0();                            /* extern */
-M2C_UNK func_82104C68(s32, M2C_UNK);                /* extern */
-M2C_UNK func_8213B31C(M2C_UNK);                     /* extern */
+void BattleScene_ClearStateTickCallbacks(void); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Cleans up the running effects, clears the tick callbacks and moves the Pokémon to presentation
@@ -1851,14 +1851,14 @@ M2C_UNK func_8213B31C(M2C_UNK);                     /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleScene_ResetAndEnterRow5(s32 active_pokemon) {
-    func_8213B31C(2);
-    func_82101AD0();
-    func_82104C68(active_pokemon, 5);
+    BattleAnim_CleanupEffects(2);
+    BattleScene_ClearStateTickCallbacks();
+    BattleScene_EnterStateRow(active_pokemon, 5);
 }
 
-M2C_UNK func_82101AD0();                            /* extern */
-M2C_UNK func_82104C68(s32, M2C_UNK);                /* extern */
-M2C_UNK func_8213B31C(M2C_UNK);                     /* extern */
+void BattleScene_ClearStateTickCallbacks(void); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Cleans up the running effects, clears the tick callbacks and moves the Pokémon to presentation
@@ -1866,9 +1866,9 @@ M2C_UNK func_8213B31C(M2C_UNK);                     /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleScene_ResetAndEnterRow6(s32 active_pokemon) {
-    func_8213B31C(2);
-    func_82101AD0();
-    func_82104C68(active_pokemon, 6);
+    BattleAnim_CleanupEffects(2);
+    BattleScene_ClearStateTickCallbacks();
+    BattleScene_EnterStateRow(active_pokemon, 6);
 }
 
 /**
@@ -1986,11 +1986,11 @@ void BattleAnim_StartCueEventTrack(ActivePokemon* active_pokemon, s32 cue_index,
     }
 }
 
-s32 func_821217DC(s32);
-s32 func_8001101C(ActivePokemon*, s32);
+s32 BattleScene_AdvanceCameraFrameCounter(s32);
+s32 ModelAnim_IsAnimationDone(DisplayObject* display_object); // PORT: signature from the definition (geo_node.c)
 /**
  * Returns whether the Pokemon's current model animation is done. While it is frozen,
- * asleep, in the air or underground it instead waits arg1 frames (func_821217DC). No
+ * asleep, in the air or underground it instead waits arg1 frames (BattleScene_AdvanceCameraFrameCounter). No
  * animation counts as done.
  * @unverified Name guessed from the code.
  */
@@ -2000,7 +2000,7 @@ s32 BattleScene_IsModelAnimationDone(ActivePokemon* active_pokemon, s32 frame_li
     if ((*(volatile u16*)&active_pokemon->state.flags & 2) || (p->statusCondition & 7) ||
         ((active_pokemon->state.flags & 0x200) && !(active_pokemon->state.flags & 0x400)) ||
         (active_pokemon->state.flags & 0x4000)) {
-        if (func_821217DC(frame_limit) != 0) {
+        if (BattleScene_AdvanceCameraFrameCounter(frame_limit) != 0) {
             return 1;
         }
         return 0;
@@ -2008,7 +2008,7 @@ s32 BattleScene_IsModelAnimationDone(ActivePokemon* active_pokemon, s32 frame_li
     if (active_pokemon->displayObject.transformAnim.animationId == -1) {
         return 1;
     }
-    return func_8001101C(active_pokemon, frame_limit);
+    return ModelAnim_IsAnimationDone(&active_pokemon->displayObject); // PORT: frame_limit was ignored
 }
 
 /**
@@ -2182,18 +2182,18 @@ s32 BattleScene_IsRowAnimWaitComplete(ActivePokemon* active_pokemon, s32 frame_l
     return ModelAnim_IsAnimationDone(&active_pokemon->displayObject);
 }
 
-s32 func_8210C020(s32, s8*);
-void func_821365B0(s32, s8*, s8*, s32, s32);
+u16 BattleAnim_RandomRange(s32 range); // PORT: signature from the definition (fragments/battle/anim_math.c)
+void BattleAnim_QueueEffectList3(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternative_anchor); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 
 /**
  * Model event hook: when the Pokemon's model is idle, visible, flagged 0x20 and the scene
  * mode is 1 or 5, and its animation and frame match the side's cue record, starts the cue's
- * sound or effect (func_821365B0).
+ * sound or effect (BattleAnim_QueueEffectList3).
  * @unverified Name guessed from the code.
  */
 void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon) {
     s16 id;
-    u8* cue = D_82189180[func_82107A5C()] + 0x717;
+    u8* cue = D_82189180[BattleScene_GetParticipantSideIndex(active_pokemon)] + 0x717; // PORT: the argument was passed through a0
 
     if (BattleAnim_IsModelBusy(active_pokemon) != 0) {
         return;
@@ -2220,8 +2220,8 @@ void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon) {
     if (cue[5] == 0) {
         return;
     }
-    if (func_8210C020(2, active_pokemon) == 1) {
-        func_821365B0(cue[5], active_pokemon, active_pokemon, cue[2], cue[2]);
+    if (BattleAnim_RandomRange(2) == 1) {
+        BattleAnim_QueueEffectList3(cue[5], active_pokemon, active_pokemon, cue[2], cue[2]);
     }
 }
 
@@ -2240,7 +2240,7 @@ s32 ActivePokemon_SetStateFlags(s8 *arg0, unsigned short arg1)
 /**
  * Clears the bits of arg1 in state.flags (+0x7C2). The counterpart of ActivePokemon_SetStateFlags.
  */
-s32 Battle_ClearRuntimeFlags(s8 *arg0, unsigned short arg1)
+s32 Battle_ClearRuntimeFlags(ActivePokemon* arg0, unsigned short arg1) // PORT: was s8*
 {
   *((u16 *) (((s8 *) arg0) + 0x7C2)) = (u16) ((*((u16 *) (((s8 *) arg0) + 0x7C2))) & (~arg1)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
 }
@@ -2411,7 +2411,7 @@ void BattleScene_CleanupOpponentAnimationFlags(ActivePokemon* active_pokemon) {
     }
 }
 
-M2C_UNK func_82107A5C();                            /* extern */
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 
 /**
  * Calls BattleScene_GetParticipantSideIndex and drops the result; does nothing else.
@@ -2420,7 +2420,7 @@ M2C_UNK func_82107A5C();                            /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleScene_ResidualPhaseNop(void) {
-    func_82107A5C();
+    BattleScene_GetParticipantSideIndex(NULL); // PORT: a0 was stale here and the result is unused
 }
 
 
@@ -2492,12 +2492,12 @@ void BattleScene_CleanupParticipantEffectMode(ActivePokemon* active_pokemon) {
 
 extern ActivePokemon* sSide2ActivePokemon;
 extern u8 D_8219A4F4;
-void func_82136708(s32, ActivePokemon*);
-u8 func_8000F1FC(u8, s32, s32, s32);
-void func_80019B28(ActivePokemon*, s32, s32, s32, s32);
-s32 func_80011120(ActivePokemon*);
-void func_800110E8(ActivePokemon*, s32);
-void func_80019A90(ActivePokemon*, s32);
+void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
+s32 Math_StepToS32(s32 current, s32 target, s32 increase, s32 decrease); // PORT: signature from the definition (matrix.c)
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
+s32 ModelAnim_IsEventTrackNearEnd(ActivePokemon*);
+void ModelAnim_SetEventFrame(DisplayObject* display_object, s16 frame_number); // PORT: signature from the definition (geo_node.c)
+s32 ModelAnim_SetEventTrack(DisplayObject* display_object, s32 track_id); // PORT: signature from the definition (model_renderer.c)
 
 /**
  * Per-frame visual update of a battling Pokémon: shows or clears the freeze and sleep effects from
@@ -2522,26 +2522,26 @@ void BattleScene_UpdateParticipantVisuals(ActivePokemon *active_pokemon)
       BattleAnim_QueueEffectList(1, active_pokemon);
       active_pokemon->displayObject.node.renderFlags &= ~0x20;
       ActivePokemon_SetStateFlags((s8 *) active_pokemon, ACTIVE_FREEZE);
-      func_82134EBC(active_pokemon, 0x13);
+      BattleAnim_PlayBattleSequenceById(active_pokemon, 0x13);
     }
     if ((state->flags & ACTIVE_FREEZE) && (!(mon->statusCondition & STATUS_FREEZE)))
     {
-      func_82136708(1, active_pokemon);
+      BattleAnim_StopOwnerCategoryParticles(1, active_pokemon);
       active_pokemon->displayObject.node.renderFlags |= 0x20;
       Battle_ClearRuntimeFlags((s8 *) active_pokemon, ACTIVE_FREEZE);
     }
   }
   if ((state->flags & ACTIVE_FREEZE) && (mon->hp == 0))
   {
-    func_82136708(1, active_pokemon);
+    BattleAnim_StopOwnerCategoryParticles(1, active_pokemon);
     active_pokemon->displayObject.node.renderFlags |= 0x20;
     Battle_ClearRuntimeFlags((s8 *) active_pokemon, ACTIVE_FREEZE);
   }
   if (((((mon->statusCondition & STATUS_SLEEP_MASK) != 0) && (sBattleScene.scene->phase == 0xB)) && (sBattleScene.scene->phaseStep > 0)) && (sBattleScene.scene->phaseStep < 7))
   {
-    if ((sBattleScene.scene->phaseStep == 1) && (func_82107A5C(active_pokemon) == sBattleScene.scene->actingSide))
+    if ((sBattleScene.scene->phaseStep == 1) && (BattleScene_GetParticipantSideIndex(active_pokemon) == sBattleScene.scene->actingSide))
     {
-      func_82136708(3, active_pokemon);
+      BattleAnim_StopOwnerCategoryParticles(3, active_pokemon);
       Battle_ClearRuntimeFlags((s8 *) active_pokemon, ACTIVE_SLEEP);
     }
   }
@@ -2551,13 +2551,13 @@ void BattleScene_UpdateParticipantVisuals(ActivePokemon *active_pokemon)
     {
       BattleAnim_StartCueEventTrack(active_pokemon, 0xAF, 2);
       BattleAnim_QueueEffectList(3, active_pokemon);
-      func_82134EBC(active_pokemon, 0x32);
+      BattleAnim_PlayBattleSequenceById(active_pokemon, 0x32);
       ActivePokemon_SetStateFlags((s8 *) active_pokemon, ACTIVE_SLEEP);
     }
     if (((mon->statusCondition & STATUS_SLEEP_MASK) == 0) && (state->flags & ACTIVE_SLEEP))
     {
       BattleAnim_StartCueEventTrack(active_pokemon, 0xB8, 1);
-      func_82136708(3, active_pokemon);
+      BattleAnim_StopOwnerCategoryParticles(3, active_pokemon);
       Battle_ClearRuntimeFlags((s8 *) active_pokemon, ACTIVE_SLEEP);
     }
   }
@@ -2570,25 +2570,25 @@ void BattleScene_UpdateParticipantVisuals(ActivePokemon *active_pokemon)
     active_pokemon->displayObject.node.flags &= ~1;
     Battle_ClearRuntimeFlags((s8 *) active_pokemon, ACTIVE_HOLD_RENDER);
   }
-  state->alpha = func_8000F1FC(state->alpha, 0, 0x1E, 0x1E);
+  state->alpha = Math_StepToS32(state->alpha, 0, 0x1E, 0x1E);
   if (state->alpha != 0)
   {
-    func_80019B28(active_pokemon, 0xFF, 0xFF, 0xFF, state->alpha);
+    Model_SetMaterialColor(active_pokemon, 0xFF, 0xFF, 0xFF, state->alpha);
   }
   switch (state->modelEventTrackState)
   {
     case 0:
       if (BattleAnim_RandomRange(0x32) == 2)
     {
-      func_821054C4(active_pokemon, 0xA5);
+      BattleAnim_SetModelEventTrackFromRow(active_pokemon, 0xA5);
     }
       break;
 
     case 1:
-      if (func_80011120(active_pokemon) == 1)
+      if (ModelAnim_IsEventTrackNearEnd(active_pokemon) == 1)
     {
-      func_800110E8(active_pokemon, 0);
-      func_80019A90(active_pokemon, -1);
+      ModelAnim_SetEventFrame(active_pokemon, 0);
+      ModelAnim_SetEventTrack(active_pokemon, -1);
       state->modelEventTrackState = 0;
     }
       break;
@@ -2674,7 +2674,7 @@ void BattleAnim_ResetFreezeStatusAndRestoreAnimation(ActivePokemon* arg0) {
 }
 
 void BattleAnim_StartCueEventTrack(ActivePokemon* active_pokemon, s32 cue_index, s32 event_state);
-void func_82134EBC(ActivePokemon*, s32);
+void BattleAnim_PlayBattleSequenceById(ActivePokemon*, s32);
 
 /**
  * Starts the sleeping event track, particles and sound for an asleep
@@ -2689,7 +2689,7 @@ void BattleAnim_TriggerStatusAfflictionCry(ActivePokemon* active_pokemon) {
     if ((party_pokemon->statusCondition & STATUS_SLEEP_MASK) && !(active_pokemon->state.flags & ACTIVE_SLEEP)) {
         BattleAnim_StartCueEventTrack(active_pokemon, BATTLE_CUE_SLEEP_IDLE, 2);
         BattleAnim_QueueEffectList(3, active_pokemon);
-        func_82134EBC(active_pokemon, 50);
+        BattleAnim_PlayBattleSequenceById(active_pokemon, 50);
     }
 }
 
@@ -2767,12 +2767,12 @@ void BattleScene_SetCameraClipMaskBothSides(s32);
 
 void BattleScene_InitializeParticipantModel(ActivePokemon*);
 
-void func_82107FB8(ActivePokemon*);
-void func_82108090(ActivePokemon*, void*);
-void func_82108340(ActivePokemon*);
-void func_82121D5C(s32, s32);
+void BattleScene_InitializeParticipantOwnerModel(ActivePokemon*);
+void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s32* secondary_models); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleScene_InitializeParticipantAuxiliaryModel(ActivePokemon*);
+void BattleScene_SetCameraModeAndStep(s32, s32);
 void ActivePokemon_SetModelTransform(ActivePokemon*, s32, s32);
-void func_8211F430(void);
+void BattleScene_ResetMessageQueue(void);
 
 /**
  * Initializes controllers, all participant models, the camera mode for the
@@ -2786,39 +2786,39 @@ void BattleScene_InitializePresentation(UNUSED BattleSide* session_teams) {
     BattleScene_InitializeParticipantController(sActivePokemon[1]);
     BattleScene_InitializeParticipantModel(sActivePokemon[0]);
     BattleScene_InitializeParticipantModel(sActivePokemon[1]);
-    func_82107FB8(sActivePokemon[0]);
-    func_82107FB8(sActivePokemon[1]);
-    func_82108090(sActivePokemon[0], &sActivePokemon[0]->afterimages);
-    func_82108090(sActivePokemon[1], &sActivePokemon[1]->afterimages);
-    func_82108340(sActivePokemon[0]);
-    func_82108340(sActivePokemon[1]);
+    BattleScene_InitializeParticipantOwnerModel(sActivePokemon[0]);
+    BattleScene_InitializeParticipantOwnerModel(sActivePokemon[1]);
+    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[0], &sActivePokemon[0]->afterimages);
+    BattleScene_InitializeParticipantSecondaryModels(sActivePokemon[1], &sActivePokemon[1]->afterimages);
+    BattleScene_InitializeParticipantAuxiliaryModel(sActivePokemon[0]);
+    BattleScene_InitializeParticipantAuxiliaryModel(sActivePokemon[1]);
 
     switch (gSessionContext.mode) {
         case 0:
-            func_82121D5C(8, 0);
+            BattleScene_SetCameraModeAndStep(8, 0);
             break;
         case 1:
         case 2:
-            func_82121D5C(4, 0);
+            BattleScene_SetCameraModeAndStep(4, 0);
             break;
         case 3:
-            func_82121D5C(5, 50);
+            BattleScene_SetCameraModeAndStep(5, 50);
             break;
         case 4:
-            func_82121D5C(7, 0);
+            BattleScene_SetCameraModeAndStep(7, 0);
             break;
         case 6:
-            func_82121D5C(9, 50);
+            BattleScene_SetCameraModeAndStep(9, 50);
             break;
         case 5:
-            func_82121D5C(0xB, 0);
+            BattleScene_SetCameraModeAndStep(0xB, 0);
             break;
     }
 
     ActivePokemon_SetModelTransform(sActivePokemon[0], 0, 0);
     ActivePokemon_SetModelTransform(sActivePokemon[1], 0, 0);
     BattleScene_SetCameraClipMaskBothSides(0x1FFE);
-    func_8211F430();
+    BattleScene_ResetMessageQueue();
     ActivePokemon_ClearCaption(sActivePokemon[0]);
     ActivePokemon_ClearCaption(sActivePokemon[1]);
 }

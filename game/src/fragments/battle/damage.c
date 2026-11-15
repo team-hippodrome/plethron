@@ -35,14 +35,14 @@ extern u8 sHighCritMoves[];
 void Battle_ComputeAllPokemonStats(BattleMon* arg0);
 void Damage_UnusedNopA(void);
 void Damage_UnusedNopB(void);
-void Battle_LoadMoveCache(void);
+void Battle_LoadMoveCache(void); // PORT: signature from the definition (fragments/battle/damage.c)
 s32 Battle_Effect_Metronome(void);
 void Battle_ApplyPoisonOrBurnDamage(void);
 void Battle_ResidualEffectsNop(void);
 
 u8 Battle_Random(void);
 void Battle_ComputePokemonStat(s32 arg0, BattleMon* arg1);
-void Battle_RefundSelectedMovePp(void);
+void Battle_RefundSelectedMovePp(void); // PORT: signature from the definition (fragments/battle/damage.c)
 
 /**
  * Invoke the stored-stat calculator for selectors 0 through 4, preserving its original range.
@@ -210,7 +210,7 @@ extern s32 D_8218C758;
 extern s32 D_8218C75C;
 extern s32 D_8218C760;
 extern s32 D_8218C764;
-s32 func_8210FA2C(s32, u8*, s32);
+s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
 s32 ActivePokemon_GetMoveName(ActivePokemon*);
 
 /**
@@ -222,13 +222,13 @@ void BattleMessage_PrintUsedMove(void) {
     s32 type;
 
     runtime->lastMove = sBattleUser->moveCache.lastMove;
-    if (func_8210FA2C(runtime->moveCache.lastMove, D_8218ABF0, 2) != 0) {
+    if (Battle_IsByteInArray(runtime->moveCache.lastMove, D_8218ABF0, 2) != 0) {
         type = 0;
-    } else if (func_8210FA2C(runtime->moveCache.lastMove, D_8218ABF4, 5) != 0) {
+    } else if (Battle_IsByteInArray(runtime->moveCache.lastMove, D_8218ABF4, 5) != 0) {
         type = 1;
-    } else if (func_8210FA2C(runtime->moveCache.lastMove, D_8218ABFC, 5) != 0) {
+    } else if (Battle_IsByteInArray(runtime->moveCache.lastMove, D_8218ABFC, 5) != 0) {
         type = 2;
-    } else if (func_8210FA2C(runtime->moveCache.lastMove, D_8218AC04, 0x2E) != 0) {
+    } else if (Battle_IsByteInArray(runtime->moveCache.lastMove, D_8218AC04, 0x2E) != 0) {
         type = 3;
     } else {
         type = 4;

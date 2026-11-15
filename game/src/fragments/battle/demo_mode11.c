@@ -56,8 +56,8 @@ void SceneMode11_FrameDemoPokemon(s32 active_pokemon, s32 camera, s32 framing) {
     }
 }
 
-void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);
-void func_82122628(s32, Vec3f, s32, s32, f32, f32);
+void BattleScene_SetCameraAtFromAnchor(ActivePokemon* arg0, CameraNode* arg1, Vec3f arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6); // PORT: signature from the definition (fragments/battle/scene_camera.c)
+void BattleScene_SetCameraEyeFromPosition(CameraNode* arg0, Vec3f arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 /**
  * Frames Pokemon active_pokemon from its aim point: target from angle 0x4000 at zoom, eye at the
  * angles (rotation_x, rotation_y) and the distance.
@@ -65,8 +65,8 @@ void func_82122628(s32, Vec3f, s32, s32, f32, f32);
  */
 void SceneMode11_FrameFromAimPoint(s32 camera, s32 active_pokemon, f32 distance, f32 zoom, s16 rotation_x, s16 rotation_y) {
     BattleScene_GetParticipantAimPoint(active_pokemon, &sBattleScene.scene->anchorPosition);
-    func_8212254C(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, 0x4000, zoom, 0.0f);
-    func_82122628(camera, sBattleScene.scene->anchorPosition, rotation_x, rotation_y, distance, 0.0f);
+    BattleScene_SetCameraAtFromAnchor(active_pokemon, camera, sBattleScene.scene->anchorPosition, 0, 0x4000, zoom, 0.0f);
+    BattleScene_SetCameraEyeFromPosition(camera, sBattleScene.scene->anchorPosition, rotation_x, rotation_y, distance, 0.0f);
 }
 
 extern s16 D_8219A4F0[];
@@ -90,9 +90,9 @@ void SceneMode11_StepInit(CameraNode* camera) {
 }
 
 s32 Audio_PlaySystemSound(s32);
-void func_800199F8(s8*, s32);
-void func_80010F9C(s8*, s32);
-s32 func_82107A5C(s8*);
+s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id); // PORT: signature from the definition (model_renderer.c)
+void ModelAnim_SetFrame(s8*, s32);
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleCamera_StartDemoPath(CameraNode*, s8*);
 extern PokemonBattleCues* D_82189180[];
 extern s16 D_8219A50C;
@@ -108,45 +108,45 @@ extern u8 D_8219A594;
 void SceneMode11_StartCut(CameraNode* camera) {
     u8 sp40[6] = { POUND, FLY, ROLLING_KICK, STOMP, TAKE_DOWN, HYDRO_PUMP };
     u8 sp38[6] = { 0, 12, 14, 15, 70, 27 };
-    MovePresentationCue* cue = D_82189180[func_82107A5C(D_8219A590)]->moveCues + sp40[D_8219A50C] - 1;
+    MovePresentationCue* cue = D_82189180[BattleScene_GetParticipantSideIndex(D_8219A590)]->moveCues + sp40[D_8219A50C] - 1;
 
     switch (D_8219A50C) {
         case 0:
             Audio_PlaySystemSound(0x12);
             SceneMode11_FrameDemoPokemon((uintptr_t)D_8219A590, (uintptr_t)camera, 3);
-            func_800199F8(D_8219A590, cue->id);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetAnimation(D_8219A590, cue->id);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             break;
         case 1:
             Audio_PlaySystemSound(0x13);
             ((ActivePokemon*)D_8219A590)->displayObject.position.y += 500.0;
             SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 350.0f, 0.0f, -0x1C71, 0x38E3);
-            func_800199F8(D_8219A590, cue->id);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetAnimation(D_8219A590, cue->id);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             break;
         case 2:
             Audio_PlaySystemSound(0x14);
             ((ActivePokemon*)D_8219A590)->displayObject.rotation.y = -0x4000;
             SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 300.0f, -75.0f, 0x71C, -0x2AAA);
-            func_800199F8(D_8219A590, cue->id);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetAnimation(D_8219A590, cue->id);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             break;
         case 3:
             Audio_PlaySystemSound(0x15);
             SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 200.0f, 0.0f, 0x71C, 0x2AAA);
-            func_800199F8(D_8219A590, cue->id);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetAnimation(D_8219A590, cue->id);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             break;
         case 4:
             Audio_PlaySystemSound(0x16);
             ((ActivePokemon*)D_8219A590)->displayObject.rotation.y = -0x4000;
             SceneMode11_FrameFromAimPoint((uintptr_t)camera, (uintptr_t)D_8219A590, 600.0f, -200.0f, 0, -0x238E);
-            func_800199F8(D_8219A590, cue->id);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetAnimation(D_8219A590, cue->id);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             break;
         case 5:
             Audio_PlaySystemSound(0x17);
-            func_80010F9C(D_8219A590, sp38[D_8219A50C]);
+            ModelAnim_SetFrame(D_8219A590, sp38[D_8219A50C]);
             D_8219A4F4 = 0xA;
             BattleCamera_StartDemoPath(camera, D_8219A590);
             break;
@@ -166,28 +166,28 @@ void SceneMode11_StepStartCut(CameraNode* camera) {
 
 M2C_UNK BattleCamera_StepDemoPath(CameraNode*, s8*);
 extern s16 D_8219A50C;
-M2C_UNK func_80019B28(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32);
-s32 func_821217DC(M2C_UNK);
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
+s32 BattleScene_AdvanceCameraFrameCounter(M2C_UNK);
 extern u8 D_8219A594;
 extern u8 D_8219A4F4;
-s16 func_8000F1FC(s16, M2C_UNK, M2C_UNK, M2C_UNK);
+s32 Math_StepToS32(s32 current, s32 target, s32 increase, s32 decrease); // PORT: signature from the definition (matrix.c)
 s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi); // PORT: the real signature (5 arguments)
-void func_82104C68(s8*, s32);
+void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
 /**
  * Fades the demo Pokemon in over 30 frames. Cuts 0-4 advance after 40 frames; cut 5 follows
  * the Pokemon with the camera and plays its sound when the scene state is 4.
  * @unverified Name guessed from the code.
  */
 void SceneMode11_StepFadeInCut(CameraNode* camera) {
-    D_8219A594 = func_8000F1FC(D_8219A594, 0xFF, 0x1E, 0x1E);
-    func_80019B28(D_8219A590, 0, 0, 0, 0xFF - D_8219A594);
+    D_8219A594 = Math_StepToS32(D_8219A594, 0xFF, 0x1E, 0x1E);
+    Model_SetMaterialColor(D_8219A590, 0, 0, 0, 0xFF - D_8219A594);
     switch (*(u16*)&D_8219A50C) {
         case 0:
         case 1:
         case 2:
         case 3:
         case 4:
-            if (func_821217DC(40) != 0) {
+            if (BattleScene_AdvanceCameraFrameCounter(40) != 0) {
                 sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
             }
             break;
@@ -196,7 +196,7 @@ void SceneMode11_StepFadeInCut(CameraNode* camera) {
             if (sBattleScene.scene->splineSegment == 4) {
                 Announcer_CallMove(0, 0x38, 9, 0, 0);
                 D_8219A4F4 = 1;
-                func_82104C68(D_8219A590, 0x14);
+                BattleScene_EnterStateRow(D_8219A590, 0x14);
                 sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
             }
             break;
@@ -212,9 +212,9 @@ void SceneMode11_StepFadeInCut(CameraNode* camera) {
  *   - if D_8219A50C == 5: calls BattleCamera_StepDemoPath(arg0, D_8219A590); if the
  *     upper halfword of the word at offset 0x48 of the object
  *     D_8219A590 points to is 0x26, calls Audio_PlayMoveSound(0x38, 9, 0); and if
- *     func_821217DC(0x37) returns non-zero, sets sBattleScene.scene->winner
- *     to 3, calls func_80006998(0xFFFF),
- *     func_80005C4C(4) and Audio_FadeAndClearStoredSounds(), and sets
+ *     BattleScene_AdvanceCameraFrameCounter(0x37) returns non-zero, sets sBattleScene.scene->winner
+ *     to 3, calls StageContext_SetClearColor(0xFFFF),
+ *     StageFade_StartFromTransparent(4) and Audio_FadeAndClearStoredSounds(), and sets
  *     sBattleScene.scene->phaseStep to 6;
  *   - otherwise adds 1 to sBattleScene.scene->phaseStep.
  *
@@ -222,11 +222,11 @@ void SceneMode11_StepFadeInCut(CameraNode* camera) {
  * `arg0` passed straight through (the retail code loads it into $a1 and
  * leaves $a0 untouched).  What these values mean is not established.
  */
-M2C_UNK func_80005C4C(M2C_UNK);
-M2C_UNK func_80006998(M2C_UNK);
+M2C_UNK StageFade_StartFromTransparent(M2C_UNK);
+void StageContext_SetClearColor(u16 color); // PORT: signature from the definition (stage_loader.c)
 M2C_UNK Audio_PlayMoveSound(M2C_UNK, M2C_UNK, M2C_UNK);
 M2C_UNK Audio_FadeAndClearStoredSounds();
-s32 func_821217DC(M2C_UNK);
+s32 BattleScene_AdvanceCameraFrameCounter(M2C_UNK);
 M2C_UNK BattleCamera_StepDemoPath(CameraNode*, s8*);
 extern s16 D_8219A50C;
 extern u8 D_8219A594;
@@ -244,10 +244,10 @@ void SceneMode11_StepHoldCut(CameraNode* camera) {
         if (((s32) M2C_FIELD(D_8219A590, s32 *, 0x48) >> 0x10) == 0x26) {
             Audio_PlayMoveSound(0x38, 9, 0);
         }
-        if (func_821217DC(55) != 0) {
+        if (BattleScene_AdvanceCameraFrameCounter(55) != 0) {
             sBattleScene.scene->winner = 3;
-            func_80006998(0xFFFF);
-            func_80005C4C(4);
+            StageContext_SetClearColor(0xFFFF);
+            StageFade_StartFromTransparent(4);
             Audio_FadeAndClearStoredSounds();
             sBattleScene.scene->phaseStep = 6;
         }
@@ -258,8 +258,8 @@ void SceneMode11_StepHoldCut(CameraNode* camera) {
 
 typedef struct Arr82133534 { u8 b[7]; } Arr82133534;
 extern Arr82133534 D_8218B350;
-s16 func_8000F1FC(s16, M2C_UNK, M2C_UNK, M2C_UNK);
-M2C_UNK func_80019B28(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32);
+s32 Math_StepToS32(s32 current, s32 target, s32 increase, s32 decrease); // PORT: signature from the definition (matrix.c)
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 /**
  * Scene mode 11 step 4: fades the demo Pokémon out and, after 8 frames, loads the next species from
  * the cut model list (D_8218B350) or ends the sequence at 0xFF.
@@ -270,9 +270,9 @@ void SceneMode11_StepFadeOutAndSwapModel(CameraNode *camera)
   s32 pad[2]; // FAKE: stack padding
   Arr82133534 sp28 = D_8218B350;
   s32 v;
-  D_8219A594 = func_8000F1FC(D_8219A594, 0, 0x28, 0x28);
-  func_80019B28(D_8219A590, 0, 0, 0, 0xFF - D_8219A594);
-  if (func_821217DC(8) != 0)
+  D_8219A594 = Math_StepToS32(D_8219A594, 0, 0x28, 0x28);
+  Model_SetMaterialColor(D_8219A590, 0, 0, 0, 0xFF - D_8219A594);
+  if (BattleScene_AdvanceCameraFrameCounter(8) != 0)
   {
     D_8219A4F0[0xE]++;
     v = sp28.b[D_8219A4F0[0xE]];
@@ -290,9 +290,9 @@ void SceneMode11_StepFadeOutAndSwapModel(CameraNode *camera)
   }
 }
 
-M2C_UNK func_80019B28(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Battle_LoadOwnerModelForSwitchIn(ActivePokemon* active_pokemon);                      /* extern */
-M2C_UNK func_8213B31C(M2C_UNK);                     /* extern */
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern s8 *D_8219A590;
 extern u8 D_8219A594;
 
@@ -305,12 +305,12 @@ void SceneMode11_StepWaitModelReload(s32 camera) {
     u8 *temp_v0;
 
     if (((ActivePokemon*)D_8219A590)->side->modelFlags & 0x10) {
-        func_8213B31C(2);
+        BattleAnim_CleanupEffects(2);
         temp_v0 = &((ActivePokemon*)D_8219A590)->side->modelFlags;
         *temp_v0 &= 0xFF6F;
         Battle_LoadOwnerModelForSwitchIn(D_8219A590);
         SceneMode11_StartCut(camera);
-        func_80019B28(D_8219A590, 0, 0, 0, 0xFF);
+        Model_SetMaterialColor(D_8219A590, 0, 0, 0, 0xFF);
         D_8219A594 = 0;
         sBattleScene.scene->phaseStep = 2;
     }

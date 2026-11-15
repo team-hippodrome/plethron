@@ -1,12 +1,12 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
-M2C_UNK func_82143408(s32, M2C_UNK); // ParticleGfx_RecolorPrim under its address name; this file's calls need this declaration
+void ParticleGfx_RecolorPrim(u8* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32);
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);
-M2C_UNK func_8213C9D0(s8 *);
-M2C_UNK func_821401D4(s8 *, M2C_UNK);
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+void Particle_SetScaleScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * No caller in play (2026-11-13): nothing that runs reaches it, not even through callbacks, data
@@ -62,13 +62,13 @@ void BattleAnim_CallbackDesc26BurstEmitter_InitParticle(s32 arg0) {
     s16 sp26;
 
     sp26 = Particle_GetSpawnIndex(arg0); // PORT: the particle was passed through a0
-    func_821401D4(arg0, 0x3F000000); // 0.5f
-    func_8213E14C(arg0, 0x42C80000); // 100.0f
+    Particle_SetScaleScaled(arg0, 0x3F000000); // 0.5f
+    Particle_SetVelocityRandomDirection(arg0, 0x42C80000); // 100.0f
     Particle_SetParam0(arg0, (s16) (sp26 + 1));
-    func_82143408(arg0, 8);
+    ParticleGfx_RecolorPrim(arg0, 8);
     ParticleGfx_RecolorEnv(arg0, 0x33);
     Particle_DisableRendering(arg0);
-    func_8213C9D0(arg0);
+    Particle_AdvanceLifecycle(arg0);
 }
 
 /**

@@ -23,10 +23,10 @@ M2C_UNK Particle_ApproachScratchB(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_SetRotationY(s8 *, s16);
 M2C_UNK Particle_SetParam0(s8 *, s16);
 M2C_UNK Particle_SetScratchB(s8 *, M2C_UNK);
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32);
-M2C_UNK func_8213C9D0(s8 *);
-M2C_UNK func_821401D4(s8 *, M2C_UNK);
-M2C_UNK func_82143478(s8 *, M2C_UNK);
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+void Particle_SetScaleScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 extern M2C_UNK BattleAnim_RunBlizzardHitUpwardColdAir;
 extern M2C_UNK BattleAnim_RunDigHitDust;
 extern M2C_UNK BattleAnim_RunDigHitRocks;
@@ -34,8 +34,8 @@ extern M2C_UNK BattleAnim_RunOscillatingFlameUnderneathPokemon;
 extern M2C_UNK D_8218E7B8;
 extern M2C_UNK BattleAnim_CallbackModelBurstAlphaFade;
 s32 ParticleMath_ComputeViewRotationY();
-s32 func_82140690(s8 *);
-void func_8213E1FC(Particle* arg0, f32 arg1);
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Lifecycle init for one of three side-by-side animated models (model 0x21, anim 0x22,
@@ -125,9 +125,9 @@ void BattleAnim_InitializeAmnesiaUse(void) {
     BattleAnim_CreateEffectSlotForCurrentOwner(0, BattleAnim_ConfuseRayAmnesiaModelAnimWait, &gDefaultParticleDescriptor, 0x1E, 3, 6, 0, 0, 0);
 }
 
-s32 func_82107CF0(s32);
-void func_8213D720(s8*, f32);
-void func_8213D790(s8*, f32);
+s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+void Particle_AddPositionOffsetAlongRotationYPlus90(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddPositionOffsetAlongRotationYMinus90(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 /**
  * Raises or lowers the particle by a per-species offset (species from the owner at +0x10):
  * -10, 10 or 15 for the listed species, and also pushes it forward for species 0x3B.
@@ -135,10 +135,10 @@ void func_8213D790(s8*, f32);
  * breakpoint): ran only for Barrier, Light Screen, Reflect.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_OffsetParticleForSpecies(s8* arg0) {
+void BattleAnim_OffsetParticleForSpecies(Particle* arg0) { // PORT: was s8*
     f32 var_f20 = 0.0f;
 
-    switch (func_82107CF0(M2C_FIELD(arg0, s32*, 0x10))) {
+    switch (BattleAnim_GetOwnerSpecies(M2C_FIELD(arg0, s32*, 0x10))) {
         case 0xF:
             var_f20 = -10.0f;
             break;
@@ -150,7 +150,7 @@ void BattleAnim_OffsetParticleForSpecies(s8* arg0) {
             break;
         case 0x3B:
             var_f20 = 15.0f;
-            func_8213D644(arg0, 5.0f);
+            Particle_AddPositionOffsetAlongRotationY(arg0, 5.0f);
             break;
         case 0x4C:
             var_f20 = -10.0f;
@@ -160,13 +160,13 @@ void BattleAnim_OffsetParticleForSpecies(s8* arg0) {
             break;
         case 0x5E:
             var_f20 = -5.0f;
-            func_8213D644(arg0, 5.0f);
+            Particle_AddPositionOffsetAlongRotationY(arg0, 5.0f);
             break;
         case 0x5F:
-            func_8213D790(arg0, 15.0f);
+            Particle_AddPositionOffsetAlongRotationYMinus90(arg0, 15.0f);
             break;
         case 0x73:
-            func_8213D790(arg0, 5.0f);
+            Particle_AddPositionOffsetAlongRotationYMinus90(arg0, 5.0f);
             var_f20 = -5.0f;
             break;
         case 0x79:
@@ -183,11 +183,11 @@ void BattleAnim_OffsetParticleForSpecies(s8* arg0) {
             break;
         case 0x8E:
             var_f20 = -25.0f;
-            func_8213D644(arg0, 20.0f);
+            Particle_AddPositionOffsetAlongRotationY(arg0, 20.0f);
             break;
         case 0x95:
-            func_8213D720(arg0, 5.0f);
-            func_8213D644(arg0, 5.0f);
+            Particle_AddPositionOffsetAlongRotationYPlus90(arg0, 5.0f);
+            Particle_AddPositionOffsetAlongRotationY(arg0, 5.0f);
             break;
     }
     Particle_AddPosOffsetYScaled(arg0, var_f20);
@@ -204,24 +204,24 @@ void BattleAnim_OffsetParticleForSpecies(s8* arg0) {
 void BattleAnim_InitializeScreenMove(void) {
     s32 temp_v0;
 
-    func_8213B560(0, &func_82152FB0, &D_8218E580, 0x1E, 1, 0xB, 0, 0x1E, 0);
-    func_8213B464(0xF);
-    temp_v0 = func_8213646C();
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_InitializeParticleModel, &D_8218E580, 0x1E, 1, 0xB, 0, 0x1E, 0);
+    BattleAnim_AddSpawnDelay(0xF);
+    temp_v0 = BattleAnim_GetQueuedMoveId();
     switch (temp_v0) {                              /* irregular */
     case BARRIER:
-        func_8213B5D8(0, 0x10, 8, &func_821624FC, &D_8218E7A0, 0, 4, 0xB, 0, 0x18, 5);
+        BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 0x10, 8, &BattleAnim_RunSparkleHit, &D_8218E7A0, 0, 4, 0xB, 0, 0x18, 5);
         return;
     case LIGHT_SCREEN:
-        func_8213B644(0, 0x10, 0x1E);
-        func_8213BC7C(0, 0, 8, 0, 0xFF, 0x30);
-        func_8213B5D8(0, 0x10, 8, &func_821624FC, &D_8218E7A0, 0, 8, 0xB, 0, 0x17, 5);
-        func_8213B6AC(0, 1, 0x20, 8, 0xFF);
+        BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x10, 0x1E);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0, 8, 0, 0xFF, 0x30);
+        BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 0x10, 8, &BattleAnim_RunSparkleHit, &D_8218E7A0, 0, 8, 0xB, 0, 0x17, 5);
+        BattleAnim_SpawnWhiteHueChange(0, 1, 0x20, 8, 0xFF);
         return;
     case REFLECT:
-        func_8213B644(0, 0x10, 0x1E);
-        func_8213BC7C(0, 0, 8, 0, 0xFF, 0x30);
-        func_8213B5D8(0, 0x10, 8, &func_821624FC, &D_8218E7A0, 0, 8, 0xB, 0, 0, 5);
-        func_8213B6AC(0, 1, 0x20, 8, 0xFF);
+        BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x10, 0x1E);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0, 8, 0, 0xFF, 0x30);
+        BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 0x10, 8, &BattleAnim_RunSparkleHit, &D_8218E7A0, 0, 8, 0xB, 0, 0, 5);
+        BattleAnim_SpawnWhiteHueChange(0, 1, 0x20, 8, 0xFF);
         return;
     }
 }
@@ -432,13 +432,13 @@ void BattleAnim_AllocateEffect125DisplayList(s32 arg0, arg1_func_84344CE8* arg1)
 }
 
 /**
- * Queues two effect slots on the current owner: func_82154EA4 at once (lifetime 30) and
+ * Queues two effect slots on the current owner: BattleAnim_CallbackStartEffect125ModelBurstEmitter at once (lifetime 30) and
  * BattleAnim_CallbackModelBurstAlphaFade after 20 frames (lifetime 80).
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartEffect123ModelBurst(void) {
-    func_8213B560(0, &func_82154EA4, &D_8218E580, 0x1E, 1, 7, 0, 0, 0);
-    func_8213B560(20, &BattleAnim_CallbackModelBurstAlphaFade, &D_8218E580, 0x50, 1, 0, 0, 0x33, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackStartEffect125ModelBurstEmitter, &D_8218E580, 0x1E, 1, 7, 0, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(20, &BattleAnim_CallbackModelBurstAlphaFade, &D_8218E580, 0x50, 1, 0, 0, 0x33, 0);
 }
 
 /**
@@ -560,8 +560,8 @@ void BattleAnim_RunGasAttack(Particle* arg0) {
  * it ran for exactly Haze, Poison Gas, Smokescreen.
  */
 void BattleAnim_InitializeHazePoisonGasSmokescreenUse(void) {
-    func_8213B560(8, &func_82155380, &D_8218E720, 0, 1, 0x18, 0, 0x1C, 0);
-    func_8213B560(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(8, &BattleAnim_RunGasAttack, &D_8218E720, 0, 1, 0x18, 0, 0x1C, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
 /**
@@ -571,8 +571,8 @@ void BattleAnim_InitializeHazePoisonGasSmokescreenUse(void) {
  * it ran for exactly Smog.
  */
 void BattleAnim_InitializeSmogUse(void) {
-    func_8213B560(8, &func_82155380, &D_8218E720, 0, 1, 0x18, 0, 0x1E, 0);
-    func_8213B560(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(8, &BattleAnim_RunGasAttack, &D_8218E720, 0, 1, 0x18, 0, 0x1E, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
 /**
@@ -582,8 +582,8 @@ void BattleAnim_InitializeSmogUse(void) {
  * it ran for exactly Mist.
  */
 void BattleAnim_InitializeMistUse(void) {
-    func_8213B560(8, &func_82155380, &D_8218E720, 0, 1, 0x18, 0, 0x1D, 0);
-    func_8213B560(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(8, &BattleAnim_RunGasAttack, &D_8218E720, 0, 1, 0x18, 0, 0x1D, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 0xF, 0x11, (s32) D_8219A80A, 0, 0);
 }
 
 /**
@@ -608,7 +608,7 @@ void BattleAnim_LeechSeedParticleUpdate(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215558C(arg0);
+        BattleAnim_SetupLeechSeedUseEffect1(arg0);
         break;
     case 2:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
@@ -618,7 +618,7 @@ void BattleAnim_LeechSeedParticleUpdate(Particle* arg0) {
         Particle_DisableAndDetach(arg0);
         break;
     }
-    func_82140228(arg0, 0x3DCCCCCD, 0x3C23D70A); // 0.1f, 0.01f
+    Particle_ApproachScale(arg0, 0x3DCCCCCD, 0x3C23D70A); // 0.1f, 0.01f
 }
 
 /**
@@ -707,7 +707,7 @@ void BattleAnim_InitEffect31Model(Particle* arg0) {
 
 /**
  * Particle callback (lifecycle at 0xAE): starts after a random delay of up to 24 frames,
- * then when the spawn step reports done spawns a func_821624FC hit effect, and finishes once
+ * then when the spawn step reports done spawns a BattleAnim_RunSparkleHit hit effect, and finishes once
  * the owner's model animation (+0x14) ends.
  * Seen in play (2026-11-14) (Metronome bench, one movie per move, 1P Onix vs Pinsir on Splash, exec
  * breakpoint): ran only for Leech Seed.
@@ -720,18 +720,18 @@ void BattleAnim_CallbackMove73End31SpawnDesc42(Particle* particle) {
     switch (temp_v0) {                              /* irregular */
     case 1:
         Particle_SetParam0(particle, ParticleMath_RandomRange(0x18));
-        func_8213C9D0(particle);
+        Particle_AdvanceLifecycle(particle);
         return;
     case 2:
-        if (func_82140690(particle) != 0) {
-            func_82155878(particle);
-            func_8213B560(0, &func_821624FC, &D_8218E798, 0, 1, 0x10, (s32) particle->byteParam0, 0x17, 4);
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
+            BattleAnim_InitEffect31Model(particle);
+            BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunSparkleHit, &D_8218E798, 0, 1, 0x10, (s32) particle->byteParam0, 0x17, 4);
             return;
         }
         return;
     case 3:
-        if (func_8001104C(((uintptr_t)particle->displayObject)) != 0) {
-            func_8213C9D0(particle);
+        if (ModelAnim_IsFinished(((uintptr_t)particle->displayObject)) != 0) {
+            Particle_AdvanceLifecycle(particle);
         }
         break;
     }
@@ -744,8 +744,8 @@ void BattleAnim_CallbackMove73End31SpawnDesc42(Particle* particle) {
  * it ran for exactly Leech Seed.
  */
 void BattleAnim_InitializeLeechSeedUse(void) {
-    func_8213B5D8(0, 4, 5, &func_82155724, &D_8218E580, 0, 2, 0x11, (s32) D_8219A80A, 0, 0);
-    func_8213B5D8(0, 8, 3, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E7D0, 0, 1, 0x11, (s32) D_8219A80A, 0x33, 6);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 5, &BattleAnim_CallbackStartEffect8ModelBurstEmitter, &D_8218E580, 0, 2, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 3, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E7D0, 0, 1, 0x11, (s32) D_8219A80A, 0x33, 6);
 }
 
 /**
@@ -834,16 +834,16 @@ void BattleAnim_SetupBlizzardHitSpark(Particle* arg0) {
  * Particle callback of the Blizzard animation. Player sweep (all 165 moves used in battle): only
  * Blizzard reached this function.
  */
-void BattleAnim_BlizzardParticleUpdate(s8 *arg0) {
+void BattleAnim_BlizzardParticleUpdate(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82155CC0(arg0);
+        BattleAnim_SetupBlizzardHitSpark(arg0);
         break;
     case 2:
-        func_82140548(arg0, 0xFF, 0x20);
+        Particle_ApproachPrimAlphaThenAdvance(arg0, 0xFF, 0x20);
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
@@ -893,19 +893,19 @@ void BattleAnim_RunBlizzard(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82155DB8(arg0);
+        BattleAnim_SetupBlizzard(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, 4);
             return;
         }
         return;
     case 3:
-        func_821402B8(arg0);
+        Particle_ApproachScaleTarget(arg0);
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 1, 7, 1, 2, 0);
-        func_8213E6BC(arg0);
+        Particle_AddVelocityXZFromRotationYPlusHalfTurn(arg0);
         Particle_ApproachPrimAlpha(arg0, 0x40, 8);
         return;
     case 4:
@@ -920,9 +920,9 @@ void BattleAnim_RunBlizzard(Particle* arg0) {
  * it ran for exactly Blizzard.
  */
 void BattleAnim_InitializeBlizzardUse(void) {
-    func_8213B644(0, 0x10, 0x33);
-    func_8213B8EC(0, 0xFF, 0x10, 8, 0x96);
-    func_8213B560(0, &BattleAnim_BlizzardParticleUpdate, &D_8218E580, 0x1E, 1, 0x14, 0, 0, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x10, 0x33);
+    BattleAnim_SpawnDesc25AlphaFadeInHold(0, 0xFF, 0x10, 8, 0x96);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_BlizzardParticleUpdate, &D_8218E580, 0x1E, 1, 0x14, 0, 0, 0);
 }
 
 /**
@@ -931,13 +931,13 @@ void BattleAnim_InitializeBlizzardUse(void) {
  * ran for exactly Blizzard.
  */
 void BattleAnim_InitializeBlizzardHit(void) {
-    func_8213B5D8(0, 8, 3, &func_82152F44, &D_8218E580, 0, 1, 0xC, 0, 0x2A, 0);
-    func_8213BE70(4, 8, 0x33, 8, 0xC8, 0x18);
-    func_8213B458(4);
-    func_8213B5D8(0, 4, 6, &BattleAnim_RunBlizzard, &D_8218E7D0, 0, 4, 0xB, 9, 0x13, 0);
-    func_8213B5D8(0, 2, 12, &func_821626F4, &D_8218E7A0, 0, 4, 0xB, 9, 0x18, 0xB);
-    func_8213B5D8(0, 5, 4, &BattleAnim_RunBlizzardHitUpwardColdAir, &D_8218E650, 0, 6, 0x10, (s32) D_8219A80A, 0x26, 0);
-    func_8213B644(50, 0x20, 8);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 3, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 0xC, 0, 0x2A, 0);
+    BattleAnim_SpawnIceBeamBlizzardHitHueChange(4, 8, 0x33, 8, 0xC8, 0x18);
+    BattleAnim_SetSpawnDelay(4);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 6, &BattleAnim_RunBlizzard, &D_8218E7D0, 0, 4, 0xB, 9, 0x13, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 2, 12, &BattleAnim_RunBlizzardHitEffect, &D_8218E7A0, 0, 4, 0xB, 9, 0x18, 0xB);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 5, 4, &BattleAnim_RunBlizzardHitUpwardColdAir, &D_8218E650, 0, 6, 0x10, (s32) D_8219A80A, 0x26, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(50, 0x20, 8);
 }
 
 /**
@@ -1164,11 +1164,11 @@ void BattleAnim_InitEffect49Model(Particle* arg0) {
 void BattleAnim_CallbackEnd49Model33Anim34WaitCleanup(Particle* arg0) {
     switch (arg0->lifecycle) {
         case 1:
-            func_82156654(arg0);
+            BattleAnim_InitEffect49Model(arg0);
             break;
 
         case 2:
-            if (func_82136E2C(arg0->displayObject) != 0) {
+            if (BattleAnim_IsModelAnimComplete(arg0->displayObject) != 0) {
                 Particle_AdvanceLifecycle(arg0);
             }
             break;
@@ -1191,7 +1191,7 @@ void BattleAnim_CallbackEnd49Model33Anim34WaitCleanup(Particle* arg0) {
 void BattleAnim_CallbackEndEffect21ModelAnimWait(Particle* arg0) {
     switch (arg0->lifecycle) {
         case 1:
-            func_82156654(arg0);
+            BattleAnim_InitEffect49Model(arg0);
             break;
 
         case 2:
@@ -1323,7 +1323,7 @@ void BattleAnim_RunFlyUpwardMovementEffect(Particle* arg0) {
  * it ran for exactly Fly.
  */
 void BattleAnim_InitializeFlyUse(void) {
-    func_8213B560(0, &func_82156B0C, &D_8218E580, 0xA, 1, 0xA, 0, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFlyUpwardMovementEffect, &D_8218E580, 0xA, 1, 0xA, 0, 0, 0);
 }
 
 /**
@@ -1446,7 +1446,7 @@ void BattleAnim_InitRockModel(Particle* arg0) {
 void BattleAnim_RockModelAnimWait(Particle* arg0) {
     switch (arg0->lifecycle) {
         case 1:
-            func_82156E54(arg0);
+            BattleAnim_InitRockModel(arg0);
             break;
 
         case 2:
@@ -1534,16 +1534,16 @@ void BattleAnim_RunFallingRock(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82156F70(arg0);
+        BattleAnim_InitEffects10And50Model(arg0);
         return;
     case 2:
-        func_8213CA80(arg0, 10);
+        Particle_TickDelayAndAdvanceLifecycle(arg0, 10);
         return;
     case 3:
         Particle_ApproachPrimRed(arg0, 0, 0x10);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
-        if (func_8001104C(((uintptr_t)arg0->displayObject)) != 0) {
-            func_8213C9D0(arg0);
+        if (ModelAnim_IsFinished(((uintptr_t)arg0->displayObject)) != 0) {
+            Particle_AdvanceLifecycle(arg0);
             return;
         }
         return;
@@ -1645,7 +1645,7 @@ void BattleAnim_InitRockModel38(Particle* arg0) {
 void BattleAnim_RockModelFadeIn(Particle* arg0) {
     switch (arg0->lifecycle) {
         case 1:
-            func_82157354(arg0);
+            BattleAnim_InitRockModel38(arg0);
             break;
 
         case 2:
@@ -1868,13 +1868,13 @@ void BattleAnim_SetupStrongWinds(Particle* arg0) {
  * breakpoint): ran only for Gust, Razor Wind, Whirlwind.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackStartEffect10Model60AlphaFadeIn(s8 *arg0) {
+void BattleAnim_CallbackStartEffect10Model60AlphaFadeIn(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82157DA0(arg0);
+        BattleAnim_SetupStrongWinds(arg0);
         break;
     case 2:
         Particle_ApproachPrimAlpha(arg0, 0x9B, 8);
@@ -2085,21 +2085,21 @@ void BattleAnim_RunBoomUseEffect3(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82158344(arg0);
+        BattleAnim_SetupBoomUseEffect3(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
             Particle_SetParam0(arg0, 0xA);
-            func_8213CB3C(arg0);
+            Particle_EnableRendering(arg0);
             return;
         }
         return;
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
-        func_82140228(arg0, 0x40200000, 0x3E800000); // 2.5f, 0.25f
+        Particle_ApproachScale(arg0, 0x40200000, 0x3E800000); // 2.5f, 0.25f
         Particle_AddVelocityFromRotationTemplate1(arg0);
         Particle_AddPosOffsetYScaled(arg0, 0.5f);
-        if (func_82140690(arg0) != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_ApproachPrimAlpha(arg0, 0x20, 0x10);
             Particle_ApproachPrimGreen(arg0, 0, 0x14);
             Particle_ApproachEnvRed(arg0, 0, 0x14);
@@ -2147,11 +2147,11 @@ void BattleAnim_RunBoomUseEffect4(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215856C(arg0);
+        BattleAnim_SetupBoomUseEffect4(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, 5);
             return;
         }
@@ -2159,7 +2159,7 @@ void BattleAnim_RunBoomUseEffect4(Particle* arg0) {
     case 3:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
         Particle_RiseByStepMagnitude(arg0);
-        if (func_82140690(arg0) != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_ApproachPrimGreen(arg0, 0, 0x14);
             Particle_ApproachEnvRed(arg0, 0, 0x14);
             Particle_ApproachPrimAlpha(arg0, 0x20, 4);
@@ -2225,25 +2225,25 @@ void BattleAnim_CallbackStart50And82ModelScalePalFade(Particle* particle) {
     temp_v1 = particle->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
-        func_82152730(particle, 2);
-        func_821401D4(particle, 0x3F000000); // 0.5f
+        BattleAnim_SelectParticleModelFrames(particle, 2);
+        Particle_SetScaleScaled(particle, 0x3F000000); // 0.5f
         Particle_SetScratchB(particle, 0x64);
-        func_82143478(particle, 0x17);
+        ParticleGfx_RecolorPrimEnvFromPalettePair(particle, 0x17);
         Particle_SetParam0(particle, 5);
         return;
     case 2:
-        func_82140228(particle, 0x40E00000, 0x3E800000); // 7.0f, 0.25f
-        if (func_821406B4(particle) != 0) {
+        Particle_ApproachScale(particle, 0x40E00000, 0x3E800000); // 7.0f, 0.25f
+        if (Particle_DecrementParam0ToZeroThenAdvance(particle) != 0) {
             Particle_SetParam0(particle, 5);
             return;
         }
         return;
     case 3:
-        func_82140228(particle, 0x40E00000, 0x3E800000); // 7.0f, 0.25f
-        func_821437E0(particle, 0x1A, 0x19);
-        if (func_82140690(particle) != 0) {
+        Particle_ApproachScale(particle, 0x40E00000, 0x3E800000); // 7.0f, 0.25f
+        ParticleGfx_ApproachPrimEnvPalettePair(particle, 0x1A, 0x19);
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
             Particle_ApproachScratchB(particle, 0, 8);
-            func_82140548(particle, 0, 0x10);
+            Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x10);
             return;
         }
         break;
@@ -2324,26 +2324,26 @@ void BattleAnim_RunBoomHitEffect1(Particle* arg0) {
     temp_v1 = arg0->lifecycle;
     switch (temp_v1) {                              /* irregular */
     case 1:
-        func_82152730(arg0, 2);
-        func_821401D4(arg0, 0x3E800000); // 0.25f
+        BattleAnim_SelectParticleModelFrames(arg0, 2);
+        Particle_SetScaleScaled(arg0, 0x3E800000); // 0.25f
         Particle_SetScratchB(arg0, 0x64);
-        func_82143478(arg0, 0x17);
+        ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, 0x17);
         Particle_SetParam0(arg0, 5);
-        func_8213D644(arg0, 30.0f);
+        Particle_AddPositionOffsetAlongRotationY(arg0, 30.0f);
         return;
     case 2:
-        func_82140228(arg0, 0x40A00000, 0x3E99999A); // 5.0f, 0.3f
-        if (func_821406B4(arg0) != 0) {
+        Particle_ApproachScale(arg0, 0x40A00000, 0x3E99999A); // 5.0f, 0.3f
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
             Particle_SetParam0(arg0, 5);
             return;
         }
         return;
     case 3:
-        func_82140228(arg0, 0x40A00000, 0x3E99999A); // 5.0f, 0.3f
-        func_821437E0(arg0, 0x1A, 0x19);
-        if (func_82140690(arg0) != 0) {
+        Particle_ApproachScale(arg0, 0x40A00000, 0x3E99999A); // 5.0f, 0.3f
+        ParticleGfx_ApproachPrimEnvPalettePair(arg0, 0x1A, 0x19);
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             Particle_ApproachScratchB(arg0, 0, 8);
-            func_82140548(arg0, 0, 0x10);
+            Particle_ApproachPrimAlphaThenAdvance(arg0, 0, 0x10);
             return;
         }
         break;
@@ -2393,22 +2393,22 @@ void BattleAnim_RunBoomHitEffect2(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82158CE0(arg0);
+        BattleAnim_SetupBoomHitEffect2(arg0);
         return;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, 4);
             return;
         }
         return;
     case 3:
-        func_821402B8(arg0);
+        Particle_ApproachScaleTarget(arg0);
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 1, 7, 1, 2, 0);
-        func_8213E6BC(arg0);
+        Particle_AddVelocityXZFromRotationYPlusHalfTurn(arg0);
         Particle_ApproachPrimGreen(arg0, 0, 0x20);
         Particle_ApproachEnvGreen(arg0, 0, 0x20);
-        if (func_82140690(arg0) != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
             return;
         }
         break;
@@ -2461,28 +2461,28 @@ void BattleAnim_RunBoomHitEffect3(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82158F20(arg0);
+        BattleAnim_SetupBoomHitEffect3(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
             Particle_SetParam0(arg0, 4);
         }
         break;
     case 3:
-        func_82140548(arg0, 0x40, 0x10);
-        if (func_82140690(arg0) != 0) {
-            func_821437E0(arg0, 0x16, 0x20);
+        Particle_ApproachPrimAlphaThenAdvance(arg0, 0x40, 0x10);
+        if (Particle_DecrementParam0ToZero(arg0) != 0) {
+            ParticleGfx_ApproachPrimEnvPalettePair(arg0, 0x16, 0x20);
         }
         Particle_ApproachStepMagnitude(arg0, 0x40800000, 0x3F000000); // 4.0f, 0.5f
-        func_8213E6BC(arg0);
+        Particle_AddVelocityXZFromRotationYPlusHalfTurn(arg0);
         break;
     case 4:
         Particle_MarkInactive(arg0);
         break;
     }
-    if (func_8213CB7C(arg0) != 0) {
-        func_821402B8(arg0);
+    if (Particle_IsRenderingEnabled(arg0) != 0) {
+        Particle_ApproachScaleTarget(arg0);
         Particle_AnimateFramesForwardLooped(arg0, 0, 7, 1, 2, 0);
     }
 }
@@ -2591,7 +2591,7 @@ void BattleAnim_SetupBitingEffect(Particle* arg0) {
  * breakpoint): ran only for Bite, Clamp, Guillotine, Hyper Fang, Super Fang, Vicegrip.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackStart71And74And111ColorCycle(s8 *arg0) {
+void BattleAnim_CallbackStart71And74And111ColorCycle(Particle* arg0) { // PORT: was s8*
     s16 sp26;
     s16 temp_v1;
 
@@ -2599,23 +2599,23 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(s8 *arg0) {
     temp_v1 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v1) {                              /* irregular */
     case 1:
-        func_821597D0(arg0);
+        BattleAnim_SetupBitingEffect(arg0);
         break;
     case 2:
-        func_8213CA80(arg0, 14);
+        Particle_TickDelayAndAdvanceLifecycle(arg0, 14);
         Particle_ApproachPrimGreen(arg0, 0xFF, 7);
         Particle_ApproachPrimBlue(arg0, 0xFF, 0x13);
         Particle_ApproachEnvGreen(arg0, 0xFF, 0x13);
         Particle_ApproachPrimAlpha(arg0, 0xFF, 0x13);
         break;
     case 3:
-        func_8213CA80(arg0, 0x10);
+        Particle_TickDelayAndAdvanceLifecycle(arg0, 0x10);
         Particle_ApproachPrimBlue(arg0, 0, 0x11);
         Particle_ApproachEnvGreen(arg0, 0, 0x11);
         Particle_ApproachPrimAlpha(arg0, 0, 0x11);
         break;
     case 4:
-        if (func_8001104C(M2C_FIELD(arg0, s32 *, 0x14)) != 0) {
+        if (ModelAnim_IsFinished(M2C_FIELD(arg0, s32 *, 0x14)) != 0) {
             Particle_MarkInactive(arg0);
         }
         break;
@@ -2713,9 +2713,9 @@ void BattleAnim_InitializeBitingMoveHit(void) {
  * 75 to 0 HP. In the earlier sweep Guillotine missed and this did not run.
  */
 void BattleAnim_InitializeGuillotineHit(void) {
-    func_8213BC00(0, 0xA, 0, 0xFF, 0x40);
-    func_82166B34();
-    func_8213BC00(48, 0xA, 0xFF, 0, 2);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0xA, 0, 0xFF, 0x40);
+    BattleAnim_InitializeBitingMoveEndEffect();
+    BattleAnim_SpawnOwnerTintRampDetach(48, 0xA, 0xFF, 0, 2);
 }
 
 /**
@@ -2844,9 +2844,9 @@ void BattleAnim_CallbackStartEffect69ModelPhaseWait(Particle* arg0) {
  * it ran for exactly Dig.
  */
 void BattleAnim_InitializeDigBurrowUse(void) {
-    func_8213B560(0, &func_82159F70, &D_8218E580, 0, 1, 0xA, 0, 0x29, 0);
-    func_8213B5D8(5, 2, 10, &BattleAnim_RunDigHitDust, &D_8218E7D0, 0, 2, 0xA, 0, 0x44, 9);
-    func_8213B5D8(10, 5, 6, &BattleAnim_RunDigHitRocks, &D_8218E708, 0, 3, 0xA, 0, 0x44, 0xB);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackStartEffect69ModelPhaseWait, &D_8218E580, 0, 1, 0xA, 0, 0x29, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(5, 2, 10, &BattleAnim_RunDigHitDust, &D_8218E7D0, 0, 2, 0xA, 0, 0x44, 9);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(10, 5, 6, &BattleAnim_RunDigHitRocks, &D_8218E708, 0, 3, 0xA, 0, 0x44, 0xB);
 }
 
 /**
@@ -2864,10 +2864,10 @@ void BattleAnim_InitializeDigUse(void) {
  * Seen in play (2026-11-12): Dig's second turn ran this as end effect 0x4E.
  */
 void BattleAnim_InitializeDigHit(void) {
-    func_8213B560(0, &func_82152FB0, &D_8218E580, 0, 1, 0xA, 0, 0x1D, 0);
-    func_8213B5D8(0, 3, 3, &func_82162C68, &D_8218E728, 0, 1, 0xE, 9, 0, 0xF);
-    func_8213B5D8(4, 1, 4, &BattleAnim_RunDigHitDust, &D_8218E7D0, 0, 8, 0x1B, 0, 0x44, 0xA);
-    func_8213B560(4, &BattleAnim_RunDigHitRocks, &D_8218E708, 0, 0xC, 0x1B, 0, 0x44, 0xB);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_InitializeParticleModel, &D_8218E580, 0, 1, 0xA, 0, 0x1D, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 3, 3, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 1, 0xE, 9, 0, 0xF);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 1, 4, &BattleAnim_RunDigHitDust, &D_8218E7D0, 0, 8, 0x1B, 0, 0x44, 0xA);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, &BattleAnim_RunDigHitRocks, &D_8218E708, 0, 0xC, 0x1B, 0, 0x44, 0xB);
 }
 
 /**
@@ -2888,8 +2888,8 @@ void BattleAnim_InitializeKinesisUse(void) {
  * it ran for exactly Bone Club.
  */
 void BattleAnim_InitializeBoneClubUse(void) {
-    func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 4, 0, 1, 0);
-    func_8213B720(29, 2, 0x20, 0x12);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 4, 0, 1, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(29, 2, 0x20, 0x12);
 }
 
 /**
@@ -3457,10 +3457,10 @@ void BattleAnim_InitializeEarthquakeHit(void) {
  * it ran for exactly Defense Curl.
  */
 void BattleAnim_InitializeDefenseCurlUse(void) {
-    func_8213BC00(4, 8, 0, 0xFF, 0x40);
-    func_8213C1BC(8);
-    func_8213B560(12, &func_82152FB0, &D_8218E580, 0, 1, 0xE, 0, 6, 0);
-    func_82168504();
+    BattleAnim_SpawnOwnerTintRampDetach(4, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnOwnerModelAlphaFadeZeroStartPreset(8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_InitializeParticleModel, &D_8218E580, 0, 1, 0xE, 0, 6, 0);
+    BattleAnim_InitializeDefenseCurlSharpenUseSequence();
 }
 
 /**
@@ -3470,10 +3470,10 @@ void BattleAnim_InitializeDefenseCurlUse(void) {
  * it ran for exactly Sharpen.
  */
 void BattleAnim_InitializeSharpenUse(void) {
-    func_8213BC00(6, 8, 0, 0xFF, 0x40);
-    func_8213C1BC(0xA);
-    func_8213B560(12, &func_82152FB0, &D_8218E580, 0, 1, 0xA, 0, 7, 0);
-    func_82168504();
+    BattleAnim_SpawnOwnerTintRampDetach(6, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnOwnerModelAlphaFadeZeroStartPreset(0xA);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_InitializeParticleModel, &D_8218E580, 0, 1, 0xA, 0, 7, 0);
+    BattleAnim_InitializeDefenseCurlSharpenUseSequence();
 }
 
 /**
@@ -3534,7 +3534,7 @@ void BattleAnim_InitializeSpeedLines(void) {
  * Over all 163 moves only Skull Bash ran it; Quick Attack and Hi Jump Kick did not.
  */
 void BattleAnim_StartEffect112SkullBashDash(void) {
-    func_8213B644(0, 0x20, 0xE);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 0xE);
     BattleAnim_InitializeQuickAttackHiJumpKickUse();
 }
 
@@ -3554,8 +3554,8 @@ void BattleAnim_InitializeWithdrawUse(void) {
  * it ran for exactly Lick.
  */
 void BattleAnim_InitializeLickUse(void) {
-    if (func_8213C4D0(0x5E) == 0) {
-        func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 0x10, (s32) D_8219A80A, 0xA, 0);
+    if (BattleAnim_IsCurrentOwnerSpecies(0x5E) == 0) {
+        BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 0x10, (s32) D_8219A80A, 0xA, 0);
     }
 }
 
@@ -3596,8 +3596,8 @@ f32 BattleAnim_OffsetAndScaleParticleForLargeSpecies(Particle* particle) {
  * it ran for exactly Lovely Kiss.
  */
 void BattleAnim_InitializeLovelyKissUse(void) {
-    func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 0xB, 0, 0xB, 0);
-    func_8213B644(42, 0x10, 0x15);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 0xB, 0, 0xB, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(42, 0x10, 0x15);
 }
 
 /**
@@ -3606,8 +3606,8 @@ void BattleAnim_InitializeLovelyKissUse(void) {
  * ran for exactly Lovely Kiss.
  */
 void BattleAnim_InitializeLovelyKissHit(void) {
-    func_8213BC7C(0, 1, 0x16, 0xFF, 0, 8);
-    func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 9, 0, 0xC, 0);
+    BattleAnim_SpawnOwnerTintPulseDetach(0, 1, 0x16, 0xFF, 0, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 9, 0, 0xC, 0);
 }
 
 /**
@@ -3618,24 +3618,24 @@ void BattleAnim_InitializeLovelyKissHit(void) {
  * breakpoint): ran only for Dream Eater, Meditate, Night Shade.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackStart95To97End62And63Fade_Init(s8 *arg0) {
+void BattleAnim_CallbackStart95To97End62And63Fade_Init(Particle* arg0) { // PORT: was s8*
     s16 sp26;
     s32 temp_v0;
 
     sp26 = Particle_GetByteParam0(arg0); // PORT: the particle was passed through a0
-    temp_v0 = func_82136AC0(arg0);
+    temp_v0 = BattleAnim_AllocOwnerDisplayContext(arg0);
     M2C_FIELD(arg0, s32 *, 0x14) = temp_v0;
     if (temp_v0 != 0) {
         if ((sp26 == 0) || (sp26 == 1)) {
-            func_82136D58(M2C_FIELD(arg0, s32 *, 0x14), 0x8C);
+            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8C);
         } else if ((sp26 == 2) || (sp26 == 3)) {
-            func_82136D58(M2C_FIELD(arg0, s32 *, 0x14), 0x8E);
+            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8E);
         } else {
-            func_82136D58(M2C_FIELD(arg0, s32 *, 0x14), 0x8D);
+            BattleAnim_InitModel(M2C_FIELD(arg0, s32 *, 0x14), 0x8D);
         }
-        func_821401D4(arg0, 0x3F800000); // 1.0f
+        Particle_SetScaleScaled(arg0, 0x3F800000); // 1.0f
         Particle_SetPrimAlpha(arg0, 0);
-        func_8213C9D0(arg0);
+        Particle_AdvanceLifecycle(arg0);
         return;
     }
     Particle_DisableAndDetach(arg0);
@@ -3925,17 +3925,17 @@ void Gfx_PaletteParticleDLCallback(s32 arg0, arg1_func_84344CE8* arg1) {
  * it ran for exactly Dream Eater.
  */
 void BattleAnim_InitializeDreamEaterUse(void) {
-    func_8213B560(0, &func_8215B904, &D_8218E580, 0, 1, 0xC, 0, 0, 0);
-    func_8213B560(0, &func_82153040, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
-    func_8213B560(4, &func_82153040, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
-    func_8213B560(8, &func_82153040, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
-    func_8213B560(12, &func_82153040, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
-    func_8213B560(0x10, &func_82153040, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
-    func_8213B560(20, &func_82153040, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
-    func_8213B560(24, &func_82153040, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
-    func_8213B560(28, &func_82153040, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
-    func_8213B560(0x20, &func_82153040, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
-    func_8213B644(0, 8, 0x33);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunPsychedelicOverlay, &D_8218E580, 0, 1, 0xC, 0, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(8, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0x10, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(20, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(24, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 0, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(28, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 1, 0xD, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0x20, &BattleAnim_RunDreamEaterUseEffect, &D_8218E580, 0, 1, 9, 2, 0xD, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x33);
 }
 
 /**
@@ -3999,10 +3999,10 @@ void BattleAnim_InitializeMeditateUse(void) {
  * it ran for exactly Night Shade.
  */
 void BattleAnim_InitializeNightShadeUse(void) {
-    func_8213B560(0, &func_8215B904, &D_8218E580, 0, 1, 0xC, 2, 0, 0);
-    func_8213B644(0, 8, 0);
-    func_8213B464(0x40);
-    func_8213B720(0, 2, 0x10, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunPsychedelicOverlay, &D_8218E580, 0, 1, 0xC, 2, 0, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0);
+    BattleAnim_AddSpawnDelay(0x40);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 2, 0x10, 8);
 }
 
 /**
@@ -4014,10 +4014,10 @@ void BattleAnim_InitializeNightShadeUse(void) {
  * ran for exactly Night Shade.
  */
 void BattleAnim_InitializeNightShadeHit(void) {
-    func_8213B720(0, 2, 0x10, 8);
-    func_8213BC00(4, 8, 0xFF, 0, 8);
-    func_8213B560(0, &func_8215B904, &D_8218E580, 0, 1, 0xC, 3, 0, 0);
-    func_8213B5D8(4, 4, 4, &func_82162C68, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 2, 0x10, 8);
+    BattleAnim_SpawnOwnerTintRampDetach(4, 8, 0xFF, 0, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunPsychedelicOverlay, &D_8218E580, 0, 1, 0xC, 3, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 4, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
 }
 
 /**
@@ -4053,7 +4053,7 @@ void BattleAnim_CallbackStart21And93ModelAlphaAnchor(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215C8FC(particle);
+        BattleAnim_SetupConfuseRayUseSpotlight(particle);
         break;
     case 2:
         Particle_ApproachPrimAlpha(particle, 0xFF, 8);
@@ -4089,7 +4089,7 @@ void BattleAnim_SetupConfuseRayHitSpotlight(Particle* arg0) {
  */
 void BattleAnim_ConfuseRayParticleUpdate(Particle* arg0) {
     if (arg0->lifecycle == 1) {
-        func_8215CA14();
+        BattleAnim_SetupConfuseRayHitSpotlight(arg0); // PORT: the argument was passed through a0
     }
     Particle_SetRotationY(arg0, (s16) (ParticleMath_ComputeViewRotationY() + 0x8000));
 }
@@ -4156,7 +4156,7 @@ void ParticleEffect_WaterAnimBurst(void) {
  * @unverified Name guessed from the code.
  */
 void BattleAnim_EndEffect51GlobalTintFade(void) {
-    func_8213B644(0x10, 0x10, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0x10, 0x10, 8);
 }
 
 /**
@@ -4167,14 +4167,14 @@ void BattleAnim_EndEffect51GlobalTintFade(void) {
  * it ran for exactly Confuse Ray.
  */
 void BattleAnim_InitializeConfuseRayUse(void) {
-    func_8213B560(0, &BattleAnim_CallbackStart21And93ModelAlphaAnchor, &D_8218E580, 0, 1, 0xA, 0, 0, 0);
-    func_8213B644(0, 0x20, 3);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B878(12, 5, 0x10, 8);
-    func_8213B560(12, &func_82162C68, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
-    func_8213B464(33);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213BC00(0, 8, 0xFF, 0, 0x10);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackStart21And93ModelAlphaAnchor, &D_8218E580, 0, 1, 0xA, 0, 0, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 3);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnDesc25AlphaFadeInHoldFullAlpha(12, 5, 0x10, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x10);
 }
 
 /**
@@ -4185,13 +4185,13 @@ void BattleAnim_InitializeConfuseRayUse(void) {
  * exactly Confuse Ray.
  */
 void BattleAnim_InitializeConfuseRayHit(void) {
-    func_8213B560(0, &BattleAnim_ConfuseRayParticleUpdate, &D_8218E580, 0, 1, 0xA, 0, 0, 0);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213B644(0, 0x20, 3);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B560(12, &func_82162C68, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
-    func_8213B464(33);
-    func_8213BC00(0, 8, 0xFF, 0, 0x10);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_ConfuseRayParticleUpdate, &D_8218E580, 0, 1, 0xA, 0, 0, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 3);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x10);
 }
 
 /**
@@ -4256,10 +4256,10 @@ void BattleAnim_InitializeWaterfallUse(void) {
  * ran for exactly Waterfall.
  */
 void BattleAnim_InitializeWaterfallHit(void) {
-    func_8213B560(0, &func_821530F4, &D_8218E580, 0xFF, 1, 0xC, 0, 0xF, 0x40);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFillScreenOverlay, &D_8218E580, 0xFF, 1, 0xC, 0, 0xF, 0x40);
     BattleAnim_InitializeWaterfallUseB();
-    func_8213B464(0x10);
-    func_8213B5D8(0, 4, 5, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E5D8, 0, 1, 0xE, 0, 0xC, 4);
+    BattleAnim_AddSpawnDelay(0x10);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 5, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E5D8, 0, 1, 0xE, 0, 0xC, 4);
 }
 
 /**
@@ -4297,8 +4297,8 @@ void BattleAnim_InitializeSurfHit(void) {
  * it ran for exactly Crabhammer.
  */
 void BattleAnim_InitializeCrabhammerUse(void) {
-    func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 0x13, (s32) D_8219A80A, 0x10, 0);
-    func_8213B720(34, 0, 0x10, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 0x13, (s32) D_8219A80A, 0x10, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(34, 0, 0x10, 8);
 }
 
 /**
@@ -4326,7 +4326,7 @@ void BattleAnim_CallbackStart101End65Desc4ABurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215D724(particle);
+        BattleAnim_SetupBarrageEffect(particle);
         break;
     case 2:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 0, 7, 1, 2, 0);
@@ -4336,7 +4336,7 @@ void BattleAnim_CallbackStart101End65Desc4ABurstChild(Particle* particle) {
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_82140228(particle, 0x3F000000, 0x3DCCCCCD); // 0.5f, 0.1f
+    Particle_ApproachScale(particle, 0x3F000000, 0x3DCCCCCD); // 0.5f, 0.1f
 }
 
 /**
@@ -4443,18 +4443,18 @@ void BattleAnim_CallbackMove140End65EmitDesc4A(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215DA5C(particle);
+        BattleAnim_SetupBarrageHitEffect(particle);
         break;
     case 2:
-        func_82139E5C(particle, &BattleAnim_CallbackStart101End65Desc4ABurstChild, &D_8218E7D0, 1);
-        func_8213EF88(particle, 0x1000, 0x80);
-        func_8213CA80(particle, 7);
+        BattleAnim_EmitParticleBurst(particle, &BattleAnim_CallbackStart101End65Desc4ABurstChild, &D_8218E7D0, 1);
+        Particle_ApproachRotationXTo(particle, 0x1000, 0x80);
+        Particle_TickDelayAndAdvanceLifecycle(particle, 7);
         break;
     case 3:
         Particle_DisableAndDetach(particle);
         break;
     }
-    if (func_8213CB7C(particle) != 0) {
+    if (Particle_IsRenderingEnabled(particle) != 0) {
         Particle_AddVelocityFromRotationTemplate1(particle);
     }
 }
@@ -4573,9 +4573,9 @@ void BattleAnim_InitializePsywaveUse(void) {
  * ran for exactly Psywave.
  */
 void BattleAnim_InitializePsywaveHit(void) {
-    func_8213BC7C(0, 2, 8, 0xFF, 0, 0x10);
-    func_8213B560(0, &func_8215DCE8, &D_8218E580, 0, 1, 9, 0, 1, 0);
-    func_8213B5D8(4, 4, 4, &func_82162C68, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
+    BattleAnim_SpawnOwnerTintPulseDetach(0, 2, 8, 0xFF, 0, 0x10);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunPsywaveEffect, &D_8218E580, 0, 1, 9, 0, 1, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 4, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
 }
 
 /**
@@ -4615,10 +4615,10 @@ void BattleAnim_RunConfusionPsychicHitEffect(Particle* arg0) {
  * it ran for exactly Psychic.
  */
 void BattleAnim_InitializePsychicUse(void) {
-    func_8213B644(0, 5, 0);
-    func_8213B560(0, &func_821530F4, &D_8218E580, 0xFF, 1, 0xC, 8, 0x18, 5);
-    func_8213BC7C(50, 1, 8, 0, 0xFF, 0x20);
-    func_8213B6AC(50, 1, 0x20, 8, 0xFF);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 5, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFillScreenOverlay, &D_8218E580, 0xFF, 1, 0xC, 8, 0x18, 5);
+    BattleAnim_SpawnOwnerTintPulseDetach(50, 1, 8, 0, 0xFF, 0x20);
+    BattleAnim_SpawnWhiteHueChange(50, 1, 0x20, 8, 0xFF);
 }
 
 /**
@@ -4627,10 +4627,10 @@ void BattleAnim_InitializePsychicUse(void) {
  * it ran for exactly Confusion.
  */
 void BattleAnim_InitializeConfusionUse(void) {
-    func_8213B644(0, 6, 0);
-    func_8213B560(0, &func_821530F4, &D_8218E580, 0xFF, 1, 0xC, 7, 0x17, 6);
-    func_8213B6AC(50, 1, 0x20, 8, 0xFF);
-    func_8213BC7C(50, 1, 8, 0, 0xFF, 0x20);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 6, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFillScreenOverlay, &D_8218E580, 0xFF, 1, 0xC, 7, 0x17, 6);
+    BattleAnim_SpawnWhiteHueChange(50, 1, 0x20, 8, 0xFF);
+    BattleAnim_SpawnOwnerTintPulseDetach(50, 1, 8, 0, 0xFF, 0x20);
 }
 
 /**
@@ -4639,14 +4639,14 @@ void BattleAnim_InitializeConfusionUse(void) {
  * ran for exactly Psychic.
  */
 void BattleAnim_InitializePsychicHit(void) {
-    func_8213B644(0, 0x40, 0);
-    func_8213B560(0, &func_8215DFB4, &D_8218E580, 0xFF, 1, 0xC, 8, 0x18, 0x20);
-    func_8213B5D8(4, 4, 4, &func_82162C68, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213B464(33);
-    func_8213BC00(0, 8, 0xFF, 0, 4);
-    func_8213B644(8, 4, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x40, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunConfusionPsychicHitEffect, &D_8218E580, 0xFF, 1, 0xC, 8, 0x18, 0x20);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 4, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 4);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(8, 4, 8);
 }
 
 /**
@@ -4655,14 +4655,14 @@ void BattleAnim_InitializePsychicHit(void) {
  * ran for exactly Confusion.
  */
 void BattleAnim_InitializeConfusionHit(void) {
-    func_8213B644(0, 0x40, 0);
-    func_8213B560(0, &func_8215DFB4, &D_8218E580, 0xFF, 1, 0xC, 7, 0x17, 0x20);
-    func_8213B5D8(4, 4, 4, &func_82162C68, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213B464(33);
-    func_8213BC00(0, 8, 0xFF, 0, 4);
-    func_8213B644(8, 4, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x40, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunConfusionPsychicHitEffect, &D_8218E580, 0xFF, 1, 0xC, 7, 0x17, 0x20);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 4, 4, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 3, 9, 0, 0x18, 0xD);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 4);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(8, 4, 8);
 }
 
 /**
@@ -4696,11 +4696,11 @@ void BattleAnim_InitializeBideRageUseSequence(void) {
  * it ran for exactly Sky Attack.
  */
 void BattleAnim_InitializeSkyAttackUse1(void) {
-    func_82168844(0xE);
-    func_8213B644(0, 2, 0xE);
-    func_8213BC00(0, 0xA, 0, 0xC8, 4);
-    func_8213BD78(50, 0xA, 0x17, 2, 0xC8);
-    func_8213B560(0x40, &BattleAnim_RunOscillatingFlameUnderneathPokemon, &D_8218E7F8, 0, 0x20, 7, 0, 0, 0);
+    BattleAnim_InitializeQiCharge(0xE);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 2, 0xE);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0xA, 0, 0xC8, 4);
+    BattleAnim_SpawnBeamBoomWaterfallHueChange(50, 0xA, 0x17, 2, 0xC8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0x40, &BattleAnim_RunOscillatingFlameUnderneathPokemon, &D_8218E7F8, 0, 0x20, 7, 0, 0, 0);
 }
 
 /**
@@ -4710,11 +4710,11 @@ void BattleAnim_InitializeSkyAttackUse1(void) {
  * turn uses 0x68.
  */
 void BattleAnim_InitializeSkyAttackUse2(void) {
-    func_8213B644(0, 0x20, 6);
-    func_8213BC00(0, 0x12, 0, 0x80, 0x10);
-    func_8213C0D8(0, 0xFF, 0, 0x10);
-    func_8213B560(0, &func_82152FE0, &D_8218E580, 0xFF, 1, 9, (s32) D_8219A80A, 0x12, 0x20);
-    func_8213B5D8(0, 1, 12, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 9, 0, 0x16, 5);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 6);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0x12, 0, 0x80, 0x10);
+    BattleAnim_SpawnInvisibility(0, 0xFF, 0, 0x10);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunScaryEyes, &D_8218E580, 0xFF, 1, 9, (s32) D_8219A80A, 0x12, 0x20);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 12, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 9, 0, 0x16, 5);
 }
 
 /**
@@ -4885,8 +4885,8 @@ void BattleAnim_InitializeThunderHitSequence(void) {
  * it ran for exactly Solar Beam.
  */
 void BattleAnim_InitializeSolarBeamUse2(void) {
-    func_8213B560(0, &func_821530F4, &D_8218E580, 0xBE, 1, 9, 6, 0x15, 2);
-    func_8213BC00(8, 8, 0, 0xFF, 4);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFillScreenOverlay, &D_8218E580, 0xBE, 1, 9, 6, 0x15, 2);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 4);
     BattleAnim_InitializeSolarBeamUseSequence();
 }
 
@@ -4923,8 +4923,8 @@ void BattleAnim_MegaHitModelFade(Particle* arg0) {
  * ran for exactly Mega Kick, Mega Punch.
  */
 void BattleAnim_InitializeLargePhysicalHitSpark(void) {
-    func_8213BC00(4, 8, 0xFF, 0, 0x20);
-    func_8213B560(4, &func_8215ED1C, &D_8218E580, 0, 1, 9, 0, 0x19, 0);
+    BattleAnim_SpawnOwnerTintRampDetach(4, 8, 0xFF, 0, 0x20);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, &BattleAnim_MegaHitModelFade, &D_8218E580, 0, 1, 9, 0, 0x19, 0);
 }
 
 /**
@@ -4962,9 +4962,9 @@ void BattleAnim_InitializeHornDrillUse(void) {
  * earlier sweep Horn Drill missed and this did not run.
  */
 void BattleAnim_InitializeHornDrillHit(void) {
-    func_8213BC00(0, 0xA, 0, 0xFF, 0x40);
-    func_8213B560(0, &func_82152F44, &D_8218E580, 0, 1, 0x11, (s32) D_8219A80A, 0x1C, 1);
-    func_8213BC00(48, 0xA, 0xFF, 0, 2);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0xA, 0, 0xFF, 0x40);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_CallbackInitModelAnimWait, &D_8218E580, 0, 1, 0x11, (s32) D_8219A80A, 0x1C, 1);
+    BattleAnim_SpawnOwnerTintRampDetach(48, 0xA, 0xFF, 0, 2);
 }
 
 /**
@@ -5006,7 +5006,7 @@ void BattleAnim_RunWeakSpear(Particle* arg0) {
  * it ran for exactly Fury Attack, Peck.
  */
 void BattleAnim_InitializeFuryAttackPeckUse(void) {
-    func_8213B5D8(0, 2, 3, &func_8215EFF8, &D_8218E580, 0, 1, 0x11, 7, 0x20, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 2, 3, &BattleAnim_RunWeakSpear, &D_8218E580, 0, 1, 0x11, 7, 0x20, 0);
 }
 
 /**
@@ -5015,11 +5015,11 @@ void BattleAnim_InitializeFuryAttackPeckUse(void) {
  * it ran for exactly Horn Attack.
  */
 void BattleAnim_InitializeHornAttackUse(void) {
-    func_8213B560(0, &func_8215EFF8, &D_8218E580, 0, 1, 0x11, 7, 0x20, 1);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunWeakSpear, &D_8218E580, 0, 1, 0x11, 7, 0x20, 1);
 }
 
 /**
- * Particle callback: starts a model animation (func_82152730 0), then fades alpha in and
+ * Particle callback: starts a model animation (BattleAnim_SelectParticleModelFrames 0), then fades alpha in and
  * marks itself inactive once the model animation ends.
  * Seen in play (2026-11-14) (Metronome bench, one movie per move, 1P Onix vs Pinsir on Splash, exec
  * breakpoint): ran only for Body Slam, Fly, Seismic Toss, Stomp.
@@ -5031,12 +5031,12 @@ void BattleAnim_CallbackEnd79DefaultDescPaletteFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82152730(particle, 0);
+        BattleAnim_SelectParticleModelFrames(particle, 0);
         return;
     case 2:
-        func_821437E0(particle, 0x33, 0x24);
+        ParticleGfx_ApproachPrimEnvPalettePair(particle, 0x33, 0x24);
         Particle_ApproachPrimAlpha(particle, 0xFF, 0x1D);
-        if (func_8001104C(((uintptr_t)particle->displayObject)) != 0) {
+        if (ModelAnim_IsFinished(((uintptr_t)particle->displayObject)) != 0) {
             Particle_MarkInactive(particle);
         }
         return;
@@ -5062,7 +5062,7 @@ void BattleAnim_InitializeVerticalLandingHitSpark(void) {
  * it ran for exactly Sonic Boom.
  */
 void BattleAnim_InitializeSonicBoomUse(void) {
-    func_8213B644(0, 8, 0x20);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x20);
 }
 
 /**
@@ -5106,7 +5106,7 @@ void BattleAnim_CallbackStart127And128Desc39_Init(Particle* arg0) {
 
 /**
  * Particle callback with several staged waits: init, wait for the spawn step, then a
- * 10-frame delay, then the approach steps of func_821402B8 / func_82140548, then inactive.
+ * 10-frame delay, then the approach steps of Particle_ApproachScaleTarget / Particle_ApproachPrimAlphaThenAdvance, then inactive.
  * Seen in play (2026-11-14) (Metronome bench, 1P Onix vs Pinsir, exec breakpoint + screenshots):
  * Fire Blast: ran from sample 637 for the burn-damage flame on Pinsir.
  */
@@ -5116,19 +5116,19 @@ void BattleAnim_CallbackStart127And128Desc39ScaleFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8215F2B8(particle);
+        BattleAnim_CallbackStart127And128Desc39_Init(particle);
         return;
     case 2:
-        if (func_821406B4(particle) != 0) {
-            func_8213CB3C(particle);
+        if (Particle_DecrementParam0ToZeroThenAdvance(particle) != 0) {
+            Particle_EnableRendering(particle);
             Particle_SetParam0(particle, 0xA);
             return;
         }
         return;
     case 3:
-        func_821402B8(particle);
-        if (func_82140690(particle) != 0) {
-            func_82140548(particle, 0, 0x10);
+        Particle_ApproachScaleTarget(particle);
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
+            Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x10);
             return;
         }
         break;
@@ -5259,7 +5259,7 @@ void BattleAnim_CallbackStart132Desc39DelayedRiseFade(Particle* arg0) {
 
         case 3:
             Particle_ApproachScaleTarget(arg0);
-            func_8213E1FC(arg0, 1.0f);
+            Particle_AddMotionOffsetYScaled(arg0, 1.0f);
             if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
                 Particle_Param0_SetS16_0BCA8(arg0, 0x10);
             }
@@ -5267,7 +5267,7 @@ void BattleAnim_CallbackStart132Desc39DelayedRiseFade(Particle* arg0) {
 
         case 4:
             Particle_ApproachStepMagnitude(arg0, 0x40800000, 0x3F000000); // 4.0f, 0.5f
-            func_8213E1FC(arg0, arg0->stepMagnitude);
+            Particle_AddMotionOffsetYScaled(arg0, arg0->stepMagnitude);
             Particle_PrimAlpha_Approach_0BC2C(arg0, 0, 0x10);
             if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
                 break;

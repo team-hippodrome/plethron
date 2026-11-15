@@ -105,7 +105,7 @@ void BattleAnim_SetupOrphanDescriptor2BSpinFade(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-void func_8213E1FC(Particle* arg0, f32 arg1);
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 /**
  * Particle callback: after the delay shows the particle, flies it out spinning, then
  * fades it.
@@ -144,7 +144,7 @@ void BattleAnim_CallbackOrphanDescriptor2BSpinFade(Particle* arg0) {
     switch (arg0->phase) {
         case 1:
             Particle_ApproachStepMagnitude(arg0, 50.0f, 0.5f);
-            func_8213E1FC(arg0, 1.0f);
+            Particle_AddMotionOffsetYScaled(arg0, 1.0f);
             Particle_UpdateRotatingVelocityXZ(arg0, arg0->stepMagnitude, 0x1000);
             Particle_Rotation_AddX_0A578(arg0, 0x2000);
             Particle_Rotation_AddZ_0A5B0(arg0, 0x3000);
@@ -152,7 +152,7 @@ void BattleAnim_CallbackOrphanDescriptor2BSpinFade(Particle* arg0) {
 
         case 2:
             Particle_ApproachStepMagnitude(arg0, 0.0f, 1.0f);
-            func_8213E1FC(arg0, -2.0f);
+            Particle_AddMotionOffsetYScaled(arg0, -2.0f);
             Particle_UpdateRotatingVelocityXZ(arg0, arg0->stepMagnitude, 0x1000);
             Particle_Rotation_AddX_0A578(arg0, 0x2000);
             Particle_Rotation_AddZ_0A5B0(arg0, 0x3000);
@@ -181,13 +181,13 @@ void BattleAnim_SetupOrphanDescriptor2EScatterFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213CA80(s8 *, M2C_UNK);             /* extern */
-M2C_UNK func_8213CB3C(s8 *);                      /* extern */
-s32 func_8213CB7C(s8 *);                          /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
+s32 Particle_TickDelayAndAdvanceLifecycle(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_EnableRendering(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_IsRenderingEnabled(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_AddRotationZ(s8 *, M2C_UNK);             /* extern */
-s32 func_821406B4(s8 *);                          /* extern */
-M2C_UNK func_821519AC(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupOrphanDescriptor2EScatterFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_spin_scatter_effects.c)
 
 /**
  * Particle lifecycle callback (orphan descriptor2 escatter fade): steps the particle by its
@@ -200,21 +200,21 @@ void BattleAnim_CallbackOrphanDescriptor2EScatterFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_821519AC(particle);
+        BattleAnim_SetupOrphanDescriptor2EScatterFade(particle);
         break;
     case 2:
-        if (func_821406B4(particle) != 0) {
-            func_8213CB3C(particle);
+        if (Particle_DecrementParam0ToZeroThenAdvance(particle) != 0) {
+            Particle_EnableRendering(particle);
         }
         break;
     case 3:
-        func_8213CA80(particle, 70);
+        Particle_TickDelayAndAdvanceLifecycle(particle, 70);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    if (func_8213CB7C(particle) != 0) {
+    if (Particle_IsRenderingEnabled(particle) != 0) {
         Particle_AddVelocityFromRotationTemplate1(particle);
         Particle_AddRotationZ(particle, 0x2000);
     }
@@ -246,7 +246,7 @@ void BattleAnim_SetupPetalDanceLingeringHitEffect(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-void func_8213E1FC(Particle* arg0, f32 arg1);
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_ApplyRotationStepX(Particle* arg0);
 /**
  * Handles the floating pedals that linger when being hit by pedal dance
@@ -300,18 +300,18 @@ void BattleAnim_RunPetalDanceLingeringHitEffect(Particle* arg0) {
     switch (arg0->phase) {
         case 1:
             Particle_ApproachStepMagnitude(arg0, 20.0f, 0.5f);
-            func_8213E1FC(arg0, arg0->motionStep.y);
+            Particle_AddMotionOffsetYScaled(arg0, arg0->motionStep.y);
             Particle_UpdateRotatingVelocityXZ(arg0, arg0->stepMagnitude, arg0->scratchA);
             break;
 
         case 2:
             Particle_ScratchA_Approach_0BF60(arg0, 0, 0x200);
-            func_8213E1FC(arg0, arg0->motionStep.y);
+            Particle_AddMotionOffsetYScaled(arg0, arg0->motionStep.y);
             Particle_UpdateRotatingVelocityXZ(arg0, arg0->stepMagnitude, arg0->scratchA);
             break;
 
         case 3:
-            func_8213E1FC(arg0, arg0->motionStep.y);
+            Particle_AddMotionOffsetYScaled(arg0, arg0->motionStep.y);
             Particle_UpdateRotatingVelocityXZ(arg0, 5.0f, 0x400);
             break;
     }
@@ -369,7 +369,7 @@ void BattleAnim_SetupSlowFallingHitEffect(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-void func_8213E1FC(Particle* arg0, f32 arg1);
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_ApplyRotationStepX(Particle* arg0);
 /**
  * Handles the leaves that spawn when being hit by vine whip and the feathers that spawn when being
@@ -411,7 +411,7 @@ void BattleAnim_RunSlowFallingHitEffect(Particle* arg0) {
     }
 
     if (arg0->phase == 1) {
-        func_8213E1FC(arg0, arg0->motionTarget.y);
+        Particle_AddMotionOffsetYScaled(arg0, arg0->motionTarget.y);
         Particle_UpdateRotatingVelocityXZ(arg0, 5.0f, 0x400);
     }
 

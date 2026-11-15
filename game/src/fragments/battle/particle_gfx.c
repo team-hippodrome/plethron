@@ -118,7 +118,7 @@ void ParticleGfx_LoadTextureRgba16WrapSWithMask(u8* texture, s32 width, s32 heig
 void ParticleGfx_LoadTextureTileRgba16(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureIa16(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureTileIa16(u8* texture, s32 width, s32 height);
-void ParticleGfx_LoadTextureIa8(u8* texture, s32 width, s32 height);
+void ParticleGfx_LoadTextureIa8(u8* texture, s32 width, s32 height); // PORT: signature from the definition (fragments/battle/particle_gfx.c)
 void ParticleGfx_LoadTextureTileIa8(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureIa8WrapST(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureI8(u8* texture, s32 width, s32 height);
@@ -131,8 +131,8 @@ void ParticleGfx_LoadTextureTileI4(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureIa4(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureI4(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureI4WrapST(u8* texture, s32 width, s32 height);
-void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height);
-void ParticleGfx_LoadTextureTileI4Alias(u8* texture, s32 width, s32 height);
+void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height); // PORT: signature from the definition (fragments/battle/particle_gfx.c)
+void ParticleGfx_LoadTextureTileI4Alias(u8* texture, s32 width, s32 height); // PORT: signature from the definition (fragments/battle/particle_gfx.c)
 void ParticleGfx_LoadTextureI4WrapS(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureI4WrapSTNoMirror(u8* texture, s32 width, s32 height);
 void ParticleGfx_LoadTextureI4MultiBlockWrapST(u8* texture, s32 width, s32 height);

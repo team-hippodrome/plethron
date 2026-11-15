@@ -4,18 +4,18 @@
 #include "battle.h"
 #include "matrix.h"
 
-void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4);
+void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)
 Vec3f* BattleAnim_Vec3fSetZero(Vec3f* arg0);
 Vec3f* BattleAnim_Vec3fOffsetByPolarXZ(Vec3f* arg0, Vec3f* arg1, f32 arg2, s16 arg3);
-void BattleAnim_Vec3fSetPolarXZ(Vec3f* dest_vector, f32 magnitude, s16 theta);
+void BattleAnim_Vec3fSetPolarXZ(Vec3f* dest_vector, f32 magnitude, s16 theta); // PORT: signature from the definition (fragments/battle/anim_math.c)
 Vec3f* BattleAnim_Vec3fCopy(Vec3f* dest, Vec3f* src);
 Vec3s* BattleAnim_Vec3sCopy(Vec3s* arg0, Vec3s* arg1);
 Vec3f* BattleAnim_Vec3fScaleComponents(Vec3f* arg0, f32 arg1, f32 arg2, f32 arg3);
 s16 BattleAnim_Atan2sFromPoints(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
 f32 BattleAnim_Distance2D(f32 arg0, f32 arg1, f32 arg2, f32 arg3);
-u16 BattleAnim_RandomRange(s32 range);
-s32 BattleAnim_StepToS16(s16* dest, s16 finish, s16 rate);
-void BattleAnim_ApproachF(f32* dest, f32 value, f32 speed);
+u16 BattleAnim_RandomRange(s32 range); // PORT: signature from the definition (fragments/battle/anim_math.c)
+s32 BattleAnim_StepToS16(s16* dest, s16 finish, s16 rate); // PORT: signature from the definition (fragments/battle/anim_math.c)
+void BattleAnim_ApproachF(f32* dest, f32 value, f32 speed); // PORT: signature from the definition (fragments/battle/anim_math.c)
 void BattleAnim_ApproachS16(s16* dest, s16 value, s16 speed);
 void BattleAnim_ApproachU16(u16* dest, u16 value, s16 speed);
 void Battle_ComputeSplineWeightsVariantA(f32* arg0, f32 arg1);

@@ -15,7 +15,7 @@ void Particle_SetFieldOffsetA8IfNotSentinel(Particle* arg0, s16 arg1);
 void Particle_SetPrimAlphaIfNotSentinel(Particle* arg0, u8 arg1);
 void Particle_SetFieldOffsetAAIfNotSentinel(Particle* arg0, s16 arg1);
 s16 Particle_ScratchA_GetS16_0C068(Particle* arg0);
-s16 Particle_GetParam1(Particle* arg0);
+s16 Particle_GetParam1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_fields.c)
 void BattleAnim_ClearEffectState(void);
 
 void Particle_SetPrimAlpha(s8 *arg0, char arg1);
@@ -87,7 +87,7 @@ void Particle_SetFieldOffsetCEIfNotSentinel(Particle* arg0, u8 arg1) {
  * Sets byteParam0 (0xC9) to arg1, unless the particle pointer is -1.
  * @unverified Name guessed from the code.
  */
-void Particle_SetByteParam0Checked(s8 *particle, unsigned char value)
+void Particle_SetByteParam0Checked(Particle* particle, unsigned char value) // PORT: was s8*
 {
   int new_var; // FAKE: permuter temp
   new_var = particle != ((s8 *) (-1)); // FAKE

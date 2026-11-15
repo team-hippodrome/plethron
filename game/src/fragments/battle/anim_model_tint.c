@@ -6,8 +6,8 @@
 
 #include "m2c_macros.h"
 
-void BattleAnim_SetupDrainFlameHueChange(Particle* arg0);
-void BattleAnim_SetupParticleRecolorTransparent(Particle* arg0);
+void BattleAnim_SetupDrainFlameHueChange(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_model_tint.c)
+void BattleAnim_SetupParticleRecolorTransparent(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_model_tint.c)
 void BattleAnim_SetupWhiteHueChange(Particle* arg0);
 void BattleAnim_SetupDescriptor25AlphaFadeInHold(Particle* arg0);
 void BattleAnim_SetupDescriptor25PaletteFadeOut(Particle* arg0);
@@ -27,14 +27,14 @@ void BattleAnim_SetupDrainFlameHueChange(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-s32 func_8213C484(); // Particle_GetByteParam1 with the s32 return this call needs
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+s16 Particle_GetByteParam1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_fields.c)
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 s32 Particle_ApproachScratchA(s8 *, s16, u8);                 /* extern */
-s32 func_821436A0(s8 *, u8, u8);                  /* extern */
-M2C_UNK func_82144130(s8 *);                      /* extern */
+s32 ParticleGfx_ApproachPrimPalette(Particle* arg0, u16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void BattleAnim_SetupDrainFlameHueChange(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_model_tint.c)
 
 /**
  * Particle callback for an owner model tint: inits the drain or flame hue change, ramps the tint
@@ -47,16 +47,16 @@ void BattleAnim_CallbackOwnerTintPaletteFade(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82144130(arg0);
+        BattleAnim_SetupDrainFlameHueChange(arg0);
         break;
     case 2:
         if (Particle_ApproachScratchA(arg0, arg0->param0, arg0->byteParam2) != 0) {
-            func_8213C9D0(arg0);
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 3:
-        if (func_821436A0(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte (0xA7 on the big-endian N64) */) != 0) {
-            func_8213C9D0(arg0);
+        if (ParticleGfx_ApproachPrimPalette(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte (0xA7 on the big-endian N64) */) != 0) {
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 4:
@@ -64,7 +64,7 @@ void BattleAnim_CallbackOwnerTintPaletteFade(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B28(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
+        Model_SetMaterialColor(((uintptr_t)arg0->pokemon), arg0->prim_r, arg0->prim_g, arg0->prim_b, (s32) arg0->scratchA);
     }
 }
 
@@ -181,12 +181,12 @@ void BattleAnim_SetupInvisibility(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK func_80019B6C(s32, u8);                     /* extern */
+void Model_SetMaterialAlpha(DisplayObject* arg0, u8 arg1); // PORT: signature from the definition (model_renderer.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 s32 Particle_ApproachPrimAlpha(s8 *, u8, u8);                  /* extern */
-M2C_UNK func_82144644(s8 *);                      /* extern */
+void BattleAnim_SetupInvisibility(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_model_tint.c)
 
 /**
  * Particle callback for an owner model alpha fade (used to turn the Pokémon invisible): inits it,
@@ -199,11 +199,11 @@ void BattleAnim_CallbackOwnerModelAlphaFade(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82144644(arg0);
+        BattleAnim_SetupInvisibility(arg0);
         break;
     case 2:
         if (Particle_ApproachPrimAlpha(arg0, arg0->byteParam0, (u8)arg0->param1 /* PORT: low byte (0xA7 on the big-endian N64) */) != 0) {
-            func_8213C9D0(arg0);
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 3:
@@ -211,7 +211,7 @@ void BattleAnim_CallbackOwnerModelAlphaFade(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B6C(((uintptr_t)arg0->pokemon), arg0->prim_a);
+        Model_SetMaterialAlpha(((uintptr_t)arg0->pokemon), arg0->prim_a);
     }
 }
 
@@ -227,9 +227,9 @@ void BattleAnim_SetupParticleRecolorTransparent(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_82144710(s8 *);                      /* extern */
+void BattleAnim_SetupParticleRecolorTransparent(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_model_tint.c)
 
 /**
  * Particle callback queued by start effect 123: init, fade in toward alpha 128, then fade out by 8
@@ -242,7 +242,7 @@ void BattleAnim_CallbackModelBurstAlphaFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82144710(particle);
+        BattleAnim_SetupParticleRecolorTransparent(particle);
         break;
     case 2:
         Particle_ApproachPrimAlpha(particle, 0x80, 4);
@@ -253,7 +253,7 @@ void BattleAnim_CallbackModelBurstAlphaFade(Particle* particle) {
         }
         break;
     }
-    func_80019B28(((uintptr_t)particle->pokemon), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->prim_a);
+    Model_SetMaterialColor(((uintptr_t)particle->pokemon), particle->prim_r, particle->prim_g, particle->prim_b, (s32) particle->prim_a);
 }
 
 /**
@@ -392,7 +392,7 @@ void BattleAnim_SetupDescriptor25AlphaHold(Particle* particle) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-s32 func_82140690();                                /* extern */
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Particle callback for a full-screen color hold: inits it with its color and alpha, then detaches
@@ -407,7 +407,7 @@ void BattleAnim_CallbackDescriptor25AlphaHoldDetach(Particle* arg0) {
         BattleAnim_SetupDescriptor25AlphaHold((Particle*)arg0);
         return;
     case 2:
-        if (func_82140690() != 0) {
+        if (Particle_DecrementParam0ToZero(arg0) != 0) { // PORT: the argument was passed through a0
             Particle_DisableAndDetach(arg0);
         }
         return;

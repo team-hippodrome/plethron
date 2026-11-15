@@ -7,17 +7,17 @@
 
 #include "m2c_macros.h"
 
-void BattleAnim_SetupStrongElectricSpark(Particle* arg0);
+void BattleAnim_SetupStrongElectricSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 void BattleAnim_ApplyThunderThunderboltUseRadialOffset(Particle* arg0);
 void BattleAnim_SetupThunderThunderboltUseEffect(Particle* arg0);
 void BattleAnim_SetupDelayedRisingColumnFade(Particle* arg0);
 void BattleAnim_SetupDelayedRisingColumnRandomScale(Particle* arg0);
-void BattleAnim_SetupSharedDirectionalSprayFade(Particle* arg0);
-void BattleAnim_SetupDirectionalSprayScaledFade(Particle* arg0);
-void BattleAnim_SetupThunderShockOuterJolts(Particle* arg0);
-void BattleAnim_SetupUnregisteredStraightDirStreamFade(Particle* arg0);
-void BattleAnim_SetupEnd28Desc10UpwardBurstFade(Particle* arg0);
-void BattleAnim_SetupEnd28Desc10WideScatterBurstFade(Particle* arg0);
+void BattleAnim_SetupSharedDirectionalSprayFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
+void BattleAnim_SetupDirectionalSprayScaledFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
+void BattleAnim_SetupThunderShockOuterJolts(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
+void BattleAnim_SetupUnregisteredStraightDirStreamFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
+void BattleAnim_SetupEnd28Desc10UpwardBurstFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
+void BattleAnim_SetupEnd28Desc10WideScatterBurstFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 void BattleAnim_InitializeThunderPunchUse(void);
 void BattleAnim_InitializeHyperBeamHitSequence(void);
 
@@ -50,10 +50,10 @@ void BattleAnim_SetupStrongElectricSpark(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214E590(s8 *);                      /* extern */
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupStrongElectricSpark(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle lifecycle callback (start effects18 and73 descriptor11 scatter rise fade): steps the
@@ -68,19 +68,19 @@ void BattleAnim_CallbackStart18And73Desc11ScatterRise(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214E590(particle);
+        BattleAnim_SetupStrongElectricSpark(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x40);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x40);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_82140228(particle, 0x3F800000, 0x3D4CCCCD); // 1.0f, 0.05f
+    Particle_ApproachScale(particle, 0x3F800000, 0x3D4CCCCD); // 1.0f, 0.05f
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -313,10 +313,10 @@ void BattleAnim_SetupSharedDirectionalSprayFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214EC88(s8 *);                      /* extern */
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupSharedDirectionalSprayFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle lifecycle callback (shared directional spray fade): steps the particle by its lifecycle
@@ -331,14 +331,14 @@ void BattleAnim_CallbackSharedDirectionalSprayFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214EC88(particle);
+        BattleAnim_SetupSharedDirectionalSprayFade(particle);
         break;
     case 2:
-        func_82140228(particle, 0x40000000, 0x3E4CCCCD); // 2.0f, 0.2f
-        func_821406B4(particle);
+        Particle_ApproachScale(particle, 0x40000000, 0x3E4CCCCD); // 2.0f, 0.2f
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x40);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x40);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
@@ -372,10 +372,10 @@ void BattleAnim_SetupDirectionalSprayScaledFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214EDE0(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupDirectionalSprayScaledFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle lifecycle callback (shared descriptor13 directional spray scaled fade): steps the
@@ -390,14 +390,14 @@ void BattleAnim_CallbackSharedDesc13DirSprayScaledFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214EDE0(particle);
+        BattleAnim_SetupDirectionalSprayScaledFade(particle);
         break;
     case 2:
-        func_821402B8(particle);
-        func_821406B4(particle);
+        Particle_ApproachScaleTarget(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x40);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x40);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
@@ -435,10 +435,10 @@ void BattleAnim_SetupThunderShockOuterJolts(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214EF84(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupThunderShockOuterJolts(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle lifecycle callback (start effect59 end effect28 directional stream fade): steps the
@@ -453,19 +453,19 @@ void BattleAnim_CallbackStart59End28DirStreamFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214EF84(particle);
+        BattleAnim_SetupThunderShockOuterJolts(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x10);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x10);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_821402B8(particle);
+    Particle_ApproachScaleTarget(particle);
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -498,10 +498,10 @@ void BattleAnim_SetupUnregisteredStraightDirStreamFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214F110(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupUnregisteredStraightDirStreamFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle callback (no reference found) for
@@ -514,19 +514,19 @@ void BattleAnim_CallbackUnregisteredStraightStreamFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214F110(particle);
+        BattleAnim_SetupUnregisteredStraightDirStreamFade(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x10);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x10);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_821402B8(particle);
+    Particle_ApproachScaleTarget(particle);
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -559,10 +559,10 @@ void BattleAnim_SetupEnd28Desc10UpwardBurstFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214F28C(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupEnd28Desc10UpwardBurstFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Particle callback for end effect 28: init, step, fade out by 64, detach.
@@ -574,19 +574,19 @@ void BattleAnim_CallbackEndEffect28StreamA(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214F28C(particle);
+        BattleAnim_SetupEnd28Desc10UpwardBurstFade(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x40);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x40);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_821402B8(particle);
+    Particle_ApproachScaleTarget(particle);
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -616,10 +616,10 @@ void BattleAnim_SetupEnd28Desc10WideScatterBurstFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_821402B8(s8 *);                      /* extern */
-M2C_UNK func_82140548(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_8214F478(s8 *);                      /* extern */
+s32 Particle_ApproachScaleTarget(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachPrimAlphaThenAdvance(Particle* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupEnd28Desc10WideScatterBurstFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_electric_effects.c)
 
 /**
  * Second particle callback for end effect 28: init, step, fade out by 64, detach.
@@ -631,19 +631,19 @@ void BattleAnim_CallbackEndEffect28StreamB(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214F478(particle);
+        BattleAnim_SetupEnd28Desc10WideScatterBurstFade(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x40);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x40);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_821402B8(particle);
+    Particle_ApproachScaleTarget(particle);
     Particle_MoveAlongRotationXYZAlt(particle);
 }
 
@@ -666,13 +666,11 @@ void BattleAnim_InitializeThunderThunderboltUse(void) {
     BattleAnim_CreateRepeatEffectSlotForCurrentOwner(8, 4, 2, BattleAnim_CallbackSharedDirectionalSprayFade, &gBattleAnimParticleDescriptors[0x13], 0x14, 4, 7, 0, 0x25, 0);
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B794(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOut(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E600;
 extern M2C_UNK D_8218E618;
-extern M2C_UNK func_8214E9F0;
-extern M2C_UNK func_8214EBA4;
 
 /**
  * initializes being hit by thunder shock or thunderbolt
@@ -680,21 +678,19 @@ extern M2C_UNK func_8214EBA4;
  * ran for exactly Thunder Shock, Thunderbolt.
  */
 void BattleAnim_InitializeThunderShockThunderboltHit(void) {
-    func_8213B794(0x2C, 4, 0x10, 8, 0xFF);
-    func_8213B644(48, 0x20, 8);
-    func_8213B5D8(0, 8, 5, &BattleAnim_CallbackSharedDirectionalSprayFade, &D_8218E618, 8, 3, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 4, 2, &func_8214E9F0, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 4, 2, &func_8214EBA4, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOut(0x2C, 4, 0x10, 8, 0xFF);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 5, &BattleAnim_CallbackSharedDirectionalSprayFade, &D_8218E618, 8, 3, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunDeterministicRotatingBoltOfLightning, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunRandomRotatingBoltOfLightning, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B794(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK, s32); /* extern */
-M2C_UNK func_8215EC44();                            /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOut(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void BattleAnim_InitializeThunderHitSequence(void); // PORT: signature from the definition (fragments/battle/anim_model_effects.c)
 extern M2C_UNK D_8218E600;
 extern M2C_UNK D_8218E618;
-extern M2C_UNK func_8214E9F0;
-extern M2C_UNK func_8214EBA4;
 
 /**
  * initializes getting hit by thunder
@@ -702,12 +698,12 @@ extern M2C_UNK func_8214EBA4;
  * ran for exactly Thunder.
  */
 void BattleAnim_InitializeThunderHit(void) {
-    func_8213B794(0, 4, 8, 8, 0xC8);
-    func_8213B644(48, 0x20, 8);
-    func_8213B5D8(0, 8, 5, &BattleAnim_CallbackSharedDirectionalSprayFade, &D_8218E618, 8, 3, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 4, 2, &func_8214E9F0, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 4, 2, &func_8214EBA4, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
-    func_8215EC44();
+    BattleAnim_SpawnDesc25AlphaHoldFadeOut(0, 4, 8, 8, 0xC8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 5, &BattleAnim_CallbackSharedDirectionalSprayFade, &D_8218E618, 8, 3, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunDeterministicRotatingBoltOfLightning, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunRandomRotatingBoltOfLightning, &D_8218E600, 0x14, 4, 3, 0, 0x25, 0);
+    BattleAnim_InitializeThunderHitSequence();
 }
 
 /**
@@ -728,9 +724,9 @@ void BattleAnim_InitializeThunderShockUse(void) {
     BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, BattleAnim_RunRandomRotatingBoltOfLightning, &gBattleAnimParticleDescriptors[0xF], 0x14, 2, 1, 0, 0x25, 0);
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213B720(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E608;
 extern M2C_UNK D_8218E620;
 
@@ -741,12 +737,12 @@ extern M2C_UNK D_8218E620;
  * @unverified Name guessed from the code.
  */
 void BattleAnim_EndEffect28ThreePartStream(void) {
-    func_8213B720(34, 4, 0x10, 8);
-    func_8213B644(0, 0x20, 3);
-    func_8213B644(48, 0x20, 8);
-    func_8213B5D8(0, 10, 2, &BattleAnim_CallbackEndEffect28StreamA, &D_8218E608, 0xC, 1, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 5, 3, &BattleAnim_CallbackEndEffect28StreamB, &D_8218E608, 0xC, 2, 3, 0, 0x25, 0);
-    func_8213B5D8(0, 8, 2, &BattleAnim_CallbackStart59End28DirStreamFade, &D_8218E620, 0xC, 3, 3, 0, 0x25, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(34, 4, 0x10, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 3);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 10, 2, &BattleAnim_CallbackEndEffect28StreamA, &D_8218E608, 0xC, 1, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 5, 3, &BattleAnim_CallbackEndEffect28StreamB, &D_8218E608, 0xC, 2, 3, 0, 0x25, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 2, &BattleAnim_CallbackStart59End28DirStreamFade, &D_8218E620, 0xC, 3, 3, 0, 0x25, 0);
 }
 
 /**

@@ -280,7 +280,7 @@ void Particle_MarkInactive(Particle* arg0) {
     arg0->lifecycle = 0;
 }
 
-M2C_UNK func_8213D260();                            /* extern */
+void Particle_ResetPhase(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Ends the particle: clears its lifecycle and the words at 0x08 and 0x0C, then resets its phase.
@@ -289,7 +289,7 @@ void Particle_DisableAndDetach(Particle* arg0) {
     arg0->lifecycle = 0;
     arg0->updateCallback = NULL; // PORT: was the N64 offset 0x08
     arg0->descriptor = NULL; // PORT: was the N64 offset 0x0C
-    func_8213D260();
+    Particle_ResetPhase(arg0); // PORT: the argument was passed through a0
 }
 
 /**

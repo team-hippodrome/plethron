@@ -85,7 +85,7 @@ typedef struct unk_D_83403C60_raw {
 #include "m2c_macros.h"
 
 void BattleAnim_InitStart139Desc42FallingScale(Particle* arg0);
-void BattleAnim_InitStartEffect139Descriptor22SpinFade(Particle* arg0);
+void BattleAnim_InitStartEffect139Descriptor22SpinFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_start_effects.c)
 void BattleAnim_InitExplosionOrbit(Particle* arg0);
 void BattleAnim_InitExplosionBurst(Particle* arg0);
 void BattleAnim_StartEffect138(void);
@@ -156,21 +156,21 @@ void BattleAnim_CallbackStart135Desc1CRisingScaleFade(Particle* arg0) {
     Particle_AddVelocityFromRotationTemplate1(arg0);
 }
 
-u16 func_8213C484(); // Particle_GetByteParam1 with the u16 return this call needs
-M2C_UNK func_8213C9D0(s32);                         /* extern */
-M2C_UNK func_821401D4(s32, M2C_UNK);                /* extern */
-M2C_UNK func_82143478(s32, u16);                    /* extern */
-void BattleAnim_InitStartEffect135ExpandingFlash(s32 arg0)
+s16 Particle_GetByteParam1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_fields.c)
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+void Particle_SetScaleScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void BattleAnim_InitStartEffect135ExpandingFlash(Particle* arg0) // PORT: arg0 was s32
 {
   u16 sp26;
-  sp26 = func_8213C484();
-  func_821401D4(arg0, 0x3F286BCA); // 0.657895f
-  func_82143478(arg0, sp26);
+  sp26 = Particle_GetByteParam1(arg0); // PORT: the argument was passed through a0
+  Particle_SetScaleScaled(arg0, 0x3F286BCA); // 0.657895f
+  ParticleGfx_RecolorPrimEnvFromPalettePair(arg0, sp26);
   if (!arg0)
   {
   }
   Particle_SetTextureFrame(arg0, 2);
-  func_8213C9D0(arg0);
+  Particle_AdvanceLifecycle(arg0);
 }
 
 /**
@@ -287,11 +287,11 @@ void BattleAnim_InitStartEffect139Descriptor22SpinFade(Particle* arg0) {
 }
 
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-void Particle_AddVelocityFromRotationTemplate1(s32 arg0);                      /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+void Particle_AddVelocityFromRotationTemplate1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_82150474(s8 *);                      /* extern */
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_InitStartEffect139Descriptor22SpinFade(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_start_effects.c)
 
 /**
  * Particle callback for start effect 137: initializes on lifecycle 1; on 2 grows, fades out by 8 a
@@ -304,13 +304,13 @@ void BattleAnim_CallbackStartEffect137RiseFade(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82150474(particle);
+        BattleAnim_InitStartEffect139Descriptor22SpinFade(particle);
         return;
     case 2:
-        func_82140228(particle, 0x3DCCCCCD, 0x3C23D70A); // 0.1f, 0.01f
+        Particle_ApproachScale(particle, 0x3DCCCCCD, 0x3C23D70A); // 0.1f, 0.01f
         Particle_ApproachPrimAlpha(particle, 0, 8);
         Particle_AddVelocityFromRotationTemplate1(particle);
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         return;
     case 3:
         Particle_DisableAndDetach(particle);
@@ -517,7 +517,7 @@ void BattleAnim_InitExplosionBurst(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-void func_8213E1FC(Particle* arg0, f32 arg1);
+void Particle_AddMotionOffsetYScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 /**
  * Particle callback for the Selfdestruct/Explosion burst: swells to scale 4 while fading in,
  * then shrinks and emits rings of six sparkle particles (descriptor 0x42) for several
@@ -546,7 +546,7 @@ void BattleAnim_ExplosionBurstEmitter(Particle* arg0) {
             break;
 
         case 4:
-            func_8213E1FC(arg0, 15.0f);
+            Particle_AddMotionOffsetYScaled(arg0, 15.0f);
             Particle_TickDelayAndAdvanceLifecycle(arg0, 10);
             BattleAnim_EmitParticleBurstWithMetadata(arg0, BattleAnim_RunSparkleHit, &gBattleAnimParticleDescriptors[0x42], 6, 0x18, 7);
             break;
@@ -557,19 +557,18 @@ void BattleAnim_ExplosionBurstEmitter(Particle* arg0) {
     }
 }
 
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32); /* extern */
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK D_8218E698;
 extern M2C_UNK D_8218E798;
-extern M2C_UNK func_8215036C;
 
 /**
- * Queues BattleAnim_CallbackStartEffect137RiseFade and func_8215036C on the current owner, 30
+ * Queues BattleAnim_CallbackStartEffect137RiseFade and BattleAnim_CallbackStart139Desc42FallingScaleFade on the current owner, 30
  * repeats each.
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartEffect137RiseFadePair(void) {
-    func_8213B5D8(0, 1, 30, &BattleAnim_CallbackStartEffect137RiseFade, &D_8218E698, 0x10, 1, 0x1E, 0, 0x3B, 0);
-    func_8213B5D8(0, 1, 30, &func_8215036C, &D_8218E798, 0x10, 2, 0x1E, 0, 0x3B, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 30, &BattleAnim_CallbackStartEffect137RiseFade, &D_8218E698, 0x10, 1, 0x1E, 0, 0x3B, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 30, &BattleAnim_CallbackStart139Desc42FallingScaleFade, &D_8218E798, 0x10, 2, 0x1E, 0, 0x3B, 0);
 }
 
 /**

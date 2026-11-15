@@ -41,7 +41,7 @@ void ParticleGfx_LoadTexCallbackI4FrameMod8_64x64(UNUSED Particle* arg0, u8* tex
 void ParticleGfx_TextureCallbackNop(void) {
 }
 
-M2C_UNK func_8216C008(s32, M2C_UNK, M2C_UNK);       /* extern */
+void ParticleGfx_LoadTextureTileI4Alias(u8* texture, s32 width, s32 height); // PORT: signature from the definition (fragments/battle/particle_gfx.c)
 
 /**
  * Texture callback: loads 24x24 I4 frame (byte 0xC3) of the texture at arg1 as a tile.
@@ -50,8 +50,8 @@ M2C_UNK func_8216C008(s32, M2C_UNK, M2C_UNK);       /* extern */
  * Whip, Water Gun, Waterfall.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackTileI4FrameC3_24x24(s8 *particle, s32 texture) {
-    func_8216C008((M2C_FIELD(particle, s8 *, 0xC3) * 0x120) + texture, 0x18, 0x18);
+void ParticleGfx_LoadTexCallbackTileI4FrameC3_24x24(Particle* particle, s32 texture) { // PORT: was s8*
+    ParticleGfx_LoadTextureTileI4Alias((M2C_FIELD(particle, s8 *, 0xC3) * 0x120) + texture, 0x18, 0x18);
 }
 
 /**
@@ -63,14 +63,14 @@ void ParticleGfx_LoadTexCallbackI4FrameMod10_32x64(UNUSED Particle* arg0, u8* te
     ParticleGfx_LoadTextureI4Alias(&texture[(gParticleFrameCounter % 10) * (32 * 64 / 2)], 32, 64);
 }
 
-M2C_UNK func_8216BFE8(s32, M2C_UNK, M2C_UNK);       /* extern */
+void ParticleGfx_LoadTextureI4Alias(u8* texture, s32 width, s32 height); // PORT: signature from the definition (fragments/battle/particle_gfx.c)
 
 /**
  * Texture callback: loads 32x64 I4 frame (byte 0xC3) of the texture at arg1.
  * @unverified Name guessed from the code.
  */
-void ParticleGfx_LoadTexCallbackI4FrameC3_32x64(s8 *particle, s32 texture) {
-    func_8216BFE8((M2C_FIELD(particle, s8 *, 0xC3) << 0xA) + texture, 0x20, 0x40);
+void ParticleGfx_LoadTexCallbackI4FrameC3_32x64(Particle* particle, s32 texture) { // PORT: was s8*
+    ParticleGfx_LoadTextureI4Alias((M2C_FIELD(particle, s8 *, 0xC3) << 0xA) + texture, 0x20, 0x40);
 }
 
 /**

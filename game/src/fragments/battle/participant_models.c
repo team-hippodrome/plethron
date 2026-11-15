@@ -405,7 +405,7 @@ void ParticipantModels_UnusedNopB(UNUSED s32 arg0, UNUSED s32 arg1);
 void ParticipantModels_UnusedNopC(void);
 void ParticipantModels_UnusedNopD(void);
 void BattleAnim_RegisterEffectSlot(func_D_84390300 arg0, func_D_84390320 arg1);
-void BattleAnim_SetQueuedEffectList(u8 effect_list_index);
+void BattleAnim_SetQueuedEffectList(u8 effect_list_index); // PORT: signature from the definition (fragments/battle/participant_models.c)
 
 /**
  * Empty.
@@ -414,7 +414,7 @@ void BattleAnim_SetQueuedEffectList(u8 effect_list_index);
 void ParticipantModels_UnusedNopA(void) {
 }
 
-M2C_UNK func_80003824(M2C_UNK *, s8 *, s8 *, M2C_UNK); /* extern */
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3); // PORT: signature from the definition (asset_archive.c)
 extern s8 D_00434C00;
 extern u32 D_8218A2DC[];
 extern u32 D_8218A544[];
@@ -423,10 +423,10 @@ extern u32 D_8218A544[];
  * (display object objectType - 1 indexes the two word tables D_8218A544 and
  * D_8218A2DC; the low 24 bits of each entry are an offset from D_00434C00)
  * and hands that record, together with the address 0x168 bytes after it, to
- * func_80003824 with the destination D_FLT_8219A5B0 and a final argument of 0.
+ * Dma_WriteChunks with the destination D_FLT_8219A5B0 and a final argument of 0.
  * The record from D_8218A2DC is used when the scene's unk_1C is 9; otherwise it
  * is used when BattleAnim_RandomRange(100) is below 0x33, and the record from
- * D_8218A544 when it is 0x33 or higher.  What func_80003824 does with the two
+ * D_8218A544 when it is 0x33 or higher.  What Dma_WriteChunks does with the two
  * addresses (0x168 is the size of a DisplayObject) is not established here.
  * Note: the local pad arrays only reproduce the retail stack layout, and the
  * order of the two table lookups matches the register allocation.
@@ -443,14 +443,14 @@ void BattleCamera_LoadSpeciesPathPoints(ActivePokemon* active_pokemon) {
     temp_a1 = (s8*)((D_8218A2DC[temp_a2] & 0xFFFFFF) + (uintptr_t)&D_00434C00);
     sp18 = (s8*)((D_8218A544[temp_a2] & 0xFFFFFF) + (uintptr_t)&D_00434C00);
     if (sBattleScene.scene->mode == 9) {
-        func_80003824(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+        Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
         return;
     }
     if (BattleAnim_RandomRange(0x64) >= 0x33) {
-        func_80003824(&D_FLT_8219A5B0, sp18, sp18 + 0x168, 0);
+        Dma_WriteChunks(&D_FLT_8219A5B0, sp18, sp18 + 0x168, 0);
         return;
     }
-    func_80003824(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+    Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
 }
 
 /**
@@ -460,9 +460,9 @@ void BattleCamera_LoadSpeciesPathPoints(ActivePokemon* active_pokemon) {
 void ParticipantModels_UnusedNopB(UNUSED s32 unused0, UNUSED s32 unused1) {
 }
 
-void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
-void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
-void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);
+void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)
+void Camera_ComputeEyeFromAngles(Vec3f* from, Vec3f* to, f32 dist, s16 rotation_x, s16 rotation_y); // PORT: signature from the definition (matrix.c)
+void BattleScene_SetCameraAtFromAnchor(ActivePokemon* arg0, CameraNode* arg1, Vec3f arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 extern f32 D_FLT_8219A718;
 
 /**
@@ -495,15 +495,15 @@ loop:
     }
     D_8219A5A0->splineKeyframeCount = count;
     BattleScene_GetParticipantAimPoint(active_pokemon, &D_FLT_8219A718);
-    func_8212254C((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
+    BattleScene_SetCameraAtFromAnchor((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
     D_FLT_8219A718 *= active_pokemon->facingDirection;
-    func_8210BCF0(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
-    func_8000EEBC(((u8*)&camera->view.targetPosition.x), (Vec3f*)(((u8*)&camera->view.eyePosition.x)), sp40, sp3E, active_pokemon->facingDirection * *(sp3Cp = &sp3C)); // FAKE
+    BattleAnim_CalculateDistanceAngles(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
+    Camera_ComputeEyeFromAngles(((u8*)&camera->view.targetPosition.x), (Vec3f*)(((u8*)&camera->view.eyePosition.x)), sp40, sp3E, active_pokemon->facingDirection * *(sp3Cp = &sp3C)); // FAKE
     BattleCamera_CaptureModelOrbit(active_pokemon, camera);
 }
 
-void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
-void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
+void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)
+void Camera_ComputeEyeFromAngles(Vec3f* from, Vec3f* to, f32 dist, s16 rotation_x, s16 rotation_y); // PORT: signature from the definition (matrix.c)
 extern f32 D_FLT_8219A718;
 /**
  * Places the camera eye on path point base_index + index around Pokemon active_pokemon's aim point, mirrored
@@ -518,8 +518,8 @@ void BattleCamera_PlacePathPointAroundParticipant(ActivePokemon* active_pokemon,
     s16* sp26p;
     BattleScene_GetParticipantAimPoint(active_pokemon, &D_FLT_8219A718);
     D_FLT_8219A718 *= active_pokemon->facingDirection;
-    func_8210BCF0(&D_FLT_8219A718, &points[base_index + index], &sp2C, &sp28, &sp26);
-    func_8000EEBC(((u8*)&camera->view.targetPosition.x), &out_points[index], sp2C, sp28, active_pokemon->facingDirection * *(sp26p = &sp26)); // FAKE
+    BattleAnim_CalculateDistanceAngles(&D_FLT_8219A718, &points[base_index + index], &sp2C, &sp28, &sp26);
+    Camera_ComputeEyeFromAngles(((u8*)&camera->view.targetPosition.x), &out_points[index], sp2C, sp28, active_pokemon->facingDirection * *(sp26p = &sp26)); // FAKE
 }
 
 extern f32 D_FLT_82189350[][4];
@@ -688,7 +688,7 @@ s32 BattleCamera_StepPathLateEase(CameraNode* camera, ActivePokemon* active_poke
     return 0;
 }
 
-M2C_UNK func_80003824(M2C_UNK *, s8 *, s8 *, M2C_UNK); /* extern */
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3); // PORT: signature from the definition (asset_archive.c)
 extern s8 D_00434C00;
 extern s32 D_8218A2D4;
 extern s8 D_FLT_8219A5B0;
@@ -701,13 +701,13 @@ void BattleCamera_LoadDemoPathPoints(s32 unused) {
     s8 *temp_a1;
 
     temp_a1 = (D_8218A2D4 & 0xFFFFFF) + &D_00434C00;
-    func_80003824(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
+    Dma_WriteChunks(&D_FLT_8219A5B0, temp_a1, temp_a1 + 0x168, 0);
 }
 
 extern u8 D_8219A4F4;
-void func_8210BCF0(f32*, Vec3f*, f32*, s16*, s16*);
-void func_8000EEBC(void*, Vec3f*, f32, s16, s32);
-void func_8212254C(s32, s32, Vec3f, s32, s32, f32, f32);
+void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)
+void Camera_ComputeEyeFromAngles(Vec3f* from, Vec3f* to, f32 dist, s16 rotation_x, s16 rotation_y); // PORT: signature from the definition (matrix.c)
+void BattleScene_SetCameraAtFromAnchor(ActivePokemon* arg0, CameraNode* arg1, Vec3f arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 extern f32 D_FLT_8219A718;
 
 /**
@@ -739,10 +739,10 @@ loop:
     }
     D_8219A5A0->splineKeyframeCount = count;
     BattleScene_GetParticipantAimPoint(active_pokemon, &D_FLT_8219A718);
-    func_8212254C((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
+    BattleScene_SetCameraAtFromAnchor((uintptr_t)active_pokemon, (uintptr_t)camera, *(Vec3f*)&D_FLT_8219A718, 0, 0, 0.0f, (f32)0.0);
     D_FLT_8219A718 *= active_pokemon->facingDirection;
-    func_8210BCF0(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
-    func_8000EEBC(((u8*)&camera->view.targetPosition.x), (Vec3f*)(((u8*)&camera->view.eyePosition.x)), sp40, sp3E, active_pokemon->facingDirection * *(sp3Cp = &sp3C)); // FAKE
+    BattleAnim_CalculateDistanceAngles(&D_FLT_8219A718, (Vec3f*)&D_FLT_8219A5B0, &sp40, &sp3E, &sp3C);
+    Camera_ComputeEyeFromAngles(((u8*)&camera->view.targetPosition.x), (Vec3f*)(((u8*)&camera->view.eyePosition.x)), sp40, sp3E, active_pokemon->facingDirection * *(sp3Cp = &sp3C)); // FAKE
     BattleCamera_CaptureModelOrbit(active_pokemon, camera);
 }
 
@@ -845,11 +845,11 @@ s32 BattleCamera_StepDemoPath(CameraNode* camera, ActivePokemon* active_pokemon)
     return 0;
 }
 
-M2C_UNK func_82136338();                            /* extern */
+void BattleAnim_ProcessQueuedEffects(void); // PORT: signature from the definition (fragments/battle/participant_models.c)
 M2C_UNK BattleAnim_AdvanceFrameCounters();                            /* extern */
 M2C_UNK BattleAnim_UpdateParticlePool();                            /* extern */
-M2C_UNK func_8213AE68();                            /* extern */
-M2C_UNK func_8216D970();                            /* extern */
+void BattleAnim_TickEffectSlots(void); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void BattleAnim_EndEffect16_NoOpDraw(void); // PORT: signature from the definition (fragments/battle/anim_stubs.c)
 
 /**
  * Runs the per-frame updates of the battle effect systems: queued effects, effect slots and the
@@ -858,10 +858,10 @@ M2C_UNK func_8216D970();                            /* extern */
  */
 void BattleAnim_UpdateEffectSystems(CameraNode* unused) { // PORT: was s32
     BattleAnim_AdvanceFrameCounters();
-    func_82136338();
-    func_8213AE68();
+    BattleAnim_ProcessQueuedEffects();
+    BattleAnim_TickEffectSlots();
     BattleAnim_UpdateParticlePool();
-    func_8216D970();
+    BattleAnim_EndEffect16_NoOpDraw();
 }
 
 /**
@@ -932,7 +932,7 @@ extern u8* D_8218F184[];
 extern func_D_84390320 D_821926F8[];
 extern func_D_84390320 D_82191F28[];
 extern func_D_84390320 D_82192310[];
-void func_8213608C(s16 arg0);
+void BattleAnim_RunEffectInitEnd(s16 arg0);
 /**
  * Runs effect list arg1 of move (or resource list) arg0: starts the list's effects in
  * order and registers their callbacks.
@@ -985,7 +985,7 @@ void BattleAnim_RunEffectList(s32 arg0, s32 arg1, s32 arg2) {
         }
 
         while (*sp2C != 0) {
-            func_8213608C(*sp2C);
+            BattleAnim_RunEffectInitEnd(*sp2C);
             D_82191F28[*sp2C]();
             BattleAnim_RegisterEffectSlot(D_82192310[*sp2C], D_821926F8[*sp2C]);
             sp2C++;

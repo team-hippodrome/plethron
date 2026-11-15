@@ -377,40 +377,40 @@ extern u8* sMoveAnimEffectScripts[][5];
 #include "m2c_macros.h"
 
 u8 BattleAnim_GetCurrentEffectList(void);
-void BattleAnim_SetQueuedResourceListId(u8 arg0);
+void BattleAnim_SetQueuedResourceListId(u8 arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 u8 BattleAnim_GetQueuedResourceListId(void);
-s16 BattleAnim_GetQueuedMoveId(void);
+s16 BattleAnim_GetQueuedMoveId(void); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_QueueMoveEffectScript(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
 void BattleAnim_QueueMoveEffectEnd(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
 void BattleAnim_QueueChargingMoveEffectScript(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternate_anchor);
-void BattleAnim_QueueEffectList3(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternative_anchor);
+void BattleAnim_QueueEffectList3(s32 move_id, ActivePokemon* user, ActivePokemon* user_fallback, s16 default_anchor, s16 alternative_anchor); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_QueueEffectList6(s32 move_id, ActivePokemon* owner);
 void BattleAnim_QueueEffectList5(s32 arg0, ActivePokemon* arg1);
 void BattleAnim_QueueEffectList6Alt(s32 arg0, ActivePokemon* arg1);
-void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner);
+void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_RegisterAssetTable(arg1_func_80019420* arg0);
 void BattleAnim_ResetAssetTable(void);
 void BattleAnim_BuildResourceListForMove(s16 arg0);
-void BattleAnim_LoadMoveResourceList(BattleSide* battle_session_teams, s16 move_id);
-void BattleAnim_LoadModeResourceList(BattleSide* battle_session_teams, s16 mode);
+void BattleAnim_LoadMoveResourceList(BattleSide* battle_session_teams, s16 move_id); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
+void BattleAnim_LoadModeResourceList(BattleSide* battle_session_teams, s16 mode); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_RegisterAllAssetTables(void);
 void BattleAnim_RegisterAssetTablesForSession(BattleSide* battle_session_teams);
 void BattleAnim_ResetDisplayContexts(void);
 Particle* BattleAnim_GetOwnerContextParticle(DisplayObject* arg0);
-DisplayObject* BattleAnim_AllocOwnerDisplayContext(Particle* arg0);
+DisplayObject* BattleAnim_AllocOwnerDisplayContext(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_FreeOwnerDisplayContext(DisplayObject* arg0);
 DisplayObject* BattleAnim_AllocParticleDisplayContext(Particle* arg0);
 void BattleAnim_FreeParticleDisplayContext(DisplayObject* arg0);
 void BattleAnim_InitModelWithAnim(DisplayObject* arg0, s16 arg1, s16 arg2);
 void BattleAnim_SetModelAnimFrame(DisplayObject* arg0, s16 arg1);
-void BattleAnim_InitModel(DisplayObject* arg0, s16 arg1);
+void BattleAnim_InitModel(DisplayObject* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1);
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1);
 s32 BattleAnim_IsModelAnimComplete(DisplayObject* arg0);
 void BattleAnim_UpdateEffectCallbacks(UNUSED CameraNode* arg0);
 void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0);
 
-void BattleAnim_SetQueuedEffectList(u8 effect_list_index);
+void BattleAnim_SetQueuedEffectList(u8 effect_list_index); // PORT: signature from the definition (fragments/battle/participant_models.c)
 void BattleAnim_QueueMoveEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4);
 
 /**
@@ -449,7 +449,7 @@ s16 BattleAnim_GetQueuedMoveId(void) {
     return sBattleAnimQueuedMoveId;
 }
 
-M2C_UNK func_8213641C(M2C_UNK);                     /* extern */
+void BattleAnim_SetQueuedEffectList(u8 effect_list_index); // PORT: signature from the definition (fragments/battle/participant_models.c)
 extern s32 D_8219A7CC;
 extern s32 D_8219A7D4;
 extern s32 D_8219A7D8;
@@ -469,7 +469,7 @@ void BattleAnim_QueueMoveEffect(s32 arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4
     D_8219A7D8 = 1;
     D_8219A7D4 = arg0;
     D_8219A7CC = 0;
-    func_8213641C(0);
+    BattleAnim_SetQueuedEffectList(0);
     D_8219A80C = arg3;
     D_8219A80E = arg4;
     D_8219A810 = arg1;
@@ -576,7 +576,7 @@ void BattleAnim_QueueEffectList9(s32 arg0) {
     D_8219A800 = arg0;
 }
 
-M2C_UNK func_8213644C(u8);                          /* extern */
+void BattleAnim_SetQueuedResourceListId(u8 arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 extern s32 D_8219A7E8;
 extern s16 D_8219A80C;
 extern s32 D_8219A810;
@@ -588,7 +588,7 @@ extern s32 D_8219A810;
  */
 void BattleAnim_QueueEffectList(u8 arg0, s32 arg1) {
     D_8219A7E8 = 1;
-    func_8213644C(arg0);
+    BattleAnim_SetQueuedResourceListId(arg0);
     D_8219A810 = arg1;
     if (arg0 == 3) {
         D_8219A80C = 7;
@@ -606,8 +606,8 @@ void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner) {
     BattleAnim_StopParticlesForOwnerCategory(category, owner);
 }
 
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
-M2C_UNK func_8213C220(M2C_UNK, M2C_UNK);            /* extern */
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnCategory17MarkerSlot(s32 arg0, u8 arg1); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Shared start-effect init (effects 0, 5, 9 and 19): spawns a category 17 marker slot (0x80, 1) and
@@ -615,18 +615,18 @@ M2C_UNK func_8213C220(M2C_UNK, M2C_UNK);            /* extern */
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartEffectDefaultTint(void) {
-    func_8213C220(0x80, 1);
-    func_8213B644(0, 0x20, 8);
+    BattleAnim_SpawnCategory17MarkerSlot(0x80, 1);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 8);
 }
 
-M2C_UNK func_8213B644(M2C_UNK, M2C_UNK, M2C_UNK);   /* extern */
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Shared end-effect init (effects 0, 1, 9 and 11): spawns a global tint fade (0, 32, 8).
  * @unverified Name guessed from the code.
  */
 void BattleAnim_EndEffectDefaultTint(void) {
-    func_8213B644(0, 0x20, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 8);
 }
 
 /**
@@ -1052,11 +1052,11 @@ void BattleAnim_DrawEffectCallbacks(UNUSED CameraNode* arg0) {
     }
 }
 
-M2C_UNK func_82137160();                            /* extern */
+void BattleAnim_Initialize(void); // PORT: signature from the definition (fragments/battle/anim_init.c)
 extern CameraNode* D_8219A878; // PORT: the camera (was s32)
 /**
- * Effect list command handler: 0 resets (func_82137160), 2 selects list arg1, 5 calls
- * func_8216D720(arg1); 1, 3 and 4 do nothing. Returns 0.
+ * Effect list command handler: 0 resets (BattleAnim_Initialize), 2 selects list arg1, 5 calls
+ * BattleAnim_RenderEffectsFrame(arg1); 1, 3 and 4 do nothing. Returns 0.
  * @unverified Name guessed from the code.
  */
 s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1) { // PORT: arg1 is the camera (was s32)
@@ -1066,7 +1066,7 @@ s32 BattleAnim_DispatchPresentation(u32 arg0, CameraNode* arg1) { // PORT: arg1 
     case 4:
         break;
     case 0:
-        func_82137160();
+        BattleAnim_Initialize();
         break;
     case 2:
         D_8219A878 = arg1;

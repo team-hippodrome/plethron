@@ -12,8 +12,8 @@ extern BattleMessageQueues* gBattleMessageQueues;
 #include "m2c_macros.h"
 
 void Battle_ClearAllMessageQueues(void);
-void Battle_ClearMessageCursor(void);
-void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...);
+void Battle_ClearMessageCursor(void); // PORT: signature from the definition (fragments/battle/message.c)
+void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...); // PORT: signature from the definition (fragments/battle/message.c)
 void BattleMessage_UnusedNopA(void);
 void BattleMessage_UnusedNopB(void);
 void BattleScene_ResetMessageQueue(void);
@@ -69,7 +69,7 @@ void BattleMenu_DrawSide0Menus(ActivePokemon* arg0, ActivePokemonState* arg1) {
     }
 }
 
-void func_82118738(ActivePokemon*, s16, s16, u16, s32);
+void BattleHud_DrawMonStatusBoxOpponent(ActivePokemon*, s16, s16, u16, s32);
 /**
  * Draws side 1's status box and whichever battle menu its state has open (command, move, confirm, surrender).
  */
@@ -77,9 +77,9 @@ void BattleMenu_DrawSide1Menus(ActivePokemon* arg0, ActivePokemonState* arg1) {
     TeamRoster* sp2C = arg0->side->teamMember[arg0->thumbnail.shownTeamMemberIndex];
 
     if (arg1->selectedCommandOption == 3) {
-        func_82118738(arg0, arg0->thumbnail.camera->viewport.x - 0x20, arg0->thumbnail.camera->viewport.y - 2, arg1->actionDelayTimer, 1);
+        BattleHud_DrawMonStatusBoxOpponent(arg0, arg0->thumbnail.camera->viewport.x - 0x20, arg0->thumbnail.camera->viewport.y - 2, arg1->actionDelayTimer, 1);
     } else {
-        func_82118738(arg0, arg0->thumbnail.camera->viewport.x - 0x20, arg0->thumbnail.camera->viewport.y - 2, arg1->actionDelayTimer, 0);
+        BattleHud_DrawMonStatusBoxOpponent(arg0, arg0->thumbnail.camera->viewport.x - 0x20, arg0->thumbnail.camera->viewport.y - 2, arg1->actionDelayTimer, 0);
     }
 
     if ((arg1->selectedCommandOption != 3) && (arg0->thumbnail.camera->viewport.x == 0x103)) {
@@ -238,8 +238,8 @@ void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...) {
     arg0[len] = 0;
 }
 
-void func_8211EE8C(void);
-void func_8211EEC0(void*, s8*);
+void Battle_ClearMessageCursor(void); // PORT: signature from the definition (fragments/battle/message.c)
+void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...); // PORT: signature from the definition (fragments/battle/message.c)
 void Announcer_CommentOnSideMessage(s32);
 void Announcer_CommentOnMessage(s32);
 
@@ -251,10 +251,10 @@ void Announcer_CommentOnMessage(s32);
 void BattleMessage_ShowForSide(s8* arg0, s32 side) {
     ActivePokemon* ap;
 
-    func_8211EE8C();
+    Battle_ClearMessageCursor();
     ap = sActivePokemon[side];
     gBattleMessageQueues->controllerPort = ap->side->teamMember[ap->thumbnail.shownTeamMemberIndex]->controllerPort;
-    func_8211EEC0(gBattleMessageQueues->fullText, arg0 + 1);
+    Battle_SimpleStringFormat(gBattleMessageQueues->fullText, arg0 + 1);
     if (!(arg0[0] & 0x80)) {
         Announcer_CommentOnSideMessage(arg0[0] & 0x7F);
     } else {
@@ -334,7 +334,7 @@ void ActivePokemon_ClearCaption(ActivePokemon* active_pokemon) {
  * session entry selected by state.unk_2D_zero (+0x7B9) + 2 (from the table at
  * ActivePokemon +0x85C) into gBattleMessageQueues->controllerPort, sets
  * captionState.unk_00 to 1, and formats the string arg1 into
- * captionState.unk_48 with func_8211EEC0 (Battle_SimpleStringFormat). The
+ * captionState.unk_48 with Battle_SimpleStringFormat (Battle_SimpleStringFormat). The
  * function is variadic: the extra arguments are the format's values, which is
  * why retail stores $a2/$a3 to their stack homes.
  */
@@ -348,7 +348,7 @@ void ActivePokemon_ClearCaption(ActivePokemon* active_pokemon) {
 void ActivePokemon_ShowCaption(ActivePokemon* arg0, s8* arg1, ...) {
     gBattleMessageQueues->controllerPort = arg0->side->teamMember[arg0->state.menuTeamMemberIndex]->controllerPort;
     arg0->captionState.active = 1;
-    func_8211EEC0(&arg0->captionState.fullText, arg1);
+    Battle_SimpleStringFormat(&arg0->captionState.fullText, arg1);
 }
 
 extern ActivePokemon* sSide1ActivePokemon;
@@ -424,8 +424,8 @@ void BattleScene_ResetMessageQueue(void) {
     Battle_ClearMessageCursor();
 }
 
-void func_8211F1E0(ActivePokemon*, ActivePokemonState*, ActivePokemonState*);
-void func_8211D3A8(void);
+void Battle_DrawCompactStatusBoxesIfVisible(void); // PORT: signature from the definition (fragments/battle/message.c)
+void BattleScene_DrawStripWipeIfActive(void);
 void BattleText_DrawTextBoxFrame(void);
 
 /**
@@ -445,21 +445,21 @@ void Battle_RenderHud(void) {
             BattleMenu_DrawSide1Menus(sActivePokemon[1], s1);
             ActivePokemon_TickCaptionTypewriter(sActivePokemon[0]);
             ActivePokemon_TickCaptionTypewriter(sActivePokemon[1]);
-            func_8211D3A8();
+            BattleScene_DrawStripWipeIfActive();
             break;
         case 2:
-            func_8211F1E0(sActivePokemon[0], s0, s1);
-            func_8211D3A8();
+            Battle_DrawCompactStatusBoxesIfVisible(); // PORT: the arguments were ignored
+            BattleScene_DrawStripWipeIfActive();
             break;
         case 4:
         case 8:
             BattleMessage_TickTypewriter();
-            func_8211D3A8();
+            BattleScene_DrawStripWipeIfActive();
             break;
         case 5:
         case 6:
             Battle_DrawSpectatorModeBackgroundPanel(sActivePokemon[0], s0, s1);
-            func_8211D3A8();
+            BattleScene_DrawStripWipeIfActive();
             break;
         case 9:
         case 10:

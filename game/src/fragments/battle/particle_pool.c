@@ -11,56 +11,54 @@ extern ParticleDescriptor gDefaultParticleDescriptor;
 #include "m2c_macros.h"
 
 void BattleAnim_FreeEffectSlot(BattleAnimEffectSlot* arg0);
-Particle* Particle_New(void);
-Particle* Particle_AllocChain(u8 arg0);
-void BattleAnim_EmitParticleBurst(Particle* arg0, ParticleUpdateCallback arg1, ParticleDescriptor* arg2, s16 arg3);
+Particle* Particle_New(void); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+Particle* Particle_AllocChain(u8 arg0); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void BattleAnim_EmitParticleBurst(Particle* arg0, ParticleUpdateCallback arg1, ParticleDescriptor* arg2, s16 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 void BattleAnim_UpdateOrDestroyParticle(Particle* arg0);
 void BattleAnim_SpawnSingleParticle(BattleAnimEffectSlot* arg0);
 void BattleAnim_DispatchParticleEmission(BattleAnimEffectSlot* arg0);
-void BattleAnim_TickEffectSlots(void);
+void BattleAnim_TickEffectSlots(void); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 s32 Particle_CountActiveAlias(void);
 void BattleAnim_ReleaseParticleModel(Particle* arg0);
 s32 BattleAnim_IsEffectSpawningEnabled(void);
 void BattleAnim_EnableEffectSpawning(void);
 void Particle_UpdateFrameCountersAlias(void);
-void BattleAnim_CleanupEffects(s32 cleanup_mode);
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 void BattleAnim_ResetSpawnDelay(void);
-void BattleAnim_SetSpawnDelay(s32 arg0);
-void BattleAnim_AddSpawnDelay(s32 arg0);
+void BattleAnim_SetSpawnDelay(s32 arg0); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+void BattleAnim_AddSpawnDelay(s32 arg0); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 void BattleAnim_ResetSpawnDelayAlias(void);
 BattleAnimEffectSlot* BattleAnim_CreateEffectSlot(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4,
                               ActivePokemon* arg5, s16 arg6, s16 arg7, u8 arg8, u8 arg9, u8 argA, u8 argB);
-BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5,
-                              u8 arg6, u8 arg7, u8 arg8);
-BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5,
-                              s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA);
-BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2);
-BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4);
-BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(s32 arg0, s16 arg1, s16 arg2, u8 arg3);
-BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOut(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4);
+BattleAnimEffectSlot* BattleAnim_CreateEffectSlotForCurrentOwner(s32 arg0, func_unk_D_8140E724 arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnGlobalTintColorFadeDetach(s32 arg0, s16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnWhiteHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOut(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOutRepeating(s32 arg0, s32 arg1, s8 arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6);
-BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaFadeInHoldFullAlpha(s32 arg0, s16 arg1, s16 arg2, u8 arg3);
-BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaFadeInHold(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4);
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaFadeInHoldFullAlpha(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaFadeInHold(s32 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaFadeInHoldRepeating(s32 arg0, s32 arg1, s8 arg2, s16 arg3, s16 arg4, u8 arg5, u8 arg6);
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldDetachFullAlpha(s32 arg0, s16 arg1, u8 arg2);
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldDetach(s32 arg0, s16 arg1, u8 arg2, u8 arg3);
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldDetachRepeating(s32 arg0, s32 arg1, s8 arg2, s16 arg3, u8 arg4, u8 arg5);
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25PaletteFadeOut(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 BattleAnimEffectSlot* BattleAnim_SpawnDesc25PaletteFadeIn(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
-BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintRampDetach(s32 arg0, u8 arg1, s16 arg2, s16 arg3, s16 arg4);
-BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintPulseDetach(s32 arg0, s16 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5);
+BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintRampDetach(s32 arg0, u8 arg1, s16 arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintPulseDetach(s32 arg0, s16 arg1, u8 arg2, s16 arg3, s16 arg4, s16 arg5); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintHoldFadeDetach(s32 arg0, s16 arg1, u8 arg2, s16 arg3, s16 arg4);
-BattleAnimEffectSlot* BattleAnim_SpawnBeamBoomWaterfallHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
+BattleAnimEffectSlot* BattleAnim_SpawnBeamBoomWaterfallHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintPaletteApproachStopAlt(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
-BattleAnimEffectSlot* BattleAnim_SpawnIceBeamBlizzardHitHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5);
+BattleAnimEffectSlot* BattleAnim_SpawnIceBeamBlizzardHitHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintPaletteCycleVariant(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5);
-BattleAnimEffectSlot* BattleAnim_SpawnDrainFlameHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5);
+BattleAnimEffectSlot* BattleAnim_SpawnDrainFlameHueChange(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnOwnerTintRandomPaletteCycle(s32 arg0, s16 arg1, u8 arg2);
-BattleAnimEffectSlot* BattleAnim_SpawnRainbowHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3);
-BattleAnimEffectSlot* BattleAnim_SpawnInvisibility(s32 arg0, s16 arg1, s16 arg2, s16 arg3);
+BattleAnimEffectSlot* BattleAnim_SpawnRainbowHueChange(s32 arg0, s16 arg1, s16 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnInvisibility(s32 arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnOwnerModelAlphaFadeFullPreset(s32 arg0);
-BattleAnimEffectSlot* BattleAnim_SpawnOwnerModelAlphaFadeZeroStartPreset(s32 arg0);
-BattleAnimEffectSlot* BattleAnim_SpawnCategory17MarkerSlot(s32 arg0, u8 arg1);
+BattleAnimEffectSlot* BattleAnim_SpawnOwnerModelAlphaFadeZeroStartPreset(s32 arg0); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+BattleAnimEffectSlot* BattleAnim_SpawnCategory17MarkerSlot(s32 arg0, u8 arg1); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 BattleAnimEffectSlot* BattleAnim_SpawnCategory19MarkerSlot(s32 arg0, u8 arg1);
 
 BattleAnimEffectSlot* BattleAnim_AllocEffectSlot(void);
@@ -78,11 +76,11 @@ void BattleAnim_SetEffectState(s32 arg0);
 Particle* Particle_Alloc(void);
 s32 Particle_CountActive(void);
 s32 Particle_IsInactive(Particle* arg0);
-s32 Particle_HasFlags(Particle* arg0, s32 arg1);
+s32 Particle_HasFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 void Particle_UpdateWorldTransform(Particle* arg0);
 void Particle_UpdateFrameCounters(void);
 
-s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
+void* MainPool_Alloc(u32 size, s32 side); // PORT: signature from the definition (memory_main.c)
 
 /**
  * Allocates and zeroes the effect slot table (0x20D0 bytes) and the 300-particle pool, and resets
@@ -92,8 +90,8 @@ s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 void BattleAnim_InitParticleSystem(void) {
-    gBattleAnimEffectSlots = (void*)func_800023C4(0x20D0, 0);
-    gParticlePool = (Particle*)func_800023C4(sizeof(Particle) * 300, 0);
+    gBattleAnimEffectSlots = (void*)MainPool_Alloc(0x20D0, 0);
+    gParticlePool = (Particle*)MainPool_Alloc(sizeof(Particle) * 300, 0);
     bzero(gBattleAnimEffectSlots, 0x20D0);
     bzero(gParticlePool, sizeof(Particle) * 300);
     gBattleAnimEffectSlotIndex = 0;
@@ -399,7 +397,7 @@ Particle* BattleAnim_CreateProceduralParticle(s16 arg0, s16 arg1, s32 arg2, f32 
     return temp_v0;
 }
 
-void func_80015908(ActivePokemon*, s32, Vec3f*);
+void GeoRender_FindAnchorPosition(ActivePokemon*, s32, Vec3f*);
 /**
  * Sets the particle's origin once at spawn from its anchor mode (anchorMode): the owner's model
  * position, its default anchor, bone 100 (optionally on the ground, or pushed forward or
@@ -477,11 +475,11 @@ void BattleAnim_InitializeParticleAnchor(Particle* arg0) {
 
         case 17:
             BattleAnim_GetOwnerBonePosition(arg0->pokemon, arg0->byteParam0, &arg0->origin);
-            func_80015908(arg0->pokemon, arg0->byteParam0, &arg0->origin);
+            GeoRender_FindAnchorPosition(arg0->pokemon, arg0->byteParam0, &arg0->origin);
             break;
 
         case 19:
-            func_80015908(arg0->pokemon, arg0->byteParam0, &arg0->origin);
+            GeoRender_FindAnchorPosition(arg0->pokemon, arg0->byteParam0, &arg0->origin);
             BattleScene_GetParticipantModelRotation(arg0->pokemon, &sp28);
             BattleScene_GetParticipantModelSizeScaled(arg0->pokemon, &sp30);
             ParticleMath_MakeXZVectorFromAngle(&sp3C, sp30.x * 25.0f, sp28.y);
@@ -612,9 +610,9 @@ void BattleAnim_UpdateParticlePool(void) {
 }
 
 void BattleAnim_SetupParticleDraw(Particle*);
-M2C_UNK func_8213A9C4(s8 *, s32);                 /* extern */
-s32 func_8213CAFC(s8 *, M2C_UNK);                 /* extern */
-s32 func_8213CB1C(s8 *, M2C_UNK);                 /* extern */
+void Particle_DispatchDraw(Particle* arg0, CameraNode* arg1); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+s32 Particle_HasFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+s32 Particle_LacksFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Draws every particle chain whose head lacks flag 8 (world-space particles): each chain member
@@ -629,13 +627,13 @@ void BattleAnim_DrawWorldParticleChains(s32 camera) {
     var_s2 = gParticlePool;
     var_s3 = 0;
     do {
-        if ((var_s2->allocated != 0) && (var_s2->prev == NULL) && (func_8213CB1C((s8*)var_s2, 8) != 0)) {
+        if ((var_s2->allocated != 0) && (var_s2->prev == NULL) && (Particle_LacksFlags((s8*)var_s2, 8) != 0)) {
             BattleAnim_SetupParticleDraw(var_s2);
             var_s0 = var_s2;
             if (var_s2 != NULL) {
                 do {
-                    if ((func_8213CAFC((s8*)var_s0, 4) != 0) && (var_s0->lifecycle >= 2)) {
-                        func_8213A9C4((s8*)var_s0, camera);
+                    if ((Particle_HasFlags((s8*)var_s0, 4) != 0) && (var_s0->lifecycle >= 2)) {
+                        Particle_DispatchDraw((s8*)var_s0, camera);
                     }
                     var_s0 = var_s0->next;
                 } while (var_s0 != NULL);
@@ -647,8 +645,8 @@ void BattleAnim_DrawWorldParticleChains(s32 camera) {
 }
 
 void BattleAnim_SetupParticleDraw(Particle*);
-M2C_UNK func_8213A9C4(s8 *, s32);                 /* extern */
-s32 func_8213CAFC(s8 *, M2C_UNK);                 /* extern */
+void Particle_DispatchDraw(Particle* arg0, CameraNode* arg1); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+s32 Particle_HasFlags(Particle* arg0, s32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Draws every particle with flag 8 (screen-space particles) that has flag 4 and lifecycle 2 or
@@ -662,10 +660,10 @@ void BattleAnim_DrawScreenParticles(s32 camera) {
     var_s0 = gParticlePool;
     var_s1 = 0;
     do {
-        if ((var_s0->allocated != 0) && (func_8213CAFC((s8*)var_s0, 8) != 0)) {
+        if ((var_s0->allocated != 0) && (Particle_HasFlags((s8*)var_s0, 8) != 0)) {
             BattleAnim_SetupParticleDraw(var_s0);
-            if ((func_8213CAFC((s8*)var_s0, 4) != 0) && (var_s0->lifecycle >= 2)) {
-                func_8213A9C4((s8*)var_s0, camera);
+            if ((Particle_HasFlags((s8*)var_s0, 4) != 0) && (var_s0->lifecycle >= 2)) {
+                Particle_DispatchDraw((s8*)var_s0, camera);
             }
         }
         var_s1 += 1;
@@ -771,8 +769,8 @@ void BattleAnim_InitializeParticleFromEffect(Particle* arg0, ActivePokemon* arg1
     }
 }
 
-s32 func_82139C38();                                /* extern */
-s32 func_82139C58(s32);                             /* extern */
+Particle* Particle_New(void); // PORT: signature from the definition (fragments/battle/particle_pool.c)
+Particle* Particle_AllocChain(u8 arg0); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 void BattleAnim_InitializeParticleFromEffect(Particle* arg0, ActivePokemon* arg1, BattleAnimEffectSlot* arg2, s16 arg3);
 
 /**
@@ -793,12 +791,12 @@ void BattleAnim_SpawnStandardParticles(BattleAnimEffectSlot* arg0) {
         var_s0 = 0;
         if (temp_s2 > 0) {
             do {
-                BattleAnim_InitializeParticleFromEffect((Particle*)func_82139C38(), (ActivePokemon*)temp_s3, arg0, var_s0);
+                BattleAnim_InitializeParticleFromEffect((Particle*)Particle_New(), (ActivePokemon*)temp_s3, arg0, var_s0);
                 var_s0 += 1;
             } while (var_s0 < temp_s2);
         }
     } else {
-        BattleAnim_InitializeParticleFromEffect((Particle*)func_82139C58(temp_s2 & 0xFF), (ActivePokemon*)temp_s3, arg0, 0);
+        BattleAnim_InitializeParticleFromEffect((Particle*)Particle_AllocChain(temp_s2 & 0xFF), (ActivePokemon*)temp_s3, arg0, 0);
     }
 }
 
@@ -821,12 +819,12 @@ void BattleAnim_SpawnBatchedParticles(BattleAnimEffectSlot* arg0) {
     count = arg0->param0 / step;
     if (arg0->descriptor->chained == 0) {
         for (i = 0; i < count; i++) {
-            temp_v0 = func_82139C38();
+            temp_v0 = Particle_New();
             arg0->param0 = step;
             BattleAnim_InitializeParticleFromEffect((Particle*)temp_v0, (ActivePokemon*)temp_s4, arg0, i);
         }
     } else {
-        temp_v0 = func_82139C58(count & 0xFF);
+        temp_v0 = Particle_AllocChain(count & 0xFF);
         arg0->param0 = step;
         BattleAnim_InitializeParticleFromEffect((Particle*)temp_v0, (ActivePokemon*)temp_s4, arg0, 0);
     }

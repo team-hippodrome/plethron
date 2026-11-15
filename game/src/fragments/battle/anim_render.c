@@ -6,7 +6,7 @@
 
 #include "m2c_macros.h"
 
-void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3);
+void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3); // PORT: signature from the definition (fragments/battle/anim_render.c)
 
 /**
  * Fills the whole screen with the color (arg0, arg1, arg2) at alpha arg3.

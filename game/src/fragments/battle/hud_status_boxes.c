@@ -7,11 +7,11 @@
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
-M2C_UNK func_8001AB6C();
+void Font_BeginTranslucentTextRendering(void); // PORT: signature from the definition (font.c)
 extern StatusLabel D_80066AA0[];
-u32 func_8001FA30(s32);
-void func_8001A384(M2C_UNK, M2C_UNK);
-void func_8001ABBC(void);
+s32 LabPC_StatusToIconIndex(s32 arg0); // PORT: signature from the definition (pokemon_lab_support.c)
+void Font_SetActive(M2C_UNK, M2C_UNK);
+void Font_EndTexturedTextRendering(void);
 
 /* Zero uses different segmented addresses for the three party-ball textures. */
 extern u8 D_03006C40[];
@@ -176,7 +176,7 @@ void BattleHud_DrawMonStatusBoxPlayer(ActivePokemon* arg0, s16 arg1, s16 arg2, u
     if (sp7C->hp == 0) {
         var_v1 = 1;
     } else {
-        var_v1 = func_8001FA30(sp7C->statusCondition);
+        var_v1 = LabPC_StatusToIconIndex(sp7C->statusCondition);
     }
 
     temp_v0_2 = &((Color_RGB8*)&D_8218B008)[sp80->controllerPort];
@@ -270,7 +270,7 @@ void BattleHud_DrawMonStatusBoxOpponent(ActivePokemon* arg0, s16 arg1, s16 arg2,
     if (sp7C->hp == 0) {
         var_v1 = 1;
     } else {
-        var_v1 = func_8001FA30(sp7C->statusCondition);
+        var_v1 = LabPC_StatusToIconIndex(sp7C->statusCondition);
     }
 
     temp_v0 = &((Color_RGB8*)&D_8218B008)[sp80->controllerPort];
@@ -356,7 +356,7 @@ void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg
     s32 i;
     s32 pad; // FAKE
 
-    func_82116CF4(arg1 + 1, arg2 + 1, 0xC6, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
+    Battle_DrawGradientRectWrapper(arg1 + 1, arg2 + 1, 0xC6, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 - 1, 8, 8, D_030096C0);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 + 4, 8, 8, D_030095C0);
@@ -374,12 +374,12 @@ void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg
     Gfx_DrawTextureRgba16Ia8(arg1 + 70, arg2 + 3, 16, 12, D_0300A080, D_0300A200, 16, 0x100000);
     Gfx_DrawTextureRgba16Ia8(arg1 + 134, arg2 + 3, 16, 12, D_0300A2C0, D_0300A440, 16, 0x100000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
-    func_8001AB6C();
-    func_8001A384(1, 0);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(1, 0);
     Font_Printf(arg1 + 22, arg2 + 4, D_821959C4);
     Font_Printf(arg1 + 86, arg2 + 4, D_821959D0);
     Font_Printf(arg1 + 150, arg2 + 4, D_821959DC);
-    func_8001ABBC();
+    Font_EndTexturedTextRendering();
     BattleHud_DrawTranslucentShadowRect(arg1 - 2, arg2 - 2, 204, 22, 0);
 }
 
@@ -396,7 +396,7 @@ void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 
     s32 i;
     s32 pad; // FAKE
 
-    func_82116CF4(arg1 + 1, arg2 + 1, 0x7D, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
+    Battle_DrawGradientRectWrapper(arg1 + 1, arg2 + 1, 0x7D, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 - 1, 8, 8, D_030096C0);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 + 4, 8, 8, D_030095C0);
@@ -413,11 +413,11 @@ void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 
     Gfx_DrawTextureRgba16Ia8(arg1 + 7, arg2 + 3, 16, 12, D_030099C0, D_03009B40, 16, 0x100000);
     Gfx_DrawTextureRgba16Ia8(arg1 + 64, arg2 + 3, 16, 12, D_03009C00, D_03009D80, 16, 0x100000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
-    func_8001AB6C();
-    func_8001A384(1, 0);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(1, 0);
     Font_Printf(arg1 + 24, arg2 + 4, D_821959E4);
     Font_Printf(arg1 + 81, arg2 + 4, D_821959EC);
-    func_8001ABBC();
+    Font_EndTexturedTextRendering();
     BattleHud_DrawTranslucentShadowRect(arg1 - 2, arg2 - 2, 131, 22, 0);
 }
 
@@ -433,7 +433,7 @@ void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 a
     s32 i;
     s32 pad; // FAKE
 
-    func_82116CF4(arg1 + 1, arg2 + 1, 0x47, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
+    Battle_DrawGradientRectWrapper(arg1 + 1, arg2 + 1, 0x47, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 - 1, 8, 8, D_030096C0);
     BattleHud_DrawBorderTile(arg1 - 1, arg2 + 4, 8, 8, D_030095C0);
@@ -449,10 +449,10 @@ void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 a
     gSPDisplayList(gDisplayListHead++, D_80060308);
     Gfx_DrawTextureRgba16Ia8(arg1 + 7, arg2 + 3, 16, 12, D_03009C00, D_03009D80, 16, 0x100000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
-    func_8001AB6C();
-    func_8001A384(1, 0);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(1, 0);
     Font_Printf(arg1 + 24, arg2 + 4, D_821959F8);
-    func_8001ABBC();
+    Font_EndTexturedTextRendering();
     BattleHud_DrawTranslucentShadowRect(arg1 - 2, arg2 - 2, 74, 22, 0);
 }
 

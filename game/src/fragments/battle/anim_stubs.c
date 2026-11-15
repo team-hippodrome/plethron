@@ -25,7 +25,7 @@ extern AuxiliaryEffect D_821CEEA0[2];
 extern Gfx D_82193E18[];
 
 
-void BattleAnim_EndEffect16_NoOpDraw(void);
+void BattleAnim_EndEffect16_NoOpDraw(void); // PORT: signature from the definition (fragments/battle/anim_stubs.c)
 void BattleAnim_UnusedNopA(void);
 void BattleAnim_UnusedNopB(void);
 void BattleAnim_UnusedNopC(void);

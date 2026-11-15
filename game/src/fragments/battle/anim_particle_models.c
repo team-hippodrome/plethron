@@ -6,7 +6,7 @@
 #include "gfx_buffer.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32);
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Builds a reflection look-at matrix from the battle camera for environment-mapped
@@ -751,19 +751,19 @@ void BattleAnim_CallbackMove86StartDescriptor24(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82153D00(particle);
+        BattleAnim_SetupMove86StartDescriptor24(particle);
         break;
     case 2:
-        func_821406B4(particle);
+        Particle_DecrementParam0ToZeroThenAdvance(particle);
         break;
     case 3:
-        func_82140548(particle, 0, 0x20);
+        Particle_ApproachPrimAlphaThenAdvance(particle, 0, 0x20);
         break;
     case 4:
         Particle_DisableAndDetach(particle);
         break;
     }
-    func_82140228(particle, 0x41200000, 0x3D4CCCCD); // 10.0f, 0.05f
+    Particle_ApproachScale(particle, 0x41200000, 0x3D4CCCCD); // 10.0f, 0.05f
     Particle_MoveXZAlongRotationY(particle);
 }
 
@@ -786,8 +786,8 @@ void BattleAnim_InitializeThunderWaveUse(void) {
  * ran for exactly Thunder Wave.
  */
 void BattleAnim_InitializeThunderWaveHit(void) {
-    func_8213B644(48, 0x20, 8);
-    func_8213B5D8(0, 12, 10, &func_82153C50, &D_8218E6A8, 0x14, 1, 4, (s32) D_8219A80A, 0, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(48, 0x20, 8);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 12, 10, &BattleAnim_RunThunderWaveHitEffect, &D_8218E6A8, 0x14, 1, 4, (s32) D_8219A80A, 0, 0);
 }
 
 
@@ -912,5 +912,5 @@ void BattleAnim_SleepMovePhaseFadeOut(Particle* arg0) {
  * Hypnosis and Lovely Kiss: ran as Pinsir fell asleep (Z marks, 「ねむってしまった！」, "fell asleep!").
  */
 void BattleAnim_StartEffect1Sleep(void) {
-    func_8213B560(0, &func_82154248, &D_8218E700, 0, 1, 0x10, 7, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_SleepMovePhaseFadeOut, &D_8218E700, 0, 1, 0x10, 7, 0, 0);
 }

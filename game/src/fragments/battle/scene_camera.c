@@ -4,7 +4,7 @@
 #include "matrix.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK func_8000EEBC(s32, s32, f32, s16, s32);
+void Camera_ComputeEyeFromAngles(Vec3f* from, Vec3f* to, f32 dist, s16 rotation_x, s16 rotation_y); // PORT: signature from the definition (matrix.c)
 extern f32 D_FLT_82189358[];
 
 extern f32 D_8219A534;
@@ -140,7 +140,7 @@ void BattleScene_GetParticipantCameraAnchor(ActivePokemon* arg0, Vec3f* arg1) {
     }
 }
 
-void func_8210BCF0(Vec3f*, Vec3f*, f32*, s16*, s16*);
+void BattleAnim_CalculateDistanceAngles(Vec3f* arg0, Vec3f* arg1, f32* arg2, s16* arg3, s16* arg4); // PORT: signature from the definition (fragments/battle/anim_math.c)
 f32 BattleAnim_Vec3fDistance(Vec3f a, Vec3f b);
 f32 BattleScene_GetParticipantModelRadiusScaled(ActivePokemon* active_pokemon);
 /**
@@ -170,7 +170,7 @@ u16 BattleScene_IsParticipantInViewWedge(ActivePokemon* owner, CameraNode* camer
     f32 radius;
 
     sp5C = 0;
-    func_8210BCF0(&camera->view.targetPosition, &camera->view.eyePosition, &sp70, &sp6E, &sp6C);
+    BattleAnim_CalculateDistanceAngles(&camera->view.targetPosition, &camera->view.eyePosition, &sp70, &sp6E, &sp6C);
     sp60.z = (COSS((sp6C - 0x8000)) * 30.0f) + camera->view.eyePosition.z;
     sp60.x = (SINS((sp6C - 0x8000)) * 30.0f) + camera->view.eyePosition.x;
     sp7C = (COSS(((sp6C - half_angle) + 0x8000)) * length) + sp60.z;
@@ -266,39 +266,39 @@ void BattleScene_SetCameraSubstate(s32 arg0, u16 arg1) {
     sBattleScene.scene->transitionStyle = arg1;
 }
 
-void func_82121D5C(s32, s32);
+void BattleScene_SetCameraModeAndStep(s32, s32);
 /**
  * Only runs when the scene's unk_18 is 2.  It then checks the scene's unk_44
  * against 1, 2, 5, 6, 9 and 0xA in turn (the field is re-read after every
  * call, so a call may change it and a later check can then also succeed) and
- * calls func_82121D5C(value, argument) for each match: with 0x32 for 1, 5 and
+ * calls BattleScene_SetCameraModeAndStep(value, argument) for each match: with 0x32 for 1, 5 and
  * 9, and with 0 for 2, 6 and 0xA.  Before the calls for 2, 6 and 0xA it also
  * copies the scene's unk_2A into unk_2C.  What unk_44 values 1/2, 5/6 and 9/0xA
- * stand for, and what func_82121D5C does with them, is not established here.
+ * stand for, and what BattleScene_SetCameraModeAndStep does with them, is not established here.
  * @unverified Name guessed from the code.
  */
 void BattleScene_ApplyModeAfterTransition(void) {
     if (sBattleScene.scene->transitionStage == 2) {
         if (sBattleScene.scene->modeAfterTransition == 1) {
-            func_82121D5C(1, 0x32);
+            BattleScene_SetCameraModeAndStep(1, 0x32);
         }
         if (sBattleScene.scene->modeAfterTransition == 2) {
             sBattleScene.scene->actingSide = sBattleScene.scene->sideCurrentlySwitching;
-            func_82121D5C(2, 0);
+            BattleScene_SetCameraModeAndStep(2, 0);
         }
         if (sBattleScene.scene->modeAfterTransition == 5) {
-            func_82121D5C(5, 0x32);
+            BattleScene_SetCameraModeAndStep(5, 0x32);
         }
         if (sBattleScene.scene->modeAfterTransition == 6) {
             sBattleScene.scene->actingSide = sBattleScene.scene->sideCurrentlySwitching;
-            func_82121D5C(6, 0);
+            BattleScene_SetCameraModeAndStep(6, 0);
         }
         if (sBattleScene.scene->modeAfterTransition == 9) {
-            func_82121D5C(9, 0x32);
+            BattleScene_SetCameraModeAndStep(9, 0x32);
         }
         if (sBattleScene.scene->modeAfterTransition == 0xA) {
             sBattleScene.scene->actingSide = sBattleScene.scene->sideCurrentlySwitching;
-            func_82121D5C(0xA, 0);
+            BattleScene_SetCameraModeAndStep(0xA, 0);
         }
     }
 }
@@ -423,7 +423,7 @@ s32 BattleScene_ApproachCameraRotationY(s32 arg0, s16 arg1, s16 arg2) {
         return 1;
     }
 block_7:
-    func_8000EEBC(arg0 + 0xB4, arg0 + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, (s32) var_v0);
+    Camera_ComputeEyeFromAngles(arg0 + 0xB4, arg0 + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, (s32) var_v0);
     return 0;
 }
 
@@ -464,7 +464,7 @@ void BattleScene_SetCameraAnglesAndDistance(s16 arg0, s16 arg1, f32 arg2) {
  * Keeps the camera eye at least 15 high (+0xAC).
  * @unverified Name guessed from the code.
  */
-void BattleScene_ClampCameraEyeHeight(s8 *camera) {
+void BattleScene_ClampCameraEyeHeight(CameraNode* camera) { // PORT: was s8*
     if (M2C_FIELD(camera, f32 *, 0xAC) <= 15.0f) {
         M2C_FIELD(camera, f32 *, 0xAC) = 15.0f;
     }
@@ -488,7 +488,7 @@ void BattleCamera_CaptureModelOrbit(ActivePokemon* pokemon, CameraNode* camera) 
 }
 
 extern u8 D_8219A4F4;
-void func_82121D78(CameraNode*, f32, f32);
+void BattleScene_SetCameraClipPlanes(CameraNode* camera_node, f32 near_plane, f32 far_plane); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 /**
  * Sets the camera clip planes for the scene mode: 20-4000 normally, 20-32000 in modes 4 and
  * 8, and 60-32000 in mode 9 when D_8219A4F4 is 5 (except at phase step 29).
@@ -497,14 +497,14 @@ void func_82121D78(CameraNode*, f32, f32);
 void BattleScene_UpdateCameraClipPlanes(CameraNode* camera) {
     s32 var_v0;
 
-    func_82121D78(camera, 20.0f, 4000.0f);
+    BattleScene_SetCameraClipPlanes(camera, 20.0f, 4000.0f);
     var_v0 = sBattleScene.scene->mode;
     if ((var_v0 == 4) || (var_v0 == 8)) {
-        func_82121D78(camera, 20.0f, 32000.0f);
+        BattleScene_SetCameraClipPlanes(camera, 20.0f, 32000.0f);
         var_v0 = sBattleScene.scene->mode;
     }
     if ((var_v0 == 9) && (D_8219A4F4 == 5) && (sBattleScene.scene->phaseStep != 29)) {
-        func_82121D78(camera, 60.0f, 32000.0f);
+        BattleScene_SetCameraClipPlanes(camera, 60.0f, 32000.0f);
     }
 }
 
@@ -602,8 +602,8 @@ void BattleScene_CameraHelperNop(UNUSED CameraNode* arg0) {
  * node, eases the resulting distance towards the scene distance (1.5 times it,
  * with speed 1.0, when the participant's object type is 0x65; otherwise the
  * scene distance itself with speed 0.5), and passes the camera node's eye and
- * target vectors, the eased distance and the two angles to func_8000EEBC.
- * What func_8000EEBC does with them is not established here.
+ * target vectors, the eased distance and the two angles to Camera_ComputeEyeFromAngles.
+ * What Camera_ComputeEyeFromAngles does with them is not established here.
  * Note: the "pad" array only reproduces the retail frame size.
  * @unverified Name guessed from the code.
  */
@@ -623,7 +623,7 @@ void BattleScene_EaseSideOnCameraDistance(CameraNode* camera, ActivePokemon* act
         } else {
             BattleAnim_ApproachF(&sp38, sp30, 0.5f);
         }
-        func_8000EEBC((uintptr_t)camera + 0xB4, (uintptr_t)camera + 0xA8, sp38, sp36, sp34);
+        Camera_ComputeEyeFromAngles((uintptr_t)camera + 0xB4, (uintptr_t)camera + 0xA8, sp38, sp36, sp34);
     }
 }
 

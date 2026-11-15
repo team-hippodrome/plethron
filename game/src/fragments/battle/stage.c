@@ -61,7 +61,7 @@ void BattleStage_UnusedNopB(void);
 s32 BattleScene_UpdateFrame(s32 fade_mode);
 s32 BattleScene_UpdatePausedFrame(s32 fade_mode);
 void Battle_CompleteRosterOrder(u8* roster_order, s32 number_of_pokemon_picked);
-void BattleScene_InitializeParticipantPresentation(BattleSide* side, unk_D_86002F30* model);
+void BattleScene_InitializeParticipantPresentation(BattleSide* side, unk_D_86002F30* model); // PORT: signature from the definition (fragments/battle/stage.c)
 void BattleStage_UnusedNopC(void);
 
 void Battle_DrawStageBackdrop(void);
@@ -469,9 +469,9 @@ extern SessionContext* D_82198D10;
 extern s32 D_82198D30;
 extern u8 D_82198D24;
 extern u8* D_800603C0;
-s32 func_800010B8(void);
-s32 func_8003BF40(u8*);
-void func_8000D304(void);
+s32 Storage_GetDiskStatus(void);
+s32 Audio_GetDiskReadyStatus(u8*);
+void Leo_ResetBootStateIfReady(void);
 /**
  * triggers every frame: bug boy in GLC (Stadium 1 note; Zero has no Gym Leader Castle)
  * Count the initial two callbacks toward zero; once the gate is zero, the attract
@@ -492,11 +492,11 @@ void Battle_UpdateCompletionGate(void) {
         } else if (D_82198D10->mode == 3) {
             if (*(u16*)(D_800603C0 + 8) != 0) {
                 D_82198D30 = 1;
-            } else if (func_800010B8() != 0) {
-                if (func_8003BF40(&sp1F) != 8) {
+            } else if (Storage_GetDiskStatus() != 0) {
+                if (Audio_GetDiskReadyStatus(&sp1F) != 8) {
                     sp1F &= 1;
                     if ((sp1F ^ D_82198D24) & D_82198D24) {
-                        func_8000D304();
+                        Leo_ResetBootStateIfReady();
                         D_82198D30 = 1;
                     }
                     D_82198D24 = sp1F;
@@ -507,7 +507,7 @@ void Battle_UpdateCompletionGate(void) {
 }
 
 extern SessionContext* D_82198D10;
-void func_8000A7FC(s32);
+void Audio_StopMusic(s32);
 
 /**
  * triggers every frame: bug boy in GLC (Stadium 1 note; Zero has no Gym Leader Castle)
@@ -551,7 +551,7 @@ s32 Battle_FrameCallback(s32 fade_mode) {
         sCompletionGate = 2;
         AudioFrameUpdate(0);
         if (D_82198D10->mode != 4) {
-            func_8000A7FC(0x1E);
+            Audio_StopMusic(0x1E);
         }
         return 1;
     }
@@ -702,13 +702,13 @@ extern u8 D_003139C0[];
 extern u8 D_00317EF0[];
 extern u8 D_0031C300[];
 s32 Font_Init(s32 load_size, s32 side);
-s32 func_800040B4(s32, u8*, u8*);
-void func_82101178(void);
-void func_821012D8(Unit82101324*, unk_D_86002F30*);
-void func_82100B84(void);
-void func_821070E0(s32, Unit82101324*);
-void func_821076FC(s32, CameraNode*, CameraNode*);
-void func_82134CC0(s32, CameraNode*);
+ret_func_80004454 Fragment_Load(s32 arg0, u8* rom_start, u8* rom_end); // PORT: signature from the definition (asset_archive.c)
+void Battle_SelectComRoster(void);
+void BattleScene_InitializeParticipantPresentation(BattleSide* side, unk_D_86002F30* model); // PORT: signature from the definition (fragments/battle/stage.c)
+void Battle_ResetFaintBatches(void);
+s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams); // PORT: signature from the definition (fragments/battle/move_animation.c)
+s32 BattleThumbnail_DispatchOwnerCameraLifecycle(s32 state, CameraNode* side1_camera_node, CameraNode* side2_camera_node); // PORT: signature from the definition (fragments/battle/thumbnail.c)
+s32 BattleScene_Dispatch(s32 arg0, CameraNode* arg1); // PORT: signature from the definition (fragments/battle/scene_update.c)
 
 /**
  * Sets up the battle stage: fonts, icon framebuffers, the thumbnail images, the stage assets
@@ -739,36 +739,36 @@ s32 BattleScene_Init(StageContext* arg0) { // PORT: was s32* // FAKE: s32 return
     GfxImage_AttachDepthBuffer(D_82198D04, D_82198CFC);
     D_82198D08 = D_82198D00->img_p;
     D_82198D0C = D_82198D04->img_p;
-    func_800040B4(((u32)((uintptr_t)D_81000000 & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
+    Fragment_Load(((u32)((uintptr_t)D_81000000 & 0x0FF00000) >> 0x14) - 0x10, D_0015B1A0, D_0015E220);
     Asset_LoadToSegment((u32)((uintptr_t)D_01000000 & 0x0F000000) >> 0x18, D_002E0BE0, D_002E2B90, 0);
     Asset_LoadToSegment((u32)((uintptr_t)D_03000000 & 0x0F000000) >> 0x18, D_003F53F0, D_003FC1A0, 0);
     switch (D_82198D1C) {
         case 0:
-            func_800040B4(((u32)((uintptr_t)D_8F300000 & 0x0FF00000) >> 0x14) - 0x10, D_00320820, D_00326700);
+            Fragment_Load(((u32)((uintptr_t)D_8F300000 & 0x0FF00000) >> 0x14) - 0x10, D_00320820, D_00326700);
             break;
         case 1:
-            func_800040B4(((u32)((uintptr_t)D_8F900000 & 0x0FF00000) >> 0x14) - 0x10, D_003139C0, D_00317EF0);
+            Fragment_Load(((u32)((uintptr_t)D_8F900000 & 0x0FF00000) >> 0x14) - 0x10, D_003139C0, D_00317EF0);
             break;
         case 2:
-            func_800040B4(((u32)((uintptr_t)D_8FA00000 & 0x0FF00000) >> 0x14) - 0x10, D_00317EF0, D_0031C300);
+            Fragment_Load(((u32)((uintptr_t)D_8FA00000 & 0x0FF00000) >> 0x14) - 0x10, D_00317EF0, D_0031C300);
             break;
         case 3:
-            func_800040B4(((u32)((uintptr_t)D_8FB00000 & 0x0FF00000) >> 0x14) - 0x10, D_0031C300, D_00320820);
+            Fragment_Load(((u32)((uintptr_t)D_8FB00000 & 0x0FF00000) >> 0x14) - 0x10, D_0031C300, D_00320820);
             break;
     }
     model = Model_LoadByArchiveIndex(0x99);
-    func_82101178();
-    func_821012D8(&D_82198D14[0], model);
-    func_821012D8(&D_82198D14[1], model);
-    func_82100B84();
+    Battle_SelectComRoster();
+    BattleScene_InitializeParticipantPresentation(&D_82198D14[0], model);
+    BattleScene_InitializeParticipantPresentation(&D_82198D14[1], model);
+    Battle_ResetFaintBatches();
     GeoNode_CreateCamera(NULL, &D_82198A20, 0, 0, 0x140, 0xF0);
     GeoNode_CreateCamera(NULL, &D_82198B10, 0x1E, 0x50, 0x4C, 0x4C);
     GeoNode_CreateCamera(NULL, &D_82198C00, 0xE2, 0x50, 0x4C, 0x4C);
     GeoCamera_SetPerspective(&D_82198A20, 30.0f, 192.0f, 24576.0f);
     ModelRenderer_InitDisplayRoots();
-    func_821070E0(0, D_82198D14);
-    func_821076FC(0, &D_82198B10, &D_82198C00);
-    func_82134CC0(0, &D_82198A20);
+    BattleScene_DispatchLifecycle(0, D_82198D14);
+    BattleThumbnail_DispatchOwnerCameraLifecycle(0, &D_82198B10, &D_82198C00);
+    BattleScene_Dispatch(0, &D_82198A20);
     BattleAnim_DispatchPresentation(0, &D_82198A20);
     block = MainPool_AllocState(MainPool_GetAvailable(), 0);
     switch (D_82198D1C) {
@@ -788,9 +788,9 @@ s32 BattleScene_Init(StageContext* arg0) { // PORT: was s32* // FAKE: s32 return
     D_82198CF4 = GeoLayout_Process(block, D_821890D0);
     D_82198CF8 = GeoLayout_Process(block, D_82189120);
     MainPool_FinalizeAllocation(block);
-    func_821070E0(3, D_82198D14);
-    func_821076FC(3, &D_82198B10, &D_82198C00);
-    func_82134CC0(3, &D_82198A20);
+    BattleScene_DispatchLifecycle(3, D_82198D14);
+    BattleThumbnail_DispatchOwnerCameraLifecycle(3, &D_82198B10, &D_82198C00);
+    BattleScene_Dispatch(3, &D_82198A20);
     BattleAnim_DispatchPresentation(3, &D_82198A20);
     D_82198D20 = 1;
     D_82198D18 = 0;

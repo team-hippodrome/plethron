@@ -5,8 +5,8 @@
 
 #include "m2c_macros.h"
 
-void BattleAnim_InitStingerTrailColor(Particle* arg0);
-void BattleAnim_InitStingerTrailColorDuplicate(Particle* arg0);
+void BattleAnim_InitStingerTrailColor(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_stinger.c)
+void BattleAnim_InitStingerTrailColorDuplicate(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_stinger.c)
 void BattleAnim_InitStingerMoveParticle(Particle* arg0, u8 arg1);
 
 void BattleAnim_UpdateNeedleBlueFadeGrow(Particle* arg0);
@@ -28,9 +28,9 @@ void BattleAnim_InitStingerTrailColor(Particle* arg0) {
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
 M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M2C_UNK, s32, s32); /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140920(s8 *);                      /* extern */
+void BattleAnim_InitStingerTrailColor(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_stinger.c)
 
 /**
  * Particle callback for a stinger needle: inits it, plays frames 0 to 7 once while fading toward
@@ -44,7 +44,7 @@ void BattleAnim_UpdateNeedleBlueFadeGrow(Particle* arg0) {
     temp_v0 = arg0->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82140920(arg0);
+        BattleAnim_InitStingerTrailColor(arg0);
         break;
     case 2:
         Particle_AnimateFramesForwardLoopedThenAdvance(arg0, 0, 7, 1, 2, 0);
@@ -55,7 +55,7 @@ void BattleAnim_UpdateNeedleBlueFadeGrow(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_82140228(arg0, 0x3F000000, 0x3D4CCCCD); // 0.5f, 0.05f
+        Particle_ApproachScale(arg0, 0x3F000000, 0x3D4CCCCD); // 0.5f, 0.05f
     }
 }
 
@@ -73,8 +73,8 @@ void BattleAnim_InitStingerTrailColorDuplicate(Particle* arg0) {
 }
 
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_82140228(s8 *, M2C_UNK, M2C_UNK);    /* extern */
-M2C_UNK func_82140A48();                            /* extern */
+s32 Particle_ApproachScale(Particle* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_InitStingerTrailColorDuplicate(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_stinger.c)
 
 /**
  * Particle callback for the stinger particle on the target: inits it on its first frame and grows
@@ -83,10 +83,10 @@ M2C_UNK func_82140A48();                            /* extern */
  */
 void BattleAnim_UpdateSecondaryOwnerParticleBlueGrow(Particle* arg0) {
     if (arg0->lifecycle == 1) {
-        func_82140A48();
+        BattleAnim_InitStingerTrailColorDuplicate(arg0); // PORT: the argument was passed through a0
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_82140228(arg0, 0x3F4CCCCD, 0x3DA3D70A); // 0.8f, 0.08f
+        Particle_ApproachScale(arg0, 0x3F4CCCCD, 0x3DA3D70A); // 0.8f, 0.08f
     }
 }
 

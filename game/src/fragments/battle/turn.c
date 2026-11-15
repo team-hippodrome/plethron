@@ -51,8 +51,8 @@ void Battle_CheckAllBroughtFainted_Hp(ActivePokemon* arg0);
 void BattleAnim_EffectEndNop(void) {
 }
 
-M2C_UNK func_82110FC0();                            /* extern */
-M2C_UNK func_821115F4();                            /* extern */
+void Battle_LoadMoveCache(void); // PORT: signature from the definition (fragments/battle/damage.c)
+void Battle_RefundSelectedMovePp(void); // PORT: signature from the definition (fragments/battle/damage.c)
 extern s32 D_8218C784;
 extern s8 *D_8219A3C0;
 extern s8 *D_8219A3C4;
@@ -73,8 +73,8 @@ s32 Battle_TryLoadFollowupMoveFromTarget(void) {
         return 0;
     }
     sBattleUser->usedMove = temp_v0;
-    func_821115F4();
-    func_82110FC0();
+    Battle_RefundSelectedMovePp();
+    Battle_LoadMoveCache();
     return 1;
 }
 
@@ -207,7 +207,7 @@ s32 Battle_Effect_Counter(void) {
 extern u8 D_82199F32;
 extern u8 D_80065CED[];
 extern u8 D_8218ADEC[];
-s32 func_8210FA2C(s32, u8*, s32);
+s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
 u8 Battle_Random(void);
 /**
  * Gen 1 critical-hit roll from the species' base speed (halved, or doubled
@@ -232,7 +232,7 @@ s32 Battle_CheckCriticalHit(void) {
             v = 0xFF;
         }
     }
-    if (func_8210FA2C(sBattleUser->moveCache.lastMove, D_8218ADEC, 4) != 0) {
+    if (Battle_IsByteInArray(sBattleUser->moveCache.lastMove, D_8218ADEC, 4) != 0) {
         v <<= 2;
         if (v >= 0x100) {
             v = 0xFF;
@@ -605,8 +605,8 @@ void Battle_ProcessTurn(void) {
     D_82199F43 = 0;
 }
 
-s32 func_82107A5C(ActivePokemon*);
-void func_8210F730(ActivePokemon*);
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+void Battle_FormatDamageComment(ActivePokemon*);
 extern s32 D_8218C710;
 /**
  * Mark fainting, clear continuation state and remove temporary effects from the opponent.
@@ -615,7 +615,7 @@ extern s32 D_8218C710;
  */
 void Battle_HandleFaint(ActivePokemon* arg0) {
     UNUSED s32 pad; // FAKE: stack padding
-    s32 sp1C = func_82107A5C(arg0);
+    s32 sp1C = BattleScene_GetParticipantSideIndex(arg0);
     ActivePokemonState* temp_a10;
     BattleMonRuntime* temp_a11;
     BattleMonRuntime* temp_a01;
@@ -642,7 +642,7 @@ void Battle_HandleFaint(ActivePokemon* arg0) {
         temp_a10->faintState = 0x11;
     }
 
-    func_8210F730(arg0);
+    Battle_FormatDamageComment(arg0);
     BattleMessage_Format((uintptr_t)&((u8(*)[0x40])((uintptr_t)gBattleMessageQueues->messageBuffers[15]))[sp1C], 3, D_8218C710, ActivePokemon_GetNickname(sActivePokemon[sp1C]));
 }
 

@@ -35,7 +35,7 @@ void DemoBattle_CopyHpToFirstMember(ActivePokemon* arg0) {
  * declared with an s32 parameter because that is what reproduces the retail
  * code (a word-sized stack spill and no halfword mask on the argument).
  */
-M2C_UNK func_82121D8C(M2C_UNK, M2C_UNK);            /* extern */
+void BattleScene_SetCameraSubstate(s32 arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/scene_camera.c)
 extern M2C_UNK D_82199DE0;
 
 /**
@@ -45,12 +45,12 @@ extern M2C_UNK D_82199DE0;
  */
 void DemoBattle_Setup(void) {
     s32 saved;
-    void *sp20;
-    void *sp1C;
+    ActivePokemonState* sp20; // PORT: was void*
+    ActivePokemonState* sp1C; // PORT: was void*
 
-    sp20 = M2C_FIELD(&D_82199DE0, s32 *, 0) + 0x78C;
-    sp1C = M2C_FIELD(&D_82199DE0, s32 *, 4) + 0x78C;
-    func_82121D8C(1, 0);
+    sp20 = &sActivePokemon[0]->state; // PORT: was the N64 offset 0x78C
+    sp1C = &sActivePokemon[1]->state;
+    BattleScene_SetCameraSubstate(1, 0);
     saved = sBattleScene.scene->actingSide;
     sBattleScene.scene->actingSide = 0U;
     sBattleScene.scene->sideCurrentlySwitching = (u16) sBattleScene.scene->actingSide;
@@ -64,7 +64,7 @@ void DemoBattle_Setup(void) {
     sBattleScene.scene->actingSide = saved;
 }
 
-void func_8211ED90(void);
+void Battle_ClearAllMessageQueues(void);
 extern s8 D_82199F31;
 extern s32 D_82199F78;
 extern s8 D_82199FCC;
@@ -97,7 +97,7 @@ void DemoBattle_SetupDemoMove(void) {
     sBattleScene.scene->moveEffectKind = 0;
     M2C_FIELD(self, u16*, 0x12) = 0xFFFF;
     M2C_FIELD(other, u16*, 0x12) = 0xFFFF;
-    func_8211ED90();
+    Battle_ClearAllMessageQueues();
     move = M2C_FIELD(self, u8*, 0x5A);
     switch (move) {
         case STRING_SHOT:
@@ -119,9 +119,9 @@ void DemoBattle_SetupDemoMove(void) {
     }
 }
 
-void func_82101AD0(void);
-void func_82136708(s32, ActivePokemon*);
-M2C_UNK func_8213B31C(M2C_UNK);
+void BattleScene_ClearStateTickCallbacks(void); // PORT: signature from the definition (fragments/battle/move_animation.c)
+void BattleAnim_StopOwnerCategoryParticles(u8 category, ActivePokemon* owner); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
+void BattleAnim_CleanupEffects(s32 cleanup_mode); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Clears the Pokemon's status for the demo: plays reaction 3 if it was asleep, clears its
@@ -133,15 +133,15 @@ void DemoBattle_ClearStatus(ActivePokemon* active_pokemon) {
     s8* sp20 = ((s8*)&active_pokemon->teamRoster->pokemonPicked[0].species.id);
     BattleMonRuntime* rt = &active_pokemon->state.runtime;
 
-    func_82101AD0();
+    BattleScene_ClearStateTickCallbacks();
     if (rt->statusCondition & 7) {
-        func_82136708(3, active_pokemon);
+        BattleAnim_StopOwnerCategoryParticles(3, active_pokemon);
     }
     M2C_FIELD(sp20, s8*, 5) = 0;
     active_pokemon->state.flags = 0;
     rt->statusCondition = 0;
-    func_8213B31C(1);
-    func_8213B31C(2);
+    BattleAnim_CleanupEffects(1);
+    BattleAnim_CleanupEffects(2);
 }
 
 typedef struct Cue82133A44 {
@@ -231,15 +231,15 @@ typedef struct Step82133B6C {
 } Step82133B6C; // size = 0xE
 extern Step82133B6C D_8218B5D0[];
 extern s8* D_82199DE4;
-void func_80005B98(s32); // StageFade_Start; declared void here because the s32 prototype changes register allocation
-void func_80006998(s32);
-f32 func_8000F23C(f32, f32, f32, f32);
-void func_80010B3C(void*, s16, s16, s16, s16);
+s32 StageFade_Start(s32 duration); // PORT: signature from the definition (stage_loader.c)
+void StageContext_SetClearColor(u16 color); // PORT: signature from the definition (stage_loader.c)
+f32 Math_StepToF(f32, f32, f32, f32);
+void GeoCamera_SetViewport(void*, s16, s16, s16, s16);
 void Battle_LoadOwnerModelForSwitchIn(ActivePokemon* active_pokemon);
-void func_8210BE1C(f32*, f32, s16);
-s16 func_8210BEE0(f32, f32, f32, f32);
-f32 func_8210BFA4(f32, f32, f32, f32);
-void func_82121D5C(s32, s32);
+void BattleAnim_Vec3fSetPolarXZ(Vec3f* dest_vector, f32 magnitude, s16 theta); // PORT: signature from the definition (fragments/battle/anim_math.c)
+s16 BattleAnim_Atan2sFromPoints(f32, f32, f32, f32);
+f32 BattleAnim_Distance2D(f32, f32, f32, f32);
+void BattleScene_SetCameraModeAndStep(s32, s32);
 /**
  * Per-frame update for the scripted battle demo: advances the cue timers for
  * both sides (DemoBattle_StepScriptedInputSide0 / DemoBattle_StepScriptedInputSide1) and reacts to the cue flags in
@@ -305,8 +305,8 @@ void DemoBattle_Update(void) {
                 }
             }
             if (D_82199ED0[0][0] & 0x4000) {
-                func_80006998(0);
-                func_80005B98(0x14);
+                StageContext_SetClearColor(0);
+                StageFade_Start(0x14);
                 D_8219A4F0.timer = 0;
                 D_8219A4F0.flags &= ~8;
                 D_8219A4F0.flags |= 0x10;
@@ -340,15 +340,15 @@ void DemoBattle_Update(void) {
                     ((ActivePokemon*)((s8**)&D_82199DE0)[1])->side->modelFlags &= ~0x90;
                     Battle_LoadOwnerModelForSwitchIn(((s8**)&D_82199DE0)[1]);
                     D_8219A4F0.flags &= ~4;
-                    func_80005B98(0x18);
+                    StageFade_Start(0x18);
                     D_82199F10[0] = 0;
                     D_82199F18[0] = 0;
                     D_8219A4F0.flags = D_82199F18[1] = D_82199F10[1] = 0;
                     D_8219A4F0.index++;
                     D_8219A4F0.timer = 0;
-                    func_80010B3C(sBattleScene.scene->camera, 0, 0, 0x140, 0xF0);
+                    GeoCamera_SetViewport(sBattleScene.scene->camera, 0, 0, 0x140, 0xF0);
                     sBattleScene.scene->bRollShotIndex = 0;
-                    func_82121D5C(9, 0x32);
+                    BattleScene_SetCameraModeAndStep(9, 0x32);
                     sBattleScene.scene->bRollShotIndex = 0;
                     DemoBattle_ClearStatus(((ActivePokemon**)&D_82199DE0)[0]);
                     DemoBattle_ClearStatus((ActivePokemon*)D_82199DE4);
@@ -360,16 +360,16 @@ void DemoBattle_Update(void) {
                 D_8219A4F0.width = 0x140;
                 D_8219A4F0.height = 0xF0;
                 D_8219A4F0.flags |= 1;
-                D_8219A4F0.dist = func_8210BFA4(0.0f, 0.0f, D_8218B5D0[D_8219A4F0.index].x, D_8218B5D0[D_8219A4F0.index].y);
-                D_8219A4F0.angle = func_8210BEE0(0.0f, 0.0f, D_8218B5D0[D_8219A4F0.index].x, D_8218B5D0[D_8219A4F0.index].y);
+                D_8219A4F0.dist = BattleAnim_Distance2D(0.0f, 0.0f, D_8218B5D0[D_8219A4F0.index].x, D_8218B5D0[D_8219A4F0.index].y);
+                D_8219A4F0.angle = BattleAnim_Atan2sFromPoints(0.0f, 0.0f, D_8218B5D0[D_8219A4F0.index].x, D_8218B5D0[D_8219A4F0.index].y);
                 D_8219A4F0.curDist = 0.0f;
             }
             if (D_8219A4F0.flags & 1) {
-                D_8219A4F0.width = func_8000F23C(D_8219A4F0.width, 160.0f, 8.0f, 8.0f);
-                D_8219A4F0.height = func_8000F23C(D_8219A4F0.height, 120.0f, 6.0f, 6.0f);
-                D_8219A4F0.curDist = func_8000F23C(D_8219A4F0.curDist, D_8219A4F0.dist, D_8219A4F0.dist / 20.0f, D_8219A4F0.dist / 20.0f);
-                func_8210BE1C(vec, D_8219A4F0.curDist, D_8219A4F0.angle);
-                func_80010B3C(sBattleScene.scene->camera, vec[0], vec[2], D_8219A4F0.width, D_8219A4F0.height);
+                D_8219A4F0.width = Math_StepToF(D_8219A4F0.width, 160.0f, 8.0f, 8.0f);
+                D_8219A4F0.height = Math_StepToF(D_8219A4F0.height, 120.0f, 6.0f, 6.0f);
+                D_8219A4F0.curDist = Math_StepToF(D_8219A4F0.curDist, D_8219A4F0.dist, D_8219A4F0.dist / 20.0f, D_8219A4F0.dist / 20.0f);
+                BattleAnim_Vec3fSetPolarXZ(vec, D_8219A4F0.curDist, D_8219A4F0.angle);
+                GeoCamera_SetViewport(sBattleScene.scene->camera, vec[0], vec[2], D_8219A4F0.width, D_8219A4F0.height);
                 if (D_8219A4F0.width == 0xA0) {
                     D_8219A4F0.flags &= ~1;
                 }

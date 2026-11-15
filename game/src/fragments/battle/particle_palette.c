@@ -36,19 +36,19 @@ extern const char D_821978C8[];
 
 void ParticleGfx_CopyPaletteRgb(u8* arg0, u16 arg1);
 void ParticleGfx_CopyPalettePairRgb(u8* arg0, u8* arg1, u16 arg2);
-void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1);
+void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 void ParticleGfx_RecolorPrimFromPaletteSetA(Particle* arg0, s16 arg1);
-void ParticleGfx_RecolorEnvFromPaletteSetA(Particle* arg0, s16 arg1);
-void ParticleGfx_RecolorPrimFromPaletteSetB(Particle* arg0, s16 arg1);
-void ParticleGfx_RecolorEnvFromPaletteSetB(Particle* arg0, s16 arg1);
+void ParticleGfx_RecolorEnvFromPaletteSetA(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void ParticleGfx_RecolorPrimFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void ParticleGfx_RecolorEnvFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 void ParticleGfx_RecolorPrimEnvFromPaletteSetA(Particle* arg0, s16 arg1);
-void ParticleGfx_RecolorPrimEnvFromPaletteSetB(Particle* arg0, s16 arg1);
+void ParticleGfx_RecolorPrimEnvFromPaletteSetB(Particle* arg0, s16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 void ParticleGfx_RecolorPrimRandomPalette(Particle* arg0);
 void ParticleGfx_RecolorEnvRandomPalette(Particle* arg0);
-s32 ParticleGfx_ApproachPrimPalette(Particle* arg0, u16 arg1, u8 arg2);
+s32 ParticleGfx_ApproachPrimPalette(Particle* arg0, u16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 s32 ParticleGfx_ApproachEnvPalette(Particle* arg0, u16 arg1, u8 arg2);
-s32 ParticleGfx_ApproachPrimEnvPalettePair(Particle* arg0, u16 arg1, u8 arg2);
-void BattleAnim_SetupBackgroundRecolor(Particle* arg0);
+s32 ParticleGfx_ApproachPrimEnvPalettePair(Particle* arg0, u16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void BattleAnim_SetupBackgroundRecolor(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 void ParticlePalette_UnusedNop(void);
 void BattleAnim_SetupIceBeamBlizzardHitHueChange(Particle* arg0);
 
@@ -298,29 +298,29 @@ void BattleAnim_SetupBackgroundRecolor(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-s32 func_8213C494(s8 *);                          /* extern */
+s16 Particle_GetParam1(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_fields.c)
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 M2C_UNK Particle_StorePrimColorInTemp(s8 *);                      /* extern */
-s32 func_821436A0(s8 *, u8, s32);                 /* extern */
-M2C_UNK func_8214390C(s8 *);                      /* extern */
+s32 ParticleGfx_ApproachPrimPalette(Particle* arg0, u16 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_palette.c)
+void BattleAnim_SetupBackgroundRecolor(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 
 /**
  * Particle lifecycle callback (global tint color fade detach): steps the particle by its lifecycle
  * state.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackGlobalTintColorFadeDetach(s8 *arg0) {
+void BattleAnim_CallbackGlobalTintColorFadeDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_8214390C(arg0);
+        BattleAnim_SetupBackgroundRecolor(arg0);
         break;
     case 2:
-        if (func_821436A0(arg0, M2C_FIELD(arg0, u8 *, 0xCB), func_8213C494(arg0) & 0xFF) != 0) {
-            func_8213C9D0(arg0);
+        if (ParticleGfx_ApproachPrimPalette(arg0, M2C_FIELD(arg0, u8 *, 0xCB), Particle_GetParam1(arg0) & 0xFF) != 0) {
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 3:
@@ -347,29 +347,29 @@ void BattleAnim_SetupTargetHueChange(Particle* arg0) {
     Particle_AdvanceLifecycle(arg0);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 s32 Particle_ApproachScratchA(s8 *, u8, s16);                 /* extern */
-M2C_UNK func_821439D0(s8 *);                      /* extern */
+void BattleAnim_SetupTargetHueChange(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 
 /**
  * Particle lifecycle callback (owner model tint ramp detach): steps the particle by its lifecycle
  * state.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackOwnerTintRampDetach(s8 *arg0) {
+void BattleAnim_CallbackOwnerTintRampDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_821439D0(arg0);
+        BattleAnim_SetupTargetHueChange(arg0);
         break;
     case 2:
         if (Particle_ApproachScratchA(arg0, M2C_FIELD(arg0, u8 *, 0xC9), M2C_FIELD(arg0, s16 *, 0xA6)) != 0) {
-            func_8213C9D0(arg0);
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 3:
@@ -377,7 +377,7 @@ void BattleAnim_CallbackOwnerTintRampDetach(s8 *arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B28(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
     }
 }
 
@@ -442,32 +442,32 @@ void BattleAnim_RunUserHueChange(Particle* arg0) {
 void ParticlePalette_UnusedNop(void) {
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_DisableAndDetach(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
-M2C_UNK func_821406B4(s8 *);                      /* extern */
-M2C_UNK func_82143AD0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+s32 Particle_DecrementParam0ToZeroThenAdvance(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
+void BattleAnim_SetupUserHueChange(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 
 /**
  * Particle lifecycle callback (owner model tint hold fade detach): steps the particle by its
  * lifecycle state.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackOwnerTintHoldFadeDetach(s8 *arg0) {
+void BattleAnim_CallbackOwnerTintHoldFadeDetach(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82143AD0(arg0);
+        BattleAnim_SetupUserHueChange(arg0);
         break;
     case 2:
-        func_821406B4(arg0);
+        Particle_DecrementParam0ToZeroThenAdvance(arg0);
         break;
     case 3:
         if (Particle_ApproachScratchA(arg0, 0, M2C_FIELD(arg0, s16 *, 0xA6)) != 0) {
-            func_8213C9D0(arg0);
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 4:
@@ -475,7 +475,7 @@ void BattleAnim_CallbackOwnerTintHoldFadeDetach(s8 *arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B28(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
     }
 }
 
@@ -492,10 +492,10 @@ void BattleAnim_SetupOwnerTintPaletteApproach(Particle* particle) {
     Particle_AdvanceLifecycle(particle);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 M2C_UNK Particle_SetScratchA(s8 *, M2C_UNK);             /* extern */
 
 /**
@@ -506,7 +506,7 @@ M2C_UNK Particle_SetScratchA(s8 *, M2C_UNK);             /* extern */
  * Sky Attack, Solar Beam, Waterfall.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackOwnerTintPaletteApproachStop(s8 *arg0) {
+void BattleAnim_CallbackOwnerTintPaletteApproachStop(Particle* arg0) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(arg0, s16 *, 0xAE);
@@ -515,9 +515,9 @@ void BattleAnim_CallbackOwnerTintPaletteApproachStop(s8 *arg0) {
         BattleAnim_SetupOwnerTintPaletteApproach(arg0);
         break;
     case 2:
-        if (func_821436A0(arg0, M2C_FIELD(arg0, u8 *, 0xC9), M2C_FIELD(arg0, u8 *, 0xA7)) != 0) {
+        if (ParticleGfx_ApproachPrimPalette(arg0, M2C_FIELD(arg0, u8 *, 0xC9), M2C_FIELD(arg0, u8 *, 0xA7)) != 0) {
             Particle_SetScratchA(arg0, 0);
-            func_8213C9D0(arg0);
+            Particle_AdvanceLifecycle(arg0);
         }
         break;
     case 3:
@@ -525,7 +525,7 @@ void BattleAnim_CallbackOwnerTintPaletteApproachStop(s8 *arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_80019B28(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
+        Model_SetMaterialColor(M2C_FIELD(arg0, s32 *, 0x10), M2C_FIELD(arg0, u8 *, 0xBA), M2C_FIELD(arg0, u8 *, 0xBB), M2C_FIELD(arg0, u8 *, 0xBC), (s32) M2C_FIELD(arg0, s16 *, 0xAA));
     }
 }
 
@@ -539,17 +539,17 @@ void BattleAnim_SetupOwnerTintPaletteHold(Particle* particle) {
     Particle_AdvanceLifecycle(particle);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 
 /**
  * Particle callback: tints the owner's model toward palette byteParam0 and keeps the tint when done
  * (marks itself inactive without clearing the tint alpha).
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackOwnerTintPaletteApproachHold(s8 *particle) {
+void BattleAnim_CallbackOwnerTintPaletteApproachHold(Particle* particle) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(particle, s16 *, 0xAE);
@@ -558,8 +558,8 @@ void BattleAnim_CallbackOwnerTintPaletteApproachHold(s8 *particle) {
         BattleAnim_SetupOwnerTintPaletteHold(particle);
         break;
     case 2:
-        if (func_821436A0(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
-            func_8213C9D0(particle);
+        if (ParticleGfx_ApproachPrimPalette(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
+            Particle_AdvanceLifecycle(particle);
         }
         break;
     case 3:
@@ -567,7 +567,7 @@ void BattleAnim_CallbackOwnerTintPaletteApproachHold(s8 *particle) {
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        func_80019B28(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
+        Model_SetMaterialColor(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
     }
 }
 
@@ -627,18 +627,18 @@ void BattleAnim_SetupOwnerTintPaletteFade(Particle* particle) {
     Particle_AdvanceLifecycle(particle);
 }
 
-M2C_UNK func_80019B28(s32, u8, u8, u8, s32);        /* extern */
+void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
 void Particle_MarkInactive(Particle* arg0);                      /* extern */
 s32 Particle_IsRunning(Particle* arg0);                          /* extern */
-M2C_UNK func_8213C9D0(s8 *);                      /* extern */
-M2C_UNK func_82140874(s8 *, M2C_UNK, u8);         /* extern */
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
+s32 Particle_ApproachScratchAThenAdvance(Particle* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle.c)
 
 /**
  * Particle callback: tints the owner's model toward palette byteParam0, then fades the tint alpha
  * back to 0 before it marks itself inactive.
  * @unverified Name guessed from the code.
  */
-void BattleAnim_CallbackOwnerTintPaletteApproachFade(s8 *particle) {
+void BattleAnim_CallbackOwnerTintPaletteApproachFade(Particle* particle) { // PORT: was s8*
     s16 temp_v0;
 
     temp_v0 = M2C_FIELD(particle, s16 *, 0xAE);
@@ -647,18 +647,18 @@ void BattleAnim_CallbackOwnerTintPaletteApproachFade(s8 *particle) {
         BattleAnim_SetupOwnerTintPaletteFade(particle);
         break;
     case 2:
-        if (func_821436A0(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
-            func_8213C9D0(particle);
+        if (ParticleGfx_ApproachPrimPalette(particle, M2C_FIELD(particle, u8 *, 0xC9), M2C_FIELD(particle, u8 *, 0xA7)) != 0) {
+            Particle_AdvanceLifecycle(particle);
         }
         break;
     case 3:
-        func_82140874(particle, 0, M2C_FIELD(particle, u8 *, 0xCA));
+        Particle_ApproachScratchAThenAdvance(particle, 0, M2C_FIELD(particle, u8 *, 0xCA));
         break;
     case 4:
         Particle_MarkInactive(particle);
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        func_80019B28(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
+        Model_SetMaterialColor(M2C_FIELD(particle, s32 *, 0x10), M2C_FIELD(particle, u8 *, 0xBA), M2C_FIELD(particle, u8 *, 0xBB), M2C_FIELD(particle, u8 *, 0xBC), (s32) M2C_FIELD(particle, s16 *, 0xAA));
     }
 }

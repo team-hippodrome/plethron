@@ -59,9 +59,9 @@ s32 ParticleMath_ApproachS32UpByPointer(s32* arg0, s32 arg1, s32* arg2);
 s32 ParticleMath_ApproachS32DownByPointer(s32* arg0, s32 arg1, s32* arg2);
 s32 ParticleMath_ApproachS16UpByPointer(s16* arg0, s16 arg1, s16* arg2);
 s32 ParticleMath_ApproachS16DownByPointer(s16* arg0, s16 arg1, s16* arg2);
-s32 ParticleMath_ApproachAngle(s16* arg0, s16 arg1, s16 arg2);
+s32 ParticleMath_ApproachAngle(s16* arg0, s16 arg1, s16 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 s32 ParticleMath_ApproachS32(s32* arg0, s32 arg1, s32 arg2);
-s32 ParticleMath_ApproachFloat(f32* arg0, f32 arg1, f32 arg2);
+s32 ParticleMath_ApproachFloat(f32* arg0, f32 arg1, f32 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 void ParticleMath_BounceFloat(f32* arg0, f32 arg1, f32 arg2, f32* arg3);
 void ParticleMath_BounceS16(s16* arg0, s16 arg1, s16 arg2, s16* arg3);
 void ParticleMath_CopyVec3f(Vec3f* arg0, Vec3f* arg1);
@@ -84,7 +84,7 @@ Vec3f* ParticleMath_RotateVec3fY(Vec3f* arg0, Vec3f arg1, Vec3s arg2);
 Vec3f* ParticleMath_MakeXZVectorFromAngle(Vec3f* arg0, f32 arg1, s16 arg2);
 Vec3f* ParticleMath_RotateVec3fXY(Vec3f* arg0, Vec3f arg1, Vec3s arg4);
 f32 ParticleMath_Distance3D(Vec3f arg0, Vec3f arg1);
-Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2);
+Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 s32 ParticleMath_DistanceScaled(Vec3f arg0, Vec3f arg1, f32 arg2);
 s32 ParticleMath_ScaleDirectionToLength(Vec3f* arg0, Vec3f arg1, Vec3f arg2, f32 arg3);
 Vec3f* ParticleMath_RandomDirection(Vec3f* arg0, f32 arg1);
@@ -984,8 +984,8 @@ Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2) {
 #ifdef NON_MATCHING
 /* TODO: decompile ParticleMath_GetPointAlongTurnedView; signature not recovered. */
 #else
-void func_821381E4(Vec3f*, Vec3f, Vec3f);
-void func_82137F10();
+Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
+void ParticleMath_Vec3ToAngles();
 /**
  * Writes to arg0 the point arg2 units from the camera eye along the view direction turned
  * by arg1.
@@ -996,8 +996,8 @@ void ParticleMath_GetPointAlongTurnedView(Vec3f *out, s32 angle, f32 distance) {
     CameraNode *camera;
 
     camera = (CameraNode *)BattleAnim_GetCameraContext();
-    func_821381E4(&dir, camera->view.eyePosition, camera->view.targetPosition);
-    func_82137F10(angle, dir);
+    ParticleMath_NormalizedDirection(&dir, camera->view.eyePosition, camera->view.targetPosition);
+    ParticleMath_Vec3ToAngles(angle, dir);
     out->x = camera->view.eyePosition.x + distance * dir.x;
     out->y = camera->view.eyePosition.y + distance * dir.y;
     out->z = camera->view.eyePosition.z + distance * dir.z;
@@ -1088,11 +1088,11 @@ Vec3f* ParticleMath_ScaleVec3f(Vec3f* arg0, f32 arg1) {
     return arg0;
 }
 
-void func_821381E4(Vec3f*, Vec3f, Vec3f);
+Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
 
 /**
  * Takes the scene camera (BattleAnim_GetCameraContext returns a CameraNode*), asks
- * func_821381E4 for the direction from its eye to its target position (the
+ * ParticleMath_NormalizedDirection for the direction from its eye to its target position (the
  * Vec3f arguments are passed by value, in $a1-$a3 and on the stack), and
  * passes the result's z and x components to MathUtil_Atan2s. Declared void here, but the
  * angle stays in $v0 and the callers in anim_model_effects.c use it as the camera's
@@ -1107,7 +1107,7 @@ void ParticleMath_ComputeViewRotationY(void) {
     CameraNode* camera;
 
     camera = (CameraNode*)BattleAnim_GetCameraContext();
-    func_821381E4(&sp30, camera->view.eyePosition, camera->view.targetPosition);
+    ParticleMath_NormalizedDirection(&sp30, camera->view.eyePosition, camera->view.targetPosition);
     MathUtil_Atan2s(sp30.z, sp30.x);
 }
 

@@ -8,7 +8,7 @@ M2C_UNK Particle_AnimateFramesForwardLoopedThenAdvance(s8 *, M2C_UNK, M2C_UNK, M
 M2C_UNK Particle_ApproachPrimAlpha(s8 *, M2C_UNK, M2C_UNK);
 M2C_UNK Particle_IncrementPhase(s8 *);
 M2C_UNK Particle_SetParam0(s8 *, M2C_UNK);
-s32 func_82140690(s8 *);
+s32 Particle_DecrementParam0ToZero(Particle* arg0); // PORT: signature from the definition (fragments/battle/particle.c)
 void BattleAnim_RunDigHitDust(Particle* arg0);
 void BattleAnim_RunDigHitRocks(Particle* arg0);
 void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* arg0);
@@ -231,8 +231,8 @@ void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* particle) {
         BattleAnim_InitSharedVerticalFadeParticle(particle);
         return;
     case 2:
-        if (func_821406B4(particle) != 0) {
-            func_8213CB3C(particle);
+        if (Particle_DecrementParam0ToZeroThenAdvance(particle) != 0) {
+            Particle_EnableRendering(particle);
             return;
         }
         return;
@@ -313,21 +313,21 @@ void BattleAnim_RunSplashOfWater(Particle* arg0) {
     switch (temp_v0) {                              /* switch 1; irregular */
     case 1:                                         /* switch 1 */
         BattleAnim_InitSharedVerticalFadeParticle(arg0);
-        func_82164B9C(arg0);
+        BattleAnim_ApplySpeciesKeyedSpawnOffset(arg0);
         break;
     case 2:                                         /* switch 1 */
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
-            func_8213D238(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
+            Particle_BeginPhase(arg0);
             Particle_SetParam0(arg0, 0x14);
         }
         break;
     case 3:                                         /* switch 1 */
         Particle_AnimateFramesForwardLooped(arg0, 0, 7, 1, 2, 0);
         Particle_ApproachPrimAlpha(arg0, 0x40, 2);
-        func_8213E7F4(arg0);
-        func_8213E71C(arg0, 0x41200000); // 10.0f
-        func_821406B4(arg0);
+        Particle_AccelerateFall(arg0);
+        Particle_StepBackwardAlongRotationY(arg0, 0x41200000); // 10.0f
+        Particle_DecrementParam0ToZeroThenAdvance(arg0);
         break;
     case 4:                                         /* switch 1 */
         Particle_MarkInactive(arg0);
@@ -336,15 +336,15 @@ void BattleAnim_RunSplashOfWater(Particle* arg0) {
     temp_v0_2 = arg0->phase;
     switch (temp_v0_2) {                            /* switch 2; irregular */
     case 1:                                         /* switch 2 */
-        func_8213F6DC(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
-        if (func_8213D294(arg0, 4) != 0) {
+        Particle_MagnitudeStep_Approach_0ADBC(arg0, 0x3F800000, 0x3DCCCCCD); // 1.0f, 0.1f
+        if (Particle_TickPhaseTimer(arg0, 4) != 0) {
             Particle_IncrementPhase(arg0);
             Particle_SetMagnitudeStepScaled(arg0, 0x3E4CCCCD); // 0.2f
             return;
         }
         return;
     case 2:                                         /* switch 2 */
-        func_8213F6DC(arg0, 0xBF000000, 0x3E4CCCCD); // -0.5f, 0.2f
+        Particle_MagnitudeStep_Approach_0ADBC(arg0, 0xBF000000, 0x3E4CCCCD); // -0.5f, 0.2f
         break;
     }
 }
@@ -366,8 +366,8 @@ void BattleAnim_RunDigHitDust(Particle* arg0) {
         BattleAnim_InitSharedVerticalFadeParticle(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
         }
         break;
     case 3:
@@ -379,7 +379,7 @@ void BattleAnim_RunDigHitDust(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_8213F940(arg0, 0xC0000000, 0x3E99999A); // -2.0f, 0.3f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, 0xC0000000, 0x3E99999A); // -2.0f, 0.3f
         Particle_ApplyMotionStep(arg0);
     }
 }
@@ -401,8 +401,8 @@ void BattleAnim_RunDigHitRocks(Particle* arg0) {
         BattleAnim_InitSharedVerticalFadeParticle(arg0);
         break;
     case 2:
-        if (func_821406B4(arg0) != 0) {
-            func_8213CB3C(arg0);
+        if (Particle_DecrementParam0ToZeroThenAdvance(arg0) != 0) {
+            Particle_EnableRendering(arg0);
         }
         break;
     case 3:
@@ -412,7 +412,7 @@ void BattleAnim_RunDigHitRocks(Particle* arg0) {
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        func_8213F940(arg0, 0xC1200000, 0x3F4CCCCD); // -10.0f, 0.8f
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(arg0, 0xC1200000, 0x3F4CCCCD); // -10.0f, 0.8f
         Particle_ApplyMotionStep(arg0);
     }
 }
@@ -497,11 +497,11 @@ void BattleAnim_CallbackDescriptor50BurstChild(Particle* particle) {
     temp_v0 = particle->lifecycle;
     switch (temp_v0) {                              /* irregular */
     case 1:
-        func_82165100(particle);
+        BattleAnim_CallbackDesc50BurstChild_InitParticle(particle);
         break;
     case 2:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 1, 7, 1, 2, 0);
-        if (func_82140690(particle) != 0) {
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
             Particle_ApproachPrimAlpha(particle, 0x64, 0x10);
         }
         break;
@@ -510,8 +510,8 @@ void BattleAnim_CallbackDescriptor50BurstChild(Particle* particle) {
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        func_821402B8(particle);
-        func_8213F940(particle, 0xBFC00000, 0x3DCCCCCD); // -1.5f, 0.1f
+        Particle_ApproachScaleTarget(particle);
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, 0xBFC00000, 0x3DCCCCCD); // -1.5f, 0.1f
         Particle_ApplyMotionStep(particle);
     }
 }
@@ -593,7 +593,7 @@ void BattleAnim_CallbackVerticalFadeBurstChild(Particle* particle) {
         break;
     case 2:
         Particle_AnimateFramesForwardLoopedThenAdvance(particle, 1, 7, 1, 2, 0);
-        if (func_82140690(particle) != 0) {
+        if (Particle_DecrementParam0ToZero(particle) != 0) {
             Particle_ApproachPrimAlpha(particle, 0x64, 0x10);
         }
         break;
@@ -602,8 +602,8 @@ void BattleAnim_CallbackVerticalFadeBurstChild(Particle* particle) {
         break;
     }
     if (Particle_IsRunning(particle) != 0) {
-        func_821402B8(particle);
-        func_8213F940(particle, 0xBFC00000, 0x3E4CCCCD); // -1.5f, 0.2f
+        Particle_ApproachScaleTarget(particle);
+        Particle_MotionStep_DecrementXUntilAtMost_0B050(particle, 0xBFC00000, 0x3E4CCCCD); // -1.5f, 0.2f
         Particle_ApplyMotionStep(particle);
     }
 }
@@ -703,8 +703,8 @@ void BattleAnim_RunQiChargeChild(Particle* arg0) {
     if (Particle_IsRenderingEnabled(arg0) != 0) {
         Particle_StepMagnitude_ApproachUsingMagnitudeStep(arg0, 0.0f);
         Particle_Rotation_AddYFromRotationStep_0A4C8(arg0);
-        func_8213E4B0(arg0);
-        func_8213E334(arg0, 0.0f);
+        Particle_AddVelocityXZFromRotationYViaHelpers(arg0);
+        Particle_ApproachMotionOffsetY(arg0, 0.0f);
         Particle_EnvB_Approach_0BBC0(arg0, 0xFF, 4);
         Particle_EnvG_Approach_0BBF0(arg0, 0xFF, 4);
     }
@@ -719,7 +719,7 @@ void BattleAnim_RunQiChargeChild(Particle* arg0) {
 void BattleAnim_SetupQiCharge(Particle* arg0) {
     Particle_SpawnIndex_GetS16_0C038(arg0);
     Particle_Rotation_SetY_0A2B8(arg0, ParticleMath_RandomRange(0x10000));
-    func_8213E11C(arg0, ParticleMath_RandomSignedOffsetBySign(0x28, 0x28));
+    Particle_SetMotionOffsetYScaled(arg0, ParticleMath_RandomSignedOffsetBySign(0x28, 0x28));
     BattleAnim_EmitParticleBurst(arg0, BattleAnim_RunQiChargeChild, &D_8218E580[0x44], 5);
     Particle_AdvanceLifecycle(arg0);
 }
@@ -736,7 +736,7 @@ void BattleAnim_SetupQiCharge(Particle* arg0) {
 void BattleAnim_SolarbeamMimicBurstEmitter(Particle* arg0) {
     switch (arg0->lifecycle) {
         case 1:
-            func_82165854(arg0);
+            BattleAnim_SetupQiCharge(arg0);
             break;
 
         case 2:

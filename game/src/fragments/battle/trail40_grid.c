@@ -255,14 +255,14 @@ s32 Trail40GridAlt_IsComplete(void) {
     return 0;
 }
 
-s32 func_8000515C(s32);
-void func_80031F14(f32*, f32*, f32*);
-void func_800320A8(s32, f32, f32, f32, f32, f32, f32);
+void* Gfx_AllocDisplayList(s32 size); // PORT: signature from the definition (gfx_buffer.c)
+void Vec3f_NormalizeComponents(f32*, f32*, f32*);
+void Mtx_BuildTranslatedDirectionRotation(Mtx* mtx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6); // PORT: signature from the definition (vector_math.c)
 extern s32 D_821AABA0;
 /**
  * Allocates the grid's 64-byte matrix (D_821AABA0) and fills it from the camera context: the point
  * at +0xA8 is moved 140 units toward the point at +0xB4 (times 30 over the field of view at
- * +0x2C), and both points are passed to func_800320A8.
+ * +0x2C), and both points are passed to Mtx_BuildTranslatedDirectionRotation.
  * Seen in play (2026-11-13) (unattended Free Battle in which every Pokémon knows only Metronome, 70
  * turns): ran.
  * Seen in play (2026-11-14) (Metronome bench, one movie per move, 1P Onix vs Pinsir on Splash, exec
@@ -282,7 +282,7 @@ void Trail40GridAlt_Reset(void) {
     f32 sp60;
     f32 sp5C;
 
-    D_821AABA0 = func_8000515C(0x40);
+    D_821AABA0 = Gfx_AllocDisplayList(0x40);
     temp_v0 = BattleAnim_GetCameraContext();
 
     tmp4 = temp_v0->view.targetPosition.x;
@@ -298,13 +298,13 @@ void Trail40GridAlt_Reset(void) {
     sp64 = tmp5 - tmp2;
     sp60 = tmp6 - tmp3;
 
-    func_80031F14(&sp68, &sp64, &sp60);
+    Vec3f_NormalizeComponents(&sp68, &sp64, &sp60);
 
     tmp1 = (140.0f * sp68) / (sp5C / 30.0f) + tmp1;
     tmp2 = (140.0f * sp64) / (sp5C / 30.0f) + tmp2;
     tmp3 = (140.0f * sp60) / (sp5C / 30.0f) + tmp3;
 
-    func_800320A8(D_821AABA0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6);
+    Mtx_BuildTranslatedDirectionRotation(D_821AABA0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6);
 }
 
 /**

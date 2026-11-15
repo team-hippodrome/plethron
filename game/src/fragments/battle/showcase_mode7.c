@@ -32,10 +32,10 @@ void SceneMode7_UnusedNop(void);
 void SceneMode7_UnusedNop(void) {
 }
 
-M2C_UNK func_80006998(M2C_UNK);                     /* extern */
-M2C_UNK func_8212188C();                            /* extern */
-M2C_UNK func_82121D78(s32, M2C_UNK, M2C_UNK);       /* extern */
-M2C_UNK func_82136918(s32, M2C_UNK);                /* extern */
+void StageContext_SetClearColor(u16 color); // PORT: signature from the definition (stage_loader.c)
+void BattleScene_ResetCameraFrameCounter(void); // PORT: signature from the definition (fragments/battle/scene_camera.c)
+void BattleScene_SetCameraClipPlanes(CameraNode* camera_node, f32 near_plane, f32 far_plane); // PORT: signature from the definition (fragments/battle/scene_camera.c)
+void BattleAnim_LoadModeResourceList(BattleSide* battle_session_teams, s16 mode); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 extern s8 *D_82199DE0;
 extern s8 *D_8219A580;
 
@@ -49,25 +49,25 @@ void SceneMode7_StepInit(s32 camera) {
 
     sp1C = D_82199DE0 + 0x78C;
     sBattleScene.scene->cameraPresetId = 0;
-    func_82121D78(camera, 0x41A00000, 0x457A0000);
-    func_8212188C();
+    BattleScene_SetCameraClipPlanes(camera, 0x41A00000, 0x457A0000);
+    BattleScene_ResetCameraFrameCounter();
     sBattleScene.scene->actingSide = 0U;
     D_8219A580 = (&D_82199DE0)[sBattleScene.scene->actingSide];
     M2C_FIELD(sp1C, s32 *, 8) = 0;
     BattleCamera_PlayShot(D_8219A580, camera, 3);
-    func_82136918((uintptr_t)((ActivePokemon*)D_8219A580)->side, 9);
-    func_80006998(0);
+    BattleAnim_LoadModeResourceList((uintptr_t)((ActivePokemon*)D_8219A580)->side, 9);
+    StageContext_SetClearColor(0);
     sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
 }
 
-s32 func_82101FD4(s32);                             /* extern */
+s32 BattleAnim_TryRegisterAssetTables(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/move_animation.c)
 
 /**
  * Advances the phase step once the featured Pokemon's model is ready.
  * @unverified Name guessed from the code.
  */
 void SceneMode7_StepWaitModelReady(s32 camera) {
-    if (func_82101FD4(D_8219A580) != 0) {
+    if (BattleAnim_TryRegisterAssetTables(D_8219A580) != 0) {
         sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
     }
 }
@@ -76,14 +76,14 @@ void SceneMode7_StepWaitModelReady(s32 camera) {
  * SceneMode7_StepStartCameraPath
  *
  * Clears the byte at D_8219A4F1, calls BattleCamera_StartSpeciesPath(arg0, D_8219A580) and
- * func_82104C68(D_8219A580, 1), then adds 1 to
+ * BattleScene_EnterStateRow(D_8219A580, 1), then adds 1 to
  * sBattleScene.scene->phaseStep, which is advanced by neighboring
  * functions in this file in the same way (see SceneMode7_StepWaitModelReady), so it
  * is a step counter.
  */
 extern s8 D_8219A4F1;
 void BattleCamera_StartSpeciesPath(CameraNode* arg0, s8* arg1);
-void func_82104C68(s8* arg0, s32 arg1);
+void BattleScene_EnterStateRow(ActivePokemon* active_pokemon, s32 row_index); // PORT: signature from the definition (fragments/battle/move_animation.c)
 
 /**
  * Starts camera path 0x19 on the featured Pokemon with model reaction 1 and advances.
@@ -92,7 +92,7 @@ void func_82104C68(s8* arg0, s32 arg1);
 void SceneMode7_StepStartCameraPath(CameraNode* camera) {
     D_8219A4F1 = 0;
     BattleCamera_StartSpeciesPath(camera, D_8219A580);
-    func_82104C68(D_8219A580, 1);
+    BattleScene_EnterStateRow(D_8219A580, 1);
     sBattleScene.scene->phaseStep = (s32) (sBattleScene.scene->phaseStep + 1);
 }
 
@@ -101,7 +101,7 @@ void SceneMode7_StepStartCameraPath(CameraNode* camera) {
  *
  * Calls BattleCamera_StepPathLateEase(arg0, D_8219A580).  If that returns non-zero, adds 1
  * to sBattleScene.scene->phaseStep.
- * SceneMode7_StepWaitModelReady, just above, is the same pattern with func_82101FD4 and a
+ * SceneMode7_StepWaitModelReady, just above, is the same pattern with BattleAnim_TryRegisterAssetTables and a
  * single argument.  What the counter at +0x20 counts is not established
  * from the code alone.
  */
@@ -117,14 +117,14 @@ void SceneMode7_StepFollowCameraPath(CameraNode* camera) {
     }
 }
 
-M2C_UNK func_80006998(M2C_UNK);
-s32 StageFade_Start(s32);
+void StageContext_SetClearColor(u16 color); // PORT: signature from the definition (stage_loader.c)
+s32 StageFade_Start(s32 duration); // PORT: signature from the definition (stage_loader.c)
 /**
  * Looks at the word at offset 8 of the state block (D_8219A580 + 0x78C, i.e.
  * ActivePokemonState::rosterIndex).  If rosterIndex + 1 is 6 or more as an
  * unsigned value (rosterIndex outside -1..4), it writes 3 to offset 0x40 and 7
  * to sBattleScene.scene->phaseStep and returns.
- * Otherwise it calls func_80006998(0) and StageFade_Start(5) and adds 1 to the
+ * Otherwise it calls StageContext_SetClearColor(0) and StageFade_Start(5) and adds 1 to the
  * word at offset 0x20, the same step counter that SceneMode7_StepWaitModelReady and
  * SceneMode7_StepStartCameraPath advance.  What the two values written in the first case mean
  * is not established from the code alone.
@@ -139,14 +139,14 @@ void SceneMode7_StepFadeOutOrFinish(CameraNode* camera) {
         sBattleScene.scene->phaseStep = 7;
         return;
     }
-    func_80006998(0);
+    StageContext_SetClearColor(0);
     StageFade_Start(5);
     sBattleScene.scene->phaseStep = (s32)(sBattleScene.scene->phaseStep + 1);
 }
 
-s32 func_821217DC(s32);
+s32 BattleScene_AdvanceCameraFrameCounter(s32);
 /**
- * Once func_821217DC(0xA) returns non-zero it advances the roster index of the
+ * Once BattleScene_AdvanceCameraFrameCounter(0xA) returns non-zero it advances the roster index of the
  * Pokemon in D_8219A580 (state.rosterIndex) by one and makes that roster entry
  * the current one in the session teams block: side->displayModel gets
  * the first byte of the new entry, side->unk_04 is pointed at the entry
@@ -163,7 +163,7 @@ void SceneMode7_StepLoadNextRosterPokemon(UNUSED CameraNode* camera) {
     ActivePokemonState* st = &((ActivePokemon*)D_8219A580)->state;
     BattleMon* mon;
 
-    if (func_821217DC(10) != 0) {
+    if (BattleScene_AdvanceCameraFrameCounter(10) != 0) {
         st->rosterIndex++;
         mon = &((ActivePokemon*)D_8219A580)->teamRoster->pokemonPicked[st->rosterIndex];
         ((ActivePokemon*)D_8219A580)->side->displayModel = mon->species.id;

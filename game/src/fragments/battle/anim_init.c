@@ -372,7 +372,7 @@ extern u8* sD_84386DEC[];
 extern u8* sBattleAnimMode9StartEffectLists[];
 extern u8* sMoveAnimEffectScripts[][5];
 
-void BattleAnim_Initialize(void);
+void BattleAnim_Initialize(void); // PORT: signature from the definition (fragments/battle/anim_init.c)
 
 void BattleAnim_Reset(void);
 

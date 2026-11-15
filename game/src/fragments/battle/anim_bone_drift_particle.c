@@ -3,16 +3,16 @@
 #include "global.h"
 #include "battle.h"
 
-void func_821401D4(Particle*, f32);
-void func_8213E11C(Particle*, f32);
+void Particle_SetScaleScaled(Particle* arg0, f32 arg1); // PORT: signature from the definition (fragments/battle/particle.c)
+void Particle_SetMotionOffsetYScaled(Particle*, f32);
 u32 ParticleMath_RandomRange(u32 arg0);
 void Particle_SetRotationStepY(Particle*, s16);
 void Particle_SetStepMagnitudeScaled(Particle*, f32);
 void Particle_SetMotionStepYScaled(Particle*, f32);
-void func_82143478(Particle*, s32);
+void ParticleGfx_RecolorPrimEnvFromPalettePair(Particle* arg0, u16 arg1); // PORT: signature from the definition (fragments/battle/particle_palette.c)
 void Particle_SetPrimAlpha(s8 *arg0, char arg1);
 void Particle_SetParam0(Particle*, s32);
-void func_8213C9D0(Particle*);
+void Particle_AdvanceLifecycle(Particle* arg0); // PORT: signature from the definition (fragments/battle/anim_owner_bones.c)
 
 /**
  * Init step for a small particle that drifts to a bone: scale 0.16, a random Y spin, slow
@@ -20,15 +20,15 @@ void func_8213C9D0(Particle*);
  * @unverified Name guessed from the code.
  */
 void BattleAnim_InitBoneDriftEmber(Particle* particle) {
-    func_821401D4(particle, 0.16f);
-    func_8213E11C(particle, -3.2f);
+    Particle_SetScaleScaled(particle, 0.16f);
+    Particle_SetMotionOffsetYScaled(particle, -3.2f);
     Particle_SetRotationStepY(particle, ParticleMath_RandomRange(0x10000));
     Particle_SetStepMagnitudeScaled(particle, 0.085f);
     Particle_SetMotionStepYScaled(particle, 0.44f);
-    func_82143478(particle, 0x1A);
+    ParticleGfx_RecolorPrimEnvFromPalettePair(particle, 0x1A);
     Particle_SetPrimAlpha(particle, 0xFF);
     Particle_SetParam0(particle, 2);
-    func_8213C9D0(particle);
+    Particle_AdvanceLifecycle(particle);
 }
 
 extern Vec3f D_8219A898;
@@ -77,8 +77,8 @@ extern void* D_82199DE0[];
 extern void* D_8219A810;
 extern s32 gNextGameState;
 extern u8 D_8218E5A0[];
-s32 func_82107CF0(void*);
-void func_8213B5D8(s32, s32, s32, void (*)(Particle*), u8*, s32, s32, s32, s32, s32, s32);
+s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 
 /**
  * Spawns the BattleAnim_CallbackBoneDriftEmber effect for side arg0 when gNextGameState is 0x8080
@@ -88,8 +88,8 @@ void func_8213B5D8(s32, s32, s32, void (*)(Particle*), u8*, s32, s32, s32, s32, 
 void BattleAnim_SpawnCharizardBoneDriftEmbers(s32 side) {
     D_8219A810 = D_82199DE0[side];
     if (gNextGameState == 0x8080) {
-        if (func_82107CF0(D_8219A810) == 6) {
-            func_8213B5D8(0, 0, -1, BattleAnim_CallbackBoneDriftEmber, D_8218E5A0, 0, 1, 0x11, 0xA, 0, 0);
+        if (BattleAnim_GetOwnerSpecies(D_8219A810) == 6) {
+            BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 0, -1, BattleAnim_CallbackBoneDriftEmber, D_8218E5A0, 0, 1, 0x11, 0xA, 0, 0);
         }
     }
 }

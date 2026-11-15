@@ -35,7 +35,7 @@ extern u8 sHighCritMoves[];
 #include "m2c_macros.h"
 
 void TurnOrder_UnusedNopA(void);
-s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length);
+s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
 void TurnOrder_UnusedNopB(void);
 void Battle_SetActiveMoveFromSlotIndex(void);
 s32 Battle_CheckMoveSuccess(void);

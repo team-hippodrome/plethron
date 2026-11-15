@@ -2,10 +2,10 @@
 #include "battle.h"
 
 // Declared here instead of in a header: the callers of these disagree on their types.
-M2C_UNK func_8213B5D8(M2C_UNK, M2C_UNK, M2C_UNK, M2C_UNK *, M2C_UNK *, s32, s32, s32, s32, s32, s32);
+BattleAnimEffectSlot* BattleAnim_CreateRepeatEffectSlotForCurrentOwner(s32 arg0, s32 arg1, s8 arg2, func_unk_D_8140E724 arg3, ParticleDescriptor* arg4, s16 arg5, s16 arg6, u8 arg7, u8 arg8, u8 arg9, u8 argA); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 extern M2C_UNK BattleAnim_RunOscillatingFlameUnderneathPokemon;
 extern M2C_UNK D_8218E7B8;
-s32 func_82107CF0(s32);
+s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleAnim_PowderCloudScaleMotion(Particle* arg0);
 void BattleAnim_CallbackSharedAnimatedVerticalFade(Particle* arg0);
 
@@ -181,11 +181,11 @@ void BattleAnim_InitializeIcePunchHit(void) {
  * ran for exactly Thunder Punch.
  */
 void BattleAnim_InitializeThunderPunchHit(void) {
-    func_8213B560(0, &func_82162C68, &D_8218E728, 0, 1, 0x11, 9, 3, 5);
-    func_8213B560(4, &func_82162938, &D_8218E788, 0, 1, 0x10, 0x64, 0, 0);
-    func_8213B5D8(0, 4, 5, &BattleAnim_CallbackStart18And73Desc11ScatterRise, &D_8218E610, 8, 4, 2, 0, 0, 0);
-    func_8213B794(0, 0, 0x40, 8, 0xC8);
-    func_8213BC00(0, 0x17, 0xE1, 0, 0x40);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 1, 0x11, 9, 3, 5);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, &BattleAnim_RunThunderPunchHitEffect, &D_8218E788, 0, 1, 0x10, 0x64, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 5, &BattleAnim_CallbackStart18And73Desc11ScatterRise, &D_8218E610, 8, 4, 2, 0, 0, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOut(0, 0, 0x40, 8, 0xC8);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0x17, 0xE1, 0, 0x40);
 }
 
 /**
@@ -264,7 +264,7 @@ void BattleAnim_InitializeBitingMoveEndEffect(void) {
  * it ran for exactly Swift.
  */
 void BattleAnim_InitializeSwiftUse(void) {
-    func_8213B644(0, 8, 0x20);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x20);
 }
 
 /**
@@ -298,8 +298,8 @@ void BattleAnim_StartEffect137Descriptor3FRisingFade(void) {
  * @unverified Name guessed from the code.
  */
 void BattleAnim_StartEffect136Sand(void) {
-    func_8213B5D8(0, 3, 2, &BattleAnim_RunSmallSand, &D_8218E7D0, 0, 6, 0x11, (s32) D_8219A80A, 0x11, 0);
-    func_8213B5D8(0, 4, 2, &BattleAnim_RunLargeSand, &D_8218E7D0, 0, 4, 0x11, (s32) D_8219A80A, 0x11, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 3, 2, &BattleAnim_RunSmallSand, &D_8218E7D0, 0, 6, 0x11, (s32) D_8219A80A, 0x11, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunLargeSand, &D_8218E7D0, 0, 4, 0x11, (s32) D_8219A80A, 0x11, 0);
 }
 
 /**
@@ -312,16 +312,16 @@ void BattleAnim_StartEffect136Sand(void) {
 void BattleAnim_InitializeScratchSlashUse(void) {
     void (*sp30)(s8*);
 
-    if (func_82107CF0(D_8219A814) == SCYTHER) {
+    if (BattleAnim_GetOwnerSpecies(D_8219A814) == SCYTHER) {
         BattleAnim_InitializeCutUse();
         return;
     }
     sp30 = BattleAnim_CallbackSharedDescriptor29ScaleAnimFade;
-    func_8213B560(0, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 0);
-    func_8213B560(4, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 1);
-    func_8213B560(10, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 2);
-    func_8213B560(30, &BattleAnim_RunSlashingMoveFullScreenFlash, &D_8218E6C8, 0, 1, 0x18, 0, 0xF, 0);
-    func_8213B720(35, 0, 0x10, 0x12);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(4, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 1);
+    BattleAnim_CreateEffectSlotForCurrentOwner(10, (M2C_UNK*)sp30, &D_8218E6D0, 0, 3, 0x10, (s32) D_8219A80A, 0xB, 2);
+    BattleAnim_CreateEffectSlotForCurrentOwner(30, &BattleAnim_RunSlashingMoveFullScreenFlash, &D_8218E6C8, 0, 1, 0x18, 0, 0xF, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(35, 0, 0x10, 0x12);
 }
 
 /**
@@ -368,9 +368,9 @@ void BattleAnim_InitializeCutEffect(void) {
  * ran for exactly Crabhammer, Cut.
  */
 void BattleAnim_InitializeCutCrabhammerHit(void) {
-    func_8213B794(0, 2, 0x10, 0x12, 0xFF);
-    func_8213B560(3, &BattleAnim_SlashGrowFade, &D_8218E6D8, 0, 1, 0x10, (s32) D_8219A80A, 0x10, 2);
-    func_8213B560(3, &BattleAnim_RunSlashMoveWhiteFlashOverlay, &D_8218E790, 0, 1, 0x18, 0, 0xF, 0);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOut(0, 2, 0x10, 0x12, 0xFF);
+    BattleAnim_CreateEffectSlotForCurrentOwner(3, &BattleAnim_SlashGrowFade, &D_8218E6D8, 0, 1, 0x10, (s32) D_8219A80A, 0x10, 2);
+    BattleAnim_CreateEffectSlotForCurrentOwner(3, &BattleAnim_RunSlashMoveWhiteFlashOverlay, &D_8218E790, 0, 1, 0x18, 0, 0xF, 0);
 }
 
 /**
@@ -413,8 +413,8 @@ void BattleAnim_InitializeVineWhipHit(void) {
  * it ran for exactly Fire Punch.
  */
 void BattleAnim_InitializeFirePunchUse(void) {
-    func_8213B5D8(0, 1, 36, &BattleAnim_FirePunchParticleUpdate, &D_8218E7B0, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
-    func_8213B560(0, &func_82163540, &D_8218E788, 0, 1, 0x10, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 1, 36, &BattleAnim_FirePunchParticleUpdate, &D_8218E7B0, 0, 1, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunFirePunchUseEffect1, &D_8218E788, 0, 1, 0x10, (s32) D_8219A80A, 0, 0);
 }
 
 /**
@@ -435,7 +435,7 @@ void BattleAnim_InitializeRazorWindHit(void) {
  * it ran for exactly Razor Leaf.
  */
 void BattleAnim_InitializeRazorLeafUse(void) {
-    func_8213B644(0, 8, 0x26);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x26);
 }
 
 /**
@@ -457,7 +457,7 @@ void BattleAnim_InitializeRazorLeafHit(void) {
  * it ran for exactly Petal Dance.
  */
 void BattleAnim_InitializePetalDanceUse(void) {
-    func_8213B644(0, 8, 0x15);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 0x15);
 }
 
 /**
@@ -486,28 +486,28 @@ void BattleAnim_InitializePetalDanceHitSequence(void) {
 void BattleAnim_InitializePowderSporeGasMoveHit(void) {
     s32 temp_v0;
 
-    temp_v0 = func_8213646C();
+    temp_v0 = BattleAnim_GetQueuedMoveId();
     switch (temp_v0) {                              /* irregular */
     case POISONPOWDER:
-        func_8213BC7C(0, 0x64, 0x3B, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x3B, 0, 0xA0, 4);
         break;
     case STUN_SPORE:
-        func_8213BC7C(0, 0x64, 0x17, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x17, 0, 0xA0, 4);
         break;
     case SLEEP_POWDER:
-        func_8213BC7C(0, 0x64, 0x2D, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x2D, 0, 0xA0, 4);
         break;
     case SPORE:
-        func_8213BC7C(0, 0x64, 0x17, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x17, 0, 0xA0, 4);
         break;
     case SMOG:
-        func_8213BC7C(0, 0x64, 0x3B, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x3B, 0, 0xA0, 4);
         break;
     case POISON_GAS:
-        func_8213BC7C(0, 0x64, 0x3B, 0, 0xA0, 4);
+        BattleAnim_SpawnOwnerTintPulseDetach(0, 0x64, 0x3B, 0, 0xA0, 4);
         break;
     }
-    func_8213B560(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 7, 0x10, 0x64, 1, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_PowderCloudScaleMotion, &D_8218E7B8, 0, 7, 0x10, 0x64, 1, 0);
 }
 
 /**
@@ -517,9 +517,9 @@ void BattleAnim_InitializePowderSporeGasMoveHit(void) {
  * it ran for exactly Sand Attack.
  */
 void BattleAnim_InitializeSandAttackUse(void) {
-    func_8213B5D8(0, 2, 3, &BattleAnim_SandAttackParticleUpdate, &D_8218E7C8, 0, 8, 0x11, (s32) D_8219A80A, 0, 0);
-    func_8213B5D8(0, 3, 2, &BattleAnim_RunSmallSand, &D_8218E7B8, 0, 6, 0x11, (s32) D_8219A80A, 0x31, 0);
-    func_8213B5D8(0, 4, 2, &BattleAnim_RunLargeSand, &D_8218E7B8, 0, 4, 0x11, (s32) D_8219A80A, 0x31, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 2, 3, &BattleAnim_SandAttackParticleUpdate, &D_8218E7C8, 0, 8, 0x11, (s32) D_8219A80A, 0, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 3, 2, &BattleAnim_RunSmallSand, &D_8218E7B8, 0, 6, 0x11, (s32) D_8219A80A, 0x31, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 4, 2, &BattleAnim_RunLargeSand, &D_8218E7B8, 0, 4, 0x11, (s32) D_8219A80A, 0x31, 0);
 }
 
 /**
@@ -541,12 +541,12 @@ void BattleAnim_InitializeSandAttackHit(void) {
  * it ran for exactly Acid Armor.
  */
 void BattleAnim_InitializeAcidArmorUse(void) {
-    func_8213C0D8(0, 0xFF, 0x30, 6);
-    func_8213C0D8(36, 0, 0, 0xFF);
-    func_8213BC00(0, 0x21, 0, 0xFF, 8);
-    func_8213B464(6);
-    func_8213B560(2, &BattleAnim_AcidArmorParticleUpdateA, &D_8218E7D8, 0, 1, 0xA, 0, 0x2F, 0);
-    func_8213B5D8(0, 8, 4, &func_821640A0, &D_8218E770, 0, 3, 9, 0, 0x30, 0);
+    BattleAnim_SpawnInvisibility(0, 0xFF, 0x30, 6);
+    BattleAnim_SpawnInvisibility(36, 0, 0, 0xFF);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 0x21, 0, 0xFF, 8);
+    BattleAnim_AddSpawnDelay(6);
+    BattleAnim_CreateEffectSlotForCurrentOwner(2, &BattleAnim_AcidArmorParticleUpdateA, &D_8218E7D8, 0, 1, 0xA, 0, 0x2F, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(0, 8, 4, &BattleAnim_RunAcidArmorUseEffect2, &D_8218E770, 0, 3, 9, 0, 0x30, 0);
 }
 
 /**
@@ -559,14 +559,14 @@ void BattleAnim_InitializeAcidArmorUse(void) {
  * it ran for exactly Flash.
  */
 void BattleAnim_InitializeFlashUse(void) {
-    func_8213B644(0, 0x20, 6);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B878(12, 5, 0x10, 8);
-    func_8213B560(12, &func_82162C68, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
-    func_8213B464(33);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213B644(0, 0x10, 8);
-    func_8213BC00(0, 8, 0xFF, 0, 0x10);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 6);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnDesc25AlphaFadeInHoldFullAlpha(12, 5, 0x10, 8);
+    BattleAnim_CreateEffectSlotForCurrentOwner(12, &BattleAnim_RunDefaultHitSpark, &D_8218E728, 0, 4, 9, 0, 0x18, 0xD);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x10, 8);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x10);
 }
 
 /**
@@ -576,12 +576,12 @@ void BattleAnim_InitializeFlashUse(void) {
  * ran for exactly Flash.
  */
 void BattleAnim_InitializeFlashHit(void) {
-    func_8213B644(0, 0x20, 6);
-    func_8213BC00(8, 8, 0, 0xFF, 0x40);
-    func_8213B720(0, 0, 0x10, 8);
-    func_8213B464(33);
-    func_8213B644(0, 0x10, 8);
-    func_8213BC00(0, 8, 0xFF, 0, 0x10);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x20, 6);
+    BattleAnim_SpawnOwnerTintRampDetach(8, 8, 0, 0xFF, 0x40);
+    BattleAnim_SpawnDesc25AlphaHoldFadeOutFullAlpha(0, 0, 0x10, 8);
+    BattleAnim_AddSpawnDelay(33);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 0x10, 8);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x10);
 }
 
 /**
@@ -593,12 +593,12 @@ void BattleAnim_InitializeFlashHit(void) {
 void BattleAnim_InitializeBideRageUse(void) {
     M2C_UNK *sp38;
 
-    func_8213BC7C(0, 1, 0xA, 0, 0xC8, 0x10);
+    BattleAnim_SpawnOwnerTintPulseDetach(0, 1, 0xA, 0, 0xC8, 0x10);
     sp38 = &BattleAnim_CallbackSharedAnimatedVerticalFade;
-    func_8213B5D8(6, 4, 14, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 0x11, 7, 0x1A, 0);
-    func_8213B5D8(7, 8, 7, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 0x11, 7, 0x1A, 0);
-    func_8213B560(0, &BattleAnim_RunOscillatingFlameUnderneathPokemon, &D_8218E7F8, 0, 0x20, 7, 0, 0, 0);
-    func_8215E510();
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(6, 4, 14, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 0x11, 7, 0x1A, 0);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(7, 8, 7, &BattleAnim_CallbackSharedAnimatedVerticalFade, &D_8218E770, 0, 1, 0x11, 7, 0x1A, 0);
+    BattleAnim_CreateEffectSlotForCurrentOwner(0, &BattleAnim_RunOscillatingFlameUnderneathPokemon, &D_8218E7F8, 0, 0x20, 7, 0, 0, 0);
+    BattleAnim_InitializeBideRageUseSequence();
 }
 
 /**
@@ -724,9 +724,9 @@ void BattleAnim_InitializeQiCharge(s32 arg0) {
  * 165 moves used: it ran for exactly Conversion, Mimic.
  */
 void BattleAnim_InitializeMimicConversionUse(void) {
-    func_8213B644(0, 8, 6);
-    func_82168844(0xE);
-    func_8213B644(100, 0x20, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 6);
+    BattleAnim_InitializeQiCharge(0xE);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(100, 0x20, 8);
 }
 
 /**
@@ -736,10 +736,10 @@ void BattleAnim_InitializeMimicConversionUse(void) {
  * for Solar Beam.
  */
 void BattleAnim_InitializeSolarBeamUseSequence(void) {
-    func_8213B644(0, 8, 6);
-    func_82168844(0x17);
-    func_8213B560(10, &func_821655C0, &D_8218E768, 0x1A, 1, 5, 0, 0x33, 0);
-    func_8213B644(100, 0x20, 8);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(0, 8, 6);
+    BattleAnim_InitializeQiCharge(0x17);
+    BattleAnim_CreateEffectSlotForCurrentOwner(10, &BattleAnim_RunSolarBeamUseEffect, &D_8218E768, 0x1A, 1, 5, 0, 0x33, 0);
+    BattleAnim_SpawnGlobalTintColorFadeDetach(100, 0x20, 8);
 }
 
 /**
@@ -749,7 +749,7 @@ void BattleAnim_InitializeSolarBeamUseSequence(void) {
  * it ran for exactly Growth.
  */
 void BattleAnim_InitializeGrowthUse(void) {
-    func_8213BC7C(10, 1, 8, 0, 0xFF, 0x20);
+    BattleAnim_SpawnOwnerTintPulseDetach(10, 1, 8, 0, 0xFF, 0x20);
 }
 
 /**
@@ -773,6 +773,6 @@ void BattleAnim_InitializeRecoverUse(void) {
  * it ran for exactly Harden.
  */
 void BattleAnim_InitializeHardenUse(void) {
-    func_8213BC00(0, 8, 0xFF, 0, 0x20);
-    func_8213B5D8(4, 2, 2, &func_821624FC, &D_8218E798, 0, 8, 9, 0, 0x17, 1);
+    BattleAnim_SpawnOwnerTintRampDetach(0, 8, 0xFF, 0, 0x20);
+    BattleAnim_CreateRepeatEffectSlotForCurrentOwner(4, 2, 2, &BattleAnim_RunSparkleHit, &D_8218E798, 0, 8, 9, 0, 0x17, 1);
 }

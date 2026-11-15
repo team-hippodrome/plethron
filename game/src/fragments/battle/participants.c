@@ -10,15 +10,15 @@
 
 #include "m2c_macros.h"
 
-void func_8210840C(ActivePokemon*, ActivePokemon*, s32);
-void func_82108648(ActivePokemon*, s32);
+void BattleScene_ReinitParticipantBodyModel(ActivePokemon* owner, ActivePokemon* pokemon, s16 object_type); // PORT: signature from the definition (fragments/battle/participants.c)
+void BattleScene_ReinitParticipantAfterimages(ActivePokemon* pokemon, s16 object_type); // PORT: signature from the definition (fragments/battle/participants.c)
 
 f32 BattleScene_GetParticipantModelXOffset(ActivePokemon* active_pokemon);
 void BattleScene_SetParticipantModelScale(ActivePokemon* active_pokemon, f32 scale);
-s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon);
+s32 BattleScene_GetParticipantSideIndex(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 void BattleScene_GetParticipantModelRotation(ActivePokemon* pokemon, Vec3s* dest);
 s32 BattleAnim_GetSpeciesBySideIndex(s32 side);
-s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon);
+s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 u8 BattleScene_IsParticipantModelVisible(ActivePokemon* active_pokemon);
 void BattleScene_GetParticipantModelPosition(ActivePokemon* pokemon, Vec3f* dest);
 
@@ -197,7 +197,7 @@ extern f32 D_FLT_82189350[][4];
  *
  * Returns the participant's scaled model width: the table entry for its object
  * type (first float of each 0x10-byte entry of D_FLT_82189350, the same table
- * whose second float func_82107790 reads as a resting height), doubled, divided
+ * whose second float BattleScene_PositionParticipantModel reads as a resting height), doubled, divided
  * by 50, times the display object's Y scale. Zero-side relative of the width
  * term used by BattleScene_GetParticipantModelWidth in Stadium 1.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the battle opening, a switch
@@ -341,19 +341,19 @@ void BattleScene_GetParticipantAimPoint(ActivePokemon *arg0, u8 *arg1) {
     }
 }
 
-f32 func_8210791C(ActivePokemon*);
+f32 BattleScene_GetParticipantModelXOffset(ActivePokemon*);
 /**
- * Like BattleScene_GetParticipantAimPoint, but in screen x (func_8210791C) with z 0.
+ * Like BattleScene_GetParticipantAimPoint, but in screen x (BattleScene_GetParticipantModelXOffset) with z 0.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in a Pound turn.
  * @unverified Name and comment guessed from the code.
  */
 void BattleScene_GetParticipantScreenAimPoint(ActivePokemon* active_pokemon, Vec3f* out) {
     if (D_FLT_82189354[active_pokemon->displayObject.objectType][0] != 0.0f) {
-        out->x = func_8210791C(active_pokemon);
+        out->x = BattleScene_GetParticipantModelXOffset(active_pokemon);
         out->y = active_pokemon->displayObject.position.y;
         out->z = 0.0f;
     } else {
-        out->x = func_8210791C(active_pokemon);
+        out->x = BattleScene_GetParticipantModelXOffset(active_pokemon);
         out->y = BattleScene_GetParticipantHeight(active_pokemon) + active_pokemon->displayObject.position.y;
         out->z = 0.0f;
     }
@@ -511,7 +511,7 @@ void BattleScene_InitializeParticipantSecondaryModels(ActivePokemon* pokemon, s3
 }
 
 extern f32 D_82199DF0[][4];
-void func_8000D41C(Vec3f*, f32, f32, f32);
+Vec3f* Vec3f_SetComponentsDuplicate(Vec3f* dest, f32 x, f32 y, f32 z); // PORT: signature from the definition (matrix.c)
 void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon*);
 /**
  * Creates and positions the participant's Pokemon model and loads its
@@ -556,7 +556,7 @@ void BattleScene_InitializeParticipantModel(ActivePokemon* active_pokemon) {
         BattleScene_PositionParticipantModel(active_pokemon);
         active_pokemon->displayObject.rotation.y = -0x4000;
     }
-    func_8000D41C(&active_pokemon->modelTransform.focusOffset, active_pokemon->facingDirection * D_82199DF0[side][0], D_82199DF0[side][1], D_82199DF0[side][2]);
+    Vec3f_SetComponentsDuplicate(&active_pokemon->modelTransform.focusOffset, active_pokemon->facingDirection * D_82199DF0[side][0], D_82199DF0[side][1], D_82199DF0[side][2]);
 }
 
 /**
@@ -632,7 +632,7 @@ void BattleScene_ReinitParticipantBodyModel(ActivePokemon* owner, ActivePokemon*
             pokemon->displayObject.rotation.y = -0x4000;
         }
     }
-    func_8000D41C(&owner->modelTransform.focusOffset, owner->facingDirection * D_82199DF0[side][0], D_82199DF0[side][1], D_82199DF0[side][2]);
+    Vec3f_SetComponentsDuplicate(&owner->modelTransform.focusOffset, owner->facingDirection * D_82199DF0[side][0], D_82199DF0[side][1], D_82199DF0[side][2]);
 }
 
 /**
@@ -741,9 +741,9 @@ void Battle_LoadOwnerModelForSpecies(ActivePokemon* active_pokemon) {
 
     Battle_GetLoadedModelNode(active_pokemon, 0);
     object_type = Battle_GetDisplayModelId(active_pokemon, 0);
-    func_8210840C(active_pokemon, active_pokemon, object_type);
+    BattleScene_ReinitParticipantBodyModel(active_pokemon, active_pokemon, object_type);
     BattleScene_ReinitParticipantThumbnailModel(active_pokemon, &active_pokemon->thumbnail, object_type);
-    func_82108648(active_pokemon, object_type);
+    BattleScene_ReinitParticipantAfterimages(active_pokemon, object_type);
     Battle_ResetEventTrack(active_pokemon);
     state->flags &= 0x3800;
     Vec3f_SetComponentsDuplicate(&active_pokemon->displayObject.scale, 1.0f, 1.0f, 1.0f);
@@ -763,9 +763,9 @@ void Battle_LoadOwnerModelForSwitchIn(ActivePokemon* active_pokemon) {
 
     Battle_GetLoadedModelNode(active_pokemon, 0);
     object_type = Battle_GetDisplayModelId(active_pokemon, 0);
-    func_8210840C(active_pokemon, active_pokemon, object_type);
+    BattleScene_ReinitParticipantBodyModel(active_pokemon, active_pokemon, object_type);
     BattleScene_ReinitParticipantThumbnailModel(active_pokemon, &active_pokemon->thumbnail, object_type);
-    func_82108648(active_pokemon, object_type);
+    BattleScene_ReinitParticipantAfterimages(active_pokemon, object_type);
     Battle_ResetEventTrack(active_pokemon);
     state->faintState = 0;
     state->flags &= 0x3800;
@@ -782,8 +782,8 @@ void Battle_LoadOwnerModelForSwitchIn(ActivePokemon* active_pokemon) {
 void Battle_ResetOwnerModelToSubstituteDoll(ActivePokemon* active_pokemon) {
     Model_SetMaterialColor(&active_pokemon->displayObject, 0xFF, 0xFF, 0xFF, active_pokemon->state.alpha = 0xFF); // #FFFFFF
     active_pokemon->state.model = active_pokemon->displayObject.objectType;
-    func_8210840C(active_pokemon, active_pokemon, SUBSTITUTE_DOLL);
-    func_82108648(active_pokemon, SUBSTITUTE_DOLL);
+    BattleScene_ReinitParticipantBodyModel(active_pokemon, active_pokemon, SUBSTITUTE_DOLL);
+    BattleScene_ReinitParticipantAfterimages(active_pokemon, SUBSTITUTE_DOLL);
     Battle_ResetEventTrack(active_pokemon);
 }
 
@@ -796,8 +796,8 @@ void Battle_ResetOwnerModelToSubstituteDoll(ActivePokemon* active_pokemon) {
  * @unverified Name from Stadium 1.
  */
 void Battle_ReloadSubstituteDoll(ActivePokemon* active_pokemon) {
-    func_8210840C(active_pokemon, active_pokemon, SUBSTITUTE_DOLL);
-    func_82108648(active_pokemon, SUBSTITUTE_DOLL);
+    BattleScene_ReinitParticipantBodyModel(active_pokemon, active_pokemon, SUBSTITUTE_DOLL);
+    BattleScene_ReinitParticipantAfterimages(active_pokemon, SUBSTITUTE_DOLL);
     Battle_ResetEventTrack(active_pokemon);
 }
 
@@ -814,8 +814,8 @@ void Battle_ReloadDisplayModel(ActivePokemon* active_pokemon) {
 
     state->alpha = 0xFF;
     Model_SetMaterialColor(&active_pokemon->displayObject, 0xFF, 0xFF, 0xFF, state->alpha); // #FFFFFF
-    func_8210840C(active_pokemon, active_pokemon, object_type);
-    func_82108648(active_pokemon, object_type);
+    BattleScene_ReinitParticipantBodyModel(active_pokemon, active_pokemon, object_type);
+    BattleScene_ReinitParticipantAfterimages(active_pokemon, object_type);
     Battle_ResetEventTrack(active_pokemon);
 }
 
