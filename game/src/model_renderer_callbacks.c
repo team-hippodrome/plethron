@@ -176,8 +176,9 @@ void ModelRenderer_UpdateSlotVertices(void) {
         ModelRenderer_CacheSlotMatrices(index);
         ModelRenderer_RebuildSlotMatrix(index);
         ModelRenderer_ApplySlotScale(index);
-        // Zero model slots are 0x7D0 bytes.
-        Model_UpdateVertexPositions((void*)((u8 (*)[3][0x7D0])D_800B0338)[index][D_800AFB28], &D_800AFB38[index].mtx);
+        // Zero model slots are 0x7D0 bytes. PORT: indexed by type, as the other slot users do: StadiumModel is
+        // larger on the host, so a 0x7D0 stride missed every slot but the first (the second flame model crashed)
+        Model_UpdateVertexPositions(&D_800B0338[index][D_800AFB28].model, &D_800AFB38[index].mtx);
     }
 }
 

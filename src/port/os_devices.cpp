@@ -1222,6 +1222,27 @@ void port_osCreateViManager(OSPri) {
 
 } // extern "C"
 
+// Battle debug aid: the COM side keeps its shown Pokémon at 1 HP and the rest at 0 (command_menu.c), so one hit wins
+// a round. PORT_DEBUG_WEAK_COM=1, or the launcher's Files & help option while Debug is on.
+extern "C" int Port_DebugWeakCom(void) {
+    if (getenv("PORT_DEBUG_WEAK_COM") != nullptr) return 1;
+    return CVarGetInteger("gLauncher.Debug", 0) != 0 && CVarGetInteger("gLauncher.DebugWeakCom", 0) != 0;
+}
+
+extern "C" void osYieldThread(void);
+extern "C" void Port_SpinWait(void) {
+    if (!Port_Lockstep()) {
+        osYieldThread();
+        return;
+    }
+    OSMesgQueue queue;
+    OSMesg message;
+    OSTimer timer;
+    osCreateMesgQueue(&queue, &message, 1);
+    osSetTimer(&timer, 46875000 / 60, 0, &queue, nullptr);
+    osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
+}
+
 // The comparison runner supplies an observed N64 retrace schedule for battle frames.
 extern "C" void Port_XcheckWaitRetraces(uint64_t retraces) {
     OSMesgQueue queue;

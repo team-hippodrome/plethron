@@ -251,7 +251,7 @@ std::vector<uint8_t> ReadFile(const std::string& path, size_t maxBytes = SIZE_MA
 
 // ---- checks and cartridge information --------------------------------------------------------------------------------
 
-// "" when the file is a Pokémon Stadium (USA) ROM in .z64 byte order, else what is wrong with it
+// "" when the file is a Pocket Monsters Stadium (Japan) ROM in .z64 byte order, else what is wrong with it
 std::string CheckRom(const std::string& path) {
     if (path.empty()) {
         return "No ROM loaded";
@@ -272,8 +272,8 @@ std::string CheckRom(const std::string& path) {
     if (h[0] != 0x80 || h[1] != 0x37) {
         return "Not an N64 ROM";
     }
-    if (memcmp(h.data() + 0x20, "POKEMON STADIUM", 15) != 0 || h[0x3E] != 'E') {
-        return "Not Pokémon Stadium (USA)";
+    if (memcmp(h.data() + 0x20, "POKEMON STADIUM", 15) != 0 || h[0x3E] != 'J') {
+        return "Not Pocket Monsters Stadium (Japan)";
     }
     // the whole file: the original dump's SHA-1 (rom_check.h). Hashed once per file version (this runs every frame).
     static std::string sPath, sResult;
@@ -857,7 +857,7 @@ NavInput ReadNavInput() {
 class LauncherWindow : public Ship::GuiWindow {
   public:
     LauncherWindow(State* state, bool* play, bool* quit, bool* restart, Fast::Fast3dGui* gui, std::shared_ptr<Ship::Window> window)
-        : GuiWindow("gLauncherWindowOpen", "Pokémon Stadium Launcher", ImVec2(kW, kH)), mState(state), mPlay(play),
+        : GuiWindow("gLauncherWindowOpen", "Pocket Monsters Stadium Launcher", ImVec2(kW, kH)), mState(state), mPlay(play),
           mQuit(quit), mRestart(restart), mGui(gui), mWindow(std::move(window)) {
         // requested before, but the game started with another one: that renderer could not start here
         mRendererFailed = state->renderer != ActiveRenderer() ? state->renderer : 0;
@@ -925,9 +925,9 @@ class LauncherWindow : public Ship::GuiWindow {
         ImDrawList* dl = ImGui::GetWindowDrawList();
 
         // header: title | subtitle, line
-        Text(16, 10, "Pokémon Stadium", gFonts.title);
-        Text(190, 11, "|", gFonts.title, Theme::cardBorder);
-        Text(206, 14, "PC port · Transfer Pak", gFonts.body, Theme::dim);
+        Text(16, 10, "Pocket Monsters Stadium", gFonts.title);
+        Text(278, 11, "|", gFonts.title, Theme::cardBorder);
+        Text(294, 14, "PC port · Transfer Pak", gFonts.body, Theme::dim);
         dl->AddRectFilled(P(0, 44), P(kW, 45), Hex(Theme::cardBorder));
         Tools();
         if (getenv("PORT_LAUNCHER_OPEN_GRAPHICS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
@@ -1038,6 +1038,15 @@ class LauncherWindow : public Ship::GuiWindow {
                     mToolsStatus = "Exported: " + path + "\nReview the report before sharing it.";
                     OfferExport(path);
                 } else mToolsStatus = error;
+            }
+            if (mState->debug) {
+                // battle debug aids (read by the game through Port_DebugWeakCom, os_devices.cpp)
+                bool weak = CVarGetInteger("gLauncher.DebugWeakCom", 0) != 0;
+                if (ImGui::Checkbox("Debug: COM Pokémon at 1 HP (one hit wins a round)", &weak)) {
+                    CVarSetInteger("gLauncher.DebugWeakCom", weak ? 1 : 0);
+                    mChanged = true;
+                }
+                NavItem();
             }
             if (ToolAction("Disable Auto-play")) { mState->autoPlay = false; mChanged = true; mToolsStatus = "Auto-play disabled."; }
             if (ToolAction("Use safe renderer next start")) {
@@ -1690,7 +1699,7 @@ class LauncherWindow : public Ship::GuiWindow {
         Image("n64", x + 24, y + 20, 124, 80);
 
         std::string romError = CheckRom(s.rom);
-        Text(x + 168, y + 22, romError.empty() ? "Pokémon Stadium (USA)" : (s.rom.empty() ? "No Stadium ROM" : FileName(s.rom)),
+        Text(x + 168, y + 22, romError.empty() ? "Pocket Monsters Stadium (Japan)" : (s.rom.empty() ? "No Stadium ROM" : FileName(s.rom)),
              gFonts.game);
         if (romError.empty()) {
             dl->AddCircleFilled(P(x + 406, y + 33), 4 * mScale, Hex(Theme::green));
@@ -1937,10 +1946,10 @@ class LauncherWindow : public Ship::GuiWindow {
             mFocusReset = true;
         }
         ImDrawList* dl = ImGui::GetWindowDrawList();
-        Text(24, 14, "Pokémon Stadium", gFonts.title);
+        Text(24, 14, "Pocket Monsters Stadium", gFonts.title);
         const char* pageName = mPage == kPageTransferPak ? "Transfer Pak" : mPage == kPageControls ? "Controls"
                                : mPage == kPageTools ? "Files & help" : mPage == kPageSaveEditor ? "Save editor" : "";
-        Text(220, 17, pageName, gFonts.body, Theme::dim);
+        Text(296, 17, pageName, gFonts.body, Theme::dim);
         dl->AddRectFilled(P(0, 50), P(kW, 51), Hex(Theme::cardBorder));
 
         if (mPage == kPageSaveEditor) {
@@ -1983,7 +1992,7 @@ class LauncherWindow : public Ship::GuiWindow {
         dl->AddRect(P(cx, cy), P(cx + cw, cy + ch), Hex(Theme::cardBorder), 10 * mScale);
         Image("pokestadium", cx + (cw - 190) / 2, cy + 20, 190, 190);
         std::string romError = CheckRom(s.rom);
-        Text(cx + 24, cy + 228, romError.empty() ? "Pokémon Stadium (USA)" : (s.rom.empty() ? "No Stadium ROM" : FileName(s.rom)),
+        Text(cx + 24, cy + 228, romError.empty() ? "Pocket Monsters Stadium (Japan)" : (s.rom.empty() ? "No Stadium ROM" : FileName(s.rom)),
              gFonts.title);
         dl->AddCircleFilled(P(cx + 30, cy + 272), 5 * mScale, Hex(romError.empty() ? Theme::green : Theme::red));
         Text(cx + 42, cy + 263, romError.empty() ? "ROM OK" : romError, gFonts.game, romError.empty() ? Theme::green : Theme::red);
@@ -2191,7 +2200,7 @@ std::string RunLauncher(const std::shared_ptr<Fast::Fast3dWindow>& window, bool&
                 SDL_SetWindowSize(sdl, int(std::round(kW * scale)), int(std::round(launcherHeight * scale)));
                 SDL_SetWindowPosition(sdl, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
-            SDL_SetWindowTitle(sdl, "Pokémon Stadium — Launcher");
+            SDL_SetWindowTitle(sdl, "Pocket Monsters Stadium — Launcher");
         }
 #ifdef _WIN32
         HWND nativeWindow = nullptr;
@@ -2288,7 +2297,7 @@ std::string RunLauncher(const std::shared_ptr<Fast::Fast3dWindow>& window, bool&
             }
             SDL_SetWindowSize(sdl, gameW, gameH);
             SDL_SetWindowPosition(sdl, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-            SDL_SetWindowTitle(sdl, "Pokémon Stadium");
+            SDL_SetWindowTitle(sdl, "Pocket Monsters Stadium");
         }
         // Graphics > Display: the game window windowed or fullscreen (the launcher kept its own window)
         if (auto config = window->GetContext()->GetChildren().GetFirst<Ship::Config>()) {
