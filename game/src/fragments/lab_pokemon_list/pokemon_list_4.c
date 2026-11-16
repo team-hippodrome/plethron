@@ -59,7 +59,7 @@ void LabPCList_DrawDetailColumns(s8*, s32, s32, s32);
 void LabPCList_DrawPopupMenu(LabPopupMenu*, s32);
 void LabPCList_DrawLevelInputWindow(LabLevelInputWindow*);
 void TextBox_Draw(s8*);
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8910A88C;
 void LabPCList_DrawRowCursor(s8*, s32, s32);
@@ -80,7 +80,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     }
     Window_DrawHeaderStripe(screen->window.frame.x, screen->window.frame.y - 10, 500);
     Window_DrawFrame((s8*)&screen->headerFrame);
-    Ui_DrawTexturedDivider(screen->window.frame.x, screen->window.frame.y + 35, screen->window.frame.width, D_8007356C);
+    Ui_DrawTexturedDivider(screen->window.frame.x, screen->window.frame.y + 35, screen->window.frame.width, &D_8007356C);
     LabPCList_DrawPageHint(screen);
     ScrollList_DrawScrollArrows((s8*)&screen->list, screen->listFrame.x, screen->listFrame.y - 0x10,
                   screen->listFrame.y + screen->listFrame.height, screen->listFrame.width);

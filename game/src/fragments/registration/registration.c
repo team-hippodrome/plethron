@@ -224,7 +224,7 @@ void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color88100D9C);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color88100D9C, Color88100D9C);
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern u8 D_800734A8[4];
 extern Gfx D_80060270[];
 extern Color88100D9C D_88102D9C;
@@ -240,7 +240,7 @@ void Registration_DrawMainMenu(MenuWindow* menu, s32 flags) {
 
     if (func_8002AE6C(&menu->window) == 0) { // PORT: m2c dropped a0 (the window)
         h = (menu->menu.items->count << 5) + 8;
-        Ui_DrawTexturedDivider(menu->window.frame.x, menu->window.frame.y + h + 5, menu->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(menu->window.frame.x, menu->window.frame.y + h + 5, menu->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(menu->window.frame.x + 6, menu->window.frame.y + 6, menu->window.frame.width - 12, h, *(Color88100D9C*)&D_88102D74);
         Ui_FillRectPrimEnvColor(menu->window.frame.x + 6, menu->window.frame.y + h + 12, menu->window.frame.width - 12, menu->descriptionLines * 28, D_88102D9C, D_88102DA0);
@@ -332,7 +332,7 @@ void func_80029028(s32, s32, s32, s32, Color88100D9C);
 
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color88100D9C D_88102DA8;
 extern Color88100D9C D_88102DAC;
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
@@ -345,7 +345,7 @@ void Window_DrawLabeled(void*, s32);
  */
 void Registration_DrawConfirmWindow(RegistrationConfirmWindow* confirm) {
     if (func_8002AE6C(&confirm->window) == 0) { // PORT: m2c dropped a0 (the window)
-        Ui_DrawTexturedDivider(confirm->window.frame.x, confirm->window.frame.y + 53, confirm->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(confirm->window.frame.x, confirm->window.frame.y + 53, confirm->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(confirm->window.frame.x + 6, confirm->window.frame.y + 6, confirm->window.frame.width - 12, 48, D_88102DA8, D_88102DAC);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(confirm->window.frame.x + 6, confirm->window.frame.y + 60, confirm->window.frame.width - 12, 36, *(Color88100D9C*)&D_88102D74);

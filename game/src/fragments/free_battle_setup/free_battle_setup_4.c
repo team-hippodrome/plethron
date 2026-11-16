@@ -273,7 +273,7 @@ void FreeBattle_DrawRentalTitle(s32 x, s32 y, s32 width) {
     Font_EndTexturedTextRendering();
 }
 
-extern char D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color82001CCC D_82009098[];
 extern char D_82009CF0[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, char*);
@@ -289,7 +289,7 @@ void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, char*);
  * Seen in play: draws 「1Pせんたくちゅう」 next to the entry screen title.
  */
 void FreeBattle_DrawChoosingLabel(FreeBattleEntryScreen* entry) {
-    Ui_DrawTexturedFrameDecal(entry->window.frame.x + 295, entry->window.frame.y - 18, 166, 20, D_800735C4);
+    Ui_DrawTexturedFrameDecal(entry->window.frame.x + 295, entry->window.frame.y - 18, 166, 20, &D_800735C4);
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(entry->window.frame.x + 297, entry->window.frame.y - 0x10, 162, 0x10, D_82009098[entry->player - 1]);
     Font_BeginTranslucentTextRendering();

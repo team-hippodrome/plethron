@@ -477,7 +477,7 @@ void FreeBattle_DrawTypeName(s32 x, s32 y, BattleMon* mon, s32 type_slot) { // P
 typedef struct Color82001CCC {
     u8 c[4];
 } Color82001CCC;
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
 extern Gfx D_80060398[];
@@ -529,7 +529,7 @@ void FreeBattle_DrawMonStatusWindow(FreeBattleMonStatusWindow* window) {
     u8* tex;
 
     if (func_8002AE6C(&window->window) == 0) {
-        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 243, window->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 243, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(x, y, window->window.frame.width - 12, 0x20, D_82009030);
         func_80029028(x + 120, y + 0x20, window->window.frame.width - 132, 120, D_82009034);

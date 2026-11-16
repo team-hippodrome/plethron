@@ -135,7 +135,7 @@ s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void ScrollList_DrawInlineItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
-extern u8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern u8 D_800734A8[];
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
@@ -388,7 +388,7 @@ extern char D_8A12FD0C[];
 extern char D_8A12FD10[];
 extern char D_8A12FD14[];
 extern char D_8A12FD18[];
-extern u8 D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern s32 sSelectedDexIndex;
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 
@@ -403,7 +403,7 @@ void Pokedex_DrawEntryInfo(s32 x, s32 y) {
 
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(x, y, 290, 210, D_8A1057D4);
-    Ui_DrawTexturedFrameDecal(x + 8, y + 8, 274, 90, D_800735C4);
+    Ui_DrawTexturedFrameDecal(x + 8, y + 8, 274, 90, &D_800735C4);
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFFFF
     Font_EnableTwoCycleTexturing();
@@ -463,7 +463,7 @@ s32 Ui_DrawTexturedDivider(s32, s32, s32, void*);
 s32 Ui_DrawFrameLeftCorners(s32, s32, s32, void*);
 s32 Ui_DrawImageInStrips(void*, s32, s32);
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
-extern u8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 // PORT: an image header for Ui_DrawImageInStrips followed by its pixels (was u8), typed so the lifter widens the pointer
 typedef struct PokedexPreviewFrame {
     /* 0x00 */ s32 stride;

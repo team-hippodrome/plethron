@@ -31,7 +31,7 @@ void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Window_DrawLabeled(s8*, s32);
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern M2C_UNK D_800734A8;
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8900A5C4;
@@ -133,7 +133,7 @@ void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); 
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern u8 D_89018688[];
 s32 Menu_UpdateCursor(void*);
 extern u8 D_8900A580[];
@@ -159,7 +159,7 @@ void Font_SetColorForFlags(s32);
 extern char* D_8900A6CC[]; // PORT: a table of string pointers (was s32)
 extern s8 *D_8900A6D8[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
-extern u8 D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Window_DrawFrame(void*);
 s32 func_8002B2B0(void* arg0); // PORT: matches Ui_HandleVerticalSelectionInput (a cursor pointer)
 s32 LabItem_UpdateItemList(void *, u32);

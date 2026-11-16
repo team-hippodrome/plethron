@@ -17,7 +17,7 @@ M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
 extern Entry80066AA0 D_80066AA0[];
 extern M2C_UNK D_800734A8;
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-extern s8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 s32 func_8001FA30(s32 arg0); // PORT: matches LabPC_StatusToIconIndex
@@ -138,7 +138,7 @@ void PartyScreen_InitList(PartyListWindow* window, s32 x, s32 y, PointerList* mo
     Menu_Init((s8*)&window->menu, (ByteMatrix*)mon_list, (s8*)window->itemFlags, (M2C_UNK *)PartyScreen_DrawListRow, 533, 51);
 }
 
-extern s8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color_RGBA8 D_8A20334C;
 extern Color_RGBA8 D_8A203350;
 extern Color_RGBA8 D_8A203354;
