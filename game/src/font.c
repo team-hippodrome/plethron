@@ -360,7 +360,7 @@ void Gfx_SetPrimColor(s32 r, s32 g, s32 b, s32 a) {
 extern s8 *D_800AD200;
 /** Sets the line height used for text. */
 void Font_SetLineHeight(s32 arg0) {
-    M2C_FIELD(D_800AD200, s8 *, 0x3A) = arg0;
+    font_context->line_height = arg0; // PORT: was M2C_FIELD(D_800AD200, s8*, 0x3A), the N64 offset
 }
 
 extern s8 *D_800AD200;
@@ -370,7 +370,7 @@ extern s8 *D_800AD200;
  * @unverified Name read from the code.
  */
 void Font_DisableNewlines(void) {
-    M2C_FIELD(D_800AD200, u8 *, 0x3B) = (u8) (M2C_FIELD(D_800AD200, u8 *, 0x3B) | 4);
+    font_context->line_break_flag |= 4; // PORT: was M2C_FIELD(D_800AD200, u8*, 0x3B), the N64 offset
 }
 
 extern s8 *D_800AD200;
@@ -380,7 +380,7 @@ extern s8 *D_800AD200;
  * @unverified Name read from the code.
  */
 void Font_EnableNewlines(void) {
-    M2C_FIELD(D_800AD200, u8 *, 0x3B) = (u8) (M2C_FIELD(D_800AD200, u8 *, 0x3B) & 0xFFFB);
+    font_context->line_break_flag &= ~4; // PORT: was M2C_FIELD(D_800AD200, u8*, 0x3B), the N64 offset
 }
 
 /** Begins rendering text with translucency. */
@@ -498,18 +498,6 @@ Gfx* Gfx_WrapWithEnvColor(Gfx* inner, Color_RGBA8_u32 color) {
     return dl;
 }
 
-typedef struct Glyph8001B32C {
-    u8 unk0;
-    u8 width;
-    u8 unk2[6];
-} Glyph8001B32C;
-
-typedef struct Font8001B32C {
-    Glyph8001B32C glyphs[7];
-    u8 current;
-    s8 spacing;
-} Font8001B32C;
-
 /**
  * Returns the x position at which `str` starts when centered on x, using the
  * current font's glyph width, spacing and the scale (percent).
@@ -519,9 +507,10 @@ typedef struct Font8001B32C {
  */
 s32 Font_GetCenteredStartX(s32 x, s32 scale, const char* str) {
     s32 width;
-    Font8001B32C* font = (Font8001B32C*)D_800AD200;
+    // PORT: the decomp read these through an N64-layout struct (8-byte sets, current set at 0x38, spacing at 0x39)
+    FontEntry8001A118* set = &((FontEntry8001A118*)font_context)[font_context->unk_50];
 
-    width = (font->glyphs[font->current].width + font->spacing) * scale / 100;
+    width = (set->size_b + font_context->unk_51) * scale / 100;
 
     return x - (((strlen(str) >> 1) * width) >> 1);
 }
@@ -553,7 +542,7 @@ Gfx* Font_PrintfToDisplayList(s16 x, s16 y, s16 scale_x, s16 scale_y, Color_RGBA
         while (chr != 0) {
             if (chr == 0xA) {
                 x = start_x;
-                y -= ((u8)((FontEntry8001A118*)D_800AD200)[M2C_FIELD(D_800AD200, u8*, 0x38)].size_b * ((scale_y * 0xB) / 10)) / 100;
+                y -= ((u8)((FontEntry8001A118*)font_context)[font_context->unk_50].size_b * ((scale_y * 0xB) / 10)) / 100; // PORT: was the N64 offset 0x38
             } else if (chr == 9) {
                 x = Font_GetCenteredStartX(x, scale_x, (const char*)p);
             } else {

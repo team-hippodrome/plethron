@@ -887,8 +887,9 @@ extern u8 D_8F4886F8[];
 extern u8 D_8E825FE8[];
 extern M2C_UNK D_8E802B64;
 extern u8 D_8E924770[];
-extern M2C_UNK D_8E902B64;
-extern M2C_UNK D_8F4014B0;
+// PORT: bytes, so the lifter keeps these model blobs (animation curves, then the models) in ROM byte order
+extern u8 D_8E902B64[];
+extern u8 D_8F4014B0[];
 extern Vec3f D_88403504;
 extern Vec3f D_88403510;
 extern s32 D_8840365C;
@@ -922,14 +923,14 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     } else if (gSessionContext.transitionFlags & 0x10) {
         // Dodrio Game Boy prize model (fragment040, seen in play 2026-11-14).
         Model_InitDisplayObject(&D_884034E0, 0, 0, GeoLayout_Process(sp20, D_8E924770));
-        ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E902B64, 0x10000);
+        ModelAnim_BindTransformCurve(&D_884034E0, 1, D_8E902B64, 0x10000);
         D_884034E0.node.flags &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);
     }
     MainPool_FinalizeAllocation(sp20);
     if (from_main_menu == 0) {
-        ModelAnim_BindTransformCurve(&D_88403648, 1, &D_8F4014B0, 0x10000);
+        ModelAnim_BindTransformCurve(&D_88403648, 1, D_8F4014B0, 0x10000);
         D_88403648.node.callbackArg = 0;
         D_88403648.node.renderFlags &= ~0x20;
         return;

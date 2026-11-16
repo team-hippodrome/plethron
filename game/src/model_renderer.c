@@ -310,10 +310,14 @@ void PokeIcon_PollBackgroundForObject(BattleSide* arg0) {
     }
 }
 
-extern u8 D_8006081F[];
-extern u8 D_8005E7D2[];
-extern u8 D_8005E47F[];
-extern u8 D_8005E37F[];
+// PORT: the four tables are indexed with the character code from bases below their data (D_8005E37F[c] for
+// katakana c = 0x2521.. reads 0x800608A0..), so the bytes lie in other lifted symbols: read them by N64 address.
+void* ZLift_Resolve(u32 addr);
+static s32 Font_GlyphTableAt(u32 base, s32 c) {
+    const u8* p = ZLift_Resolve(base + c);
+    return p != NULL ? *p : 0;
+}
+
 /**
  * Maps a character code (ASCII 0x21-0x7E, or a JIS X 0208 code: symbols, full-width digits and
  * Latin letters, hiragana, katakana) to its glyph index in the font. 0x2574 (ヴ, "vu") is glyph 0xFF.
@@ -324,9 +328,9 @@ s32 Font_GetGlyphIndex(u16 arg0) {
     s32 ret = 0;
 
     if (c >= 0x21 && c < 0x7F) {
-        ret = D_8006081F[c];
+        ret = Font_GlyphTableAt(0x8006081F, c); // PORT: was D_8006081F[c]
     } else if (c >= 0x2122 && c < 0x2178) {
-        ret = D_8005E7D2[c];
+        ret = Font_GlyphTableAt(0x8005E7D2, c); // PORT: was D_8005E7D2[c]
     } else if (c >= 0x2330 && c < 0x233A) {
         ret = c - 0x2320;
     } else if (c >= 0x2341 && c < 0x235B) {
@@ -334,9 +338,9 @@ s32 Font_GetGlyphIndex(u16 arg0) {
     } else if (c >= 0x2361 && c < 0x237B) {
         ret = c - 0x22CC;
     } else if (c >= 0x2421 && c < 0x2474) {
-        ret = D_8005E47F[c] + 0xAF;
+        ret = Font_GlyphTableAt(0x8005E47F, c) + 0xAF; // PORT: was D_8005E47F[c]
     } else if (c >= 0x2521 && c < 0x2574) {
-        ret = D_8005E37F[c] + 0x45;
+        ret = Font_GlyphTableAt(0x8005E37F, c) + 0x45; // PORT: was D_8005E37F[c]
     } else if (c == 0x2574) {
         ret = 0xFF;
     }
