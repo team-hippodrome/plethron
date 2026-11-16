@@ -807,7 +807,7 @@ extern OSMesgQueue D_811855F8;
 extern u8* D_811858A4;
 void AudioLoad_RelocateFont(s32, s32, RelocInfo8110EF7C*);
 void AudioLoad_SyncDmaUnkMedium(s32, s32, u32, s16);
-void AudioLoad_SyncDma(s32, s32, u32, s32);
+void AudioLoad_SyncDma(s32, u8*, u32, s32); // PORT: matches the definition
 
 
 

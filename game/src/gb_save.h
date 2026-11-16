@@ -126,7 +126,7 @@ typedef struct unk_func_8002EBD8_arg0 {
 // A menu cursor that wraps (Ui_AdjustVerticalSelection, Ui_AdjustHorizontalSelection).
 // Merges unk_func_8002DCB8_arg0 and unk_func_8002DD98_arg0.
 typedef struct UiSelection {
-    /* 0x00 */ s32 unk_00;
+    /* 0x00 */ Controller* controller; // PORT: was s32 unk_00; every caller passes a ChoiceCursor, whose first field is a pointer
     /* 0x04 */ s32 index; // @unverified: Ui_AdjustVerticalSelection
     /* 0x08 */ s32 count; // @unverified: Ui_AdjustVerticalSelection
 } UiSelection; // size = 0xC

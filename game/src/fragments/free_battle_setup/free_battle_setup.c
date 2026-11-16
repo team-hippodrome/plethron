@@ -41,17 +41,17 @@ extern u8 D_80065D00[];
  * (フシ, ヒト, カメ at L10).
  */
 s32 FreeBattle_ReadTeam(s32 deck_kind, s32 port, s32 deck_index, TeamMonSlot* entry) {
-    s32 handle = Deck_Open(deck_kind, port, deck_index, 0);
+    void* handle = Deck_Open(deck_kind, port, deck_index, 0); // PORT: a pointer (was s32)
     s32 i;
     u8* row;
     s32 idx;
 
     for (i = 0; i < 6; i++, entry++) {
-        if (Deck_ReadEntries(&entry->mon, 1, handle) == 0) {
+        if (Deck_ReadEntries((u8*)&entry->mon, 1, handle) == 0) {
             break;
         }
         if ((entry->mon.species.id > 0) && (entry->mon.species.id < 152)) {
-            Pokemon_PrepareBattleMon(&entry->mon);
+            Pokemon_PrepareBattleMon((u8*)&entry->mon);
             idx = entry->mon.species.id - 1;
             row = &D_80065D00[idx * 23];
             entry->mon.type1 = row[6];
@@ -271,7 +271,6 @@ typedef struct Rec82000594 {
     Slot82000594 slots[6];
 } Rec82000594;
 typedef struct List82000594 { Rec82000594* records; s32 unk04; s32 count; } List82000594;
-extern Src82000594* D_8200AD04;
 char* func_8000A460(char* dest, char* src); // PORT: matches HAL_Strcpy
 uintptr_t Memmap_GetSegmentVaddr(uintptr_t mask); // PORT: matches the definition
 /**
@@ -292,12 +291,12 @@ void FreeBattle_AddPresetTeams(List82000594* list) {
         rec->unk_01 = 0;
         rec->unk_02 = 0;
         rec->index = i;
-        rec->unk_04 = D_8200AD04[i].unk_02;
-        func_8000A460(rec->name, Memmap_GetSegmentVaddr(D_8200AD04[i].name));
+        rec->unk_04 = ((Src82000594*)D_8200AD04)[i].unk_02;
+        func_8000A460(rec->name, (char*)Memmap_GetSegmentVaddr(((Src82000594*)D_8200AD04)[i].name)); // PORT: name is a segment address in the asset
         rec->slotCount = 6;
         for (j = 0; j < 6; j++) {
             rec->slots[j].flags = 0;
-            rec->slots[j].data = D_8200AD04[i].entries[j];
+            rec->slots[j].data = ((Src82000594*)D_8200AD04)[i].entries[j];
         }
         rec++;
     }
@@ -318,24 +317,23 @@ void FreeBattle_AddPresetTeams(List82000594* list) {
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in Free Battle setup.
  * @unverified Name guessed from the code; comment kept.
  */
-void FreeBattle_BuildTeamPointers(s32* dest, s32* teams) {
-    s32 value = teams[0];
-    s32* out = (s32*)dest[0];
+void FreeBattle_BuildTeamPointers(PointerList* dest, ByteMatrix* teams) { // PORT: typed; the decomp stored the pointers in s32s
+    u8* value = teams->rows;
+    void** out = dest->items;
     s32 i = 0;
 
-    if (teams[2] > 0) {
+    if (teams->count > 0) {
         do {
             *out = value;
             i += 1;
-            value += 0x214;
+            value += sizeof(FreeBattleTeam);
             out += 1;
-        } while (i < teams[2]);
+        } while (i < teams->count);
     }
-    dest[2] = teams[2];
+    dest->count = teams->count;
 }
 
 char* HAL_Strcpy(char*, char*);
-extern s32 D_82008F84;
 
 /**
  * FreeBattle_InitNamedTeam
@@ -355,7 +353,7 @@ void FreeBattle_InitNamedTeam(SlotList* team, s32 name_index) {
     team->unk_02 = 0;
     team->unk_03 = 0;
     team->unk_04 = 0;
-    HAL_Strcpy(team->unk08, ((char**)&D_82008F84)[name_index]);
+    HAL_Strcpy(team->unk08, D_82008F84.teamNames[name_index - 1]); // PORT: was ((char**)&D_82008F84)[name_index]
     for (i = 0; i < 6; i++) {
         team->slots[i].flags = 0;
     }
@@ -364,12 +362,11 @@ void FreeBattle_InitNamedTeam(SlotList* team, s32 name_index) {
 }
 
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+void Window_SetRect(Window* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern Color_RGBA8 D_8200902C;
 extern char D_82009B80[];
 extern char D_82009B88[];
-extern s32 D_8200AC4C;
-void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
+void Window_InitLabeled(LabeledButton*, s32, s32, s32, Color_RGBA8, char*); // PORT: matches the definition
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 /**
@@ -386,24 +383,24 @@ void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
  * Seen in play: A on a rental Pokemon opens its status window with 「レンタルしますか？ はい いいえ」 and runs
  * this.
  */
-void FreeBattle_InitConfirmWindow(s8* window, s32 x, s32 y, s32 mon, s32 prompt, s32 controller) {
-    Window_SetRect(window, x, y, 430, 292);
-    M2C_FIELD(window, s32*, 0x24) = 0;
-    M2C_FIELD(window, s32*, 0x20) = 0;
-    M2C_FIELD(window, s32*, 0x28) = 0;
-    M2C_FIELD(window, s32*, 0x14) = 0x1001;
-    Window_InitLabeled(window + 0x2C, M2C_FIELD(window, s32*, 0) + 266, M2C_FIELD(window, s32*, 4) + 0x100, 72, D_8200902C, D_82009B80);
-    M2C_FIELD(window, s32*, 0x58) = 0xA;
-    M2C_FIELD(window, s32*, 0x60) = 0xC;
-    Window_InitLabeled(window + 0x68, M2C_FIELD(window, s32*, 0) + 346, M2C_FIELD(window, s32*, 4) + 0x100, 72, D_8200902C, D_82009B88);
-    M2C_FIELD(window, s32*, 0xAC) = 2;
-    M2C_FIELD(window, s32*, 0xA8) = 0;
-    M2C_FIELD(window, s32*, 0xA4) = D_800603C0;
+void FreeBattle_InitConfirmWindow(FreeBattleMonStatusWindow* window, s32 x, s32 y, BattleMon* mon, char* prompt, Controller* controller) { // PORT: typed (was raw N64 offsets)
+    Window_SetRect(&window->window, x, y, 430, 292);
+    window->window.animTimer = 0;
+    window->window.title = NULL;
+    window->window.state = 0;
+    window->window.frame.style = 0x1001;
+    Window_InitLabeled(&window->yesButton, window->window.frame.x + 266, window->window.frame.y + 0x100, 72, D_8200902C, D_82009B80);
+    window->yesButton.labelX = 0xA;
+    window->yesButton.unk_34 = 0xC;
+    Window_InitLabeled(&window->noButton, window->window.frame.x + 346, window->window.frame.y + 0x100, 72, D_8200902C, D_82009B88);
+    window->choice.count = 2;
+    window->choice.cursor = 0;
+    window->choice.controller = D_800603C0;
     func_8000B2F4(D_800603C0);
-    M2C_FIELD(window, s32*, 0xA4) = controller;
+    window->choice.controller = controller;
     func_8000B2F4(controller);
-    M2C_FIELD(window, s32*, 0xB4) = prompt;
-    M2C_FIELD(window, s32*, 0xB0) = mon;
+    window->prompt = prompt;
+    window->mon = mon;
     D_8200AC4C = 0;
 }
 
@@ -463,7 +460,7 @@ void FreeBattle_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
  * Draws the colored type icon for type slot `typeSlot` of Pokemon `mon`.
  * Seen in play: draws タイプ1/タイプ2 (くさ, どく) in the rental status window.
  */
-void FreeBattle_DrawTypeName(s32 x, s32 y, s32 mon, s32 type_slot) {
+void FreeBattle_DrawTypeName(s32 x, s32 y, BattleMon* mon, s32 type_slot) { // PORT: mon was s32
     Color82000BC4 c;
     s32 idx = Pokemon_GetTypeIndex(mon, type_slot);
 
@@ -480,37 +477,6 @@ void FreeBattle_DrawTypeName(s32 x, s32 y, s32 mon, s32 type_slot) {
 typedef struct Color82001CCC {
     u8 c[4];
 } Color82001CCC;
-typedef struct Mon82000C5C {
-    /* 0x00 */ char unk00[0x24];
-    /* 0x24 */ u8 level;
-    /* 0x25 */ char unk25[1];
-    /* 0x26 */ u16 maxHp;
-    /* 0x28 */ u16 attack;
-    /* 0x2A */ u16 defense;
-    /* 0x2C */ u16 speed;
-    /* 0x2E */ u16 special;
-    /* 0x30 */ char nickname[1];
-} Mon82000C5C;
-typedef struct Screen82000C5C {
-    /* 0x00 */ s32 x;
-    /* 0x04 */ s32 y;
-    /* 0x08 */ s32 w;
-    /* 0x0C */ char unk0C[0x20];
-    /* 0x2C */ char button1[0x3C];
-    /* 0x68 */ char button2[0x40];
-    /* 0xA8 */ s32 selection;
-    /* 0xAC */ char unkAC[4];
-    /* 0xB0 */ Mon82000C5C* mon;
-    /* 0xB4 */ char* title;
-} Screen82000C5C;
-typedef struct Slot82000C5C {
-    /* 0x00 */ s32 x;
-    /* 0x04 */ s32 y;
-    /* 0x08 */ s32 centered;
-    /* 0x0C */ s32 iconX;
-    /* 0x10 */ s32 icon;
-} Slot82000C5C; // size = 0x14
-extern Slot82000C5C D_82009040[];
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
@@ -534,7 +500,6 @@ extern char D_82009BF8[];
 extern char D_82009BFC[];
 extern char D_82009C00[];
 extern char D_82009C04[];
-extern s32 D_8200AC48;
 void BgStage_DrawFrame(void);
 void func_80019008(PokeModelPreview* arg0, BattleMon* arg1, u16 arg2); // PORT: matches PokeIcon_SetPreviewMon
 u8* func_800196F8(PokeModelPreview* arg0); // PORT: matches PokeIcon_RenderPreview
@@ -546,7 +511,7 @@ void func_80029028(s32, s32, s32, s32, Color82001CCC);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
-void Window_DrawLabeled(char*, s32);
+void Window_DrawLabeled(LabeledButton*, s32); // PORT: matches the definition
 s32 BattleMon_CountMoves(u8* arg0);
 s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
 /**
@@ -554,33 +519,33 @@ s32 BattleMon_GetMoveIndex(u8* arg0, s32 arg1); // PORT: matches the definition
  * Seen in play: draws the rental status window (name, LV 50, HP, タイプ1/タイプ2, こうげき/ぼうぎょ/すばやさ/とくしゅ,
  * and four moves).
  */
-void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
-    s32 y = window->y + 6;
-    s32 x = window->x + 6;
-    s32 count = BattleMon_CountMoves(window->mon);
+void FreeBattle_DrawMonStatusWindow(FreeBattleMonStatusWindow* window) {
+    s32 y = window->window.frame.y + 6;
+    s32 x = window->window.frame.x + 6;
+    s32 count = BattleMon_CountMoves((u8*)window->mon);
     s32 i;
     s32 n;
     s32 row;
     u8* tex;
 
-    if (func_8002AE6C(window) == 0) {
-        Ui_DrawTexturedDivider(window->x, window->y + 243, window->w, &D_8007356C);
+    if (func_8002AE6C(&window->window) == 0) {
+        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 243, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
-        func_80029028(x, y, window->w - 12, 0x20, D_82009030);
-        func_80029028(x + 120, y + 0x20, window->w - 132, 120, D_82009034);
-        func_80029028(x, y + 244, window->w - 12, 36, D_82008F54);
-        Ui_FillRectPrimEnvColor(x, y + 152, window->w - 12, 86, D_82009038, D_8200903C);
+        func_80029028(x, y, window->window.frame.width - 12, 0x20, D_82009030);
+        func_80029028(x + 120, y + 0x20, window->window.frame.width - 132, 120, D_82009034);
+        func_80029028(x, y + 244, window->window.frame.width - 12, 36, D_82008F54);
+        Ui_FillRectPrimEnvColor(x, y + 152, window->window.frame.width - 12, 86, D_82009038, D_8200903C);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(((u8*)&D_800734A8)[0], ((u8*)&D_800734A8)[1], ((u8*)&D_800734A8)[2], ((u8*)&D_800734A8)[3]);
         Font_SetActive(8, 0);
-        Font_Printf(window->x + 14, window->y + 258, window->title);
+        Font_Printf(window->window.frame.x + 14, window->window.frame.y + 258, window->prompt);
         Font_EndTexturedTextRendering();
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(0xFF, 0xFF, 0xFF, 0xFF); // #FFFFFF
         Font_SetActive(8, 0);
         Font_EnableTwoCycleTexturing();
         Gfx_SetPrimColor(0x7F, 0xA8, 0xFF, 0xFF); // #7FA8FF
-        Font_Printf(x + 10, y + 5, window->mon->nickname);
+        Font_Printf(x + 10, y + 5, (char*)window->mon->nickname);
         Font_DisableTwoCycleTexturing();
         Font_SetActive(4, -1);
         Gfx_SetEnvColor(((u8*)&D_800734A8)[0], ((u8*)&D_800734A8)[1], ((u8*)&D_800734A8)[2], ((u8*)&D_800734A8)[3]);
@@ -602,18 +567,18 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
         Font_Printf(x + 348, y + 96, D_82009C00, window->mon->speed);
         Font_Printf(x + 348, y + 124, D_82009C04, window->mon->special);
         for (i = 0; i < count; i++) {
-            FreeBattle_DrawMoveName(D_82009040[i].x + x, D_82009040[i].y + y, BattleMon_GetMoveIndex(window->mon, i), D_82009040[i].centered);
+            FreeBattle_DrawMoveName(D_82009040[i].x + x, D_82009040[i].y + y, BattleMon_GetMoveIndex((u8*)window->mon, i), D_82009040[i].centered);
         }
         Font_EndTexturedTextRendering();
-        FreeBattle_DrawTypeName(x + 156, y + 0x40, (uintptr_t)window->mon, 0);
-        FreeBattle_DrawTypeName(x + 156, y + 124, (uintptr_t)window->mon, 1);
+        FreeBattle_DrawTypeName(x + 156, y + 0x40, window->mon, 0);
+        FreeBattle_DrawTypeName(x + 156, y + 124, window->mon, 1);
         gSPDisplayList(gDisplayListHead++, D_80060290);
         for (i = 0; i < count; i++) {
             Gfx_DrawTextureRgba16(D_82009040[i].iconX + x, D_82009040[i].y + y, 20, 20, (u8*)D_82009040[i].icon, 20, 0x200000);
         }
         gSPDisplayList(gDisplayListHead++, D_80060398);
-        Window_DrawLabeled(window->button1, (window->selection == 0) ? 2 : 0);
-        Window_DrawLabeled(window->button2, (window->selection == 1) ? 2 : 0);
+        Window_DrawLabeled(&window->yesButton, (window->choice.cursor == 0) ? 2 : 0);
+        Window_DrawLabeled(&window->noButton, (window->choice.cursor == 1) ? 2 : 0);
         if (D_8200AC4C == 0) {
             D_8200AC4C = 1;
             func_80019008(D_8200AC48, window->mon, 0x416D);
@@ -644,17 +609,17 @@ M2C_UNK Audio_PlaySystemSound(M2C_UNK);
  * sound), 0 while undecided.
  * Seen in play: runs while the rental status window asks 「レンタルしますか？」.
  */
-s32 FreeBattle_UpdateRentalConfirmChoice(s8* window) {
+s32 FreeBattle_UpdateRentalConfirmChoice(FreeBattleMonStatusWindow* window) {
     s32 ret = 0;
     s32 temp_v0;
 
-    if (Ui_HandleHorizontalSelectionInput(window + 0xA4) == 0) {
-        temp_v0 = Ui_GetSelectionDirection(M2C_FIELD(window, s32*, 0xA4));
+    if (Ui_HandleHorizontalSelectionInput((UiSelection*)&window->choice) == 0) {
+        temp_v0 = Ui_GetSelectionDirection(window->choice.controller);
         if (temp_v0 == -1) {
             Audio_PlaySystemSound(3);
             ret = -1;
         } else if (temp_v0 == 1) {
-            switch (M2C_FIELD(window, s32*, 0xA8)) {
+            switch (window->choice.cursor) {
                 case 1:
                     Audio_PlaySystemSound(3);
                     ret = -1;
@@ -847,7 +812,6 @@ typedef struct IconCache82001810 {
     /* 0x08 */ s32 count;
     /* 0x0C */ s32 start;
 } IconCache82001810; // size = 0x10
-extern s32 D_8200AC50;
 extern Gfx D_80073450[];
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
@@ -867,7 +831,7 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
  * Draws one Pokemon cell of a team row: nickname, level and icon.
  * Seen in play: draws each Pokemon cell of a team row (icon, nickname, L20).
  */
-void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, s32 icon_cache) {
+void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, intptr_t icon_cache) {
     IconCache82001810* cache = (IconCache82001810*)icon_cache;
     s32 pad[2]; // FAKE
     s32 key;
@@ -896,7 +860,7 @@ void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, s32 
             PokeIcon_SetMonSlot((PokeIconRenderer*)D_8200AC50, idx, (BattleMon*)entry, ((D_82008F58.c[1] << 3) & 0x7C0) | ((D_82008F58.c[2] >> 2) & 0x3E) | ((D_82008F58.c[0] << 8) & 0xF800) | 1);
         }
         gSPDisplayList(gDisplayListHead++, D_80073408);
-        Gfx_DrawTextureRgba16(x + 86, y + 6, 40, 40, PokeIcon_GetImage(D_8200AC50, idx), 40, 0x200000);
+        Gfx_DrawTextureRgba16(x + 86, y + 6, 40, 40, PokeIcon_GetImage((s8*)D_8200AC50, idx), 40, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
         if (flags & 0x800) {
             gSPDisplayList(gDisplayListHead++, D_80073408);
@@ -911,13 +875,12 @@ void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, s32 
     }
 }
 
-void FreeBattle_DrawMonCell(s32, s32, s32*, s32, s32, s32);
 
 /**
  * Draws a team slot's Pokemon cell, or an empty cell when the slot is empty.
  * Seen in play: draws each Pokemon cell of the picked team's window.
  */
-void FreeBattle_DrawSlotCell(s32 x, s32 y, s32* slot, s32 index, s32 flags, s32 icon_cache) {
+void FreeBattle_DrawSlotCell(s32 x, s32 y, s32* slot, s32 index, s32 flags, intptr_t icon_cache) { // PORT: icon_cache was s32
     FreeBattle_DrawMonCell(x, y, (*slot & 1) ? NULL : slot + 1, index, flags, icon_cache);
 }
 
@@ -1003,7 +966,6 @@ typedef struct Slot82001E20 {
     /* 0x08 */ char name[1];
 } Slot82001E20;
 extern Img82001E20 D_82008F64;
-extern u8* D_8200AD08[];
 extern char D_82009C2C[];
 extern char D_82009C34[];
 extern char D_82009C48[];
@@ -1081,7 +1043,7 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
  * Draws a full team row: trainer panel and six Pokemon cells.
  * Seen in play: draws each team row on 「エントリーポケモンのせんたく」.
  */
-void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, SlotList **icon_cache)
+void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, intptr_t icon_cache) // PORT: icon_cache was SlotList**, MenuDrawItemFunc passes intptr_t
 {
   SlotList **new_var; // FAKE: permuter temp
   s32 hl;
@@ -1093,7 +1055,7 @@ void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, Sl
   if (team != 0)
   {
     FreeBattle_DrawRentalNameList(x, y, flags, (Slot82001E20 *) team);
-    new_var = icon_cache; // FAKE: permuter temp
+    new_var = (SlotList **) icon_cache; // FAKE: permuter temp
     if (team->unk_00 & 2)
     {
       FreeBattle_DrawRentalPrompt(x, y, flags);
@@ -1119,7 +1081,7 @@ void FreeBattle_DrawTeamRow(s32 x, s32 y, SlotList *team, s32 row, s32 flags, Sl
               hl = 0x200;
             }
           }
-          FreeBattle_DrawMonCell((x + 136) + ((i % 3) * 132), ((i / 3) * 50) + y, name, i, hl, (uintptr_t) (&def));
+          FreeBattle_DrawMonCell((x + 136) + ((i % 3) * 132), ((i / 3) * 50) + y, name, i, hl, (intptr_t) (&def));
           i++;
         } while (i < list->slotCount);
       }
@@ -1240,26 +1202,25 @@ typedef struct MenuDef8200288C {
 extern s32 D_8200AC58[];
 extern Color82001CCC D_82008F60;
 void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
-// FAKE: decomp slop. Raw pointer-offset casts stand in for struct fields.
 /**
  * Draws the rental Pokemon list window; `cursorStyle` picks the cursor style.
  * Seen in play: draws the picked team's window (trainer panel and six Pokemon) under the confirm
  * prompt.
  */
-void FreeBattle_DrawRentalListWindow(s8 *entry, s32 cursor_style)
+void FreeBattle_DrawRentalListWindow(FreeBattleEntryScreen* entry, s32 cursor_style)
 {
   s32 x;
   s32 y;
   s32 pad[2]; // FAKE: stack padding
   MenuDef8200288C def;
   s32 mode;
- x = (*((s32 *) (((s8 *) entry) + 0x14))) + 6; y = (*((s32 *) (((s8 *) entry) + 0x18))) + 6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+ x = entry->window.frame.x + 6; y = entry->window.frame.y + 6;
   mode = 0xFFED;
-  FreeBattle_DrawRentalNameList(x, y, 2, entry + 0xC8);
+  FreeBattle_DrawRentalNameList(x, y, 2, (Slot82001E20*)&entry->team);
   def.items = D_8200AC58;
   def.count = 0;
   def.itemCount = 24;
-  def.itemSize = (*((s32 *) (((s8 *) entry) + 0x48))) * 6; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  def.itemSize = entry->teamList.cursor * 6;
   switch (cursor_style)
   {
     case 1:
@@ -1272,6 +1233,6 @@ void FreeBattle_DrawRentalListWindow(s8 *entry, s32 cursor_style)
 
   }
 
-  GridMenu_DrawInlineItems(entry + 0x2F8, x + 136, y, mode, (intptr_t)(&def));
+  GridMenu_DrawInlineItems(&entry->slotMenu, x + 136, y, mode, (intptr_t)(&def));
   FreeBattle_DrawRowBorders(x, y, D_82008F60);
 }

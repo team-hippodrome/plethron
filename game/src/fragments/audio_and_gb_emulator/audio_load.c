@@ -861,7 +861,7 @@ typedef struct Sample8110CD0C {
     /* 0x04 */ s32 sampleAddr; // @unverified: Sample.sampleAddr: ROM address in, RAM address out
 } Sample8110CD0C;
 void AudioLoad_SyncDmaUnkMedium(s32 arg0, M2C_UNK arg1, M2C_UNK arg2, M2C_UNK arg3);
-void AudioLoad_SyncDma(s32, s32, u32, s32);
+void AudioLoad_SyncDma(s32, u8*, u32, s32); // PORT: matches the definition
 extern u8* D_811858A4;
 /**
  * Copies a relocated sample that is not in RAM into the persistent sample cache and points it
@@ -1451,7 +1451,7 @@ s32 AudioLoad_Dma();
  * in a tour of the menus and a COM battle.
  * @unverified Name and comment guessed from the code.
  */
-void AudioLoad_SyncDma(s32 arg0, s32 arg1, u32 arg2, s32 arg3) {
+void AudioLoad_SyncDma(s32 arg0, u8* arg1, u32 arg2, s32 arg3) { // PORT: arg1 (RAM address) was s32
 
     arg2 = (arg2 + 0xF) & ~0xF;
     osInvalDCache(arg1, arg2);
@@ -1498,7 +1498,7 @@ typedef struct IoMesg8110DBA0 {
  * @unverified Name and comment guessed from the code.
  */
 s32 AudioLoad_Dma(IoMesg8110DBA0* mb, s32 pri, s32 direction, u32 dev_addr, void* dram_addr, u32 size, void* mq, s32 kind) {
-    s32 handle;
+    OSPiHandle* handle; // PORT: was s32
 
     if ((u32)D_811859D4 > 16) {
         return -1;
@@ -1521,7 +1521,7 @@ s32 AudioLoad_Dma(IoMesg8110DBA0* mb, s32 pri, s32 direction, u32 dev_addr, void
     mb->dramAddr = dram_addr;
     mb->devAddr = dev_addr;
     mb->size = size;
-    M2C_FIELD(handle, s32*, 0x14) = 2;
-    osEPiStartDma(handle, mb, direction);
+    handle->transferInfo.cmdType = 2; // PORT: was M2C_FIELD(handle, s32*, 0x14)
+    osEPiStartDma(handle, (OSIoMesg*)mb, direction);
     return 0;
 }

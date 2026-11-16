@@ -16,7 +16,7 @@ typedef struct NoteSubAttributes {
     /* 0x04 */ f32 freqScale; // @unverified: same offset/use as OoT's NoteSubAttributes.frequency
     /* 0x08 */ f32 velocity; // @unverified: same offset/use as OoT's NoteSubAttributes.velocity
     /* 0x0C */ s32 unk0C;
-    /* 0x10 */ s32 filter; // @unverified: takes channel->filter / NoteAttributes.filter, like OoT's NoteSampleStateAttributes.filter
+    /* 0x10 */ s16* filter; // PORT: was s32, holds a pointer. @unverified: takes channel->filter / NoteAttributes.filter, like OoT's NoteSampleStateAttributes.filter
 } NoteSubAttributes;
 void AudioPlayback_SeqLayerDecayRelease(struct SequenceLayer*, s32);
 
@@ -168,7 +168,7 @@ void AudioPlayback_NoteSetResamplingRate(s8* arg0, f32 arg1) {
 }
 
 extern NoteSampleState D_811369C0;
-void AudioEffects_InitAdsr(u8*, s32, char*);
+void AudioEffects_InitAdsr(AdsrState*, EnvelopePoint*, s16*); // PORT: matches the definition
 
 /**
  * Starts a note's envelope from its instrument or the layer's own envelope.
@@ -181,9 +181,9 @@ void AudioPlayback_NoteInit(Note* arg0) {
     SequenceLayer* def = arg0->playbackState.parentLayer;
 
     if (def->adsr.decayIndex == 0) {
-        AudioEffects_InitAdsr(&arg0->playbackState.adsr.action, def->channel->adsr.envelope, &arg0->playbackState.adsrVolScale);
+        AudioEffects_InitAdsr(&arg0->playbackState.adsr, def->channel->adsr.envelope, &arg0->playbackState.adsrVolScale);
     } else {
-        AudioEffects_InitAdsr(&arg0->playbackState.adsr.action, def->adsr.envelope, &arg0->playbackState.adsrVolScale);
+        AudioEffects_InitAdsr(&arg0->playbackState.adsr, def->adsr.envelope, &arg0->playbackState.adsrVolScale);
     }
     arg0->playbackState.unk_04 = 0;
     arg0->playbackState.adsr.state = 1;
@@ -1030,9 +1030,9 @@ void AudioPlayback_NoteInitAll(void) {
         rec->sampleState = D_811369A8;
         rec->playbackState.priority = 0;
         rec->playbackState.unk_04 = 0;
-        rec->playbackState.parentLayer = -1;
-        rec->playbackState.wantedParentLayer = -1;
-        rec->playbackState.prevParentLayer = -1;
+        rec->playbackState.parentLayer = (SequenceLayer*)-1; // PORT: was -1 (same value, made explicit)
+        rec->playbackState.wantedParentLayer = (SequenceLayer*)-1; // PORT: was -1 (same value, made explicit)
+        rec->playbackState.prevParentLayer = (SequenceLayer*)-1; // PORT: was -1 (same value, made explicit)
         rec->playbackState.waveId = 0;
         rec->playbackState.attributes.velocity = 0.0f;
         rec->playbackState.adsrVolScale = 0;
