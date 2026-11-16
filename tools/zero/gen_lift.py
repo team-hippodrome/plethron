@@ -368,6 +368,13 @@ def main():
                 count = declared  # a sized display list ends where declared; data after it (text) is not commands
             lp = loaded_part(im, a)
             nb = nobits_part(im, a) or (lp is None)
+            if (not nb and t['k'] == 'array' and t['n'] and count > declared and g.has_ptr(elem)
+                    and gap >= 2 * declared * en):
+                # a sized pointer table in data, followed by at least as much again: that is usually the strings or
+                # records it points at (D_820093E0's popup texts), which as pointers would come out as swapped words.
+                # The table keeps its declared size; pointers into the tail are lifted lazily as their pointee type.
+                count = declared
+                report['sized pointer table kept to its declared size'] += 1
             if nb and gap > 0x10000 and count > declared:
                 count = max(declared, 0x10000 // en, 1)  # last bss symbol of an image: no next symbol bounds it
             syms.append(dict(name=name, addr=a, image=im, tid=ti, score=score({'t': t}), count=count, n64ext=count * en,

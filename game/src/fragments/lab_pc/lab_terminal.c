@@ -470,7 +470,7 @@ void LabTerminal_InitMainMenu(LabTerminalMenuWindow* win) {
 void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 void LabTerminal_DrawMenuWindow(LabTerminalMenuWindow*);
-extern M2C_UNK D_89018900;
+extern char D_89018900[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_89019108;
 extern M2C_UNK D_89019110;
 
@@ -487,7 +487,7 @@ void LabTerminal_DrawMainScreen(LabTerminalMenuWindow* win) {
     } else {
         var_a1 = &D_89019110;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_89018900, D_89019108);
+    GbSave_DrawSummaryBar(0, var_a1, D_89018900, D_89019108);
     LabItem_DrawBackground();
     LabTerminal_DrawMenuWindow(win);
 }
@@ -543,7 +543,7 @@ extern s32 D_8900A720;
  * when the two accesses name different symbols.
  */
 extern s32 D_8900A71C_2;
-extern M2C_UNK D_8901890C;
+extern char D_8901890C[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
@@ -570,7 +570,7 @@ s32 LabTerminal_UpdateFade(u8 unused) { // PORT: u8 to match BgStage_RunUntilCon
     } else {
         var_a1 = &D_89019110;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_8901890C, D_89019108);
+    GbSave_DrawSummaryBar(0, var_a1, D_8901890C, D_89019108);
     n = D_8900A71C;
     *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8900A5B8, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);

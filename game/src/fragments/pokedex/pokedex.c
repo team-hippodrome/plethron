@@ -526,7 +526,7 @@ void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 void Pokedex_DrawListWindow(PokedexListWindow*, u32);
 void Pokedex_DrawCounts(Window*);
-extern M2C_UNK D_8A12FD2C;
+extern char D_8A12FD2C[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern PokedexIndexScreen sIndexScreen;
 extern M2C_UNK sCountsWindow;
 extern M2C_UNK sActionMenuWindow;
@@ -549,7 +549,7 @@ s32 Pokedex_DrawIndexScreen(UNUSED u8 unused) {
     } else {
         var_a1 = &sPortSummary;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_8A12FD2C, sSummaryPort);
+    GbSave_DrawSummaryBar(0, var_a1, D_8A12FD2C, sSummaryPort);
     Pokedex_DrawListWindow(&sIndexScreen.listWindow, 0x10);
     Pokedex_DrawCounts(&sCountsWindow);
     Pokedex_DrawActionMenu(&sActionMenuWindow, 2);
@@ -913,7 +913,7 @@ extern s32 sFadingOut;
  * when the two accesses name different symbols.
  */
 extern s32 D_8A105800_2;
-extern M2C_UNK D_8A12FD3C;
+extern char D_8A12FD3C[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
@@ -941,7 +941,7 @@ s32 Pokedex_DrawFadeFrame(UNUSED u8 unused) {
     } else {
         var_a1 = &sPortSummary;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_8A12FD3C, sSummaryPort);
+    GbSave_DrawSummaryBar(0, var_a1, D_8A12FD3C, sSummaryPort);
     n = sFadeTimer;
     *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8A1057D0, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);

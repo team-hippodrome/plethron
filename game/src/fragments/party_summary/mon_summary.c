@@ -684,7 +684,7 @@ extern s32 D_8A20342C;
  * when the two accesses name different symbols.
  */
 extern s32 D_8A203428_2;
-extern M2C_UNK D_8A21D9E4;
+extern char D_8A21D9E4[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
 /**
@@ -711,7 +711,7 @@ s32 PartyScreen_FadeFrame(u8 unused) {
     } else {
         var_a1 = &D_8A21DE10;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_8A21D9E4, D_8A21DE08);
+    GbSave_DrawSummaryBar(0, var_a1, D_8A21D9E4, D_8A21DE08);
     n = D_8A203428;
     *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8A203300, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);

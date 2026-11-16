@@ -101,7 +101,7 @@ void FreeBattle_RunFrame(FreeBattleScreen* screen); // PORT: matches the definit
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
-extern M2C_UNK D_82009E18;
+extern char D_82009E18[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 

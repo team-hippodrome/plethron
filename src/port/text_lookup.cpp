@@ -1,5 +1,6 @@
 // Runtime text translation (see text_lookup.h and translations/README.md).
 #include "text_lookup.h"
+#include "zero_lift.h"
 #include "unicode_font.h"
 
 #include <algorithm>
@@ -333,7 +334,7 @@ void LogMiss(const std::string& key, const char* s) {
     for (const uint8_t* p = (const uint8_t*)s; *p != 0; p++) {
         fprintf(t.missLog, "%02x", *p);
     }
-    fputc('\n', t.missLog);
+    fprintf(t.missLog, ",%08X\n", ZLift_N64Addr(s)); // where the text lives on the N64 (0 when not lifted data)
     fflush(t.missLog);
 }
 

@@ -614,7 +614,7 @@ extern s32 D_820090D8;
  * when the two accesses name different symbols.
  */
 extern s32 D_820090D4_2;
-extern M2C_UNK D_82009E10;
+extern char D_82009E10[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 void BgStage_DrawFrame(void);
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32);
@@ -644,7 +644,7 @@ s32 FreeBattle_UpdateFade(FreeBattleScreen* screen) {
     } else {
         var_a1 = &D_8200AD30;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_82009E10, D_8200AD2C);
+    GbSave_DrawSummaryBar(0, var_a1, D_82009E10, D_8200AD2C);
     n = D_820090D4;
     *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_82008F50, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
@@ -674,7 +674,7 @@ void FreeBattle_RunFrame(FreeBattleScreen* screen) {
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen*);
-extern M2C_UNK D_82009E18;
+extern char D_82009E18[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 
@@ -691,7 +691,7 @@ s32 FreeBattle_DrawScreenWithSummary(FreeBattleScreen* screen) {
     } else {
         var_a1 = &D_8200AD30;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_82009E18, D_8200AD2C);
+    GbSave_DrawSummaryBar(0, var_a1, D_82009E18, D_8200AD2C);
     return 0;
 }
 

@@ -819,7 +819,7 @@ s32 MainMenu_DrawBackground(u8 fade_mode) { // PORT: u8 to match BgStage_RunUnti
 }
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
-extern M2C_UNK D_88002A8C;
+extern char D_88002A8C[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 
 /**
  * Draws the GB save summary bar sliding in from the top (6 frames, y from -56 to 0).
@@ -838,14 +838,14 @@ s32 MainMenu_DrawSummaryBarSlideIn(UNUSED u8 fade_mode) { // PORT: u8 to match B
     } else {
         var_a1 = &D_88002B08;
     }
-    GbSave_DrawSummaryBar(sp1C, var_a1, &D_88002A8C, D_88002B00);
+    GbSave_DrawSummaryBar(sp1C, var_a1, D_88002A8C, D_88002B00);
     D_880022C8++;
     return 0;
 }
 
 void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
-extern M2C_UNK D_88002A9C;
+extern char D_88002A9C[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_88002B00;
 extern M2C_UNK D_88002B08;
 
@@ -862,7 +862,7 @@ s32 MainMenu_DrawSummaryBar(u8 fade_mode) { // PORT: u8 to match BgStage_RunUnti
     } else {
         var_a1 = &D_88002B08;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_88002A9C, D_88002B00);
+    GbSave_DrawSummaryBar(0, var_a1, D_88002A9C, D_88002B00);
     return 0;
 }
 
@@ -871,7 +871,7 @@ void BgStage_DrawFrame(void);                            /* extern */
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32); /* extern */
 extern M2C_UNK D_88002254;
-extern M2C_UNK D_88002AAC;
+extern char D_88002AAC[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_88002B00;
 extern M2C_UNK D_88002B08;
 extern MainMenuScreen* D_88002B20;
@@ -893,7 +893,7 @@ s32 MainMenu_DrawSummaryBarAndBackground(u8 fade_mode) { // PORT: u8 to match Bg
     } else {
         var_a1 = &D_88002B08;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_88002AAC, D_88002B00);
+    GbSave_DrawSummaryBar(0, var_a1, D_88002AAC, D_88002B00);
     Ui_DrawTintedScreenBackground(56, 480, M2C_FIELD(&D_88002254, u8 *, 0), M2C_FIELD(&D_88002254, u8 *, 1), (s32) M2C_FIELD(&D_88002254, u8 *, 2));
     MainMenu_DrawItemList(&D_88002B20->itemList, 2);
     return 0;

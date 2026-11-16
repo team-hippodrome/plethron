@@ -1194,7 +1194,7 @@ extern s32 D_88102DCC;
 extern s32 D_88102DD0;
 /* Second name for D_88102DCC; see PartyScreen_FadeFrame in party_summary/mon_summary.c. */
 extern s32 D_88102DCC_2;
-extern M2C_UNK D_88103018;
+extern char D_88103018[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32);
 Color_RGBA8 func_8002C8D8(Color_RGBA8 arg0, f32 arg1); // PORT: matches Color_InterpolateFromGray
@@ -1224,7 +1224,7 @@ s32 Registration_UpdateFade(u8 fade_mode) { // PORT: u8 to match BgStage_RunUnti
     } else {
         var_a1 = &D_88103080;
     }
-    GbSave_DrawSummaryBar(0, var_a1, &D_88103018, D_88103078);
+    GbSave_DrawSummaryBar(0, var_a1, D_88103018, D_88103078);
     n = D_88102DCC;
     *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)D_88102D70, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
