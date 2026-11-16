@@ -417,7 +417,7 @@ void GbPak_IoThreadMain(void* arg0) { // PORT: OSThread entry signature (was s32
                 if (GbPak_ReadRomSummed((u8*)ch) != 0) {
                     goto error;
                 }
-                if ((((u16*)ch->bankEntry)[1] ^ (ch->sum - *(s32*)ch->unk88)) & 0xFFFF) {
+                if (((u16)((ch->bankEntry[2] << 8) | ch->bankEntry[3]) ^ (ch->sum - *(s32*)ch->unk88)) & 0xFFFF) { // PORT: big-endian bank-list sums (were u16 reads of the bytes)
                     goto error;
                 }
                 *(s32*)ch->unk88 = ch->sum;
@@ -426,7 +426,7 @@ void GbPak_IoThreadMain(void* arg0) { // PORT: OSThread entry signature (was s32
                 if (GbPak_ReadRomSummed((u8*)ch) != 0) {
                     goto error;
                 }
-                if ((((u16*)ch->bankEntry)[2] ^ (ch->sum - *(s32*)ch->unk88)) & 0xFFFF) {
+                if (((u16)((ch->bankEntry[4] << 8) | ch->bankEntry[5]) ^ (ch->sum - *(s32*)ch->unk88)) & 0xFFFF) { // PORT: big-endian bank-list sums (were u16 reads of the bytes)
                     goto error;
                 }
                 ch->bankState[ch->bankEntry[0] & 0x7F] = 0;
