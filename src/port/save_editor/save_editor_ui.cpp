@@ -1,14 +1,19 @@
-// The save editor inside the launcher. Same pages as tools/save_editor's web page (editor.html) without its raw JSON
-// view: overview and repair, progress, options, registered teams, Lab boxes (and moving Pokémon to and from the
-// Game Boy games), item boxes, Victory Palace, the saved cup run, the gallery and the Game Boy saves. It edits the save
-// the way the page did: a dump of the file ("base") and an edited copy ("cur"); Save rebuilds the file from base and
-// commits every record that changed (EncodeEdit), keeping the previous file as .bak.
+// The save editor inside the launcher, for Zero's 32 KiB SRAM save (SaveSram, zero_sram.h): overview and repair,
+// progress and GB Player unlocks, options, the 16 registered teams, the four N64 boxes, the item storage, the saved
+// tournament and the Western Game Boy saves of the Transfer Paks. It edits the save the way Stadium 1's editor page
+// did: a dump of the file ("base") and an edited copy ("cur"); Save rebuilds the file from base and commits every
+// record that changed (EncodeEdit), keeping the previous file as .bak. The file is written in N64 byte order.
+//
+// Zero's names are Japanese Game Boy text. The launcher's font has no kana, so they are shown and typed in romaji
+// (zero_text.h): capitals for katakana, small letters for hiragana. Japanese Game Boy saves are not edited here; Zero
+// edits them itself through Organize (pj64-pokestadium-debug can edit them too).
 //
 // Everything is plain ImGui in the launcher's look. For the handheld layout every control is a gamepad focus target
 // (Style::navItem); lists that would need a drop-down (species, moves, items) open a picker page instead, and the
 // Pokémon dialog and questions replace the page, so the focus never lands on something hidden.
 #include "save_editor_ui.h"
 #include "stadium_save.h"
+#include "zero_text.h"
 #include "gamedata.h"
 
 #include <SDL3/SDL.h>
@@ -54,7 +59,9 @@ uint32_t TypeColor(const char* t) {
 }
 
 // ImGui's built-in font has Latin-1 only: the gender signs as letters, the PK and MN ligatures as their letters
-std::string Show(const std::string& s) {
+// a name for the launcher's font: kana as romaji, ♂ ♀ PK MN spelled out
+std::string Show(const std::string& text) {
+    const std::string s = KanaToRomaji(text);
     std::string out;
     for (size_t i = 0; i < s.size(); i++) {
         if (s.compare(i, 3, "♀") == 0) out += " F", i += 2;
@@ -68,7 +75,8 @@ std::string Show(const std::string& s) {
 
 // A name as it is typed in a text field: the font cannot draw ♂ and ♀, so they are written <M> and <F> (like <PK>,
 // <MN>); the codec accepts both spellings.
-std::string FieldForm(const std::string& s) {
+std::string FieldForm(const std::string& text) {
+    const std::string s = KanaToRomaji(text);
     std::string out;
     for (size_t i = 0; i < s.size(); i++) {
         if (s.compare(i, 3, "♀") == 0) out += "<F>", i += 2;
@@ -136,25 +144,14 @@ json EmptyList() {
     return json{ { "flags", 0 }, { "name", "" }, { "trainer_id", 0 }, { "entries", json::array() } };
 }
 
-struct Cat {
-    const char *key, *name, *rule;
-    int level;
-};
-const Cat kCats[] = {
-    { "free_battle", "Free Battle", "Any Pokémon at any level.", 50 },
-    { "poke_cup", "Poké Cup", "Levels 50-55; the three you send in add up to level 155 at most.", 50 },
-    { "petit_cup", "Petit Cup", "Levels 25-30 (three add up to 80 at most), small Pokémon only.", 25 },
-    { "pika_cup", "Pika Cup", "Levels 15-20 (three add up to 50 at most).", 15 },
-    { "prime_cup", "Prime Cup", "Levels 1-100.", 100 },
-    { "gym_leader_castle", "Gym Leader Castle", "Any level up to 100.", 50 },
-    { "mewtwo", "Vs. Mewtwo", "Your team for the Mewtwo battle.", 100 },
-    { "category_1", "Hidden cup 1", "A Poké Cup copy that the game's menus never show.", 50 },
-    { "category_2", "Hidden cup 2", "A Poké Cup copy that the game's menus never show.", 50 },
-};
-const std::pair<int, const char*> kCupBits[] = { { 3, "Poké Cup" }, { 4, "Petit Cup" }, { 5, "Pika Cup" },
-                                                 { 6, "Prime Cup" }, { 7, "Gym Leader Castle" }, { 8, "Beat Mewtwo" } };
-const std::pair<int, const char*> kStatueModes[] = { { 3, "Poké Cup" }, { 4, "Petit Cup" }, { 5, "Pika Cup" },
-                                                     { 6, "Prime Cup" }, { 7, "Castle" } };
+// the GB Player's button choices (SaveOptionsRecord.gbPlayerButtons)
+const char* const kGbButtons[5] = { "START", "L", "R", "C-Left", "C-Down" };
+
+// a Pokémon's name when it has no nickname: Japanese in Zero's save, English in a Western Game Boy save
+std::string DefaultName(int dex, bool western) {
+    return dex > 0 && dex <= 151 ? (western ? gd::SPECIES[dex] : JP_SPECIES[dex]) : "";
+}
+
 const char* const kStatNames[5] = { "HP", "Attack", "Defense", "Speed", "Special" };
 
 struct Section {
@@ -171,8 +168,9 @@ struct SaveEditor::Impl {
     struct MonCtx {
         std::string title;
         json mon; // null: a new one
-        json otName = "RED";
-        int otId = 0, level = 50;
+        json otName = "レッド";
+        int otId = 0, level = 30;
+        bool western = false; // a Western Game Boy save's Pokémon (English names of 10 letters)
         std::function<void(const json&)> onDone;
         std::function<void()> onRemove; // empty: no Remove button
     };
@@ -181,10 +179,10 @@ struct SaveEditor::Impl {
         int tab = 0;
         std::string species;
         json nickname = "";
-        int level = 50;
+        int level = 30;
         std::string moves[4];
         int ppUps[4] = {};
-        json otName = "RED";
+        json otName = "レッド";
         int otId = 0;
         int dvs[4] = { 15, 15, 15, 15 };
         int se[5] = {};
@@ -215,8 +213,8 @@ struct SaveEditor::Impl {
     bool dirty = false;
 
     std::string section = "overview";
-    std::string cat = "poke_cup";
-    int slot = 0, box = 0, ibox = 0, dex = 25, gbTab = 1, gbBox = 0, xg = 0, xstore = -1; // xstore -1: party
+    int slot = 0, box = 0, ibox = 0, gbTab = 1, gbBox = 0;
+    std::vector<std::string> skipped; // Game Boy saves left out (Japanese ones), for the overview
     std::optional<MonDlg> dlg;
     std::optional<Picker> picker;
     std::map<ImGuiID, std::string> pendingSymbol; // a Symbols button pick, taken by its name field next frame
@@ -254,12 +252,12 @@ struct SaveEditor::Impl {
     void Save() {
         try {
             std::vector<std::pair<std::string, Bytes>> writes;
-            Bytes disk = ReadFile(path);
+            Bytes disk = ReadSave(path); // (a file in another byte order is rewritten in N64 order)
             if (SaveFile::FromDict(base).data != disk) {
                 throw Error(fileName + " changed on disk since it was opened. Discard to load it again.");
             }
             Bytes data = EncodeEdit(base, cur);
-            if (data != disk) writes.push_back({ path, data });
+            if (data != disk || data != ReadFile(path)) writes.push_back({ path, data });
             for (const Gb& g : gbs) {
                 if (g.cur == g.base) continue;
                 Bytes gdisk = ReadFile(g.path);
@@ -324,8 +322,7 @@ struct SaveEditor::Impl {
 
     int RegisteredTeams() {
         int n = 0;
-        for (const char* c : TEAM_CATEGORIES)
-            for (const json& t : cur["teams"][c]) n += TeamRegistered(t);
+        for (const json& t : cur["teams"]) n += TeamRegistered(t);
         return n;
     }
     int BoxedCount() {
@@ -336,11 +333,6 @@ struct SaveEditor::Impl {
     int ItemCount() {
         int n = 0;
         for (const json& b : cur["item_boxes"]) n += (int)ListRecord(b)["entries"].size();
-        return n;
-    }
-    int Statues() {
-        int n = 0;
-        for (const json& e : cur["victory_palace"]["entries"]) n += !e.is_null();
         return n;
     }
 
@@ -447,35 +439,53 @@ struct SaveEditor::Impl {
         return std::nullopt;
     }
 
-    // A Game Boy name (up to 10 characters); refuses what the Game Boy alphabet cannot write. Besides the keyboard, a
-    // "Symbols" button picks ♂ ♀ PK MN é × and the rest of the Game Boy character set; the field spells ♂ ♀ as <M> <F>.
-    std::optional<std::string> NameField(const char* id, const json& value, size_t size = 11, float w = 150) {
+    // A name. Zero's (Japanese, `size` - 1 kana at most) is typed in romaji: capitals for katakana, small letters for
+    // hiragana; refuses what the Japanese Game Boy characters cannot write. A Western Game Boy name (western) takes
+    // the Western alphabet, with a "Symbols" button for ♂ ♀ PK MN é × and the rest; the field spells ♂ ♀ as <M> <F>.
+    std::optional<std::string> NameField(const char* id, const json& value, size_t size = 6, float w = 150, bool western = false) {
         const std::string current = TextOf(value);
         const ImGuiID wid = ImGui::GetID(id);
         std::optional<std::string> t = TextField(id, FieldForm(current), w, false);
-        ImGui::SameLine();
-        ImGui::PushID(id);
-        if (Btn("Symbols", 64)) {
-            std::vector<std::pair<int, std::string>> items;
-            for (size_t i = 0; i < GbSymbols().size(); i++) items.push_back({ (int)i, GbSymbols()[i].second });
-            OpenPicker("Symbol", std::move(items), -1, [this, wid](int v) { pendingSymbol[wid] = GbSymbols()[v].first; });
-        }
-        ImGui::PopID();
-        auto pend = pendingSymbol.find(wid);
-        if (pend != pendingSymbol.end()) {
-            t = current + pend->second;
-            pendingSymbol.erase(pend);
+        if (western) {
+            ImGui::SameLine();
+            ImGui::PushID(id);
+            if (Btn("Symbols", 64)) {
+                std::vector<std::pair<int, std::string>> items;
+                for (size_t i = 0; i < GbSymbols().size(); i++) items.push_back({ (int)i, GbSymbols()[i].second });
+                OpenPicker("Symbol", std::move(items), -1, [this, wid](int v) { pendingSymbol[wid] = GbSymbols()[v].first; });
+            }
+            ImGui::PopID();
+            auto pend = pendingSymbol.find(wid);
+            if (pend != pendingSymbol.end()) {
+                t = current + pend->second;
+                pendingSymbol.erase(pend);
+            }
+        } else if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Romaji: capitals for katakana (PIKACHUU), small letters for hiragana (satoshi); - is a long vowel");
         }
         if (!t) return std::nullopt;
+        if (western) {
+            try {
+                // what the game would read back: <M> -> the sign, e.g. lower case where the alphabet has it
+                std::string canon = DecodeGb(EncodeGb(*t, size).data(), size);
+                error.clear();
+                return canon;
+            } catch (const std::exception&) {
+                error = "\"" + FieldForm(*t) + "\" cannot be written in the Game Boy alphabet or is too long (" + std::to_string(size - 1) +
+                        " characters at most). Letters, digits and the Symbols button's characters work; <PK>, <MN>, <M>, <F> and "
+                        "<xx> (a byte in hex) can be typed.";
+                return std::nullopt;
+            }
+        }
         try {
-            // what the game would read back: <M> -> the sign, e.g. lower case where the alphabet has it
-            std::string canon = DecodeGb(EncodeGb(*t, size).data(), size);
+            const std::string kana = RomajiToKana(*t);
+            std::string canon = DecodeJp(EncodeJp(kana, size, 0x50).data(), size);
             error.clear();
             return canon;
-        } catch (const std::exception&) {
-            error = "\"" + FieldForm(*t) + "\" cannot be written in the Game Boy alphabet or is too long (" + std::to_string(size - 1) +
-                    " characters at most). Letters, digits and the Symbols button's characters work; <PK>, <MN>, <M>, <F> and "
-                    "<xx> (a byte in hex) can be typed.";
+        } catch (const std::exception& e) {
+            error = "\"" + *t + "\": " + e.what() + ". Names are up to " + std::to_string(size - 1) +
+                    " kana, typed in romaji: capitals for katakana (PIKACHUU), small letters for hiragana (satoshi), - for a "
+                    "long vowel, <M> <F> for the gender signs.";
             return std::nullopt;
         }
     }
@@ -573,9 +583,11 @@ struct SaveEditor::Impl {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         dl->AddRectFilled(a, b, Col(hov ? kButtonHover : kButton), S(6));
         Ball(dl, ImVec2(a.x + S(20), (a.y + b.y) / 2), S(11), m);
+        const int dex = SpeciesDex(m);
         std::string nick = Show(TextOf(m["nickname"]));
-        std::string name = nick.empty() ? MonName(m) : nick;
-        std::string sub = (!nick.empty() && nick != MonName(m) ? MonName(m) + " · " : "") + "Lv " + std::to_string(I(m["level"]));
+        const bool plain = nick.empty() || (dex && (TextOf(m["nickname"]) == JP_SPECIES[dex] || TextOf(m["nickname"]) == gd::SPECIES[dex]));
+        std::string name = plain ? MonName(m) : nick;
+        std::string sub = (!plain ? MonName(m) + " · " : "") + "Lv " + std::to_string(I(m["level"]));
         const float fs = ImGui::GetFontSize();
         dl->PushClipRect(a, b, true);
         dl->AddText(ImGui::GetFont(), fs, ImVec2(a.x + S(38), a.y + (b.y - a.y) / 2 - fs - S(1)), Col(kText), name.c_str());
@@ -680,7 +692,8 @@ struct SaveEditor::Impl {
         for (int i = 0; i < 5; i++) se[pokemon::STAT_KEYS[i]] = d.se[i];
         return json{ { "species", d.species }, { "level", d.level },
                      { "nickname", TextOf(d.nickname).empty() ? json(nullptr) : d.nickname }, { "moves", moves },
-                     { "ot_name", d.otName }, { "ot_id", d.otId }, { "dvs", dvs }, { "stat_exp", se } };
+                     { "ot_name", d.otName }, { "ot_id", d.otId }, { "dvs", dvs }, { "stat_exp", se },
+                     { "western", d.ctx.western } };
     }
 
     void RefreshPreview() {
@@ -702,8 +715,12 @@ struct SaveEditor::Impl {
 
     void SetSpecies(int dex) {
         MonDlg& d = *dlg;
-        std::string old = d.species, name = gd::SPECIES[dex];
-        if (TextOf(d.nickname).empty() || TextOf(d.nickname) == old) d.nickname = name;
+        int old = 0;
+        for (int i = 1; i <= 151; i++)
+            if (d.species == gd::SPECIES[i]) old = i;
+        const std::string name = gd::SPECIES[dex];
+        if (TextOf(d.nickname).empty() || TextOf(d.nickname) == DefaultName(old, d.ctx.western))
+            d.nickname = DefaultName(dex, d.ctx.western);
         d.species = name;
         bool any = false;
         for (const std::string& m : d.moves) any |= !m.empty();
@@ -761,19 +778,24 @@ struct SaveEditor::Impl {
                 OpenPicker("Species", SpeciesItems(), dex, [this](int v) { SetSpecies(v); });
             });
             Label("Nickname");
-            if (auto v = NameField("##nick", d.nickname)) {
-                d.nickname = v->empty() ? json(d.species) : json(*v);
+            const size_t nameSize = d.ctx.western ? 11 : 6;
+            if (auto v = NameField("##nick", d.nickname, nameSize, 150, d.ctx.western)) {
+                d.nickname = v->empty() ? json(DefaultName(dex, d.ctx.western)) : json(*v);
                 changed = true;
             }
             Label("Level (1-100)");
             if (auto v = IntField("level", d.level, 1, 100)) d.level = (int)*v, changed = true;
             Label("Original trainer");
-            if (auto v = NameField("##ot", d.otName)) d.otName = *v, changed = true;
+            if (auto v = NameField("##ot", d.otName, nameSize, 150, d.ctx.western)) d.otName = *v, changed = true;
             Label("Trainer ID");
             if (auto v = IntField("otid", d.otId, 0, 65535, 80)) d.otId = (int)*v, changed = true;
             ImGui::Spacing();
-            Hint("Names use the Game Boy alphabet: up to 10 capital letters, digits and a few symbols. Experience, HP and "
-                 "PP are filled in to match the level, as for a freshly caught Pokémon.");
+            Hint(d.ctx.western ? "Names use the Game Boy alphabet: up to 10 capital letters, digits and a few symbols. Experience, "
+                                 "HP and PP are filled in to match the level, as for a freshly caught Pokémon."
+                               : "Names are up to 5 Japanese characters, typed in romaji (capitals: katakana, small letters: "
+                                 "hiragana). Experience, HP and PP are filled in to match the level, as for a freshly caught "
+                                 "Pokémon. A Pokémon from a Western cartridge keeps its English names in the save's .western "
+                                 "file; changing its names or DVs here makes it a Japanese one.");
         } else if (d.tab == 1) {
             for (int i = 0; i < 4; i++) {
                 ImGui::PushID(i);
@@ -991,40 +1013,32 @@ struct SaveEditor::Impl {
 
     // ---- pages ----
 
-    static std::string RoundState(const json& p) {
-        int c = I(p["cleared_modes"]);
-        if ((c & 0x1F8) == 0x1F8) return "Complete";
-        if (I(p["mewtwo_unlocked"])) return "Mewtwo unlocked";
-        return c || I(p["poke_cup"]) || I(p["prime_cup"]) || I(p["gym_leader_castle"]) ? "In progress" : "Not started";
+    // SaveOptionsRecord.progress (Save_GetProgressFlags): high byte bit 0 Lv 50-55 tournament won, bit 1 Master Ball
+    // Cup won; low byte the Lv 1-30 cups cleared (0-4)
+    static constexpr int kStadiumWon = 0x100, kMasterWon = 0x200;
+    static std::string ProgressLine(int p) {
+        std::string s = std::to_string(p & 0xFF) + " of 4 cups";
+        if (p & kMasterWon) s += ", Master Ball Cup won";
+        if (p & kStadiumWon) s += ", Lv 50-55 won";
+        return s;
     }
-    static std::string ProgressLine(const json& p) {
-        std::string s;
-        for (auto [bit, name] : kCupBits)
-            if (I(p["cleared_modes"]) & (1 << bit)) s += (s.empty() ? "" : ", ") + std::string(name);
-        return s.empty() ? "nothing cleared yet" : s;
-    }
-    static std::string RunTitle(const json& se) {
+    static std::string RunTitle(const json& c) {
+        const json& se = c["session"];
         int mode = I(se["mode"]);
         const char* mn = ModeName(mode);
         std::string s = mn ? mn : "Mode " + std::to_string(mode);
-        int sel = I(se["mode_selection"]);
-        if (mode == 3 || mode == 6) s += std::string(" · ") + CUP_DIVISIONS[sel & 3] + " division";
-        if (mode == 7) s += " · " + (sel >= 0 && sel < 10 ? std::string(GLC_STAGES[sel]) : "stage " + std::to_string(sel));
-        s += " · battle " + std::to_string(I(se["battle"]));
-        if (I(se["round2"])) s += " · Round 2";
+        int cup = I(se["cup"]);
+        if (mode == 2) s += std::string(" · ") + (cup >= 0 && cup < 4 ? CUP_NAMES[cup] : "cup " + std::to_string(cup));
+        s += " · battle " + std::to_string(I(se["round"]));
         return s;
     }
 
-    void UnlockAll(bool round2) {
-        for (int r = 0; r < (round2 ? 2 : 1); r++) ClearRound(cur["options"]["progress"][r]);
+    void UnlockAll() {
+        json& o = cur["options"];
+        o["progress"] = 4 | kMasterWon | kStadiumWon;
+        o["gb_player_frames"] = 2;
+        o["flags"] = I(o["flags"]) | 1;
         Changed();
-    }
-    static void ClearRound(json& p) {
-        p["cleared_modes"] = I(p["cleared_modes"]) | 0xF8;
-        p["gym_leader_castle"] = 8;
-        p["poke_cup"] = 4;
-        p["prime_cup"] = 4;
-        p["mewtwo_unlocked"] = 1;
     }
 
     void Go(const std::string& sec) {
@@ -1032,6 +1046,7 @@ struct SaveEditor::Impl {
         scrollTo = sec;
         ResetFocus();
     }
+
 
     void PageOverview() {
         int bad = 0, total = 0;
@@ -1046,30 +1061,29 @@ struct SaveEditor::Impl {
             Hint("This save is healthy: every part of it is readable and both copies agree.", kGreen);
         } else {
             Hint(std::to_string(bad) + " of " + std::to_string(total) +
-                     " parts of this save are unreadable or out of sync. That is normal for parts the game has never "
-                     "written (unused team slots, for example): the game treats them as empty and rebuilds them when it "
-                     "loads the save. Editing a part fixes it; Repair fixes all of them now, the way the game would.",
+                     " parts of this save are unreadable or out of sync. The game repairs them from their other copy, or "
+                     "resets them, when it loads the save. Editing a part fixes it; Repair fixes all of them now, the way "
+                     "the game would.",
                  kWarn);
             if (Btn("Repair", 100)) Repair();
         }
         ImGui::Spacing();
         const json& o = cur["options"];
+        const int prog = I(o["progress"]);
         const float w = 210;
         int i = 0;
         GridNext(i++, w);
-        if (InfoCard("r1", "Round 1", RoundState(o["progress"][0]), ProgressLine(o["progress"][0]), w)) Go("progress");
+        if (InfoCard("prog", "Cups", std::to_string(prog & 0xFF) + " / 4", ProgressLine(prog), w)) Go("progress");
         GridNext(i++, w);
-        if (InfoCard("r2", "Round 2", RoundState(o["progress"][1]), ProgressLine(o["progress"][1]), w)) Go("progress");
+        if (InfoCard("teams", "Registered teams", std::to_string(RegisteredTeams()) + " / 16", "saved with Register", w)) Go("teams");
         GridNext(i++, w);
-        if (InfoCard("teams", "Registered teams", std::to_string(RegisteredTeams()), "across all cups and modes", w)) Go("teams");
+        if (InfoCard("n64", "Pokémon in N64 boxes", std::to_string(BoxedCount()), "in 4 boxes of 30", w)) Go("boxes");
         GridNext(i++, w);
-        if (InfoCard("lab", "Pokémon in the Lab", std::to_string(BoxedCount()), "in 12 boxes of 20", w)) Go("boxes");
-        GridNext(i++, w);
-        if (InfoCard("palace", "Victory Palace statues", std::to_string(Statues()) + " / 151", "Pokémon that won a cup", w)) Go("palace");
+        if (InfoCard("items", "Stored items", std::to_string(ItemCount()), "in 4 trainers' item storage", w)) Go("items");
         const json& c = cur["continue"];
         GridNext(i++, w);
-        if (InfoCard("run", "Saved cup run", (I(c["flags"]) & 1) ? "Yes" : "None",
-                     (I(c["flags"]) & 1) ? RunTitle(c["session"]) : "nothing to continue", w)) Go("run");
+        if (InfoCard("run", "Saved tournament", (I(c["flags"]) & 1) ? "Yes" : "None",
+                     (I(c["flags"]) & 1) ? RunTitle(c) : "nothing to continue", w)) Go("run");
         for (size_t g = 0; g < gbs.size(); g++) {
             const json& gc = gbs[g].cur;
             int boxed = 0;
@@ -1082,183 +1096,115 @@ struct SaveEditor::Impl {
             }
             ImGui::PopID();
         }
+        for (const std::string& sk : skipped) Hint(sk);
         ImGui::Spacing();
         ImGui::Spacing();
         Heading("Quick actions");
-        if (Btn("Clear Round 1 & unlock Mewtwo")) {
-            UnlockAll(false);
-            Toast("Round 1 fully cleared, Mewtwo unlocked.");
-        }
-        ImGui::SameLine();
-        if (Btn("Clear both rounds")) {
-            UnlockAll(true);
-            Toast("Both rounds fully cleared.");
-        }
-        ImGui::SameLine();
-        if (Btn("GB Tower: fastest speed")) {
-            cur["options"]["gb_tower_speed"] = 2;
-            Changed();
-            Toast("GB Tower now runs at Dodrio speed.");
+        if (Btn("Clear every cup and unlock both picture frames")) {
+            UnlockAll();
+            Toast("All four cups and the Lv 50-55 tournament cleared; Dodrio frame unlocked.");
         }
         Hint("Changes are only written when you press Save.");
     }
 
     void PageProgress() {
         Heading("Progress & unlocks");
-        Hint("Which cups you have cleared. Clearing all four cups and the Castle unlocks the Mewtwo battle.");
+        Hint("Tournament progress as the main menu reads it. Each cleared Lv 1-30 cup opens the next one.");
         json& o = cur["options"];
-        for (int r = 0; r < 2; r++) {
-            ImGui::PushID(r);
-            json& p = o["progress"][r];
-            ImGui::Spacing();
-            ImGui::Separator();
-            Heading(r == 0 ? "Round 1" : "Round 2");
-            Label("Cleared", 120);
-            int n = 0;
-            for (auto [bit, name] : kCupBits) {
-                if (n++) SameLineWrap(ImGui::CalcTextSize(name).x + S(40));
-                bool on = I(p["cleared_modes"]) & (1 << bit);
-                if (Check(name, &on)) {
-                    p["cleared_modes"] = on ? I(p["cleared_modes"]) | (1 << bit) : I(p["cleared_modes"]) & ~(1 << bit);
-                    Changed();
-                }
-            }
-            const std::vector<std::string> divs = { "None", "Poké Ball", "Great Ball", "Ultra Ball", "Master Ball" };
-            Label("Poké Cup divisions", 160);
-            if (int c = Seg("poke", divs, I(p["poke_cup"])); c >= 0) p["poke_cup"] = c, Changed();
-            Label("Prime Cup divisions", 160);
-            if (int c = Seg("prime", divs, I(p["prime_cup"])); c >= 0) p["prime_cup"] = c, Changed();
-            Label("Castle gyms cleared", 160);
-            std::vector<std::string> gyms;
-            for (int g = 0; g <= 8; g++) gyms.push_back(std::to_string(g));
-            int castle = I(p["gym_leader_castle"]);
-            if (int c = Seg("castle", gyms, castle, st->handheld ? 38 : 26); c >= 0) p["gym_leader_castle"] = c, Changed();
-            ImGui::SameLine();
-            Hint(castle == 0 ? "no gym" : castle >= 8 ? "all 8 gyms" : std::string("up to ") + GLC_STAGES[std::clamp(castle, 1, 8) - 1]);
-            bool mew = I(p["mewtwo_unlocked"]) != 0;
-            if (Check("Mewtwo unlocked (night sky over the Castle)", &mew)) p["mewtwo_unlocked"] = mew ? 1 : 0, Changed();
-            if (Btn("Clear everything")) ClearRound(p), Changed();
-            ImGui::SameLine();
-            if (Btn("Reset")) {
-                p["cleared_modes"] = 0;
-                p["gym_leader_castle"] = 0;
-                p["poke_cup"] = 0;
-                p["prime_cup"] = 0;
-                p["mewtwo_unlocked"] = 0;
-                Changed();
-            }
-            ImGui::PopID();
-        }
+        const int p = I(o["progress"]);
+        auto set = [this, &o](int v) {
+            o["progress"] = v;
+            o["flags"] = I(o["flags"]) | 1;
+            Changed();
+        };
+        ImGui::Spacing();
+        Label("Lv 1-30 cups cleared", 190);
+        std::vector<std::string> cups = { "None" };
+        for (const char* c : CUP_NAMES) cups.push_back(c);
+        if (int k = Seg("cups", cups, std::clamp(p & 0xFF, 0, 4)); k >= 0) set((p & ~0xFF) | k);
+        bool master = p & kMasterWon;
+        if (Check("Master Ball Cup won", &master)) set(master ? p | kMasterWon : p & ~kMasterWon);
+        bool stadium = p & kStadiumWon;
+        if (Check("Lv 50-55 tournament won", &stadium)) set(stadium ? p | kStadiumWon : p & ~kStadiumWon);
+        Hint("The Lv 50-55 flag is only known from the code (2026-11); the other two were seen in play.");
         ImGui::Spacing();
         ImGui::Separator();
-        Heading("GB Tower");
-        Label("Game Boy speed", 160);
-        if (int c = Seg("tower", { "Normal", "Doduo (x2)", "Dodrio (x3)" }, I(o["gb_tower_speed"])); c >= 0) {
-            o["gb_tower_speed"] = c;
+        Heading("GB Player picture frames");
+        Label("Unlocked", 190);
+        if (int c = Seg("frames", { "None", "Doduo", "Dodrio" }, std::clamp(I(o["gb_player_frames"]), 0, 2)); c >= 0) {
+            o["gb_player_frames"] = c;
             Changed();
         }
-        Hint("An unlock from clearing cups.");
+        Hint("Z cycles the unlocked frames in the GB Player. Clearing the Master Ball Cup unlocks one.");
     }
 
     void PageOptions() {
         json& o = cur["options"];
         Heading("Options");
-        Hint("The settings of the game's Options menu, and a few things the game remembers.");
+        Hint("The settings of the game's Options menu and the GB Player's buttons.");
         ImGui::Spacing();
         Label("Sound", 180);
         if (int c = Seg("snd", { "Stereo", "Mono" }, I(o["sound"]) & 1, 90); c >= 0) o["sound"] = (I(o["sound"]) & ~1) | c, Changed();
-        Label("Commentator voice", 180);
+        Label("Commentary", 180);
         if (int c = Seg("voice", { "On", "Off" }, (I(o["sound"]) >> 1) & 1, 90); c >= 0) {
             o["sound"] = (I(o["sound"]) & ~2) | (c << 1);
             Changed();
         }
-        Label("Kids Club", 180);
-        bool hyper = I(o["kids_club"]) & 1;
-        if (Check("Hyper difficulty unlocked", &hyper)) o["kids_club"] = (I(o["kids_club"]) & ~1) | (hyper ? 1 : 0), Changed();
         ImGui::Spacing();
         ImGui::Separator();
-        Heading("Bonus Pokémon");
-        Hint("A gift Pokémon waiting at the Lab PC, collected from the Pokémon Lab with a Game Boy cartridge in the "
-             "Transfer Pak.");
-        int bonus = I(o["bonus_pokemon"]) & 0xFF;
-        Label("Pokémon waiting", 180);
-        PickButton("bonus", bonus > 0 && bonus <= 151 ? "#" + Pad(bonus, 3) + " " + Show(gd::SPECIES[bonus]) : (bonus ? "#" + std::to_string(bonus) : "None"),
-                   220, [this, bonus] {
-                       OpenPicker("Bonus Pokémon", SpeciesItems(true), bonus, [this](int v) {
-                           json& op = cur["options"];
-                           op["bonus_pokemon"] = v ? (I(op["bonus_pokemon"]) & 0x100) | v : 0;
-                           Changed();
-                       });
-                   });
-        if (bonus) {
-            ImGui::SameLine();
-            bool r2 = I(o["bonus_pokemon"]) & 0x100;
-            if (Check("From Round 2", &r2)) o["bonus_pokemon"] = (I(o["bonus_pokemon"]) & 0xFF) | (r2 ? 0x100 : 0), Changed();
+        Heading("GB Player buttons");
+        const long long buttons = PyInt(o["gb_player_buttons"]);
+        const int start = (int)((buttons >> 8) & 0xFF), select = (int)(buttons & 0xFF) + 1;
+        std::vector<std::string> names(std::begin(kGbButtons), std::end(kGbButtons));
+        Label("START", 180);
+        if (int c = Seg("start", names, start, 80); c >= 0) o["gb_player_buttons"] = (buttons & ~0xFF00LL) | (c << 8), Changed();
+        Label("SELECT", 180);
+        if (int c = Seg("select", names, select, 80); c >= 0) {
+            o["gb_player_buttons"] = (buttons & ~0xFFLL) | ((c - 1) & 0xFF);
+            Changed();
         }
+        Hint("The GB Player's コンフィグ (config). Only START -> R was checked in play.");
     }
 
     void PageTeams() {
-        const Cat* c = &kCats[0];
-        for (const Cat& k : kCats)
-            if (cat == k.key) c = &k;
-        json& slots = cur["teams"][c->key];
         Heading("Registered teams");
-        Hint("Teams saved with Register in each cup. Every cup has 10 slots.");
+        Hint("Teams saved with とうろく (Register). There are 16 slots.");
         ImGui::Spacing();
-        int n = 0;
-        for (const Cat& k : kCats) {
-            int count = 0;
-            for (const json& t : cur["teams"][k.key]) count += TeamRegistered(t);
-            std::string label = std::string(k.name) + (count ? "  " + std::to_string(count) : "");
-            ImGui::PushID(k.key);
-            if (n++) SameLineWrap(ImGui::CalcTextSize(label.c_str()).x + S(16));
-            if (ColorBtn(label.c_str(), cat == k.key ? kSelected : kButton)) {
-                cat = k.key;
-                slot = 0;
-            }
-            ImGui::PopID();
-        }
-        ImGui::Spacing();
-        for (int i = 0; i < 10; i++) {
-            const json& s = slots[i];
+        for (int i = 0; i < 16; i++) {
+            const json& s = cur["teams"][i];
             json r = ListRecord(s);
             std::string label = std::to_string(i + 1) + "  " +
                                 (TeamRegistered(s) ? (TextOf(r["name"]).empty() ? "(no name)" : Show(TextOf(r["name"]))) +
                                                          " · " + std::to_string(r["entries"].size())
                                                    : std::string("empty"));
             ImGui::PushID(i);
-            if (i % 5) ImGui::SameLine();
-            if (ColorBtn(label.c_str(), i == slot ? kSelected : kButton, 132)) slot = i;
+            if (i % 4) ImGui::SameLine();
+            if (ColorBtn(label.c_str(), i == slot ? kSelected : kButton, 150)) slot = i;
             ImGui::PopID();
         }
         ImGui::Spacing();
         ImGui::Separator();
-        json& t = slots[slot];
+        json& t = cur["teams"][slot];
         json tl = ListRecord(t);
-        auto editTeam = [this, &t](const std::function<void(json&)>& fn) {
-            EditList(t, [&](json& r) {
-                fn(r);
-                r["flags"] = !r["entries"].empty() ? (I(r["flags"]) | 1) & ~2 : 0;
-            });
-        };
-        Label("Team name (trainer)", 160);
-        if (auto v = NameField("##tname", tl["name"])) editTeam([&](json& r) { r["name"] = *v; });
+        const int s = slot;
+        Label("Trainer", 160);
+        if (auto v = NameField("##tname", tl["name"])) EditTeamAt(s, [&](json& r) { r["name"] = *v; });
         ImGui::SameLine();
         ImGui::TextUnformatted("  ID");
         ImGui::SameLine();
-        if (auto v = IntField("tid", I(tl["trainer_id"]), 0, 65535, 70)) editTeam([&](json& r) { r["trainer_id"] = *v; });
+        if (auto v = IntField("tid", I(tl["trainer_id"]), 0, 65535, 70)) EditTeamAt(s, [&](json& r) { r["trainer_id"] = *v; });
         if (TeamRegistered(t)) {
             ImGui::SameLine();
             if (DangerBtn("Delete team")) {
-                Ask("Delete this team?", "Delete", [this, key = std::string(c->key), s = slot] {
-                    json& team = cur["teams"][key][s];
-                    EditList(team, [](json& r) {
+                Ask("Delete this team?", "Delete", [this, s] {
+                    EditList(cur["teams"][s], [](json& r) {
                         for (auto it = r.begin(); it != r.end();) {
                             if (it.key().rfind("_", 0) == 0 && it.key() != "_footer") it = r.erase(it);
                             else ++it;
                         }
                         r["flags"] = 0;
                         r["name"] = "";
+                        r["second_name"] = "";
                         r["trainer_id"] = 0;
                         r["entries"] = json::array();
                     });
@@ -1267,23 +1213,18 @@ struct SaveEditor::Impl {
         }
         ImGui::Spacing();
         MonCtx ctx;
-        ctx.title = std::string(c->name) + " team";
-        ctx.otName = TextOf(tl["name"]).empty() ? json("RED") : tl["name"];
+        ctx.title = "Team " + std::to_string(s + 1);
+        ctx.otName = TextOf(tl["name"]).empty() ? json("レッド") : tl["name"];
         ctx.otId = I(tl["trainer_id"]);
-        ctx.level = c->level;
         const float w = 210;
         const json entries = tl["entries"];
-        const std::string key = c->key;
-        const int s = slot;
         for (int i = 0; i < (int)entries.size(); i++) {
             GridNext(i, w);
             if (MonCard(std::to_string(i).c_str(), entries[i], w)) {
                 MonCtx m = ctx;
                 m.mon = entries[i];
-                m.onDone = [this, key, s, i](const json& nm) {
-                    EditTeamAt(key, s, [&](json& r) { r["entries"][i] = nm; });
-                };
-                m.onRemove = [this, key, s, i] { EditTeamAt(key, s, [&](json& r) { r["entries"].erase((size_t)i); }); };
+                m.onDone = [this, s, i](const json& nm) { EditTeamAt(s, [&](json& r) { r["entries"][i] = nm; }); };
+                m.onRemove = [this, s, i] { EditTeamAt(s, [&](json& r) { r["entries"].erase((size_t)i); }); };
                 OpenMon(m);
             }
         }
@@ -1291,28 +1232,27 @@ struct SaveEditor::Impl {
             GridNext((int)entries.size(), w);
             if (EmptyCard("add", "+ Add Pokémon", w)) {
                 MonCtx m = ctx;
-                m.onDone = [this, key, s](const json& nm) {
-                    EditTeamAt(key, s, [&](json& r) {
+                m.onDone = [this, s](const json& nm) {
+                    EditTeamAt(s, [&](json& r) {
                         r["entries"].push_back(nm);
-                        if (TextOf(r["name"]).empty()) r["name"] = "RED";
+                        if (TextOf(r["name"]).empty()) r["name"] = "レッド";
                     });
                 };
                 OpenMon(m);
             }
         }
         ImGui::Spacing();
-        Hint(std::string(c->rule) + " Up to 6 Pokémon per team.");
+        Hint("Up to 6 Pokémon per team.");
     }
 
-    void EditTeamAt(const std::string& key, int s, const std::function<void(json&)>& fn) {
-        json& t = cur["teams"][key][s];
+    void EditTeamAt(int s, const std::function<void(json&)>& fn) {
+        json& t = cur["teams"][s];
         EditList(t, [&](json& r) {
             fn(r);
-            r["flags"] = !r["entries"].empty() ? (I(r["flags"]) | 1) & ~2 : 0;
+            r["flags"] = !r["entries"].empty() ? (I(r["flags"]) | 1) & ~2 : 0; // bit 0: registered
         });
     }
 
-    // a list of Pokémon (Lab box, GB party or box) as cards with an Add card; edit(fn) changes the list
     void BoxCells(const char* id, const json& list, int cap, const MonCtx& ctx, bool canRemoveLast,
                   const std::function<void(const std::function<void(json&)>&)>& edit,
                   const std::function<bool(int, const json&)>& action = nullptr, float w = 190) {
@@ -1369,120 +1309,33 @@ struct SaveEditor::Impl {
         ImGui::PopID();
     }
 
-    static json ToStadium(const json& m) { // the Lab PC re-encodes the nickname (zero padding), the OT name is copied
-        json c = m;
-        if (c["nickname"].is_object()) c["nickname"] = c["nickname"]["text"];
-        return c;
-    }
-
     void PageBoxes() {
-        Heading("Pokémon Lab boxes");
+        Heading("N64 boxes");
+        Hint("64のボックス: the Pokémon stored on the N64 cartridge with せいとん (Organize), 4 boxes with room for 30 each. "
+             "Moving Pokémon to and from a Game Boy cartridge is done in the game.");
+        ImGui::Spacing();
         json bl = ListRecord(cur["boxes"][box]);
         const int bi = box;
         auto edit = [this, bi](const std::function<void(json&)>& fn) {
             EditList(cur["boxes"][bi], [&](json& r) { fn(r["entries"]); });
         };
         MonCtx ctx;
-        ctx.title = "Box " + std::to_string(box + 1);
-        ctx.otName = bl["entries"].empty() ? json("RED") : json(TextOf(bl["entries"][0]["ot_name"]));
+        ctx.title = "N64 box " + std::to_string(box + 1);
+        ctx.otName = bl["entries"].empty() ? json("レッド") : json(TextOf(bl["entries"][0]["ot_name"]));
         ctx.otId = bl["entries"].empty() ? 0 : I(bl["entries"][0]["ot_id"]);
-        auto boxLabel = [this](int i) {
-            return "Box " + std::to_string(i + 1) + "  (" + std::to_string(ListRecord(cur["boxes"][i])["entries"].size()) + "/20)";
-        };
-        if (gbs.empty()) {
-            Hint("The Pokémon stored in the Pokémon Lab's PC: 12 boxes with room for 20 each.");
-            ImGui::Spacing();
-            BoxNav("box", 12, &box, boxLabel);
-            if (!bl["entries"].empty()) {
-                ImGui::SameLine();
-                if (DangerBtn("Empty this box")) {
-                    Ask("Empty box " + std::to_string(bi + 1) + "?", "Empty", [edit] { edit([](json& l) { l = json::array(); }); });
-                }
-            }
-            ImGui::Spacing();
-            BoxCells("lab", bl["entries"], 20, ctx, true, edit);
-            return;
-        }
-        // with Game Boy games in the Transfer Paks: move Pokémon between the Lab and a cartridge, as the Lab PC does
-        Hint("Use the arrow next to a Pokémon to move it between the Lab and a Game Boy game in a Transfer Pak, as the "
-             "Lab PC does.");
-        xg = std::min(xg, (int)gbs.size() - 1);
-        Gb& g = gbs[xg];
-        json& gl = xstore < 0 ? g.cur["party"] : g.cur["boxes"][xstore];
-        const int cap = xstore < 0 ? 6 : 20;
-        const int gi = xg, store = xstore;
-        auto gEdit = [this, gi, store](const std::function<void(json&)>& fn) {
-            Gb& gg = gbs[gi];
-            fn(store < 0 ? gg.cur["party"] : gg.cur["boxes"][store]);
-            Changed();
-        };
-        const std::string storeName = xstore < 0 ? "party" : "box " + std::to_string(xstore + 1);
-        {
-            const float paneW = (ImGui::GetContentRegionAvail().x - S(12)) / 2;
-            const float paneH = std::max(S(200), ImGui::GetContentRegionAvail().y);
-            ImGui::BeginChild("lab-pane", ImVec2(paneW, paneH), false);
-            ImGui::SetWindowFontScale(st->scale);
-            Heading("Pokémon Lab");
-            BoxNav("box", 12, &box, boxLabel);
-            ImGui::Spacing();
-            const json labList = bl["entries"];
-            BoxCells("lab", labList, 20, ctx, true, edit, [&](int i, const json& m) {
-                ImGui::BeginDisabled((int)gl.size() >= cap);
-                bool c = Btn("->", 30, st->handheld ? 52 : 44);
-                ImGui::EndDisabled();
-                if (c) {
-                    json mon = m;
-                    edit([i](json& l) { l.erase((size_t)i); });
-                    gEdit([&](json& l) { l.push_back(mon); });
-                    Toast(Show(TextOf(mon["nickname"])) + " moved to " + g.label + "'s " + storeName);
-                }
-                return c;
-            }, 150);
-            ImGui::EndChild();
-            ImGui::SameLine(0, S(12));
-            ImGui::BeginChild("gb-pane", ImVec2(paneW, paneH), false);
-            ImGui::SetWindowFontScale(st->scale);
-            Heading("Game Boy");
-            if (gbs.size() > 1) {
-                std::vector<std::string> names;
-                for (const Gb& x : gbs) names.push_back(x.label);
-                if (int c = Seg("gbsel", names, xg); c >= 0) xg = c, xstore = -1;
-            } else {
-                Hint(g.label + " · " + Show(TextOf(g.cur["trainer"]["name"])));
-            }
-            const std::string partyLabel = "Party (" + std::to_string(g.cur["party"].size()) + "/6)";
-            if (ColorBtn(partyLabel.c_str(), xstore < 0 ? kSelected : kButton)) xstore = -1;
+        BoxNav("box", 4, &box, [this](int i) {
+            return "Box " + std::to_string(i + 1) + "  (" + std::to_string(ListRecord(cur["boxes"][i])["entries"].size()) + "/30)";
+        });
+        if (!bl["entries"].empty()) {
             ImGui::SameLine();
-            if (ColorBtn("PC boxes", xstore >= 0 ? kSelected : kButton)) xstore = std::max(0, gbBox);
-            if (xstore >= 0) {
-                BoxNav("gbbox", 12, &xstore, [&](int i) { return "Box " + std::to_string(i + 1) + " (" + std::to_string(g.cur["boxes"][i].size()) + "/20)"; });
-                gbBox = xstore;
-            } else {
-                Hint("The party always keeps at least one Pokémon.");
+            if (DangerBtn("Empty this box")) {
+                Ask("Empty N64 box " + std::to_string(bi + 1) + "?", "Empty", [edit] { edit([](json& l) { l = json::array(); }); });
             }
-            MonCtx gctx;
-            gctx.title = g.label + " · " + storeName;
-            gctx.otName = TextOf(g.cur["trainer"]["name"]);
-            gctx.otId = I(g.cur["trainer"]["id"]);
-            gctx.level = 5;
-            const json gList = gl;
-            BoxCells("gb", gList, cap, gctx, xstore >= 0, gEdit, [&](int i, const json& m) {
-                ImGui::BeginDisabled((int)ListRecord(cur["boxes"][bi])["entries"].size() >= 20 || (store < 0 && gList.size() <= 1));
-                bool c = Btn("<-", 30, st->handheld ? 52 : 44);
-                ImGui::EndDisabled();
-                if (c) {
-                    json lm = ToStadium(m);
-                    gEdit([i](json& l) { l.erase((size_t)i); });
-                    edit([&](json& l) { l.push_back(lm); });
-                    Toast(Show(TextOf(m["nickname"])) + " moved to Lab box " + std::to_string(bi + 1));
-                }
-                return c;
-            }, 150);
-            ImGui::EndChild();
         }
+        ImGui::Spacing();
+        BoxCells("n64", bl["entries"], 30, ctx, true, edit);
     }
 
-    // item rows: item (picker), quantity, remove
     void ItemRows(const char* id, const json& entries, int cap, const std::function<void(const std::function<void(json&)>&)>& mutate,
                   const char* emptyText) {
         ImGui::PushID(id);
@@ -1517,12 +1370,15 @@ struct SaveEditor::Impl {
     }
 
     void PageItems() {
-        Heading("Item boxes");
-        Hint("Items stored at the Pokémon Lab, to send to a Game Boy game through the Transfer Pak.");
+        Heading("Item storage");
+        Hint("64の カセット items: the items each trainer stored on the N64 cartridge with せいとん (Organize). The record "
+             "whose name and ID match the Game Boy cartridge is the one the game shows.");
         ImGui::Spacing();
         for (int i = 0; i < 4; i++) {
-            size_t n = ListRecord(cur["item_boxes"][i])["entries"].size();
-            std::string label = "Item box " + std::to_string(i + 1) + (n ? "  " + std::to_string(n) : "");
+            json r = ListRecord(cur["item_boxes"][i]);
+            size_t n = r["entries"].size();
+            std::string who = TextOf(r["name"]).empty() ? "Slot " + std::to_string(i + 1) : Show(TextOf(r["name"]));
+            std::string label = who + (n ? "  " + std::to_string(n) : "");
             ImGui::PushID(i);
             if (i) ImGui::SameLine();
             if (ColorBtn(label.c_str(), i == ibox ? kSelected : kButton)) ibox = i;
@@ -1537,7 +1393,7 @@ struct SaveEditor::Impl {
                 if (!r["entries"].empty()) r["flags"] = I(r["flags"]) | 1;
             });
         };
-        Label("Owner name", 120);
+        Label("Trainer", 120);
         if (auto v = NameField("##owner", bl["name"])) edit([&](json& r) { r["name"] = *v; });
         ImGui::SameLine();
         ImGui::TextUnformatted("  ID");
@@ -1547,13 +1403,13 @@ struct SaveEditor::Impl {
         ItemRows("rows", bl["entries"], 100, [edit](const std::function<void(json&)>& fn) {
             edit([&](json& r) {
                 fn(r["entries"]);
-                if (TextOf(r["name"]).empty() && !r["entries"].empty()) r["name"] = "RED";
+                if (TextOf(r["name"]).empty() && !r["entries"].empty()) r["name"] = "レッド";
             });
-        }, "This box is empty.");
+        }, "Nothing is stored for this trainer.");
         if (!bl["entries"].empty()) {
             ImGui::SameLine();
-            if (DangerBtn("Empty this box")) {
-                Ask("Empty item box " + std::to_string(bi + 1) + "?", "Empty", [this, bi] {
+            if (DangerBtn("Empty")) {
+                Ask("Remove every item stored for this trainer?", "Empty", [this, bi] {
                     EditList(cur["item_boxes"][bi], [](json& r) {
                         r["flags"] = 0;
                         r["name"] = "";
@@ -1565,198 +1421,76 @@ struct SaveEditor::Impl {
         }
     }
 
-    static json Statue(int d) {
-        return json{ { "mode", 3 }, { "level", 50 }, { "ot_id", 0 }, { "nickname", gd::SPECIES[d] }, { "ot_name", "RED" } };
-    }
-
-    void PagePalace() {
-        json& ents = cur["victory_palace"]["entries"];
-        Heading("Victory Palace");
-        Hint(std::to_string(Statues()) + " of 151 Pokémon have a statue. Pick a Pokémon to add, change or remove its statue.");
-        ImGui::Spacing();
-        json& e = ents[dex - 1];
-        ImDrawList* dl = ImGui::GetWindowDrawList();
-        ImVec2 p = ImGui::GetCursorScreenPos();
-        Ball(dl, ImVec2(p.x + S(14), p.y + S(14)), S(12), json{ { "species", gd::SPECIES[dex] } });
-        ImGui::SetCursorScreenPos(ImVec2(p.x + S(34), p.y));
-        Heading("#" + Pad(dex, 3) + " " + Show(gd::SPECIES[dex]) + (e.is_null() ? "   (no statue)" : ""));
-        ImGui::SetCursorScreenPos(ImVec2(p.x, std::max(ImGui::GetCursorScreenPos().y, p.y + S(30))));
-        if (e.is_null()) {
-            if (ColorBtn("Add statue", kGreen)) ents[dex - 1] = Statue(dex), Changed();
-        } else {
-            Label("Nickname", 110);
-            if (auto v = NameField("##nick", e["nickname"])) e["nickname"] = v->empty() ? std::string(gd::SPECIES[dex]) : *v, Changed();
-            ImGui::SameLine();
-            ImGui::TextUnformatted("  Level");
-            ImGui::SameLine();
-            if (auto v = IntField("lv", I(e["level"]), 1, 100, 40)) e["level"] = *v, Changed();
-            Label("Won in", 110);
-            std::vector<std::string> modes;
-            int chosen = -1;
-            for (int i = 0; i < 5; i++) {
-                modes.push_back(kStatueModes[i].second);
-                if ((I(e["mode"]) & 0x7F) == kStatueModes[i].first) chosen = i;
-            }
-            if (int c = Seg("mode", modes, chosen); c >= 0) e["mode"] = (I(e["mode"]) & 0x80) | kStatueModes[c].first, Changed();
-            ImGui::SameLine();
-            bool r2 = I(e["mode"]) & 0x80;
-            if (Check("Round 2", &r2)) e["mode"] = (I(e["mode"]) & 0x7F) | (r2 ? 0x80 : 0), Changed();
-            Label("Trainer", 110);
-            if (auto v = NameField("##ot", e["ot_name"])) e["ot_name"] = *v, Changed();
-            ImGui::SameLine();
-            ImGui::TextUnformatted("  ID");
-            ImGui::SameLine();
-            if (auto v = IntField("id", I(e["ot_id"]), 0, 65535, 70)) e["ot_id"] = *v, Changed();
-            if (DangerBtn("Remove statue")) ents[dex - 1] = nullptr, Changed();
-        }
-        ImGui::Spacing();
-        if (Btn("Give every Pokémon a statue")) {
-            for (int d = 1; d <= 151; d++)
-                if (ents[d - 1].is_null()) ents[d - 1] = Statue(d);
-            Changed();
-        }
-        ImGui::SameLine();
-        if (DangerBtn("Remove all")) {
-            Ask("Remove all statues?", "Remove all", [this] {
-                for (json& x : cur["victory_palace"]["entries"]) x = nullptr;
-                Changed();
-            });
-        }
-        ImGui::Spacing();
-        const float w = st->handheld ? 150 : 128;
-        for (int d = 1; d <= 151; d++) {
-            ImGui::PushID(d);
-            GridNext(d - 1, w);
-            std::string label = Pad(d, 3) + " " + Show(gd::SPECIES[d]);
-            uint32_t col = d == dex ? kSelected : !ents[d - 1].is_null() ? 0x1F4D2C : kButton;
-            if (ColorBtn(label.c_str(), col, w)) dex = d;
-            ImGui::PopID();
-        }
-    }
-
     void PageRun() {
         json& c = cur["continue"];
         json& se = c["session"];
-        Heading("Saved cup run");
+        Heading("Saved tournament");
         const bool has = (I(c["flags"]) & 1) == 1;
         auto setMons = [this](const json& list) {
             json& cc = cur["continue"];
             json p = list;
-            while (p.size() < 6) p.push_back("fill:00*55");
+            while (p.size() < 6) p.push_back("fill:00*45");
             cc["pokemon"] = p;
             cc["count"] = list.size();
+            cc["rental_mask"] = I(cc["rental_mask"]) & ((1 << list.size()) - 1);
             Changed();
         };
         if (!has) {
-            Hint("When you quit in the middle of a cup or the Castle, the game saves the run so you can CONTINUE it. "
-                 "There is no saved run in this save.");
-            if (Btn("Create a saved run")) {
+            Hint("ちゅうだんする (Suspend) at トーナメントをつづけますか？ saves the tournament so the main menu can continue it. "
+                 "There is no saved tournament in this save.");
+            if (Btn("Create a saved tournament")) {
                 c["flags"] = 1;
-                se["mode"] = 3;
-                se["mode_selection"] = 0;
-                se["battle"] = 1;
-                se["round2"] = 0;
-                se["continues"] = 0;
-                se["trainer_id"] = 0;
-                se["player_name"] = "RED";
+                se["mode"] = 2;
+                se["cup"] = 0;
+                se["round"] = 1;
                 setMons(json::array());
             }
             return;
         }
-        Hint(RunTitle(se));
+        Hint(RunTitle(c));
         ImGui::Spacing();
-        const std::pair<int, const char*> modes[] = { { 3, "Poké Cup" }, { 4, "Petit Cup" }, { 5, "Pika Cup" }, { 6, "Prime Cup" }, { 7, "Castle" } };
-        std::vector<std::string> labels;
-        int chosen = -1;
-        for (int i = 0; i < 5; i++) {
-            labels.push_back(modes[i].second);
-            if (I(se["mode"]) == modes[i].first) chosen = i;
-        }
-        Label("Where", 150);
-        if (int k = Seg("mode", labels, chosen); k >= 0) se["mode"] = modes[k].first, se["mode_selection"] = 0, Changed();
-        int mode = I(se["mode"]);
-        if (mode == 7 || mode == 3 || mode == 6) {
-            std::vector<std::string> sel;
-            if (mode == 7) {
-                for (const char* g : GLC_STAGES) sel.push_back(g);
-            } else {
-                for (const char* d : CUP_DIVISIONS) sel.push_back(d);
-            }
-            Label(mode == 7 ? "Stage" : "Division", 150);
-            if (int k = Seg("sel", sel, I(se["mode_selection"])); k >= 0) se["mode_selection"] = k, Changed();
+        Label("Tournament", 150);
+        if (int k = Seg("mode", { "Lv 50-55", "Lv 1-30 cups" }, I(se["mode"]) - 1); k >= 0) se["mode"] = k + 1, se["cup"] = 0, Changed();
+        if (I(se["mode"]) == 2) {
+            Label("Cup", 150);
+            std::vector<std::string> cups(std::begin(CUP_NAMES), std::end(CUP_NAMES));
+            if (int k = Seg("cup", cups, I(se["cup"])); k >= 0) se["cup"] = k, Changed();
         }
         Label("Next battle", 150);
-        if (auto v = IntField("battle", I(se["battle"]), 1, 8, 40)) se["battle"] = *v, Changed();
-        Label("Continues used", 150);
-        if (auto v = IntField("cont", I(se["continues"]), 0, 255, 40)) se["continues"] = *v, Changed();
-        Label("Player name", 150);
-        if (auto v = NameField("##pname", se["player_name"], 16)) se["player_name"] = *v, Changed();
-        Label("Trainer ID", 150);
-        if (auto v = IntField("tid", I(se["trainer_id"]), 0, 65535, 70)) se["trainer_id"] = *v, Changed();
-        Label("Round", 150);
-        bool r2 = I(se["round2"]) != 0;
-        if (Check("Round 2", &r2)) se["round2"] = r2 ? 1 : 0, Changed();
+        if (auto v = IntField("round", I(se["round"]), 1, 8, 40)) se["round"] = *v, Changed();
         ImGui::Spacing();
-        Heading("Team in this run");
+        Heading("Team in this tournament");
         json mons = json::array();
         for (int i = 0; i < std::clamp(I(c["count"]), 0, 6); i++)
             if (c["pokemon"][i].is_object()) mons.push_back(c["pokemon"][i]);
         MonCtx ctx;
-        ctx.title = "Saved run";
-        ctx.otName = TextOf(se["player_name"]).empty() ? json("RED") : json(TextOf(se["player_name"]));
-        ctx.otId = I(se["trainer_id"]);
+        ctx.title = "Saved tournament";
+        ctx.otName = mons.empty() ? json("レッド") : json(TextOf(mons[0]["ot_name"]));
+        ctx.otId = mons.empty() ? 0 : I(mons[0]["ot_id"]);
         BoxCells("run", mons, (int)std::min<size_t>(6, mons.size() + 1), ctx, true, [mons, setMons](const std::function<void(json&)>& fn) {
             json l = mons;
             fn(l);
             setMons(l);
         });
-        if (mons.empty()) Hint("A saved run needs at least one Pokémon.", kWarn);
+        if (mons.empty()) Hint("A saved tournament needs at least one Pokémon.", kWarn);
+        Hint("A team from a Game Boy cartridge resumes only while the same cartridge is in the Transfer Pak (the save keeps "
+             "a snapshot of it); a rental team always resumes.");
         ImGui::Spacing();
-        if (DangerBtn("Delete saved run")) {
-            Ask("Delete the saved run?", "Delete", [this] {
+        if (DangerBtn("Delete saved tournament")) {
+            Ask("Delete the saved tournament?", "Delete", [this] {
                 json& cc = cur["continue"];
-                json& s = cc["session"];
+                for (auto it = cc.begin(); it != cc.end();) { // Save_ClearTypedRecord: the record zeroed
+                    if (it.key().rfind("_raw_", 0) == 0) it = cc.erase(it);
+                    else ++it;
+                }
                 cc["flags"] = 0;
                 cc["count"] = 0;
-                s["mode"] = 0;
-                s["mode_selection"] = 0;
-                s["battle"] = 0;
-                s["round2"] = 0;
-                s["continues"] = 0;
-                s["opponent_history"] = json::array({ 0, 0, 0, 0, 0, 0, 0, 0 });
-                s["gb_starter_choice"] = 0;
-                s["trainer_id"] = 0;
-                s["player_name"] = "";
-                cc["pokemon"] = json::array({ "fill:00*55", "fill:00*55", "fill:00*55", "fill:00*55", "fill:00*55", "fill:00*55" });
-                cc["battle_byte_52"] = json::array({ 0, 0, 0, 0, 0, 0 });
-                cc["battle_byte_53"] = json::array({ 0, 0, 0, 0, 0, 0 });
+                cc["session"] = json{ { "mode", 0 }, { "cup", 0 }, { "round", 0 }, { "opponent_history", json::array({ 0, 0, 0, 0, 0, 0, 0, 0 }) } };
+                cc["pokemon"] = json::array({ "fill:00*45", "fill:00*45", "fill:00*45", "fill:00*45", "fill:00*45", "fill:00*45" });
+                cc["gb_snapshot"] = "fill:00*354";
+                cc["rental_mask"] = 0;
                 Changed();
             });
-        }
-    }
-
-    void PageGallery() {
-        Heading("Gallery");
-        Hint("Photos taken in the Gallery. The editor can only count and delete them.");
-        ImGui::Spacing();
-        for (auto [key, name, total] : { std::tuple<const char*, const char*, int>{ "album", "Photo album", 36 },
-                                         { "photos", "Current photo set", 21 } }) {
-            int n = 0;
-            for (const json& e : cur[key]["entries"]) n += !e.is_null();
-            ImGui::PushID(key);
-            Label(name, 180);
-            ImGui::Text("%d / %d", n, total);
-            if (n) {
-                ImGui::SameLine();
-                if (DangerBtn("Delete all")) {
-                    Ask(std::string("Delete all photos of the ") + (key == std::string("album") ? "album?" : "current photo set?"), "Delete",
-                        [this, k = std::string(key)] {
-                            for (json& e : cur[k]["entries"]) e = nullptr;
-                            Changed();
-                        });
-                }
-            }
-            ImGui::PopID();
         }
     }
 
@@ -1788,11 +1522,12 @@ struct SaveEditor::Impl {
         ctx.otName = TextOf(t["name"]);
         ctx.otId = I(t["id"]);
         ctx.level = 5;
+        ctx.western = true;
         if (gbTab == 0) {
             Label("Player name", 160);
-            if (auto v = NameField("##name", t["name"], 8)) mut([&] { t["name"] = *v; });
+            if (auto v = NameField("##name", t["name"], 8, 150, true)) mut([&] { t["name"] = *v; });
             Label("Rival name", 160);
-            if (auto v = NameField("##rival", t["rival"], 8)) mut([&] { t["rival"] = *v; });
+            if (auto v = NameField("##rival", t["rival"], 8, 150, true)) mut([&] { t["rival"] = *v; });
             Label("Trainer ID", 160);
             if (auto v = IntField("id", I(t["id"]), 0, 65535, 70)) mut([&] { t["id"] = *v; });
             Label("Money", 160);
@@ -1903,8 +1638,8 @@ struct SaveEditor::Impl {
 
     std::vector<Section> Sections() {
         std::vector<Section> s = { { "overview", "Overview" }, { "progress", "Progress & unlocks" }, { "options", "Options" },
-                                   { "teams", "Registered teams" }, { "boxes", "Lab boxes" }, { "items", "Item boxes" },
-                                   { "palace", "Victory Palace" }, { "run", "Saved cup run" }, { "gallery", "Gallery" } };
+                                   { "teams", "Registered teams" }, { "boxes", "N64 boxes" }, { "items", "Item storage" },
+                                   { "run", "Saved tournament" } };
         for (size_t i = 0; i < gbs.size(); i++) s.push_back({ "gb" + std::to_string(i), gbs[i].label + " · " + gbs[i].title });
         return s;
     }
@@ -1913,7 +1648,6 @@ struct SaveEditor::Impl {
         if (key == "teams") return std::to_string(RegisteredTeams());
         if (key == "boxes") return std::to_string(BoxedCount());
         if (key == "items") return std::to_string(ItemCount());
-        if (key == "palace") return std::to_string(Statues());
         if (key == "run") return (I(cur["continue"]["flags"]) & 1) ? "1" : "";
         if (key.rfind("gb", 0) == 0) {
             const Gb& g = gbs[std::stoi(key.substr(2))];
@@ -2035,9 +1769,7 @@ struct SaveEditor::Impl {
             else if (section == "teams") PageTeams();
             else if (section == "boxes") PageBoxes();
             else if (section == "items") PageItems();
-            else if (section == "palace") PagePalace();
             else if (section == "run") PageRun();
-            else if (section == "gallery") PageGallery();
             else if (section.rfind("gb", 0) == 0 && std::stoi(section.substr(2)) < (int)gbs.size()) PageGb(std::stoi(section.substr(2)));
             ImGui::PopID();
         }
@@ -2087,6 +1819,11 @@ bool SaveEditor::Open(const std::string& save, const std::vector<SaveEditorGb>& 
             json info = gb::GameInfo(g.rom, g.save);
             e.title = info["title"].get<std::string>();
             e.kind = info["kind"].get<std::string>();
+            if (info["japanese"].get<bool>()) { // the Japanese layout is not modelled here (gb::GBSave is the Western one)
+                fresh.skipped.push_back(g.label + "'s Japanese Game Boy save is not edited here: Organize in the game "
+                                        "moves its Pokémon and items, and pj64-pokestadium-debug edits it.");
+                continue;
+            }
             try {
                 gb::GBSave(ReadFile(g.save)); // a Game Boy save that is not one (wrong size) is left out
             } catch (const std::exception&) {
@@ -2103,6 +1840,7 @@ bool SaveEditor::Open(const std::string& save, const std::vector<SaveEditorGb>& 
     m.path = fresh.path;
     m.fileName = fresh.fileName;
     m.gbs = std::move(fresh.gbs);
+    m.skipped = std::move(fresh.skipped);
     m.base = std::move(fresh.base);
     m.cur = std::move(fresh.cur);
     m.dirty = false;

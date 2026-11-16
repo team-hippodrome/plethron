@@ -3,13 +3,13 @@
 //
 // Nothing of the game is on the server: the ROM is picked here, checked (SHA-1) and kept in the browser's storage
 // (IndexedDB, through Emscripten's IDBFS at /data), as are the Stadium save and the Transfer Pak files. The game runs
-// with /data as its folder (the desktop build's app folder: config, saves/stadium.flash, logs).
+// with /data as its folder (the desktop build's app folder: config, saves/stadium.sra, logs).
 "use strict";
 
 const ROM_SHA1 = "ed7bef5a306f88c0a6e96b15e71fee2ef32058f3"; // Pokemon Stadium (USA), big-endian (.z64)
 const DATA = "/data";
 const ROM_PATH = DATA + "/rom/stadium.z64";
-const SAVE_PATH = DATA + "/saves/stadium.flash";
+const SAVE_PATH = DATA + "/saves/stadium.sra"; // Zero's 32 KiB SRAM, N64 byte order (src/port/zero_sram.h)
 const GB_DIR = DATA + "/gb";
 // the game's files; tools/build_web.sh puts their versioned names (name.<hash>.ext) here, so browsers can cache them
 const FILES = { js: "pokestadium.js", wasm: "pokestadium.wasm", o2r: "pokestadium.o2r" };
@@ -178,7 +178,7 @@ async function play() {
   mkdirs(DATA + "/saves");
   Module.FS.chdir(DATA); // the game's folder (config, saves, logs)
   setEnv("SHIP_HOME", DATA);
-  setEnv("PORT_FLASH_FILE", SAVE_PATH);
+  setEnv("PORT_SRAM_FILE", SAVE_PATH);
   setEnv("PORT_RECORD", ""); // no input recording (the desktop build's last_input.rec)
   // in-between frames: the picture at the display's rate instead of the game's 30 frames a second (src/port/interp.cpp)
   setEnv("PORT_INTERPOLATE", $("smooth").checked ? "1" : "0");
@@ -263,11 +263,13 @@ $("forget").addEventListener("click", async () => {
 });
 $("exportSave").addEventListener("click", () => {
   if (!exists(SAVE_PATH)) { setStatus("No save yet.", true); return; }
-  download("stadium.flash", Module.FS.readFile(SAVE_PATH));
+  download("stadium.sra", Module.FS.readFile(SAVE_PATH));
 });
 $("saveFile").addEventListener("change", async () => {
   const f = await readFile($("saveFile"));
   if (!f) return;
+  // any emulator byte order: the game turns it to N64 order when it loads it (src/port/zero_sram.h)
+  if (f.bytes.length !== 0x8000) { setStatus("Choose a raw 32 KiB Pocket Monsters Stadium save (.sra).", true); return; }
   if (exists(SAVE_PATH) && !confirm("Replace the save in this browser?")) return;
   mkdirs(DATA + "/saves");
   Module.FS.writeFile(SAVE_PATH, f.bytes);

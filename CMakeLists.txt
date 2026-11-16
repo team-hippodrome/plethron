@@ -72,6 +72,7 @@ set(PORT_MAIN_SOURCES
   src/port/touch_controls.cpp
   src/port/xcheck.cpp
   src/port/save_editor/stadium_save.cpp
+  src/port/save_editor/zero_text.cpp
   src/port/save_editor/save_editor_ui.cpp
   src/port/stubs.c
   src/port/port_platform.c
@@ -122,7 +123,8 @@ if(NOT APPLE AND NOT MSVC AND NOT EMSCRIPTEN)
 endif()
 if(NOT ANDROID AND NOT EMSCRIPTEN)
   # the save library's command-line driver (not shipped)
-  add_executable(stadium_save_cli EXCLUDE_FROM_ALL src/port/save_editor/cli_main.cpp src/port/save_editor/stadium_save.cpp)
+  add_executable(stadium_save_cli EXCLUDE_FROM_ALL src/port/save_editor/cli_main.cpp src/port/save_editor/stadium_save.cpp
+                 src/port/save_editor/zero_text.cpp src/port/zero_sram.cpp)
   find_package(nlohmann_json QUIET)
   if(TARGET nlohmann_json::nlohmann_json)
     target_link_libraries(stadium_save_cli PRIVATE nlohmann_json::nlohmann_json)
@@ -321,7 +323,7 @@ target_compile_options(stadium_game PRIVATE
 # libultra runtime for the game (threads, message queues, devices). This target sees the game's SDK shim
 # headers (src/port/sdk/ultra64.h etc.); the LUS-facing code in the executable must not, because libultraship
 # headers include <ultra64.h> themselves.
-add_library(port_os STATIC src/port/os_thread.cpp src/port/os_devices.cpp src/port/transfer_pak.cpp src/port/gb_save_convert.cpp src/port/gb_audio_out.cpp src/port/audio_out.cpp src/port/sound_settings.cpp src/port/audio_hle.cpp src/port/gb_core.c
+add_library(port_os STATIC src/port/os_thread.cpp src/port/os_devices.cpp src/port/zero_sram.cpp src/port/transfer_pak.cpp src/port/gb_save_convert.cpp src/port/gb_audio_out.cpp src/port/audio_out.cpp src/port/sound_settings.cpp src/port/audio_hle.cpp src/port/gb_core.c
   src/port/jpeg_task.cpp src/port/gfx_translate.cpp)
 if(EMSCRIPTEN)
   target_sources(port_os PRIVATE src/port/web_audio.cpp) # sound output through an AudioWorklet (web_audio.h)

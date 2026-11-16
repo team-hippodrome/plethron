@@ -26,7 +26,7 @@ enum Defaults {
     static let rom = ""
     static let yellowRom = ""
     static var saves: String { launcherDirectory.path + "/saves" }
-    static var stadiumSave: String { saves + "/stadium.flash" }
+    static var stadiumSave: String { saves + "/stadium.sra" } // Zero's SRAM (src/port/zero_sram.h)
     static var yellowSave: String { saves + "/yellow.sav" }
     static let stadiumSha1 = "ed7bef5a306f88c0a6e96b15e71fee2ef32058f3" // Pokémon Stadium (USA) v1.0
 }
@@ -610,6 +610,10 @@ final class Launcher: NSObject, NSApplicationDelegate, NSWindowDelegate {
         let env = ProcessInfo.processInfo.environment
         rom = store.string(forKey: "rom") ?? Defaults.rom
         save = env["LAUNCHER_SAVE"] ?? store.string(forKey: "save") ?? Defaults.stadiumSave
+        // earlier settings named Stadium 1's flash file; Zero's SRAM was already kept beside it as .sra
+        if save.hasSuffix(".flash") || save.hasSuffix(".fla") {
+            save = (save as NSString).deletingPathExtension + ".sra"
+        }
         debug = env["LAUNCHER_DEBUG"].map { $0 == "1" } ?? store.bool(forKey: "debug")
         super.init()
     }
@@ -869,8 +873,8 @@ final class Launcher: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
 
     @objc func pickSave() {
-        if let p = choosePath(save: false, current: save, types: ["flash", "fla", "sra", "sav", "bin"],
-                              message: "Import a raw 128 KiB Stadium cartridge save; the original is kept") {
+        if let p = choosePath(save: false, current: save, types: ["sra", "sav", "bin"],
+                              message: "Import a raw 32 KiB Pocket Monsters Stadium SRAM save; the original is kept") {
             do {
                 save = try importStadiumSave(executable: URL(fileURLWithPath: projectDir + "/build/pokestadium"),
                                             source: URL(fileURLWithPath: p), directory: launcherDirectory)
@@ -953,7 +957,7 @@ final class Launcher: NSObject, NSApplicationDelegate, NSWindowDelegate {
         try? fm.createDirectory(atPath: Defaults.saves, withIntermediateDirectories: true)
         try? fm.createDirectory(atPath: (save as NSString).deletingLastPathComponent, withIntermediateDirectories: true)
         env["SHIP_HOME"] = launcherDirectory.path
-        env["PORT_FLASH_FILE"] = save
+        env["PORT_SRAM_FILE"] = save
         let romVars = ["PORT_GB_ROM", "PORT_GB_ROM2", "PORT_GB_ROM3", "PORT_GB_ROM4"]
         let saveVars = ["PORT_GB_SAVE", "PORT_GB_SAVE2", "PORT_GB_SAVE3", "PORT_GB_SAVE4"]
         // the cards exist only when the window was shown; with auto-play the stored choices are used

@@ -13,7 +13,7 @@ require(fresh.lastError == nil && fm.fileExists(atPath: fresh.file.path), "Fresh
 
 let home = root.appendingPathComponent("original", isDirectory: true)
 let migrated = PortableLauncherStore(directory: home, legacy: ["rom": home.appendingPathComponent("game.z64").path,
-    "save": home.appendingPathComponent("saves/stadium.flash").path, "p0_on": true, "debug": true,
+    "save": home.appendingPathComponent("saves/stadium.sra").path, "p0_on": true, "debug": true,
     "unrelated-private-preference": "must not be copied"])
 require(migrated.lastError == nil && migrated.bool(forKey: "p0_on"), "Legacy flags lost")
 let migratedData = try Data(contentsOf: migrated.file)
@@ -21,7 +21,7 @@ require(!String(decoding: migratedData, as: UTF8.self).contains("unrelated-priva
 var config = try JSONSerialization.jsonObject(with: migratedData) as! [String: Any]
 let launcher = (config["CVars"] as! [String: Any])["gLauncher"] as! [String: Any]
 require(launcher["Rom"] as? String == "game.z64", "ROM path is not portable")
-require(launcher["Save"] as? String == "saves/stadium.flash", "Save path is not portable")
+require(launcher["Save"] as? String == "saves/stadium.sra", "Save path is not portable")
 let jsonText = String(decoding: migratedData, as: UTF8.self)
 require(jsonText.range(of: #""Debug"\s*:\s*1"#, options: .regularExpression) != nil,
         "Shared native config expects integer flags, not JSON booleans")
@@ -29,7 +29,7 @@ require(jsonText.range(of: #""Debug"\s*:\s*1"#, options: .regularExpression) != 
 let moved = root.appendingPathComponent("moved folder", isDirectory: true)
 try fm.copyItem(at: home, to: moved)
 let relocated = PortableLauncherStore(directory: moved)
-require(relocated.string(forKey: "save") == moved.appendingPathComponent("saves/stadium.flash").path,
+require(relocated.string(forKey: "save") == moved.appendingPathComponent("saves/stadium.sra").path,
         "Save did not follow a relocated launcher")
 relocated.set(moved.appendingPathComponent("saves/포켓몬.flash").path, forKey: "save")
 require(relocated.string(forKey: "save") == moved.appendingPathComponent("saves/포켓몬.flash").path,

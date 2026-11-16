@@ -13,8 +13,10 @@ LauncherCheck CheckLauncherFiles(const std::filesystem::path& directory, const s
 // Preserve the previous on-disk save once per process/session, then replace atomically.
 // At most five previous session snapshots are retained beside each save.
 bool WriteProtectedSave(const std::filesystem::path& path, const uint8_t* data, size_t size, std::string& error);
-bool ExportStadiumSave(const std::filesystem::path& source, const std::filesystem::path& directory,
-                        std::string& exported, std::string& error);
+// Exports Zero's save as exports/stadium-<id>.sra in N64 byte order, with its Western name side file beside it
+// (stadium-<id>.sra.western) when there is one.
+bool ExportZeroSave(const std::filesystem::path& source, const std::filesystem::path& directory,
+                    std::string& exported, std::string& error);
 void ReportSaveFailure(const std::string& error);
 std::string TakeSaveFailure();
 std::string RedactDiagnosticLog(const std::string& text);
