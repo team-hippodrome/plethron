@@ -201,7 +201,7 @@ void GfxImage_FillCurrent(Gfx** gfx_p, u16 fill_color);
 extern u8 D_8F908980[];
 extern u8 D_8FA08900[];
 extern u8 D_8FB08900[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 /**
  * Draws the VS scene's backdrop: one of three full-screen stadium images (D_822036A8 1 to 3),
  * otherwise a plain fill.

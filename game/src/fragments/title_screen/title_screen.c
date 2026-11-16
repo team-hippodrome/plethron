@@ -202,7 +202,7 @@ extern u8 D_020002C0[];
 extern u8 D_02000580[];
 extern u8 D_02000840[];
 extern Gfx D_800602C8[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern s32 sPushStartBlinkTimer;
 void Gfx_DrawTextureIa16(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode);
 

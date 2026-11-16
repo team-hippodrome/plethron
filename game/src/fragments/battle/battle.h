@@ -1140,7 +1140,7 @@ extern u8 D_03009E40[];
 
 extern u8 D_03009FC0[];
 
-extern Gfx D_80060308[];
+extern Gfx D_80060308[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 extern u8* D_8218AFDC[];
 

@@ -460,7 +460,7 @@ extern char D_89018B0C[];
 extern char D_89018B10[];
 extern char D_89018B14[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 /**
  * Draws Attack, Defense, Speed, Special and HP:%3d (？？？？？ when unknown).

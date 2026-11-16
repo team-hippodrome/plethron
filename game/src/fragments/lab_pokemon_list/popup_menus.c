@@ -374,7 +374,7 @@ extern Color_RGBA8 D_80073520;
 extern Color_RGBA8 D_8910A934[];
 extern Color_RGBA8 D_800734A8[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_8910CF80[];
 extern char D_8910E018[];
 /**
@@ -633,7 +633,7 @@ extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its 
 extern Color_RGBA8 D_800734A8[];
 extern char D_8910E02C[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_8910D138[];
 /**
  * Draws the source window, the arrow of the source under the cursor and its box list.

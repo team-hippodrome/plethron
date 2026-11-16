@@ -182,7 +182,7 @@ void ModelRenderer_UpdateSlotVertices(void) {
 }
 
 extern Gfx D_800744D8[];
-extern Gfx D_80074540[];
+extern Gfx D_80074540[13]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u16 D_80060484;
 /**
  * Sets the combiner and colors for a slot model by the drawn object's type: a flickering red-orange

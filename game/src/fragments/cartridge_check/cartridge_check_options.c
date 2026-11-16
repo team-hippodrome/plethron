@@ -285,7 +285,7 @@ extern char* D_88402D80;
 extern char* D_88402D84;
 extern char D_88403228[];
 extern u8 D_8F4B2B30[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 s32 CartridgeCheck_MoveCursor(s32);
 void CartridgeCheck_DrawPortPanel(s32, s32, s32);
 
@@ -885,9 +885,9 @@ extern u8 D_8F4B2AF0[];
 extern u8 D_8F4959C8[];
 extern u8 D_8F4886F8[];
 extern u8 D_8E825FE8[];
-extern M2C_UNK D_8E802B64;
 extern u8 D_8E924770[];
 // PORT: bytes, so the lifter keeps these model blobs (animation curves, then the models) in ROM byte order
+extern u8 D_8E802B64[];
 extern u8 D_8E902B64[];
 extern u8 D_8F4014B0[];
 extern Vec3f D_88403504;
@@ -916,7 +916,7 @@ void CartridgeCheck_InitModels(s32 from_main_menu) {
     if (gSessionContext.transitionFlags & 8) {
         // Doduo Game Boy prize model (fragment039, seen in play 2026-11-14).
         Model_InitDisplayObject(&D_884034E0, 1, 0, GeoLayout_Process(sp20, D_8E825FE8));
-        ModelAnim_BindTransformCurve(&D_884034E0, 1, &D_8E802B64, 0x10000);
+        ModelAnim_BindTransformCurve(&D_884034E0, 1, D_8E802B64, 0x10000);
         D_884034E0.node.flags &= ~1;
         Vec3f_SetComponentsDuplicate(&D_88403504, 0.0f, 275.0f, 750.0f);
         Vec3f_SetComponentsDuplicate(&D_88403510, 3.0f, 3.0f, 3.0f);

@@ -13,10 +13,14 @@ extern s32 sKantoMapSeaScrollS;
 extern s32 sKantoMapSeaScrollT;
 extern s32 sKantoMapRiversScrollS;
 extern s32 sKantoMapRiversScrollT;
+// PORT: the map model after sKantoMapRiversScrollT (geo layouts, vertices, textures) up to sKantoMapSeaMaterialDL, split
+// off as bytes: grown into the s32, it was lifted as byte-swapped words and the Pokédex habitat screen crashed.
+extern u8 D_8F100260[0x54760];
+static const void* const sPortKantoMapModel __attribute__((used)) = D_8F100260;
 extern Gfx sKantoMapSeaMaterialDL[];
-extern Gfx sKantoMapSeaMeshDL[];
+extern Gfx sKantoMapSeaMeshDL[11]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx sKantoMapRiversMaterialDL[];
-extern Gfx sKantoMapRiversMeshDL[];
+extern Gfx sKantoMapRiversMeshDL[45]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 Gfx* KantoMap_BuildSeaDisplayList(Gfx* gfx);
 Gfx* KantoMap_BuildRiversDisplayList(Gfx* gfx);

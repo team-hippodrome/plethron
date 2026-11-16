@@ -217,7 +217,7 @@ void LabPCList_DrawRowCursor(ListMenu8910179C* list, s32 left, s32 top) {
 extern u8 D_04006170[];
 extern u8 D_04006CE0[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 extern u8 D_8910C370[];
 extern u8 D_8910C978[];

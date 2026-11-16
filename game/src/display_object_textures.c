@@ -54,6 +54,7 @@ unk_D_86002F30* Model_LoadByArchiveIndex(s32 arg0);
 unk_D_86002F30* Model_LoadForPokemon(BattleMon* arg0);
 arg1_func_80019420* BattleAnim_LoadResourceTable(s32 arg0);
 Fragment* Fragment_LoadAndRelocateFromRomRange(MainPoolState* arg0, u32 arg1, s32 arg2, s32 arg3, PERSSZP* arg4, s32 arg5);
+void Port_FragmentLoaded(u32 slot, u8* romStart); // PORT: port_fragments.c
 
 void PokeIcon_ThreadMain(UNUSED void* arg0);
 
@@ -724,6 +725,11 @@ Fragment* Fragment_LoadAndRelocateFromRomRange(MainPoolState* arg0, u32 arg1, s3
 
     if (sp24 != NULL) {
         Fragment_RelocateAndCommit(arg0, arg1, sp24);
+#ifdef PORT_STATIC_FRAGMENTS
+        // PORT: as Fragment_Load does, lift the fragment's data afresh (the Pokédex habitat screen's Kanto map model
+        // was read from never-filled storage and crashed)
+        Port_FragmentLoaded(arg1, (u8*)(uintptr_t)arg2);
+#endif
     }
     return sp24;
 }
