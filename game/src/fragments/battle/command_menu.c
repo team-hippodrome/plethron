@@ -721,10 +721,10 @@ void BattleMenu_ReadCommandButtons(ActivePokemon* active_pokemon) {
     BattleSide* team; // PORT: was s8*
     s32 buttons;
 
+    Port_Debug_WeakenCom(active_pokemon);
     if (M2C_FIELD(state, s32*, 0x10) != 0) {
         return;
     }
-    Port_Debug_WeakenCom(active_pokemon);
     if (active_pokemon->side->tagTeamSize == 1U) {
         c1 = c2 = &gControllers[active_pokemon->side->teamMember[0]->controllerPort];
     } else {
