@@ -3677,9 +3677,9 @@ máximos para criar um substituto.","최대 HP의 4분의 1을 써서
 분신을 만드는 특수 기술.",
 STRUGGLE_MOVE_DESC,adee68e53b5f9921e476997ab2cb0911,8006A964,"持ち技全部のPPがなくなると
 この技が出る。与えたダメージの
-4分の1が自分に返ってくる。","Used when all of its moves are out
-of PP. A quarter of the damage dealt
-comes back to the user.","Sale cuando todos sus movimientos
+4分の1が自分に返ってくる。","This move comes out when all of its
+moves run out of PP. A quarter of the
+damage dealt comes back to the user.","Sale cuando todos sus movimientos
 se quedan sin PP. Un cuarto del
 daño causado vuelve al usuario.","Kommt, wenn alle Attacken keine AP
 mehr haben. Ein Viertel des
@@ -7060,7 +7060,7 @@ LAB_MOVE_2,13e44c2ad6620a840efdf6a4988ad836,8910DB4C,技 2,Move 2,Mov. 2,Attacke
 LAB_MOVE_3,905087112f76ce3c348877452934fdf6,8910DB58,技 3,Move 3,Mov. 3,Attacke 3,Golpe 3,기술3,
 LAB_MOVE_4,5000c6ada459311b54c54909e85cf0d6,8910DB64,技 4,Move 4,Mov. 4,Attacke 4,Golpe 4,기술4,
 STAT_LEVEL,456b035f17367449e7568d75a0dfc55a,8910DB70 8910DE34 8A12F1FC,,Level,Nivel,Level,Nível,레벨,
-LAB_TOGGLE_VERTICAL_HORIZONTAL,19e5c1e30ac4b638df24b7b73901e561,8910DBF0,タテ／ヨコ切り替え,Vertical/horizontal,Vertical/horizontal,Hoch-/Querformat,Alternar vertical/horizontal,세로/가로 전환,
+LAB_TOGGLE_VERTICAL_HORIZONTAL,19e5c1e30ac4b638df24b7b73901e561,8910DBF0,タテ／ヨコ切り替え,Toggle vertical/horizontal,Vertical/horizontal,Hoch-/Querformat,Alternar vertical/horizontal,세로/가로 전환,
 LAB_PAGE_3,ccd72d53c012b70bb48ad25119284e4f,8910DC04,ページ送り%d/3,Page %d/3,Página %d/3,Seite %d/3,Página %d/3,%d/3 페이지,
 LAB_GATHER,610b3e82b625311bdd9878eb86e36a52,8910DC18 8910DC60,を集める,: gather,: reunir,: sammeln,: reunir,: 모으기,
 LAB_RELEASE,f3ec0ea3ed86c7251ea367acb85a4dc6,8910DC24 8910DC6C,を解除する,: release,: soltar,: lösen,: soltar,: 풀기,

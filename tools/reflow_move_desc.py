@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Re-wraps translated move descriptions (*_MOVE_DESC) whose lines overflow the Party summary's description box
 # (MonSummary_DrawMoveInfo: 16 px glyphs from x+9 to x+282, 3 lines), keeping every word: lines are only refilled.
-# Lines that still overflow after refilling are listed for the human localizers (English may be shortened by hand).
+# Lines that still overflow after refilling are listed for the human localizers (AI text is never shortened).
 # usage: reflow_move_desc.py <unifont_subset.hex> translations/ai.csv [--write]
 import csv,io,sys
 hexf,csvf=sys.argv[1],sys.argv[2]
