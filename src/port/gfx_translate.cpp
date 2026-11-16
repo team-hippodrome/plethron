@@ -310,6 +310,8 @@ Gfx* TranslateList(const uint8_t* raw) {
 // reload) writes the same raw pointer back and finds the same copy again.
 std::unordered_map<const void*, std::pair<void*, size_t>> gLiftedVtxCopies; // raw vertex/matrix bytes -> host copy, count
 std::unordered_map<const void*, bool> gLiftedCopySet;     // the copies (already fixed words)
+std::unordered_map<const void*, const void*> gLiftedRawCalls; // G_DL command in a lifted list -> raw list it called
+std::unordered_map<const void*, const void*> gLiftedHostCalls; // G_DL command -> host target already found not raw
 uintptr_t gLiftLo = 0, gLiftHi = 0;
 
 bool InLiftedStorage(const void* p) {
@@ -370,8 +372,31 @@ void FixLiftedList(Gfx* g, int depth) {
             ZLift_IsRaw(w1)) {
             size_t n = op == 0x01 ? (size_t)((g->words.w0 >> 12) & 0xFF) : 1;
             g->words.w1 = (uintptr_t)LiftedCopy(w1, n, op == 0xDA);
-        } else if (op == 0xDE && (uintptr_t)w1 >= 0x100000000ull && InLiftedStorage(w1)) {
-            FixLiftedList((Gfx*)w1, depth + 1);
+        } else if (op == 0xDE) {
+            // A call into a list that was lifted as bytes (an unnamed block after the symbol): Fast3D would run the
+            // big-endian commands as they are. Point it at the translation, again on every use, since translations
+            // live until the cache is dropped; the raw target is remembered per command word.
+            auto rit = gLiftedRawCalls.find(g);
+            const void* raw = nullptr;
+            if (rit != gLiftedRawCalls.end()) {
+                raw = rit->second;
+            } else if ((uintptr_t)w1 >= 0x100000000ull) {
+                auto nit = gLiftedHostCalls.find(g);
+                if (nit == gLiftedHostCalls.end() || nit->second != w1) {
+                    if (ZLift_IsLifted(w1) && ZLift_IsRaw(w1)) {
+                        raw = w1;
+                        gLiftedRawCalls[g] = raw;
+                    } else {
+                        gLiftedHostCalls[g] = w1; // checked once: not a raw list
+                    }
+                }
+            }
+            if (raw != nullptr) {
+                memset(gListSegs, 0, sizeof gListSegs);
+                g->words.w1 = (uintptr_t)TranslateList((const uint8_t*)raw);
+            } else if ((uintptr_t)w1 >= 0x100000000ull && InLiftedStorage(w1)) {
+                FixLiftedList((Gfx*)w1, depth + 1);
+            }
             if (((g->words.w0 >> 16) & 0xFF) == 1) return; // branch, no return
         }
     }

@@ -677,7 +677,9 @@ void BattleMenu_FeedScriptedComOrderInput(void) {
         if (D_82302C00 == 0) {
             ptr = D_823028A8[var_v0];
 
-            D_82302C00 = ptr[D_82302BFC].unk_00;
+            // PORT: the six-pick script ends on the word after D_82302810, the first word of D_823028A8 (NULL) on
+            // the N64; on the host that word is not there, so the end of D_82302810 reads as that terminator
+            D_82302C00 = (&ptr[D_82302BFC] >= &D_82302810[38]) ? 0 : ptr[D_82302BFC].unk_00;
             if (D_82302C00 != 0) {
                 D_82302BD8.buttonPressed = ptr[D_82302BFC].unk_02;
                 D_82302BFC++;

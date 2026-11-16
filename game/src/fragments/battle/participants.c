@@ -431,8 +431,8 @@ s16 ActivePokemon_GetDisplayModel(ActivePokemon* arg0, M2C_UNK arg1) {
 /**
  * Returns the name string of the Pokemon's current move (move cache byte at 0x80A).
  */
-s32 ActivePokemon_GetMoveName(u8* arg0) {
-    return (uintptr_t)D_8006A9D4[(arg0[0x80A]) - 1].name;
+const char* ActivePokemon_GetMoveName(ActivePokemon* arg0) { // PORT: returned s32 and read the N64 offset 0x80A
+    return D_8006A9D4[arg0->state.runtime.moveCache.lastMove - 1].name;
 }
 
 /**

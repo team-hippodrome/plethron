@@ -291,9 +291,12 @@ void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, char*);
 void FreeBattle_DrawChoosingLabel(FreeBattleEntryScreen* entry) {
     Ui_DrawTexturedFrameDecal(entry->window.frame.x + 295, entry->window.frame.y - 18, 166, 20, &D_800735C4);
     gSPDisplayList(gDisplayListHead++, D_80060270);
-    // PORT: player 0 reads the word before D_82009098 on the N64 (0x000000FF, the end of the data before it)
+    // PORT: on the N64 player 0 reads the word before D_82009098 (0x000000FF) and player 5 (COM) the word after its
+    // four colours, the first word of D_820090A8 (0x666666FF, grey); on the host those are other variables
     func_80029028(entry->window.frame.x + 297, entry->window.frame.y - 0x10, 162, 0x10,
-                  entry->player > 0 ? D_82009098[entry->player - 1] : (Color82001CCC){ { 0, 0, 0, 0xFF } });
+                  entry->player <= 0   ? (Color82001CCC){ { 0, 0, 0, 0xFF } }
+                  : entry->player >= 5 ? (Color82001CCC){ { 0x66, 0x66, 0x66, 0xFF } }
+                                       : D_82009098[entry->player - 1]);
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(((u8*)&D_800734A8)[0], ((u8*)&D_800734A8)[1], ((u8*)&D_800734A8)[2], ((u8*)&D_800734A8)[3]);
     Font_SetActive(4, 0);

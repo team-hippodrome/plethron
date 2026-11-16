@@ -211,7 +211,7 @@ extern s8* D_8218C75C; // PORT: was s32, holds a pointer
 extern s8* D_8218C760; // PORT: was s32, holds a pointer
 extern s8* D_8218C764; // PORT: was s32, holds a pointer
 s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
-s32 ActivePokemon_GetMoveName(ActivePokemon*);
+const char* ActivePokemon_GetMoveName(ActivePokemon*); // PORT: was s32 (a string pointer)
 
 /**
  * Queues the "<nickname> used <move>" message, picking one of the five Gen 1 endings by move set;

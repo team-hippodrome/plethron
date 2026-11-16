@@ -258,6 +258,7 @@ s32 BattleAi_MayKnowMove(ComBattler* arg0, s32 arg1) {
 s32 BattleAi_MayKnowMove(ComBattler* arg0, s32 arg1);
 s32 BattleAi_EstimateDamage(BattleMonRuntime*, BattleMonRuntime*, u8);
 extern u8 D_82194578[];
+extern u32 D_821945C4[];
 /**
  * Highest BattleAi_EstimateDamage that attacker arg0 can do to arg1. Uses the
  * attacker's moves when they are known (the party flag bit 2, or a full move
@@ -301,7 +302,8 @@ s32 BattleAi_GetBestDamage(ComBattler* arg0, ComBattler* arg1, s32 arg2)
 
   for (i = 0; i < 78; i++)
   {
-    move = D_82194578[i];
+    // PORT: the table has 76 bytes; on the N64 the last two reads are the first bytes of D_821945C4[0]
+    move = i < 76 ? D_82194578[i] : (u8)(D_821945C4[0] >> (24 - 8 * (i - 76)));
     if (((move != 0) && (((move != SELFDESTRUCT) && (move != EXPLOSION)) || (arg2 > 0))) && (BattleAi_MayKnowMove(arg0, move) != 0))
     {
       d = BattleAi_EstimateDamage(((s8*)&arg0->mon.unk_00), ((s8*)&arg1->mon.unk_00), move);
@@ -1587,7 +1589,8 @@ s32 BattleAi_SelectTeam(u8* arg0, u8* arg1, s32 arg2, s8* arg3, s32 arg4) {
     D_821CF2B0 = 0x3039;
     D_821CF2B4 = 0x1A85;
     BattleAi_StirRandom();
-    bzero(&D_821CF618, 0x700);
+    bzero(&D_821CF618, sizeof(ComSide)); // PORT: was bzero(&D_821CF618, 0x700): both sides, adjacent on the N64
+    bzero(&D_821CF998, sizeof(ComSide));
     D_821CF2A4 = 0xFEDC;
     if (*arg0 & 2) {
         D_821CF294 = &D_821CF618;
