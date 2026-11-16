@@ -7,6 +7,8 @@
 #include "geo_render.h"
 #include "matrix.h"
 #include "memory_main.h"
+#include "main_pool.h"
+#include "geo_layout.h"
 #include "model_renderer.h"
 extern DisplayObject* D_800AD1C0;
 s32 PokeIcon_CapturePreviewGeoNode(s32, GraphNode*);
@@ -25,26 +27,20 @@ s32 PokeIcon_CaptureGeoNode(s32 arg0, GraphNode* arg1) {
 }
 
 s32 MainPool_GetAvailable(void);                                /* extern */
-s32 func_80002B10(s32, M2C_UNK);                    /* extern */
-M2C_UNK func_80002B60(s32);                         /* extern */
-M2C_UNK func_80010B3C(s32, M2C_UNK, M2C_UNK, s16, s32); /* extern */
-s8 *func_80016C70(s32, M2C_UNK *);                /* extern */
-extern M2C_UNK D_80060740;
-extern s32 D_800AD1B0;
+void MainPool_FinalizeAllocation(struct MemoryBlock* block); // main_pool.c
+extern M2C_UNK D_80060740; // the scene's geo layout
 
 /**
  * Builds the renderer's offscreen scene (geo layout D_80060740) and sets its viewport to `width` x `height`.
  */
-void PokeIcon_CreateScene(s8 *renderer, s16 width, s16 height) {
-    s32 sp24;
-    s32 temp_v0;
+void PokeIcon_CreateScene(PokeIconRenderer* renderer, s16 width, s16 height) { // PORT: typed (was s8* with M2C_FIELD
+    // offsets, and the pool state and geo root held in s32s)
+    MainPoolState* pool = MainPool_AllocState(MainPool_GetAvailable(), 0);
 
-    temp_v0 = func_80002B10(MainPool_GetAvailable(), 0);
-    sp24 = temp_v0;
-    M2C_FIELD(renderer, s8 **, 0xC) = func_80016C70(temp_v0, &D_80060740);
-    M2C_FIELD(renderer, s32 *, 0x10) = (s32) D_800AD1B0;
-    func_80002B60(sp24);
-    func_80010B3C(M2C_FIELD(M2C_FIELD(renderer, s8 **, 0xC), s32 *, 0xC), 0, 0, width, (s32) height);
+    renderer->rootNode = GeoLayout_Process((MemoryBlock*)pool, &D_80060740);
+    renderer->displayObject = (DisplayObject*)D_800AC7A0.archives.previewGeoNode; // was (s32)D_800AD1B0
+    MainPool_FinalizeAllocation((MemoryBlock*)pool);
+    GeoCamera_SetViewport(renderer->rootNode->children, 0, 0, width, height);
 }
 
 /** Creates the render list for a Pokemon icon. */
@@ -71,7 +67,7 @@ PokeIconRenderer* PokeIcon_CreateRenderList(ModelLoadContext* arg0, s16 arg1, s1
             bzero(temp_v0->slots[i].image->img_p, arg2 * arg3 * 2);
         }
 
-        PokeIcon_CreateScene((s8*)temp_v0, arg2, arg3);
+        PokeIcon_CreateScene(temp_v0, arg2, arg3); // PORT: was (s8*)temp_v0
     }
     return temp_v0;
 }

@@ -467,7 +467,7 @@ void Registration_DrawRowBorders(s32 x, s32 y, Color88100D9C color) {
 }
 
 extern Color88100D9C D_88102D7C;
-extern u8 D_88102DB8[];
+extern Img8002A3F8 D_88102DB8; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern char D_88102F24[];
 extern char D_88102F2C[];
 extern Gfx D_80073450[];
@@ -490,7 +490,7 @@ void Registration_DrawTrainerPanel(s32 x, s32 y, s32 text_flags, RegisteredTeam*
         if (team->source == 0x20) {
             GbSave_DrawCartridgeIcon(x + 5, y + 4, team->pak, GbSave_GetPortGame(team->pak));
         } else if (team->source == 0x10) {
-            Ui_DrawImageInStrips(D_88102DB8, x + 4, y + 4);
+            Ui_DrawImageInStrips(&D_88102DB8, x + 4, y + 4);
             Font_BeginTranslucentTextRendering();
             Font_SetColorForFlags(text_flags);
             Font_SetActive(8, 0);

@@ -652,4 +652,13 @@ extern s16 gCamDistances[];
 
 #include "variables.h"
 
+/* An image drawn in strips by Ui_DrawImageInStrips (gb_save.c). PORT: moved from gb_save.c so the images in data are
+ * typed and their pixel pointers lifted. */
+typedef struct Img8002A3F8 {
+    /* 0x00 */ s32 stride;
+    /* 0x04 */ s32 height;
+    /* 0x08 */ s32 width;
+    /* 0x0C */ u8 *pixels;
+} Img8002A3F8;
+
 #endif

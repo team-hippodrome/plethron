@@ -598,7 +598,7 @@ extern Color_RGBA8 D_8900A8DC[];
 extern Color_RGBA8 D_8900A8E8;
 extern Color_RGBA8 D_8900A8F0;
 extern char D_89018F08[];
-extern u8 D_80073614[];
+extern Img8002A3F8 D_80073614; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern u8 D_04011AB8[];
 extern Gfx D_80073450[];
 void Ui_DrawNumber(s32, s32, s32, s32);
@@ -633,7 +633,7 @@ void PcBox_DrawGbBoxRow(s32 x, s32 y, LabPCBoxEntry* entry, s32 index, s32 flags
     Font_Printf(x + 8, y + 4, D_89018F08, index + 1);
     func_8001ABBC();
     if (entry->box->count > 0) {
-        Ui_DrawImageInStrips(D_80073614, x + 120, y + 4);
+        Ui_DrawImageInStrips(&D_80073614, x + 120, y + 4);
     }
     Ui_DrawNumber(x + 152, y + 8, entry->box->count, 2);
     Ui_DrawNumber(x + 179, y + 8, 0x1E, 2);
@@ -644,7 +644,7 @@ void PcBox_DrawGbBoxRow(s32 x, s32 y, LabPCBoxEntry* entry, s32 index, s32 flags
 
 extern char D_89018F14[];
 extern char D_89018F20[];
-extern u8 D_80073634[];
+extern Img8002A3F8 D_80073634; // PORT: typed so its pixel pointer is lifted (was u8[])
 
 /**
  * Draws one row of the 64 cassette column: ボックス%d in the large font with its %2d/%2d
@@ -679,7 +679,7 @@ void PcBox_DrawStadiumBoxRow(s32 x, s32 y, LabPCBoxEntry* entry, s32 index, s32 
     Font_Printf(x + 176, y + 20, D_89018F20, entry->box->count, 0x1E);
     func_8001ABBC();
     if (entry->box->count > 0) {
-        Ui_DrawImageInStrips(D_80073634, x + 140, y + 0x10);
+        Ui_DrawImageInStrips(&D_80073634, x + 140, y + 0x10);
     }
 }
 

@@ -413,9 +413,9 @@ typedef struct Offset82006508 {
     /* 0x4 */ s32 y;
 } Offset82006508;
 
-extern u8 D_8200911C[];
-extern u8 D_8200912C[];
-extern u8 D_8200913C[];
+extern Img8002A3F8 D_8200911C; // PORT: typed so its pixel pointer is lifted (was u8[])
+extern Img8002A3F8 D_8200912C; // PORT: typed so its pixel pointer is lifted (was u8[])
+extern Img8002A3F8 D_8200913C; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern Color_RGBA8 D_8200914C;
 extern Color_RGBA8 D_82009150;
 extern Color_RGBA8 D_82009154;
@@ -432,13 +432,13 @@ void FreeBattle_DrawControllerPanel(s32 x, s32 y, s32 present, s32 active, s32 m
     s32 i;
 
     Ui_FillRectPrimEnvColor(x, y, 390, 141, D_8200914C, D_82009150);
-    Ui_DrawImageInStrips(D_8200911C, x + 136, y + 5);
+    Ui_DrawImageInStrips(&D_8200911C, x + 136, y + 5);
     for (i = 0; i != 4; i++) {
         if ((present >> i) & 1) {
             if ((active >> i) & 1) {
-                Ui_DrawImageInStrips(D_8200912C, D_8200915C[i].x + x, D_8200915C[i].y + y);
+                Ui_DrawImageInStrips(&D_8200912C, D_8200915C[i].x + x, D_8200915C[i].y + y);
             } else {
-                Ui_DrawImageInStrips(D_8200913C, D_8200915C[i].x + x, D_8200915C[i].y + y + 12);
+                Ui_DrawImageInStrips(&D_8200913C, D_8200915C[i].x + x, D_8200915C[i].y + y + 12);
             }
         }
         if ((mark_a >> i) & 1) {
@@ -508,7 +508,7 @@ void FreeBattle_InitOpponentSelect(FreeBattleOpponentWindow* window, s32 x, s32 
 
 void Ui_DrawImageInStrips(void*, s32, s32);
 void FreeBattle_DrawControllerPanel(s32, s32, s32, s32, s32, s32);
-extern u8 D_8200910C[];
+extern Img8002A3F8 D_8200910C; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern char D_82009F84[];
 
 /**
@@ -530,7 +530,7 @@ void FreeBattle_DrawOpponentSelect(FreeBattleOpponentWindow* window) {
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 146, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(window->window.frame.x + 6, window->window.frame.y + 153, window->window.frame.width - 12, 112, *(Color82001CCC*)&D_82009100);
-        Ui_DrawImageInStrips(D_8200910C, window->window.frame.x + 169, window->window.frame.y + 193);
+        Ui_DrawImageInStrips(&D_8200910C, window->window.frame.x + 169, window->window.frame.y + 193);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
@@ -726,7 +726,7 @@ void FreeBattle_DrawTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 146, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(window->window.frame.x + 6, window->window.frame.y + 153, window->window.frame.width - 12, 196, *(Color82001CCC*)&D_82009100);
-        Ui_DrawImageInStrips(D_8200910C, window->window.frame.x + 169, window->window.frame.y + 249);
+        Ui_DrawImageInStrips(&D_8200910C, window->window.frame.x + 169, window->window.frame.y + 249);
         if (window->focus != 0) {
             if (window->focus == 1) {
                 mask_b = 0xFEF;

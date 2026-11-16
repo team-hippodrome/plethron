@@ -368,8 +368,8 @@ void LabBoxList_ApplyChecks(LabBoxListWindow* box_list) {
 void Ui_DrawImageInStrips(void*, s32, s32);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
-extern u8 D_80073614[];
-extern u8 D_80073624[];
+extern Img8002A3F8 D_80073614; // PORT: typed so its pixel pointer is lifted (was u8[])
+extern Img8002A3F8 D_80073624; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern Color_RGBA8 D_80073520;
 extern Color_RGBA8 D_8910A934[];
 extern Color_RGBA8 D_800734A8[];
@@ -387,9 +387,9 @@ void LabBoxList_DrawBoxName(s32 x, s32 y, s32 box, s32 index, s32 flags) {
     s32 sel;
 
     if (flags & 8) {
-        Ui_DrawImageInStrips(D_80073614, x + 8, y + 4);
+        Ui_DrawImageInStrips(&D_80073614, x + 8, y + 4);
     } else {
-        Ui_DrawImageInStrips(D_80073624, x + 8, y + 4);
+        Ui_DrawImageInStrips(&D_80073624, x + 8, y + 4);
     }
     sel = flags & 2;
     if (sel) {
@@ -546,8 +546,8 @@ void LabSourceSelect_ApplyCheck(LabSourceSelectWindow* window, s32 row) {
 
 void Ui_DrawImageInStrips(void*, s32, s32);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
-extern u8 D_80073614[];
-extern u8 D_80073624[];
+extern Img8002A3F8 D_80073614; // PORT: typed so its pixel pointer is lifted (was u8[])
+extern Img8002A3F8 D_80073624; // PORT: typed so its pixel pointer is lifted (was u8[])
 extern Color_RGBA8 D_80073520;
 extern Color_RGBA8 D_8910A934[];
 extern Color_RGBA8 D_800734A8[];
@@ -561,9 +561,9 @@ void LabSourceSelect_DrawRow(s32 x, s32 y, char** label, s32 index, s32 flags) {
     s32 sel;
 
     if (flags & 8) {
-        Ui_DrawImageInStrips(D_80073614, x + 8, y + 4);
+        Ui_DrawImageInStrips(&D_80073614, x + 8, y + 4);
     } else {
-        Ui_DrawImageInStrips(D_80073624, x + 8, y + 4);
+        Ui_DrawImageInStrips(&D_80073624, x + 8, y + 4);
     }
     sel = flags & 2;
     if (sel) {

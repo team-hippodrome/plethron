@@ -467,12 +467,7 @@ void Ui_DrawFilledFrame(s32 x, s32 y, s32 w, s32 h, Color8002A354 color) {
     Ui_DrawTexturedFrameDecal(x, y, w, h, &D_8007353C);
 }
 
-typedef struct Img8002A3F8 {
-    /* 0x00 */ s32 stride;
-    /* 0x04 */ s32 height;
-    /* 0x08 */ s32 width;
-    /* 0x0C */ u8 *pixels;
-} Img8002A3F8;
+// Img8002A3F8 (an image drawn by Ui_DrawImageInStrips) is in global.h, for the lifter to type the images in data
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void func_8001B884(s32, s32, s32, s32, u8*, s32, s32);
