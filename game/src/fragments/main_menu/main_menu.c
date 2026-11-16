@@ -727,6 +727,7 @@ extern MainMenuScreen* D_88002B20;
 
 s32 PcBox_ReadDeck(s32 deck_type, s32 port, s32 index, s8* out, s32 max); // lab_pc/pc_box.c
 s32 Port_GbCartIsWestern(s32 channel); // src/port/transfer_pak.cpp
+s32 Port_GbMonIsWestern(u32 ot_id, u32 dvs); // src/port/gb_save_convert.cpp
 
 // PORT: 「ちがう　ちいきの　カセット」 / 「ちがう　ちいきの　ゲームとの　こうかんは　まだ　できません。　せいとんは　つかえません。」
 // (MAIN_MENU_PORT_OTHER_REGION_TITLE/_TEXT in translations/ai.csv)
@@ -739,8 +740,9 @@ static char sOtherRegionText[] =
  * PORT: whether the 64 boxes hold a Pokémon from a cartridge of the other region (Japanese vs Western) than the
  * one in `port`. Zero has no trade machine, but せいとん moves Pokémon between a cartridge and the shared 64 boxes,
  * so that is a trade between the two cartridges; converting across regions isn't implemented, so the main menu
- * turns せいとん off then. A stored Pokémon's region comes from its OT name: a Japanese cartridge's has kana, a
- * Western one's comes through the converter as full-width Latin letters (gb_save_convert.h).
+ * turns せいとん off then. The cartridge's region is its header's destination code (Port_GbCartIsWestern); a stored
+ * Pokémon's is whether the converter has seen it on a Western cartridge (Port_GbMonIsWestern: Zero's save keeps no
+ * origin, and a retail Zero save only ever held Japanese cartridges' Pokémon).
  */
 static s32 MainMenu_StorageHasOtherRegion(s32 port) {
     static BattleMon mons[30];
@@ -748,19 +750,11 @@ static s32 MainMenu_StorageHasOtherRegion(s32 port) {
     s32 box;
     s32 i;
     s32 n;
-    s32 k;
-    s32 japanese;
 
     for (box = 0; box < 4; box++) {
         n = PcBox_ReadDeck(0x11, 0, box, (s8*)mons, 30);
         for (i = 0; i < n; i++) {
-            japanese = 0;
-            for (k = 0; k + 1 < (s32)sizeof(mons[i].otName) && mons[i].otName[k] != 0; k += (mons[i].otName[k] & 0x80) ? 2 : 1) {
-                if (mons[i].otName[k] == 0xA4 || mons[i].otName[k] == 0xA5) {
-                    japanese = 1;
-                }
-            }
-            if (japanese == western) {
+            if ((Port_GbMonIsWestern(mons[i].otId, mons[i].dvs) != 0) != western) {
                 return 1;
             }
         }

@@ -12,6 +12,11 @@
 // Zero's character table as full-width Latin letters; accented letters lose their accent. A name Zero did not change
 // keeps its original Western bytes. A nickname that is the species name becomes the species' Japanese name, so it
 // is shown (and translated) like a Japanese cartridge's.
+//
+// Zero's N64 boxes hold Pokémon in the Japanese layout too. So that a Western Pokémon stored there comes back with
+// its full names, every Western Pokémon the converter sees is kept in <Zero's save>.western (OT ID, DVs, Japanese
+// names -> Western nickname and OT). The same file says which stored Pokémon came from a Western cartridge
+// (Port_GbMonIsWestern), for the main menu's region check.
 #pragma once
 
 #include <cstdint>
@@ -43,4 +48,5 @@ bool JpToWest(Context& ctx, const std::vector<uint8_t>& jp, std::vector<uint8_t>
 
 } // namespace GbSaveConvert
 
+extern "C" int Port_GbMonIsWestern(unsigned otId, unsigned dvs); // OT ID and DVs as numbers, as BattleMon holds them
 extern "C" void Port_GbCharsetExtend(uint16_t* table); // the full-width Latin letters, into Zero's GB->EUC table

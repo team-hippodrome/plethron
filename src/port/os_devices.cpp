@@ -196,6 +196,13 @@ void SramSave() {
 bool IsFlash(OSPiHandle* h) { return h->type == DEVICE_TYPE_FLASH; }
 } // namespace
 
+// The SRAM file's path (UTF-8), for files kept beside Zero's save (gb_save_convert.cpp's Western name store).
+extern "C" const char* Port_SramFilePath(void) {
+    static std::string path;
+    path = SramPath();
+    return path.c_str();
+}
+
 extern "C" void Port_BeginFlashBankWrite() {
     gFlashBankWrite = true;
     gFlashBankWriteDirty = false;

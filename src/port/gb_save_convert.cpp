@@ -1,15 +1,20 @@
 // Western Gen 1 saves in the Japanese layout for Zero: see gb_save_convert.h.
 #include "gb_save_convert.h"
 
+#include "launcher_reliability.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <mutex>
 
 extern "C" {
 unsigned char Species_FromInternalIndex(int index); // gb_data.c: Gen 1 internal index -> National Dex number
 char* Text_CopySpeciesName(char* dst, int dex);    // gb_data.c: EUC-JP species name
 char* Text_TranscodeName(char* gbDst, char* euc);  // gb_data.c: EUC-JP -> Japanese GB codes, 0x50-terminated
 extern uint16_t D_80076FD4_jp[256];                // gb_data.c: Japanese GB code -> EUC-JP
+const char* Port_SramFilePath(void);               // os_devices.cpp: Zero's save file
 }
 
 namespace GbSaveConvert {
@@ -185,10 +190,12 @@ struct Mon {
     int box = -1;
 };
 
-// What identifies a Pokémon across Zero's moves: species, OT ID, experience, DVs, and its Japanese names.
+// What identifies a Pokémon across Zero's moves: OT ID, DVs, and its Japanese names. Species and experience are
+// left out because List can evolve a Pokémon or give it a Rare Candy while it sits in an N64 box.
+constexpr size_t KEY_ID_LEN = 4; // the OT ID and DVs at the start of a key
 std::string Key(const uint8_t* rec, const std::vector<uint8_t>& jnick, const std::vector<uint8_t>& jot) {
     std::string k;
-    for (int off : { 0x00, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x1B, 0x1C }) k.push_back((char)rec[off]);
+    for (int off : { 0x0C, 0x0D, 0x1B, 0x1C }) k.push_back((char)rec[off]);
     k.push_back('|');
     k.append(jnick.begin(), jnick.end());
     k.push_back('|');
@@ -196,10 +203,92 @@ std::string Key(const uint8_t* rec, const std::vector<uint8_t>& jnick, const std
     return k;
 }
 
+// ---- Western name store ----
+// Zero's N64 boxes keep Pokémon in the Japanese layout, so a Western Pokémon stored there has lost its full names and
+// its origin. Every Western Pokémon the converter has seen is kept in a file beside Zero's save (<save>.western):
+// its key, Western nickname and OT name. A Pokémon coming back from the N64 boxes gets its names from it, and
+// Port_GbMonIsWestern tells the region check where a stored Pokémon came from (no entry: a Japanese cartridge's).
+using NameMap = std::multimap<std::string, std::pair<std::vector<uint8_t>, std::vector<uint8_t>>>;
+std::mutex gStoreLock;
+NameMap gStore;
+bool gStoreLoaded = false;
+bool gStoreDirty = false;
+
+std::string StorePath() { return std::string(Port_SramFilePath()) + ".western"; }
+
+std::string Hex(const std::string& b) {
+    static const char* d = "0123456789abcdef";
+    std::string h;
+    for (unsigned char c : b) {
+        h.push_back(d[c >> 4]);
+        h.push_back(d[c & 15]);
+    }
+    return h.empty() ? "-" : h;
+}
+
+bool Unhex(const std::string& h, std::string& out) {
+    out.clear();
+    if (h == "-") return true;
+    if (h.size() % 2) return false;
+    for (size_t i = 0; i < h.size(); i += 2) {
+        unsigned v;
+        if (sscanf(h.c_str() + i, "%2x", &v) != 1) return false;
+        out.push_back((char)v);
+    }
+    return true;
+}
+
+void LoadStore() {
+    if (gStoreLoaded) return;
+    gStoreLoaded = true;
+    FILE* f = fopen(StorePath().c_str(), "rb");
+    if (f == nullptr) return;
+    char line[512], a[160], b[160], c[160];
+    while (fgets(line, sizeof(line), f) != nullptr) {
+        std::string k, n, o;
+        if (line[0] == '#' || sscanf(line, "%159s %159s %159s", a, b, c) != 3) continue;
+        if (!Unhex(a, k) || !Unhex(b, n) || !Unhex(c, o) || k.size() < KEY_ID_LEN) continue;
+        gStore.insert({ k, { std::vector<uint8_t>(n.begin(), n.end()), std::vector<uint8_t>(o.begin(), o.end()) } });
+    }
+    fclose(f);
+}
+
+void SaveStore() {
+    if (!gStoreDirty) return;
+    std::string text = "# Western names of the Pokémon the PC port has seen on Western Gen 1 cartridges: key, nickname, OT\n";
+    for (auto& [k, v] : gStore) {
+        text += Hex(k) + " " + Hex(std::string(v.first.begin(), v.first.end())) + " " +
+                Hex(std::string(v.second.begin(), v.second.end())) + "\n";
+    }
+    std::string error;
+    if (Port::WriteProtectedSave(std::filesystem::u8path(StorePath()), (const uint8_t*)text.data(), text.size(), error)) {
+        gStoreDirty = false;
+    } else {
+        fprintf(stderr, "[gbpak] could not save the Western name store: %s\n", error.c_str());
+    }
+}
+
+// Adds (key -> names) to `map` unless that exact entry is there; returns whether it was added.
+bool AddNames(NameMap& map, const std::string& key, const std::vector<uint8_t>& nick, const std::vector<uint8_t>& ot) {
+    auto range = map.equal_range(key);
+    for (auto it = range.first; it != range.second; ++it) {
+        if (it->second.first == nick && it->second.second == ot) return false;
+    }
+    map.insert({ key, { nick, ot } });
+    return true;
+}
+
 void FillJpNames(Context& ctx, Mon& m) {
     m.jnick = NicknameWestToJp(ctx, m.rec[0], m.nick);
     m.jot = NameWestToJp(ctx, m.ot);
-    ctx.names.insert({ Key(m.rec.data(), m.jnick, m.jot), { m.nick, m.ot } });
+    // as the Japanese box holds them (PutName), so the key matches when the Pokémon is read back
+    if (m.jnick.size() > J_NAME_LEN - 1) m.jnick.resize(J_NAME_LEN - 1);
+    if (m.jot.size() > J_NAME_LEN - 1) m.jot.resize(J_NAME_LEN - 1);
+    std::string key = Key(m.rec.data(), m.jnick, m.jot);
+    AddNames(ctx.names, key, m.nick, m.ot);
+    std::lock_guard<std::mutex> g(gStoreLock);
+    LoadStore();
+    gStoreDirty |= AddNames(gStore, key, m.nick, m.ot);
 }
 
 std::vector<Mon> ReadWestBoxes(Context& ctx, const std::vector<uint8_t>& w) {
@@ -252,10 +341,19 @@ std::vector<Mon> ReadJpBox(const uint8_t* p, int box) {
 
 // The Western names of a Pokémon read from the Japanese copy: its original ones if Zero did not change them.
 void FillWestNames(const Context& ctx, Mon& m) {
-    auto it = ctx.names.find(Key(m.rec.data(), m.jnick, m.jot));
+    std::string key = Key(m.rec.data(), m.jnick, m.jot);
+    auto it = ctx.names.find(key);
     if (it != ctx.names.end()) {
         m.nick = it->second.first;
         m.ot = it->second.second;
+        return;
+    }
+    std::lock_guard<std::mutex> g(gStoreLock);
+    LoadStore();
+    auto st = gStore.find(key); // back from Zero's N64 boxes
+    if (st != gStore.end()) {
+        m.nick = st->second.first;
+        m.ot = st->second.second;
     } else {
         m.nick = NameJpToWest(ctx, m.jnick, m.rec[0], true);
         m.ot = NameJpToWest(ctx, m.jot, m.rec[0], false);
@@ -380,6 +478,8 @@ void WestToJp(Context& ctx, const std::vector<uint8_t>& w, std::vector<uint8_t>&
     j[J_CHECKSUM] = Checksum(&j[J_NAME], J_CHECKSUM - J_NAME);
     JpBankChecksums(j);
     ctx.base = j;
+    std::lock_guard<std::mutex> g(gStoreLock);
+    SaveStore();
     fprintf(stderr, "[gbpak] Western save shown in the Japanese layout: %d in the party, %zu in the boxes\n", n,
             mons.size());
 }
@@ -469,6 +569,19 @@ bool JpToWest(Context& ctx, const std::vector<uint8_t>& j, std::vector<uint8_t>&
 }
 
 } // namespace GbSaveConvert
+
+// Whether a Pokémon with this OT ID and DVs (as numbers, as Zero's BattleMon holds them) was seen on a Western
+// cartridge: Zero's N64 boxes keep no origin, and one without an entry came from a Japanese cartridge.
+extern "C" int Port_GbMonIsWestern(unsigned otId, unsigned dvs) {
+    std::lock_guard<std::mutex> g(GbSaveConvert::gStoreLock);
+    GbSaveConvert::LoadStore();
+    std::string id = { (char)(otId >> 8), (char)otId, (char)(dvs >> 8), (char)dvs };
+    for (auto& entry : GbSaveConvert::gStore) {
+        if (entry.first.compare(0, GbSaveConvert::KEY_ID_LEN, id) == 0) return 1;
+    }
+    return 0;
+}
+
 
 extern "C" void Port_GbCharsetExtend(uint16_t* table) {
     using namespace GbSaveConvert;
