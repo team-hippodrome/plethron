@@ -183,8 +183,13 @@ size_t func_8000A4E8(char* dest, char* src); // PORT: matches HAL_Strcmp
 void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_buffer, void* pc_buffer, void* cart_buffer) {
     UNUSED s32 pad; // FAKE: stack padding
     s32 temp_s1;
-    char sp54[4];
-    GbSavePortSummary sp48;
+    // PORT: GbSave_BuildPortSummary writes the trainer name after the summary, where IDO put sp54; on the host the two
+    // are one object so the name cannot run over the frame (it overwrote the saved screen pointer and List crashed)
+    struct {
+        GbSavePortSummary summary;
+        char name[12];
+    } sp48;
+#define sp54 (sp48.name)
     char sp38[16];
     s32 i;
 
@@ -204,13 +209,13 @@ void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_bu
     decks[2].unk_01 = 0;
     func_80027410(&decks[2].unk_0C, cart_buffer, 2, 0x64, 0);
 
-    func_80027FF8(&sp48, decks->unk_01);
+    func_80027FF8(&sp48.summary, decks->unk_01);
 
     for (i = 0; i < 4; i++) {
         if ((func_800246A8(0x12, i) != 0) && (Deck_GetSaveEntryCount(0x12, i) > 0)) {
             temp_s1 = Deck_GetSaveEntryTrainerId(0x12, i);
             Deck_GetSaveEntryName(0x12, i, sp38);
-            if ((sp48.trainerId == temp_s1) && (func_8000A4E8(sp54, sp38) == 0)) {
+            if ((sp48.summary.trainerId == temp_s1) && (func_8000A4E8(sp54, sp38) == 0)) {
                 break;
             }
         }
@@ -222,6 +227,7 @@ void LabPCList_InitDeckCategories(unk_func_8830867C_02C_154* decks, void* bag_bu
     } else {
         decks[2].unk_04 = 0;
     }
+#undef sp54
 }
 
 /** Reads a deck category into the list. */
