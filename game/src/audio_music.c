@@ -10,6 +10,7 @@
 #include "fragments/battle/battle.h"
 #include "rom_device.h"
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_SpinWait
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Audio_FadeCategoriesAndStreamsDefault(void);
@@ -53,7 +54,6 @@ void Audio_StopMusic(s32 arg0) {
     }
 }
 
-void osYieldThread(void); // PORT: os_thread.cpp
 
 /** Waits for the audio system to become idle, returning nonzero on timeout. */
 s32 Audio_WaitForIdle(s32 arg0) {
@@ -63,7 +63,7 @@ s32 Audio_WaitForIdle(s32 arg0) {
         Audio_FadeCategoriesAndStreams(2);
     }
     while (Audio_GetActivityScore() != 0) {
-        osYieldThread(); // PORT: host threads are cooperative; let the audio thread run while waiting
+        Port_SpinWait(); // PORT: host threads are cooperative; let the audio thread run while waiting (a retrace in lockstep)
         if (retvar < 1000000) {
             retvar++;
         } else if (retvar == 1000000) {

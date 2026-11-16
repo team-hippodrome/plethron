@@ -31,6 +31,10 @@ extern "C" {
 
 // Retraces (N64 vertical blanks) since boot, on the port's clock: virtual in lockstep mode.
 uint64_t Port_ViTick(void);
+// For a game loop that spins until another thread finishes (Audio_WaitForIdle): lets the other threads run. In
+// lockstep mode it waits for the next retrace, since a spinning thread keeps the virtual clock (and so the audio
+// thread's frames) from advancing.
+void Port_SpinWait(void);
 // Whether the N64 logo's hold is paced by retraces (PORT_PACED_LOGO_HOLD, or a replayed recording; n64_logo.c).
 int Port_PacedLogoHold(void);
 // The N64's loading time where the game's timing counts on it (the boot diorama's model loads, which the music is

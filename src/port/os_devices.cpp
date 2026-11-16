@@ -1222,6 +1222,20 @@ void port_osCreateViManager(OSPri) {
 
 } // extern "C"
 
+extern "C" void osYieldThread(void);
+extern "C" void Port_SpinWait(void) {
+    if (!Port_Lockstep()) {
+        osYieldThread();
+        return;
+    }
+    OSMesgQueue queue;
+    OSMesg message;
+    OSTimer timer;
+    osCreateMesgQueue(&queue, &message, 1);
+    osSetTimer(&timer, 46875000 / 60, 0, &queue, nullptr);
+    osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
+}
+
 // The comparison runner supplies an observed N64 retrace schedule for battle frames.
 extern "C" void Port_XcheckWaitRetraces(uint64_t retraces) {
     OSMesgQueue queue;
