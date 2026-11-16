@@ -117,9 +117,29 @@ target_include_directories(pokestadium PRIVATE
 target_compile_definitions(pokestadium PRIVATE F3DEX_GBI_2)
 target_link_libraries(pokestadium PRIVATE libultraship)
 # Stadium Zero: names of the decomp that alias another symbol (tools/zero/gen_lift.py), as linker assignments
-if(NOT APPLE AND NOT MSVC AND NOT EMSCRIPTEN)
+if(NOT APPLE AND NOT WIN32 AND NOT EMSCRIPTEN)
   target_link_options(pokestadium PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld)
   set_property(TARGET pokestadium APPEND PROPERTY LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld)
+endif()
+if(WIN32 AND NOT MSVC)
+  # MinGW: ld.lld's COFF driver takes no linker script, so the same aliases are generated as weak externals and as
+  # .set lines next to the lifted storage (tools/gen_coff_aliases.py); the wrapper replaces zero_lift_data.c
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  set(PORT_COFF_ALIASES_S ${CMAKE_BINARY_DIR}/generated/zero_aliases_coff.S)
+  set(PORT_COFF_LIFT_DATA ${CMAKE_BINARY_DIR}/generated/zero_lift_data_coff.c)
+  execute_process(COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_coff_aliases.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_lift_data.c ${PORT_COFF_ALIASES_S} ${PORT_COFF_LIFT_DATA}
+      RESULT_VARIABLE PORT_COFF_ALIASES_RESULT)
+  if(NOT PORT_COFF_ALIASES_RESULT EQUAL 0)
+    message(FATAL_ERROR "Could not generate the MinGW alias sources")
+  endif()
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_coff_aliases.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_lift_data.c)
+  get_target_property(PORT_MAIN_TARGET_SOURCES pokestadium SOURCES)
+  list(REMOVE_ITEM PORT_MAIN_TARGET_SOURCES src/port/generated/zero_lift_data.c)
+  set_property(TARGET pokestadium PROPERTY SOURCES ${PORT_MAIN_TARGET_SOURCES} ${PORT_COFF_LIFT_DATA} ${PORT_COFF_ALIASES_S})
 endif()
 if(NOT ANDROID AND NOT EMSCRIPTEN)
   # the save library's command-line driver (not shipped)
