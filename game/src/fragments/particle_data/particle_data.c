@@ -7,7 +7,7 @@
 
 extern Gfx sFlameBackdropPreTextureDL[];
 extern Gfx sFlameBackdropPostTextureDL[];
-extern void* sFlameBackdropTextures[];
+extern void* sFlameBackdropTextures[8]; // PORT: sized (open, it took in the fire overlay table and both texture strips)
 extern u16 D_80060484;
 
 Gfx* FireFx_BuildFlameBackdropDisplayList(Gfx* gfx, s32 frame);

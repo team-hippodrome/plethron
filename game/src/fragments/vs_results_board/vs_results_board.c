@@ -28,9 +28,9 @@
 #include "m2c_macros.h"
 #include "PR/rcp.h" // PORT: IO_READ, PI_STATUS_REG
 
-extern Gfx sVsResultsPortraitDL[];
-extern Gfx sVsResultsRowIconDL[];
-extern Gfx sVsResultsGridIconDL[];
+extern Gfx sVsResultsPortraitDL[24]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx sVsResultsRowIconDL[24]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx sVsResultsGridIconDL[24]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx sVsResultsHpBarDL[];
 extern u8 sVsResultsNicknameText[];
 

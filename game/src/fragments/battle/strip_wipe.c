@@ -5,7 +5,7 @@
 extern s16 D_821CF270;
 extern s16 D_821CF272;
 extern s16 D_821CF274;
-extern Gfx D_821941F0[];
+extern Gfx D_821941F0[27]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern s32 pad_D_8438AA58[];
 extern u32 D_821942D8[];
 extern Gfx D_82194458[];

@@ -8,7 +8,7 @@
 #include "m2c_macros.h"
 
 extern Gfx sFireOverlaySetupDL[];
-extern void* sFireOverlayTextures[];
+extern void* sFireOverlayTextures[8]; // PORT: sized (open, it took in the texture data after it)
 extern u16 D_80060484;
 
 void FireFx_ScrollMaterialGeoCallback(s32 context, GeoDisplayListNode* node);

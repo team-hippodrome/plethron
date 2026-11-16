@@ -24,7 +24,7 @@
 #include "PR/rcp.h" // PORT: IO_READ, PI_STATUS_REG
 #include "vs_trainer_panel.h"
 
-extern Gfx sVsPanelPortraitDL[];
+extern Gfx sVsPanelPortraitDL[24]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx sVsPanelIconDL[];
 extern u8 sVsPanelNicknameText[];
 

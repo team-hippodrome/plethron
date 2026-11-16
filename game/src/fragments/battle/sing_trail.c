@@ -6,7 +6,7 @@
 #include "vector_math.h"
 #include "math.h"
 extern Trail40Variant D_821A8B70;
-extern Gfx D_82192CC8[];
+extern Gfx D_82192CC8[16]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void SingTrail_ApplyRippleAtPoint(s16 arg0, s16 arg1);
 void SingTrail_InitPool(s16 arg0);

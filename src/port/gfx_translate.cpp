@@ -303,6 +303,70 @@ Gfx* TranslateList(const uint8_t* raw) {
     return dst;
 }
 
+// Stadium Zero: display lists that the data lifter turned into host Gfx (declared `Gfx x[]`) keep pointing at what
+// their G_VTX / G_MTX words named, and when that is lifted as bytes (vertices inside a u8[] blob, e.g. the VS fire
+// backdrop's quads in D_8F20A788) Fast3D would read big-endian s16 fields. Those words are pointed at a host copy
+// once. The copies are never freed: the data comes from the ROM and its storage is fixed, so a relift (fragment
+// reload) writes the same raw pointer back and finds the same copy again.
+std::unordered_map<const void*, std::pair<void*, size_t>> gLiftedVtxCopies; // raw vertex/matrix bytes -> host copy, count
+std::unordered_map<const void*, bool> gLiftedCopySet;     // the copies (already fixed words)
+uintptr_t gLiftLo = 0, gLiftHi = 0;
+
+bool InLiftedStorage(const void* p) {
+    if (gLiftHi == 0) {
+        gLiftLo = UINTPTR_MAX;
+        for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+            const ZLiftSym* sy = &gZLiftSyms[i];
+            if (sy->host == nullptr) continue;
+            uintptr_t a = (uintptr_t)sy->host, e = a + (size_t)gZLiftTypes[sy->type].hostSize * sy->count;
+            if (a < gLiftLo) gLiftLo = a;
+            if (e > gLiftHi) gLiftHi = e;
+        }
+    }
+    uintptr_t a = (uintptr_t)p;
+    return a >= gLiftLo && a < gLiftHi && ZLift_IsLifted(p) && !ZLift_IsRaw(p);
+}
+
+void* LiftedCopy(const void* raw, size_t n, bool mtx) {
+    auto it = gLiftedVtxCopies.find(raw);
+    if (it != gLiftedVtxCopies.end() && it->second.second >= n) return it->second.first; // (a longer load gets a new copy)
+    void* out;
+    if (mtx) {
+        uint32_t* m = (uint32_t*)malloc(64);
+        for (int i = 0; i < 16; i++) m[i] = Be32((const uint8_t*)raw + i * 4);
+        out = m;
+    } else {
+        Vtx* v = (Vtx*)malloc(n * sizeof(Vtx));
+        for (size_t i = 0; i < n; i++) {
+            const uint8_t* s = (const uint8_t*)raw + i * 16;
+            int16_t* d = (int16_t*)&v[i];
+            for (int k = 0; k < 6; k++) d[k] = (int16_t)Be16(s + k * 2);
+            memcpy((uint8_t*)&v[i] + 12, s + 12, 4);
+        }
+        out = v;
+    }
+    gLiftedVtxCopies[raw] = { out, n };
+    gLiftedCopySet[out] = true;
+    return out;
+}
+
+void FixLiftedList(Gfx* g, int depth) {
+    if (depth > 8) return;
+    for (int i = 0; i < 4096; i++, g++) {
+        uint8_t op = (uint8_t)(g->words.w0 >> 24);
+        const void* w1 = (const void*)(uintptr_t)g->words.w1;
+        if (op == 0xDF) return; // G_ENDDL
+        if ((op == 0x01 || op == 0xDA) && (uintptr_t)w1 >= 0x100000000ull && !gLiftedCopySet.count(w1) &&
+            ZLift_IsRaw(w1)) {
+            size_t n = op == 0x01 ? (size_t)((g->words.w0 >> 12) & 0xFF) : 1;
+            g->words.w1 = (uintptr_t)LiftedCopy(w1, n, op == 0xDA);
+        } else if (op == 0xDE && (uintptr_t)w1 >= 0x100000000ull && InLiftedStorage(w1)) {
+            FixLiftedList((Gfx*)w1, depth + 1);
+            if (((g->words.w0 >> 16) & 0xFF) == 1) return; // branch, no return
+        }
+    }
+}
+
 } // namespace
 
 extern "C" {
@@ -343,6 +407,7 @@ void* Port_GfxPrepareDL(uintptr_t dl) {
         }
         return TranslateList((const uint8_t*)p);
     }
+    if (InLiftedStorage(p)) FixLiftedList((Gfx*)p, 0); // Stadium Zero
     return (void*)p;
 }
 

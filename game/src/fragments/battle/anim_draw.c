@@ -56,7 +56,7 @@ extern Vtx D_84385C80[];
 extern Vtx D_82191480[];
 extern Vtx D_82191080[];
 
-extern Gfx D_821903D0[];
+extern Gfx D_821903D0[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Vtx D_82190E50[];
 
 void ParticleEffect_Noop(UNUSED s32 arg0, UNUSED s32 arg1);

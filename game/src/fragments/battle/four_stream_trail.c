@@ -5,7 +5,7 @@
 #include "gfx_buffer.h"
 extern FourStreamTrail D_821B4D70[4];
 extern Gfx D_82193160[];
-extern Gfx D_821931C8[];
+extern Gfx D_821931C8[10]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void FourStreamTrail_Init(void);
 void FourStreamTrail_Start(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8, u8 arg9,

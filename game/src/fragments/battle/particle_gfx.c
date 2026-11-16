@@ -2,19 +2,19 @@
 /* C ported from the Stadium 1 decomp: src/fragments/particle_math/particle_math_264380.c. */
 
 #include "battle.h"
-extern Gfx gDL_ItemIcon[];
-extern Gfx D_821904C8[];
-extern Gfx D_82190548[];
+extern Gfx gDL_ItemIcon[5]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx D_821904C8[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx D_82190548[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx gDL_BeginUIOverlay[];
 extern Gfx gDL_EndColorFill[];
-extern Gfx gDL_BeginColorFill[];
+extern Gfx gDL_BeginColorFill[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Vtx gVtx_UI_TriangleSmall[];
 extern Vtx gVtx_UI_TriangleLarge[];
 extern Vtx gVtx_UI_RectVertical[];
 extern Vtx gVtx_UI_ComplexQuad[];
 extern Vtx gFullscreenQuadVtx[];
 extern Gfx D_82191900[];
-extern Gfx D_82191910[];
+extern Gfx D_82191910[2]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx gDL_PanelBackground[];
 
 #include "m2c_macros.h"

@@ -4,8 +4,8 @@
 #include "battle.h"
 #include "gfx_buffer.h"
 extern Trail50Effect D_821B7F60[50];
-extern Gfx D_821932C0[];
-extern Gfx D_82193350[];
+extern Gfx D_821932C0[10]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx D_82193350[15]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void PetalDanceTrail_Init(void);
 /**

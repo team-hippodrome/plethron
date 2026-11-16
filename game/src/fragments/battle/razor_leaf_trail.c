@@ -4,8 +4,8 @@
 #include "battle.h"
 #include "gfx_buffer.h"
 extern Trail50Effect D_821C2820[50];
-extern Gfx D_821933D0[];
-extern Gfx D_82193460[];
+extern Gfx D_821933D0[10]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
+extern Gfx D_82193460[15]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void RazorLeafTrail_Init(void);
 /**

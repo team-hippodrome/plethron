@@ -6,7 +6,7 @@
 #include "gfx_buffer.h"
 #include "vector_math.h"
 extern AuxiliaryEffect D_821CEEA0[2];
-extern Gfx D_82193E18[];
+extern Gfx D_82193E18[19]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 #include "global.h"
 

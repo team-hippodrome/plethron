@@ -22,7 +22,7 @@ extern s16 D_8219CB1A;
 extern const char D_821978C8[];
 
 extern AuxiliaryEffect D_821CEEA0[2];
-extern Gfx D_82193E18[];
+extern Gfx D_82193E18[19]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 
 void BattleAnim_EndEffect16_NoOpDraw(void); // PORT: signature from the definition (fragments/battle/anim_stubs.c)

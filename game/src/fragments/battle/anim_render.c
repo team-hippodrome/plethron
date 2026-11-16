@@ -25,7 +25,7 @@ void BattleAnim_DrawFullScreenColorOverlay(u8 arg0, u8 arg1, u8 arg2, u8 arg3) {
 void BattleAnim_RenderEffectsFrameNop(void);
 void BattleAnim_DrawWorldParticleChainsThunk(s32 unused, CameraNode* camera); // PORT: signature from the definition (fragments/battle/anim_render.c)
 void BattleAnim_DrawScreenParticlesThunk(s32 unused, CameraNode* camera); // PORT: signature from the definition (fragments/battle/anim_render.c)
-extern Gfx D_82190100[];
+extern Gfx D_82190100[10]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx D_821900B0[];
 extern s32 D_8219A7CC;
 extern s16 D_8219A8C0;

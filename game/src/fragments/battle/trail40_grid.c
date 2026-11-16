@@ -6,7 +6,7 @@
 #include "vector_math.h"
 #include "math.h"
 extern Trail40 D_821AAB90;
-extern Gfx D_82192DF8[];
+extern Gfx D_82192DF8[16]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void Trail40GridAlt_Init(s16 arg0);
 void Trail40GridAlt_Start(s32 arg0, s32 arg1);

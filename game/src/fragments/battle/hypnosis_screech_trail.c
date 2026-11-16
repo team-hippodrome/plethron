@@ -6,7 +6,7 @@
 #include "vector_math.h"
 #include "math.h"
 extern Trail40 sWaterSurface;
-extern Gfx D_82192B98[];
+extern Gfx D_82192B98[16]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 void HypnosisScreechTrail_Init(s16 arg0);
 void HypnosisScreechTrail_Start(s32 arg0, s32 arg1);

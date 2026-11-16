@@ -1502,9 +1502,9 @@ extern const f64 D_DBL_82194920;
 
 extern ParticleDescriptor gBattleAnimParticleDescriptors[86];
 
-extern Gfx D_82193350[];
+extern Gfx D_82193350[15]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
-extern Gfx D_821941F0[];
+extern Gfx D_821941F0[27]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 extern StatStageMultiplier gStatStageMultipliers[];
 
@@ -1598,17 +1598,17 @@ extern s16 gBlendColorA;
 
 extern f32 D_8219C590[24]; // PORT: 24 floats (sBattleAnimAssetPointers follows at +0x60); [26] overlapped it
 
-extern Gfx gDL_ItemIcon[];
+extern Gfx gDL_ItemIcon[5]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
-extern Gfx D_821904C8[];
+extern Gfx D_821904C8[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
-extern Gfx D_82190548[];
+extern Gfx D_82190548[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 extern Gfx gDL_BeginUIOverlay[];
 
 extern Gfx gDL_EndColorFill[];
 
-extern Gfx gDL_BeginColorFill[];
+extern Gfx gDL_BeginColorFill[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 extern Vtx gVtx_UI_TriangleSmall[];
 
