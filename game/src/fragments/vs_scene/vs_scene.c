@@ -1189,7 +1189,7 @@ extern u8 D_8F619890[];
 extern u8 D_8EB300B0[];
 extern u8 D_8EB37440[];
 extern u8 D_8F20A788[];
-s32 ImageGrid_Create(s16 x, s16 y, s16 z, s32 tex, s16 width, s16 height); // PORT: signature from the definition (game_state.c)
+Gfx* ImageGrid_Create(s16 x, s16 y, s16 z, void* tex, s16 width, s16 height); // PORT: signature from the definition (game_state.c)
 
 /**
  * Builds the scene's geo layouts: the stadium for the current stage kind (D_822036A8: Free Battle,

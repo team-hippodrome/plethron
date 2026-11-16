@@ -908,8 +908,11 @@ Gfx* ImageGrid_BuildDisplayList(s16 x, s16 y, s16 z, Vtx* vtx, Gfx* gfx, void* t
     return gfx;
 }
 
-s32 func_800023C4(M2C_UNK, M2C_UNK);                /* extern */
+void* func_800023C4(u32 size, s32 side); // PORT: matches MainPool_Alloc
 extern s32 sImageGridDisplayList;
+// PORT: the display list itself; sImageGridDisplayList is lifted N64 storage (an s32 with D_80073400 inside its
+// block), so it only keeps the "built" flag here.
+static Gfx* sPortImageGridDisplayList;
 
 /**
  * Allocates a vertex buffer and a display list, builds the tiled 320x240 image `tex` into them with
@@ -918,15 +921,16 @@ extern s32 sImageGridDisplayList;
  * Called by the VS scene for its trainer name images.
  * @unverified Name read from the code; not hit in the battle tour.
  */
-s32 ImageGrid_Create(s16 x, s16 y, s16 z, s32 tex, s16 width, s16 height) {
+Gfx* ImageGrid_Create(s16 x, s16 y, s16 z, void* tex, s16 width, s16 height) { // PORT: tex and the result were s32
     s32 pad; // FAKE: stack padding
-    s32 sp30;
-    s32 sp2C;
+    Vtx* sp30; // PORT: was s32
+    Gfx* sp2C; // PORT: was s32
 
     sp30 = func_800023C4(0xA00, 0);
     sp2C = func_800023C4(0xA70, 0);
-    ImageGrid_BuildDisplayList(x, y, z, (Vtx*)sp30, (Gfx*)sp2C, (void*)tex, width, height);
-    sImageGridDisplayList = sp2C;
+    ImageGrid_BuildDisplayList(x, y, z, sp30, sp2C, tex, width, height);
+    sPortImageGridDisplayList = sp2C; // PORT: was sImageGridDisplayList = sp2C
+    sImageGridDisplayList = (sp2C != NULL);
     return sp2C;
 }
 
@@ -936,6 +940,7 @@ s32 ImageGrid_Create(s16 x, s16 y, s16 z, s32 tex, s16 width, s16 height) {
  */
 void ImageGrid_Clear(void) {
     sImageGridDisplayList = 0;
+    sPortImageGridDisplayList = NULL; // PORT: see ImageGrid_Create
 }
 
 extern s32 sImageGridDisplayList;
@@ -950,7 +955,7 @@ volatile long long ImageGrid_GeoCallback(s32 stage, s8 *node) // FAKE: volatile 
   new_var = stage; // FAKE: permuter temp
   if ((new_var == 2) && (sImageGridDisplayList != 0)) // FAKE: permuter temp
   {
-    *((s32 *) (((s8 *) node) + 0x18)) = (s32) sImageGridDisplayList; // FAKE: cast chain, node + 0x18 is the display list field
+    ((GeoDisplayListNode *) node)->displayList = sPortImageGridDisplayList; // PORT: was *(s32*)(node + 0x18) = sImageGridDisplayList
   }
 }
 
