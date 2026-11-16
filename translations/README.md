@@ -7,7 +7,7 @@ at runtime by key; nothing here contains the original game text.
 | File | What it is |
 | --- | --- |
 | `ai.csv` | Machine-assisted translations. Every language column is filled here first. |
-| `human.csv` | Human translations and fixes. Any non-empty cell here wins over `ai.csv`. |
+| `human.csv` | Human translations and fixes. It has a row for every string with empty language cells; any cell you fill wins over `ai.csv`. |
 | `rom-text/` | **Gitignored.** Your own ROM's text, written by `tools/text/show_kana.py`. Never commit it. |
 
 ## Format
@@ -125,8 +125,9 @@ renderings are fine.
    that came from human.csv or ai.csv) and `index.html` (the same table, searchable,
    in a browser). The folder is gitignored.
 
-2. Add or fix rows in `human.csv`. Copy the `id`, `md5` and `addr` from
-   `review.csv` (or `ai.csv`) and fill only the columns you're translating. Leave the others empty so they fall through.
+2. Fill cells in `human.csv`. It already has a row for every string, with the
+   `id`, `md5` and `addr` filled and every language cell empty; find the id in
+   `review.csv` and fill only the columns you're translating. Leave the others empty so they fall through.
 
 3. Check your edits:
 

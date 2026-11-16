@@ -77,9 +77,9 @@ def main():
             w.writerow([r[c] for c in cols])
     write_html(os.path.join(OUT, "index.html"), cols, records)
 
-    hmd5 = tables.by_md5(human)
+    hmd5 = tables.by_md5({k: r for k, r in human.items() if any(r[l] for l in tables.LANGS)})
     print("%d strings from the ROM -> %s" % (len(found), OUT))
-    print("  in ai.csv: %d   in human.csv: %d   in neither: %d" % (
+    print("  in ai.csv: %d   translated in human.csv: %d   in neither: %d" % (
         sum(1 for m in found if m in ids), sum(1 for m in found if m in hmd5),
         sum(1 for m in found if m not in ids and m not in hmd5)))
 
