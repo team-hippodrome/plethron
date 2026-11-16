@@ -39,7 +39,8 @@ void BattleHud_UnusedNopB(void) {
 void BattleHud_DrawLevelNumber(s32 arg0, s32 arg1, s32 arg2) {
     UNUSED s32 pad[2]; // FAKE: stack padding
     s8* var_s2;
-    s8 sp58[2];
+    s8 sp58[4]; // PORT: was [2]; sprintf writes up to 4 bytes ("100" and its NUL). The N64 stack padding took
+                // the overflow, here it zeroed a saved register (the info box's y: HP, nickname and status drawn at the top)
     UNUSED s32 pad2[2]; // FAKE: stack padding
     u8** temp_s4;
 
@@ -75,7 +76,7 @@ void BattleHud_DrawLevelNumber(s32 arg0, s32 arg1, s32 arg2) {
  */
 void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     UNUSED s32 pad[2]; // FAKE: stack padding
-    s8 sp70[7];
+    s8 sp70[8]; // PORT: was [7]; "%3d/%3d" writes 8 bytes with its NUL
     UNUSED s32 pad2; // FAKE: stack padding
     u8** temp_s2;
     u8* var_v0;
@@ -86,7 +87,7 @@ void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
 
-    for (i = 0; i < sizeof(sp70); i++) {
+    for (i = 0; i < 7; i++) { // PORT: the 7 characters (sizeof was 7 before the NUL got its byte)
         switch (sp70[i]) {
             case ' ':
                 var_v0 = NULL;
