@@ -49,7 +49,7 @@ extern char D_82009B90[];
 
 void FreeBattle_DrawMoveName(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
-void FreeBattle_DrawTypeName(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+void FreeBattle_DrawTypeName(s32 arg0, s32 arg1, BattleMon* arg2, s32 arg3); // PORT: matches the definition
 
 s32 Ui_HandleHorizontalSelectionInput(UiSelection* arg0); // PORT: matches the definition
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
@@ -84,7 +84,6 @@ M2C_UNK FreeBattle_BuildBattleRosters(s8 *, s8 *, s8 *, s32, s32, s32); /* exter
 
 void FreeBattle_CommitEntries(s8 *arg0);
 
-extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
@@ -97,26 +96,21 @@ void Cont_StartReadInputs(void);                            /* extern */
 void Cont_ReadInputs(void);                            /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
 s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen); // PORT: matches the definition
-extern s32 D_8200AD28;
 
 void FreeBattle_RunFrame(FreeBattleScreen* screen); // PORT: matches the definition
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
 extern M2C_UNK D_82009E18;
-extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 
 s32 FreeBattle_DrawScreenWithSummary(FreeBattleScreen* screen); // PORT: matches the definition
 
 void Util_Free(void* ptr); // PORT: matches the definition
-extern s32 D_8200AD28;
 
 void FreeBattle_FreeScreen(void);
 
-extern s32 D_8200AD08[8];
-extern s32 D_8200AC40;
 extern s32 D_820090DC[8];
 void* BinArchive_GetFile(void* archive, s32 file_number); // PORT: matches the definition
 
@@ -158,15 +152,6 @@ extern u8 D_004199E0[];
 extern u8 D_0042C4A0[];
 extern u8 D_002F5940[];
 extern u8 D_003139C0[];
-extern ModelLoadContext* D_8200AC44;
-extern u16* D_8200AC48;
-extern s32 D_8200AC4C;
-extern s32 D_8200AC50;
-extern s32 D_8200ACFC;
-extern s32 D_8200AD00;
-extern s32 D_8200AD04;
-extern s32 D_8200AD28;
-extern s32 D_82008F84;
 M2C_UNK FreeBattle_RunSetupScreen(void);
 
 M2C_UNK MainPool_PushState(M2C_UNK);                     /* extern */
@@ -176,7 +161,6 @@ M2C_UNK FreeBattle_RunSetupScreen();                            /* extern */
 M2C_UNK FreeBattle_SetupGbCartVersus();                            /* extern */
 extern s8 D_00235D70;
 extern s8 D_00238BD0;
-extern s32 D_82008F84;
 extern s8 D_88000000;
 /**
  * Entry point of the battle setup fragment: pushes the 'MENT' pool state, runs the setup screen
@@ -193,7 +177,7 @@ extern Color_RGBA8 D_82009100;
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
-void Window_DrawLabeled(s8*, s32);
+void Window_DrawLabeled(LabeledButton*, s32); // PORT: matches the definition
 extern u8 D_8007356C;
 void Font_SetColorForFlags(s32);
 
@@ -227,18 +211,18 @@ void FreeBattle_DrawMenuRow(s32 x, s32 y, char* text, s32 index, s32 flags, s32*
  */
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
-M2C_UNK Menu_Init(void*, void*, void*, void (*)(s32, s32, char *, s32, s32, s32 *), s32, s32); /* extern */
+M2C_UNK Menu_Init(void*, void*, void*, void (*)(s32, s32, char *, s32, s32, s32 *), s32, s32); /* extern */ // PORT: Menu_Init(Menu*, ByteMatrix*, u16*, MenuDrawItemFunc, s32, s32)
 /**
  * Sets up a titled menu window with item and description tables.
  * Seen in play: A on フリーバトル opens 「たいせんルールせんたく」 (フリーバトル, L 1～30 バトル, L50～55 バトル) and runs this.
  */
-void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 height, s32 items, s32 item_count, char** descriptions, s32 description_lines, char* title) {
+void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 height, char** items, s32 item_count, char** descriptions, s32 description_lines, char* title) {
     Window_SetRect(&window->window, x, y, width, height);
     window->window.state = 0;
     window->window.animTimer = 0;
     window->window.frame.style = 0x801;
     window->window.title = title;
-    func_80027804(&window->itemList, items, item_count, item_count);
+    func_80027804(&window->itemList, (void**)items, item_count, item_count);
     Menu_Init(&window->menu, &window->itemList, window->itemFlags, FreeBattle_DrawMenuRow, width - 12, 0x20);
     window->menu.options = (s32) (window->menu.options | 0x10000);
     window->descriptions = descriptions;
@@ -328,17 +312,12 @@ void FreeBattle_DrawPopupRow(s32 x, s32 y, char* text, s32 index, s32 flags, Men
     Font_EndTexturedTextRendering();
 }
 
-typedef struct List820061F0 {
-    /* 0x00 */ char **items;
-    /* 0x04 */ s8 count;
-    /* 0x08 */ s32 unk8;
-} List820061F0;
 /**
  * Sets up a popup menu sized to its widest string.
  * Seen in play: ルールをみる opens the rules list (「1) 6ぴきの ポケモンを エントリー」 … 「5) エントリーできるポケモン 33しゅるい」) as
  * this popup.
  */
-void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *items, s8 *item_flags, Color_RGBA8 color) {
+void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, FreeBattlePopupItems* items, u16* item_flags, Color_RGBA8 color) {
     s32 i;
     s32 w;
     s32 max = 0;
@@ -350,7 +329,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
             max = w;
         }
     }
-    func_80027804(&window->itemList, (uintptr_t)items->items, items->count, items->count);
+    func_80027804(&window->itemList, (void**)items->items, items->count, items->count);
     h = max * 24 + 24;
     Menu_Init(&window->menu, &window->itemList, item_flags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawPopupRow, h, 36);
     window->menu.options |= 0x10000;
@@ -359,7 +338,7 @@ void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, List820061F0 *it
     window->window.title = 0;
     window->window.state = 0;
     window->window.frame.style = 0x800;
-    window->window.title = items->unk8;
+    window->window.title = items->title;
     window->window.frame.color = color;
 }
 
@@ -473,9 +452,8 @@ void FreeBattle_DrawControllerPanel(s32 x, s32 y, s32 present, s32 active, s32 m
 
 void FreeBattle_DrawOpponentOption(s32 arg0, s32 arg1, char* arg2, s32 arg3, s32 arg4);
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-M2C_UNK Menu_SkipDisabledForward(s8 *, s32);                   /* extern */
-extern M2C_UNK D_8200917C;
-extern M2C_UNK D_82009F70;
+s32 Menu_SkipDisabledForward(Menu*); // PORT: matches the definition (the decomp passed an ignored second argument)
+extern char D_82009F70[];
 
 /**
  * FreeBattle_InitOpponentSelect
@@ -496,18 +474,18 @@ extern M2C_UNK D_82009F70;
  */
 void FreeBattle_InitOpponentSelect(FreeBattleOpponentWindow* window, s32 x, s32 y, s32 controller_mask, s32 controller_count, s32 gb_save_ready_mask) {
     s32 pad; // FAKE: stack padding
-    s8 *sp2C;
-    s8 *sp28;
+    PointerList* sp2C;
+    Menu* sp28;
     s32 var_v1;
 
     Window_SetRect(&window->window, x, y, 402, 271);
     window->window.animTimer = 0;
     window->window.state = 0;
     window->window.frame.style = 0x801;
-    window->window.title = (char*)&D_82009F70;
-    sp2C = (s8*)&window->itemList;
-    func_80027804(sp2C, (uintptr_t)&D_8200917C, 4, 4);
-    sp28 = (s8*)&window->menu;
+    window->window.title = D_82009F70;
+    sp2C = &window->itemList;
+    func_80027804(sp2C, (void**)D_8200917C, 4, 4);
+    sp28 = &window->menu;
     Menu_Init(sp28, sp2C, window->itemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawOpponentOption, 76, 28);
     window->menu.options = (s32) (window->menu.options | 0x10000);
     window->controllerMask = controller_mask;
@@ -525,7 +503,7 @@ void FreeBattle_InitOpponentSelect(FreeBattleOpponentWindow* window, s32 x, s32 
         window->menu.itemFlags[2] |= 1;
     }
     window->unk_70 = gb_save_ready_mask;
-    Menu_SkipDisabledForward(sp28, controller_mask);
+    Menu_SkipDisabledForward(sp28);
 }
 
 void Ui_DrawImageInStrips(void*, s32, s32);
@@ -675,9 +653,7 @@ void FreeBattle_DisableAbsentTagOpponents(FreeBattleTeamOpponentWindow* window) 
     }
 }
 
-extern M2C_UNK D_82009190;
-extern M2C_UNK D_820091A0;
-extern M2C_UNK D_82009FCC;
+extern char D_82009FCC[];
 
 /**
  * Sets up the tag opponent window, a version of 「あいてをせんたく」 for two-player teams: a side
@@ -703,14 +679,14 @@ void FreeBattle_InitTagOpponentSelect(FreeBattleTeamOpponentWindow* window, s32 
     window->window.animTimer = 0;
     window->window.state = 0;
     window->window.frame.style = 0x801;
-    window->window.title = &D_82009FCC;
+    window->window.title = D_82009FCC;
     sp2C = &window->sideItemList;
-    func_80027804(sp2C, (uintptr_t)&D_82009190, 4, 4);
+    func_80027804(sp2C, (void**)D_82009190, 4, 4);
     sp28 = &window->sideMenu;
     Menu_Init(sp28, sp2C, &window->sideItemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawTagOpponentOption, 116, 28);
     sp2C = &window->opponentItemList;
     window->sideMenu.options = (s32) (window->sideMenu.options | 0x10000);
-    func_80027804(sp2C, (uintptr_t)&D_820091A0, 7, 7);
+    func_80027804(sp2C, (void**)D_820091A0, 7, 7);
     Menu_Init(&window->opponentMenu, sp2C, &window->opponentItemFlags, (void (*)(s32, s32, char *, s32, s32, s32 *))FreeBattle_DrawTagOpponentOption, 116, 28);
     window->opponentMenu.options = (s32) (window->opponentMenu.options | 0x10000);
     window->controllerMask = controller_mask;
@@ -822,7 +798,7 @@ s32 FreeBattle_UpdateTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
     }
     switch (window->focus) {
         case 1:
-            if (Menu_UpdateCursorSkipDisabled((u8*)&window->sideMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
+            if (Menu_UpdateCursorSkipDisabled(&window->sideMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
                 res = Ui_GetSelectionDirection(D_800603C0);
                 if (res == -1) {
                     Audio_PlaySystemSound(3);
@@ -865,12 +841,12 @@ s32 FreeBattle_UpdateTagOpponentSelect(FreeBattleTeamOpponentWindow* window) {
                             break;
                     }
                     window->opponentMenu.cursor = 0;
-                    Menu_SkipDisabledForward((s8*)&window->opponentMenu, (uintptr_t)window);
+                    Menu_SkipDisabledForward(&window->opponentMenu);
                 }
             }
             break;
         case 0:
-        if (Menu_UpdateCursorSkipDisabled((u8*)&window->opponentMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
+        if (Menu_UpdateCursorSkipDisabled(&window->opponentMenu) /* PORT: the decomp passed an ignored second argument */ == 0) {
             res = Ui_GetSelectionDirection(D_800603C0);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
@@ -914,7 +890,7 @@ typedef struct Box82007398 {
     s32 unk_00;
     s32 unk_04;
     s32 unk_08;
-    s32 unk_0C;
+    u8* unk_0C; // PORT: the image (was s32)
 } Box82007398;
 
 /**
@@ -922,7 +898,7 @@ typedef struct Box82007398 {
  * with a highlight box when flag 0x10 marks it selected.
  * Seen in play: runs every frame on that window; the yellow box follows D-Left/D-Right.
  */
-void FreeBattle_DrawBattleModeCard(s32 x, s32 y, s32* mode, s32 index, s32 flags) {
+void FreeBattle_DrawBattleModeCard(s32 x, s32 y, FreeBattleModeEntry* mode, s32 index, s32 flags) {
     UNUSED s32 pad[3]; // FAKE: stack padding
     Box82007398 sp24;
 
@@ -930,12 +906,12 @@ void FreeBattle_DrawBattleModeCard(s32 x, s32 y, s32* mode, s32 index, s32 flags
         Ui_FillRectHighlighted(x + 3, y + 3, 178, 194, D_82009100);
     }
     sp24.unk_08 = sp24.unk_04 = sp24.unk_00 = 0x98;
-    sp24.unk_0C = mode[2];
+    sp24.unk_0C = mode->image;
     Ui_DrawImageInStrips((void*)&sp24, x + 0x10, y + 8);
     Font_BeginTranslucentTextRendering();
     Font_SetColorForFlags(flags);
     Font_SetActive(0x10, 0);
-    Font_Printf(x + 22, y + 170, (char*)mode[0]);
+    Font_Printf(x + 22, y + 170, mode->label);
     Font_EndTexturedTextRendering();
 }
 
@@ -956,20 +932,20 @@ void FreeBattle_DrawBattleModeCard(s32 x, s32 y, s32* mode, s32 index, s32 flags
  */
 void Window_SetRect(void* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-M2C_UNK GridMenu_Init(s8 *, s8 *, s8 *, M2C_UNK *, s32, s32, s32); /* extern */
+void GridMenu_Init(GridMenu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5, s32 arg6); // PORT: matches the definition
 
 /**
  * Sets up the バトルモード (battle mode) window.
  * Seen in play: runs when B backs out of the rule list to the バトルモード window.
  */
-void FreeBattle_InitBattleModeWindow(FreeBattleModeWindow* window, s32 x, s32 y, s32 modes, s32 title) {
-    Window_SetRect(window, x, y, 400, 302);
+void FreeBattle_InitBattleModeWindow(FreeBattleModeWindow* window, s32 x, s32 y, FreeBattleModeEntry* modes, char* title) {
+    Window_SetRect(&window->window, x, y, 400, 302);
     window->window.animTimer = 0;
     window->window.state = 0;
     window->window.frame.style = 0x801;
     window->window.title = title;
-    func_80027410(&window->items, modes, 0xC, 2, 2);
-    GridMenu_Init(&window->menu, &window->items, &window->itemFlags, (M2C_UNK*)FreeBattle_DrawBattleModeCard, 2, 184, 200);
+    func_80027410(&window->items, modes, sizeof(FreeBattleModeEntry), 2, 2); // PORT: was 0xC, the N64 row size
+    GridMenu_Init(&window->menu, &window->items, window->itemFlags, (MenuDrawItemFunc)FreeBattle_DrawBattleModeCard, 2, 184, 200);
     window->menu.options = (s32)(window->menu.options | 0x10000);
     window->modes = modes;
 }
@@ -1004,7 +980,7 @@ void FreeBattle_DrawBattleModeWindow(FreeBattleModeWindow* window) {
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
         Font_SetLineHeight(28);
-        Font_Printf(window->window.frame.x + 20, window->window.frame.y + 236, ((FreeBattleModeEntry*)window->modes)[window->menu.cursor].text);
+        Font_Printf(window->window.frame.x + 20, window->window.frame.y + 236, window->modes[window->menu.cursor].text);
         Font_EndTexturedTextRendering();
     }
 }
@@ -1043,10 +1019,6 @@ s32 FreeBattle_UpdateBattleModeWindow(FreeBattleModeWindow* window) {
     return result;
 }
 
-typedef struct {
-    /* 0x00 */ char* text;
-    /* 0x04 */ u8* icon;
-} IconPanel;
 
 extern Gfx D_80060290[];
 extern Gfx D_80060398[];
@@ -1060,7 +1032,7 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
  * Seen in play (2026-11-13) drew the rows of 「カップせんたく」 for the L1～30 tournament (モンスターボールカップ, then
  * the grayed スーパー, ハイパー and マスターボール cups).
  */
-void FreeBattle_DrawCupRow(s32 x, s32 y, IconPanel* cup, s32 index, s32 flags) {
+void FreeBattle_DrawCupRow(s32 x, s32 y, FreeBattleCupEntry* cup, s32 index, s32 flags) {
     UNUSED s32 pad[5]; // FAKE: stack padding
     s32 sp28;
 
@@ -1080,8 +1052,7 @@ void FreeBattle_DrawCupRow(s32 x, s32 y, IconPanel* cup, s32 index, s32 flags) {
     Font_EndTexturedTextRendering();
 }
 
-extern u8 D_8200A040[];
-extern u8 D_820091C4[];
+extern char D_8200A040[];
 /**
  * Sets up the カップせんたく (choose cup) window with up to four cups.
  * Seen in play: トーナメントにでる opens 「カップせんたく」 (モンスターボールカップ, スーパーボールカップ, ハイパーボールカップ, マスターボールカップ) and
@@ -1097,15 +1068,15 @@ void FreeBattle_InitCupSelect(FreeBattleCupWindow* window, s32 x, s32 y, s32 cup
     } else {
         n = cups_cleared + 1;
     }
-    Window_SetRect(window, x, y, 348, 168);
+    Window_SetRect(&window->window, x, y, 348, 168);
     window->window.animTimer = 0;
     window->window.title = NULL;
     window->window.state = 0;
     window->window.frame.style = 0x800;
     window->window.frame.color = D_82009100;
     window->window.title = D_8200A040;
-    func_80027410(&window->items, (uintptr_t)D_820091C4, 8, 4, 4);
-    Menu_Init(&window->menu, &window->items, &window->itemFlags, (void (*)(s32, s32, char*, s32, s32, s32*))FreeBattle_DrawCupRow, 336, 36);
+    func_80027410(&window->items, D_820091C4, sizeof(FreeBattleCupEntry), 4, 4); // PORT: was 8, the N64 row size
+    Menu_Init(&window->menu, &window->items, window->itemFlags, (void (*)(s32, s32, char*, s32, s32, s32*))FreeBattle_DrawCupRow, 336, 36);
     window->menu.options |= 0x10000;
     window->menu.cursor = n - 1;
     for (i = 0; i < cups_cleared; i++) {
@@ -1147,7 +1118,7 @@ s32 FreeBattle_UpdateCupSelect(FreeBattleCupWindow* window) {
     if ((tmp != 1) && (tmp != 2)) {
         return 0;
     }
-    if (Menu_UpdateCursorSkipDisabled((u8*)&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
+    if (Menu_UpdateCursorSkipDisabled(&window->menu) /* PORT: the decomp passed an ignored second argument */ == 0) {
         tmp = Ui_GetSelectionDirection(D_800603C0);
         if (tmp == -1) {
             Audio_PlaySystemSound(3);
@@ -1165,7 +1136,6 @@ s32 FreeBattle_UpdateCupSelect(FreeBattleCupWindow* window) {
 }
 
 extern Color_RGBA8 D_820091E4[2];
-extern FreeBattleMonGridConfig D_820091EC[2];
 
 /**
  * Sets up the 7x6 grid of the Pokémon a rule allows, 「たいせんでつかえるポケモンは４０ぴき」 (40 Pokémon
@@ -1175,7 +1145,7 @@ extern FreeBattleMonGridConfig D_820091EC[2];
  * Seen in play (2026-11-14): ran with ruleCategory 0 when 4) エントリーできるポケモン ４０しゅるい was
  * picked on the フリーバトル rules (40 Pokémon shown) and with 2 on the L1-30 rules (33 shown).
  */
-void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* window, s32 x, s32 y, s32 rule_category, s32 all_mons, s32 l130_mons, s8* icons) {
+void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* window, s32 x, s32 y, s32 rule_category, BattleMon* all_mons, BattleMon* l130_mons, PokeIconRenderer* icons) {
     FreeBattleMonGridConfig* cfg;
     u8* entry;
     s32 sel;
@@ -1215,7 +1185,6 @@ extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
-u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 
 /**
  * Draws the usable Pokémon grid: 42 checkered cells, then each Pokémon's name and icon.
@@ -1246,7 +1215,7 @@ void FreeBattle_DrawUsableMonGrid(FreeBattleMonGridWindow* window, s32 flags) {
             Font_Printf(x + 2, y + 42, entry + 0x30);
             Font_EndTexturedTextRendering();
             gSPDisplayList(gDisplayListHead++, D_80073408);
-            Gfx_DrawTextureRgba16(x + 38, y + 2, 40, 40, PokeIcon_GetImage(window->icons, i), 40, 0x200000);
+            Gfx_DrawTextureRgba16(x + 38, y + 2, 40, 40, PokeIcon_GetImage((s8*)window->icons, i), 40, 0x200000);
             gSPDisplayList(gDisplayListHead++, D_80073438);
             entry += 0x50;
         }
@@ -1321,7 +1290,7 @@ void FreeBattle_DrawDuplicateWarning(FreeBattleDuplicateWarning* window) {
     }
 }
 
-void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
+void Window_InitLabeled(LabeledButton*, s32, s32, s32, Color_RGBA8, char*); // PORT: matches the definition
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 extern Color_RGBA8 D_82009218;
 extern char D_8200A104[];
@@ -1342,8 +1311,8 @@ extern char D_8200A11C[];
  * Seen in play (2026-11-13) in the L1～30 tournament (モンスターボールカップ) entry, A on the GB party of three
  * opened 「ちゅうい!! つかえるポケモンが 6たい たりません」 with はい/いいえ, and this ran once as it appeared.
  */
-void FreeBattle_InitShortageWarning(FreeBattleShortageWarning* window, s32 x, s32 y, s32 controller, s32 count) {
-    Window_SetRect(window, x, y, 308, 146);
+void FreeBattle_InitShortageWarning(FreeBattleShortageWarning* window, s32 x, s32 y, Controller* controller, s32 count) {
+    Window_SetRect(&window->window, x, y, 308, 146);
     window->window.animTimer = 0;
     window->window.state = 0;
     window->window.frame.style = 0x2801;
@@ -1431,7 +1400,7 @@ extern Color_RGBA8 D_82009228;
 extern char D_8200A178[];
 extern char D_8200A188[];
 extern char D_8200A190[];
-void Window_InitLabeled(s8*, s32, s32, s32, Color_RGBA8, char*);
+void Window_InitLabeled(LabeledButton*, s32, s32, s32, Color_RGBA8, char*); // PORT: matches the definition
 void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
 
 /**
@@ -1448,8 +1417,8 @@ void func_8000B2F4(Controller* arg0); // PORT: matches Input_SetRepeatController
  * Seen in play (2026-11-14): opened the 155 level-sum warning in L50～55 Battle (はい / いいえ under
  * 「レンタルポケモンからえらぶ？」).
  */
-void FreeBattle_InitLevelSumWarning(FreeBattleLevelSumWarning* window, s32 x, s32 y, s32 controller) {
-    Window_SetRect(window, x, y, 308, 146);
+void FreeBattle_InitLevelSumWarning(FreeBattleLevelSumWarning* window, s32 x, s32 y, Controller* controller) {
+    Window_SetRect(&window->window, x, y, 308, 146);
     window->window.animTimer = 0;
     window->window.state = 0;
     window->window.frame.style = 0x2801;
@@ -1551,8 +1520,8 @@ extern char D_8200A1FC[];
  * What the object is and what the constants mean is not established.
  * Seen in play: A on a team opens 「このデータでエントリーします。 はい いいえ」 and runs this.
  */
-void FreeBattle_InitRentalConfirm(FreeBattleRentalConfirm* window, s32 x, s32 y, s32 has_third_button, s32 controller) {
-    Window_SetRect(window, x, y, 396, 102);
+void FreeBattle_InitRentalConfirm(FreeBattleRentalConfirm* window, s32 x, s32 y, s32 has_third_button, Controller* controller) {
+    Window_SetRect(&window->window, x, y, 396, 102);
     window->window.animTimer = 0;
     window->window.title = 0;
     window->window.state = 0;

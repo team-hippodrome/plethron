@@ -46,15 +46,15 @@ void func_80029028(s32, s32, s32, s32, Color82001CCC);
 extern Color82001CCC D_82008F5C;
 extern Color82001CCC D_82008F58;
 
-extern s32 D_82009C50;
-extern s32 D_82009C6C;
-extern s32 D_82009C84;
-void FreeBattle_InitLevelSumWarning(s8* arg0, s32 arg1, s32 arg2, s32 arg3);
-void FreeBattle_InitRentalConfirm(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern char D_82009C50[];
+extern char D_82009C6C[];
+extern char D_82009C84[];
+void FreeBattle_InitLevelSumWarning(FreeBattleLevelSumWarning* window, s32 x, s32 y, Controller* controller); // PORT: matches the definition
+void FreeBattle_InitRentalConfirm(FreeBattleRentalConfirm* window, s32 x, s32 y, s32 has_third_button, Controller* controller); // PORT: matches the definition
 void ScrollGrid_SyncCursor(FlagOwner*);
 
 void FreeBattle_ClearIndices(s32* indices, s32 start, s32 count); // PORT: no prototype in the decomp
-void FreeBattle_InitConfirmWindow(s8* window, s32 x, s32 y, s32 mon, s32 prompt, s32 controller); // PORT: no prototype in the decomp
+void FreeBattle_InitConfirmWindow(FreeBattleMonStatusWindow* window, s32 x, s32 y, BattleMon* mon, char* prompt, Controller* controller); // PORT: no prototype in the decomp
 void FreeBattle_MarkPickedRentals(FlagOwner* grid, TeamMonSlot* slots, s32 except_species); // PORT: no prototype in the decomp
 /**
  * Enters an entry screen state and picks its panel: 1 the team list, 2 the duplicate warning,
@@ -65,69 +65,67 @@ void FreeBattle_MarkPickedRentals(FlagOwner* grid, TeamMonSlot* slots, s32 excep
  * 5 with the 155 level-sum warning and 8 with the rental grid (state read at +4 in RAM), and 10
  * with 「このデータでエントリーします。」 (FreeBattle_InitRentalConfirm hit). Not seen: 4, 6, 7, 9, 12.
  */
-void FreeBattle_EnterEntryScreenState(arg0)
-    s8* arg0;
-{
-    s8* panel = NULL;
+void FreeBattle_EnterEntryScreenState(FreeBattleEntryScreen* arg0) {
+    Window* panel = NULL;
     s32 color;
 
-    switch (M2C_FIELD(arg0, s32*, 4)) {
+    switch (arg0->state) {
         case 1:
-            if (!(M2C_FIELD(arg0, s32*, 0x788) & 2) && M2C_FIELD(arg0, s32*, 0x734) != 0) {
-                FreeBattle_ClearIndices(D_8200AC58, (M2C_FIELD(arg0, s32*, 0x48) * 6) % 24, 6);
-                M2C_FIELD(arg0, s32*, 0x734) = 0;
+            if (!(arg0->stateFlags & 2) && arg0->teamChanged != 0) {
+                FreeBattle_ClearIndices(D_8200AC58, (arg0->teamList.cursor * 6) % 24, 6);
+                arg0->teamChanged = 0;
             }
-            panel = arg0 + 0x14;
+            panel = &arg0->window;
             break;
         case 2:
-            panel = arg0 + 0x320;
+            panel = &arg0->duplicateWarning.window;
             break;
         case 5:
-            if (!(M2C_FIELD(arg0, s32*, 0x788) & 2)) {
-                FreeBattle_InitLevelSumWarning(arg0 + 0x428, 0xA6, 0x105, M2C_FIELD(arg0, s32*, 0x744));
+            if (!(arg0->stateFlags & 2)) {
+                FreeBattle_InitLevelSumWarning(&arg0->levelSumWarning, 0xA6, 0x105, arg0->controller);
             }
-            panel = arg0 + 0x428;
+            panel = &arg0->levelSumWarning.window;
             break;
         case 4:
-            panel = arg0 + 0x370;
+            panel = &arg0->shortageWarning.window;
             break;
         case 8:
-            if (!(M2C_FIELD(arg0, s32*, 0x788) & 2)) {
-                if (((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].flags != 0) {
+            if (!(arg0->stateFlags & 2)) {
+                if (arg0->team.slots[arg0->slotMenu.cursor].flags != 0) {
                     color = -1;
                 } else {
-                    color = ((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.species.id;
+                    color = arg0->team.slots[arg0->slotMenu.cursor].mon.species.id;
                 }
-                FreeBattle_MarkPickedRentals((FlagOwner*)(arg0 + 0x6E4), (TeamMonSlot*)(arg0 + 0xE4), color);
-                ScrollGrid_SyncCursor((FlagOwner*)(arg0 + 0x6E4));
+                FreeBattle_MarkPickedRentals((FlagOwner*)&arg0->rentalGrid, arg0->team.slots, color);
+                ScrollGrid_SyncCursor((FlagOwner*)&arg0->rentalGrid);
             }
-            panel = arg0 + 0x14;
+            panel = &arg0->window;
             break;
         case 6:
-            Menu_ClearItemFlags((FlagOwner*)(arg0 + 0x6E4));
-            panel = arg0 + 0x14;
+            Menu_ClearItemFlags((FlagOwner*)&arg0->rentalGrid);
+            panel = &arg0->window;
             break;
         case 3:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (uintptr_t)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (uintptr_t)&D_82009C50, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
-            panel = arg0 + 0x5CC;
+            FreeBattle_InitConfirmWindow(&arg0->statusWindow, 0x69, 0x7D, &arg0->team.slots[arg0->slotMenu.cursor].mon, D_82009C50, arg0->controller); // PORT: the decomp computed &mon as nickname - 0x30 (a matching fake)
+            panel = &arg0->statusWindow.window;
             break;
         case 7:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, (uintptr_t)((TeamMonSlot*)(arg0 + 0xE4))[M2C_FIELD(arg0, s32*, 0x300)].mon.nickname - 0x30, (uintptr_t)&D_82009C6C, M2C_FIELD(arg0, s32*, 0x744)); // FAKE: the ROM adds the base last, as for an array member; &slot.mon does not match
-            panel = arg0 + 0x5CC;
+            FreeBattle_InitConfirmWindow(&arg0->statusWindow, 0x69, 0x7D, &arg0->team.slots[arg0->slotMenu.cursor].mon, D_82009C6C, arg0->controller); // PORT: the decomp computed &mon as nickname - 0x30 (a matching fake)
+            panel = &arg0->statusWindow.window;
             break;
         case 9:
-            FreeBattle_InitConfirmWindow(arg0 + 0x5CC, 0x69, 0x7D, M2C_FIELD(arg0, s32*, 0x6EC) * 0x50 + *M2C_FIELD(arg0, s32**, 0x6E4), (uintptr_t)&D_82009C84, M2C_FIELD(arg0, s32*, 0x744));
-            panel = arg0 + 0x5CC;
+            FreeBattle_InitConfirmWindow(&arg0->statusWindow, 0x69, 0x7D, &((BattleMon*)arg0->rentalGrid.items->rows)[arg0->rentalGrid.cursor], D_82009C84, arg0->controller);
+            panel = &arg0->statusWindow.window;
             break;
         case 10:
-            FreeBattle_InitRentalConfirm(arg0 + 0x4DC, 0x7A, 0x10B, M2C_FIELD(arg0, s32*, 0x740) != 0, M2C_FIELD(arg0, s32*, 0x744));
-            panel = arg0 + 0x4DC;
+            FreeBattle_InitRentalConfirm(&arg0->entryConfirm, 0x7A, 0x10B, arg0->ruleCategory != 0, arg0->controller);
+            panel = &arg0->entryConfirm.window;
             break;
         case 12:
-            panel = arg0 + 0x74C;
+            panel = &arg0->textBox.window;
             break;
     }
-    M2C_FIELD(arg0, s8**, 0xC) = panel;
+    arg0->view = panel;
 }
 
 
@@ -138,25 +136,19 @@ void FreeBattle_EnterEntryScreenState(arg0)
  * Seen in play (2026-11-13) ran when the エントリーポケモンのせんたく screen opened and when its rows were
  * picked.
  */
-void FreeBattle_SetEntryScreenState(s8 *entry, s32 state, s32 flags) {
-    M2C_FIELD(entry, s32 *, 0x788) = flags;
+void FreeBattle_SetEntryScreenState(FreeBattleEntryScreen* entry, s32 state, s32 flags) {
+    entry->stateFlags = flags;
     if (flags & 1) {
-        M2C_FIELD(M2C_FIELD(entry, s8 **, 0xC), s32 *, 0x24) = 7;
-        M2C_FIELD(entry, s32 *, 8) = state;
+        entry->view->animTimer = 7;
+        entry->pendingState = state;
         return;
     }
-    M2C_FIELD(entry, s32 *, 4) = state;
-    M2C_FIELD(entry, s32 *, 8) = 0;
-    FreeBattle_EnterEntryScreenState();
+    entry->state = state;
+    entry->pendingState = 0;
+    FreeBattle_EnterEntryScreenState(entry); // PORT: the decomp left a0 (entry) in place
 }
 
-void ScrollList_SetCursor(s8*, s32);
-extern u8 D_800AAF50[];
-typedef struct List82002C3C {
-    u8** items;
-    s32 unk4;
-    s32 count;
-} List82002C3C;
+void ScrollList_SetCursor(ScrollList*, u32);
 
 /**
  * Puts the entry list cursor on the row for the current entry mode, picks that mode's pick buffer
@@ -164,18 +156,18 @@ typedef struct List82002C3C {
  * Seen in play: runs when 「エントリーポケモンのせんたく」 opens.
  * @unverified Name from the code.
  */
-void FreeBattle_InitEntryListCursor(s8* entry) {
-    s32 sel = M2C_FIELD(entry, s32*, 0x48);
-    s32 mode = M2C_FIELD(entry, s32*, 0x738);
+void FreeBattle_InitEntryListCursor(FreeBattleEntryScreen* entry) {
+    s32 sel = entry->teamList.cursor;
+    s32 mode = entry->player;
     s32 i;
     s32 count;
     u8** list;
-    List82002C3C* obj;
+    PointerList* obj;
 
     if (mode != 5) {
-        obj = M2C_FIELD(entry, List82002C3C**, 0x40);
+        obj = (PointerList*)entry->teamList.items; // PORT: the team list's items are a PointerList
         count = obj->count;
-        list = obj->items;
+        list = (u8**)obj->items;
         for (i = 0; i < count && (*list)[0] == 0 && (*list)[1] == 0x20; i++, list++) {
             if (mode - 1 == (*list)[2]) {
                 sel = i;
@@ -183,32 +175,28 @@ void FreeBattle_InitEntryListCursor(s8* entry) {
             }
         }
     }
-    ScrollList_SetCursor(entry + 0x40, sel);
-    mode = M2C_FIELD(entry, s32*, 0x738);
+    ScrollList_SetCursor(&entry->teamList, sel);
+    mode = entry->player;
     if (mode == 5) {
-        M2C_FIELD(entry, u8**, 0x744) = D_800AAF50;
+        entry->controller = &gControllers[0];
     } else {
-        M2C_FIELD(entry, u8**, 0x744) = D_800AAF50 + (mode - 1) * 0x24;
+        entry->controller = &gControllers[mode - 1]; // PORT: was D_800AAF50 + (mode - 1) * 0x24 (the N64 sizeof(Controller))
     }
-    M2C_FIELD(entry, s32*, 0x734) = 0;
-    M2C_FIELD(entry, u8**, 0x58) = M2C_FIELD(entry, u8**, 0x744);
-    M2C_FIELD(entry, u8**, 0x6FC) = M2C_FIELD(entry, u8**, 0x744);
+    entry->teamChanged = 0;
+    entry->teamList.controller = entry->controller;
+    entry->rentalGrid.controller = entry->controller;
     FreeBattle_SetEntryScreenState(entry, 1, 0);
 }
 
-extern s32 D_8200AC50;
-extern s32 D_8200ACFC;
-extern s32 D_8200AD00;
-extern s32 D_8200AC58[];
-extern M2C_UNK D_82009C98;
-void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, s32 icon_cache); // PORT: matches the definition
-extern M2C_UNK FreeBattle_DrawTeamRow;
-void Window_SetRect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern char D_82009C98[];
+void FreeBattle_DrawMonCell(s32 x, s32 y, s32* entry, s32 frame, s32 flags, intptr_t icon_cache); // PORT: matches the definition
+void FreeBattle_DrawTeamRow(s32 x, s32 y, u8* item, s32 index, s32 flags, intptr_t picks); // PORT: matches the definition
+void Window_SetRect(Window* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 void ScrollList_Init(ScrollList* arg0, ByteMatrix* arg1, u16* arg2, s32 arg3, MenuDrawItemFunc arg4, s32 arg5, s32 arg6); // PORT: matches the definition
-M2C_UNK ScrollGrid_Init(s8*, s8*, s8*, M2C_UNK, s32, M2C_UNK*, s32, s32);
+void ScrollGrid_Init(ScrollGrid*, ByteMatrix*, u16*, s32, s32, MenuDrawItemFunc, s32, s32); // PORT: was (s8*, s8*, s8*, M2C_UNK, ...)
 void func_80027410(ByteMatrix* arg0, void* arg1, s32 arg2, s32 arg3, s32 arg4); // PORT: matches TableView_Initialize
-void PokeIcon_ResetSlots(s8* arg0);
-void FreeBattle_InitEntryListCursor(s8*);
+void PokeIcon_ResetSlots(PokeIconRenderer* arg0);
+void FreeBattle_InitEntryListCursor(FreeBattleEntryScreen*);
 
 /**
  * Initializes the slot-menu object at entry (the layout other functions in this file
@@ -226,35 +214,35 @@ void FreeBattle_InitEntryListCursor(s8*);
  * The meaning of x..ruleCategory beyond what is stored above is not established.
  * Seen in play: runs as 「エントリーポケモンのせんたく 1Pせんたくちゅう」 opens.
  */
-void FreeBattle_InitEntrySelect(s8* entry, s32 x, s32 y, s32 teams, s32 picks, s32 rule_category) {
-    s8* var_s1;
+void FreeBattle_InitEntrySelect(FreeBattleEntryScreen* entry, s32 x, s32 y, PointerList* teams, FreeBattleTeam** picks, s32 rule_category) {
+    ByteMatrix* var_s1;
 
-    Window_SetRect(entry + 0x14, x, y, 544, 344);
-    M2C_FIELD(entry, s32*, 0x38) = 0;
-    M2C_FIELD(entry, s32*, 0x3C) = 0;
-    M2C_FIELD(entry, s32*, 0x28) = 0x801;
-    M2C_FIELD(entry, M2C_UNK**, 0x34) = &D_82009C98;
-    M2C_FIELD(entry, s32*, 0xC4) = teams;
-    ScrollList_Init(entry + 0x40, teams, entry + 0x84, 3, &FreeBattle_DrawTeamRow, 532, 100);
-    M2C_FIELD(entry, s32*, 0x60) = M2C_FIELD(entry, s32*, 0x60) | 0x10000;
-    M2C_FIELD(entry, s32*, 0) = 0;
+    Window_SetRect(&entry->window, x, y, 544, 344);
+    entry->window.animTimer = 0;
+    entry->window.state = 0;
+    entry->window.frame.style = 0x801;
+    entry->window.title = D_82009C98;
+    entry->teams = teams;
+    ScrollList_Init(&entry->teamList, (ByteMatrix*)teams, entry->teamListFlags, 3, FreeBattle_DrawTeamRow, 532, 100);
+    entry->teamList.options = entry->teamList.options | 0x10000;
+    entry->unk_00 = 0;
     FreeBattle_ClearIndices(D_8200AC58, 0, 40);
-    M2C_FIELD(entry, s32*, 0x738) = 1;
-    M2C_FIELD(entry, s32*, 0x73C) = picks;
-    M2C_FIELD(entry, s32*, 0x740) = rule_category;
+    entry->player = 1;
+    entry->playerTeams = picks;
+    entry->ruleCategory = rule_category;
     FreeBattle_InitEntryListCursor(entry);
     if (rule_category != 0) {
         if (rule_category == 1) {
-            var_s1 = entry + 0x684;
+            var_s1 = &entry->rentalItems;
             func_80027410(var_s1, D_8200ACFC, 0x50, 40, 40);
         } else {
-            var_s1 = entry + 0x684;
+            var_s1 = &entry->rentalItems;
             func_80027410(var_s1, D_8200AD00, 0x50, 33, 33);
         }
-        ScrollGrid_Init(entry + 0x6E4, var_s1, entry + 0x694, 4, 3, &FreeBattle_DrawMonCell, 132, 50);
-        M2C_FIELD(entry, s32*, 0x704) = M2C_FIELD(entry, s32*, 0x704) | 0x10000;
+        ScrollGrid_Init(&entry->rentalGrid, var_s1, entry->rentalItemFlags, 4, 3, (MenuDrawItemFunc)FreeBattle_DrawMonCell, 132, 50);
+        entry->rentalGrid.options = entry->rentalGrid.options | 0x10000;
     }
-    PokeIcon_ResetSlots((s8*)D_8200AC50);
+    PokeIcon_ResetSlots(D_8200AC50);
 }
 
 extern Gfx D_80073450[];
@@ -287,7 +275,6 @@ void FreeBattle_DrawRentalTitle(s32 x, s32 y, s32 width) {
 
 extern char D_800735C4[];
 extern Color82001CCC D_82009098[];
-extern s32 D_820090A8[];
 extern char D_82009CF0[];
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, char*);
 
@@ -301,14 +288,14 @@ void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, char*);
  * D_820090A8[mode] as the extra argument.
  * Seen in play: draws 「1Pせんたくちゅう」 next to the entry screen title.
  */
-void FreeBattle_DrawChoosingLabel(s8* entry) {
-    Ui_DrawTexturedFrameDecal(M2C_FIELD(entry, s32*, 20) + 295, M2C_FIELD(entry, s32*, 24) - 18, 166, 20, D_800735C4);
+void FreeBattle_DrawChoosingLabel(FreeBattleEntryScreen* entry) {
+    Ui_DrawTexturedFrameDecal(entry->window.frame.x + 295, entry->window.frame.y - 18, 166, 20, D_800735C4);
     gSPDisplayList(gDisplayListHead++, D_80060270);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 297, M2C_FIELD(entry, s32*, 24) - 0x10, 162, 0x10, D_82009098[M2C_FIELD(entry, s32*, 0x738) - 1]);
+    func_80029028(entry->window.frame.x + 297, entry->window.frame.y - 0x10, 162, 0x10, D_82009098[entry->player - 1]);
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(((u8*)&D_800734A8)[0], ((u8*)&D_800734A8)[1], ((u8*)&D_800734A8)[2], ((u8*)&D_800734A8)[3]);
     Font_SetActive(4, 0);
-    Font_Printf(M2C_FIELD(entry, s32*, 20) + 298, M2C_FIELD(entry, s32*, 24) - 0x10, D_82009CF0, D_820090A8[M2C_FIELD(entry, s32*, 0x738)]);
+    Font_Printf(entry->window.frame.x + 298, entry->window.frame.y - 0x10, D_82009CF0, D_820090A8[entry->player]);
     Font_EndTexturedTextRendering();
 }
 
@@ -319,7 +306,6 @@ typedef struct {
     /* 0x0C */ s32 unk_0C;
 } TableArgs;
 
-extern Color82001CCC D_820090C0;
 extern s32 D_8200AC58[];
 void ScrollGrid_DrawItems(ScrollGrid* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
@@ -329,19 +315,19 @@ void ScrollGrid_DrawItems(ScrollGrid* menu, s32 x, s32 y, s32 mask, intptr_t arg
  * (+6, +0x88) with the third argument being word 0x1C minus 0xC, emits the
  * display list D_80060270 and fills a 2 by 0xB6 rectangle with color D_820090C0
  * at (+6, +0x9C). Then builds a TableArgs {D_8200AC58, 0x18, 0x10, 0} and calls
- * ScrollGrid_DrawItems on the sub-object at entry + 0x6E4 at (+8, +0xAC) with a mode
+ * ScrollGrid_DrawItems on the sub-object at &entry->rentalGrid at (+8, +0xAC) with a mode
  * word of 0xFED, or 0xFEF when cursorStyle is 1, or 0xFFD when cursorStyle is 2.
  * What the mode word's bits mean is not yet established.
  * Seen in play: draws the 「レンタルポケモン」 window holding the L50 rental grid (フシギバナ, リザードン, カメックス, …).
  */
-void FreeBattle_DrawRentalTitleWindow(s8* entry, s32 cursor_style) {
+void FreeBattle_DrawRentalTitleWindow(FreeBattleEntryScreen* entry, s32 cursor_style) {
     s32 sp44;
     TableArgs sp34;
 
     sp44 = 0xFED;
-    FreeBattle_DrawRentalTitle(M2C_FIELD(entry, s32*, 0x14) + 6, M2C_FIELD(entry, s32*, 0x18) + 0x88, M2C_FIELD(entry, s32*, 0x1C) - 0xC);
+    FreeBattle_DrawRentalTitle(entry->window.frame.x + 6, entry->window.frame.y + 0x88, entry->window.frame.width - 0xC);
     gSPDisplayList(gDisplayListHead++, D_80060270);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 6, M2C_FIELD(entry, s32*, 24) + 156, 2, 182, D_820090C0);
+    func_80029028(entry->window.frame.x + 6, entry->window.frame.y + 156, 2, 182, *(Color82001CCC*)&D_820090C0.dividerColor);
     sp34.table = D_8200AC58;
     sp34.unk_04 = 0x18;
     sp34.unk_08 = 0x10;
@@ -354,7 +340,7 @@ void FreeBattle_DrawRentalTitleWindow(s8* entry, s32 cursor_style) {
             sp44 = 0xFFD;
             break;
     }
-    ScrollGrid_DrawItems(entry + 0x6E4, M2C_FIELD(entry, s32*, 0x14) + 8, M2C_FIELD(entry, s32*, 0x18) + 0xAC, sp44, (intptr_t)(&sp34));
+    ScrollGrid_DrawItems(&entry->rentalGrid, entry->window.frame.x + 8, entry->window.frame.y + 0xAC, sp44, (intptr_t)(&sp34));
 }
 
 /**
@@ -363,10 +349,10 @@ void FreeBattle_DrawRentalTitleWindow(s8* entry, s32 cursor_style) {
  * Seen in play: runs while 「このデータでエントリーします。」 is shown over the picked team.
  * @unverified Which panel is which not checked.
  */
-void FreeBattle_DrawTeamWindowPanels(s8* entry) {
+void FreeBattle_DrawTeamWindowPanels(FreeBattleEntryScreen* entry) {
     gSPDisplayList(gDisplayListHead++, D_80060270);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 6, M2C_FIELD(entry, s32*, 24) + 106, 136, 232, D_82008F5C);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 142, M2C_FIELD(entry, s32*, 24) + 106, 396, 232, D_82008F58);
+    func_80029028(entry->window.frame.x + 6, entry->window.frame.y + 106, 136, 232, D_82008F5C);
+    func_80029028(entry->window.frame.x + 142, entry->window.frame.y + 106, 396, 232, D_82008F58);
 }
 
 /**
@@ -374,52 +360,51 @@ void FreeBattle_DrawTeamWindowPanels(s8* entry) {
  * row).
  * Seen in play: runs while the L50～55 rental grid is open.
  */
-void FreeBattle_DrawRentalTeamPanels(s8* entry) {
+void FreeBattle_DrawRentalTeamPanels(FreeBattleEntryScreen* entry) {
     gSPDisplayList(gDisplayListHead++, D_80060270);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 6, M2C_FIELD(entry, s32*, 24) + 106, 136, 30, D_82008F5C);
-    func_80029028(M2C_FIELD(entry, s32*, 20) + 142, M2C_FIELD(entry, s32*, 24) + 106, 396, 30, D_82008F58);
+    func_80029028(entry->window.frame.x + 6, entry->window.frame.y + 106, 136, 30, D_82008F5C);
+    func_80029028(entry->window.frame.x + 142, entry->window.frame.y + 106, 396, 30, D_82008F58);
 }
 
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
 void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
-void FreeBattle_DrawRentalListWindow(s8*, s32);
-void FreeBattle_DrawDuplicateWarning(s8*);
-void FreeBattle_DrawShortageWarning(s8*);
-void FreeBattle_DrawLevelSumWarning(s8*);
-void FreeBattle_DrawEntryConfirm(s8*);
-void FreeBattle_DrawMonStatusWindow(s8*);
-void TextBox_Draw(s8*);
-extern s32 D_8200AC50;
+void FreeBattle_DrawRentalListWindow(FreeBattleEntryScreen*, s32); // PORT: matches the definition
+void FreeBattle_DrawDuplicateWarning(FreeBattleDuplicateWarning*);
+void FreeBattle_DrawShortageWarning(FreeBattleShortageWarning*);
+void FreeBattle_DrawLevelSumWarning(FreeBattleLevelSumWarning*);
+void FreeBattle_DrawEntryConfirm(FreeBattleRentalConfirm*);
+void FreeBattle_DrawMonStatusWindow(FreeBattleMonStatusWindow*);
+void TextBox_Draw(TextBox*);
 /**
  * Draws the rental selection screen for its current state (choosing label, list, entry confirm, status window).
  * Seen in play: runs every frame on 「エントリーポケモンのせんたく」 (Free Battle's team list).
  */
-void FreeBattle_DrawRentalScreen(s8* entry) {
-    if (func_8002AE6C(entry + 0x14) != 0) {
+void FreeBattle_DrawRentalScreen(FreeBattleEntryScreen* entry) {
+    if (func_8002AE6C(&entry->window) != 0) {
         return;
     }
     FreeBattle_DrawChoosingLabel(entry);
-    switch (M2C_FIELD(entry, s32*, 4)) {
+    switch (entry->state) {
         case 1:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
-            ScrollList_DrawItems(entry + 0x40, M2C_FIELD(entry, s32*, 20) + 6, M2C_FIELD(entry, s32*, 24) + 22, 0xFFF, M2C_FIELD(entry, s32*, 0x73C));
+            ScrollList_DrawItems(&entry->teamList, entry->window.frame.x + 6, entry->window.frame.y + 22, 0xFFF, (intptr_t)entry->playerTeams);
             break;
         case 2:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
             FreeBattle_DrawRentalListWindow(entry, 1);
             FreeBattle_DrawTeamWindowPanels(entry);
-            FreeBattle_DrawDuplicateWarning(entry + 0x320);
+            FreeBattle_DrawDuplicateWarning(&entry->duplicateWarning);
             break;
         case 6:
         case 8:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
-            FreeBattle_DrawRentalListWindow(entry, (M2C_FIELD(entry, s32*, 4) == 6) ? 1 : 2);
-            FreeBattle_DrawRentalTitleWindow(entry, (M2C_FIELD(entry, s32*, 4) == 6) ? 0 : 1);
+            FreeBattle_DrawRentalListWindow(entry, (entry->state == 6) ? 1 : 2);
+            FreeBattle_DrawRentalTitleWindow(entry, (entry->state == 6) ? 0 : 1);
             FreeBattle_DrawRentalTeamPanels(entry);
             break;
         case 10:
@@ -427,33 +412,33 @@ void FreeBattle_DrawRentalScreen(s8* entry) {
             BgStage_DrawFrame();
             FreeBattle_DrawRentalListWindow(entry, 0);
             FreeBattle_DrawTeamWindowPanels(entry);
-            FreeBattle_DrawEntryConfirm(entry + 0x4DC);
+            FreeBattle_DrawEntryConfirm(&entry->entryConfirm);
             break;
         case 4:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
             FreeBattle_DrawRentalListWindow(entry, 0);
             FreeBattle_DrawTeamWindowPanels(entry);
-            FreeBattle_DrawShortageWarning(entry + 0x370);
+            FreeBattle_DrawShortageWarning(&entry->shortageWarning);
             break;
         case 5:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
             FreeBattle_DrawRentalListWindow(entry, 0);
             FreeBattle_DrawTeamWindowPanels(entry);
-            FreeBattle_DrawLevelSumWarning(entry + 0x428);
+            FreeBattle_DrawLevelSumWarning(&entry->levelSumWarning);
             break;
         case 7:
         case 9:
             FreeBattle_DrawRentalListWindow(entry, 2);
-            FreeBattle_DrawRentalTitleWindow(entry, (M2C_FIELD(entry, s32*, 4) == 7) ? 0 : 2);
+            FreeBattle_DrawRentalTitleWindow(entry, (entry->state == 7) ? 0 : 2);
             FreeBattle_DrawRentalTeamPanels(entry);
-            FreeBattle_DrawMonStatusWindow(entry + 0x5CC);
+            FreeBattle_DrawMonStatusWindow(&entry->statusWindow);
             break;
         case 3:
             FreeBattle_DrawRentalListWindow(entry, 2);
             FreeBattle_DrawTeamWindowPanels(entry);
-            FreeBattle_DrawMonStatusWindow(entry + 0x5CC);
+            FreeBattle_DrawMonStatusWindow(&entry->statusWindow);
             break;
         case 11:
             func_800189C0(D_8200AC50, 0);
@@ -464,8 +449,8 @@ void FreeBattle_DrawRentalScreen(s8* entry) {
         case 12:
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
-            ScrollList_DrawItems(entry + 0x40, M2C_FIELD(entry, s32*, 20) + 6, M2C_FIELD(entry, s32*, 24) + 22, 0xFFF, M2C_FIELD(entry, s32*, 0x73C));
-            TextBox_Draw(entry + 0x74C);
+            ScrollList_DrawItems(&entry->teamList, entry->window.frame.x + 6, entry->window.frame.y + 22, 0xFFF, (intptr_t)entry->playerTeams);
+            TextBox_Draw(&entry->textBox);
             break;
     }
 }
@@ -475,36 +460,15 @@ void FreeBattle_DrawRentalScreen(s8* entry) {
  * Seen in play (2026-11-14): ran while 「おなじポケモンが ２たいいます」 asked for the duplicate to
  * keep; D-pad moved the slot index at +0x300 (1, 2, 5, 3).
  */
-s32 FreeBattle_UpdateTeamSlotCursor(s32 entry) {
-    return GridMenu_UpdateCursor(entry + 0x2F8);
+s32 FreeBattle_UpdateTeamSlotCursor(FreeBattleEntryScreen* entry) {
+    return GridMenu_UpdateCursor(&entry->slotMenu);
 }
 
 typedef struct { s32 w[20]; } Words80;
 
-typedef struct {
-    /* 0x000 */ char unk000[0x48];
-    /* 0x048 */ s32 unk_48;
-    /* 0x04C */ char unk04C[0x98];
-    /* 0x0E4 */ TeamMonSlot slots[6];
-    /* 0x2DC */ char unk2DC[0x20];
-    /* 0x2FC */ s16* unk_2FC;
-    /* 0x300 */ s32 cur;
-    /* 0x304 */ char unk304[0x3E0];
-    /* 0x6E4 */ Words80** records;
-    /* 0x6E8 */ char unk6E8[4];
-    /* 0x6EC */ s32 recordIndex;
-    /* 0x6F0 */ char unk6F0[0x44];
-    /* 0x734 */ s32 unk_734;
-    /* 0x738 */ char unk738[8];
-    /* 0x740 */ s32 mode;
-    /* 0x744 */ s32 unk_744;
-    /* 0x748 */ s32 picked;
-    /* 0x74C */ char unk74C[0x38];
-    /* 0x784 */ s32 unk_784;
-} SlotMenu;
 
-void FreeBattle_InitDuplicateWarning(s8*, s32, s32, s32);
-void FreeBattle_InitShortageWarning(s8*, s32, s32, s32, s32);
+void FreeBattle_InitDuplicateWarning(FreeBattleDuplicateWarning*, s32, s32, s32); // PORT: matches the definition
+void FreeBattle_InitShortageWarning(FreeBattleShortageWarning*, s32, s32, Controller*, s32); // PORT: matches the definition
 s32 FreeBattle_CountDuplicateSpecies(void*, s32*);
 s32 FreeBattle_AllTriosOverLevelLimit(TeamMonSlot*);
 
@@ -526,36 +490,36 @@ TeamMonSlot* FreeBattle_FindFlaggedSlot(TeamMonSlot* slots, s32* out_count); // 
  * What the individual return values mean is not established from this function.
  * Seen in play: runs when A picks a team on the entry screen.
  */
-s32 FreeBattle_CheckEntryRules(SlotMenu* entry) {
+s32 FreeBattle_CheckEntryRules(FreeBattleEntryScreen* entry) {
     TeamMonSlot* found;
     s32 sp38;
     s32 sp34;
     s32 ret;
 
-    entry->picked = 0;
-    if (entry->mode == 0) {
+    entry->replacing = 0;
+    if (entry->ruleCategory == 0) {
         ret = 0xA;
     } else {
 
-        sp38 = FreeBattle_CountDuplicateSpecies(entry->slots, &sp34);
+        sp38 = FreeBattle_CountDuplicateSpecies(entry->team.slots, &sp34);
         if (sp38 > 0) {
-            FreeBattle_InitDuplicateWarning((s8*)entry + 0x320, 156, 261, sp38);
-            entry->cur = sp34;
-            FreeBattle_DisableNonDuplicateRows((SlotFlags*)((s8*)entry + 0x2F8));
+            FreeBattle_InitDuplicateWarning(&entry->duplicateWarning, 156, 261, sp38);
+            entry->slotMenu.cursor = sp34;
+            FreeBattle_DisableNonDuplicateRows(&entry->slotMenu);
             ret = 2;
         } else {
-            found = FreeBattle_FindFlaggedSlot(entry->slots, &sp38);
+            found = FreeBattle_FindFlaggedSlot(entry->team.slots, &sp38);
             if (found != NULL) {
-                entry->picked = 1;
-                entry->cur = found - entry->slots;
-                if (entry->unk_784 & 1) {
+                entry->replacing = 1;
+                entry->slotMenu.cursor = found - entry->team.slots;
+                if (entry->teamFlags & 1) {
                     ret = 8;
                 } else {
-                    FreeBattle_InitShortageWarning((s8*)entry + 0x370, 166, 261, entry->unk_744, sp38);
+                    FreeBattle_InitShortageWarning(&entry->shortageWarning, 166, 261, entry->controller, sp38);
                     ret = 4;
                 }
-            } else if ((entry->mode == 1) && (FreeBattle_AllTriosOverLevelLimit(entry->slots) != 0)) {
-                if (entry->unk_784 & 2) {
+            } else if ((entry->ruleCategory == 1) && (FreeBattle_AllTriosOverLevelLimit(entry->team.slots) != 0)) {
+                if (entry->teamFlags & 2) {
                     ret = 6;
                 } else {
                     ret = 5;
@@ -576,20 +540,17 @@ extern s32 D_8200AC58[];
  * changed.
  * Seen in play: はい on 「レンタルしますか？」 adds the Pokemon (フシギバナ L50) to the 「なまえ 1P」 row.
  */
-void FreeBattle_RentSelectedMon(SlotMenu* entry) {
-    entry->unk_734 = 1;
-    entry->unk_784 |= 1;
-    *(Words80*)&entry->slots[entry->cur].mon = (*entry->records)[entry->recordIndex];
-    entry->slots[entry->cur].flags = 0;
-    entry->unk_2FC[entry->cur] = 0;
-    D_8200AC58[(entry->unk_48 * 6 + entry->cur) % 24] = -1;
+void FreeBattle_RentSelectedMon(FreeBattleEntryScreen* entry) {
+    entry->teamChanged = 1;
+    entry->teamFlags |= 1;
+    *(Words80*)&entry->team.slots[entry->slotMenu.cursor].mon = ((Words80*)entry->rentalGrid.items->rows)[entry->rentalGrid.cursor];
+    entry->team.slots[entry->slotMenu.cursor].flags = 0;
+    entry->slotMenu.itemFlags[entry->slotMenu.cursor] = 0;
+    D_8200AC58[(entry->teamList.cursor * 6 + entry->slotMenu.cursor) % 24] = -1;
 }
 
-typedef struct Blk820038B0 {
-    s32 w[0x85];
-} Blk820038B0;
 extern u8 D_82009D04[];
-void FreeBattle_DrawSlotCell(s32 x, s32 y, s32* slot, s32 index, s32 flags, s32 icon_cache); // PORT: matches the definition
+void FreeBattle_DrawSlotCell(s32 x, s32 y, s32* slot, s32 index, s32 flags, intptr_t icon_cache); // PORT: matches the definition
 
 s32 Audio_PlaySystemSound(s32 sound_id); // PORT: no prototype in the decomp
 void FreeBattle_EnableNonDuplicateRows(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
@@ -599,7 +560,7 @@ void FreeBattle_MarkIneligibleSlots(void* /* SlotFlags* */ rows); // PORT: no pr
 void FreeBattle_MarkSlotsToReplace(void* /* SlotFlags* */ rows); // PORT: no prototype in the decomp
 s32 FreeBattle_UpdateLevelSumWarning(FreeBattleLevelSumWarning* window); // PORT: no prototype in the decomp
 s32 FreeBattle_UpdateRentalConfirm(FreeBattleRentalConfirm* window); // PORT: no prototype in the decomp
-s32 FreeBattle_UpdateRentalConfirmChoice(s8* window); // PORT: no prototype in the decomp
+s32 FreeBattle_UpdateRentalConfirmChoice(FreeBattleMonStatusWindow* window); // PORT: no prototype in the decomp
 s32 FreeBattle_UpdateShortageWarning(FreeBattleShortageWarning* window); // PORT: no prototype in the decomp
 void GridMenu_Init(GridMenu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5, s32 arg6); // PORT: no prototype in the decomp
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
@@ -608,28 +569,25 @@ s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: no prototype in the dec
  * Runs the entry Pokemon list: pick, rental, confirm and warnings.
  * Seen in play: runs while 1P picks a team on 「エントリーポケモンのせんたく」.
  */
-s32 FreeBattle_UpdateEntrySelect(s8 *entry)
+s32 FreeBattle_UpdateEntrySelect(FreeBattleEntryScreen* entry)
 {
   s32 ret = 0;
   s32 next;
   u8 *rec;
-  if ((*((s32 *) (((s8 *) entry) + 8))) != 0) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  if (entry->pendingState != 0)
   {
-    next = *((s32 *) (((s8 *) (*((s8 **) (((s8 *) entry) + 0xC)))) + 0x28)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+    next = entry->view->state;
     if (next == 4)
     {
-      if ((entry && entry) && entry) // FAKE: keeps entry in a0 for the state read above
-      {
-      }
-      *((s32 *) (((s8 *) entry) + 4)) = *((s32 *) (((s8 *) entry) + 8)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      if ((*((s32 *) (((s8 *) entry) + 8))) == 0xD) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      entry->state = entry->pendingState;
+      if (entry->pendingState == 0xD)
       {
         ret = 1;
       }
       else
       {
         FreeBattle_EnterEntryScreenState(entry);
-        *((s32 *) (((s8 *) entry) + 8)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        entry->pendingState = 0;
       }
       return ret;
     }
@@ -638,12 +596,12 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       return 0;
     }
   }
-  switch (*((s32 *) (((s8 *) entry) + 4))) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+  switch (entry->state)
   {
     case 1:
-      if (ScrollList_UpdateCursor(entry + 0x40) == 0)
+      if (ScrollList_UpdateCursor(&entry->teamList) == 0)
     {
-      next = Ui_GetSelectionDirection(*((s32 *) (((s8 *) entry) + 0x744))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      next = Ui_GetSelectionDirection(entry->controller);
       if (next == (-1))
       {
         Audio_PlaySystemSound(3);
@@ -653,34 +611,34 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
         if (next == 1)
       {
         s32 sp40;
-        rec = (*(*((u8 ****) (((s8 *) entry) + 0xC4))))[*((s32 *) (((s8 *) entry) + 0x48))]; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-        if (((*((s32 *) (((s8 *) entry) + 0x740))) == 0) && ((FreeBattle_FindFlaggedSlot(rec + 0x1C, &sp40), sp40 == 6))) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        rec = (u8*)entry->teams->items[entry->teamList.cursor];
+        if ((entry->ruleCategory == 0) && ((FreeBattle_FindFlaggedSlot(((FreeBattleTeam*)rec)->slots, &sp40), sp40 == 6)))
         {
           Audio_PlaySystemSound(8);
-          TextBox_Init(entry + 0x74C, D_82009D04, 1, 2, 9);
+          TextBox_Init(&entry->textBox, (char*)D_82009D04, 1, 2, 9);
           FreeBattle_SetEntryScreenState(entry, 0xC, 0);
         }
         else
         {
           Audio_PlaySystemSound(2);
-          *((s32 *) (((s8 *) entry) + 0x784)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+          entry->teamFlags = 0;
           if (rec[0] & 2)
           {
-            FreeBattle_InitNamedTeam(entry + 0xC8, *((s32 *) (((s8 *) entry) + 0x738))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-            *((s32 *) (((s8 *) entry) + 0x784)) |= 1; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+            FreeBattle_InitNamedTeam(&entry->team, entry->player);
+            entry->teamFlags |= 1;
           }
           else
           {
-            *((Blk820038B0 *) (entry + 0xC8)) = *((Blk820038B0 *) rec);
+            entry->team = *(FreeBattleTeam*)rec;
           }
-          func_80027410(entry + 0x2DC, (uintptr_t) (entry + 0xE4), 0x54, 6, 6);
-          GridMenu_Init(entry + 0x2F8, entry + 0x2DC, entry + 0x2EC, FreeBattle_DrawSlotCell, 3, 132, 50);
-          *((s32 *) (((s8 *) entry) + 0x6EC)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          *((s32 *) (((s8 *) entry) + 0x318)) |= 0x10000; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          FreeBattle_MarkIneligibleSlots(entry + 0x2F8);
+          func_80027410(&entry->slotItems, entry->team.slots, sizeof(TeamMonSlot), 6, 6);
+          GridMenu_Init(&entry->slotMenu, &entry->slotItems, entry->slotItemFlags, (MenuDrawItemFunc)FreeBattle_DrawSlotCell, 3, 132, 50);
+          entry->rentalGrid.cursor = 0;
+          entry->slotMenu.options |= 0x10000;
+          FreeBattle_MarkIneligibleSlots(&entry->slotMenu);
           FreeBattle_SetEntryScreenState(entry, FreeBattle_CheckEntryRules(entry), 0);
-          *((s32 *) (((s8 *) entry) + 0x310)) = *((s32 *) (((s8 *) entry) + 0x744)); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-          Input_SetRepeatController(*((s32 *) (((s8 *) entry) + 0x744))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+          entry->slotMenu.controller = entry->controller;
+          Input_SetRepeatController(entry->controller);
         }
       }
     }
@@ -689,7 +647,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
     case 2:
       if (FreeBattle_UpdateTeamSlotCursor(entry) == 0)
     {
-      next = Ui_GetSelectionDirection(*((s32 *) (((s8 *) entry) + 0x744))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      next = Ui_GetSelectionDirection(entry->controller);
       if (next == (-1))
       {
         Audio_PlaySystemSound(3);
@@ -698,7 +656,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       else
         if (next == 1)
       {
-        if (((TeamMonSlot *) (entry + 0xE4))[*((s32 *) (((s8 *) entry) + 0x300))].flags & 0x40) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        if (entry->team.slots[entry->slotMenu.cursor].flags & 0x40)
         {
           Audio_PlaySystemSound(2);
           FreeBattle_SetEntryScreenState(entry, 3, 0);
@@ -712,7 +670,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 3:
-      next = FreeBattle_UpdateRentalConfirmChoice(entry + 0x5CC);
+      next = FreeBattle_UpdateRentalConfirmChoice(&entry->statusWindow);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 2, 3);
@@ -721,15 +679,15 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       if (next == 1)
     {
       Audio_PlaySystemSound(2);
-      FreeBattle_EnableNonDuplicateRows(entry + 0x2F8);
-      FreeBattle_KeepChosenDuplicate(entry + 0xE4, *((s32 *) (((s8 *) entry) + 0x300))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      FreeBattle_MarkSlotsToReplace(entry + 0x2F8);
+      FreeBattle_EnableNonDuplicateRows(&entry->slotMenu);
+      FreeBattle_KeepChosenDuplicate(entry->team.slots, entry->slotMenu.cursor);
+      FreeBattle_MarkSlotsToReplace(&entry->slotMenu);
       FreeBattle_SetEntryScreenState(entry, FreeBattle_CheckEntryRules(entry), 1);
     }
       break;
 
     case 4:
-      next = FreeBattle_UpdateShortageWarning(entry + 0x370);
+      next = FreeBattle_UpdateShortageWarning(&entry->shortageWarning);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 1, 1);
@@ -743,7 +701,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 5:
-      next = FreeBattle_UpdateLevelSumWarning(entry + 0x428);
+      next = FreeBattle_UpdateLevelSumWarning(&entry->levelSumWarning);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 1, 1);
@@ -751,10 +709,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
     else
       if (next == 1)
     {
-      if (entry)
-      {
-      }
-      *((s32 *) (((s8 *) entry) + 0x784)) |= 2; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      entry->teamFlags |= 2;
       FreeBattle_SetEntryScreenState(entry, 6, 1);
     }
       break;
@@ -762,11 +717,11 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
     case 6:
       if (FreeBattle_UpdateTeamSlotCursor(entry) == 0)
     {
-      next = Ui_GetSelectionDirection(*((s32 *) (((s8 *) entry) + 0x744))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      next = Ui_GetSelectionDirection(entry->controller);
       if (next == (-1))
       {
         Audio_PlaySystemSound(3);
-        if ((*((s32 *) (((s8 *) entry) + 0x784))) & 2) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        if (entry->teamFlags & 2)
         {
           FreeBattle_SetEntryScreenState(entry, 1, 0);
         }
@@ -779,7 +734,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
         if (next == 1)
       {
         Audio_PlaySystemSound(2);
-        if (((TeamMonSlot *) (entry + 0xE4))[*((s32 *) (((s8 *) entry) + 0x300))].flags & 1) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        if (entry->team.slots[entry->slotMenu.cursor].flags & 1)
         {
           FreeBattle_SetEntryScreenState(entry, 8, 0);
         }
@@ -792,13 +747,13 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 8:
-      if (ScrollGrid_UpdateCursor(entry + 0x6E4) == 0)
+      if (ScrollGrid_UpdateCursor(&entry->rentalGrid) == 0)
     {
-      next = Ui_GetSelectionDirection(*((s32 *) (((s8 *) entry) + 0x744))); // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      next = Ui_GetSelectionDirection(entry->controller);
       if (next == (-1))
       {
         Audio_PlaySystemSound(3);
-        if ((*((s32 *) (((s8 *) entry) + 0x748))) != 0) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        if (entry->replacing != 0)
         {
           FreeBattle_SetEntryScreenState(entry, 1, 0);
         }
@@ -810,7 +765,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       else
         if (next == 1)
       {
-        if (!((*((u16 **) (((s8 *) entry) + 0x6E8)))[*((s32 *) (((s8 *) entry) + 0x6EC))] & 1)) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+        if (!(entry->rentalGrid.itemFlags[entry->rentalGrid.cursor] & 1))
         {
           Audio_PlaySystemSound(2);
           FreeBattle_SetEntryScreenState(entry, 9, 0);
@@ -824,7 +779,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 7:
-      next = FreeBattle_UpdateRentalConfirmChoice(entry + 0x5CC);
+      next = FreeBattle_UpdateRentalConfirmChoice(&entry->statusWindow);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 6, 3);
@@ -838,7 +793,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 9:
-      next = FreeBattle_UpdateRentalConfirmChoice(entry + 0x5CC);
+      next = FreeBattle_UpdateRentalConfirmChoice(&entry->statusWindow);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 8, 3);
@@ -853,7 +808,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 10:
-      next = FreeBattle_UpdateRentalConfirm(entry + 0x4DC);
+      next = FreeBattle_UpdateRentalConfirm(&entry->entryConfirm);
       if (next == (-1))
     {
       FreeBattle_SetEntryScreenState(entry, 1, 1);
@@ -862,8 +817,8 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       if (next == 2)
     {
       Audio_PlaySystemSound(2);
-      *((s32 *) (((s8 *) entry) + 0x300)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
-      *((s32 *) (((s8 *) entry) + 0x6EC)) = 0; // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      entry->slotMenu.cursor = 0;
+      entry->rentalGrid.cursor = 0;
       FreeBattle_SetEntryScreenState(entry, 6, 1);
     }
     else
@@ -879,7 +834,7 @@ s32 FreeBattle_UpdateEntrySelect(s8 *entry)
       break;
 
     case 12:
-      if ((*((u16 *) (((s8 *) (*((u16 **) (((s8 *) entry) + 0x744)))) + 8))) & 0xC000) // FAKE: decomp slop, raw pointer casts stand in for struct fields
+      if (entry->controller->buttonPressed & 0xC000)
     {
       Audio_PlaySystemSound(2);
       FreeBattle_SetEntryScreenState(entry, 1, 1);
@@ -939,7 +894,7 @@ void FreeBattle_CopyTeamToRoster(TeamRoster* slot, ExtendedRosterInfo* info, s32
             slot->trainerId = team->unk_04;
         } else {
             slot->trainerId = 0;
-            HAL_Strcpy(name, ((char**)&D_820090C0)[player]);
+            HAL_Strcpy(name, D_820090C0.playerNames[player - 1]); // PORT: was ((char**)&D_820090C0)[player]
         }
     }
     for (i = 0, n = 0; i < team->count; i++) {
@@ -1040,6 +995,6 @@ void FreeBattle_BuildBattleRosters(s32*, s32*, Src82004020**, s32, s32, s32);
  * screen's state).
  * Seen in play: runs when はい confirms the COM's team and 「エントリーけってい」 appears.
  */
-void FreeBattle_CommitEntries(s8 *screen) {
-    FreeBattle_BuildBattleRosters((s32*)(screen + 0x4358), (s32*)(screen + 0x4360), (Src82004020**)(screen + 0x4340), M2C_FIELD(screen, s32 *, 0x4370), M2C_FIELD(screen, s32 *, 0x4374), M2C_FIELD(screen, s32 *, 0x501C));
+void FreeBattle_CommitEntries(FreeBattleScreen* screen) {
+    FreeBattle_BuildBattleRosters(screen->side0Players, screen->side1Players, (Src82004020**)screen->playerTeams, screen->unk_4370, screen->unk_4374, screen->unk_501C);
 }
