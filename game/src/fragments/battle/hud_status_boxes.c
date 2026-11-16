@@ -8,7 +8,7 @@
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Font_BeginTranslucentTextRendering(void); // PORT: signature from the definition (font.c)
-extern StatusLabel D_80066AA0[];
+extern StatusLabel D_80066AA0[7]; // PORT: sized (was open; the lifter needs its end)
 s32 LabPC_StatusToIconIndex(s32 arg0); // PORT: signature from the definition (pokemon_lab_support.c)
 void Font_SetActive(M2C_UNK, M2C_UNK);
 void Font_EndTexturedTextRendering(void);

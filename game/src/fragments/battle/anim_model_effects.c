@@ -138,7 +138,7 @@ void Particle_AddPositionOffsetAlongRotationYMinus90(Particle* arg0, f32 arg1); 
 void BattleAnim_OffsetParticleForSpecies(Particle* arg0) { // PORT: was s8*
     f32 var_f20 = 0.0f;
 
-    switch (BattleAnim_GetOwnerSpecies(((uintptr_t)arg0->pokemon))) {
+    switch (BattleAnim_GetOwnerSpecies(arg0->pokemon)) {
         case 0xF:
             var_f20 = -10.0f;
             break;
@@ -3620,7 +3620,7 @@ void BattleAnim_InitializeLovelyKissHit(void) {
  */
 void BattleAnim_CallbackStart95To97End62And63Fade_Init(Particle* arg0) { // PORT: was s8*
     s16 sp26;
-    s32 temp_v0;
+    DisplayObject* temp_v0; // PORT: was s32, holds a pointer
 
     sp26 = Particle_GetByteParam0(arg0); // PORT: the particle was passed through a0
     temp_v0 = BattleAnim_AllocOwnerDisplayContext(arg0);

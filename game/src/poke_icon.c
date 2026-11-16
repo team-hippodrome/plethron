@@ -61,7 +61,7 @@ PokeIconRenderer* PokeIcon_CreateRenderList(ModelLoadContext* arg0, s16 arg1, s1
 
         for (i = 0; i < arg1; i++) {
             temp_v0->slots[i].flags = 0;
-            temp_v0->slots[i].source.raw = 0;
+            temp_v0->slots[i].source.ptr = NULL; // PORT: was source.raw = 0, which leaves the top half of the host pointer
             temp_v0->slots[i].image = GfxImage_Allocate(0, 2, arg2, arg3, 0);
             GfxImage_AttachDepthBuffer(temp_v0->slots[i].image, temp_v0->depthImage);
             bzero(temp_v0->slots[i].image->img_p, arg2 * arg3 * 2);
@@ -96,13 +96,13 @@ void PokeIcon_ResetSlots(PokeIconRenderer* arg0) {
     if ((s32) arg0->slotCount > 0) {
         var_s0 = 0;
         do {
-            temp_v0 = (PokeIconSlot*)((s8*)arg0->slots + var_s0);
+            temp_v0 = &arg0->slots[var_s2]; // PORT: was (s8*)slots + var_s0 with the N64 stride 0x14
             temp_v1 = temp_v0->image;
             temp_a2 = temp_v1->width;
             temp_a3 = temp_v1->height;
             temp_v0->flags = 0;
-            ((PokeIconSlot*)((s8*)arg0->slots + var_s0))->source.raw = 0;
-            bzero(((PokeIconSlot*)((s8*)arg0->slots + var_s0))->image->img_p, temp_a2 * temp_a3 * 2) /* PORT: the decomp passed two ignored arguments */;
+            temp_v0->source.ptr = NULL; // PORT: was source.raw = 0, which leaves the top half of the host pointer
+            bzero(temp_v0->image->img_p, temp_a2 * temp_a3 * 2) /* PORT: the decomp passed two ignored arguments */;
             var_s2 += 1;
             var_s0 += 0x14;
         } while (var_s2 < (s32) arg0->slotCount);
@@ -131,7 +131,7 @@ void PokeIcon_SetSpeciesSlot(PokeIconRenderer* renderer, s32 slot, s32 species, 
     }
 }
 
-void Model_ComputeNicknameColorVariant(arg1_func_80010CA8*);
+arg1_func_80010CA8* Model_ComputeNicknameColorVariant(arg1_func_80010CA8* arg0, BattleMon* arg1); // PORT: matches the definition (model_renderer.c)
 /**
  * Clears slot `slot` and queues a render of party Pokémon `mon` (its species, size and nickname color
  * variant) on background `fillColor`; an invalid species falls back to the placeholder. Used for the
@@ -149,7 +149,7 @@ void PokeIcon_SetMonSlot(PokeIconRenderer* renderer, s32 slot, BattleMon* mon, u
             renderer->slots[slot].source.ptr = (u8*)mon;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;
             renderer->slots[slot].scale = D_80064C5C[mon->species.id - 1].modelScale / 100.0f;
-            Model_ComputeNicknameColorVariant(&renderer->slots[slot].colorVariant);
+            Model_ComputeNicknameColorVariant(&renderer->slots[slot].colorVariant, mon); // PORT: m2c dropped a1 (still `mon` in the ROM)
         } else {
             renderer->slots[slot].flags = 1;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;

@@ -757,6 +757,53 @@ extern u8 D_004199E0[];
 extern u8 D_0042C4A0[];
 extern u8 D_002F5940[];
 extern u8 D_003139C0[];
+#include "port_endian.h" // PORT: Port_Swap16/32
+
+// PORT: segment 0x0A (ROM 0x3FFD60) holds the Free Battle rentals and preset teams as the ROM stores them, big-endian:
+// 40 BattleMon for L1-30 at 0x0000, 33 for L50-55 at 0x0C80 and 8 preset teams of 0x1F0 bytes at 0x16D0 (u16, u16,
+// 8 unknown bytes, a u32 segment address of the team name, then 6 BattleMon). Swap them in place once per load.
+static void Port_SwapBattleMon(BattleMon* mon) {
+    s32 i;
+
+    mon->hp = Port_Swap16(mon->hp);
+    mon->otId = Port_Swap16(mon->otId);
+    mon->exp = Port_Swap32(mon->exp);
+    for (i = 0; i < 5; i++) {
+        mon->statExp[i] = Port_Swap16(mon->statExp[i]);
+    }
+    mon->dvs = Port_Swap16(mon->dvs);
+    mon->maxHp = Port_Swap16(mon->maxHp);
+    mon->attack = Port_Swap16(mon->attack);
+    mon->defense = Port_Swap16(mon->defense);
+    mon->speed = Port_Swap16(mon->speed);
+    mon->special = Port_Swap16(mon->special);
+}
+
+// PORT: the strings after D_820093E0's three pointers (0x820093EC-0x82009B80: 1P/2P/3P/4P/COM, the rule names and
+// descriptions the D_82008F88 tables point at). Named so the lifter keeps them as bytes: as part of D_820093E0 each
+// 4-byte word was widened to a byte-swapped pointer slot, so those strings came out garbled.
+extern char D_820093EC[0x794];
+static const void* const sPortFreeBattleStrings __attribute__((used)) = D_820093EC;
+
+static void Port_SwapFreeBattleRentals(u8* segment) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; i < 40 + 33; i++) {
+        Port_SwapBattleMon((BattleMon*)(segment + i * 0x50));
+    }
+    for (i = 0; i < 8; i++) {
+        u8* team = segment + 0x16D0 + i * 0x1F0;
+
+        ((u16*)team)[0] = Port_Swap16(((u16*)team)[0]);
+        ((u16*)team)[1] = Port_Swap16(((u16*)team)[1]);
+        *(u32*)(team + 0xC) = Port_Swap32(*(u32*)(team + 0xC));
+        for (j = 0; j < 6; j++) {
+            Port_SwapBattleMon((BattleMon*)(team + 0x10 + j * 0x50));
+        }
+    }
+}
+
 /**
  * Sets up the battle setup screen (font, Pokémon icons, model archives, segments), opens it and
  * runs it until it closes: a fade in, FreeBattle_RunFrame every frame, then a fade out, and frees
@@ -782,6 +829,7 @@ M2C_UNK FreeBattle_RunSetupScreen(void) {
     Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
     Asset_LoadToSegment(((uintptr_t)D_05000000 & 0x0F000000) >> 0x18, D_004199E0, D_0042C4A0, 0);
 
+    Port_SwapFreeBattleRentals((u8*)Memmap_GetSegmentVaddr((uintptr_t)D_0A000000)); // PORT: big-endian ROM data
     D_8200ACFC = (BattleMon*)Memmap_GetSegmentVaddr((uintptr_t)D_0A000000);
     D_8200AD00 = (BattleMon*)Memmap_GetSegmentVaddr((uintptr_t)D_0A000C80);
     D_8200AD04 = (u8*)Memmap_GetSegmentVaddr((uintptr_t)D_0A0016D0);

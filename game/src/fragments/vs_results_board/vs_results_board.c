@@ -26,6 +26,7 @@
 #include "geo_render.h"
 #include "gfx_buffer.h"
 #include "m2c_macros.h"
+#include "PR/rcp.h" // PORT: IO_READ, PI_STATUS_REG
 
 extern Gfx sVsResultsPortraitDL[];
 extern Gfx sVsResultsRowIconDL[];
@@ -43,11 +44,22 @@ extern u8 sVsResultsNicknameText[];
  * returned `display_list` unchanged.
  * @unverified: the -1 path; the emulator runs the retail boot code, so it was not taken.
  */
-s32 VsResults_CheckBootCode(s32 display_list) {
+const u8* Port_RomBytes(void);
+size_t Port_RomLength(void);
+
+// PORT: the low half of the cartridge word at ROM `offset`, read from the loaded ROM image (as
+// cartridge_check_models.c does); the host has no PI bus to read.
+static u32 Port_ReadCartHalfLow(u32 offset) {
+    const u8* rom = Port_RomBytes();
+    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
+}
+
+intptr_t VsResults_CheckBootCode(intptr_t display_list) { // PORT: the value is a display list pointer (was s32)
     OSIntMask prev_mask;
 
     prev_mask = osSetIntMask(OS_IM_NONE);
-    if (!((*(volatile s32 *)0xA4600010) & 3) && (((*(volatile s32 *)0xB0000800) & 0xFFFF) != 1)) {
+    if (!(IO_READ(PI_STATUS_REG) & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) &&
+        (Port_ReadCartHalfLow(0x800) != 1)) { // PORT: was *(volatile s32*)0xA4600010 & 3 and *(volatile s32*)0xB0000800 & 0xFFFF
         display_list = -1;
     }
     osSetIntMask(prev_mask);

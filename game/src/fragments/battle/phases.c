@@ -30,7 +30,7 @@ extern s32 D_8219A564;
 extern s32 D_8219A570;
 extern s32 D_8219A578;
 extern u8* D_82189180[];
-extern u8* D_8218B2F4[];
+extern u8* D_8218B2F4[6]; // PORT: six pointers (was open)
 extern u8 D_8219A4F4;
 extern u8 D_80073D84[];
 extern u8* D_8218B320[];
@@ -81,12 +81,12 @@ void BattleScene_ReactionMultiHitEnd(CameraNode* arg0, void* arg1) {
             BattleScene_ResetAnimationStep();
             BattleScene_SetDamageShakeAmplitude(sOtherPokemon);
             BattleScene_EnterStateRow(sActingPokemon, 4);
-            BattleCamera_PlayReactionFraming(sOtherPokemon, arg0, (void*)D_8219A570);
+            BattleCamera_PlayReactionFraming(sOtherPokemon, arg0, D_8219A570); // PORT: the decomp cast the counter to void*
             D_8219A570--;
             if (D_8219A570 < 0) {
                 BattleScene_UseCameraPreset1AndIdleUser();
                 BattleSound_UpdateSideHp(sOtherPokemon);
-                BattleCamera_PlayReactionFraming(sOtherPokemon, arg0, (void*)D_8219A570);
+                BattleCamera_PlayReactionFraming(sOtherPokemon, arg0, D_8219A570); // PORT: the decomp cast the counter to void*
                 BattleCamera_CaptureModelOrbit(sOtherPokemon, arg0);
                 BattleScene_FrameReactingParticipant(arg0, sOtherPokemon);
                 ActivePokemon_CommitPendingStatus(sOtherPokemon);

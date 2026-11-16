@@ -725,9 +725,9 @@ void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg
     s32 i;
     s32 row_y;
     s32 end;
-    s32 item;
+    u8* item; // PORT: was s32, holds a pointer
     s32 f;
-    s32* items = (s32*)menu->items->rows;
+    u8** items = (u8**)menu->items->rows; // PORT: was s32*; rows are item pointers, as in Menu_DrawItems
 
     gDPPipeSync(gDisplayListHead++);
     gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, x, y, menu->cellWidth + x, y + height);
@@ -736,7 +736,7 @@ void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg
     i = menu->scrollY / menu->cellHeight;
     end = (menu->scrollY + height - 1) / menu->cellHeight + 1;
     for (; i < end; i++) {
-        item = 0;
+        item = NULL;
         f = 0;
         if (i < menu->items->count) {
             item = items[i];
@@ -745,7 +745,7 @@ void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg
                 f |= 0x12;
             }
         }
-        menu->drawItem(x, row_y, (u8*)item, i, f & mask, arg4);
+        menu->drawItem(x, row_y, item, i, f & mask, arg4);
         row_y += menu->cellHeight;
     }
     gDPPipeSync(gDisplayListHead++);

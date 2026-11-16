@@ -1,5 +1,9 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
+#include "port_endian.h" // PORT: Port_ReadBE32
+// PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
+// it as u8** took two entries as one host pointer.
+#define PORT_SEG_TABLE_ENTRY(table, i) ((u8*)(uintptr_t)Port_ReadBE32((const u32*)(table) + (i)))
 #include "graphics_textures.h"
 #include "input.h"
 #include "memmap.h"
@@ -47,16 +51,16 @@ void BattleHud_DrawLevelNumber(s32 arg0, s32 arg1, s32 arg2) {
 
     if (arg2 >= 0x64) {
         arg0 -= 2;
-        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, temp_s4[sp58[0] - '0'], 8, 0);
+        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, PORT_SEG_TABLE_ENTRY(temp_s4, sp58[0] - '0'), 8, 0);
         arg0 += 8;
         var_s2 = &sp58[1];
     } else {
-        Gfx_DrawTextureRgba16(arg0, arg1, 4, 6, temp_s4[11], 4, 0);
+        Gfx_DrawTextureRgba16(arg0, arg1, 4, 6, PORT_SEG_TABLE_ENTRY(temp_s4, 11), 4, 0);
         arg0 += 5;
     }
 
     while (*var_s2 != 0) {
-        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, temp_s4[*var_s2 - '0'], 8, 0);
+        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, PORT_SEG_TABLE_ENTRY(temp_s4, *var_s2 - '0'), 8, 0);
         arg0 += 8;
         var_s2++;
     }
@@ -89,11 +93,11 @@ void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                 break;
 
             case '/':
-                var_v0 = temp_s2[10];
+                var_v0 = PORT_SEG_TABLE_ENTRY(temp_s2, 10);
                 break;
 
             default:
-                var_v0 = temp_s2[sp70[i] - '0'];
+                var_v0 = PORT_SEG_TABLE_ENTRY(temp_s2, sp70[i] - '0');
                 break;
         }
 

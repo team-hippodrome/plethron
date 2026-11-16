@@ -41,7 +41,8 @@ typedef ModelAnimationBank* (*ModelBankCallback)(s32, s32);
 
 typedef struct ModelLoadResult {
     /* 0x00 */ u16 modelId;
-    /* 0x02 */ char unk02[0x6];
+    /* 0x02 */ char unk02[2 * sizeof(void*) - 2]; // PORT: the host model table (display_object_textures.c) keeps its
+                                                  // node list after two pointer-sized slots, as unk_D_86002F30 (was 0x6)
     /* 0x08 */ struct ModelNodeView* modelRoot;
 } ModelLoadResult; // size >= 0xC
 

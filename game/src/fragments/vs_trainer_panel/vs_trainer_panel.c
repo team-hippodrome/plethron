@@ -21,6 +21,7 @@
 #include "geo_render.h"
 #include "gfx_buffer.h"
 #include "m2c_macros.h"
+#include "PR/rcp.h" // PORT: IO_READ, PI_STATUS_REG
 #include "vs_trainer_panel.h"
 
 extern Gfx sVsPanelPortraitDL[];
@@ -36,11 +37,22 @@ extern u8 sVsPanelNicknameText[];
  * Seen in play (2026-11-14): called for both portraits every frame of the panels; forcing it to
  * return -1 turned the whole screen black from the panels on.
  */
-s32 VsPanel_CheckBootCode(s32 display_list) {
+const u8* Port_RomBytes(void);
+size_t Port_RomLength(void);
+
+// PORT: the low half of the cartridge word at ROM `offset`, read from the loaded ROM image (as
+// cartridge_check_models.c does); the host has no PI bus to read.
+static u32 Port_ReadCartHalfLow(u32 offset) {
+    const u8* rom = Port_RomBytes();
+    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
+}
+
+intptr_t VsPanel_CheckBootCode(intptr_t display_list) { // PORT: the value is a display list pointer (was s32)
     OSIntMask prev_mask;
 
     prev_mask = osSetIntMask(OS_IM_NONE);
-    if (!((*(volatile s32 *)0xA4600010) & 3) && (((*(volatile s32 *)0xB0000D10) & 0xFFFF) != 0x400)) {
+    if (!(IO_READ(PI_STATUS_REG) & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) &&
+        (Port_ReadCartHalfLow(0xD10) != 0x400)) { // PORT: was *(volatile s32*)0xA4600010 & 3 and *(volatile s32*)0xB0000D10 & 0xFFFF
         display_list = -1;
     }
     osSetIntMask(prev_mask);

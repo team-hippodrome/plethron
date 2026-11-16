@@ -896,7 +896,12 @@ void BattleAnim_RunEffectInitStart(s16 arg0) {
     }
 }
 
-extern func_D_84390320 D_8218EA6C[];
+extern func_D_84390320 D_8218EA6C[89]; // PORT: 89 hooks (was open: the lifter took the byte lists after them as pointers)
+// PORT: the 0x3F-terminated resource and effect lists after the hook table (0x8218EBD0-0x8218F0DC; sD_84386D44 and
+// the move effect scripts point into them). Named so the lifter keeps them as bytes: as part of D_8218EA6C each
+// 4-byte word had been widened to a byte-swapped pointer slot, so the battle opening loaded the wrong resources.
+extern u8 D_8218EBD0[0x50C];
+static const void* const sPortEffectByteLists __attribute__((used)) = D_8218EBD0;
 
 /**
  * Runs end effect arg0's init hook.
