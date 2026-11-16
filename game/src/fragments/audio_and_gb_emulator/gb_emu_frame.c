@@ -143,6 +143,17 @@ s32 GbEmu_UpdateFrame(void) {
             GbEmu_DrawStatusBar();
         }
     } else {
+        // PORT: the host's Transfer Pak streams all banks in before the boot stub has scrolled its logo down to 0x100
+        // (on the N64 the stream takes far longer), so the header bytes also go back once streaming has finished.
+        if (D_811565A4 != 0 && GB_RUN->gbPc == 0x100) {
+            if (--D_811565A4 == 0) {
+                func_800093E0(D_8112AF3C, D_811645F0);
+                func_800093E0(D_81130024, D_811725F0);
+                for (j = 0; j < 258; j++) {
+                    GB_RUN->rom[j] = D_811565A8[j];
+                }
+            }
+        }
         for (i = 0; i < 5; i++) {
             D_811561C8[D_811565A0].blockDirty[i] = 0xFF;
             D_811561C8[D_811565A0].blockState[i] = D_811561C8[D_811565A0].blockDirty[i];

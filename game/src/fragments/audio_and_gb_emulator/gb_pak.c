@@ -73,9 +73,10 @@ s32 GbPak_InitializeCartridgeMapper(unk_D_8122B2C0* arg0) {
   if (!(ret = GbPak_WriteMapperRegister(arg0, 0, 0xA))    && !(ret = GbPak_WriteMapperRegister(arg0, 0x6000, 1))
    && !(ret = GbPak_WriteMapperRegister(arg0, 0x4000, 0)) && !(ret = GbPak_WriteMapperRegister(arg0, 0x6000, 0))
    && !(ret = GbPak_WriteMapperRegister(arg0, 0x4000, 0)) && !(ret = GbPak_WriteMapperRegister(arg0, 0x2100, 1))) {
-      *((u8*)arg0 + 0x9D) = 1;
-      *((u8*)arg0 + 0x9E) = 0;
-      *((u8*)arg0 + 0x9F) = 0;
+      // PORT: the fields at 0x9D-0x9F of the N64 layout (raw byte offsets land inside the host's pointers)
+      ((GbPakChannel*)arg0)->unk9D[0] = 1;
+      ((GbPakChannel*)arg0)->unk9D[1] = 0;
+      ((GbPakChannel*)arg0)->unk9D[2] = 0;
   }
   
   return ret;

@@ -94,9 +94,13 @@ void Port_GfxForgetRenderTargets(const void* start, size_t size);
 // Frame interpolation (src/port/interp.cpp): a new frame's display-list buffer, the scene-graph node being drawn.
 void Port_InterpBeginFrame(const void* dlStart);
 void Port_InterpNode(const void* node);
-// Composes a Game Boy Tower frame on the host (the N64 did it in an RSP task; src/port/gb_core.c).
-void Port_GbPresent(void* frameBuffer, const void* statusStrip, const void* frameImage, int ox, int oy, int sy,
-                    int brightness, int frameBrightness);
+// The GB Player's Game Boy core (src/port/gb_core.c), behind GbCpu_Reset / GbCpu_Run
+// (game/src/fragments/audio_and_gb_emulator/gb_apu_3.c), and the frame its RSP task composed on the N64.
+void Port_GbCoreReset(uint8_t* mem, const uint8_t* rom, uint32_t romSize, uint8_t* sram, uint32_t sramSize);
+int32_t Port_GbCoreRun(uint16_t* pc, uint16_t buttons);
+int32_t Port_GbCoreTakeBorder(uint8_t* image, uint8_t* palette);
+void Port_GbPlayerPresent(void* frameBuffer, const uint8_t* frameImage, const uint8_t* framePal, const void* statusStrip,
+                          int stripY, int fade);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Widescreen (src/port/Engine.cpp, os_devices.cpp, libultraship fork interpreter.cpp)
@@ -236,9 +240,6 @@ void Port_XcheckApplyCaseParties(void);
 void Port_DlBufferWhere(uintptr_t p, int* which, long* off);
 int Port_DlBufferActive(void);
 uintptr_t Port_DlBufferBase(void);
-// Field offsets of the Game Boy Tower's emulator context, used by src/port/gb_core.c
-// (game/src/fragments/gb_tower_emulator/gb_tower_emulator_7F9A0.c).
-extern const size_t Port_GbEmuOffsets[9];
 
 #ifdef __cplusplus
 }

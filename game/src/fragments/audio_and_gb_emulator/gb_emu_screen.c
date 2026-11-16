@@ -3,6 +3,9 @@
 #include "global.h"
 #include "audio_and_gb_emulator.h"
 #include "gb_player_launch.h"
+#include "StadionPort.h" // PORT: Port_GbPlayerPresent
+
+extern GbEmuState D_81156540;
 
 void func_811177D0(s32 arg0); // PORT: matches GbAudio_SetMenuSoundMode
 void GbEmu_PauseEmulation(void);
@@ -851,7 +854,16 @@ void GbEmu_RunFrame(GbPlayerEmuBlock* params) { // PORT: the emulator thread blo
     osViSwapBuffer(D_81154C30[D_81154C3C]->img_p);
     func_80008014(D_81154C30[D_81154C3C]->img_p, 0x140, 0x10);
     if (D_800AA148 == 0) {
-        func_80004F34(&D_81154B20[D_81154C3C], 0);
+        // PORT: the RSP task drew the Game Boy picture, the frame around it and the status strip into the next frame
+        // buffer with the GB Player's own microcode. The host composes it here (src/port/gb_core.c) and posts the
+        // task's completion message, which the next frame waits for.
+        {
+            GbEmuTask* t = &D_81154B20[D_81154C3C].task;
+
+            Port_GbPlayerPresent(t->outputBuff, t->unk_20 + 0x800, D_81156540.mem + 0x14800, t->unk_10, t->unk_15,
+                                 t->unk_1C.bytes[3]);
+            osSendMesg(&D_81154B20[D_81154C3C].queue, NULL, OS_MESG_NOBLOCK);
+        }
         D_81154C4C = 1;
         D_81154C3C ^= 1;
     }

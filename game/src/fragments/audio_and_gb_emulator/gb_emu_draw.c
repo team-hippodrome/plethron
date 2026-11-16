@@ -674,6 +674,27 @@ void GbEmu_DrawTextCommands(u16* fb, u8* cmd) {
     }
 }
 
+// PORT: frame buffers and the status strip hold RGBA5551 pixels in N64 byte order (what the screen output and
+// Port_GbPlayerPresent read). The images drawn into them come from lifted data, which keeps the N64 byte order where it
+// is declared as bytes but is in host order where declared u16 (or swapped as words where declared as 32-bit words), so
+// each source pixel is read according to how its data was lifted (ZLift_ScalarSize).
+int ZLift_ScalarSize(const void* host);
+
+static u16 GbEmu_PortSwap16(u16 v) {
+    return (u16)((v >> 8) | (v << 8));
+}
+
+static u16 GbEmu_PortReadPixel(const u16* src, s32 i, s32 order) {
+    switch (order) {
+        case 2:
+            return src[i];
+        case 4:
+            return src[i ^ 1];
+        default:
+            return GbEmu_PortSwap16(src[i]);
+    }
+}
+
 /**
  * Pixel op: keeps the destination when the source alpha bit is clear, else the source.
  * Seen in play (2026-11-13) ran on the GB Player screen while Pocket Monsters Green booted; also
@@ -735,13 +756,17 @@ void GbEmu_BlitWithPixelOp(u16* dst, u16* src, s32 mode, s32 width, s32 height) 
       default: operation = GbEmu_PixelOpReplace; break;
   }
 
-  for (x = 0; x != height; x++) {
-      for (y = 0; y != width; y++) {
-          *dst = operation(*dst, *src);
-          dst++;
-          src++;
+  {
+      s32 order = ZLift_ScalarSize(src); // PORT: see GbEmu_PortReadPixel
+      s32 i = 0;
+
+      for (x = 0; x != height; x++) {
+          for (y = 0; y != width; y++) {
+              *dst = GbEmu_PortSwap16(operation(GbEmu_PortSwap16(*dst), GbEmu_PortReadPixel(src, i++, order)));
+              dst++;
+          }
+          dst = dst - width + 0x140;
       }
-      dst = dst - width + 0x140;
   }
 }
 
@@ -769,12 +794,14 @@ void GbEmu_BlitTinted(u16* dst, u16* src, s32 color, s32 width, s32 height) {
     s32 y;
     s32 intensity;
 
+    s32 order = ZLift_ScalarSize(src); // PORT: see GbEmu_PortReadPixel
+
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            intensity = (src[y * width + x] & 0x3E) >> 1;
-            dst[y * 320 + x] = ((((color & 0xF800) * intensity) / 31) & 0xF800) |
-                               ((((color & 0x7C0) * intensity) / 31) & 0x7C0) |
-                               ((((color & 0x3E) * intensity) / 31) & 0x3E);
+            intensity = (GbEmu_PortReadPixel(src, y * width + x, order) & 0x3E) >> 1;
+            dst[y * 320 + x] = GbEmu_PortSwap16(((((color & 0xF800) * intensity) / 31) & 0xF800) |
+                                                ((((color & 0x7C0) * intensity) / 31) & 0x7C0) |
+                                                ((((color & 0x3E) * intensity) / 31) & 0x3E));
         }
     }
 }
@@ -796,16 +823,18 @@ void GbEmu_BlendColorWithAlphaMap(u16* dst, u8* alpha_map, s32 color, s32 width,
   s32 var_a0;
   for (y = 0; y < height; y++) {
       for (x = 0; x < width; x++) {
+          u16 d = GbEmu_PortSwap16(dst[y * 320 + x]); // PORT: frame buffer pixels are in N64 byte order
+
           var_a0 = alpha_map[y * alpha_stride + x] & 0xF;
-          var_t0 = (dst[y * 320 + x] & 0xF800) + (((color & 0xF800) * var_a0) / 15 & 0xF800);
+          var_t0 = (d & 0xF800) + (((color & 0xF800) * var_a0) / 15 & 0xF800);
           if (var_t0 > 0xF800) var_t0 = 0xF800;
           var_t4 = var_t0;
-          var_t0 = (dst[y * 320 + x] & 0x07C0) + (((color & 0x07C0) * var_a0) / 15 & 0x07C0);
+          var_t0 = (d & 0x07C0) + (((color & 0x07C0) * var_a0) / 15 & 0x07C0);
           if (var_t0 > 0x07C0) var_t0 = 0x07C0;
           var_t4 |= var_t0;
-          var_t0 = (dst[y * 320 + x] & 0x003E) + (((color & 0x003E) * var_a0) / 15 & 0x003E);
+          var_t0 = (d & 0x003E) + (((color & 0x003E) * var_a0) / 15 & 0x003E);
           if (var_t0 > 0x003E) var_t0 = 0x003E;
-          dst[y * 320 + x] = (s16)(var_t4 | var_t0);
+          dst[y * 320 + x] = GbEmu_PortSwap16((u16)(var_t4 | var_t0));
       }
   }
 }
@@ -855,12 +884,14 @@ void GbEmu_DrawAccessIcon(u16* arg0, s32 arg1, s32 arg2) {
         src = &D_81120FD8[arg2 * 0x84 + 0x83];
         arg1 = -1;
     }
+    s32 order = ZLift_ScalarSize(D_81120FD8); // PORT: see GbEmu_PortReadPixel
+
     for (y = 0; y < 11; y++) {
         for (x = 0; x < 12; x++) {
-            pixel = *src;
+            pixel = GbEmu_PortReadPixel(D_81120FD8, src - D_81120FD8, order);
             if (pixel & 1) {
                 row = y;
-                arg0[row * 0x140 + x + 0x2D2] = pixel;
+                arg0[row * 0x140 + x + 0x2D2] = GbEmu_PortSwap16(pixel);
             }
             src += arg1;
         }
