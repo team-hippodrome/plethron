@@ -131,7 +131,7 @@ void PokeIcon_SetSpeciesSlot(PokeIconRenderer* renderer, s32 slot, s32 species, 
     }
 }
 
-void Model_ComputeNicknameColorVariant(arg1_func_80010CA8*);
+arg1_func_80010CA8* Model_ComputeNicknameColorVariant(arg1_func_80010CA8*, BattleMon*);
 /**
  * Clears slot `slot` and queues a render of party Pokémon `mon` (its species, size and nickname color
  * variant) on background `fillColor`; an invalid species falls back to the placeholder. Used for the
@@ -149,7 +149,7 @@ void PokeIcon_SetMonSlot(PokeIconRenderer* renderer, s32 slot, BattleMon* mon, u
             renderer->slots[slot].source.ptr = (u8*)mon;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;
             renderer->slots[slot].scale = D_80064C5C[mon->species.id - 1].modelScale / 100.0f;
-            Model_ComputeNicknameColorVariant(&renderer->slots[slot].colorVariant);
+            Model_ComputeNicknameColorVariant(&renderer->slots[slot].colorVariant, mon); // PORT: mon was left in a1 on the N64
         } else {
             renderer->slots[slot].flags = 1;
             renderer->slots[slot].fillColor = fill_color & 0xFFFE;

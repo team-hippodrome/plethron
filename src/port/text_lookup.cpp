@@ -318,6 +318,67 @@ const std::string* IdOf(Tables& t, const char* s, const std::string& md5) {
     return &m->second[0];
 }
 
+
+// Text with no translation is still EUC-JP (names from Game Boy saves, mostly): drawn in a translated language it
+// is turned into UTF-8 for the Unicode font. Kana and the symbols names use are mapped; full-width Latin letters and
+// digits become ASCII, so a Western cartridge's names read as typed (gb_save_convert.h).
+std::string EucToUtf8(const char* s) {
+    std::string out;
+    auto put = [&](uint32_t cp) {
+        if (cp < 0x80) {
+            out += (char)cp;
+        } else if (cp < 0x800) {
+            out += (char)(0xC0 | (cp >> 6));
+            out += (char)(0x80 | (cp & 0x3F));
+        } else {
+            out += (char)(0xE0 | (cp >> 12));
+            out += (char)(0x80 | ((cp >> 6) & 0x3F));
+            out += (char)(0x80 | (cp & 0x3F));
+        }
+    };
+    for (const uint8_t* p = (const uint8_t*)s; *p != 0; p++) {
+        if (*p < 0x80 || p[1] == 0) {
+            put(*p < 0x80 ? *p : '?');
+            continue;
+        }
+        uint16_t c = (uint16_t)((p[0] << 8) | p[1]);
+        p++;
+        if (c >= 0xA3B0 && c <= 0xA3FA) {
+            put(c - 0xA3B0 + '0'); // ０-９ Ａ-Ｚ ａ-ｚ
+        } else if (c >= 0xA4A1 && c <= 0xA4F3) {
+            put(0x3041 + (c - 0xA4A1)); // hiragana
+        } else if (c >= 0xA5A1 && c <= 0xA5F6) {
+            put(0x30A1 + (c - 0xA5A1)); // katakana
+        } else {
+            switch (c) {
+                case 0xA1A1: put(' '); break;
+                case 0xA1A2: put(0x3001); break; // 、
+                case 0xA1A3: put(0x3002); break; // 。
+                case 0xA1A4: put(','); break;
+                case 0xA1A5: put('.'); break;
+                case 0xA1A6: put(0x30FB); break; // ・
+                case 0xA1A7: put(':'); break;
+                case 0xA1A9: put('?'); break;
+                case 0xA1AA: put('!'); break;
+                case 0xA1BC: put(0x30FC); break; // ー
+                case 0xA1BD: case 0xA1DD: put('-'); break;
+                case 0xA1C7: put('\''); break;
+                case 0xA1E9: put(0x2642); break; // ♂
+                case 0xA1EA: put(0x2640); break; // ♀
+                default: put('?'); break;
+            }
+        }
+    }
+    return out;
+}
+
+bool HasHighBytes(const char* s) {
+    for (const uint8_t* p = (const uint8_t*)s; *p != 0; p++) {
+        if (*p >= 0x80) return true;
+    }
+    return false;
+}
+
 void LogMiss(const std::string& key, const char* s) {
     Tables& t = T();
     if (!t.missed.insert(key).second) {
@@ -690,6 +751,8 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap) {
             default: a.kind = HasLong(fmt, s) ? ARG_LONG : ARG_INT; break;
         }
     }
+    std::vector<std::string> converted; // EUC-JP arguments with no translation, as UTF-8 (kept alive here)
+    converted.reserve(args.size());
     for (Arg& a : args) {
         switch (a.kind) {
             case ARG_LONG: a.i = va_arg(ap, long); break;
@@ -701,10 +764,18 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap) {
             const char* tr = Port_Text_Lookup((const char*)a.p);
             if (tr != nullptr) {
                 a.p = tr;
+            } else if (HasHighBytes((const char*)a.p)) {
+                converted.push_back(EucToUtf8((const char*)a.p));
+                a.p = converted.back().c_str();
             }
         }
     }
     const char* tfmt = Port_Text_Lookup(fmt);
+    std::string fmtUtf8;
+    if (tfmt == nullptr && HasHighBytes(fmt)) {
+        fmtUtf8 = EucToUtf8(fmt);
+        tfmt = fmtUtf8.c_str();
+    }
     const char* use = tfmt ? tfmt : fmt;
     std::vector<Spec> specs = tfmt ? ParseFormat(tfmt) : orig;
     std::string res;

@@ -404,7 +404,7 @@ void PartyScreen_SetupList(PartyScreen* screen) {
     PartyScreen_ReadParty(&screen->monTable);
     func_80027804(&screen->monList, (void**)screen->monPointers, 6, screen->monTable.count);
     for (i = 0; i < screen->monTable.count; i++) {
-        PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, i, (BattleMon*)(screen->monTable.rows + i * 0x50),
+        PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, i, (BattleMon*)(screen->monTable.rows + i * sizeof(BattleMon)) /* PORT: was i * 0x50, the N64 size */,
                       GPACK_RGBA5551(D_8A203304.r, D_8A203304.g, D_8A203304.b, 1));
     }
     PartyScreen_InitList(&screen->listWindow, 47, 77, &screen->monList);

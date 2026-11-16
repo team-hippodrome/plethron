@@ -719,7 +719,8 @@ void Save_LoadSram(void);
 void Save_SetGbPlayerButtonConfig(s32);
 void Save_CommitTypedRecord(s32, s32);
 
-/** Game state: runs Game Boy Tower. */
+/** Game state: runs the GB Player. */
+void Port_GbPakSetRawMode(int on); // PORT: transfer_pak.cpp
 void State_GbPlayer(void) {
     s32 sp2C;
     GbPlayerLaunchParams sp24;
@@ -732,9 +733,11 @@ void State_GbPlayer(void) {
     sp24.partyIcons = MainPool_Alloc(sizeof(*sp24.partyIcons), 0);
 
     func_80025B60(((u32) ((uintptr_t) &D_81300000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F8F0, &D_0015FCE0, gActiveGbPort, (uintptr_t) &sp24);
+    Port_GbPakSetRawMode(1); // PORT: the emulated game reads a Western cartridge as it is (gb_save_convert.h)
     GbPlayer_Start(&sp24);
 
     sp2C = GbPlayer_WaitForExit();
+    Port_GbPakSetRawMode(0); // PORT
 
     func_8000AE1C(&sp24);
     Display_WaitForFrames(2);

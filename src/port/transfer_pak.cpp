@@ -18,6 +18,7 @@
 #include <PR/os_gbpak.h>
 
 #include "port_platform.h"
+#include "gb_save_convert.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -40,11 +41,22 @@ struct Cart {
     uint32_t ramBank = 0;
     uint32_t mbc1Mode = 0;
     bool ramDirty = false;
+    // Western Red/Blue/Yellow (gb_save_convert.h): `ram` is the Japanese-layout copy Zero reads, `westRam` the
+    // cartridge's own battery RAM, which the GB Player reads and which is saved.
+    bool western = false;
+    bool jpStale = false; // the GB Player changed westRam since the copy was made
+    std::vector<uint8_t> westRam;
+    GbSaveConvert::Context conv;
 };
 
 std::mutex gLock;
 Cart gCarts[4];
 bool gLoaded = false;
+bool gRawMode = false; // the GB Player is running: it sees the cartridge as it is
+
+std::vector<uint8_t>& RamFor(Cart& c) {
+    return c.western && gRawMode ? c.westRam : c.ram;
+}
 
 void PatchRegion(std::vector<uint8_t>& rom) {
     const char* e = getenv("PORT_GB_REGION_COMPAT");
@@ -129,6 +141,12 @@ void LoadCarts() {
         } else {
             fprintf(stderr, "[gbpak] controller %d: no save file %s (empty battery RAM)\n", ch + 1, c.savePath.c_str());
         }
+        if (GbSaveConvert::IsWesternGen1(c.rom) && c.ram.size() == 0x8000) {
+            c.western = true;
+            c.westRam = c.ram;
+            GbSaveConvert::Init(c.conv, c.rom);
+            c.jpStale = true; // made on first use, once the game's tables are lifted
+        }
         PatchRegion(c.rom);
         c.present = true;
         fprintf(stderr, "[gbpak] controller %d: %s, MBC%d, ROM %zu KB, RAM %zu KB\n", ch + 1, romPath, c.mbc,
@@ -136,12 +154,27 @@ void LoadCarts() {
     }
 }
 
+void SyncJp(Cart& c) {
+    if (c.western && c.jpStale && !gRawMode) {
+        GbSaveConvert::WestToJp(c.conv, c.westRam, c.ram);
+        c.jpStale = false;
+    }
+}
+
 void FlushSave(Cart& c) {
     if (!c.ramDirty || c.savePath.empty()) {
         return;
     }
+    if (c.western) {
+        if (gRawMode) {
+            c.jpStale = true;
+        } else {
+            GbSaveConvert::JpToWest(c.conv, c.ram, c.westRam);
+        }
+    }
+    const std::vector<uint8_t>& out = c.western ? c.westRam : c.ram;
     std::string error;
-    if (Port::WriteProtectedSave(std::filesystem::u8path(c.savePath), c.ram.data(), c.ram.size(), error)) {
+    if (Port::WriteProtectedSave(std::filesystem::u8path(c.savePath), out.data(), out.size(), error)) {
         c.ramDirty = false;
         Port_SaveWritten();
     } else {
@@ -159,11 +192,13 @@ uint8_t BusRead(Cart& c, uint32_t a) {
         return c.rom[off % c.rom.size()];
     }
     if (a >= 0xA000 && a < 0xC000) {
-        if (!c.ramEnabled || c.ram.empty()) {
+        std::vector<uint8_t>& ram = RamFor(c);
+        if (!c.ramEnabled || ram.empty()) {
             return 0xFF;
         }
+        SyncJp(c);
         size_t off = (size_t)c.ramBank * 0x2000 + (a - 0xA000);
-        return c.ram[off % c.ram.size()];
+        return ram[off % ram.size()];
     }
     return 0xFF;
 }
@@ -200,10 +235,12 @@ void BusWrite(Cart& c, uint32_t a, uint8_t v) {
             c.mbc1Mode = v & 1;
         }
     } else if (a >= 0xA000 && a < 0xC000) {
-        if (c.ramEnabled && !c.ram.empty()) {
-            size_t off = ((size_t)c.ramBank * 0x2000 + (a - 0xA000)) % c.ram.size();
-            if (c.ram[off] != v) {
-                c.ram[off] = v;
+        std::vector<uint8_t>& ram = RamFor(c);
+        if (c.ramEnabled && !ram.empty()) {
+            SyncJp(c);
+            size_t off = ((size_t)c.ramBank * 0x2000 + (a - 0xA000)) % ram.size();
+            if (ram[off] != v) {
+                ram[off] = v;
                 c.ramDirty = true;
             }
         }
@@ -353,6 +390,16 @@ void Port_GbCartWrite(int channel, uint32_t address, uint8_t value) {
     if (gCarts[channel].present) {
         BusWrite(gCarts[channel], address, value);
     }
+}
+// The GB Player runs (on) or has stopped (off): while it runs, a Western cartridge is served as it is.
+void Port_GbPakSetRawMode(int on) {
+    std::lock_guard<std::mutex> g(gLock);
+    for (Cart& c : gCarts) {
+        if (c.present && c.western) {
+            FlushSave(c);
+        }
+    }
+    gRawMode = on != 0;
 }
 void Port_GbCartFlush(int channel) {
     std::lock_guard<std::mutex> g(gLock);
