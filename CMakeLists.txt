@@ -80,6 +80,7 @@ set(PORT_MAIN_SOURCES
   src/port/zero_lift.c
   src/port/zero_asm.c
   src/port/text_lookup.cpp
+  src/port/unicode_font.cpp
   src/port/generated/zero_lift_data.c
 )
 if(NOT EMSCRIPTEN)  # web: an object file written by tools/gen_wasm_abs_syms.py instead (below)
@@ -101,7 +102,11 @@ else()
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/translations
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
             ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv $<TARGET_FILE_DIR:pokestadium>/translations/
-    COMMENT "Copying the translation tables")
+    # the Unicode glyphs for translated text (src/port/unicode_font.cpp)
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/assets/font
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/unifont_subset.hex
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-unifont.txt $<TARGET_FILE_DIR:pokestadium>/assets/font/
+    COMMENT "Copying the translation tables and font")
 endif()
 target_include_directories(pokestadium PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src

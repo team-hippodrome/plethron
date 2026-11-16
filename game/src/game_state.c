@@ -485,7 +485,14 @@ extern M2C_UNK D_82100000;
  * Seen in play (2026-11-14): the first state after reset; it loaded fragment slot 5 (N64 logo) and then
  * slot 0x11 (battle) with the opening battle on screen.
  */
+void Port_RunLanguageSelect(void);
 void State_Boot(void) {
+    // PORT: the language select screen comes before anything else (game/src/language_select.c)
+    static s32 sLanguageChosen = 0;
+    if (!sLanguageChosen) {
+        sLanguageChosen = 1;
+        Port_RunLanguageSelect();
+    }
     func_80025B60(((u32) ((uintptr_t) &D_81500000 & 0x0FF00000) >> 0x14) - 0x10, &D_0015F390, &D_0015F8F0, 0, 0);
     Session_InitTwoTrainers(5, 3, 3);
     // PORT: debug option PORT_SKIP_OPENING=1 goes straight to the title screen (while the opening battle is ported)

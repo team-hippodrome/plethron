@@ -1,5 +1,6 @@
 // Runtime text translation (see text_lookup.h and translations/README.md).
 #include "text_lookup.h"
+#include "unicode_font.h"
 
 #include <algorithm>
 #include <cctype>
@@ -519,6 +520,23 @@ int Port_Text_GetLanguage(void) {
     return sLanguage;
 }
 
+int Port_Text_LanguageForced(void) {
+    Port_Text_GetLanguage();
+    return getenv("PORT_LANGUAGE") != nullptr;
+}
+
+// The language select screen remembers the last choice (and whether the AI languages were unlocked) in the port's
+// settings, so the cursor starts there on the next boot.
+int Port_Text_SavedLanguage(void) {
+    int lang = CVarGetInteger("gPort.Language", PORT_LANG_ORIGINAL);
+    return (lang >= 0 && lang < PORT_LANG_COUNT) ? lang : PORT_LANG_ORIGINAL;
+}
+
+void Port_Text_SaveLanguage(int lang) {
+    CVarSetInteger("gPort.Language", lang);
+    CVarSave();
+}
+
 const char* Port_Text_LanguageName(int lang) {
     return (lang >= 0 && lang < PORT_LANG_COUNT) ? kNames[lang] : "";
 }
@@ -618,6 +636,24 @@ int Port_Text_SelfTest(void) {
     }
     printf("%s BULBASAUR_DEX_ENTRY: %s\n", got ? "ok  " : "FAIL", got ? got : "(null)");
     failed += got == nullptr;
+    // every character of every translation has a glyph (tools/font/make_unifont_subset.py)
+    std::string missing;
+    for (auto* table : { &T().ai, &T().human }) {
+        for (auto& [id, row] : *table) {
+            for (int l = 1; l < PORT_LANG_COUNT; l++) {
+                const char* p = row.text[l].c_str();
+                while (uint32_t cp = Port_Utf8Next(&p)) {
+                    if (cp >= 0x20 && cp != 0xAD && !Port_Font_HasGlyph(cp) && missing.size() < 200) {
+                        missing += id + " ";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    printf("%s glyphs for every translated character%s%s\n", missing.empty() ? "ok  " : "FAIL",
+           missing.empty() ? "" : ", missing in: ", missing.c_str());
+    failed += !missing.empty();
     Port_Text_SetLanguage(PORT_LANG_ORIGINAL);
     printf("%s\n", failed ? "text selftest FAILED" : "text selftest passed");
     return failed ? 1 : 0;
@@ -688,63 +724,5 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap) {
     return (int)n;
 }
 
-int Port_Text_Utf8ToGameEuc(const char* in, unsigned char* out, size_t cap) {
-    static const char kPunct[] = " !\"#%&'()*+,-./:;<=>?@[]_";
-    static const uint16_t kPunctJis[] = { 0xA1A1, 0xA1AA, 0xA1C9, 0xA1F4, 0xA1F3, 0xA1F5, 0xA1C7, 0xA1CA, 0xA1CB,
-                                          0xA1F6, 0xA1DC, 0xA1A4, 0xA1DD, 0xA1A5, 0xA1BF, 0xA1A7, 0xA1A8, 0xA1E3,
-                                          0xA1E1, 0xA1E4, 0xA1A9, 0xA1F7, 0xA1CE, 0xA1CF, 0xA1B2 };
-    size_t n = 0;
-    const uint8_t* p = (const uint8_t*)in;
-    while (*p != 0 && n + 2 < cap) {
-        uint32_t cp;
-        int len;
-        if (*p < 0x80) {
-            cp = *p;
-            len = 1;
-        } else if ((*p & 0xE0) == 0xC0) {
-            cp = *p & 0x1F;
-            len = 2;
-        } else if ((*p & 0xF0) == 0xE0) {
-            cp = *p & 0x0F;
-            len = 3;
-        } else {
-            cp = *p & 0x07;
-            len = 4;
-        }
-        for (int i = 1; i < len; i++) {
-            if ((p[i] & 0xC0) != 0x80) {
-                len = i;
-                break;
-            }
-            cp = (cp << 6) | (p[i] & 0x3F);
-        }
-        p += len;
-        uint16_t jis = 0xA1A9; // full-width '?'
-        if (cp == '\n' || cp == '\t') {
-            out[n++] = (uint8_t)cp;
-            continue;
-        } else if (cp >= '0' && cp <= '9') {
-            jis = 0xA3B0 + (cp - '0');
-        } else if (cp >= 'A' && cp <= 'Z') {
-            jis = 0xA3C1 + (cp - 'A');
-        } else if (cp >= 'a' && cp <= 'z') {
-            jis = 0xA3E1 + (cp - 'a');
-        } else if (cp < 0x80 && strchr(kPunct, (int)cp) != nullptr) {
-            jis = kPunctJis[strchr(kPunct, (int)cp) - kPunct];
-        } else if (cp >= 0x3041 && cp <= 0x3093) {
-            jis = 0xA4A1 + (cp - 0x3041); // hiragana
-        } else if (cp >= 0x30A1 && cp <= 0x30F6) {
-            jis = 0xA5A1 + (cp - 0x30A1); // katakana
-        } else if (cp == 0x30FC) {
-            jis = 0xA1BC;
-        } else if (cp == 0xE9) { // é (Pokémon): plain e for now
-            jis = 0xA3E5;
-        }
-        out[n++] = (uint8_t)(jis >> 8);
-        out[n++] = (uint8_t)jis;
-    }
-    out[n] = 0;
-    return (int)n;
-}
 
 } // extern "C"

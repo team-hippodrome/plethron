@@ -23,6 +23,11 @@ enum PortLanguage {
 void Port_Text_Init(void);
 void Port_Text_SetLanguage(int lang);
 int Port_Text_GetLanguage(void);
+// PORT_LANGUAGE set the language (a debug aid): the language select screen is skipped.
+int Port_Text_LanguageForced(void);
+// The language chosen on the last boot (settings key gPort.Language), and saving a new choice.
+int Port_Text_SavedLanguage(void);
+void Port_Text_SaveLanguage(int lang);
 // The language's name in that language (UTF-8), for the language select screen.
 const char* Port_Text_LanguageName(int lang);
 
@@ -42,10 +47,6 @@ void Port_Text_NoteCopy(const char* dst, const char* src);
 // uses (flags, width, precision, h/l, d i u x X o c s p f %) and positional %n$ forms in translated formats.
 // Returns the length written (without the NUL). With the original language this is a plain vsnprintf.
 int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap);
-
-// Interim renderer bridge until the Unicode font lands: rewrites UTF-8 into the game's EUC-JP glyph codes (ASCII
-// to the full-width JIS forms, U+3000 block kana as is, anything else as a full-width '?'). Returns the length.
-int Port_Text_Utf8ToGameEuc(const char* in, unsigned char* out, size_t cap);
 
 // Checks id, address and md5 lookups against the tables and the ROM (main.cpp --text-selftest). 0 = passed.
 int Port_Text_SelfTest(void);

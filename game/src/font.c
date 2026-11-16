@@ -15,6 +15,7 @@ extern FontContext* font_context;
 
 #include "m2c_macros.h"
 #include "text_lookup.h" // PORT: translations
+#include "unicode_font.h" // PORT: Unicode glyphs for translated text
 extern Gfx D_80060950[];
 extern Gfx D_800609A8[];
 
@@ -71,7 +72,8 @@ void Font_RegisterSet(s32 mask, s32 advance, s32 height, s32 width, void* file) 
     s32 index;
 
     if (mask) {}  // karodo
-    index = func_8001A0A4();
+    index = Font_GetSetIndexFromMask(mask); // PORT: was func_8001A0A4(), an alias of this function called with no
+                                            // argument: on the N64 `mask` was still in a0, on the host it is lost
 
     ((FontEntry8001A118*)font_context)[index].file = file;
     ((FontEntry8001A118*)font_context)[index].size_a = advance;
@@ -220,6 +222,66 @@ char* String_CopyBytesAndAdvance(char* buffer, const char* data, u32 size) {
     return (char*)memcpy(buffer, data, size) + size;
 }
 
+// PORT: draws translated text with the Unicode glyphs (src/port/unicode_font.cpp) in place of the game font, which
+// has kana and fixed-width ASCII only. Each glyph is sized to the active set's height and advances by its own width.
+// Follows Font_DrawChar: the two-cycle shading texture (glyph 256 of the set) still goes to tile 1 first.
+static s32 Port_Font_DrawCodepoint(s32 x, s32 y, u32 cp) {
+    FontGlyphSet8001A3E4* set = &((FontGlyphSet8001A3E4*) font_context)[font_context->unk_50];
+    int tex_width, draw_width, advance;
+    const unsigned char* tex = Port_Font_Glyph(cp, set->height, &tex_width, &draw_width, &advance);
+
+    if (tex == NULL) {
+        tex = Port_Font_Glyph('?', set->height, &tex_width, &draw_width, &advance);
+        if (tex == NULL) {
+            return x + set->advance;
+        }
+    }
+    if ((font_context->line_break_flag & 1) && !(font_context->line_break_flag & 2)) {
+        font_context->line_break_flag |= 2;
+        gDPLoadMultiBlock(gDisplayListHead++, set->tex + ((set->width << 8) * set->height), 0x100, 1, G_IM_FMT_I,
+                          G_IM_SIZ_8b, set->width, set->height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+    }
+    if (cp != ' ') {
+        font_context->unk_4C = (uintptr_t) tex;
+        gDPLoadTextureBlock(gDisplayListHead++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, tex_width, set->height, 0, G_TX_CLAMP,
+                            G_TX_CLAMP, 0, 0, 0, 0);
+        gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + draw_width) << 2, (y + set->height) << 2,
+                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    }
+    return x + advance;
+}
+
+// PORT: the width in pixels of one line of `utf8` in the active set, as Port_Font_PrintUtf8 draws it.
+s32 Port_Font_MeasureUtf8(const char* utf8) {
+    FontGlyphSet8001A3E4* set = &((FontGlyphSet8001A3E4*) font_context)[font_context->unk_50];
+    int tex_width, draw_width, advance;
+    s32 width = 0;
+    u32 cp;
+
+    while ((cp = Port_Utf8Next(&utf8)) != 0 && cp != '\n') {
+        if (Port_Font_Glyph(cp, set->height, &tex_width, &draw_width, &advance) != NULL ||
+            Port_Font_Glyph('?', set->height, &tex_width, &draw_width, &advance) != NULL) {
+            width += advance;
+        }
+    }
+    return width;
+}
+
+// PORT: Font_Printf for a translated language: `utf8` drawn glyph by glyph, '\n' handled as the original does.
+void Port_Font_PrintUtf8(s32 x, s32 y, const char* utf8) {
+    s32 start_x = x;
+    u32 cp;
+
+    while ((cp = Port_Utf8Next(&utf8)) != 0) {
+        if (cp == '\n' && !(font_context->line_break_flag & 4)) {
+            x = start_x;
+            y += font_context->line_height;
+            continue;
+        }
+        x = Port_Font_DrawCodepoint(x, y, cp);
+    }
+}
+
 s32 Font_DrawChar(s16, s16, s16);
 /**
  * Formats `fmt` and draws it at (x, y) with the active font set. '\n' starts a new line unless
@@ -240,11 +302,13 @@ void Font_Printf(s32 x, s32 y, const char* fmt, ...) {
     va_start(args, fmt);
     start_x = x;
     if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) {
-        // PORT: the translated text (format and %s arguments looked up by md5), drawn with the game's glyphs for now
+        // PORT: the translated text (format and %s arguments looked up by id, then md5) in Unicode glyphs
         char utf8[0x200];
         Port_Text_Vformat(utf8, sizeof(utf8), fmt, args);
-        len = Port_Text_Utf8ToGameEuc(utf8, buf, sizeof(buf));
-    } else
+        Port_Font_PrintUtf8(x, y, utf8);
+        va_end(args);
+        return;
+    }
     len = _Printf(String_CopyBytesAndAdvance, (char*)buf, fmt, args);
     if (len > 0) {
         buf[len] = 0;

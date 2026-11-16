@@ -82,7 +82,8 @@ void Yay0_DecompressAndRelocate(u8* in_header, u8* memory) {
     Yay0_Decompress(in_header + header->header_size, memory);
 
     for (var_v0 = 0; var_v0 < header->relocCount; var_v0++) {
-        *(u32*)(memory + sp2C[1]) = sp2C[0];
+        // PORT: the entries are big-endian (offset, word); the word goes in as is, since the image stays big-endian
+        *(u32*)(memory + PORT_BE32(sp2C[1])) = sp2C[0];
         sp2C += 2;
     }
 
