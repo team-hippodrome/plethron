@@ -64,7 +64,7 @@ void PokeIcon_SetMonSlot(PokeIconRenderer*, s32, BattleMon*, u16);
 s32 PokeIcon_ProcessNextSlot(PokeIconRenderer*, s32);
 s32 PokeIcon_ProcessAllSlots(PokeIconRenderer*, s32);
 s32 PokeIcon_RenderNextSlotBlocking(PokeIconRenderer*, s32);
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 s32 PokeIcon_AreSlotsIdle(PokeIconRenderer*);
 
 // poke_icon_2.c

@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "rom_check.h"
+#include "text_lookup.h"
 #include "interp.h"
 #include "port_platform.h"
 #include "launcher.h"
@@ -419,6 +420,10 @@ static int RunGame(int argc, char** argv) {
     }
     if (!romPath.empty() && !RomIsOriginal(romPath)) {
         return 1;
+    }
+    // `pokestadium <rom> --text-selftest`: checks the translation tables' id, address and md5 lookups, then exits.
+    if (argc > 2 && strcmp(argv[2], "--text-selftest") == 0) {
+        return Port_Text_SelfTest();
     }
     // An interrupted interactive launch comes back to settings. Only a failure while creating the
     // graphics window selects a safe renderer; an interrupted game merely bypasses Auto-play.

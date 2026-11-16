@@ -448,7 +448,7 @@ typedef struct BattleMessageQueues {
 } BattleMessageQueues; // size = 0x4C8 (Battle_AllocMessageQueues allocates 0x4C8; Stadium 1's 0x2C-byte tail is gone)
 
 typedef struct StatusLabel {
-    /* 0x00 */ s32 text; // @unverified: status label string drawn by BattleHud_DrawMonInfoBox (table D_80066AA0 indexed by status)
+    /* 0x00 */ const char* text; // @unverified: status label string drawn by BattleHud_DrawMonInfoBox (table D_80066AA0 indexed by status). PORT: was s32
     /* 0x04 */ Color_RGBA8 color; // @unverified: color the label is drawn in
 } StatusLabel; // size = 0x8
 

@@ -469,7 +469,7 @@ void func_8001BCB4(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 
 void Ui_DrawNumberUnpadded(s32, s32, u8);
 void Font_SetColorForFlags(s32);
 void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 /**
  * Draws one cell of the box contents grid: the Pokémon's icon, L%d and nickname.
  * Seen in play (2026-11-14): ホ L6 and タ L4 in GBのボックス2 and 64のボックス1.
@@ -499,7 +499,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, Poke
         Font_Printf(x + 5, y + 48, (char*)mon->nickname);
         func_8001ABBC();
         gSPDisplayList(gDisplayListHead++, D_80073408);
-        func_8001B884(x + 44, y + 4, 40, 40, PokeIcon_GetImage((s8*)renderer, index), 0x28, 0x200000); // PORT: PokeIcon_GetImage still returns s32 (resident)
+        func_8001B884(x + 44, y + 4, 40, 40, PokeIcon_GetImage((s8*)renderer, index), 0x28, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
     }
 }

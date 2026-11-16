@@ -530,7 +530,7 @@ extern PokeIconRenderer* D_88103074; // PORT: a pointer (was s32)
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 extern u8 D_04011A60[];
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 void Ui_DrawNumber(s32, s32, s32, s32);
 /**
@@ -569,7 +569,7 @@ void Registration_DrawMonCell(s32 x, s32 y, u8* mon, s32 icon_id, s32 text_flags
 extern PokeIconRenderer* D_88103074; // PORT: a pointer (was s32)
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 /**
  * Draws a cell with the Ditto placeholder icon (icon slot 24, which Registration_AllocScreen

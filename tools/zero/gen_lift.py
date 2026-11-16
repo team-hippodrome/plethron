@@ -356,6 +356,8 @@ def main():
             en = g.tab[ti][1] or 1
             declared = (t['n'] or 0) if t['k'] == 'array' else 1
             count = max(declared, gap // en, 1)
+            if declared and g.tab[ti][0].startswith('r:union Gfx'):
+                count = declared  # a sized display list ends where declared; data after it (text) is not commands
             lp = loaded_part(im, a)
             nb = nobits_part(im, a) or (lp is None)
             if nb and gap > 0x10000 and count > declared:

@@ -654,7 +654,7 @@ s32 Window_UpdateAnimation(Window* arg0) {
 }
 
 extern u8 D_80073554[];
-void Window_DrawTitleTab(s32, s32, s32, s32);
+void Window_DrawTitleTab(s32, s32, const char*, s32);
 void Window_DrawHeaderStripe(); // no prototype: callers pass a fourth argument the definition ignores
 
 /**
@@ -721,7 +721,7 @@ s32 Window_DrawAnimatedFrame(Window* arg0) {
     }
     Ui_DrawTexturedFrameDecal(x, y, w, h, D_80073554);
     if (arg0->frame.style & 0x800) {
-        Window_DrawTitleTab(x, y - 22, (uintptr_t)arg0->title, arg0->frame.style);
+        Window_DrawTitleTab(x, y - 22, arg0->title, arg0->frame.style);
     }
     if (arg0->frame.style & 0x1000) {
         Window_DrawHeaderStripe(x, y - 10, 80, arg0->frame.style);
@@ -1208,7 +1208,7 @@ extern Img8002A3F8 D_800735F4;
  * Verified in play (2026-11-14): stubbed at the main menu's バトル prompt, the バトル tab above the
  * prompt vanished.
  */
-void Window_DrawTitleTab(s32 x, s32 y, s32 str, s32 flags) {
+void Window_DrawTitleTab(s32 x, s32 y, const char* str, s32 flags) { // PORT: str was s32
     s32 width;
     s32 text_x;
 
@@ -1515,7 +1515,7 @@ extern u8 D_800736FC[];
  * Free Battle.
  * @unverified Name and comment guessed from the code.
  */
-void BlinkingTextBox_Init(BlinkingTextBox* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4) {
+void BlinkingTextBox_Init(BlinkingTextBox* arg0, const char* arg1, s32 arg2, s32 arg3, u32 arg4) { // PORT: arg1 was s32
     u32 len;
     s32 w;
     s32 h;

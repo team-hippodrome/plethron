@@ -60,7 +60,7 @@ ZLIFT_STORAGE(D_80060950, 128);
 ZLIFT_STORAGE(D_80060990, 48);
 ZLIFT_STORAGE(D_800609A8, 96);
 ZLIFT_STORAGE(D_800609D8, 80);
-ZLIFT_STORAGE(D_80060A00, 33920);
+ZLIFT_STORAGE(D_80060A00, 96);
 ZLIFT_STORAGE(D_80064C5C, 7248);
 ZLIFT_STORAGE(gBaseStats, 23);
 ZLIFT_STORAGE(gSpeciesData, 21643);
@@ -2713,14 +2713,14 @@ const ZLiftType gZLiftTypes[] = {
     { 16, 24, 321, 4 }, // r:struct LeoBootDescriptor@leo.h:8
     { 8, 8, 325, 1 }, // r:struct LeoBootState@leo.h:17
     { 4, 8, 326, 1 }, // ip
-    { 4260, 4392, 327, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:22
+    { 4260, 4392, 327, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:20
     { 64, 64, 331, 1 }, // r:MtxF@types.h:14
     { 16, 16, 332, 1 }, // af4[4]
     { 392, 392, 333, 4 }, // r:struct unk_D_800AB970@geo_render.h:10
     { 24, 48, 337, 7 }, // r:struct ModelAnimCurveContext@geo_render.h:67
     { 28, 28, 344, 4 }, // r:struct TransformAnimData@global.h:94
     { 10, 10, 348, 2 }, // r:struct ModelAnimChannel@geo_render.h:57
-    { 16, 32, 350, 5 }, // r:struct EventTrackRender@geo_render.c:345
+    { 16, 32, 350, 5 }, // r:struct EventTrackRender@geo_render.c:343
     { 20, 32, 355, 5 }, // r:struct EventTrackData@global.h:116
     { 2584, 2696, 360, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
     { 16, 16, 385, 2 }, // r:struct BinArchive@asset_archive.h:21
@@ -5317,7 +5317,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x80060990, 0x18, 3, 10, 0, 0, 0x61590, D_80060990 }, // D_80060990
     { 0x800609A8, 0x30, 6, 10, 0, 0, 0x615A8, D_800609A8 }, // D_800609A8
     { 0x800609D8, 0x28, 5, 10, 0, 0, 0x615D8, D_800609D8 }, // D_800609D8
-    { 0x80060A00, 0x4240, 2120, 10, 0, 0, 0x61600, D_80060A00 }, // D_80060A00
+    { 0x80060A00, 0x30, 6, 10, 0, 0, 0x61600, D_80060A00 }, // D_80060A00
     { 0x80064C5C, 0x1084, 151, 18, 0, 0, 0x6585C, D_80064C5C }, // D_80064C5C
     { 0x80065CE4, 0x17, 1, 20, 0, 0, 0x668E4, gBaseStats }, // gBaseStats
     { 0x80065D00, 0x548B, 941, 22, 0, 0, 0x66900, gSpeciesData }, // gSpeciesData

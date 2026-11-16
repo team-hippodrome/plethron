@@ -407,12 +407,12 @@ void PokeIcon_RedrawSlot(PokeIconRenderer* arg0, s32 arg1) {
 }
 
 /** Returns the rendered image of an icon slot. */
-s32 PokeIcon_GetImage(s8* arg0, s32 arg1) {
-    s32 var_v1;
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1) { // PORT: returned the image address as s32
+    u8* var_v1;
 
-    var_v1 = 0;
+    var_v1 = NULL;
     if (arg1 < (s32) ((PokeIconRenderer*)arg0)->slotCount) {
-        var_v1 = (uintptr_t)((PokeIconRenderer*)arg0)->slots[arg1].image->img_p;
+        var_v1 = (u8*)((PokeIconRenderer*)arg0)->slots[arg1].image->img_p;
     }
     return var_v1;
 }

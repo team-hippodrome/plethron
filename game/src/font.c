@@ -349,7 +349,7 @@ void Font_DisableTwoCycleTexturing(void) {
     gSPDisplayList(gDisplayListHead++, D_800609D8);
 }
 
-extern Gfx D_80060A00[];
+extern Gfx D_80060A00[6]; // PORT: sized: the Pokédex text follows it
 /**
  * Draws a textured rectangle tinted with the given RGBA primitive color.
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the battle opening, a switch

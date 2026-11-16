@@ -7,6 +7,7 @@
 #include "save_data.h"
 #include "util.h"
 #include "string.h"
+#include "text_lookup.h" // PORT: translations
 extern const char sStatusNames[7][4];
 extern const char sTypeNames[17][4];
 extern const char sMoveNames[166][8];
@@ -179,6 +180,7 @@ char* Text_UntranscodeFixedName(char* arg0, char* arg1) {
  */
 s8* Text_CopyString(s8* arg0, s8* arg1) {
     s8* ret = arg0;
+    s8* src = arg1; // PORT
     u16 c;
 
     while (*arg1 != 0) {
@@ -192,6 +194,7 @@ s8* Text_CopyString(s8* arg0, s8* arg1) {
     }
 
     *arg0 = 0;
+    Port_Text_NoteCopy((const char*)ret, (const char*)src); // PORT: the copy translates as its source (text_lookup.h)
 
     return ret;
 }

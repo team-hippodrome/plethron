@@ -691,7 +691,7 @@ void BattleScene_PhaseSelfEffect(CameraNode* arg0) {
             if (BattleScene_IsModelAnimationDone(sActingPokemon, 5) != 0) {
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 BattleCamera_CaptureModelOrbit(sActingPokemon, arg0);
                 BattleScene_EnterStateRow(sActingPokemon, 3);
                 ActivePokemon_CommitPendingStatus(sActingPokemon);
@@ -759,7 +759,7 @@ void BattleScene_PhaseExplosion(CameraNode* arg0) {
                 BattleSound_UpdateSideHp(sOtherPokemon);
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 BattleScene_EnterStateRow(sActingPokemon, 3);
                 ActivePokemon_CommitPendingStatus(sActingPokemon);
                 BattleScene_PhaseStepNop(sActingPokemon);
@@ -906,7 +906,7 @@ void BattleScene_PhaseHeal(CameraNode* arg0) {
                 BattleSound_UpdateSideHp(sActingPokemon);
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 BattleCamera_CaptureModelOrbit(sActingPokemon, arg0);
                 BattleScene_ResetCameraFrameCounter();
                 BattleScene_EnterStateRow(sActingPokemon, 3);
@@ -988,7 +988,7 @@ void BattleScene_PhaseTransform(CameraNode* arg0) {
         case 0:
             if (BattleScene_AdvanceCameraFrameCounter(20) != 0) {
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 sBattleScene.scene->phaseStep++;
             }
             break;
@@ -1062,7 +1062,7 @@ void BattleScene_PhaseSubstitute(CameraNode* arg0) {
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleAnim_PlayMoveEffectScript(sActingPokemon, sp1C->usedMove);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 if (sp18->flags & 0x800) {
                     BattleAnim_SwapToSubstituteModel((s8*)sActingPokemon);
                 }
@@ -1127,7 +1127,7 @@ void BattleScene_PhaseBide(CameraNode* arg0) {
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 Announcer_CommentOnSideMessage(0x2E);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 ActivePokemon_CommitPendingStatus(sActingPokemon);
                 BattleScene_PhaseStepNop(sActingPokemon);
                 BattleScene_ResetCameraFrameCounter();
@@ -1206,7 +1206,7 @@ void BattleScene_PhaseHaze(CameraNode* arg0) {
     switch (sBattleScene.scene->phaseStep) {
         case 0:
             if (BattleScene_IsModelAnimationDone(sActingPokemon, 5) != 0) {
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
                 BattleScene_EnterStateRow(sActingPokemon, 3);
@@ -1423,7 +1423,7 @@ void BattleScene_PhaseCannotMove(CameraNode* arg0) {
             if (BattleScene_AdvanceCameraFrameCounter(20) != 0) {
                 BattleScene_SaveCameraFovAndClipMask(arg0);
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[1], sBattleScene.scene->actingSide);
-                BattleCamera_PlayMoveUserShot((s32)arg0);
+                BattleCamera_PlayMoveUserShot(arg0); // PORT: was (s32)arg0
                 BattleMessage_ShowForSide(gBattleMessageQueues->messageBuffers[0], sBattleScene.scene->actingSide);
                 ActivePokemon_CommitPendingStatus(sActingPokemon);
                 BattleScene_EnterStateRow(sActingPokemon, 9);

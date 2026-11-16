@@ -279,6 +279,12 @@ static void* resolve(uint32_t v, int pointee) {
         return (void*)(uintptr_t)v; // segment addresses, offsets and small numbers stay as they are
     }
     const ZLiftSym* s = findSym(v);
+    if (s != NULL && v == s->addr + s->n64Ext && v != s->addr && pointee != s->type && findPart(v) != NULL &&
+        nextBound(v) > v) {
+        // One past a symbol, where unnamed data of another type starts (the Pokédex text after D_80060A00's display
+        // list): a pointer to that data, not an end pointer of the symbol.
+        s = NULL;
+    }
     if (s != NULL) {
         if (v == s->addr) {
             return s->host;

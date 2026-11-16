@@ -20,7 +20,7 @@ CameraNode* GeoNode_CreateCamera(MemoryBlock* arg0, CameraNode* arg1, s16 arg2, 
 GeoType3Node* GeoNode_CreateType3(MemoryBlock* arg0, GeoType3Node* arg1, s16 arg2);
 GeoBackgroundNode* GeoNode_CreateBackground(MainPoolState* arg0, GeoBackgroundNode* arg1, u8 arg2, u8 arg3, u8 arg4);
 GeoClearDepthNode* GeoNode_CreateClearDepth(MainPoolState* arg0, GeoClearDepthNode* arg1);
-GeoFogNode* GeoNode_CreateFog(s32 arg0, GeoFogNode* arg1, s16 arg2, s16 arg3, u8 r, u8 g, u8 b, u8 a);
+GeoFogNode* GeoNode_CreateFog(MainPoolState* arg0, GeoFogNode* arg1, s16 arg2, s16 arg3, u8 r, u8 g, u8 b, u8 a);
 GeoLightNode* GeoNode_CreateLight(MainPoolState* arg0, GeoLightNode* arg1, s16 arg2, s16 arg3, u8 r, u8 g,
                                     u8 b, u8 a);
 GeoAmbientLightNode* GeoNode_CreateAmbientLight(MainPoolState* arg0, GeoAmbientLightNode* arg1, u8 r, u8 g, u8 b);
@@ -248,7 +248,7 @@ GeoClearDepthNode* GeoNode_CreateClearDepth(MainPoolState* arg0, GeoClearDepthNo
 }
 
 /** Allocates a fog graph node with a fog range and color. */
-GeoFogNode* GeoNode_CreateFog(s32 arg0, GeoFogNode* arg1, s16 arg2, s16 arg3, u8 r, u8 g, u8 b, u8 a) {
+GeoFogNode* GeoNode_CreateFog(MainPoolState* arg0, GeoFogNode* arg1, s16 arg2, s16 arg3, u8 r, u8 g, u8 b, u8 a) {
     if (arg0 != 0) {
         arg1 = MainPool_AllocAligned(arg0, sizeof(GeoFogNode), 4);
     }

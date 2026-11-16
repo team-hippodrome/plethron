@@ -1,5 +1,6 @@
-// Runtime text translation: looks drawn strings up by the md5 of their original bytes in translations/human.csv and
-// translations/ai.csv (see translations/README.md). Language 0 is the original (kana) and does no lookup.
+// Runtime text translation: finds a drawn string's row in translations/human.csv and translations/ai.csv by its id
+// (the host address of the row's N64 addresses, or a noted copy), falling back to the md5 of its original bytes (see
+// translations/README.md). Language 0 is the original (kana) and does no lookup.
 #pragma once
 #include <stdarg.h>
 #include <stddef.h>
@@ -29,6 +30,14 @@ const char* Port_Text_LanguageName(int lang);
 // language is the original or no table has a non-empty cell for it. A miss is logged once.
 const char* Port_Text_Lookup(const char* s);
 
+// The translation of the row named `id` (translations/*.csv) in the current language, or NULL. For text the port
+// draws itself (the language select screen) and strings it knows by name.
+const char* Port_Text_LookupId(const char* id);
+
+// The game copied string `src` into `dst` (Text_CopyString): `dst` keeps `src`'s id while it holds the same bytes, so
+// a copy of a string whose bytes have two meanings (ゴースト: HAUNTER_NAME / GHOST_TYPE_NAME) translates as its source.
+void Port_Text_NoteCopy(const char* dst, const char* src);
+
 // printf into `out` with the format string and every %s argument translated. Supports the conversions the game
 // uses (flags, width, precision, h/l, d i u x X o c s p f %) and positional %n$ forms in translated formats.
 // Returns the length written (without the NUL). With the original language this is a plain vsnprintf.
@@ -37,6 +46,9 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap);
 // Interim renderer bridge until the Unicode font lands: rewrites UTF-8 into the game's EUC-JP glyph codes (ASCII
 // to the full-width JIS forms, U+3000 block kana as is, anything else as a full-width '?'). Returns the length.
 int Port_Text_Utf8ToGameEuc(const char* in, unsigned char* out, size_t cap);
+
+// Checks id, address and md5 lookups against the tables and the ROM (main.cpp --text-selftest). 0 = passed.
+int Port_Text_SelfTest(void);
 
 // Writes the lowercase hex md5 of `len` bytes to `hex` (33 bytes).
 void Port_Text_Md5Hex(const void* data, size_t len, char hex[33]);

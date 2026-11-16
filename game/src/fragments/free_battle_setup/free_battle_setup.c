@@ -861,7 +861,7 @@ void Font_SetColorForFlags(s32);
 void Ui_FillRectHighlighted(s32, s32, s32, s32, Color82001CCC);
 void Gfx_DrawTextureIa8(s32, s32, s32, s32, void*, s32, s32);
 void Ui_DrawNumberUnpadded(s32, s32, u8);
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 /**
  * Draws one Pokemon cell of a team row: nickname, level and icon.

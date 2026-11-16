@@ -17,6 +17,8 @@
 
 #include <libultraship/libultraship.h>
 
+extern "C" void* ZLift_Resolve(uint32_t addr);
+
 namespace {
 
 // ---- md5 (RFC 1321) ----
@@ -116,9 +118,22 @@ const char* const kNames[PORT_LANG_COUNT] = {
     "にほんご", "日本語", "English", "Español", "Deutsch", "Português", "한국어",
 };
 
+struct Row {
+    std::vector<std::string> text; // one UTF-8 string per language (empty = falls through)
+    std::vector<uint32_t> addrs;   // N64 link addresses of the original string
+};
+struct CopyNote {
+    std::string id;
+    std::string bytes; // what the copy held when noted: a later write to the buffer drops the note
+};
 struct Tables {
-    // md5 -> one UTF-8 string per language (empty = falls through)
-    std::unordered_map<std::string, std::vector<std::string>> human, ai;
+    // id -> row, per file. human.csv wins over ai.csv for a non-empty cell.
+    std::unordered_map<std::string, Row> human, ai;
+    // md5 of the original bytes -> ids with those bytes, in file order (ai.csv first). The first is the fallback.
+    std::unordered_map<std::string, std::vector<std::string>> md5Ids;
+    // host address of a string -> id, for strings bound through their addr column or noted copies
+    std::unordered_map<const void*, std::string> bound;
+    std::unordered_map<const void*, CopyNote> copies;
     std::unordered_set<std::string> missed;
     std::mutex mutex;
     FILE* missLog = nullptr;
@@ -187,7 +202,8 @@ std::vector<std::vector<std::string>> ParseCsv(const std::string& text) {
     return rows;
 }
 
-void LoadTable(const char* name, std::unordered_map<std::string, std::vector<std::string>>& into) {
+void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
+               std::unordered_map<std::string, std::vector<std::string>>& md5Ids) {
     std::string path = Ship::Context::LocateFileAcrossAppDirs(std::string("translations/") + name);
     std::ifstream f(path, std::ios::binary);
     if (!f) {
@@ -200,7 +216,15 @@ void LoadTable(const char* name, std::unordered_map<std::string, std::vector<std
     if (rows.empty()) {
         return;
     }
+    // Columns by header name: id,md5,addr,<languages>,note (translations/README.md)
     int col[PORT_LANG_COUNT];
+    int idCol = -1, md5Col = -1, addrCol = -1;
+    for (size_t c = 0; c < rows[0].size(); c++) {
+        const std::string& h = rows[0][c];
+        if (h == "id") idCol = (int)c;
+        if (h == "md5") md5Col = (int)c;
+        if (h == "addr") addrCol = (int)c;
+    }
     for (int l = 0; l < PORT_LANG_COUNT; l++) {
         col[l] = -1;
         for (size_t c = 0; c < rows[0].size(); c++) {
@@ -209,20 +233,87 @@ void LoadTable(const char* name, std::unordered_map<std::string, std::vector<std
             }
         }
     }
+    if (idCol < 0 || md5Col < 0) {
+        fprintf(stderr, "[text] %s: no id/md5 columns, skipped\n", name);
+        return;
+    }
+    size_t count = 0;
     for (size_t r = 1; r < rows.size(); r++) {
         const auto& row = rows[r];
-        if (row.empty() || row[0].size() != 32) {
+        if ((int)row.size() <= std::max(idCol, md5Col) || row[idCol].empty() || row[md5Col].size() != 32) {
             continue;
         }
-        std::vector<std::string> v(PORT_LANG_COUNT);
+        Row v;
+        v.text.resize(PORT_LANG_COUNT);
         for (int l = 1; l < PORT_LANG_COUNT; l++) {
             if (col[l] >= 0 && col[l] < (int)row.size()) {
-                v[l] = Unescape(row[col[l]]);
+                v.text[l] = Unescape(row[col[l]]);
             }
         }
-        into[row[0]] = std::move(v);
+        if (addrCol >= 0 && addrCol < (int)row.size()) {
+            std::istringstream as(row[addrCol]);
+            std::string w;
+            while (as >> w) {
+                v.addrs.push_back((uint32_t)strtoul(w.c_str(), nullptr, 16));
+            }
+        }
+        auto& ids = md5Ids[row[md5Col]];
+        if (std::find(ids.begin(), ids.end(), row[idCol]) == ids.end()) {
+            ids.push_back(row[idCol]);
+        }
+        into[row[idCol]] = std::move(v);
+        count++;
     }
-    fprintf(stderr, "[text] %s: %zu strings\n", name, into.size());
+    fprintf(stderr, "[text] %s: %zu strings\n", name, count);
+}
+
+// The row's text in the current language: human.csv first, then ai.csv. NULL when both cells are empty.
+const char* TextOf(Tables& t, const std::string& id) {
+    for (auto* table : { &t.human, &t.ai }) {
+        auto it = table->find(id);
+        if (it != table->end() && !it->second.text[sLanguage].empty()) {
+            return it->second.text[sLanguage].c_str(); // stable: the tables are never modified after loading
+        }
+    }
+    return nullptr;
+}
+
+const Row* RowOf(Tables& t, const std::string& id) {
+    auto it = t.ai.find(id);
+    if (it != t.ai.end()) return &it->second;
+    it = t.human.find(id);
+    return it != t.human.end() ? &it->second : nullptr;
+}
+
+// Which string `s` is. Identity first: a noted copy, or the host address of one of the rows' N64 addresses. The md5
+// of the bytes is the fallback, and its first row wins when several rows share those bytes.
+const std::string* IdOf(Tables& t, const char* s, const std::string& md5) {
+    auto c = t.copies.find(s);
+    if (c != t.copies.end()) {
+        if (c->second.bytes == s) {
+            return &c->second.id;
+        }
+        t.copies.erase(c);
+    }
+    auto b = t.bound.find(s);
+    if (b != t.bound.end()) {
+        return &b->second;
+    }
+    auto m = t.md5Ids.find(md5);
+    if (m == t.md5Ids.end()) {
+        return nullptr;
+    }
+    if (m->second.size() > 1) {
+        for (const std::string& id : m->second) {
+            const Row* row = RowOf(t, id);
+            for (uint32_t a : row ? row->addrs : std::vector<uint32_t>()) {
+                if (ZLift_Resolve(a) == (const void*)s) {
+                    return &(t.bound[s] = id);
+                }
+            }
+        }
+    }
+    return &m->second[0];
 }
 
 void LogMiss(const std::string& key, const char* s) {
@@ -399,8 +490,8 @@ void Port_Text_Init(void) {
         return;
     }
     t.loaded = true;
-    LoadTable("human.csv", t.human);
-    LoadTable("ai.csv", t.ai);
+    LoadTable("ai.csv", t.ai, t.md5Ids);
+    LoadTable("human.csv", t.human, t.md5Ids);
 }
 
 void Port_Text_SetLanguage(int lang) {
@@ -441,10 +532,9 @@ const char* Port_Text_Lookup(const char* s) {
     Tables& t = T();
     std::lock_guard<std::mutex> lock(t.mutex);
     std::string key(hex);
-    for (auto* table : { &t.human, &t.ai }) {
-        auto it = table->find(key);
-        if (it != table->end() && !it->second[sLanguage].empty()) {
-            return it->second[sLanguage].c_str(); // stable: the tables are never modified after loading
+    if (const std::string* id = IdOf(t, s, key)) {
+        if (const char* text = TextOf(t, *id)) {
+            return text;
         }
     }
     // Strings with no letters to translate (numbers, punctuation, single ASCII symbols) are not worth logging.
@@ -469,6 +559,68 @@ const char* Port_Text_Lookup(const char* s) {
         LogMiss(key, s);
     }
     return nullptr;
+}
+
+const char* Port_Text_LookupId(const char* id) {
+    if (sLanguage == PORT_LANG_ORIGINAL || id == nullptr) {
+        return nullptr;
+    }
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    return TextOf(t, id);
+}
+
+void Port_Text_NoteCopy(const char* dst, const char* src) {
+    if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || src == nullptr || *src == 0) {
+        return;
+    }
+    char hex[33];
+    Port_Text_Md5Hex(src, strlen(src), hex);
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    if (const std::string* id = IdOf(t, src, hex)) {
+        t.copies[dst] = CopyNote{ *id, std::string(dst) };
+    } else {
+        t.copies.erase(dst);
+    }
+}
+
+int Port_Text_SelfTest(void) {
+    int failed = 0;
+    auto check = [&](const char* what, const char* got, const char* want) {
+        bool ok = got != nullptr && strcmp(got, want) == 0;
+        printf("%s %s: %s\n", ok ? "ok  " : "FAIL", what, got ? got : "(null)");
+        failed += !ok;
+    };
+    Port_Text_SetLanguage(PORT_LANG_EN);
+    check("id HAUNTER_NAME", Port_Text_LookupId("HAUNTER_NAME"), "Haunter");
+    check("id GHOST_TYPE_NAME", Port_Text_LookupId("GHOST_TYPE_NAME"), "Ghost");
+    // the same kana bytes at two addresses: told apart by address
+    const char* haunter = (const char*)ZLift_Resolve(0x8007A240);
+    const char* ghost = (const char*)ZLift_Resolve(0x8007A810);
+    check("addr 8007A240", Port_Text_Lookup(haunter), "Haunter");
+    check("addr 8007A810", Port_Text_Lookup(ghost), "Ghost");
+    // a copy keeps its source's id; an unknown buffer with the same bytes falls back to the first md5 row
+    char copy[32], other[32];
+    strcpy(copy, ghost);
+    Port_Text_NoteCopy(copy, ghost);
+    strcpy(other, ghost);
+    check("copy of 8007A810", Port_Text_Lookup(copy), "Ghost");
+    check("md5 fallback", Port_Text_Lookup(other), "Haunter");
+    // a unique string by md5
+    const char* bulbasaurEntry = (const char*)ZLift_Resolve(0x80060A30);
+    const char* got = Port_Text_Lookup(bulbasaurEntry);
+    if (got == nullptr && bulbasaurEntry != nullptr) {
+        char hex[33];
+        Port_Text_Md5Hex(bulbasaurEntry, strlen(bulbasaurEntry), hex);
+        printf("     80060A30 -> %p md5 %s first bytes %02x %02x %02x %02x\n", (const void*)bulbasaurEntry, hex,
+               (uint8_t)bulbasaurEntry[0], (uint8_t)bulbasaurEntry[1], (uint8_t)bulbasaurEntry[2], (uint8_t)bulbasaurEntry[3]);
+    }
+    printf("%s BULBASAUR_DEX_ENTRY: %s\n", got ? "ok  " : "FAIL", got ? got : "(null)");
+    failed += got == nullptr;
+    Port_Text_SetLanguage(PORT_LANG_ORIGINAL);
+    printf("%s\n", failed ? "text selftest FAILED" : "text selftest passed");
+    return failed ? 1 : 0;
 }
 
 int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap) {

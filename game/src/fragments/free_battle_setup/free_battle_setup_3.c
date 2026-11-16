@@ -1215,7 +1215,7 @@ extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 s32 func_800189C0(PokeIconRenderer* arg0, s32 arg1); // PORT: matches PokeIcon_ProcessAllSlots
 void BgStage_DrawFrame(void);
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 
 /**
  * Draws the usable Pokémon grid: 42 checkered cells, then each Pokémon's name and icon.

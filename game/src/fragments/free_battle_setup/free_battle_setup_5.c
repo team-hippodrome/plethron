@@ -24,7 +24,7 @@ void FreeBattle_InitOpponentSelect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 a
 void FreeBattle_InitEntryScreen(FreeBattleScreen* arg0);
 void FreeBattle_InitPopupMenu(s8* arg0, s32 arg1, s32 arg2, List82004518* arg3, s8* arg4, Color_RGBA8 arg5);
 void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8* arg6);
-void BlinkingTextBox_Init(s8* arg0, s32 arg1, s32 arg2, s32 arg3, u32 arg4);
+void BlinkingTextBox_Init(s8* arg0, const char* arg1, s32 arg2, s32 arg3, u32 arg4);
 s32 Save_GetProgressFlags(void);
 extern u8 D_82009014[];
 extern u8 D_82009004[];
@@ -168,7 +168,7 @@ void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
             break;
         case 11:
             if (!(flags & 2)) {
-                BlinkingTextBox_Init((s8*)&screen->textBox, (uintptr_t)D_82009DFC, 0, 1, 0);
+                BlinkingTextBox_Init((s8*)&screen->textBox, (const char*)D_82009DFC, 0, 1, 0);
             }
             break;
     }

@@ -341,7 +341,7 @@ extern u8 D_03001C70[];
 extern u8 D_03000B60[];
 extern u8 D_030016C0[];
 void Gfx_DrawPatternRect(s32 x, s32 y, s32 width, s32 height, s32 r, s32 g, s32 b);
-s32 PokeIcon_GetImage(s8 *arg0, s32 arg1);
+u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 extern char D_82302A34[];
 extern s32 D_82302BCC;
 /**
