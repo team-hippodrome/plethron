@@ -3,7 +3,7 @@
 #include "global.h"
 #include "battle.h"
 #include "m2c_macros.h"
-#include <stdlib.h> // PORT: getenv for PORT_DEBUG_WEAK_COM
+#include "StadionPort.h" // PORT: Port_DebugWeakCom
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 BattleScene_ValidateSelectedPartyMember(ActivePokemon* arg0);
@@ -683,18 +683,14 @@ void BattleAnim_PlaySoundEffect2(void);
  * or Start (when the other side isn't in state 4) also calls BattleAnim_PlaySoundEffect2.
  * @unverified Name guessed from the code.
  */
-// PORT: debug aid for testing later tournament rounds headless. With PORT_DEBUG_WEAK_COM set, the opposing
+// PORT: debug aid for reaching later tournament rounds (launcher: Files & help with Debug on, or PORT_DEBUG_WEAK_COM=1): the opposing
 // non-human side is left with its shown Pokémon at 1 HP and the rest at 0, so one hit wins the round (the
 // player-agent trick from the emulator: setting every Pokémon to 1 HP hung at the send-out).
 static void Port_Debug_WeakenCom(ActivePokemon* active_pokemon) {
-    static s32 sEnabled = -1;
     ActivePokemon* foe;
     s32 i;
 
-    if (sEnabled < 0) {
-        sEnabled = getenv("PORT_DEBUG_WEAK_COM") != NULL;
-    }
-    if (!sEnabled || !active_pokemon->teamRoster->isHuman) {
+    if (!Port_DebugWeakCom() || !active_pokemon->teamRoster->isHuman) {
         return;
     }
     foe = sActivePokemon[BattleScene_GetParticipantSideIndex(active_pokemon) == 0];

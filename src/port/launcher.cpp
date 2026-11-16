@@ -1039,6 +1039,15 @@ class LauncherWindow : public Ship::GuiWindow {
                     OfferExport(path);
                 } else mToolsStatus = error;
             }
+            if (mState->debug) {
+                // battle debug aids (read by the game through Port_DebugWeakCom, os_devices.cpp)
+                bool weak = CVarGetInteger("gLauncher.DebugWeakCom", 0) != 0;
+                if (ImGui::Checkbox("Debug: COM Pokémon at 1 HP (one hit wins a round)", &weak)) {
+                    CVarSetInteger("gLauncher.DebugWeakCom", weak ? 1 : 0);
+                    mChanged = true;
+                }
+                NavItem();
+            }
             if (ToolAction("Disable Auto-play")) { mState->autoPlay = false; mChanged = true; mToolsStatus = "Auto-play disabled."; }
             if (ToolAction("Use safe renderer next start")) {
 #ifdef __APPLE__
