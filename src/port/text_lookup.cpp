@@ -136,6 +136,8 @@ struct Tables {
     // host address of a string -> id, for strings bound through their addr column or noted copies
     std::unordered_map<const void*, std::string> bound;
     std::unordered_map<const void*, CopyNote> copies;
+    // host address of a buffer the game formatted itself -> {bytes it held, translated UTF-8}
+    std::unordered_map<const void*, std::pair<std::string, std::string>> formatted;
     std::unordered_set<std::string> missed;
     std::mutex mutex;
     FILE* missLog = nullptr;
@@ -611,6 +613,13 @@ const char* Port_Text_Lookup(const char* s) {
     Port_Text_Md5Hex(s, strlen(s), hex);
     Tables& t = T();
     std::lock_guard<std::mutex> lock(t.mutex);
+    auto f = t.formatted.find(s);
+    if (f != t.formatted.end()) {
+        if (f->second.first == s) {
+            return f->second.second.c_str();
+        }
+        t.formatted.erase(f);
+    }
     std::string key(hex);
     if (const std::string* id = IdOf(t, s, key)) {
         if (const char* text = TextOf(t, *id)) {
@@ -663,6 +672,45 @@ void Port_Text_NoteCopy(const char* dst, const char* src) {
     } else {
         t.copies.erase(dst);
     }
+}
+
+void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap) {
+    if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || fmt == nullptr) {
+        return;
+    }
+    char out[0x200];
+    Port_Text_Vformat(out, sizeof(out), fmt, ap);
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    t.formatted[dst] = { std::string(dst), std::string(out) };
+}
+
+void Port_Text_NoteSame(const char* dst, const char* src) {
+    if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || src == nullptr) {
+        return;
+    }
+    const char* u = Port_Text_Utf8Of(src);
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    t.formatted[dst] = { std::string(dst), std::string(u ? u : "") };
+}
+
+const char* Port_Text_Utf8Of(const char* s) {
+    if (sLanguage == PORT_LANG_ORIGINAL || s == nullptr) {
+        return nullptr;
+    }
+    if (*s == 0) {
+        return "";
+    }
+    if (const char* tr = Port_Text_Lookup(s)) {
+        return tr;
+    }
+    std::string u = HasHighBytes(s) ? EucToUtf8(s) : std::string(s);
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    auto& slot = t.formatted[s];
+    slot = { std::string(s), u };
+    return slot.second.c_str();
 }
 
 int Port_Text_SelfTest(void) {

@@ -1203,7 +1203,7 @@ ZLIFT_STORAGE(D_8218B350, 217);
 ZLIFT_STORAGE(D_8218B42C, 792);
 ZLIFT_STORAGE(D_8218B5D0, 84);
 ZLIFT_STORAGE(D_8218B630, 12);
-ZLIFT_STORAGE(D_8218B63C, 4272);
+ZLIFT_STORAGE(D_8218B63C, 12);
 ZLIFT_STORAGE(D_8218C6F0, 8);
 ZLIFT_STORAGE(D_8218C6F4, 8);
 ZLIFT_STORAGE(D_8218C6F8, 8);
@@ -2990,7 +2990,7 @@ const ZLiftType gZLiftTypes[] = {
     { 32, 32, 1991, 3 }, // r:struct SpeciesModelTransform@battle.h:411
     { 16, 16, 1994, 1 }, // r:struct unk_D_84390028@battle.h:420
     { 24, 24, 1995, 3 }, // r:struct unk_D_843847BC@battle.h:432
-    { 8, 16, 1998, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:883
+    { 8, 16, 1998, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:893
     { 44, 80, 2001, 3 }, // r:struct BattleSceneStateRow@battle.h:397
     { 6, 6, 2004, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1126
     { 3, 3, 2005, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
@@ -7402,7 +7402,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8218B42C, 0x18C, 1, 347, 13, 0, 0x8B42C, D_8218B42C }, // D_8218B42C
     { 0x8218B5D0, 0x54, 6, 349, 13, 0, 0x8B5D0, D_8218B5D0 }, // D_8218B5D0
     { 0x8218B630, 0xC, 1, 19, 13, 0, 0x8B630, D_8218B630 }, // D_8218B630
-    { 0x8218B63C, 0x10B0, 356, 19, 13, 0, 0x8B63C, D_8218B63C }, // D_8218B63C
+    { 0x8218B63C, 0xC, 1, 19, 13, 0, 0x8B63C, D_8218B63C }, // D_8218B63C
     { 0x8218C6F0, 0x4, 1, 160, 13, 0, 0x8C6F0, D_8218C6F0 }, // D_8218C6F0
     { 0x8218C6F4, 0x4, 1, 160, 13, 0, 0x8C6F4, D_8218C6F4 }, // D_8218C6F4
     { 0x8218C6F8, 0x4, 1, 160, 13, 0, 0x8C6F8, D_8218C6F8 }, // D_8218C6F8

@@ -1,4 +1,6 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
+#include "text_lookup.h" // PORT: translated battle messages
+#include "unicode_font.h"
 #include "battle.h"
 #include "port_endian.h" // PORT: Port_ReadBE32
 // PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
@@ -707,7 +709,11 @@ void BattleMessage_DrawBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3) { // 
     Font_BeginTranslucentTextRendering();
     Font_SetActive(2, 0);
     Font_SetLineHeight(0x10);
-    Font_Printf(arg1 + 10, arg2 + 5, arg3);
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) { // PORT: the typewriter passes the translation as UTF-8
+        Port_Font_PrintUtf8(arg1 + 10, arg2 + 5, arg3);
+    } else {
+        Font_Printf(arg1 + 10, arg2 + 5, arg3);
+    }
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     BattleHud_DrawBorderTile(arg1, arg2, 8, 8, D_030096C0);
@@ -739,7 +745,11 @@ void BattleHud_DrawCaptionBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3) { 
     Font_BeginTranslucentTextRendering();
     Font_SetActive(2, 0);
     Font_SetLineHeight(0x10);
-    Font_Printf(arg1 + 10, arg2 + 5, arg3);
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) { // PORT: the typewriter passes the translation as UTF-8
+        Port_Font_PrintUtf8(arg1 + 10, arg2 + 5, arg3);
+    } else {
+        Font_Printf(arg1 + 10, arg2 + 5, arg3);
+    }
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
     BattleHud_DrawBorderTile(arg1, arg2, 8, 8, D_030096C0);

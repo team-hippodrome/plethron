@@ -25,6 +25,12 @@ K_SCALAR, K_PTR, K_FNPTR, K_MAYBEPTR, K_REC, K_BITS, K_RAW = range(7)
 # libultraship records that extend the N64's: only their first fields exist on the N64 (OSContPad gained gyro and
 # right-stick fields), so the N64 size and layout come from those (gControllerPads[4] is 24 bytes, not 4 x 0x24).
 N64_FIELDS = {'OSContPad': 4}
+# Data symbols declared as one object whose gap to the next symbol is other, unnamed data: as the gap rule would size
+# them, pointers into that tail land in storage laid out for the wrong type. Kept to the declaration, the tail is lifted
+# lazily as each pointer's pointee type.
+DECLARED_ONLY = {
+    'D_8218B63C',  # one Vec3f (B-roll camera target), then the battle message strings that D_8218C6F0.. point at
+}
 
 
 def align_up(x, a):
@@ -375,6 +381,9 @@ def main():
                 # The table keeps its declared size; pointers into the tail are lifted lazily as their pointee type.
                 count = declared
                 report['sized pointer table kept to its declared size'] += 1
+            if name in DECLARED_ONLY:
+                count = declared
+                report['kept to its declaration (DECLARED_ONLY)'] += 1
             if nb and gap > 0x10000 and count > declared:
                 count = max(declared, 0x10000 // en, 1)  # last bss symbol of an image: no next symbol bounds it
             syms.append(dict(name=name, addr=a, image=im, tid=ti, score=score({'t': t}), count=count, n64ext=count * en,

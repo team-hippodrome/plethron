@@ -10,8 +10,53 @@ extern BattleMessageQueues* gBattleMessageQueues;
 
 
 #include "m2c_macros.h"
+#include "text_lookup.h" // PORT: translated battle messages
+#include "unicode_font.h" // PORT: translated battle messages
 
 void Battle_ClearAllMessageQueues(void);
+/**
+ * PORT: in a translated language, the part of `full`'s translation to show while the typewriter has revealed `cursor`
+ * of its original bytes: the same share of the translation's characters, so the reveal keeps the original's timing.
+ * The result is UTF-8; BattleMessage_DrawBox and BattleHud_DrawCaptionBox draw it without another lookup. In the
+ * original language this is `shown`.
+ */
+static const char* Port_BattleText_Shown(const char* full, s32 cursor, const char* shown) {
+    static char sOut[2][0x200];
+    static s32 sWhich;
+    const char* utf8;
+    const char* p;
+    s32 fullLen;
+    s32 total;
+    s32 want;
+    s32 n;
+    char* out;
+
+    if (Port_Text_GetLanguage() == PORT_LANG_ORIGINAL) {
+        return shown;
+    }
+    utf8 = Port_Text_Utf8Of(full);
+    fullLen = (s32)strlen(full);
+    if (utf8 == NULL || fullLen == 0) {
+        return "";
+    }
+    total = 0;
+    for (p = utf8; Port_Utf8Next(&p) != 0;) {
+        total++;
+    }
+    want = (cursor >= fullLen) ? total : (total * cursor + fullLen - 1) / fullLen;
+    out = sOut[sWhich ^= 1];
+    p = utf8;
+    for (n = 0; n < want && Port_Utf8Next(&p) != 0; n++) {
+    }
+    n = (s32)(p - utf8);
+    if (n > (s32)sizeof(sOut[0]) - 1) {
+        n = sizeof(sOut[0]) - 1;
+    }
+    memcpy(out, utf8, n);
+    out[n] = 0;
+    return out;
+}
+
 void Battle_ClearMessageCursor(void); // PORT: signature from the definition (fragments/battle/message.c)
 void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...); // PORT: signature from the definition (fragments/battle/message.c)
 void BattleMessage_UnusedNopA(void);
@@ -174,14 +219,14 @@ void Battle_ClearMessageCursor(void) {
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (164 of the moves).
  * @unverified Name from Stadium 1.
  */
-void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...) {
-    va_list args;
+// PORT: the body of Battle_SimpleStringFormat with a va_list, so ActivePokemon_ShowCaption can pass its arguments on
+// (the N64 code reached them through the caller's argument homes).
+static void Battle_SimpleStringVformat(s8* arg0, s8* arg1, va_list args) {
     s8* src;
     s8* fmt;
     s32 len;
 
     len = 0;
-    va_start(args, arg1);
     fmt = arg1;
 
     while (*fmt != 0) {
@@ -203,6 +248,14 @@ void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...) {
     arg0[len] = 0;
 }
 
+void Battle_SimpleStringFormat(s8* arg0, s8* arg1, ...) {
+    va_list args;
+
+    va_start(args, arg1);
+    Battle_SimpleStringVformat(arg0, arg1, args);
+    va_end(args);
+}
+
 /**
  * Builds a battle message: byte 0 is the announcer clip id `id`, then `arg1` with each %s replaced by the next string argument.
  * Seen in play (2026-11-12): built 18 + 「ニドニドのどくばり!」 (id 0x18, %s = the nickname ニドニド) and 29 +
@@ -214,9 +267,12 @@ void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...) {
     s8* fmt;
     s32 len;
 
+    va_list portArgs; // PORT: the same message from the translated format and arguments (text_lookup.h)
+
     arg0[0] = id;
     len = 1;
     va_start(args, arg1);
+    va_copy(portArgs, args);
     fmt = arg1;
 
     while (*fmt != 0) {
@@ -236,6 +292,9 @@ void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...) {
         fmt++;
     }
     arg0[len] = 0;
+    va_end(args);
+    Port_Text_NoteFormatted((const char*)arg0 + 1, (const char*)arg1, portArgs); // PORT
+    va_end(portArgs);
 }
 
 void Battle_ClearMessageCursor(void); // PORT: signature from the definition (fragments/battle/message.c)
@@ -255,6 +314,7 @@ void BattleMessage_ShowForSide(s8* arg0, s32 side) {
     ap = sActivePokemon[side];
     gBattleMessageQueues->controllerPort = ap->side->teamMember[ap->thumbnail.shownTeamMemberIndex]->controllerPort;
     Battle_SimpleStringFormat(gBattleMessageQueues->fullText, arg0 + 1);
+    Port_Text_NoteSame((const char*)gBattleMessageQueues->fullText, (const char*)arg0 + 1); // PORT
     if (!(arg0[0] & 0x80)) {
         Announcer_CommentOnSideMessage(arg0[0] & 0x7F);
     } else {
@@ -294,7 +354,9 @@ void BattleMessage_TickTypewriter(void)
   gBattleMessageQueues->shownText[gBattleMessageQueues->cursor] = 0;
   if (gBattleMessageQueues->fullText[0] != 0)
   {
-    BattleMessage_DrawBox(gBattleMessageQueues->controllerPort, 0x29, 0xBB, gBattleMessageQueues->shownText);
+    BattleMessage_DrawBox(gBattleMessageQueues->controllerPort, 0x29, 0xBB,
+                          Port_BattleText_Shown((const char*)gBattleMessageQueues->fullText, gBattleMessageQueues->cursor,
+                                                (const char*)gBattleMessageQueues->shownText)); // PORT
   }
 }
 
@@ -347,8 +409,15 @@ void ActivePokemon_ClearCaption(ActivePokemon* active_pokemon) {
  */
 void ActivePokemon_ShowCaption(ActivePokemon* arg0, s8* arg1, ...) {
     gBattleMessageQueues->controllerPort = arg0->side->teamMember[arg0->state.menuTeamMemberIndex]->controllerPort;
+    va_list args;
+
     arg0->captionState.active = 1;
-    Battle_SimpleStringFormat(&arg0->captionState.fullText, arg1);
+    va_start(args, arg1);
+    Battle_SimpleStringVformat(arg0->captionState.fullText, arg1, args); // PORT: with the arguments
+    va_end(args);
+    va_start(args, arg1);
+    Port_Text_NoteFormatted((const char*)arg0->captionState.fullText, (const char*)arg1, args); // PORT
+    va_end(args);
 }
 
 extern ActivePokemon* sSide1ActivePokemon;
@@ -382,9 +451,9 @@ void ActivePokemon_TickCaptionTypewriter(ActivePokemon* arg0) {
     arg0->captionState.shownText[arg0->captionState.revealIndex] = 0;
     if (arg0->captionState.fullText[0] != 0) {
         if (arg0 == sSide1ActivePokemon) {
-            BattleHud_DrawCaptionBox(roster->controllerPort, 0x5F, 0xE, arg0->captionState.shownText);
+            BattleHud_DrawCaptionBox(roster->controllerPort, 0x5F, 0xE, Port_BattleText_Shown((const char*)arg0->captionState.fullText, arg0->captionState.revealIndex, (const char*)arg0->captionState.shownText) /* PORT */);
         } else {
-            BattleHud_DrawCaptionBox(roster->controllerPort, 0x17, 0xBB, arg0->captionState.shownText);
+            BattleHud_DrawCaptionBox(roster->controllerPort, 0x17, 0xBB, Port_BattleText_Shown((const char*)arg0->captionState.fullText, arg0->captionState.revealIndex, (const char*)arg0->captionState.shownText) /* PORT */);
         }
     }
 }

@@ -48,6 +48,15 @@ void Port_Text_NoteCopy(const char* dst, const char* src);
 // Returns the length written (without the NUL). With the original language this is a plain vsnprintf.
 int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap);
 
+// The game formatted `fmt` with `ap` into the buffer at `dst` by itself (BattleMessage_Format): `dst` translates as
+// the translated format with translated arguments while it holds the same bytes. No-op in the original language.
+void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap);
+// `dst` now holds a copy of `src`'s bytes and translates as `src` does (a noted format, an id or the md5).
+void Port_Text_NoteSame(const char* dst, const char* src);
+// `s` as UTF-8 in the current language: its noted format, its translation, or the EUC-JP bytes converted. The
+// pointer stays valid until `s` is noted again. NULL in the original language.
+const char* Port_Text_Utf8Of(const char* s);
+
 // Checks id, address and md5 lookups against the tables and the ROM (main.cpp --text-selftest). 0 = passed.
 int Port_Text_SelfTest(void);
 
