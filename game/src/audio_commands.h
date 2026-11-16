@@ -109,7 +109,7 @@ typedef struct AnnouncerSpeciesEntry {
     /* 0x5 */ u8 unk_05; // was D_80077068[i].unk_1
     /* 0x6 */ u8 unk_06[2];
 } AnnouncerSpeciesEntry; // size = 0x8 on the N64
-extern AnnouncerSpeciesEntry D_80077064[];
+extern AnnouncerSpeciesEntry D_80077064[151]; // PORT: sized: one entry per species up to D_80077520
 
 extern GbNoiseSampleEntry* D_800B41E4;
 

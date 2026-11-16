@@ -15,6 +15,7 @@ s32 PokeIcon_CapturePreviewGeoNode(s32, GraphNode*);
 s32 PokeIcon_CaptureGeoNode(s32, GraphNode*);
 
 #include "m2c_macros.h"
+#include "port_endian.h" // PORT
 
 s32 PokeIcon_CaptureGeoNode(s32 arg0, GraphNode* arg1);
 
@@ -177,7 +178,8 @@ void PokeIcon_AdjustImageColors(u8* arg0, arg1_func_80010CA8 arg1) {
     size -= 2;
     // clang-format off
     while (cond != 0) {
-        *pixels = Color_AdjustRGB5551(*pixels, arg1);        cond = size >= 2;        size -= 2;
+        *pixels = Port_Swap16(Color_AdjustRGB5551(Port_Swap16(*pixels), arg1)); // PORT: the image holds big-endian RGBA5551 (render-target readback)
+        cond = size >= 2;        size -= 2;
         pixels++;
     }
     // clang-format on

@@ -1,6 +1,8 @@
 /* Stadium Zero fragment005_15FCE0. */
 /* C ported from the Stadium 1 decomp: src/fragments/battle_order_select/battle_order_select.c. */
 
+#include "text_lookup.h" // PORT: translated instruction banner
+#include "unicode_font.h"
 #include "battle_order_select.h"
 #include "asset_archive.h"
 #include "audio_music.h"
@@ -88,7 +90,57 @@ void BattleMenu_DrawScrollingInstructionPanel(void) {
     Font_SetActive(0x10, 0);
     Gfx_SetEnvColor(0xA5, 0xDE, 0x8C, 0xFF); // #A5DE8C
 
-    for (i = 0; i < 16; i++) {
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) {
+        // PORT: the translation, one character a row, scrolling at the original's pace over its own length
+        static const s16* sSrc;
+        static s32 sLang = -1;
+        static uint32_t sCps[160];
+        static s32 sCount;
+        static s32 sScroll; // pixels, over the translation's own length
+        if (sSrc != D_82302808[idx] || sLang != Port_Text_GetLanguage()) {
+            char euc[2 * 53 + 1];
+            const char* utf8;
+            s32 n = 0;
+            sSrc = D_82302808[idx];
+            sLang = Port_Text_GetLanguage();
+            for (i = 0; i < 53 && sSrc[i] != 0; i++) {
+                euc[n++] = (char)((u16)sSrc[i] >> 8);
+                euc[n++] = (char)sSrc[i];
+            }
+            euc[n] = 0;
+            utf8 = Port_Text_Utf8Of(euc);
+            sCount = 0;
+            while (utf8 != NULL && sCount < 160) {
+                uint32_t cp = Port_Utf8Next(&utf8);
+                if (cp == 0) {
+                    break;
+                }
+                sCps[sCount++] = (cp == 0x3000) ? ' ' : cp; // ideographic spaces as the gap between sentences
+            }
+        }
+        if (sCount > 0) {
+            sScroll = (sScroll + 1) % (sCount * 24);
+            var_s4 = 48 - (sScroll % 24);
+            var_s2 = sScroll / 24;
+            for (i = 0; i < 16; i++) {
+                char one[8];
+                char* o = one;
+                uint32_t cp = sCps[var_s2];
+                if (cp < 0x80) { *o++ = (char)cp; }
+                else if (cp < 0x800) { *o++ = (char)(0xC0 | (cp >> 6)); *o++ = (char)(0x80 | (cp & 0x3F)); }
+                else if (cp < 0x10000) { *o++ = (char)(0xE0 | (cp >> 12)); *o++ = (char)(0x80 | ((cp >> 6) & 0x3F)); *o++ = (char)(0x80 | (cp & 0x3F)); }
+                else { *o++ = (char)(0xF0 | (cp >> 18)); *o++ = (char)(0x80 | ((cp >> 12) & 0x3F)); *o++ = (char)(0x80 | ((cp >> 6) & 0x3F)); *o++ = (char)(0x80 | (cp & 0x3F)); }
+                *o = 0;
+                Port_Font_PrintUtf8(563 + (24 - Port_Font_MeasureUtf8(one)) / 2, var_s4, one);
+                var_s2 = (var_s2 + 1) % sCount;
+                var_s4 += 24;
+            }
+        }
+        i = 16; // skip the original's loop
+    } else {
+        i = 0;
+    }
+    for (; i < 16; i++) {
         Font_DrawCharAt(563, var_s4, D_82302808[idx][var_s2]);
         var_s2 += 1;
         if (var_s2 >= 53) {
@@ -149,7 +201,7 @@ extern u8 D_03008880[];
 extern u8* D_823028CC[];
 extern u8* D_823028D8[];
 extern u8* D_823028E0[];
-extern u8* D_823028E4[][3];
+extern u8* D_823028E4[6][3]; // PORT: sized (the instruction banner strings follow at 0x82302930)
 /**
  * Draws the trainer badge at the end of a sidebar column: the port's 1P-4P badge, the COM badge
  * (isCom), or a combined badge for a tag team (both ports).
@@ -182,7 +234,7 @@ void BattleMenu_DrawSidebarTrainerBadge(s32 x, s32 y, OrderSidebarIcons* sidebar
     }
 }
 
-extern u8* D_823028E4[][3];
+extern u8* D_823028E4[6][3]; // PORT: sized (the instruction banner strings follow at 0x82302930)
 
 /**
  * Draws one pick slot of the sidebar and steps its grow/shrink animation. The icon byte holds the

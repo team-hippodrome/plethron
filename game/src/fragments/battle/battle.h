@@ -390,6 +390,9 @@ typedef struct unk_D_84390240 {
     /* 0x04 */ s32 unk_04; // D_8219A5A4
     /* 0x08 */ char unk08[0x8];
     /* 0x10 */ f32 cameraPath[0x168 / 4]; // D_FLT_8219A5B0: demo camera path keyframes, DMA'd from ROM (participant_models.c)
+    // PORT: host only (gen_lift N64_FIELDS): the DMA moves whole 16-byte chunks, 0x170 bytes, so on the N64 it ran 8
+    // bytes into D_FLT_8219A718. Room for that tail here.
+    u8 portDmaTail[0x10];
 } unk_D_84390240; // size = 0x178 (PORT: was 0x40, which left the camera path without host storage)
 
 typedef void (*BattleSceneStateCallback)(ActivePokemon*);

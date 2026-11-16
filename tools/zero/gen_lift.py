@@ -24,7 +24,8 @@ K_SCALAR, K_PTR, K_FNPTR, K_MAYBEPTR, K_REC, K_BITS, K_RAW = range(7)
 
 # libultraship records that extend the N64's: only their first fields exist on the N64 (OSContPad gained gyro and
 # right-stick fields), so the N64 size and layout come from those (gControllerPads[4] is 24 bytes, not 4 x 0x24).
-N64_FIELDS = {'OSContPad': 4}
+# Game records with a host-only tail work the same way (unk_D_84390240: sBattleScene's room for a DMA overrun).
+N64_FIELDS = {'OSContPad': 4, 'unk_D_84390240': 4}
 # Data symbols declared as one object whose gap to the next symbol is other, unnamed data: as the gap rule would size
 # them, pointers into that tail land in storage laid out for the wrong type. Kept to the declaration, the tail is lifted
 # lazily as each pointer's pointee type.
@@ -88,7 +89,8 @@ class Gen:
         if rid in s.n64cache: return s.n64cache[rid]
         r = s.rtypes[rid]
         offs = []
-        fields = r['fields'][:N64_FIELDS[r.get('name')]] if r.get('name') in N64_FIELDS else r['fields']
+        nm = (r.get('name') or '').replace('struct ', '')
+        fields = r['fields'][:N64_FIELDS[nm]] if nm in N64_FIELDS else r['fields']
         if r['k'] == 'union':
             size = al = 1
             for f in r['fields']:
