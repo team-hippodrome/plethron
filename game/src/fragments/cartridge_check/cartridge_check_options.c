@@ -19,6 +19,10 @@
 #include "save_data.h"
 #include "stage_loader.h"
 #include "ui_graphics.h"
+#include "text_lookup.h" // PORT: the Subtitles row
+#include "unicode_font.h"
+
+#include <stdio.h>
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Announcer_SetEnabled(s32 enabled);
@@ -341,6 +345,13 @@ extern char D_8840327C[];
 extern char D_88403290[];
 extern char D_884032A0[];
 extern u8 D_8F4B2EB0[];
+
+// PORT: in the translated languages the menu has a Subtitles row after Commentary (the announcer's subtitles,
+// game/src/subtitles.c). Its value is the port setting gPort.Subtitles, held here while the menu is open.
+#define OPTIONS_HAS_SUBTITLES() (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL)
+#define OPTIONS_ROW_COUNT() (OPTIONS_HAS_SUBTITLES() ? 5 : 4)
+static s32 sOptionsSubtitles;
+
 /**
  * Draws the options: ステレオ/モノラル (Stereo/Mono), あり/なし (On/Off), バックアップ (Backup), おわり (End).
  * Seen in play: draws 「オプション」 with サウンド/じっきょう/バックアップ/おわり; the cursor moves with D-Down.
@@ -353,7 +364,7 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
     s32 row;
 
     row = sel_row;
-    Ui_DrawGradientPanel(50, 60, 220, 125, &sp44, &sp40);
+    Ui_DrawGradientPanel(50, 60, 220, OPTIONS_HAS_SUBTITLES() ? 145 : 125, &sp44, &sp40); // PORT: + Subtitles row
     gSPDisplayList(gDisplayListHead++, D_80060290);
     Gfx_DrawTextureRgba16(58, (row * 20) + 99, 24, 14, (u8 *) Util_ConvertAddrToVirtAddr((uintptr_t) D_8F4B2EB0), 24, 0x200000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
@@ -368,6 +379,22 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
     Font_Printf(82, 98, D_88403268, D_88402FA4[(flags & 1) != 0]);
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x77) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
     Font_Printf(82, 118, D_8840327C, D_88402FAC[(flags & 2) != 0]);
+    if (OPTIONS_HAS_SUBTITLES()) {
+        // PORT: Subtitles <On/Off>, then Backup and Exit one row lower
+        char line[0x100];
+        const char* fmt = Port_Text_LookupId("PORT_OPTIONS_SUBTITLES");
+        const char* value = Port_Text_Utf8Of(D_88402FAC[sOptionsSubtitles == 0]);
+
+        snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Subtitles       %s", (value != NULL) ? value : "");
+        Gfx_SetEnvColor(255, 255, (row == 2) ? 0 : 255, 255);
+        Port_Font_PrintUtf8(82, 138, line);
+        Gfx_SetEnvColor(255, 255, (row == 3) ? 0 : 255, 255);
+        Font_Printf(82, 158, D_88403290);
+        Gfx_SetEnvColor(255, 255, (row == 4) ? 0 : 255, 255);
+        Font_Printf(82, 178, D_884032A0);
+        Font_EndTexturedTextRendering();
+        return;
+    }
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x8B) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
     Font_Printf(82, 138, D_88403290);
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x9F) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
@@ -509,22 +536,34 @@ void Options_RunMenu(void) {
     s32 sel = 0;
     u8 flags = Save_GetOptionFlags();
     u8 diff;
+    s32 rows = OPTIONS_ROW_COUNT(); // PORT: 5 with the Subtitles row
+    s32 action;
 
+    sOptionsSubtitles = Port_Subtitles_Enabled();
     do {
         if (gPlayer1Controller->buttonPressed & 0x800) {
             sel--;
             if (sel < 0) {
-                sel = 3;
+                sel = rows - 1;
             }
             Audio_PlaySystemSound(1);
         } else if (gPlayer1Controller->buttonPressed & 0x400) {
             sel++;
-            if (sel >= 4) {
+            if (sel >= rows) {
                 sel = 0;
             }
             Audio_PlaySystemSound(1);
         } else if (gPlayer1Controller->buttonPressed & 0x8000) {
-            switch (sel) {
+            // PORT: the rows after Commentary move down one when the Subtitles row (action 4) is there
+            action = sel;
+            if (rows == 5) {
+                action = (sel == 2) ? 4 : (sel > 2) ? sel - 1 : sel;
+            }
+            switch (action) {
+                case 4:
+                    Audio_PlaySystemSound(2);
+                    sOptionsSubtitles ^= 1;
+                    break;
                 case 0:
                     Audio_PlaySystemSound(2);
                     flags ^= 1;
@@ -553,6 +592,9 @@ void Options_RunMenu(void) {
         Options_DrawMenu(sel, flags);
         BgStage_AdvanceFrame();
     } while (done == 0);
+    if ((done == 1) && (rows == 5) && (sOptionsSubtitles != Port_Subtitles_Enabled())) {
+        Port_Subtitles_SetEnabled(sOptionsSubtitles); // PORT: kept by the port, not in the N64 save
+    }
     if (done == 1) {
         diff = Save_GetOptionFlags() ^ flags;
         if (diff != 0) {
