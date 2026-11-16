@@ -510,6 +510,7 @@ Gfx* BattleAnim_BuildAnimatedTileDisplayList(Gfx* arg0, u8* arg1, s16 arg2, s16 
  */
 Gfx* BattleAnim_BuildAnimatedTileDisplayListFromStruct(Gfx* arg0, arg1_func_8434E21C* arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7,
                    s16 arg8, s16 arg9, s16 argA, s16 argB) {
+    arg1 = BattleFx_HostTexturePair(arg1); // PORT: the struct is in the model blob, in N64 form
     gDPLoadTextureTile_4b(arg0++, arg1->textureA, G_IM_FMT_I, arg2, arg2, 0, 0, arg2 - 1, arg2 - 1, 0,
                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, arg3, arg3, arg6, arg7);
 
@@ -575,6 +576,7 @@ void Gfx_DrawParticleTextureWithParams(Gfx* arg0, arg1_func_8434E21C* arg1, UNUS
     s16 sp2C;
     s16 sp2A;
     s32 temp_v0_2;
+    arg1 = BattleFx_HostTexturePair(arg1); // PORT: the struct is in the model blob, in N64 form
 
     sp40 = BattleAnim_GetOwnerContextParticle(D_8006049C);
     temp_v0_2 = Particle_FieldCE_GetS32_0C040(sp40);

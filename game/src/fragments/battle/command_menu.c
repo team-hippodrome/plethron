@@ -190,12 +190,6 @@ s32 BattleMenu_HandleNoUsableMoves(arg0) ActivePokemon *arg0;
 extern s8* D_8218C6F4; // PORT: was s32, holds a pointer
 extern s8* D_8218C6F8; // PORT: was s32, holds a pointer
 
-typedef struct BattleMoveCheck8210CA24 {
-    /* 0x000 */ char unk000[0x7A0];
-    /* 0x7A0 */ s32 slot;
-    /* 0x7A4 */ char unk7A4[0x7F8 - 0x7A4];
-    /* 0x7F8 */ u8 moveFlags[1];
-} BattleMoveCheck8210CA24;
 
 /**
  * Checks the chosen move slot: shows a message and returns 1 if it has no PP or
@@ -206,23 +200,22 @@ typedef struct BattleMoveCheck8210CA24 {
  */
 s32 BattleMenu_TryConfirmMove(ActivePokemon* arg0) {
     u8 flags;
-    s8* state;
 
-    if (!(((BattleMoveCheck8210CA24*)arg0)->moveFlags[((BattleMoveCheck8210CA24*)arg0)->slot] & 0x3F)) {
+    // PORT: was a view struct with the N64 offsets 0x7A0 (state.moveIndex) and 0x7F8 (state.runtime.pp)
+    if (!(arg0->state.runtime.pp[arg0->state.moveIndex] & 0x3F)) {
         ActivePokemon_ClearCaption(arg0);
         ActivePokemon_ShowCaption(arg0, D_8218C6F4);
         return 1;
     }
     flags = arg0->state.runtime.disabledMoveState;
-    state = ((s8*)&arg0->state.unk00[0]);
-    if ((flags & 0xF) && ((flags >> 4) == M2C_FIELD(state, s32*, 0x14))) {
+    if ((flags & 0xF) && ((flags >> 4) == arg0->state.moveIndex)) {
         ActivePokemon_ClearCaption(arg0);
         ActivePokemon_ShowCaption(arg0, D_8218C6F8);
         return 1;
     }
-    M2C_FIELD(state, s16*, 0x1E) = 0;
-    M2C_FIELD(state, s32*, 0x10) = 3;
-    M2C_FIELD(state, s8*, 0x1C) = 0;
+    arg0->state.actionDelayTimer = 0;
+    arg0->state.selectedCommandOption = 3;
+    arg0->state.showingCommandOptions = 0;
     return 0;
 }
 
@@ -488,10 +481,12 @@ void BattleAnim_PlaySoundEffect2(void);
  * Pokemon's own button shows a message instead.
  */
 void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
-    u8* team = *(u8**)(arg0->state.menuTeamMemberIndex * 4 + arg0->side + 8);
+    // PORT: was *(u8**)(menuTeamMemberIndex * 4 + arg0->side + 8), the N64 offset of teamMember[] (and the typed
+    // pointer scaled it by sizeof(BattleSide))
+    TeamRoster* team = arg0->side->teamMember[arg0->state.menuTeamMemberIndex];
     ActivePokemonState* state = &arg0->state;
 
-    if (team[2] == 3) {
+    if (team->numberOfPokemonBrought == 3) {
         if (M2C_FIELD(arg1, u16*, 8) & 8) {
             arg0->state.actionChosen = 0;
         } else if (M2C_FIELD(arg1, u16*, 8) & 1) {
@@ -526,7 +521,7 @@ void BattleMenu_HandleSwitchButtons(ActivePokemon* arg0, s8* arg1) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
                 BattleMenu_ShowNicknameCaption(arg0);
             }
-        } else if (state->actionChosen <= (u32)(team[2] - 1)) {
+        } else if (state->actionChosen <= (u32)(team->numberOfPokemonBrought - 1)) {
             if (BattleScene_ValidateSelectedPartyMember(arg0) != 0) {
                 BattleAnim_PlaySoundEffect2();
                 state->showingCommandOptions = 0;

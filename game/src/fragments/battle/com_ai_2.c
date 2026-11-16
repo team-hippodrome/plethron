@@ -1091,12 +1091,12 @@ s32 BattleAi_PickBoomMove(ComBattler* arg0, ComBattler* arg1) {
     return -1;
 }
 
-extern u8 D_821CF280[];
+extern u8 D_821CF280[8]; // PORT: sized (the COM's picks; open, it was lifted as 1 byte and D_821CF281 as its own storage)
 extern u8 D_821CF281;
 extern ComSide* D_821CF294;
 
 extern ComSide* D_821CF294;
-extern u8 D_821CF280[];
+extern u8 D_821CF280[8]; // PORT: sized (the COM's picks; open, it was lifted as 1 byte and D_821CF281 as its own storage)
 extern u8 D_821CF281;
 
 /**

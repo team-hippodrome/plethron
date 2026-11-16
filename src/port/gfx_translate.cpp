@@ -337,8 +337,18 @@ void* LiftedCopy(const void* raw, size_t n, bool mtx) {
         out = m;
     } else {
         Vtx* v = (Vtx*)malloc(n * sizeof(Vtx));
+        uint32_t n64 = ZLift_N64Addr(raw);
         for (size_t i = 0; i < n; i++) {
+            // the vertices can run past the end of the lifted block that holds the first one (into the next symbol,
+            // which has its own storage on the host): find each one by its N64 address
             const uint8_t* s = (const uint8_t*)raw + i * 16;
+            if (n64 != 0 && i != 0) {
+                const uint8_t* h = (const uint8_t*)ZLift_Resolve(n64 + (uint32_t)i * 16);
+                if ((uintptr_t)h >= 0x100000000ull) {
+                    if (!ZLift_IsRaw(h)) { memcpy(&v[i], h, sizeof(Vtx)); continue; }
+                    s = h;
+                }
+            }
             int16_t* d = (int16_t*)&v[i];
             for (int k = 0; k < 6; k++) d[k] = (int16_t)Be16(s + k * 2);
             memcpy((uint8_t*)&v[i] + 12, s + 12, 4);

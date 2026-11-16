@@ -92,7 +92,7 @@ extern u8 gPool[];
 extern Gfx* gDisplayListHead;
 extern u64 _binary_assets_us_F3DEX2_bin_start[];
 
-extern f32 gSineTable[];
+extern f32 gSineTable[0x1400]; // PORT: sized: SINS() indexes 0x1000 entries, the last 0xC00 of them are gCosineTable (the two overlap on the N64)
 extern f32 gCosineTable[0x1000];
 extern s16 gArctanTable[1025];
 

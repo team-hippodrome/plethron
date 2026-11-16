@@ -4754,6 +4754,7 @@ void ParticleEffect_DrawQuad(Gfx* arg0, arg1_func_8434E21C* arg1, UNUSED u16 arg
     s16 var_t1;
     UNUSED s16 pad2; // FAKE: stack padding
     s16 var_t5;
+    arg1 = BattleFx_HostTexturePair(arg1); // PORT: the struct is in the model blob, in N64 form
 
     temp_v0 = BattleAnim_GetOwnerContextParticle(D_8006049C);
     var_t1 = 0x96;

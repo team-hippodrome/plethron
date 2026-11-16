@@ -440,6 +440,12 @@ int ZLift_IsLifted(const void* host) {
 
 uint32_t ZLift_N64Addr(const void* host) {
     const uint8_t* h = host;
+    for (uint32_t i = 0; i < sLazyCount; i++) {
+        const LazyBlock* b = &sLazy[i];
+        if (h >= b->host && h < b->host + b->hostSize && (b->type < 0 || typeIsBytes(b->type))) {
+            return b->addr + (uint32_t)(h - b->host); // unnamed data kept as bytes
+        }
+    }
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {
         const ZLiftSym* s = &gZLiftSyms[i];
         size_t hs = (size_t)gZLiftTypes[s->type].hostSize * s->count;

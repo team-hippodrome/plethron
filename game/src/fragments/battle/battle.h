@@ -472,6 +472,36 @@ typedef struct arg1_func_8434E21C {
     /* 0x0A */ s16 variant; // @unverified: switch value in anim_model_effects.c
 } arg1_func_8434E21C; // size >= 0xC
 
+// PORT: a model node's callbackArg that points at one of these is an address inside the model blob (a 0x3xxxxxxx
+// pseudo address, see Port_VResolve), and the blob keeps its N64 byte form: big-endian words holding blob addresses.
+// Returns a host copy (textureA/B stay blob addresses, which the renderer resolves). Host pointers are returned as
+// they are. The copies rotate through a small ring: callers use them right away.
+#include "port_endian.h"
+#include "memmap.h"
+#include "StadionPort.h" // Port_VResolve
+static inline arg1_func_8434E21C* BattleFx_HostTexturePair(arg1_func_8434E21C* p) {
+    static arg1_func_8434E21C sRing[8];
+    static u32 sNext;
+    const u8* raw;
+    arg1_func_8434E21C* out;
+
+    if ((uintptr_t)p >= 0x100000000ull || p == NULL) {
+        return p;
+    }
+    raw = Port_VResolve((uintptr_t)p);
+    if (raw == NULL) {
+        raw = (const u8*)Memmap_GetFragmentVaddr(p);
+        if ((uintptr_t)raw < 0x100000000ull) {
+            return p;
+        }
+    }
+    out = &sRing[sNext++ & 7];
+    out->textureA = (u8*)(uintptr_t)Port_ReadBE32(raw + 0);
+    out->textureB = (u8*)(uintptr_t)Port_ReadBE32(raw + 4);
+    out->variant = (s16)Port_ReadBE16(raw + 0xA);
+    return out;
+}
+
 typedef struct RibbonMeshVertexState {
     /* 0x00 */ Vec3f position; // @unverified: ribbon point
     /* 0x0C */ s16 texS; // @unverified: texture S coordinate
