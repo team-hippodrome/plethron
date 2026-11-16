@@ -515,6 +515,113 @@ s32 Font_GetCenteredStartX(s32 x, s32 scale, const char* str) {
     return x - (((strlen(str) >> 1) * width) >> 1);
 }
 
+// PORT: Font_PrintfToDisplayList for a translated language. Each segment between the control characters ('\n', '\t')
+// is translated on its own (a VS panel nickname is "\t" + the name), or the whole format with its arguments when it
+// has conversions. Each character is a quad with its Unicode glyph, sized to the active set's height.
+static s32 Port_Font_AddGlyphQuad(Gfx** list, s16 x, s16 y, s16 scale_x, s16 scale_y, u32 cp) {
+    Glyph8001AFB0* font = &((Glyph8001AFB0*)font_context)[font_context->unk_50];
+    int tex_width, draw_width, advance;
+    const unsigned char* tex = Port_Font_Glyph(cp, font->height, &tex_width, &draw_width, &advance);
+    Vtx* vtx;
+    Gfx* dl;
+    Gfx* gfx;
+    s16 w;
+    s16 h;
+
+    if (tex == NULL) {
+        tex = Port_Font_Glyph('?', font->height, &tex_width, &draw_width, &advance);
+        if (tex == NULL) {
+            return ((font->advance + font_context->unk_51) * scale_x) / 100;
+        }
+    }
+    if (cp != ' ') {
+        w = (draw_width * scale_x) / 100;
+        h = (font->height * scale_y) / 100;
+        vtx = Gfx_AllocDisplayList(sizeof(Vtx) * 4);
+        Gfx_SetVertexAttributes(&vtx[0], x, y, 0, 0, 0, 0, 0, 0x7F, 0xFF);
+        Gfx_SetVertexAttributes(&vtx[1], x, y - h, 0, 0, (font->height << 5) - 1, 0, 0, 0x7F, 0xFF);
+        Gfx_SetVertexAttributes(&vtx[2], x + w, y - h, 0, (draw_width << 5) - 1, (font->height << 5) - 1, 0, 0, 0x7F, 0xFF);
+        Gfx_SetVertexAttributes(&vtx[3], x + w, y, 0, (draw_width << 5) - 1, 0, 0, 0, 0x7F, 0xFF);
+        dl = Gfx_AllocDisplayList(sizeof(Gfx) * 20);
+        gfx = dl;
+        gDPLoadTextureBlock(gfx++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, tex_width, font->height, 0, G_TX_CLAMP, G_TX_CLAMP,
+                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPVertex(gfx++, vtx, 4, 0);
+        gSP2Triangles(gfx++, 0, 1, 2, 0, 0, 2, 3, 0);
+        if (*list == NULL) {
+            gSPEndDisplayList(gfx++);
+        } else {
+            gSPBranchList(gfx++, *list);
+        }
+        *list = dl;
+    }
+    return ((advance + font_context->unk_51) * scale_x) / 100;
+}
+
+static s32 Port_Font_MeasureLineScaled(const char* utf8, s16 scale_x) {
+    Glyph8001AFB0* font = &((Glyph8001AFB0*)font_context)[font_context->unk_50];
+    int tex_width, draw_width, advance;
+    s32 width = 0;
+    u32 cp;
+
+    while ((cp = Port_Utf8Next(&utf8)) != 0 && cp != '\n' && cp != '\t') {
+        if (Port_Font_Glyph(cp, font->height, &tex_width, &draw_width, &advance) == NULL) {
+            advance = font->advance;
+        }
+        width += ((advance + font_context->unk_51) * scale_x) / 100;
+    }
+    return width;
+}
+
+static Gfx* Port_Font_PrintfToDisplayListV(s16 x, s16 y, s16 scale_x, s16 scale_y, const char* fmt, va_list args) {
+    Glyph8001AFB0* font = &((Glyph8001AFB0*)font_context)[font_context->unk_50];
+    char utf8[0x200];
+    char seg[0x100];
+    const char* src;
+    const char* q;
+    Gfx* dl = NULL;
+    s32 start_x = x;
+    s32 n = 0;
+    u32 cp;
+
+    if (strchr(fmt, '%') != NULL) {
+        Port_Text_Vformat(utf8, sizeof(utf8), fmt, args);
+    } else {
+        for (src = fmt; *src != 0;) {
+            if (*src == '\n' || *src == '\t') {
+                if (n < (s32)sizeof(utf8) - 1) utf8[n++] = *src;
+                src++;
+                continue;
+            }
+            {
+                s32 k = 0;
+                const char* t;
+                while (*src != 0 && *src != '\n' && *src != '\t' && k < (s32)sizeof(seg) - 1) {
+                    seg[k++] = *src++;
+                }
+                seg[k] = 0;
+                t = Port_Text_Utf8Of(seg);
+                while (t != NULL && *t != 0 && n < (s32)sizeof(utf8) - 1) {
+                    utf8[n++] = *t++;
+                }
+            }
+        }
+        utf8[n] = 0;
+    }
+    for (q = utf8; (cp = Port_Utf8Next(&q)) != 0;) {
+        if (cp == '\n') {
+            x = start_x;
+            y -= ((u8)((FontEntry8001A118*)font_context)[font_context->unk_50].size_b * ((scale_y * 0xB) / 10)) / 100;
+        } else if (cp == '\t') {
+            x -= Port_Font_MeasureLineScaled(q, scale_x) / 2;
+        } else {
+            x += Port_Font_AddGlyphQuad(&dl, x, y, scale_x, scale_y, cp);
+        }
+    }
+    (void)font;
+    return dl;
+}
+
 /**
  * Formats `fmt` into a chain of textured glyph quads (Font_AddGlyphDisplayList) scaled by
  * `scaleX` / `scaleY` percent and tinted with `color`, for drawing as part of a model. '\t' centers the
@@ -534,6 +641,14 @@ Gfx* Font_PrintfToDisplayList(s16 x, s16 y, s16 scale_x, s16 scale_y, Color_RGBA
     va_start(args, fmt);
     start_x = x;
     dl = NULL;
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) { // PORT: translated text as Unicode glyph quads
+        dl = Port_Font_PrintfToDisplayListV(x, y, scale_x, scale_y, fmt, args);
+        if (dl != NULL) {
+            dl = Gfx_WrapWithEnvColor(dl, color);
+        }
+        va_end(args);
+        return dl;
+    }
     len = _Printf(String_CopyBytesAndAdvance, (char*)buf, fmt, args);
     if (len > 0) {
         buf[len] = 0;

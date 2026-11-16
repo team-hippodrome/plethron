@@ -365,6 +365,18 @@ std::string EucToUtf8(const char* s) {
                 case 0xA1BC: put(0x30FC); break; // ー
                 case 0xA1BD: case 0xA1DD: put('-'); break;
                 case 0xA1C7: put('\''); break;
+                case 0xA1BF: put('/'); break;
+                case 0xA1CA: put('('); break;
+                case 0xA1CB: put(')'); break;
+                case 0xA1DC: put('+'); break;
+                case 0xA1E1: put('='); break;
+                case 0xA1E3: put('<'); break;
+                case 0xA1E4: put('>'); break;
+                case 0xA1F3: put('%'); break;
+                case 0xA1F4: put('#'); break;
+                case 0xA1F5: put('&'); break;
+                case 0xA1F6: put('*'); break; // the order screen's button hints
+                case 0xA1F7: put('@'); break;
                 case 0xA1E9: put(0x2642); break; // ♂
                 case 0xA1EA: put(0x2640); break; // ♀
                 default: put('?'); break;
