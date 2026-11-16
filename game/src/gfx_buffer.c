@@ -4,6 +4,7 @@
 #include "global.h"
 #include "gfx_buffer.h"
 #include "memory.h" // PORT: AllocateFunc
+#include "interp_hooks.h" // PORT: frame interpolation
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void* MainPool_AllocWithFunc(u32 size, s32 side, s32 arg, AllocateFunc func);
@@ -50,6 +51,7 @@ void Gfx_SwapDisplayListBuffer(void) {
 
     D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize * 2; // PORT: see Gfx_InitDisplayListBuffers
     gDisplayListHead = (Gfx*)buf;
+    Port_InterpBeginFrame(gDisplayListHead); // PORT: frame interpolation records this frame's matrices
 }
 
 /** Returns the start and current end of the display list buffer. */

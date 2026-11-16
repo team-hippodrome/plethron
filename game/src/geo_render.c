@@ -6,6 +6,7 @@
 void* Port_DescAt(void* base, int idx, size_t hostStride);
 void* Port_PaletteDescAt(void* base, int idx);
 #include "geo_render.h"
+#include "interp_hooks.h" // PORT: frame interpolation
 #include "battle_hud.h"
 #include "font.h"
 #include "fragments/cartridge_check/cartridge_check.h"
@@ -988,6 +989,7 @@ void Geo_ProcessNodeChildren(GraphNode* arg0) {
                 if (var_s0->callback != NULL) {
                     D_800AB244 = var_s0->callback(2, var_s0);
                 }
+                Port_InterpNode(var_s0); // PORT: frame interpolation identifies matrices by node
                 D_8006062C[var_s0->type](var_s0);
             }
             var_s0 = var_s0->nextSibling;
@@ -1005,6 +1007,7 @@ void Geo_NodeReference(GraphNode* arg0) {
         if (temp_a1->callback != NULL) {
             D_800AB244 = temp_a1->callback(2, temp_a1);
         }
+        Port_InterpNode(temp_a1); // PORT: frame interpolation identifies matrices by node
         D_8006062C[temp_a1->type](temp_a1);
     }
 
@@ -1354,6 +1357,7 @@ void Geo_NodeSwitchCase(GraphNode* arg0) {
     }
 
     if (var_a1->flags & 1) {
+        Port_InterpNode(var_a1); // PORT: frame interpolation identifies matrices by node
         D_8006062C[var_a1->type](var_a1);
     }
 }
