@@ -37,15 +37,10 @@ extern u8 sVsPanelNicknameText[];
  * Seen in play (2026-11-14): called for both portraits every frame of the panels; forcing it to
  * return -1 turned the whole screen black from the panels on.
  */
-const u8* Port_RomBytes(void);
-size_t Port_RomLength(void);
 
 // PORT: the low half of the cartridge word at ROM `offset`, read from the loaded ROM image (as
 // cartridge_check_models.c does); the host has no PI bus to read.
-static u32 Port_ReadCartHalfLow(u32 offset) {
-    const u8* rom = Port_RomBytes();
-    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
-}
+u32 Port_ReadCartHalfLow(u32 offset); // src/port/os_devices.cpp: the low half of the ROM word at `offset`
 
 intptr_t VsPanel_CheckBootCode(intptr_t display_list) { // PORT: the value is a display list pointer (was s32)
     OSIntMask prev_mask;

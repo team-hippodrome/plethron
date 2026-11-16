@@ -10,14 +10,9 @@
 #include "PR/rcp.h"
 
 // PORT: the cartridge bus is the loaded ROM image (os_devices.cpp)
-const u8* Port_RomBytes(void);
-size_t Port_RomLength(void);
 
 // PORT: the low half of the big-endian ROM word at `offset`, which the N64 read over the PI bus.
-static u32 Port_ReadCartHalfLow(u32 offset) {
-    const u8* rom = Port_RomBytes();
-    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
-}
+u32 Port_ReadCartHalfLow(u32 offset); // src/port/os_devices.cpp: the low half of the ROM word at `offset`
 
 /**
  * Anti-piracy check. With interrupts masked and the PI idle, reads the cartridge ROM word at

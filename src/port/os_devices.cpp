@@ -1615,3 +1615,10 @@ extern "C" const uint8_t* Port_RomBytes(void) {
 extern "C" size_t Port_RomLength(void) {
     return gRom.size();
 }
+
+// The low half of the big-endian ROM word at `offset`, for the fragments' anti-piracy reads of the cartridge bus
+// (PI_DOM1_ADDR2 + offset & 0xFFFF); 0 when there is no ROM or the word is past its end.
+extern "C" uint32_t Port_ReadCartHalfLow(uint32_t offset) {
+    const uint8_t* rom = Port_RomBytes();
+    return (rom != nullptr && (size_t)offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
+}

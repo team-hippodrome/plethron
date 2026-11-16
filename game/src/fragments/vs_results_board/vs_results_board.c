@@ -44,15 +44,10 @@ extern u8 sVsResultsNicknameText[];
  * returned `display_list` unchanged.
  * @unverified: the -1 path; the emulator runs the retail boot code, so it was not taken.
  */
-const u8* Port_RomBytes(void);
-size_t Port_RomLength(void);
 
 // PORT: the low half of the cartridge word at ROM `offset`, read from the loaded ROM image (as
 // cartridge_check_models.c does); the host has no PI bus to read.
-static u32 Port_ReadCartHalfLow(u32 offset) {
-    const u8* rom = Port_RomBytes();
-    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
-}
+u32 Port_ReadCartHalfLow(u32 offset); // src/port/os_devices.cpp: the low half of the ROM word at `offset`
 
 intptr_t VsResults_CheckBootCode(intptr_t display_list) { // PORT: the value is a display list pointer (was s32)
     OSIntMask prev_mask;
