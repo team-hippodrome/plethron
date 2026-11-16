@@ -236,6 +236,7 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             } else {
                 Announcer_QueueLine(29, 0.0f, 0x80);
             }
+            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             break;
         case 5:
             if (D_8007756C != 0) {
@@ -247,6 +248,7 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             break;
         case 6:
             Announcer_QueueLine(38, 0.0f, 0x80);
+            func_8003834C(D_800B4188, D_800B41A4, 26, 112, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             break;
         case 7:
             if (D_8007756C != 0) {
@@ -298,6 +300,7 @@ void Announcer_CommentOnSideMessage(s32 kind) {
             break;
         case 30:
             Announcer_QueueLine(26, 0.0f, 0x80);
+            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             D_8007755C = 1;
             break;
         case 31:
@@ -325,6 +328,7 @@ void Announcer_CommentOnSideMessage(s32 kind) {
         case 41:
             Announcer_QueueLine(27, 0.0f, 0x80);
             if (D_800FD6B8 == 0) {
+                func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             }
             D_8007755C = 1;
             break;
@@ -333,6 +337,7 @@ void Announcer_CommentOnSideMessage(s32 kind) {
                 Announcer_QueueLine(28, 0.0f, 0x80);
                 func_80037AC4(D_800FD6BC, 60);
                 D_800FD6BC = 0;
+                func_8003834C(D_800B4188, D_800B41A4, 28, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
                 D_8007755C = 1;
                 D_80077564 = 1;
             }
@@ -373,6 +378,7 @@ void Announcer_CommentOnMessage(s32 kind) {
             Announcer_QueueLine(47, 0.0f, 0x80);
             D_80077568 = 1;
         }
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 3:
         Announcer_QueueLine(60, 0.0f, 0x80);
@@ -392,6 +398,7 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 9:
         Announcer_QueueLine(39, 0.0f, 0x80);
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 10:
         if (D_80077564 == 0) {
@@ -404,6 +411,7 @@ void Announcer_CommentOnMessage(s32 kind) {
             Announcer_QueueLine(47, 0.0f, 0x80);
             D_80077568 = 1;
         }
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 12:
         if (D_80077564 == 0) {
@@ -560,15 +568,18 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 74:
         Announcer_QueueLine(43, 0.0f, 0x80);
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 77:
         Announcer_QueueLine(42, 0.0f, 0x80);
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 78:
         Announcer_QueueLine(60, 0.0f, 0x80);
         break;
     case 79:
         Announcer_QueueLine(40, 0.0f, 0x80);
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     case 80:
         Announcer_QueueLine(60, 0.0f, 0x80);
@@ -591,6 +602,7 @@ void Announcer_CommentOnMessage(s32 kind) {
         break;
     case 87:
         Announcer_QueueLine(41, 0.0f, 0x80);
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         break;
     }
 }
@@ -626,6 +638,7 @@ void Announcer_CommentOnHpChange(u32 side) {
                 if (lost > 0) {
                     if ((hp < 10) && (hp != 0)) {
                         Announcer_QueueLine(34, 0.0f, 0x80);
+                        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
                         return;
                     }
                     if (D_8007755C == 0) {
@@ -670,10 +683,12 @@ void Announcer_CommentOnBattleEnd(void) {
         }
         Announcer_QueueLine(30, 0.0f, 0x80);
         D_80077530 = 0;
+        func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
         return;
     }
     Announcer_QueueLine(30, 0.0f, 0x80);
     D_80077530 = 0;
+    func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
 }
 
 extern s32 D_80077590;
@@ -889,6 +904,7 @@ s32 Audio_LoadWaveTablesAndMusic(u8* arg0) {
     Rom_DmaRead(D_800B4164->files[0], (uintptr_t)D_800B41F0, D_800B4164->files[1] - D_800B4164->files[0]);
     Audio_CopyDataWithCacheSync(D_800B41F0, D_800B419C, 36000);
     D_800FD608 = func_80037F68((SoundBank*)D_800FD690, D_800B419C);
+    func_80037C04(D_800FD608, 112); // PORT: restored (the 64-bit pass dropped it)
 
     return D_800FD608;
 }

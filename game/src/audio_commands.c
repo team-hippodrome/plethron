@@ -591,7 +591,10 @@ s32 Audio_StartMusicTrack(u32 track_id) {
         start = D_800B4164->files[file_index[0]];
         file_size = D_800B4160->num_files - start;
     }
+    Rom_DmaRead(start, (uintptr_t)D_800B41F0, file_size); // PORT: restored (the 64-bit pass dropped it)
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B419C, 36000); // PORT: restored (the 64-bit pass dropped it)
     D_800FD608 = func_80037F68(D_800B4180, D_800B419C);
+    func_80037C04(D_800FD608, volume_scale[0]); // PORT: restored (the 64-bit pass dropped it)
     return D_800FD608;
 }
 
@@ -649,6 +652,7 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
         return ret;
     }
     if (sound_id == 23) {
+        return func_8003834C(D_800B4188, D_800B41A0, 23, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
     }
     i = 0;
     if (D_800FD68C != 0) {
@@ -668,12 +672,14 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
     id = sound_id;
     switch (sound_id) {
         case 36:
+            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             break;
         case 18:
         case 19:
         case 20:
         case 21:
         case 22:
+            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             break;
         case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
         case 11: case 12: case 13: case 14: case 16: case 17: case 24: case 25: case 26:
@@ -706,6 +712,7 @@ s32 Audio_PlaySystemSound(s32 sound_id) {
             break;
     }
     if (id == 10) {
+        func_80037C04(ret, 224); // PORT: restored (the 64-bit pass dropped it)
     }
     return ret;
 }
@@ -766,6 +773,7 @@ s32 Audio_PlayCry(u32 arg0, u32 arg1) {
     }
     Rom_DmaRead(start, (uintptr_t)D_800B41F0, size);
     Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41B0[D_80077520], 320);
+    Block_RelocateSelf(D_800B41B0[D_80077520]); // PORT: restored: the block was just copied in N64 byte order
     switch (arg1) {
         case 0:
             D_800FD5F8[D_80077520] = func_8003834C(D_800B4190, D_800B41B0[D_80077520], 1, 160, 0x80, 0, -1);
@@ -1085,7 +1093,9 @@ skip:
         size = D_800B4160->files[4] - D_800B4178->files[move_id];
     }
 
+    Rom_DmaRead(D_800B4178->files[move_id], (uintptr_t)D_800B41F0, size); // PORT: restored (the 64-bit pass dropped it)
     Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41C0[D_800FD604], 800);
+    Block_RelocateSelf(D_800B41C0[D_800FD604]); // PORT: restored: the block was just copied in N64 byte order
 
     if (sound_kind == 255) {
         ret = func_8003834C(D_800B4194, D_800B41C0[D_800FD604], var + 1, 0x80, 0x80, 0, -1);
@@ -1101,6 +1111,7 @@ skip:
     if ((sound_kind == 0) || (sound_kind == 2)) {
         switch (move_id + 1) {
             case AMNESIA:
+                func_8003834C(D_800B4188, D_800B41A4, 14, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
                 break;
 
             case REST:

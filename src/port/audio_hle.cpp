@@ -78,15 +78,30 @@ void LoadLut() {
     if (gLutLoaded) {
         return;
     }
-    // the resampler's 64 x 4 tap table is part of the microcode data (ROM 0x7F670 + 0xB0)
+    // The resampler's 64 x 4 tap table is part of the microcode data (n_aspMainData + 0xB0). Its ROM place differs
+    // between games: Stadium 1 (US) has the data at 0x7F670, Stadium Zero at 0x808F0. A fixed offset from Stadium 1
+    // read Zero's code pointers as filter taps, which turned every voice into distorted noise. So find the data in
+    // the ROM: the "naudio" ucode data has 0x127c at +0x10 and the tap table, starting 0x0c39 0x66ad, at +0xB0.
     const uint8_t* rom = Port::RomData();
-    size_t off = 0x7F670 + 0xB0;
-    if (rom != nullptr && Port::RomSize() >= off + sizeof gLut) {
-        for (int i = 0; i < 64 * 4; i++) {
-            gLut[i] = (int16_t)((rom[off + 2 * i] << 8) | rom[off + 2 * i + 1]);
+    const size_t size = rom != nullptr ? Port::RomSize() : 0;
+    auto be32 = [rom](size_t o) {
+        return (uint32_t)rom[o] << 24 | (uint32_t)rom[o + 1] << 16 | (uint32_t)rom[o + 2] << 8 | rom[o + 3];
+    };
+    size_t data = 0;
+    bool found = false;
+    for (size_t o = 0; o + 0xB0 + sizeof gLut <= size; o += 8) {
+        if (be32(o + 0xB0) == 0x0c3966adu && be32(o + 0x10) == 0x0000127cu) {
+            data = o;
+            found = true;
+            break;
         }
     }
-    if (gLut[0] != 0x0c39 || gLut[1] != 0x66ad) {
+    if (found) {
+        for (int i = 0; i < 64 * 4; i++) {
+            gLut[i] = (int16_t)((rom[data + 0xB0 + 2 * i] << 8) | rom[data + 0xB0 + 2 * i + 1]);
+        }
+        fprintf(stderr, "[audio] microcode data at ROM 0x%zX\n", data);
+    } else {
         fprintf(stderr, "[audio] resampler table not found in the ROM's microcode data\n");
     }
     gLutLoaded = true;
