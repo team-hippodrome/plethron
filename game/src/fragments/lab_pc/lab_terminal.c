@@ -581,18 +581,21 @@ void Cont_StartReadInputs(void);                            /* extern */
 void Cont_ReadInputs(void);                            /* extern */
 void LabItem_Init(LabItemScreen*);
 void LabItem_DrawScreen(LabItemScreen*);
-M2C_UNK PcSort_Init(M2C_UNK *, M2C_UNK *);        /* extern */
-M2C_UNK PcSort_Free(M2C_UNK *);                   /* extern */
-M2C_UNK PcSort_DrawScreen(M2C_UNK *);                   /* extern */
-s32 PcSort_UpdateScreen(M2C_UNK *);                       /* extern */
-M2C_UNK PcBox_Init(M2C_UNK *);                   /* extern */
-M2C_UNK PcBox_Free(M2C_UNK *);                   /* extern */
-M2C_UNK PcBox_DrawScreen(M2C_UNK *);                   /* extern */
-s32 PcBox_UpdateScreen(M2C_UNK *);                       /* extern */
-extern M2C_UNK D_89018918;
+// PORT: signatures from the definitions (pc_sort.c, pc_box.c)
+void PcSort_Init(PcSortScreen* screen, s32 title);
+void PcSort_Free(s32 unused);
+void PcSort_DrawScreen(PcSortScreen* screen);
+s32 PcSort_UpdateScreen(PcSortScreen* screen);
+void PcBox_Init(PcBoxScreen* screen);
+void PcBox_Free(s32 unused);
+void PcBox_DrawScreen(PcBoxScreen* screen);
+s32 PcBox_UpdateScreen(PcBoxScreen* screen);
+extern char D_89018918[];
 extern LabItemScreen D_89019128;
-extern M2C_UNK D_89019B98;
-extern M2C_UNK D_89021428;
+// PORT: typed (were M2C_UNK) so their host storage holds the host structs: at the N64 sizes PcSort_Init ran into
+// D_89021428 and PcBox_Init into the Organize menu state D_890289D4, so Move Boxes never opened.
+extern PcSortScreen D_89019B98;
+extern PcBoxScreen D_89021428;
 extern LabTerminalMenuWindow D_89028950;
 extern s32 D_890289D4;
 
@@ -617,7 +620,7 @@ s32 LabTerminal_RunFrame(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondi
             D_890289D4 = temp_v0 + 1;
             switch (D_890289D4) {                   /* switch 2; irregular */
             case 2:                                 /* switch 2 */
-                PcSort_Init(&D_89019B98, &D_89018918);
+                PcSort_Init(&D_89019B98, (s32)(uintptr_t)D_89018918); // PORT: the title is never read
                 break;
             case 3:                                 /* switch 2 */
                 LabItem_Init(&D_89019128);
@@ -638,14 +641,14 @@ s32 LabTerminal_RunFrame(u8 unused) { // PORT: u8 to match BgStage_RunUntilCondi
         PcSort_DrawScreen(&D_89019B98);
         if (PcSort_UpdateScreen(&D_89019B98) != 0) {
             D_890289D4 = 1;
-            PcSort_Free(&D_89019B98);
+            PcSort_Free(0); // PORT: the argument is unused
         }
         break;
     case 4:                                         /* switch 1 */
         PcBox_DrawScreen(&D_89021428);
         if (PcBox_UpdateScreen(&D_89021428) != 0) {
             D_890289D4 = 1;
-            PcBox_Free(&D_89021428);
+            PcBox_Free(0); // PORT: the argument is unused
         }
         break;
     }
