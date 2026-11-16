@@ -1,0 +1,184 @@
+/* Declarations for src/gb_save.c. */
+#ifndef GB_SAVE_H
+#define GB_SAVE_H
+
+#include "global.h"
+#include "controller.h"
+#include "game_state.h"
+#include "m2c_macros.h"
+
+// A number changed with the d-pad, wrapping at both ends (Ui_AdjustSteppedRangeSelection, Ui_AdjustSteppedScrollSelection).
+// Merges unk_func_8002E128_arg0 and unk_func_8002DE78_arg0.
+typedef struct UiRangeValue {
+    /* 0x00 */ s32 value; // @unverified: Ui_AdjustSteppedRangeSelection
+    /* 0x04 */ s32 min; // @unverified: Ui_AdjustSteppedRangeSelection
+    /* 0x08 */ s32 max; // @unverified: Ui_AdjustSteppedRangeSelection
+    /* 0x0C */ s32 step; // @unverified: up/down add or subtract it, left/right ten times it (Ui_AdjustSteppedRangeSelection)
+} UiRangeValue; // size = 0x10
+
+/* One Pokémon of a team in a team list: a flags word, then the Pokémon read from the save
+ * (Registration_ReadTeam, FreeBattle_ReadTeam). */
+typedef struct TeamMonSlot {
+    /* 0x00 */ s32 flags; // @unverified: cleared for each Pokémon read; Free Battle tests bits 0x1, 0x10, 0x26 and 0x40
+    /* 0x04 */ BattleMon mon; // @unverified: filled by func_80020CE4 from the save
+} TeamMonSlot; // size = 0x54
+
+/* The rect, style and fill of a window: all that Window_SetRect and Window_DrawFrame touch. Some
+ * windows draw a second, inner frame of only these fields (MainMenuPromptWindow.textFrame). */
+typedef struct WindowFrame {
+    /* 0x00 */ s32 x; // 64 for the Free Battle rule window; poking 200 moved it right
+    /* 0x04 */ s32 y;
+    /* 0x08 */ s32 width; // 408 for the rule window
+    /* 0x0C */ s32 height;
+    /* 0x10 */ s32 unk_10; // cleared by Window_SetRect
+    /* 0x14 */ s32 style; // @unverified: Window_DrawFrame: bit 0 = no fill, 2|4 = two-color fill, 0x800 = title tab from `title`
+    /* 0x18 */ Color_RGBA8 color; // @unverified: fill color (Window_DrawFrame)
+    /* 0x1C */ Color_RGBA8 color2; // @unverified: second fill color with style bits 2|4
+} WindowFrame; // size = 0x20
+
+/* The header of a window (Window_SetRect, Window_DrawFrame and the screens that embed one). */
+typedef struct Window {
+    /* 0x00 */ WindowFrame frame;
+    /* 0x20 */ char* title; // text of the title tab with style 0x800: 「たいせんルールせんたく」 in the rule window
+    /* 0x24 */ s32 animTimer; // step of the open or close animation: in play the main menu confirm window opened 0, 3, 5, 6 (state 0 to 2) and closed 7, 10, 11 (state 3, then 4)
+    /* 0x28 */ s32 state; // 0..4, 2 while the rule window is open; the Free Battle windows take input only in states 1 and 2; 4 = closed
+} Window; // size = 0x2C
+
+/* A two-choice row of labeled buttons (はい/いいえ, yes/no) driven by func_8002B390. */
+typedef struct ChoiceCursor {
+    /* 0x00 */ Controller* controller; // gControllers (0x800AAF50) in the main menu confirm window
+    /* 0x04 */ s32 cursor; // 0 = the first button, 1 = the second; D-Right moved it from はい (Yes) to いいえ (No) in play
+    /* 0x08 */ s32 count; // 2 in the main menu confirm window
+} ChoiceCursor; // size = 0xC
+
+/* A button with a label (Window_InitLabeled, Window_DrawLabeled). */
+typedef struct LabeledButton {
+    /* 0x00 */ s32 x;
+    /* 0x04 */ s32 y;
+    /* 0x08 */ s32 width;
+    /* 0x0C */ s32 height;
+    /* 0x10 */ s32 flags; // OR'd into the label's color flags by Window_DrawLabeled; bit 3 = highlighted; poking 8 lit the いいえ (No) button of the entry confirm window in play
+    /* 0x14 */ s32 style; // @unverified: set to 1 (no fill) by Window_InitLabeled; the WindowFrame.style slot, as Window_SetRect sets x..0x10
+    /* 0x18 */ char unk18[0x8];
+    /* 0x20 */ Color_RGBA8 color; // @unverified: highlight fill (Window_DrawLabeled)
+    /* 0x24 */ s32 unk_24;
+    /* 0x28 */ s32 fontSize; // first argument of func_8001A384 in Window_DrawLabeled; 8 by default; poking 16 drew the いいえ label larger in play
+    /* 0x2C */ s32 labelX; // label x offset in the button; 6 by default; poking 30 moved the いいえ label right in play
+    /* 0x30 */ s32 labelY; // label y offset in the button; 2 by default; poking 12 moved it down in play
+    /* 0x34 */ s32 unk_34;
+    /* 0x38 */ char* label;
+} LabeledButton; // size = 0x3C
+
+/* A button that shows an image (ImageButton_Init, ImageButton_Draw), e.g. the operation buttons of the Lab PC
+ * screens (ボックスのそうさ, どうぐのせいり). */
+typedef struct ImageButton {
+    /* 0x00 */ s32 x; // @unverified: typed from the function it is passed to
+    /* 0x04 */ s32 y; // @unverified: typed from the function it is passed to
+    /* 0x08 */ s32 width; // @unverified: typed from the function it is passed to
+    /* 0x0C */ s32 height; // @unverified: typed from the function it is passed to
+    /* 0x10 */ s32 flags; // @unverified: bit 3 = highlighted (ImageButton_Draw)
+    /* 0x14 */ char unk14[0x4];
+    /* 0x18 */ Color_RGBA8 selectedColor; // @unverified: image tint when the draw flags have 0x12 (ImageButton_Draw)
+    /* 0x1C */ Color_RGBA8 color; // @unverified: image tint otherwise (ImageButton_Draw)
+    /* 0x20 */ Color_RGBA8 highlightColor; // @unverified: fill when highlighted (ImageButton_Draw)
+    /* 0x24 */ s32 imageWidth; // @unverified: texture width passed to Gfx_DrawTextureIa16 (ImageButton_Init arg5)
+    /* 0x28 */ u8* image; // @unverified: texture passed to Gfx_DrawTextureIa16 (ImageButton_Init arg6)
+} ImageButton; // size = 0x2C
+
+/* A message window sized to its text (TextBox_Init, TextBox_Draw), e.g. the error messages of the Lab PC
+ * screens. */
+typedef struct TextBox {
+    /* 0x00 */ Window window; // @unverified: typed from the function it is passed to
+    /* 0x2C */ char* text; // @unverified: TextBox_Init arg1; printed by TextBox_Draw
+    /* 0x30 */ s32 fontStyle; // @unverified: index into D_800736D0 (character width and height, font)
+    /* 0x34 */ s32 lineCount; // @unverified: TextBox_Init arg3; sets the window height
+} TextBox; // size = 0x38
+
+/* The 8x8 edge textures of a textured frame (Ui_DrawTexturedFrame) or divider (Ui_DrawTexturedDivider,
+ * Ui_DrawFrameLeftCorners), e.g. D_8007356C. */
+typedef struct FrameTextures {
+    /* 0x00 */ s32 loadArg; // @unverified: last argument of the texture loader
+    /* 0x04 */ s32 format; // @unverified: index of the loader in D_800734F0, D_80073500 or D_80073510
+    /* 0x08 */ u8* top; // @unverified: drawn along the top edge by Ui_DrawTexturedFrame
+    /* 0x0C */ u8* left; // @unverified: along the left edge
+    /* 0x10 */ u8* bottom; // @unverified: along the bottom edge
+    /* 0x14 */ u8* right; // @unverified: along the right edge
+} FrameTextures; // size = 0x18
+
+/* A frame with text that blinks (BlinkingTextBox_Init, BlinkingTextBox_Draw), e.g. the Free Battle entry message. */
+typedef struct BlinkingTextBox {
+    /* 0x00 */ WindowFrame frame; // @unverified: centered on the screen around the text (BlinkingTextBox_Init)
+    /* 0x20 */ s32 blinkTimer; // @unverified: counts up each draw; hidden for 4 of every 8 frames (Window_DrawBlinkingFrame)
+    /* 0x24 */ s32 noBlink; // @unverified: nonzero = always shown (Window_DrawBlinkingFrame); BlinkingTextBox_Init clears it
+    /* 0x28 */ char* text; // @unverified: BlinkingTextBox_Init arg1
+    /* 0x2C */ s32 fontStyle; // @unverified: index into D_800736D0 (character width and height, font)
+    /* 0x30 */ s32 lineCount; // @unverified: BlinkingTextBox_Init arg3; sets the frame height
+} BlinkingTextBox; // size = 0x34
+
+void ImageButton_Init(ImageButton* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, uintptr_t arg6); // PORT: arg6 was s32 (a pointer)
+void ImageButton_Draw(ImageButton* arg0, s32 arg1);
+
+typedef struct unk_func_8002EBD8_arg0 {
+    /* 0x00 */ char unk00[0x8];
+    /* 0x08 */ u16 unk_08;
+} unk_func_8002EBD8_arg0; // size >= 0xA
+
+// A menu cursor that wraps (Ui_AdjustVerticalSelection, Ui_AdjustHorizontalSelection).
+// Merges unk_func_8002DCB8_arg0 and unk_func_8002DD98_arg0.
+typedef struct UiSelection {
+    /* 0x00 */ Controller* controller; // PORT: was s32 unk_00; every caller passes a ChoiceCursor, whose first field is a pointer
+    /* 0x04 */ s32 index; // @unverified: Ui_AdjustVerticalSelection
+    /* 0x08 */ s32 count; // @unverified: Ui_AdjustVerticalSelection
+} UiSelection; // size = 0xC
+
+// What GbSave_BuildPortSummary fills for one port; the trainer name follows the struct.
+typedef struct GbSavePortSummary {
+    /* 0x00 */ s32 isUnavailable; // @unverified: 1 when GbSave_GetSaveState is not 0
+    /* 0x04 */ s32 gameType; // @unverified: GbSave_GetPortGame
+    /* 0x08 */ s32 trainerId; // @unverified: GbSave_GetTrainerId
+} GbSavePortSummary; // size = 0xC
+
+// A number entered digit by digit (Ui_AdjustNumericSelection). Merges unk_func_8830867C_044_038_030
+// and unk_func_8820E99C_030_030.
+typedef struct UiNumberInput {
+    /* 0x00 */ s32 value; // @unverified: Ui_AdjustNumericSelection
+    /* 0x04 */ s32 min; // @unverified: Ui_AdjustNumericSelection
+    /* 0x08 */ s32 max; // @unverified: Ui_AdjustNumericSelection
+    /* 0x0C */ s32 digitCount; // @unverified: limit of cursorDigit (Ui_AdjustNumericSelection)
+    /* 0x10 */ s32 cursorDigit; // @unverified: the digit up/down change, 0 the ones (Ui_AdjustNumericSelection)
+} UiNumberInput; // size = 0x14
+
+typedef struct unk_D_8007596C {
+    /* 0x00 */ u16 unk_00;
+    /* 0x02 */ u16 unk_02;
+} unk_D_8007596C; // size = 0x4
+
+#define BTN_A           0x8000
+
+#define BTN_B           0x4000
+
+#include "fragments/battle/battle.h"
+
+// gb_save.c
+void GbSave_BuildPortSummary(GbSavePortSummary* arg0, s32 arg1);
+s32 Ui_AdjustVerticalSelection(UiSelection* arg0, s32 arg1);
+s32 Ui_HandleVerticalSelectionInput(UiSelection* arg0); // PORT: a cursor pointer (was s32)
+s32 Ui_AdjustHorizontalSelection(UiSelection* arg0, s32 arg1);
+void Ui_AdjustSteppedScrollSelection(UiRangeValue* arg0);
+s32 Ui_AdjustNumericSelection(UiNumberInput* arg0, s32 arg1);
+s32 Ui_HandleNumericSelectionInput(UiNumberInput* arg0);
+s32 Ui_AdjustSteppedRangeSelection(UiRangeValue* arg0);
+s32 GbSave_GameToCategoryIndex(s32 arg0);
+Color_RGBA8 Color_InterpolateFromGray(Color_RGBA8 arg0, f32 arg1);
+s32 BattleMon_CountMoves(u8* arg0);
+void BattleInfoWidget_DrawLabel(s32 arg0, s32 arg1, char* arg2, s32 arg3, s32 arg4);
+s32 Window_UpdateAndDrawFrame(Window* window); // PORT: returns its frame result
+s32 Window_UpdateAnimation(Window* arg0);
+void Font_SetColorForFlags(s32);
+s32 BattleMon_GetMoveIndexChecked(u8* arg0, s32 arg1); // PORT: was unprototyped
+void Trade_DrawSolidFillRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGB8 arg4);
+
+// functions defined in assembly
+s32 Trade_DrawBox3DModel(s32 arg0, GraphNode* arg1);
+
+#endif // GB_SAVE_H

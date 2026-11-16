@@ -1,0 +1,5 @@
+# Game sources compiled with their string literals converted to EUC-JP (tools/euc_source.py, see CMakeLists.txt).
+# Every file under game/src whose string literals hold Japanese text belongs here.
+game/src/lab_item.c
+game/src/fragments/party_summary/party_screen.c
+game/src/fragments/lab_pokemon_list/pokemon_list_7.c

@@ -1,0 +1,266 @@
+/* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
+#include "battle.h"
+#include "port_endian.h" // PORT: Port_ReadBE32
+#include "unicode_font.h" // PORT: Port_Font_FitNext
+// PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
+// it as u8** took two entries as one host pointer.
+#define PORT_SEG_TABLE_ENTRY(table, i) ((u8*)(uintptr_t)Port_ReadBE32((const u32*)(table) + (i)))
+#include "graphics_textures.h"
+#include "input.h"
+#include "memmap.h"
+#include "ui_graphics.h"
+
+// Declared here instead of in a header: the callers of these disagree on their types.
+M2C_UNK Ui_DrawPrimColorRect(s32, s32, s32, s32, s32, s32, s32, s32);
+void Font_Printf(s32 x, s32 y, const char* fmt, ...);
+void Gfx_SetEnvColor(s32 r, s32 g, s32 b, s32 a); // PORT: signature from the definition (font.c)
+void Font_BeginTranslucentTextRendering(void); // PORT: signature from the definition (font.c)
+void Font_SetActive(M2C_UNK, M2C_UNK);
+void Font_EndTexturedTextRendering(void);
+
+/**
+ * Empty.
+ * @unverified Name guessed from the code.
+ */
+void BattleHud_UnusedNopA(void) {
+}
+
+/**
+ * Empty.
+ * @unverified Name guessed from the code.
+ */
+void BattleHud_UnusedNopB(void) {
+}
+
+/**
+ * Draws a level number at (arg0, arg1) on the battle HUD from the digit font.
+ * Seen in play (2026-11-13): ran in the 165-move battle sweep (165 of the moves).
+ * @unverified Name from Stadium 1.
+ */
+void BattleHud_DrawLevelNumber(s32 arg0, s32 arg1, s32 arg2) {
+    UNUSED s32 pad[2]; // FAKE: stack padding
+    s8* var_s2;
+    s8 sp58[4]; // PORT: was [2]; sprintf writes up to 4 bytes ("100" and its NUL). The N64 stack padding took
+                // the overflow, here it zeroed a saved register (the info box's y: HP, nickname and status drawn at the top)
+    UNUSED s32 pad2[2]; // FAKE: stack padding
+    u8** temp_s4;
+
+    var_s2 = &sp58;
+    temp_s4 = Memmap_GetSegmentVaddr(D_300B870);
+    sprintf(sp58, "%d", arg2);
+
+    gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
+
+    if (arg2 >= 0x64) {
+        arg0 -= 2;
+        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, PORT_SEG_TABLE_ENTRY(temp_s4, sp58[0] - '0'), 8, 0);
+        arg0 += 8;
+        var_s2 = &sp58[1];
+    } else {
+        Gfx_DrawTextureRgba16(arg0, arg1, 4, 6, PORT_SEG_TABLE_ENTRY(temp_s4, 11), 4, 0);
+        arg0 += 5;
+    }
+
+    while (*var_s2 != 0) {
+        Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, PORT_SEG_TABLE_ENTRY(temp_s4, *var_s2 - '0'), 8, 0);
+        arg0 += 8;
+        var_s2++;
+    }
+
+    gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
+}
+
+/**
+ * Draws HP as "current/max" text at (arg0, arg1) on the battle HUD.
+ * Seen in play (2026-11-13): ran in the 165-move battle sweep (165 of the moves).
+ * @unverified Name from Stadium 1.
+ */
+void BattleHud_DrawHpFractionText(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    UNUSED s32 pad[2]; // FAKE: stack padding
+    s8 sp70[8]; // PORT: was [7]; "%3d/%3d" writes 8 bytes with its NUL
+    UNUSED s32 pad2; // FAKE: stack padding
+    u8** temp_s2;
+    u8* var_v0;
+    s32 i;
+
+    temp_s2 = Memmap_GetSegmentVaddr(D_300B870);
+    sprintf(sp70, "%3d/%3d", arg2, arg3);
+
+    gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
+
+    for (i = 0; i < 7; i++) { // PORT: the 7 characters (sizeof was 7 before the NUL got its byte)
+        switch (sp70[i]) {
+            case ' ':
+                var_v0 = NULL;
+                break;
+
+            case '/':
+                var_v0 = PORT_SEG_TABLE_ENTRY(temp_s2, 10);
+                break;
+
+            default:
+                var_v0 = PORT_SEG_TABLE_ENTRY(temp_s2, sp70[i] - '0');
+                break;
+        }
+
+        if (var_v0 != NULL) {
+            Gfx_DrawTextureRgba16(arg0, arg1, 8, 6, var_v0, 8, 0);
+        }
+
+        arg0 += 8;
+    }
+
+    gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
+}
+
+/**
+ * Seen in play (2026-11-13) at the battle command menu: called at (0x16, 0x0F) with the 1P
+ * trainer's name, the string "1P" at 0x800AE8FC, which is the label in the top-left box. Was
+ * BattleHud_DrawSpeciesNameLabel, but it draws the trainer name, not the species.
+ */
+void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, const char* arg3, s32 arg4) { // PORT: arg3 was s32
+    u32 sp24;
+    s32 temp_v0;
+
+    temp_v0 = arg2 * 3;
+    Battle_DrawGradientRectWrapper(arg0, arg1, 0x46, 0x11, temp_v0 + &D_8218B008, temp_v0 + &D_8218B014);
+    Font_BeginTranslucentTextRendering();
+    if (arg4 != 0) {
+        Gfx_SetEnvColor(0xFF, 0x64, 0xFF, 0xFF); // #FF64FF
+    }
+    sp24 = strlen(arg3) >> 1;
+    Font_SetActive(2, 0);
+    Port_Font_FitNext(arg0 + 2, arg0 + 0x46 - 2, 1); // PORT: translated names fit the 0x46-wide box
+    Font_Printf((arg0 - (sp24 * 5)) + 30, arg1 + 2, arg3);
+    Font_EndTexturedTextRendering();
+}
+
+/**
+ * Seen in play (2026-11-13) at the battle command menu: called at (0xE3, 0xCE) with the COM
+ * trainer's name, fullwidth "ＣＯＭ" at 0x800AED04, the label in the COM side's box. Was
+ * BattleHud_DrawSpeciesNameLabelBlink.
+ */
+void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, const char* arg3, u16 arg4, s32 arg5) { // PORT: arg3 was s32
+    UNUSED s32 pad; // FAKE: stack padding
+    s16 wave;
+    s16 alpha;
+    u32 half;
+    s32 temp_v0;
+
+    wave = gCosineTable[arg4 >> 4] * 255.0f;
+    alpha = wave;
+    if (wave < 0) {
+        alpha = -wave;
+    }
+    temp_v0 = arg2 * 3;
+    Battle_DrawGradientRectWrapper(arg0, arg1, 0x46, 0x11, temp_v0 + &D_8218B008, temp_v0 + &D_8218B014);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(2, 0);
+    if (arg5 != 0) {
+        Gfx_SetEnvColor(0xFF, 0x64, 0xFF, (s8)alpha); // #FF64FF
+    } else {
+        Gfx_SetEnvColor(0xFF, 0xFF, 0xFF, (s8)alpha); // #FFFFFF
+    }
+    half = strlen(arg3) >> 1;
+    if (wave > 0) {
+        Font_Printf(arg0 + 14, arg1 + 2, &D_8219597C);
+    } else {
+        Port_Font_FitNext(arg0 + 2, arg0 + 0x46 - 2, 1); // PORT: translated names fit the 0x46-wide box
+        Font_Printf((arg0 - (half * 5)) + 30, arg1 + 2, arg3);
+    }
+    Font_EndTexturedTextRendering();
+}
+
+/**
+ * Seen in play (2026-11-13) at the battle command menu: called with the COM Pokémon and its
+ * TeamRoster (trainer name ＣＯＭ), it chose the blinking trainer-name label. Was
+ * BattleHud_DrawSpeciesNameLabelAuto.
+ */
+void BattleHud_DrawTrainerNameLabelAuto(ActivePokemon* arg0, TeamRoster* arg1, s16 arg2, s16 arg3, s32 arg4, u16 arg5, s32 arg6) {
+    ActivePokemonState* ptr = &arg0->state;
+    s32 var_t0 = 0;
+    s32 i;
+
+    for (i = 0; i < 4; i++) {
+        if (ptr->moveSlotIllegality[i] == 1) {
+            var_t0 = 1;
+        }
+    }
+
+    if (arg6 == 0) {
+        BattleHud_DrawTrainerNameLabel(arg2, arg3, arg4, &arg1->trainerName, var_t0);
+    } else {
+        BattleHud_DrawTrainerNameLabelBlink(arg2, arg3, arg4, &arg1->trainerName, arg5, var_t0);
+    }
+}
+
+/**
+ * Draws a Pokemon's info box: background (clipped at the left edge), level, HP bar, HP fraction,
+ * the nickname centered on top and the status text in its color. Called every frame from
+ * BattleHud_DrawMonStatusBoxPlayer.
+ * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the battle opening, a switch
+ * in battle, running from battle and a Pound turn.
+ * Stubbed on the battle command menu, both info boxes lost their nickname, level, status, HP bar
+ * and HP fraction, leaving only the empty frames.
+ */
+void BattleHud_DrawMonInfoBox(ActivePokemon* arg0, BattleMon* arg1, StatusLabel* arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 arg8, s32 arg9, s32 argA) {
+    u32 half;
+
+    if (arg3 < 0) {
+        if (arg5 + arg3 < 0) {
+            Ui_DrawPrimColorRect(0, arg4, 0, arg6, arg7, arg8, arg9, argA);
+        } else {
+            Ui_DrawPrimColorRect(0, arg4, arg5 + arg3, arg6, arg7, arg8, arg9, argA);
+        }
+    } else {
+        Ui_DrawPrimColorRect(arg3, arg4, arg5, arg6, arg7, arg8, arg9, argA);
+    }
+    BattleHud_DrawLevelNumber(arg3 + 3, arg4 + 0x10, arg1->level);
+    Widget_DrawMeterBar(arg3 + 2, arg4 + 25, arg1->hp, arg1->maxHp);
+    BattleHud_DrawHpFractionText(arg3 + 0xC, arg4 + 0x1F, arg1->hp, arg1->maxHp);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(2, 0);
+    half = strlen(arg1->nickname) >> 1;
+    Port_Font_FitNext(arg3 + 2, arg3 + arg5 - 2, 1); // PORT: translated nicknames fit the box
+    Font_Printf((arg3 - (half * 5)) + 29, arg4 + 2, arg1->nickname);
+    Font_SetActive(1, 0);
+    Gfx_SetEnvColor(arg2->color.r, arg2->color.g, arg2->color.b, 0xFF);
+    Port_Font_FitNext(arg3 + 31, arg3 + arg5 - 2, 0); // PORT: translated status labels fit right of the level
+    Font_Printf(arg3 + 31, arg4 + 14, arg2->text);
+    Font_EndTexturedTextRendering();
+}
+
+/**
+ * Draws an arg2 x arg3 border tile of the battle HUD from texture arg4 at (arg0, arg1).
+ * Seen in play (2026-11-13): ran in the 165-move battle sweep (165 of the moves).
+ * @unverified Name from Stadium 1.
+ */
+s32 BattleHud_DrawBorderTile(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u8* arg4) {
+    UNUSED s32 pad[4]; // FAKE: stack padding
+    s32 sp2C;
+    s32 sp28;
+
+    if (arg2 < 9) {
+        sp2C = 0x400;
+    } else {
+        sp2C = 0;
+    }
+
+    // clang-format off
+    if (arg3 < 9) { sp28 = 0x400; } else { sp28 = 0; }
+    // clang-format on
+
+    gDPLoadTextureBlock(gDisplayListHead++, arg4, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 8, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                        G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    Gfx_DrawTexturedRect(arg0, arg1, (arg0 + arg2) - 1, (arg1 + arg3) - 1, sp2C, sp28, 0);
+}
+
+/**
+ * Init hook that does nothing.
+ * No caller (2026-11-13): nothing in the built ROM jumps to it or holds its address (no jal or j,
+ * no pointer word, no lui/addiu pair in any fragment), so play cannot reach it.
+ * @unverified Name from Stadium 1.
+ */
+void ParticleEffect_InitNoop(void) {
+}

@@ -1,12 +1,27 @@
-# Prerequisites
-*.d
+# build output
+/build/
+/build_asan/
+/Pokemon Stadium.app/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# game data: never commit ROMs, saves or recordings of the games
+*.z64
+*.n64
+*.v64
+*.gb
+*.gbc
+/saves/
+/gb/*.sav
+/gb/base/
+/gb/*.wav
 
+.DS_Store
+__pycache__/
+*.pyc
+build_android/
+/build_web/
+# the web deployment's private settings (tools/deploy_web.sh)
+/deploy.local.env
+/build-win-llvm/*
 # Precompiled Headers
 *.gch
 *.pch

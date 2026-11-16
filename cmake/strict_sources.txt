@@ -1,0 +1,5 @@
+# Game sources compiled with the type-safety groups as errors (see STADION_STRICT_GROUPS in CMakeLists.txt).
+# One file per line, relative to the repository root. Measure a candidate with tools/intconv.sh / tools/ptr_warnings.sh.
+# audio
+# core runtime
+# (Stadium Zero: no file is strict yet; add them as each subsystem is cleaned.)

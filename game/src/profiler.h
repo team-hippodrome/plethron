@@ -1,0 +1,66 @@
+/* Declarations for src/profiler.c. */
+#ifndef PROFILER_H
+#define PROFILER_H
+
+#include "global.h"
+
+/*
+ * This struct contains time values per frame which is kept up by profiler.c. The game has
+ * functions which are called by their respective threads which back up the current OSTime
+ * to the appropriate array and index so the profiler can calculate the duration and display
+ * it to the profiler later.
+ */
+struct ProfilerFrameData {
+    /* 0x00 */ s16 numSoundTimes;
+    /* 0x02 */ s16 numVblankTimes;
+    /* 0x08 */ OSTime gameTimes[5];
+    /* 0x30 */ OSTime gfxTimes[3];
+    /* 0x48 */ OSTime soundTimes[8];
+    /* 0x88 */ OSTime vblankTimes[8];
+}; // size = 0xC8
+
+// Unlike prior EAD profiler versions, the frame index values are built into the profiler
+// struct now.
+struct Profiler {
+    /* 0x0000 */ struct ProfilerFrameData profiler_data[3];
+    /* 0x0258 */ s16 unused; // unused. extra frame index?
+    /* 0x025A */ s16 frameIdx1;
+    /* 0x025C */ s16 frameIdx2;
+}; // size = 0x260
+
+// thread event IDs
+enum ProfilerGameEvent {
+    THREAD5_START,
+    UNK_EVENT_1,
+    UNK_EVENT_2,
+    THREAD5_END
+};
+
+enum ProfilerGfxEvent {
+    TASKS_QUEUED,
+    RSP_COMPLETE,
+    RDP_COMPLETE
+};
+
+enum SetGetTimeDiff {
+    SET_TIME = 1,
+    GET_TIME_DIFF = 2
+};
+
+// profiler.c
+void Profiler_LogThread5Time(enum ProfilerGameEvent eventID);
+void Profiler_LogThread4Time(void);
+void Profiler_LogGfxTime(enum ProfilerGfxEvent eventID);
+void Profiler_LogVblankTime(void);
+void Profiler_DrawRect(s32 ulx, s32 lrx, s32 uly_in, u16 color);
+void Profiler_DrawBarCpu(OSTime clockBase, OSTime clockStart, OSTime clockEnd, s16 posY, u16 color);
+void Profiler_DrawBarCpuKeepMax(OSTime start, OSTime end, s16 posY, s16* last_max, s16* reset_ctr);
+void Profiler_DrawReferenceBars(void);
+void Profiler_DrawMode1(void);
+void Profiler_DrawMode0(void);
+void Profiler_Draw(s32 profiler_mode);
+void Profiler_PrintMetrics(void);
+void Profiler_ClearData(void);
+u32 Profiler_SetGetTimeDiff(enum SetGetTimeDiff state);
+
+#endif // PROFILER_H
