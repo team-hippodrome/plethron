@@ -694,7 +694,6 @@ extern u8* D_89017A80[];
 extern u8 D_89017A98[];
 extern char D_89018F28[];
 extern char D_89018F3C[];
-extern s32 D_89019114;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);

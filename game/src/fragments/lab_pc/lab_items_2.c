@@ -87,7 +87,6 @@ extern PrimEnvColor D_8900A608;
 extern PrimEnvColor D_8900A610;
 extern u8* D_89017A80[];
 extern u8 D_89017A98[];
-extern s32 D_89019114;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);

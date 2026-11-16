@@ -394,7 +394,6 @@ extern Color_RGBA8 D_8900A78C[2];
 extern Color_RGBA8 D_8900A794[2];
 extern void* D_89017A80[];
 extern u8 D_89017A98[];
-extern s32 D_89019114;
 
 /**
  * Draws a box tab with its name, highlighted when selected.
