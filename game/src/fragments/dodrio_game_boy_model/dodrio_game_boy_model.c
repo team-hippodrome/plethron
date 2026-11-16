@@ -6,7 +6,7 @@
 #include "m2c_macros.h"
 
 extern Gfx D_8E923290[]; // Screen glare setup: two 32x32 I8 diagonal-stripe textures on tiles 0 and 1.
-extern Gfx D_8E923340[]; // Screen glare quad over the Game Boy Pocket's screen.
+extern Gfx D_8E923340[4]; // Screen glare quad over the Game Boy Pocket's screen. PORT: sized (the data after its G_ENDDL was lifted as commands)
 
 /**
  * Geo callback on the Dodrio Game Boy (Pocket) prize model, the model fragment006 shows with

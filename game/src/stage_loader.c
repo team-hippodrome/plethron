@@ -57,7 +57,7 @@ s32 StageFade_Start(s32 arg0);
 void StageLoader_SetupFrame(void);
 void BgStage_DrawFrame(void);
 
-extern Gfx D_8005F728[];
+extern Gfx D_8005F728[6]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 /**
  * Draws the full-screen fade in the stage clear color: opaque in mode 1, fading out in mode 2,
  * fading in in mode 3, over fadeDuration frames. At the end mode 2 drops to 0 (no fade) and mode 3

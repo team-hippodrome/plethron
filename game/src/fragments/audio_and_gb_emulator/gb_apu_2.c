@@ -1,6 +1,9 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "audio_and_gb_emulator.h"
 
+// PORT: keeps the split sample data typed (see D_81138B9C)
+static const void* const sPortMenuSoundSamples __attribute__((used)) = D_81138B9C;
+
 /**
  * Renders `num_samples` stereo samples of the GB Player menu sounds: starts the sound
  * GbAudio_PlayMenuSound queued and mixes it with the previous one still playing (left = new + old,

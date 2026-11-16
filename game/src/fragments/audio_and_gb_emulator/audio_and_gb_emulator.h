@@ -570,7 +570,7 @@ typedef struct GbAudioStream {
 
 #define GB_AUDIO_STREAM_DATA (D_8115265C) // PORT: D_8115265C is typed as pointers
 
-#define GB_AUDIO_STREAM_SIZE ((s32*)D_81152680)
+#define GB_AUDIO_STREAM_SIZE (D_81152680)
 
 typedef struct GbStereoSample {
     /* 0x0 */ s16 left;
@@ -1010,9 +1010,13 @@ extern GbAudioStream D_81138B8C;
 
 extern GbAudioStream D_81138B94;
 
+// PORT: the menu sounds' signed 8-bit samples after D_81138B94 (streams 2-8, then 8 bytes of silence for
+// streams 0 and 1), split off so they are lifted as bytes rather than as 13145 more GbAudioStreams.
+extern s8 D_81138B9C[0x19AC0];
+
 extern s8* D_8115265C[9]; // PORT: stream pointers (was u8[0x24])
 
-extern u8 D_81152680[0x24];
+extern s32 D_81152680[9]; // PORT: stream sizes in bytes, read as s32 (was u8[0x24])
 
 extern struct AudioListItem D_81184928;
 

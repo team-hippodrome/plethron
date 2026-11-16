@@ -258,7 +258,7 @@ void Ui_DrawBorderedPanelStyleB(s32 x1, s32 y1, s32 width, s32 height, u16 color
 }
 
 extern Gfx D_800602C8[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 /**
  * Draws a 282x130 YUV image (16x16 blocks of 0x200 bytes, as the JPEG decoder outputs) at (x + 6, y + 6)
  * inside a style-A border. @unverified: no callers found in the resident code.
@@ -323,7 +323,7 @@ void Ui_DrawBorderedPanelNoFill(s32 x1, s32 y1, s32 width, s32 height) {
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
 }
 
-extern Gfx D_80060308[];
+extern Gfx D_80060308[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_10031C0[];
 extern u8 D_1003740[];
 extern u8 D_1003880[];

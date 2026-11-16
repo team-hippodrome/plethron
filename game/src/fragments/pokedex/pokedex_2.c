@@ -71,7 +71,7 @@ extern u8 D_8A12E788[];
 extern u8 D_8A12E850[];
 extern Gfx D_8A12E8F0[];
 extern Gfx D_8A12E958[];
-extern Gfx D_8A12E970[];
+extern Gfx D_8A12E970[3]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx D_8A12E9C8[];
 extern Gfx D_8A12EA30[];
 extern Gfx D_8A12EA48[];
@@ -461,7 +461,7 @@ extern GeoDisplayListNode sLabelFramesNode;
 extern s16 sLabelWidth;
 extern Gfx D_8A12EBB8[];
 extern Gfx D_8A12EBF0[];
-extern Gfx D_8A12F128[];
+extern Gfx D_8A12F128[3]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Gfx D_8A12F150[];
 /**
  * Builds sLabelFramesNode's display list: the label boxes (Pokedex_DrawLabelFrame) behind the area map's
@@ -953,10 +953,10 @@ extern s16 sAreaMapSpeciesIndex;
 extern char sAreaMapSpeciesName[];
 extern void* D_8A1302D0;
 extern s16 sLocationToSlot[];
-extern PokedexEncounter* sRedEncounters[];
-extern PokedexEncounter* sGreenEncounters[];
-extern PokedexEncounter* sBlueEncounters[];
-extern PokedexEncounter* sYellowEncounters[];
+extern PokedexEncounter* sRedEncounters[59]; // PORT: sized (one list per location); the records after it are another game's
+extern PokedexEncounter* sGreenEncounters[59]; // PORT: sized (one list per location); the records after it are another game's
+extern PokedexEncounter* sBlueEncounters[59]; // PORT: sized (one list per location); the records after it are another game's
+extern PokedexEncounter* sYellowEncounters[59]; // PORT: sized (one list per location); the records after it are another game's
 extern u8 sAreaMapGeoLayout[];
 extern u8 D_8F100000[];
 extern u8 D_00326700[];

@@ -306,7 +306,7 @@ extern Slot89007678 D_8900A884[];
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Color_RGBA8 D_8900A874;
 extern Color_RGBA8 D_8900A878;
 extern Color_RGBA8 D_8900A5BC;

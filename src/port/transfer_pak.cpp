@@ -345,7 +345,9 @@ s32 osGbpakReadId(OSPfs* pfs, OSGbpakId* id, u8* status) {
     c->power = true; // libultra powers the cartridge on to read the header
     *status = OS_GBPAK_GBCART_ON | OS_GBPAK_RSTB_STATUS | OS_GBPAK_POWER;
     const uint8_t* h = &c->rom[0x100];
-    auto be16 = [](const uint8_t* p) { return (u16)((p[0] << 8) | p[1]); };
+    // The 16-bit fields keep the N64's (big-endian) byte order in memory: the GB Player reads the id as bytes
+    // (GbPak_IdentifyCartridge compares company_code byte by byte with its table of the four cartridges).
+    auto be16 = [](const uint8_t* p) { u16 v; memcpy(&v, p, 2); return v; };
     id->fixed1 = be16(h + 0x00);
     id->start_address = be16(h + 0x02);
     memcpy(id->nintendo_chr, h + 0x04, sizeof(id->nintendo_chr));

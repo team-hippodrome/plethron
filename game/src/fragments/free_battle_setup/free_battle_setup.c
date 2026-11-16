@@ -480,7 +480,7 @@ typedef struct Color82001CCC {
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern Color82001CCC D_82009030;
 extern Color82001CCC D_82009034;
 extern Color82001CCC D_82008F54;

@@ -136,7 +136,7 @@ typedef struct Entry8006A9D4 {
 // PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern u8* D_8218AF70[];
 extern Gfx D_800602C8[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern char D_82195A14[];
 extern char D_82195A20[];
 extern char D_82195A2C[];
@@ -543,7 +543,7 @@ Colors8211B900 D_8218B104 = { { (s8*)D_8218B02C, (s8*)D_8218B044, (s8*)D_8218B05
 Colors8211B900 D_8218B114 = { { (s8*)D_8218B038, (s8*)D_8218B050, (s8*)D_8218B068, (s8*)D_8218B080 } };
 extern u8* D_8218AFF8[];
 extern Gfx D_800602C8[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 /**
  * Draws the Pokemon (switch) menu panel: the trainer name and one row per Pokemon brought,
@@ -834,7 +834,7 @@ void BattleHud_DrawActingPokemonNickname(void) {
 }
 
 extern Gfx D_800602C8[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_03003EC0[];
 extern u8 D_03006C40[];
 
@@ -1063,7 +1063,7 @@ extern u8 D_8219A731;
 extern s8 D_8219A732;
 extern u8 D_0300A500[];
 extern u8 D_0300A7A0[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 /**
  * Draws a list panel at (x, y): a translucent black box, the entries from D_8218B13C
  * (dimmed when D_8219A730 is set) and the cursor next to entry D_8219A732.

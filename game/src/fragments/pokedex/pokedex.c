@@ -25,7 +25,7 @@ void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s
 void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
 
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_04002BA8[];
 extern u8 D_04002ED0[];
 /**
@@ -139,7 +139,7 @@ extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its 
 extern u8 D_800734A8[];
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_04005890[];
 extern Color_RGBA8 D_8A1057DC;
 extern char D_8A12FC48[];
@@ -470,8 +470,9 @@ typedef struct PokedexPreviewFrame {
     /* 0x04 */ s32 height;
     /* 0x08 */ s32 width;
     /* 0x0C */ u8* pixels;
-    /* 0x10 */ u8 data[0xAE0];
-} PokedexPreviewFrame; // size = 0xAF0
+} PokedexPreviewFrame; // size = 0x10
+// PORT: the header is all: the 0xAE0 bytes after it are Red's habitat encounter records (sRedEncounters points at
+// them), which as raw bytes left every Pokémon's habitat unknown with a Red cartridge.
 extern PokedexPreviewFrame D_8A11FC18;
 
 /**

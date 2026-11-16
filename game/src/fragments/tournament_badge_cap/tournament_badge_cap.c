@@ -18,7 +18,7 @@
 #include "m2c_macros.h"
 #include "tournament_badge_cap.h"
 
-extern Gfx sBadgeMaterialDL[];
+extern Gfx sBadgeMaterialDL[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern s32 sBadgeTextureScroll;
 extern u16 sGoldBadgeEdgeTex[];
 Gfx* BadgeCap_BuildBadgeTextureDL(Gfx* gfx, Gfx* mesh, void* texture, s32 shift_s, s32 shift_t, s32 scale_s,

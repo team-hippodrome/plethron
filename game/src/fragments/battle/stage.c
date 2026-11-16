@@ -152,7 +152,7 @@ extern s32 D_82198D1C;
 extern u8 D_8F908980[];
 extern u8 D_8FA08900[];
 extern u8 D_8FB08900[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 
 /**
  * called every frame: bug boy in GLC (Stadium 1 note; Zero has no Gym Leader Castle)

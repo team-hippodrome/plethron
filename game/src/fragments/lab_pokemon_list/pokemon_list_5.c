@@ -53,7 +53,7 @@ extern M2C_UNK D_8910DBC4;
 extern u8 D_04006170[];
 extern u8 D_04006CE0[];
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern u8 D_8910C370[];
 extern u8 D_8910C978[];
 extern char D_8910DBF0[];

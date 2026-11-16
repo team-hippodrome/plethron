@@ -31,6 +31,7 @@ N64_FIELDS = {'OSContPad': 4, 'unk_D_84390240': 4}
 # lazily as each pointer's pointee type.
 DECLARED_ONLY = {
     'D_8218B63C',  # one Vec3f (B-roll camera target), then the battle message strings that D_8218C6F0.. point at
+    'D_8A11FC18',  # the Pokédex preview frame's image header, then Red's habitat encounter records (sRedEncounters)
 }
 
 

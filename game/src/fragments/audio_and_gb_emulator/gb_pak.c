@@ -452,7 +452,8 @@ void GbPak_QueueNextBankLoad(GbPakChannel* ch) {
             }
         }
 
-        if (((*((u16 *) ch->checksum)) ^ ((ch->sum - ch->checksum[0]) - ch->checksum[1])) & 0xFFFF) {
+        // PORT: the header's global checksum is big-endian (was a u16 read of the two bytes)
+        if ((((ch->checksum[0] << 8) | ch->checksum[1]) ^ ((ch->sum - ch->checksum[0]) - ch->checksum[1])) & 0xFFFF) {
             ch->error = 2;
             return;
         }

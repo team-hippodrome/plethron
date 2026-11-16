@@ -1021,7 +1021,7 @@ s32 FreeBattle_UpdateBattleModeWindow(FreeBattleModeWindow* window) {
 
 
 extern Gfx D_80060290[];
-extern Gfx D_80060398[];
+extern Gfx D_80060398[4]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 void Ui_SetTextColorForFlags(s32);
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
 
