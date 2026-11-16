@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
 #include "port_endian.h" // PORT: Port_ReadBE32
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 // PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
 // it as u8** took two entries as one host pointer.
 #define PORT_SEG_TABLE_ENTRY(table, i) ((u8*)(uintptr_t)Port_ReadBE32((const u32*)(table) + (i)))
@@ -129,6 +130,7 @@ void BattleHud_DrawTrainerNameLabel(s16 arg0, s16 arg1, s32 arg2, const char* ar
     }
     sp24 = strlen(arg3) >> 1;
     Font_SetActive(2, 0);
+    Port_Font_FitNext(arg0 + 2, arg0 + 0x46 - 2, 1); // PORT: translated names fit the 0x46-wide box
     Font_Printf((arg0 - (sp24 * 5)) + 30, arg1 + 2, arg3);
     Font_EndTexturedTextRendering();
 }
@@ -163,6 +165,7 @@ void BattleHud_DrawTrainerNameLabelBlink(s16 arg0, s16 arg1, s32 arg2, const cha
     if (wave > 0) {
         Font_Printf(arg0 + 14, arg1 + 2, &D_8219597C);
     } else {
+        Port_Font_FitNext(arg0 + 2, arg0 + 0x46 - 2, 1); // PORT: translated names fit the 0x46-wide box
         Font_Printf((arg0 - (half * 5)) + 30, arg1 + 2, arg3);
     }
     Font_EndTexturedTextRendering();
@@ -218,9 +221,11 @@ void BattleHud_DrawMonInfoBox(ActivePokemon* arg0, BattleMon* arg1, StatusLabel*
     Font_BeginTranslucentTextRendering();
     Font_SetActive(2, 0);
     half = strlen(arg1->nickname) >> 1;
+    Port_Font_FitNext(arg3 + 2, arg3 + arg5 - 2, 1); // PORT: translated nicknames fit the box
     Font_Printf((arg3 - (half * 5)) + 29, arg4 + 2, arg1->nickname);
     Font_SetActive(1, 0);
     Gfx_SetEnvColor(arg2->color.r, arg2->color.g, arg2->color.b, 0xFF);
+    Port_Font_FitNext(arg3 + 31, arg3 + arg5 - 2, 0); // PORT: translated status labels fit right of the level
     Font_Printf(arg3 + 31, arg4 + 14, arg2->text);
     Font_EndTexturedTextRendering();
 }

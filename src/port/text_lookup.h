@@ -57,6 +57,10 @@ void Port_Text_NoteSame(const char* dst, const char* src);
 // pointer stays valid until `s` is noted again. NULL in the original language.
 const char* Port_Text_Utf8Of(const char* s);
 
+// Records a translated line (up to '\n') that is wider than its box, once per text and language, in
+// text_overflows.csv next to the app: language,width,available,text.
+void Port_Text_LogOverflow(const char* utf8, int width, int avail);
+
 // Checks id, address and md5 lookups against the tables and the ROM (main.cpp --text-selftest). 0 = passed.
 int Port_Text_SelfTest(void);
 

@@ -365,6 +365,18 @@ std::string EucToUtf8(const char* s) {
                 case 0xA1BC: put(0x30FC); break; // ー
                 case 0xA1BD: case 0xA1DD: put('-'); break;
                 case 0xA1C7: put('\''); break;
+                case 0xA1BF: put('/'); break;
+                case 0xA1CA: put('('); break;
+                case 0xA1CB: put(')'); break;
+                case 0xA1DC: put('+'); break;
+                case 0xA1E1: put('='); break;
+                case 0xA1E3: put('<'); break;
+                case 0xA1E4: put('>'); break;
+                case 0xA1F3: put('%'); break;
+                case 0xA1F4: put('#'); break;
+                case 0xA1F5: put('&'); break;
+                case 0xA1F6: put('*'); break; // the order screen's button hints
+                case 0xA1F7: put('@'); break;
                 case 0xA1E9: put(0x2642); break; // ♂
                 case 0xA1EA: put(0x2640); break; // ♀
                 default: put('?'); break;
@@ -399,6 +411,33 @@ void LogMiss(const std::string& key, const char* s) {
     }
     fprintf(t.missLog, ",%08X\n", ZLift_N64Addr(s)); // where the text lives on the N64 (0 when not lifted data)
     fflush(t.missLog);
+}
+
+static FILE* sOverflowLog;
+static std::unordered_set<std::string> sOverflowed;
+
+extern "C" void Port_Text_LogOverflow(const char* utf8, int width, int avail) {
+    if (utf8 == nullptr) {
+        return;
+    }
+    std::string line(utf8, strcspn(utf8, "\n"));
+    std::lock_guard<std::mutex> lock(T().mutex);
+    if (!sOverflowed.insert(std::string(kColumns[sLanguage]) + ":" + line).second) {
+        return;
+    }
+    if (sOverflowLog == nullptr) {
+        std::string path = Ship::Context::GetPathRelativeToAppDirectory("text_overflows.csv");
+        sOverflowLog = fopen(path.c_str(), "a");
+        if (sOverflowLog == nullptr) {
+            return;
+        }
+    }
+    std::string quoted;
+    for (char c : line) {
+        quoted += (c == '"') ? std::string("\"\"") : std::string(1, c);
+    }
+    fprintf(sOverflowLog, "%s,%d,%d,\"%s\"\n", kColumns[sLanguage], width, avail, quoted.c_str());
+    fflush(sOverflowLog);
 }
 
 // ---- printf with translated pieces ----
