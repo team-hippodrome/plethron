@@ -92,18 +92,3 @@ int32_t func_81001CE0(int32_t event, void* node) {
     return 0;
 }
 
-// TODO(port): the GB Player's Game Boy CPU core (handwritten asm). stadion's src/port/gb_core.c runs Stadium 1's;
-// it still has to be wired to Zero's emulator context.
-void GbCpu_Reset(void* emu) {
-    (void)emu;
-}
-
-uint8_t GbCpu_Run(void* emu, int32_t arg1) {
-    static int warned;
-    if (!warned++) {
-        fprintf(stderr, "[port] GbCpu_Run: the GB Player core is not wired up yet\n");
-    }
-    (void)emu;
-    (void)arg1;
-    return 0;
-}

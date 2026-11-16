@@ -674,6 +674,27 @@ void GbEmu_DrawTextCommands(u16* fb, u8* cmd) {
     }
 }
 
+// PORT: frame buffers and the status strip hold RGBA5551 pixels in N64 byte order (what the screen output and
+// Port_GbPlayerPresent read). The images drawn into them come from lifted data, which keeps the N64 byte order where it
+// is declared as bytes but is in host order where declared u16 (or swapped as words where declared as 32-bit words), so
+// each source pixel is read according to how its data was lifted (ZLift_ScalarSize).
+int ZLift_ScalarSize(const void* host);
+
+static u16 GbEmu_PortSwap16(u16 v) {
+    return (u16)((v >> 8) | (v << 8));
+}
+
+static u16 GbEmu_PortReadPixel(const u16* src, s32 i, s32 order) {
+    switch (order) {
+        case 2:
+            return src[i];
+        case 4:
+            return src[i ^ 1];
+        default:
+            return GbEmu_PortSwap16(src[i]);
+    }
+}
+
 /**
  * Pixel op: keeps the destination when the source alpha bit is clear, else the source.
  * Seen in play (2026-11-13) ran on the GB Player screen while Pocket Monsters Green booted; also
@@ -735,13 +756,17 @@ void GbEmu_BlitWithPixelOp(u16* dst, u16* src, s32 mode, s32 width, s32 height) 
       default: operation = GbEmu_PixelOpReplace; break;
   }
 
-  for (x = 0; x != height; x++) {
-      for (y = 0; y != width; y++) {
-          *dst = operation(*dst, *src);
-          dst++;
-          src++;
+  {
+      s32 order = ZLift_ScalarSize(src); // PORT: see GbEmu_PortReadPixel
+      s32 i = 0;
+
+      for (x = 0; x != height; x++) {
+          for (y = 0; y != width; y++) {
+              *dst = GbEmu_PortSwap16(operation(GbEmu_PortSwap16(*dst), GbEmu_PortReadPixel(src, i++, order)));
+              dst++;
+          }
+          dst = dst - width + 0x140;
       }
-      dst = dst - width + 0x140;
   }
 }
 
@@ -769,12 +794,14 @@ void GbEmu_BlitTinted(u16* dst, u16* src, s32 color, s32 width, s32 height) {
     s32 y;
     s32 intensity;
 
+    s32 order = ZLift_ScalarSize(src); // PORT: see GbEmu_PortReadPixel
+
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            intensity = (src[y * width + x] & 0x3E) >> 1;
-            dst[y * 320 + x] = ((((color & 0xF800) * intensity) / 31) & 0xF800) |
-                               ((((color & 0x7C0) * intensity) / 31) & 0x7C0) |
-                               ((((color & 0x3E) * intensity) / 31) & 0x3E);
+            intensity = (GbEmu_PortReadPixel(src, y * width + x, order) & 0x3E) >> 1;
+            dst[y * 320 + x] = GbEmu_PortSwap16(((((color & 0xF800) * intensity) / 31) & 0xF800) |
+                                                ((((color & 0x7C0) * intensity) / 31) & 0x7C0) |
+                                                ((((color & 0x3E) * intensity) / 31) & 0x3E));
         }
     }
 }
@@ -796,16 +823,18 @@ void GbEmu_BlendColorWithAlphaMap(u16* dst, u8* alpha_map, s32 color, s32 width,
   s32 var_a0;
   for (y = 0; y < height; y++) {
       for (x = 0; x < width; x++) {
+          u16 d = GbEmu_PortSwap16(dst[y * 320 + x]); // PORT: frame buffer pixels are in N64 byte order
+
           var_a0 = alpha_map[y * alpha_stride + x] & 0xF;
-          var_t0 = (dst[y * 320 + x] & 0xF800) + (((color & 0xF800) * var_a0) / 15 & 0xF800);
+          var_t0 = (d & 0xF800) + (((color & 0xF800) * var_a0) / 15 & 0xF800);
           if (var_t0 > 0xF800) var_t0 = 0xF800;
           var_t4 = var_t0;
-          var_t0 = (dst[y * 320 + x] & 0x07C0) + (((color & 0x07C0) * var_a0) / 15 & 0x07C0);
+          var_t0 = (d & 0x07C0) + (((color & 0x07C0) * var_a0) / 15 & 0x07C0);
           if (var_t0 > 0x07C0) var_t0 = 0x07C0;
           var_t4 |= var_t0;
-          var_t0 = (dst[y * 320 + x] & 0x003E) + (((color & 0x003E) * var_a0) / 15 & 0x003E);
+          var_t0 = (d & 0x003E) + (((color & 0x003E) * var_a0) / 15 & 0x003E);
           if (var_t0 > 0x003E) var_t0 = 0x003E;
-          dst[y * 320 + x] = (s16)(var_t4 | var_t0);
+          dst[y * 320 + x] = GbEmu_PortSwap16((u16)(var_t4 | var_t0));
       }
   }
 }
@@ -855,12 +884,14 @@ void GbEmu_DrawAccessIcon(u16* arg0, s32 arg1, s32 arg2) {
         src = &D_81120FD8[arg2 * 0x84 + 0x83];
         arg1 = -1;
     }
+    s32 order = ZLift_ScalarSize(D_81120FD8); // PORT: see GbEmu_PortReadPixel
+
     for (y = 0; y < 11; y++) {
         for (x = 0; x < 12; x++) {
-            pixel = *src;
+            pixel = GbEmu_PortReadPixel(D_81120FD8, src - D_81120FD8, order);
             if (pixel & 1) {
                 row = y;
-                arg0[row * 0x140 + x + 0x2D2] = pixel;
+                arg0[row * 0x140 + x + 0x2D2] = GbEmu_PortSwap16(pixel);
             }
             src += arg1;
         }
@@ -1087,6 +1118,20 @@ extern u8 D_81122854[];
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
+#ifdef NON_MATCHING
+// PORT: whether the cartridge whose header (an OSGbpakId) is at id is a Western Gen 1 Pokémon cartridge: a title
+// of Red, Blue or Yellow, a destination other than Japan and a ROM size of 1 MB.
+static s32 GbPak_IsWesternCartridge(const u8* id) {
+    const u8* title = id + 0x34;
+
+    if (id[0x4A] == 0 || id[0x48] != 5) {
+        return 0;
+    }
+    return bcmp(title, "POKEMON RED", 11) == 0 || bcmp(title, "POKEMON BLUE", 12) == 0 ||
+           bcmp(title, "POKEMON YEL", 11) == 0;
+}
+#endif
+
 s32 GbPak_IdentifyCartridge(u8* arg0) {
     u8 buf[8];
     u8* entry = D_81122854;
@@ -1099,6 +1144,22 @@ s32 GbPak_IdentifyCartridge(u8* arg0) {
             break;
         }
     }
+#ifdef NON_MATCHING
+    // PORT: Western Red, Blue and Yellow (English, German, French, ...) are let in too, as the game they correspond
+    // to (the same frame and colours). Their headers differ from the Japanese ones in ROM size (1 MB), cartridge type
+    // (MBC3/MBC5), CGB flag (Yellow) and destination (0x01); European titles reach here under their US name
+    // (transfer_pak.cpp, PatchRegion). Zero's own bank lists only fit the Japanese ROMs, so GbEmu_LoadCartridge
+    // copies these whole (GbPak_IsWesternCartridge).
+    if (i == 0 && GbPak_IsWesternCartridge(arg0)) {
+        if (bcmp(arg0 + 0x34, "POKEMON RED", 11) == 0) {
+            i = 1;
+        } else if (bcmp(arg0 + 0x34, "POKEMON BLUE", 12) == 0) {
+            i = 3;
+        } else {
+            i = 4;
+        }
+    }
+#endif
     return i;
 }
 
@@ -1283,6 +1344,11 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
                     : (cur->gameIndex == 3) ? ((cur->maskRomVersion == 0) ? D_81122774 : NULL)
                     : (cur->gameIndex == 2) ? ((cur->maskRomVersion == 1U) ? D_81122694 : (cur->maskRomVersion == 0) ? D_811225B4 : NULL)
                                         : ((cur->maskRomVersion == 1U) ? D_811224D4 : (cur->maskRomVersion == 0) ? D_811223F4 : NULL);
+#ifdef NON_MATCHING
+    if (GbPak_IsWesternCartridge((const u8*)cur)) {
+        cur->bankList = NULL; // PORT: copied whole (see GbPak_IdentifyCartridge)
+    }
+#endif
     cur->sum = 0;
 
     if (cur->bankList == NULL) {

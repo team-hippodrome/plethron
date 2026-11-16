@@ -143,6 +143,17 @@ s32 GbEmu_UpdateFrame(void) {
             GbEmu_DrawStatusBar();
         }
     } else {
+        // PORT: the host's Transfer Pak streams all banks in before the boot stub has scrolled its logo down to 0x100
+        // (on the N64 the stream takes far longer), so the header bytes also go back once streaming has finished.
+        if (D_811565A4 != 0 && GB_RUN->gbPc == 0x100) {
+            if (--D_811565A4 == 0) {
+                func_800093E0(D_8112AF3C, D_811645F0);
+                func_800093E0(D_81130024, D_811725F0);
+                for (j = 0; j < 258; j++) {
+                    GB_RUN->rom[j] = D_811565A8[j];
+                }
+            }
+        }
         for (i = 0; i < 5; i++) {
             D_811561C8[D_811565A0].blockDirty[i] = 0xFF;
             D_811561C8[D_811565A0].blockState[i] = D_811561C8[D_811565A0].blockDirty[i];
@@ -420,18 +431,18 @@ extern u8 D_811565A0;
  * Seen in play (2026-11-14) ran when C-Up opened the GB Player menu; called from GbEmu_RunFrame.
  */
 s32 GbPak_CheckConnectionBlocking(void) {
-    volatile u8* chan = (volatile u8*)&D_811561C8[D_811565A0];
+    GbPakChannel* chan = &D_811561C8[D_811565A0]; // PORT: the fields, not N64 byte offsets 0x99/0x9A
 
-    while (chan[0x99] != 0) {
+    while (chan->request != 0) {
     }
-    if (chan[0x9A] != 0) {
+    if (chan->error != 0) {
         return -1;
     }
-    chan[0x99] = 8;
+    chan->request = 8;
     osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
-    while (chan[0x99] != 0) {
+    while (chan->request != 0) {
     }
-    if (chan[0x9A] != 0) {
+    if (chan->error != 0) {
         return -1;
     }
     return 0;

@@ -398,6 +398,34 @@ int ZLift_IsRaw(const void* host) {
     return 0;
 }
 
+// The scalar size a host pointer's lifted data was converted with: 2 or 4 when it lies in data typed as an array of
+// 16- or 32-bit scalars (each element in host byte order), 1 when it kept its N64 byte form, 0 when it is not lifted
+// data at all.
+int ZLift_ScalarSize(const void* host) {
+    const uint8_t* h = host;
+    for (uint32_t i = 0; i < sLazyCount; i++) {
+        const LazyBlock* b = &sLazy[i];
+        if (h >= b->host && h < b->host + b->hostSize) {
+            return 1;
+        }
+    }
+    for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* sy = &gZLiftSyms[i];
+        const ZLiftType* t = &gZLiftTypes[sy->type];
+        size_t hs = (size_t)t->hostSize * sy->count;
+        if (sy->host != NULL && h >= (const uint8_t*)sy->host && h < (const uint8_t*)sy->host + hs) {
+            if (typeIsBytes(sy->type)) {
+                return 1;
+            }
+            if (t->opCount == 1 && t->n64Size == t->hostSize && gZLiftOps[t->opStart].kind == ZLIFT_SCALAR) {
+                return gZLiftOps[t->opStart].size;
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void* ZLift_FindFunc(uint32_t addr) {
     return findFunc(addr);
 }
