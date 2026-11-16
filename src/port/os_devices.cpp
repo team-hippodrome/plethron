@@ -351,9 +351,8 @@ u32 port_rom_read_u32(u32 off) {
     return ((u32)gRom[off] << 24) | ((u32)gRom[off + 1] << 16) | ((u32)gRom[off + 2] << 8) | gRom[off + 3];
 }
 
-uintptr_t osVirtualToPhysical(void* p) {
-    return (uintptr_t)p;
-}
+// osVirtualToPhysical: libultraship's (libultra/os_vm.cpp, the same identity mapping); a second copy here is a
+// duplicate symbol for COFF lld, which links both archive members
 
 u32 osGetMemSize(void) {
     return osMemSize;
