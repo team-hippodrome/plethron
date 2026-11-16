@@ -39,7 +39,9 @@ class Gen:
         k = t['k']
         if k == 's': return 's%d%s' % (t['size'], 's' if t['sg'] else 'u')
         if k == 'f': return 'f%d' % t['size']
-        if k == 'ptr': return 'p'
+        # the pointee is part of the key: a top-level pointer symbol's type decides how lazily lifted pointee data is
+        # read (a char* sharing 'p' with a GfxImage* lifted its strings as s16 fields, byte-swapped)
+        if k == 'ptr': return 'p:' + (s.key(t['to']) if t.get('to') and t['to']['k'] not in ('void', 'opaque', 'function') else '?')
         if k == 'fnptr': return 'fp'
         if k == 'iptr': return 'ip'
         if k == 'rec': return 'r:' + t['id']
