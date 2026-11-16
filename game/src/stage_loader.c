@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/stage_loader.c. */
 
 #include "global.h"
+#include "subtitles.h" // PORT: Subtitles_Draw
 #include "stage_loader.h"
 #include "dp_intro.h"
 #include "gfx_buffer.h"
@@ -237,6 +238,7 @@ void StageLoader_SetupFrame(void) {
     }
 
     TextRenderer_FlushQueuedStrings(&gDisplayListHead, StageContext_IsHighResolution());
+    Subtitles_Draw(); // PORT: the announcer's line, on top of everything the stage drew this frame
 
     if (gShowCPUProfiler != 0) {
         Profiler_Draw(gShowCPUProfiler - 1);

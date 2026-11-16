@@ -640,6 +640,15 @@ void Port_Text_SaveLanguage(int lang) {
     CVarSave();
 }
 
+int Port_Subtitles_Enabled(void) {
+    return CVarGetInteger("gPort.Subtitles", 1) != 0;
+}
+
+void Port_Subtitles_SetEnabled(int on) {
+    CVarSetInteger("gPort.Subtitles", on ? 1 : 0);
+    CVarSave();
+}
+
 const char* Port_Text_LanguageName(int lang) {
     return (lang >= 0 && lang < PORT_LANG_COUNT) ? kNames[lang] : "";
 }

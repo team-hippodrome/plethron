@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/libnumus/player.c. */
 
 #include "libnumus/player.h"
+#include "subtitles.h" // PORT: Subtitles_OnSound
 #include "audio_commands.h"
 #include "audio_manager.h"
 #include "libnaudio/n_synsetpriority.h"
@@ -1176,6 +1177,9 @@ s32 func_8003815C(SoundBank* arg0, AudioFxBlock* arg1, channel_t* cp, s32 arg3, 
     D_800B365C++;
     cp->pbase = cp->pdata = AUDIO_FX_ENTRY(arg1, arg3); // PORT: the table holds offsets from the block
     osSetIntMask(mask);
+    // PORT: every sound effect starts here (direct plays, the announcer queue, effects other effects start); the
+    // announcer's lines get subtitles (subtitles.c)
+    Subtitles_OnSound(arg1, arg3, cp->handle);
     return cp->handle;
 }
 

@@ -222,17 +222,29 @@ char* String_CopyBytesAndAdvance(char* buffer, const char* data, u32 size) {
     return (char*)memcpy(buffer, data, size) + size;
 }
 
+// PORT: the glyph height translated text is drawn at instead of the active set's (Port_Font_SetHeight), 0 for none.
+static s32 sPortFontHeight;
+
+void Port_Font_SetHeight(s32 height) {
+    sPortFontHeight = height;
+}
+
+static s32 Port_Font_Height(FontGlyphSet8001A3E4* set) {
+    return (sPortFontHeight != 0) ? sPortFontHeight : set->height;
+}
+
 // PORT: draws translated text with the Unicode glyphs (src/port/unicode_font.cpp) in place of the game font, which
 // has kana and fixed-width ASCII only. Each glyph is sized to the active set's height and advances by its own width.
 // Follows Font_DrawChar: the two-cycle shading texture (glyph 256 of the set) still goes to tile 1 first.
 // `x4` is in quarter pixels and `scale` squeezes the glyph horizontally (1.0 = as designed); returns the next x4.
 static s32 Port_Font_DrawCodepointScaled(s32 x4, s32 y, u32 cp, f32 scale) {
     FontGlyphSet8001A3E4* set = &((FontGlyphSet8001A3E4*) font_context)[font_context->unk_50];
+    s32 height = Port_Font_Height(set);
     int tex_width, draw_width, advance;
-    const unsigned char* tex = Port_Font_Glyph(cp, set->height, &tex_width, &draw_width, &advance);
+    const unsigned char* tex = Port_Font_Glyph(cp, height, &tex_width, &draw_width, &advance);
 
     if (tex == NULL) {
-        tex = Port_Font_Glyph('?', set->height, &tex_width, &draw_width, &advance);
+        tex = Port_Font_Glyph('?', height, &tex_width, &draw_width, &advance);
         if (tex == NULL) {
             return x4 + (s32)(set->advance * 4 * scale);
         }
@@ -244,9 +256,9 @@ static s32 Port_Font_DrawCodepointScaled(s32 x4, s32 y, u32 cp, f32 scale) {
     }
     if (cp != ' ') {
         font_context->unk_4C = (uintptr_t) tex;
-        gDPLoadTextureBlock(gDisplayListHead++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, tex_width, set->height, 0, G_TX_CLAMP,
+        gDPLoadTextureBlock(gDisplayListHead++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, tex_width, height, 0, G_TX_CLAMP,
                             G_TX_CLAMP, 0, 0, 0, 0);
-        gSPTextureRectangle(gDisplayListHead++, x4, y << 2, x4 + (s32)(draw_width * 4 * scale), (y + set->height) << 2,
+        gSPTextureRectangle(gDisplayListHead++, x4, y << 2, x4 + (s32)(draw_width * 4 * scale), (y + height) << 2,
                             G_TX_RENDERTILE, 0, 0, (s32)((1 << 10) / scale), 1 << 10);
     }
     return x4 + (s32)(advance * 4 * scale);
@@ -264,8 +276,8 @@ s32 Port_Font_MeasureUtf8(const char* utf8) {
     u32 cp;
 
     while ((cp = Port_Utf8Next(&utf8)) != 0 && cp != '\n') {
-        if (Port_Font_Glyph(cp, set->height, &tex_width, &draw_width, &advance) != NULL ||
-            Port_Font_Glyph('?', set->height, &tex_width, &draw_width, &advance) != NULL) {
+        if (Port_Font_Glyph(cp, Port_Font_Height(set), &tex_width, &draw_width, &advance) != NULL ||
+            Port_Font_Glyph('?', Port_Font_Height(set), &tex_width, &draw_width, &advance) != NULL) {
             width += advance;
         }
     }

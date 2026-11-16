@@ -22,6 +22,9 @@ int32_t Port_Font_MeasureUtf8(const char* utf8);
 // Fits the next translated print between x `left` and `right` (squeezed when over by two characters or less,
 // logged to text_overflows.csv when over by more); `align` 1 centres it in the box. No-op for the original text.
 void Port_Font_FitNext(int32_t left, int32_t right, int32_t align);
+// Draws translated text at glyph height `height` instead of the active font set's (0 = the set's height again), for
+// text the port lays out itself (game/src/subtitles.c).
+void Port_Font_SetHeight(int32_t height);
 
 #ifdef __cplusplus
 }

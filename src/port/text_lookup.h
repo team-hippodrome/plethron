@@ -28,6 +28,10 @@ int Port_Text_LanguageForced(void);
 // The language chosen on the last boot (settings key gPort.Language), and saving a new choice.
 int Port_Text_SavedLanguage(void);
 void Port_Text_SaveLanguage(int lang);
+// Whether the announcer's lines get subtitles in the translated languages (port setting gPort.Subtitles, on by
+// default; Options > Subtitles), and saving a new choice.
+int Port_Subtitles_Enabled(void);
+void Port_Subtitles_SetEnabled(int on);
 // The language's name in that language (UTF-8), for the language select screen.
 const char* Port_Text_LanguageName(int lang);
 
