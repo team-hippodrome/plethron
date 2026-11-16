@@ -208,7 +208,7 @@ void Subtitles_Draw(void) {
         return;
     }
     snprintf(key, sizeof(key), "SUBTITLE_ANNOUNCER_%02X", sShownId);
-    text = Port_Text_LookupId(key); // NULL in the original language and for lines nobody transcribed
+    text = Port_Text_LookupId(key); // NULL in the original language and for lines left unsubtitled (badge call-outs, 0x47)
     if ((text == NULL) || (*text == '\0')) {
         return;
     }

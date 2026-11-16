@@ -76,7 +76,7 @@ Notes that would repeat on every row of a group live here instead.
 | `SAVE_ERROR_*` | Save/Game Pak error (lines may be printed separately) |
 | `STAT_*` | Stat or status label |
 | `SUMMARY_*` | Party/summary screen |
-| `SUBTITLE_ANNOUNCER_*` | Subtitle for the announcer's voice line with that effect id (hex) in JIKKYOU.WBK, shown while it plays (`game/src/subtitles.c`). Not ROM text: `ja` is a transcription of the audio (from pokestadium0's `text/subtitles.json`, branch `feat/subs`), `md5` is the md5 of that transcription in EUC-JP, `addr` is empty. Wrapped at run time, so cells need no line breaks |
+| `SUBTITLE_ANNOUNCER_*` | Subtitle for the announcer's voice line with that effect id (hex) in JIKKYOU.WBK, shown while it plays (`game/src/subtitles.c`). Not ROM text: `ja` is a transcription of the audio (from pokestadium0's `text/subtitles.json`, branch `feat/subs`), `md5` is the md5 of that transcription in EUC-JP, `addr` is empty. Wrapped at run time, so cells need no line breaks. Ids 01–08 (badge call-outs) and 47 ("good luck", spoken in English) have no row on purpose: they stay unsubtitled |
 | `TEAM_SELECT_*` | Team select prompts; "＞" is a page break |
 | `TERM_*` | Menu or battle term |
 | `TRAINER_CLASS_*` | COM trainer class |
