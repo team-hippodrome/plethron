@@ -279,7 +279,11 @@ s32 Audio_LoadSoundData(void) {
     config.channels = 24;
     config.heap = &D_800B41F8;
     config.bank = D_800B4184;
-    // PORT: the FX block keeps its offsets (see AudioFxBlock); pass its tables as host pointers and the block itself
+    // PORT: the FX block keeps its offsets (see AudioFxBlock); pass its tables as host pointers and the block itself.
+    // The header must be in host order first (Block_RelocateSelf), or the table offsets are read big-endian.
+    if (!(((AudioFxBlock*)D_800B41A0)->flags & 1)) {
+        Block_RelocateSelf((void*)D_800B41A0);
+    }
     config.unk_0C = AUDIO_FX_TABLE(D_800B41A0);
     config.unk_10 = AUDIO_FX_UNK08(D_800B41A0);
     config.portFxBlock = D_800B41A0;

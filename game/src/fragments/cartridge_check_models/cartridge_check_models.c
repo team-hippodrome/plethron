@@ -9,6 +9,16 @@
 #include "cartridge_check_models.h"
 #include "PR/rcp.h"
 
+// PORT: the cartridge bus is the loaded ROM image (os_devices.cpp)
+const u8* Port_RomBytes(void);
+size_t Port_RomLength(void);
+
+// PORT: the low half of the big-endian ROM word at `offset`, which the N64 read over the PI bus.
+static u32 Port_ReadCartHalfLow(u32 offset) {
+    const u8* rom = Port_RomBytes();
+    return (rom != NULL && offset + 4 <= Port_RomLength()) ? ((rom[offset + 2] << 8) | rom[offset + 3]) : 0;
+}
+
 /**
  * Anti-piracy check. With interrupts masked and the PI idle, reads the cartridge ROM word at
  * 0x504 (inside the IPL3 boot code) straight over the bus. A genuine boot code has
@@ -22,7 +32,7 @@ intptr_t CartridgeCheckModels_CheckBootCode(intptr_t value) { // PORT: the value
 
     prev_mask = osSetIntMask(OS_IM_NONE);
     if (!(IO_READ(PI_STATUS_REG) & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) &&
-        ((IO_READ(PHYS_TO_K1(PI_DOM1_ADDR2) + 0x504) & 0xFFFF) != 0xA460)) {
+        (Port_ReadCartHalfLow(0x504) != 0xA460)) { // PORT: was IO_READ(PHYS_TO_K1(PI_DOM1_ADDR2) + 0x504) & 0xFFFF
         value = -1;
     }
     osSetIntMask(prev_mask);
