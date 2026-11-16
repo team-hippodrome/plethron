@@ -75,7 +75,7 @@ void FreeBattle_DrawTeamWindowPanels(s8* arg0);
 void FreeBattle_DrawRentalTeamPanels(s8* arg0);
 
 s32 GridMenu_UpdateCursor(GridMenu* arg0); // PORT: matches the definition
-extern char D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 
 void FreeBattle_UpdateTeamSlotCursor(s32 arg0);
 
@@ -194,7 +194,7 @@ void Ui_FillRectHighlighted(s32, s32, s32, s32, Color_RGBA8);
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 void Window_DrawLabeled(s8*, s32);
-extern u8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Font_SetColorForFlags(s32);
 
 /**
@@ -994,7 +994,7 @@ void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t a
  */
 void FreeBattle_DrawBattleModeWindow(FreeBattleModeWindow* window) {
     if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
-        Ui_DrawTexturedFrameDecal(window->window.frame.x + 14, window->window.frame.y + 14, 372, 204, D_800735C4);
+        Ui_DrawTexturedFrameDecal(window->window.frame.x + 14, window->window.frame.y + 14, 372, 204, &D_800735C4);
         Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 225, window->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(window->window.frame.x + 6, window->window.frame.y + 6, window->window.frame.width - 12, 220, *(Color82001CCC*)&D_82009100);

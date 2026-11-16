@@ -303,7 +303,7 @@ typedef struct Slot89007678 {
     /* 0x10 */ s32 icon;
 } Slot89007678; // size = 0x14
 extern Slot89007678 D_8900A884[];
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
 extern Gfx D_80060398[];
@@ -355,7 +355,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
     u8* tex;
 
     if (func_8002AE6C(win) == 0) {
-        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 243, win->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 243, win->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(x, y, win->window.frame.width - 12, 0x20, D_8900A874);
         func_80029028(x + 120, y + 0x20, win->window.frame.width - 132, 120, D_8900A878);
@@ -818,8 +818,8 @@ void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
-extern u8 D_8007356C[];
-extern u8 D_800735C4[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 /**
  * Draws the box operation window: frame, storage label and the two box lists.
  * Seen in play (2026-11-12): the ボックスのそうさ window with 「64へボックスをいどうする」.
@@ -841,9 +841,9 @@ void PcBox_DrawOperationWindow(PcBoxOperationWindow* win) {
     func_80029028(win->window.frame.x + 6, win->window.frame.y + 0x10, 10, 268, D_8900A5BC);
     func_80029028(win->window.frame.x + win->window.frame.width - 0x10, win->window.frame.y + 0x10, 10, 268, D_8900A5BC);
     func_80029028(win->window.frame.x + 222, win->window.frame.y + 0x10, 66, 268, D_8900A5BC);
-    Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 293, win->window.frame.width, D_8007356C);
-    Ui_DrawTexturedFrameDecal(win->window.frame.x + 14, win->window.frame.y + 14, 210, 272, D_800735C4);
-    Ui_DrawTexturedFrameDecal(win->window.frame.x + 286, win->window.frame.y + 14, 264, 272, D_800735C4);
+    Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 293, win->window.frame.width, &D_8007356C);
+    Ui_DrawTexturedFrameDecal(win->window.frame.x + 14, win->window.frame.y + 14, 210, 272, &D_800735C4);
+    Ui_DrawTexturedFrameDecal(win->window.frame.x + 286, win->window.frame.y + 14, 264, 272, &D_800735C4);
     flags[1] = flags[0] = 0xFFED;
     switch (win->state) {
         case 1:

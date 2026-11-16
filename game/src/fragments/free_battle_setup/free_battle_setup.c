@@ -511,7 +511,7 @@ typedef struct Slot82000C5C {
     /* 0x10 */ s32 icon;
 } Slot82000C5C; // size = 0x14
 extern Slot82000C5C D_82009040[];
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Gfx D_80060290[];
 extern Gfx D_80060398[];
@@ -564,7 +564,7 @@ void FreeBattle_DrawMonStatusWindow(Screen82000C5C* window) {
     u8* tex;
 
     if (func_8002AE6C(window) == 0) {
-        Ui_DrawTexturedDivider(window->x, window->y + 243, window->w, D_8007356C);
+        Ui_DrawTexturedDivider(window->x, window->y + 243, window->w, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(x, y, window->w - 12, 0x20, D_82009030);
         func_80029028(x + 120, y + 0x20, window->w - 132, 120, D_82009034);

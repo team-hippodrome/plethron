@@ -79,7 +79,7 @@ void ModelAnim_SetFrame(DisplayObject* display_object, s16 animation_timer);
 s32 ModelAnim_HasCrossedFrame(DisplayObject* arg0, s16 arg1);
 s32 ModelAnim_IsFinished(DisplayObject* arg0);
 void ModelAnim_ClearEventTrack(DisplayObject* arg0);
-s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2);
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, void* arg2);
 void ModelAnim_SetEventFrame(DisplayObject* display_object, s16 frame_number);
 
 #endif // GEO_NODE_H

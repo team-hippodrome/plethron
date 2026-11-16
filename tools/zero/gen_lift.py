@@ -22,6 +22,11 @@ import json, sys, bisect, collections, re
 K_SCALAR, K_PTR, K_FNPTR, K_MAYBEPTR, K_REC, K_BITS, K_RAW = range(7)
 
 
+# libultraship records that extend the N64's: only their first fields exist on the N64 (OSContPad gained gyro and
+# right-stick fields), so the N64 size and layout come from those (gControllerPads[4] is 24 bytes, not 4 x 0x24).
+N64_FIELDS = {'OSContPad': 4}
+
+
 def align_up(x, a):
     return (x + a - 1) // a * a
 
@@ -77,6 +82,7 @@ class Gen:
         if rid in s.n64cache: return s.n64cache[rid]
         r = s.rtypes[rid]
         offs = []
+        fields = r['fields'][:N64_FIELDS[r.get('name')]] if r.get('name') in N64_FIELDS else r['fields']
         if r['k'] == 'union':
             size = al = 1
             for f in r['fields']:
@@ -85,7 +91,7 @@ class Gen:
             res = (align_up(size, al), al, offs)
         else:
             bit = 0; al = 1
-            for f in r['fields']:
+            for f in fields:
                 fs, fa = s.n64(f['t'])
                 al = max(al, fa)
                 if 'w' in f:
@@ -365,7 +371,10 @@ def main():
             if nb and gap > 0x10000 and count > declared:
                 count = max(declared, 0x10000 // en, 1)  # last bss symbol of an image: no next symbol bounds it
             syms.append(dict(name=name, addr=a, image=im, tid=ti, score=score({'t': t}), count=count, n64ext=count * en,
-                             hostsize=count * g.tab[ti][2], bss=bool(nb),
+                             declared=declared, en=en,
+                             # bss keeps at least its N64 gap in bytes: buffers whose C type is smaller than what the
+                             # code writes there (D_800AD338, a GbSaveMainData that receives 0x15A0-byte box reads)
+                             hostsize=max(count * g.tab[ti][2], gap if (nb and gap <= 0x10000) else 0), bss=bool(nb),
                              rom=(lp[1] + (a - lp[0])) if (lp and not nb) else 0))
             report['bss' if nb else ('data' if lp else 'unplaced')] += 1
 
@@ -376,6 +385,16 @@ def main():
     for sy in syms:
         if kept and sy['addr'] < kept[-1]['addr'] + kept[-1]['n64ext'] and sy['image'] == kept[-1]['image']:
             p = kept[-1]
+            # a symbol the C code declares on its own, past the end of what the earlier one declares, gets its own
+            # storage: the earlier extent only grew into it from the gap rule, and as an alias it would sit at its
+            # N64 offset inside storage laid out for the host (D_800AB050, the OSPfs[4] after gControllerPads)
+            if (p['declared'] and sy['addr'] > p['addr'] and p['addr'] + p['declared'] * p['en'] <= sy['addr']
+                    and p['bss'] == sy['bss']):
+                n = (sy['addr'] - p['addr']) // p['en']
+                p['count'] = n; p['n64ext'] = n * p['en']; p['hostsize'] = max(n * g.tab[p['tid']][2], (sy['addr'] - p['addr']) if p['bss'] else 0)
+                report['extent clipped at a declared symbol'] += 1
+                kept.append(sy)
+                continue
             ho = g.translate(p['tid'], sy['addr'] - p['addr'])
             if ho is None:
                 ho = 0; report['inner alias at padding'] += 1

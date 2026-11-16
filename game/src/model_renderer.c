@@ -152,7 +152,7 @@ s32 ModelAnim_SetEventTrack(DisplayObject* display_object, s32 track_id) {
     if (track_id == -1) {
         ModelAnim_ClearEventTrack(display_object);
     } else if ((track = Port_ModelAnimTrack(bank, raw, 1, track_id, &count)) != 0 && track_id < count) {
-        ModelAnim_BindEventTrack(display_object, track_id, (s32)track);
+        ModelAnim_BindEventTrack(display_object, track_id, (void*)track);
         return 1;
     }
 

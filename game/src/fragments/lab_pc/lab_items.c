@@ -331,7 +331,7 @@ void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_FillRectPrimEnvColor(s32, s32, s32, s32, Color_RGBA8, Color_RGBA8);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 void Window_DrawLabeled(s8*, s32);
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern u8 D_800734A8[];
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8900A5C4;
@@ -344,7 +344,7 @@ extern Color_RGBA8 D_8900A5CC;
  */
 void LabItem_DrawConfirmWindow(LabItemConfirmWindow* win) {
     if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
-        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 97, win->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 97, win->window.frame.width, &D_8007356C);
         Ui_FillRectPrimEnvColor(win->window.frame.x + 6, win->window.frame.y + 6, win->window.frame.width - 12, 92, D_8900A5C4, D_8900A5C8);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(win->window.frame.x + 6, win->window.frame.y + 104, win->window.frame.width - 12, 36, D_8900A5CC);
@@ -997,7 +997,7 @@ void LabItem_DrawHelpText(LabItemOrganizeWindow* win) {
 }
 
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
-extern u8 D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Window_DrawFrame(void*);
 void LabItem_DrawItemList(LabItemList* arg0, s32 arg1);
 /**
@@ -1016,9 +1016,9 @@ void LabItem_DrawOrganizeWindow(LabItemOrganizeWindow* win) {
         func_80029028(win->window.frame.x + 6, win->window.frame.y + 12, 6, 286, D_8900A5BC);
         func_80029028(win->window.frame.x + win->window.frame.width - 12, win->window.frame.y + 12, 6, 286, D_8900A5BC);
         func_80029028(win->window.frame.x + 248, win->window.frame.y + 12, 68, 286, D_8900A5BC);
-        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 303, win->window.frame.width, D_8007356C);
-        Ui_DrawTexturedFrameDecal(win->window.frame.x + 10, win->window.frame.y + 10, 240, 290, D_800735C4);
-        Ui_DrawTexturedFrameDecal(win->window.frame.x + 314, win->window.frame.y + 10, 240, 290, D_800735C4);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->window.frame.y + 303, win->window.frame.width, &D_8007356C);
+        Ui_DrawTexturedFrameDecal(win->window.frame.x + 10, win->window.frame.y + 10, 240, 290, &D_800735C4);
+        Ui_DrawTexturedFrameDecal(win->window.frame.x + 314, win->window.frame.y + 10, 240, 290, &D_800735C4);
         v = (win->state == 1) ? 2 : 0x10;
         ImageButton_Draw(&win->backButton, (win->operationCursor.cursor == 3) ? v : 0);
         ImageButton_Draw(&win->moveButton, (win->operationCursor.cursor == 0) ? v : 0);
@@ -1444,14 +1444,14 @@ void LabItem_InitDeleteDataWindow(LabItemDeleteDataWindow* win, s32 x, s32 y, La
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawFrame(void*);
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern u8 D_89018688[];
 /**
  * Draws the データをけす window. Seen in play (2026-11-14).
  */
 void LabItem_DrawDeleteDataWindow(LabItemDeleteDataWindow* win, s32 flags) {
     if (func_8002AE6C(&win->window) == 0) { // PORT: m2c dropped a0 (the window)
-        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, &D_8007356C);
         Window_DrawFrame(&win->footerFrame);
         Menu_DrawInlineItems(&win->menu, win->window.frame.x + 6, win->window.frame.y + 6, 0xFFEF, 0);
         func_8001AB6C();
@@ -1596,7 +1596,7 @@ void LabItem_DrawSaveDataHelpText(LabItemSaveDataWindow* win) {
 }
 
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
-extern u8 D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Window_DrawFrame(void*);
 /**
  * Draws the save data window: frame, buttons, owner, item list and help line.
@@ -1607,13 +1607,13 @@ void LabItem_DrawSaveDataWindow(LabItemSaveDataWindow* win) {
 
     if (func_8002AE6C(&win->window) == 0) {
         Window_DrawFrame(&win->footerFrame);
-        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(win->window.frame.x + 6, win->window.frame.y + 6, 130, 310, *(Color_RGBA8*)&D_8900A5BC);
         func_80029028(win->window.frame.x + 136, win->window.frame.y + 6, 236, 6, *(Color_RGBA8*)&D_8900A5BC);
         func_80029028(win->window.frame.x + 136, win->window.frame.y + 310, 236, 6, *(Color_RGBA8*)&D_8900A5BC);
         func_80029028(win->window.frame.x + 372, win->window.frame.y + 6, 10, 310, *(Color_RGBA8*)&D_8900A5BC);
-        Ui_DrawTexturedFrameDecal(win->window.frame.x + 134, win->window.frame.y + 10, 240, 302, D_800735C4);
+        Ui_DrawTexturedFrameDecal(win->window.frame.x + 134, win->window.frame.y + 10, 240, 302, &D_800735C4);
         v = (win->state == 1) ? 2 : 0x10;
         ImageButton_Draw(&win->backButton, (win->operationCursor.cursor == 2) ? v : 0);
         ImageButton_Draw(&win->discardButton, (win->operationCursor.cursor == 0) ? v : 0);

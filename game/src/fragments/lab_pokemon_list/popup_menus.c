@@ -428,7 +428,7 @@ void LabBoxList_Init(LabBoxListWindow* box_list, s32 x, s32 y, ByteMatrix* boxes
 M2C_UNK Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, M2C_UNK *); /* extern */
 M2C_UNK Window_DrawFrame(s8 *);                      /* extern */
 void Menu_DrawInlineItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
-extern M2C_UNK D_80073554;
+extern struct FrameTextures D_80073554; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 
 /**
  * Draws a box list window.
@@ -629,7 +629,7 @@ void LabSourceSelect_Init(LabSourceSelectWindow* window, s32 x, s32 y, ByteMatri
 void func_8001B884(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode); // PORT: matches Gfx_DrawTextureRgba16
 void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Window_DrawLabeled(s8 *, s32);
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color_RGBA8 D_800734A8[];
 extern char D_8910E02C[];
 extern Gfx D_80060290[];
@@ -647,7 +647,7 @@ void LabSourceSelect_Draw(LabSourceSelectWindow* window, s32 flags) {
     if (func_8002AE6C(&window->window) == 0) {
         Window_DrawFrame(&window->textFrame);
         Window_DrawFrame(&window->listFrame);
-        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 69, window->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 69, window->window.frame.width, &D_8007356C);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0].r, D_800734A8[0].g, D_800734A8[0].b, D_800734A8[0].a);
         Font_SetActive(8, 0);
@@ -1253,7 +1253,7 @@ void LabPCList_InitTypeFilter(LabTypeFilterWindow* window, s32 x, s32 y, s32* fi
     window->mode = 0;
 }
 
-extern u8 D_800735C4[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void ScrollList_DrawItems(ScrollList* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 
 /**
@@ -1273,7 +1273,7 @@ void LabPCList_DrawTypeFilter(LabTypeFilterWindow* window) {
         hl = (window->mode == 0) ? 2 : 0;
         Window_DrawLabeled(&window->gatherButton, (window->cursor.cursor == 2) ? hl : 0);
         Window_DrawLabeled(&window->clearButton, (window->cursor.cursor == 3) ? hl : 0);
-        Ui_DrawTexturedFrameDecal(window->window.frame.x + 150, window->window.frame.y + 14, 178, 260, D_800735C4);
+        Ui_DrawTexturedFrameDecal(window->window.frame.x + 150, window->window.frame.y + 14, 178, 260, &D_800735C4);
         mask = 0xFFED;
         if (window->mode == 1) {
             mask = 0xFFEF;
@@ -1474,7 +1474,7 @@ void LabPCList_DrawMoveFilter(LabMoveFilterWindow* window) {
         hl = (window->mode == 0) ? 2 : 0;
         Window_DrawLabeled(&window->gatherButton, (window->cursor.cursor == 4) ? hl : 0);
         Window_DrawLabeled(&window->clearButton, (window->cursor.cursor == 5) ? hl : 0);
-        Ui_DrawTexturedFrameDecal(window->window.frame.x + 174, window->window.frame.y + 14, 216, 260, D_800735C4);
+        Ui_DrawTexturedFrameDecal(window->window.frame.x + 174, window->window.frame.y + 14, 216, 260, &D_800735C4);
         mask = 0xFFED;
         if (window->mode == 1) {
             mask = 0xFFEF;
@@ -1718,7 +1718,7 @@ void LabPCList_DrawItemWindow(LabItemWindow* window) {
 
     if (Window_DrawAnimatedFrame((Window*)window) /* PORT: was implicit a0 */ == 0) {
         Window_DrawFrame(&window->textFrame);
-        Ui_DrawTexturedDivider(window->window.frame.x, window->textFrame.y - 7, window->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(window->window.frame.x, window->textFrame.y - 7, window->window.frame.width, &D_8007356C);
         flags = 0xFFED;
         flags |= (window->mode == 0) ? 2 : 0x10;
         ScrollList_DrawItems(&window->list, window->window.frame.x + 6, window->window.frame.y + 22, flags, 0);

@@ -82,7 +82,7 @@ M2C_UNK MainMenu_InitPromptWindow(MainMenuPromptWindow* prompt, s32 x, s32 y) {
 
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_88001FE8;
 extern char D_88002308[];
@@ -100,7 +100,7 @@ void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); //
 void MainMenu_DrawContinueTournamentPrompt(MainMenuPromptWindow* prompt) {
     if (func_8002AE6C(&prompt->window) == 0) { // PORT: m2c dropped a0 (the window)
         Window_DrawFrame(&prompt->textFrame);
-        Ui_DrawTexturedDivider(prompt->window.frame.x, prompt->window.frame.y + 141, prompt->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(prompt->window.frame.x, prompt->window.frame.y + 141, prompt->window.frame.width, &D_8007356C);
         gSPDisplayList(gDisplayListHead++, D_80060270);
         func_80029028(prompt->window.frame.x + 6, prompt->window.frame.y + 148, prompt->window.frame.width - 12, 120, D_88001FE8);
         Font_BeginTranslucentTextRendering();
@@ -199,7 +199,7 @@ void Ui_DrawTexturedFrame(s32, s32, s32, s32, u8*);
  * Seen in play (2026-11-14): a breakpoint bound to this fragment hit for each item panel's frame
  * (first call x 79, y 78, 116 x 112, the せいとん panel).
  */
-void MainMenu_DrawTexturedFrameWithAlpha(s32 x, s32 y, s32 width, s32 height, u8* texture, s32 alpha) {
+void MainMenu_DrawTexturedFrameWithAlpha(s32 x, s32 y, s32 width, s32 height, struct FrameTextures* texture, s32 alpha) {
     gSPDisplayList(gDisplayListHead++, D_80073450);
     gDPSetCombineMode(gDisplayListHead++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(gDisplayListHead++, 0, 0, 255, 255, 255, alpha); // #FFFFFF
@@ -216,7 +216,7 @@ extern MainMenuRect D_8800210C[];
 extern MainMenuLabel D_8800219C[];
 extern Gfx D_80073480[];
 extern Color_RGBA8 D_80073520;
-extern u8 D_80073554[];
+extern struct FrameTextures D_80073554; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Ui_FillRectPrimColor(s32, s32, s32, s32, Color_RGBA8);
 void Ui_DrawRoundedFrame(s32, s32, s32, s32, Color_RGBA8);
 void Font_BeginTranslucentTextRendering(void);
@@ -269,7 +269,7 @@ void MainMenu_DrawItem(s32 x, s32 y, s32 item, s32 index, s32 flags, f32* opacit
         Ui_FillRectPrimColor(D_8800210C[index].x + 6, D_8800210C[index].y + 14, 9, D_8800210C[index].h - 28, frame_color);
         Ui_FillRectPrimColor(D_8800210C[index].x + D_8800210C[index].w - 15, D_8800210C[index].y + 14, 9, D_8800210C[index].h - 28, frame_color);
     }
-    MainMenu_DrawTexturedFrameWithAlpha(D_8800210C[index].x, D_8800210C[index].y, D_8800210C[index].w, D_8800210C[index].h, D_80073554, alpha);
+    MainMenu_DrawTexturedFrameWithAlpha(D_8800210C[index].x, D_8800210C[index].y, D_8800210C[index].w, D_8800210C[index].h, &D_80073554, alpha);
     if (D_8800219C[index].text) {
         text_color = *(Color_RGBA8*)D_800734A8;
         text_color.a = alpha;
@@ -445,7 +445,7 @@ void MainMenu_InitMessageWindow(MainMenuMessageWindow* window, s32 x, s32 y, cha
 
 s32 func_8002AE6C(Window* window); // PORT: matches Window_UpdateAndDrawFrame
 extern u8 D_800734A8[4];
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Ui_DrawTexturedDivider(s32, s32, s32, u8 *);
 void Window_DrawLabeled(s8 *, s32);
 void MainMenu_DrawImageWithAlpha(s32, s32, s32, s32, s32, u8*, s32);
@@ -457,7 +457,7 @@ void MainMenu_DrawMessageWindow(MainMenuMessageWindow* window) {
     MainMenuImage* p;
 
     if (func_8002AE6C(&window->window) == 0) { // PORT: m2c dropped a0 (the window)
-        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 89, window->window.frame.width, D_8007356C);
+        Ui_DrawTexturedDivider(window->window.frame.x, window->window.frame.y + 89, window->window.frame.width, &D_8007356C);
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);

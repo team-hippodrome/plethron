@@ -24,7 +24,7 @@ void func_8001B5F0(void); // PORT: matches Input_ResetRepeatState
 M2C_UNK Ui_DrawFrameLeftCorners(s32, s32, s32, M2C_UNK *);
 extern M2C_UNK D_800734A8;
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-extern s8 D_8007356C;
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: matches the definition
 s32 func_80020CE4(u8* arg0, s32 arg1, DeckHandle* arg2); // PORT: matches Deck_ReadEntries
 DeckHandle* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3);

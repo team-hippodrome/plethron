@@ -445,17 +445,17 @@ void Ui_FillRectHighlighted(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 
     func_80029028(arg0, arg1, arg2, arg3, *(Color8002A354*)&light);
 }
 
-extern u8 D_80073524[];
+extern struct FrameTextures D_80073524; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 /**
  * Draws the textured border of a label box at (x, y), size (w, h), with the frame textures D_80073524.
  * Seen in play (2026-11-14): Window_DrawLabeled draws the main menu's small label boxes with it.
  */
 void Ui_DrawLabelFrame(s32 x, s32 y, s32 w, s32 h) {
-    Ui_DrawTexturedFrameDecal(x, y, w, h, D_80073524);
+    Ui_DrawTexturedFrameDecal(x, y, w, h, &D_80073524);
 }
 
-extern u8 D_8007353C[];
+extern struct FrameTextures D_8007353C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 /**
  * Fills a box at (x, y), size (w, h) with `color` and draws its textured border.
@@ -464,7 +464,7 @@ void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, u8*);
 void Ui_DrawFilledFrame(s32 x, s32 y, s32 w, s32 h, Color8002A354 color) {
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(x + 1, y + 1, w - 2, h - 2, color);
-    Ui_DrawTexturedFrameDecal(x, y, w, h, D_8007353C);
+    Ui_DrawTexturedFrameDecal(x, y, w, h, &D_8007353C);
 }
 
 typedef struct Img8002A3F8 {
@@ -553,8 +553,8 @@ void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h) {
 }
 
 extern Gfx D_80073480[];
-extern u8 D_800735C4[];
-extern u8 D_800735DC[];
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
+extern struct FrameTextures D_800735DC; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 
 /**
  * Draws a window's frame and fill from its rect, flags and color; width and height are at least 16.
@@ -606,9 +606,9 @@ void Window_DrawFrame(s32* arg0) {
         }
     }
     if (arg0[5] & 8) {
-        Ui_DrawTexturedFrameDecal(x, y, w, h, D_800735DC);
+        Ui_DrawTexturedFrameDecal(x, y, w, h, &D_800735DC);
     } else if (arg0[5] & 0x10) {
-        Ui_DrawTexturedFrameDecal(x, y, w, h, D_800735C4);
+        Ui_DrawTexturedFrameDecal(x, y, w, h, &D_800735C4);
     }
 }
 
@@ -653,7 +653,7 @@ s32 Window_UpdateAnimation(Window* arg0) {
     return var_v1;
 }
 
-extern u8 D_80073554[];
+extern struct FrameTextures D_80073554; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Window_DrawTitleTab(s32, s32, const char*, s32);
 void Window_DrawHeaderStripe(); // no prototype: callers pass a fourth argument the definition ignores
 
@@ -719,7 +719,7 @@ s32 Window_DrawAnimatedFrame(Window* arg0) {
             }
         }
     }
-    Ui_DrawTexturedFrameDecal(x, y, w, h, D_80073554);
+    Ui_DrawTexturedFrameDecal(x, y, w, h, &D_80073554);
     if (arg0->frame.style & 0x800) {
         Window_DrawTitleTab(x, y - 22, arg0->title, arg0->frame.style);
     }
@@ -1311,7 +1311,7 @@ void SavePrompt_Init(SavePrompt* arg0, s32 arg1, s32 arg2) {
 s32 func_8002AE6C();
 void Ui_DrawTexturedDivider(s32, s32, s32, FrameTextures*);
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
-extern u8 D_8007356C[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color_RGBA8 D_800736B8;
 extern Color_RGBA8 D_800736BC;
 extern Color8002A354 D_800736C0;
@@ -1325,7 +1325,7 @@ void SavePrompt_Draw(SavePrompt* arg0) {
     if (func_8002AE6C() != 0) {
         return;
     }
-    Ui_DrawTexturedDivider(arg0->window.frame.x, arg0->window.frame.y + 69, arg0->window.frame.width, D_8007356C);
+    Ui_DrawTexturedDivider(arg0->window.frame.x, arg0->window.frame.y + 69, arg0->window.frame.width, &D_8007356C);
     Ui_FillRectPrimEnvColor(arg0->window.frame.x + 6, arg0->window.frame.y + 6, arg0->window.frame.width - 12, 0x40, D_800736B8, D_800736BC);
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(arg0->window.frame.x + 6, arg0->window.frame.y + 76, arg0->window.frame.width - 12, 92, D_800736C0);
@@ -1409,7 +1409,7 @@ s32 SavePrompt_Update(SavePrompt* arg0) {
     return ret;
 }
 
-extern u8 D_80073554[];
+extern struct FrameTextures D_80073554; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 void Window_DrawFrame(s32* arg0);
 
 /**
@@ -1427,7 +1427,7 @@ s32 Window_DrawBlinkingFrame(BlinkingTextBox* arg0) {
         return 1;
     }
     Window_DrawFrame(&arg0->frame);
-    Ui_DrawTexturedFrameDecal(arg0->frame.x, arg0->frame.y, arg0->frame.width, arg0->frame.height, D_80073554);
+    Ui_DrawTexturedFrameDecal(arg0->frame.x, arg0->frame.y, arg0->frame.width, arg0->frame.height, &D_80073554);
     return 0;
 }
 
@@ -1638,7 +1638,7 @@ s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1) {
 
 s32 func_80006780();
 void BgStage_DrawFrame(void);
-extern u8 D_80073554[];
+extern struct FrameTextures D_80073554; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Color8002A354 D_80073708;
 extern u8 D_8007B950[];
 extern u8 D_8007B960[];
@@ -1654,7 +1654,7 @@ extern u8 D_8007B9D0[];
  */
 void Save_DrawReportResultWindow(s32 arg0) {
     BgStage_DrawFrame();
-    Ui_DrawTexturedFrameDecal(110, 114, 420, 276, D_80073554);
+    Ui_DrawTexturedFrameDecal(110, 114, 420, 276, &D_80073554);
     gSPDisplayList(gDisplayListHead++, D_80060270);
     func_80029028(116, 120, 408, 264, D_80073708);
     if (arg0 == 0) {

@@ -909,7 +909,7 @@ void VsScene_PlayResultsBoard(void) {
     BgStage_RunUntilCondition(30, VsScene_DrawFrame);
 }
 
-s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2); // PORT: signature from the definition (geo_node.c)
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, void* arg2); // PORT: signature from the definition (geo_node.c)
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);   /* extern */
 extern M2C_UNK D_8F6256E0;
 

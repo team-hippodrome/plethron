@@ -569,8 +569,8 @@ void Ui_DrawTexturedDivider(s32, s32, s32, void*);
 void Ui_DrawTexturedFrameDecal(s32, s32, s32, s32, void*);
 void GridMenu_DrawInlineItems(GridMenu* menu, s32 x, s32 y, s32 mask, intptr_t arg4); // PORT: matches the definition
 void TextBox_Draw(TextBox*);
-extern u8 D_8007356C[];
-extern u8 D_800735C4[];
+extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
+extern struct FrameTextures D_800735C4; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 
 /**
  * Draws the organize Pokemon window: frame, lists and help line.
@@ -590,9 +590,9 @@ void PcSort_DrawOrganizeWindow(PcSortOrganizeWindow* win) {
         func_80029028(win->window.frame.x + 6, win->window.frame.y + 14, 8, 230, D_8900A5BC);
         func_80029028(win->window.frame.x + win->window.frame.width - 14, win->window.frame.y + 14, 8, 230, D_8900A5BC);
         func_80029028(win->window.frame.x + 218, win->window.frame.y + 14, 0x80, 230, D_8900A5BC);
-        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, D_8007356C);
-        Ui_DrawTexturedFrameDecal(win->window.frame.x + 12, win->window.frame.y + 12, 208, 234, D_800735C4);
-        Ui_DrawTexturedFrameDecal(win->window.frame.x + 344, win->window.frame.y + 12, 208, 234, D_800735C4);
+        Ui_DrawTexturedDivider(win->window.frame.x, win->footerFrame.y - 7, win->window.frame.width, &D_8007356C);
+        Ui_DrawTexturedFrameDecal(win->window.frame.x + 12, win->window.frame.y + 12, 208, 234, &D_800735C4);
+        Ui_DrawTexturedFrameDecal(win->window.frame.x + 344, win->window.frame.y + 12, 208, 234, &D_800735C4);
         GridMenu_DrawInlineItems(&win->operationMenu, 0, 0, (win->state == 1) ? 2 : 0x10, 0);
         PcSort_DrawBoxTab((uintptr_t)win, win->window.frame.x + 14, win->window.frame.y + 14, 0, win->leftBox);
         PcSort_DrawBoxTab((uintptr_t)win, win->window.frame.x + 346, win->window.frame.y + 14, 0, win->rightBox);
