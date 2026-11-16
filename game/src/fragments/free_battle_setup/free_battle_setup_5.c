@@ -8,47 +8,24 @@
 
 
 void FreeBattle_SetScreenState(FreeBattleScreen*, s32, s32);
-extern s32 D_8200ACFC;
-extern s32 D_8200AD00;
-extern s32 D_8200AC50;
 
-typedef struct List82004518 {
-    /* 0x00 */ char** items;
-    /* 0x04 */ s8 count;
-    /* 0x08 */ s32 unk8;
-} List82004518;
-void FreeBattle_InitBattleModeWindow(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 height, s32 items, s32 item_count, char** descriptions, s32 description_lines, char* title); // PORT: matches the definition
-void FreeBattle_InitCupSelect(s8* arg0, s32 arg1, s32 arg2, s32 arg3);
-void FreeBattle_InitOpponentSelect(s8* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+void FreeBattle_InitBattleModeWindow(FreeBattleModeWindow* window, s32 x, s32 y, FreeBattleModeEntry* modes, char* title); // PORT: matches the definition
+void FreeBattle_InitMenuWindow(MenuWindow* window, s32 x, s32 y, s32 width, s32 height, char** items, s32 item_count, char** descriptions, s32 description_lines, char* title); // PORT: matches the definition
+void FreeBattle_InitCupSelect(FreeBattleCupWindow* window, s32 x, s32 y, s32 cups_cleared); // PORT: matches the definition
+void FreeBattle_InitOpponentSelect(FreeBattleOpponentWindow* window, s32 x, s32 y, s32 controller_mask, s32 controller_count, s32 gb_save_ready_mask); // PORT: matches the definition
 void FreeBattle_InitEntryScreen(FreeBattleScreen* arg0);
-void FreeBattle_InitPopupMenu(s8* arg0, s32 arg1, s32 arg2, List82004518* arg3, s8* arg4, Color_RGBA8 arg5);
-void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s8* arg6);
-void BlinkingTextBox_Init(s8* arg0, const char* arg1, s32 arg2, s32 arg3, u32 arg4);
+void FreeBattle_InitPopupMenu(MenuWindow* window, s32 x, s32 y, FreeBattlePopupItems* items, u16* item_flags, Color_RGBA8 color); // PORT: matches the definition
+void FreeBattle_InitUsableMonGrid(FreeBattleMonGridWindow* window, s32 x, s32 y, s32 rule_category, BattleMon* all_mons, BattleMon* l130_mons, PokeIconRenderer* icons); // PORT: matches the definition
+void BlinkingTextBox_Init(BlinkingTextBox* arg0, const char* arg1, s32 arg2, s32 arg3, u32 arg4);
 s32 Save_GetProgressFlags(void);
-extern u8 D_82009014[];
 extern u8 D_82009004[];
-extern u8 D_82008FCC[];
-extern u8 D_82008FD8[];
 extern u8 D_82009D4C[];
-extern u8 D_82008F9C[];
-extern u8 D_82008FA4[];
 extern u8 D_82009D64[];
-extern u8 D_82008FBC[];
-extern u8 D_82008FC4[];
 extern u8 D_82009D7C[];
-extern u8 D_82008FAC[];
-extern u8 D_82008FB4[];
 extern u8 D_82009D9C[];
-extern u8 D_82008FE4[];
-extern u8 D_82008FEC[];
 extern u8 D_82009DBC[];
-extern u8 D_82008FFC[];
 extern u8 D_82009DCC[];
-extern u8 D_82008FF4[];
 extern u8 D_82009DE4[];
-extern List82004518 D_82009278[];
-extern List82004518* D_820093E0[];
 extern u8 D_82008F54[];
 extern u8 D_82009DFC[];
 
@@ -58,122 +35,122 @@ extern u8 D_82009DFC[];
  * (フリーバトル), たいせんする, the opponent picker (1P VS COM) and the entry list.
  */
 void FreeBattle_SetScreenState(FreeBattleScreen* screen, s32 state, s32 flags) {
-    s8* view;
+    Window* view;
 
     switch (state) {
         case 1:
             if (!(flags & 2)) {
-                FreeBattle_InitBattleModeWindow((s8*)&screen->modeWindow, 120, 99, (uintptr_t)D_82009014, (uintptr_t)D_82009004);
+                FreeBattle_InitBattleModeWindow(&screen->modeWindow, 120, 99, D_82009014, (char*)D_82009004);
             }
-            view = (s8*)&screen->modeWindow;
+            view = &screen->modeWindow.window;
             break;
         case 2:
             if (!(flags & 2)) {
-                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 408, 206, (uintptr_t)D_82008FCC, 3, D_82008FD8, 3, D_82009D4C);
+                FreeBattle_InitMenuWindow(&screen->menuWindow, 0x40, 116, 408, 206, D_82008FCC, 3, D_82008FD8, 3, (char*)D_82009D4C);
             }
-            view = (s8*)&screen->menuWindow;
+            view = &screen->menuWindow.window;
             break;
         case 3:
             if (!(flags & 2)) {
-                FreeBattle_InitMenuWindow((s8*)&screen->menuWindow, 0x40, 116, 448, 286, (uintptr_t)D_82008F9C, 2, D_82008FA4, 7, D_82009D64);
+                FreeBattle_InitMenuWindow(&screen->menuWindow, 0x40, 116, 448, 286, D_82008F9C, 2, D_82008FA4, 7, (char*)D_82009D64);
             }
-            view = (s8*)&screen->menuWindow;
+            view = &screen->menuWindow.window;
             break;
         case 7:
             if (!(flags & 2)) {
-                screen->unk_4358 = 1;
-                screen->unk_435C = 0;
-                screen->unk_4360 = 0;
-                screen->unk_4364 = 0;
-                screen->unk_432C = 1;
-                screen->unk_433C = 0;
-                screen->unk_4338 = 0;
-                screen->unk_4334 = 0;
-                screen->unk_4330 = 0;
+                screen->side0Players[0] = 1;
+                screen->side0Players[1] = 0;
+                screen->side1Players[0] = 0;
+                screen->side1Players[1] = 0;
+                screen->playerActive[0] = 1;
+                screen->playerActive[4] = 0;
+                screen->playerActive[3] = 0;
+                screen->playerActive[2] = 0;
+                screen->playerActive[1] = 0;
                 screen->unk_4370 = 1;
                 screen->unk_4374 = 1;
-                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FBC, 2, D_82008FC4, 3, D_82009D7C);
+                FreeBattle_InitMenuWindow(&screen->ruleMenuWindow, 80, 140, 448, 174, D_82008FBC, 2, D_82008FC4, 3, (char*)D_82009D7C);
             }
-            view = (s8*)&screen->ruleMenuWindow;
+            view = &screen->ruleMenuWindow.window;
             break;
         case 8:
             if (!(flags & 2)) {
-                screen->unk_4358 = 1;
-                screen->unk_435C = 0;
-                screen->unk_4360 = 0;
-                screen->unk_4364 = 0;
-                screen->unk_432C = 1;
-                screen->unk_433C = 0;
-                screen->unk_4338 = 0;
-                screen->unk_4334 = 0;
-                screen->unk_4330 = 0;
+                screen->side0Players[0] = 1;
+                screen->side0Players[1] = 0;
+                screen->side1Players[0] = 0;
+                screen->side1Players[1] = 0;
+                screen->playerActive[0] = 1;
+                screen->playerActive[4] = 0;
+                screen->playerActive[3] = 0;
+                screen->playerActive[2] = 0;
+                screen->playerActive[1] = 0;
                 screen->unk_4370 = 2;
                 screen->unk_4374 = 2;
-                FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 448, 174, (uintptr_t)D_82008FAC, 2, D_82008FB4, 3, D_82009D9C);
+                FreeBattle_InitMenuWindow(&screen->ruleMenuWindow, 80, 140, 448, 174, D_82008FAC, 2, D_82008FB4, 3, (char*)D_82009D9C);
             }
-            view = (s8*)&screen->ruleMenuWindow;
+            view = &screen->ruleMenuWindow.window;
             break;
         case 9:
             if (!(flags & 2)) {
-                FreeBattle_InitCupSelect((s8*)&screen->cupWindow, 0x60, 0xA4, Save_GetProgressFlags() & 0xFF);
+                FreeBattle_InitCupSelect(&screen->cupWindow, 0x60, 0xA4, Save_GetProgressFlags() & 0xFF);
             }
-            view = (s8*)&screen->cupWindow;
+            view = &screen->cupWindow.window;
             break;
         case 4:
             if (!(flags & 2)) {
                 screen->unk_4370 = 0;
                 switch (screen->unk_4374) {
                     case 0:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FEC, 2, D_82009DBC);
+                        FreeBattle_InitMenuWindow(&screen->ruleMenuWindow, 80, 140, 428, 146, D_82008FE4, 2, D_82008FEC, 2, (char*)D_82009DBC);
                         break;
                     case 1:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FFC, 2, D_82009DCC);
+                        FreeBattle_InitMenuWindow(&screen->ruleMenuWindow, 80, 140, 428, 146, D_82008FE4, 2, D_82008FFC, 2, (char*)D_82009DCC);
                         break;
                     case 2:
-                        FreeBattle_InitMenuWindow((s8*)&screen->ruleMenuWindow, 80, 140, 428, 146, (uintptr_t)D_82008FE4, 2, D_82008FF4, 2, D_82009DE4);
+                        FreeBattle_InitMenuWindow(&screen->ruleMenuWindow, 80, 140, 428, 146, D_82008FE4, 2, D_82008FF4, 2, (char*)D_82009DE4);
                         break;
                 }
             }
-            view = (s8*)&screen->ruleMenuWindow;
+            view = &screen->ruleMenuWindow.window;
             break;
         case 5:
             if (!(flags & 2)) {
-                FreeBattle_InitOpponentSelect((s8*)&screen->opponentWindow, 176, 84, screen->connectedControllerMask, screen->connectedControllerCount, screen->gbSaveReadyMask);
+                FreeBattle_InitOpponentSelect(&screen->opponentWindow, 176, 84, screen->connectedControllerMask, screen->connectedControllerCount, screen->gbSaveReadyMask);
             }
-            view = (s8*)&screen->opponentWindow;
+            view = &screen->opponentWindow.window;
             break;
         case 10:
             if (!(flags & 2)) {
                 FreeBattle_InitEntryScreen(screen);
             }
-            view = (s8*)&screen->entryScreen;
+            view = &screen->entry.window;
             break;
         case 12:
             if (!(flags & 2)) {
-                FreeBattle_InitPopupMenu((s8*)&screen->popupMenu, 38, 90, &D_82009278[screen->unk_4374], (s8*)&screen->popupMenuText, *(Color_RGBA8*)D_82008F54);
+                FreeBattle_InitPopupMenu((MenuWindow*)&screen->popupMenu, 38, 90, &D_82009278[screen->unk_4374], screen->popupMenuFlags, *(Color_RGBA8*)D_82008F54);
             }
-            view = (s8*)&screen->popupMenu;
+            view = &screen->popupMenu.window;
             break;
         case 13:
             if (!(flags & 2)) {
-                FreeBattle_InitPopupMenu((s8*)&screen->popupMenu2, 0x36, 0x72, M2C_FIELD(screen, s32*, 0x4E84) + D_820093E0[screen->unk_4374], (s8*)&screen->popupMenu2Text, *(Color_RGBA8*)D_82008F54);
+                FreeBattle_InitPopupMenu((MenuWindow*)&screen->popupMenu2, 0x36, 0x72, &D_820093E0[screen->unk_4374][screen->popupMenu.menu.cursor], screen->popupMenu2Flags, *(Color_RGBA8*)D_82008F54); // PORT: was popupMenu.menu.cursor (+0x4E84) + D_820093E0[...]
             }
-            view = (s8*)&screen->popupMenu2;
+            view = &screen->popupMenu2.window;
             break;
         case 14:
             if (!(flags & 2)) {
-                FreeBattle_InitUsableMonGrid(&screen->monGridWindow, 37, 80, screen->unk_4374, D_8200ACFC, D_8200AD00, (s8*)D_8200AC50);
+                FreeBattle_InitUsableMonGrid(&screen->monGridWindow, 37, 80, screen->unk_4374, D_8200ACFC, D_8200AD00, D_8200AC50);
             }
-            view = &screen->monGridWindow;
+            view = &screen->monGridWindow.window;
             break;
         case 11:
             if (!(flags & 2)) {
-                BlinkingTextBox_Init((s8*)&screen->textBox, (const char*)D_82009DFC, 0, 1, 0);
+                BlinkingTextBox_Init(&screen->textBox, (const char*)D_82009DFC, 0, 1, 0);
             }
             break;
     }
     if (flags & 1) {
-        M2C_FIELD(screen->view, s32*, 0x24) = 7;
+        screen->view->animTimer = 7;
         screen->pendingState = state;
         screen->nextView = view;
     } else {
@@ -216,12 +193,12 @@ void FreeBattle_InitBattleModeScreen(FreeBattleScreen* screen) {
     FreeBattle_SetScreenState(screen, 1, 0);
 }
 
-void FreeBattle_AddPresetTeams(void*);
-void FreeBattle_LoadGbTeams(void*);
+void FreeBattle_AddPresetTeams(void* /* List82000594* */ list);
+void FreeBattle_LoadGbTeams(void* /* RecordList* */ list);
 void func_80027804(PointerList* arg0, void** arg1, s32 arg2, s32 arg3); // PORT: matches PointerList_Initialize
 void FreeBattle_AddRentalEntry(void* /* RecordList* */ list); // PORT: no prototype in the decomp
-void FreeBattle_BuildTeamPointers(s32* dest, s32* teams); // PORT: no prototype in the decomp
-void FreeBattle_InitEntrySelect(s8* entry, s32 x, s32 y, s32 teams, s32 picks, s32 rule_category); // PORT: no prototype in the decomp
+void FreeBattle_BuildTeamPointers(PointerList* dest, ByteMatrix* teams); // PORT: no prototype in the decomp
+void FreeBattle_InitEntrySelect(FreeBattleEntryScreen* entry, s32 x, s32 y, PointerList* teams, FreeBattleTeam** picks, s32 rule_category); // PORT: no prototype in the decomp
 void FreeBattle_MarkIneligibleMons(void* /* TeamList8200140C* */ list, s32 rule_category); // PORT: no prototype in the decomp
 /**
  * Builds the team list from the GB cartridges and rentals and opens the entry list.
@@ -230,126 +207,117 @@ void FreeBattle_MarkIneligibleMons(void* /* TeamList8200140C* */ list, s32 rule_
 void FreeBattle_InitEntryScreen(FreeBattleScreen* screen)
 {
   s32 i;
-  M2C_FIELD(screen, s32*, 0x4368) = (!((screen->unk_4370) == 0)) || (!((screen->unk_4374) == 0));
-  M2C_FIELD(screen, s32*, 0x436C) = ((screen->unk_4370) == 0) && ((screen->unk_4374) == 0);
-  TableView_Initialize((s8*)screen + 0x4310, ((s8*)screen + 0x10), 0x214, 0x20, 0);
-  FreeBattle_LoadGbTeams((s8*)screen + 0x4310);
-  if (M2C_FIELD(screen, s32*, 0x4368))
+  screen->rentalsAllowed = (!((screen->unk_4370) == 0)) || (!((screen->unk_4374) == 0));
+  screen->presetsAllowed = ((screen->unk_4370) == 0) && ((screen->unk_4374) == 0);
+  TableView_Initialize(&screen->teamTable, screen->teams, sizeof(FreeBattleTeam), 0x20, 0);
+  FreeBattle_LoadGbTeams(&screen->teamTable);
+  if (screen->rentalsAllowed)
   {
-    FreeBattle_AddRentalEntry((void *) ((s8*)screen + 0x4310));
+    FreeBattle_AddRentalEntry(&screen->teamTable);
   }
-  if (M2C_FIELD(screen, s32*, 0x436C))
+  if (screen->presetsAllowed)
   {
-    FreeBattle_AddPresetTeams((s8*)screen + 0x4310);
+    FreeBattle_AddPresetTeams(&screen->teamTable);
   }
-  func_80027804((s8*)screen + 0x4320, (s8*)screen + 0x4290, 0x20, 0);
-  FreeBattle_BuildTeamPointers((void *) ((s8*)screen + 0x4320), (void *) ((s8*)screen + 0x4310));
-  FreeBattle_MarkIneligibleMons((void *) ((s8*)screen + 0x4310), screen->unk_4374);
-  M2C_FIELD(screen, s32*, 0x4354) = 0;
-    for (i = 0; i < 5; i++) { M2C_FIELD(screen, s32*, (0x4340 + (i * 4))) = 0;
+  func_80027804(&screen->teamList, (void**)screen->teamPtrs, 0x20, 0);
+  FreeBattle_BuildTeamPointers(&screen->teamList, &screen->teamTable);
+  FreeBattle_MarkIneligibleMons(&screen->teamTable, screen->unk_4374);
+  screen->currentPlayer = 0;
+    for (i = 0; i < 5; i++) { screen->playerTeams[i] = NULL;
   }
 
-  FreeBattle_InitEntrySelect((s8*)screen + 0x4690, 0x30, 0x5C, (uintptr_t) ((s8*)screen + 0x4320), (uintptr_t) ((s8*)screen + 0x4340), screen->unk_4374);
+  FreeBattle_InitEntrySelect(&screen->entry, 0x30, 0x5C, &screen->teamList, screen->playerTeams, screen->unk_4374);
 }
 
 void BgStage_DrawFrame(void);
 M2C_UNK Ui_DrawTintedScreenBackground(M2C_UNK, M2C_UNK, u8, u8, s32);
 extern u8 D_82008F50[];
-void FreeBattle_DrawBattleModeWindow(s8*);
-void FreeBattle_DrawMenuWindow(s8*, s32);
-void FreeBattle_DrawPopupMenu(s8*, s32);
+void FreeBattle_DrawBattleModeWindow(FreeBattleModeWindow*);
+void FreeBattle_DrawMenuWindow(MenuWindow*, s32);
+void FreeBattle_DrawPopupMenu(MenuWindow*, s32);
 void FreeBattle_DrawUsableMonGrid(FreeBattleMonGridWindow*, s32);
-void FreeBattle_DrawOpponentSelect(s8*);
+void FreeBattle_DrawOpponentSelect(FreeBattleOpponentWindow*);
 void FreeBattle_DrawTagOpponentSelect(FreeBattleTeamOpponentWindow*);
-void FreeBattle_DrawCupSelect(s8*, s32);
-void FreeBattle_DrawRentalScreen(s8*);
-void BlinkingTextBox_Draw(s8*);
+void FreeBattle_DrawCupSelect(FreeBattleCupWindow*, s32);
+void FreeBattle_DrawRentalScreen(FreeBattleEntryScreen*);
+void BlinkingTextBox_Draw(BlinkingTextBox*);
 /**
  * Draws the battle setup screen for its current state.
  * Seen in play: runs every frame on the battle menu screens.
  */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen) {
-    s8* base = (s8*)screen;
+    FreeBattleScreen* base = screen; // PORT: was (s8*)screen with raw N64 offsets
 
     BgStage_DrawFrame();
     Ui_DrawTintedScreenBackground(56, 480, D_82008F50[0], D_82008F50[1], D_82008F50[2]);
     switch (*(s32*)base) {
         case 1:
-            FreeBattle_DrawBattleModeWindow(base + 0x4378);
+            FreeBattle_DrawBattleModeWindow(&base->modeWindow);
             break;
         case 2:
         case 3:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 2);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 2);
             break;
         case 4:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 0x10);
-            FreeBattle_DrawMenuWindow(base + 0x4468, 2);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 0x10);
+            FreeBattle_DrawMenuWindow(&base->ruleMenuWindow, 2);
             break;
         case 12:
-            FreeBattle_DrawPopupMenu(base + 0x4E50, 2);
+            FreeBattle_DrawPopupMenu((MenuWindow*)&base->popupMenu, 2);
             break;
         case 13:
-            FreeBattle_DrawPopupMenu(base + 0x4E50, 0x10);
-            FreeBattle_DrawPopupMenu(base + 0x4EAC, 0);
+            FreeBattle_DrawPopupMenu((MenuWindow*)&base->popupMenu, 0x10);
+            FreeBattle_DrawPopupMenu((MenuWindow*)&base->popupMenu2, 0);
             break;
         case 14:
-            FreeBattle_DrawUsableMonGrid(base + 0x4F30, 0);
+            FreeBattle_DrawUsableMonGrid(&base->monGridWindow, 0);
             break;
         case 5:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 0x10);
-            FreeBattle_DrawMenuWindow(base + 0x4468, 0x10);
-            FreeBattle_DrawOpponentSelect(base + 0x4554);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 0x10);
+            FreeBattle_DrawMenuWindow(&base->ruleMenuWindow, 0x10);
+            FreeBattle_DrawOpponentSelect(&base->opponentWindow);
             break;
         case 6:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 0x10);
-            FreeBattle_DrawMenuWindow(base + 0x4468, 0x10);
-            FreeBattle_DrawTagOpponentSelect(base + 0x45C8);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 0x10);
+            FreeBattle_DrawMenuWindow(&base->ruleMenuWindow, 0x10);
+            FreeBattle_DrawTagOpponentSelect(&base->tagOpponentWindow);
             break;
         case 7:
         case 8:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 0x10);
-            FreeBattle_DrawMenuWindow(base + 0x4468, 2);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 0x10);
+            FreeBattle_DrawMenuWindow(&base->ruleMenuWindow, 2);
             break;
         case 9:
-            FreeBattle_DrawMenuWindow(base + 0x43E4, 0x10);
-            FreeBattle_DrawMenuWindow(base + 0x4468, 0x10);
-            FreeBattle_DrawCupSelect(base + 0x44EC, 2);
+            FreeBattle_DrawMenuWindow(&base->menuWindow, 0x10);
+            FreeBattle_DrawMenuWindow(&base->ruleMenuWindow, 0x10);
+            FreeBattle_DrawCupSelect(&base->cupWindow, 2);
             break;
         case 10:
-            FreeBattle_DrawRentalScreen(base + 0x4690);
+            FreeBattle_DrawRentalScreen(&base->entry);
             break;
         case 11:
-            FreeBattle_DrawRentalScreen(base + 0x4690);
-            BlinkingTextBox_Draw(base + 0x4E1C);
+            FreeBattle_DrawRentalScreen(&base->entry);
+            BlinkingTextBox_Draw(&base->textBox);
             break;
     }
 }
 
-typedef struct Blob82004E9C {
-    s32 data[0x85];
-} Blob82004E9C;
-typedef struct Blobs82004E9C {
-    s8 pad[0x10];
-    Blob82004E9C blobs[1];
-} Blobs82004E9C;
 
 void func_80027814(PointerList* arg0, char* arg1, s32 arg2); // PORT: matches PointerList_Insert
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: matches the definition
 void Audio_PlaySystemSound(s32);
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);
 void FreeBattle_ClearIndices(void*, s32, s32);
-void FreeBattle_InitEntryListCursor(s8*);
-s32 FreeBattle_UpdateEntrySelect(s8*);
-void FreeBattle_CommitEntries(s8*);
-s32 FreeBattle_UpdateMenuWindow(s8*);
-s32 FreeBattle_UpdatePopupMenu(s8*);
-s32 FreeBattle_UpdateOpponentSelect(s8*);
-s32 FreeBattle_UpdateBattleModeWindow(s8*);
-s32 FreeBattle_UpdateCupSelect(s8*);
+void FreeBattle_InitEntryListCursor(FreeBattleEntryScreen*);
+s32 FreeBattle_UpdateEntrySelect(FreeBattleEntryScreen*);
+void FreeBattle_CommitEntries(FreeBattleScreen*);
+s32 FreeBattle_UpdateMenuWindow(MenuWindow*);
+s32 FreeBattle_UpdatePopupMenu(MenuWindow*);
+s32 FreeBattle_UpdateOpponentSelect(FreeBattleOpponentWindow*);
+s32 FreeBattle_UpdateBattleModeWindow(FreeBattleModeWindow*);
+s32 FreeBattle_UpdateCupSelect(FreeBattleCupWindow*);
 s32 FreeBattle_UpdateUsableMonGrid(FreeBattleMonGridWindow*);
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
-extern s32 D_82008F84;
-extern u8 D_8200AC58[];
 
 /**
  * Runs the battle setup screen's state machine for one frame.
@@ -365,7 +333,7 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
     ret = 0;
     res = screen->pendingState;
     if (res != 0) {
-        if (M2C_FIELD(screen->view, s32*, 0x28) == 4) {
+        if (screen->view->state == 4) {
             screen->state = res;
             if (res == 0xF) {
                 ret = 1;
@@ -375,16 +343,16 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
             }
             return ret;
         }
-        if ((M2C_FIELD(screen->view, s32*, 0x28) != 1) && (M2C_FIELD(screen->view, s32*, 0x28) != 2)) {
+        if ((screen->view->state != 1) && (screen->view->state != 2)) {
             return 0;
         }
     }
     switch (screen->state) {
         case 1:
-            res = FreeBattle_UpdateBattleModeWindow((s8*)&screen->modeWindow);
+            res = FreeBattle_UpdateBattleModeWindow(&screen->modeWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 0xF, 1);
-                D_82008F84 = 0x8040;
+                D_82008F84.code = 0x8040;
             } else if (res == 1) {
                 FreeBattle_SetScreenState(screen, 2, 1);
             } else if (res == 2) {
@@ -392,7 +360,7 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
             }
             break;
         case 3:
-            res = FreeBattle_UpdateMenuWindow((s8*)&screen->menuWindow);
+            res = FreeBattle_UpdateMenuWindow(&screen->menuWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 1, 1);
             } else if (res == 1) {
@@ -402,7 +370,7 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
             }
             break;
         case 2:
-            res = FreeBattle_UpdateMenuWindow((s8*)&screen->menuWindow);
+            res = FreeBattle_UpdateMenuWindow(&screen->menuWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 1, 1);
             } else if (res == 1) {
@@ -417,18 +385,18 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
             }
             break;
         case 4:
-            res = FreeBattle_UpdateMenuWindow((s8*)&screen->ruleMenuWindow);
+            res = FreeBattle_UpdateMenuWindow(&screen->ruleMenuWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 2, 3);
             } else if (res == 1) {
                 FreeBattle_SetScreenState(screen, 5, 0);
             } else if (res == 2) {
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
+                screen->menuWindow.window.animTimer = 7;
                 FreeBattle_SetScreenState(screen, 0xC, 1);
             }
             break;
         case 12:
-            res = FreeBattle_UpdatePopupMenu((s8*)&screen->popupMenu);
+            res = FreeBattle_UpdatePopupMenu((MenuWindow*)&screen->popupMenu);
             if (res == -1) {
                 sel = (screen->unk_4370 == 0) ? 2 : 3;
                 FreeBattle_SetScreenState(screen, sel, 1);
@@ -454,107 +422,107 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
             }
             break;
         case 5:
-            res = FreeBattle_UpdateOpponentSelect((s8*)&screen->opponentWindow);
+            res = FreeBattle_UpdateOpponentSelect(&screen->opponentWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 4, 3);
             } else if (res == 1) {
-                screen->unk_4358 = 1;
-                screen->unk_435C = 0;
-                screen->unk_4364 = 0;
-                screen->unk_432C = 1;
-                screen->unk_433C = 0;
-                screen->unk_4338 = 0;
-                screen->unk_4334 = 0;
-                screen->unk_4330 = 0;
-                screen->unk_4360 = M2C_FIELD(screen, s32*, 0x45B8);
-                M2C_FIELD(screen, s32*, 0x4328 + M2C_FIELD(screen, s32*, 0x45B8) * 4) = 1;
-                M2C_FIELD(screen, s32*, 0x448C) = 7;
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
+                screen->side0Players[0] = 1;
+                screen->side0Players[1] = 0;
+                screen->side1Players[1] = 0;
+                screen->playerActive[0] = 1;
+                screen->playerActive[4] = 0;
+                screen->playerActive[3] = 0;
+                screen->playerActive[2] = 0;
+                screen->playerActive[1] = 0;
+                screen->side1Players[0] = screen->opponentWindow.choice;
+                screen->playerActive[screen->opponentWindow.choice - 1] = 1;
+                screen->ruleMenuWindow.window.animTimer = 7;
+                screen->menuWindow.window.animTimer = 7;
                 FreeBattle_SetScreenState(screen, 0xA, 1);
             }
             break;
         case 7:
-            res = FreeBattle_UpdateMenuWindow((s8*)&screen->ruleMenuWindow);
+            res = FreeBattle_UpdateMenuWindow(&screen->ruleMenuWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 3, 3);
             } else if (res == 1) {
                 screen->unk_501C = 0;
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
+                screen->menuWindow.window.animTimer = 7;
                 FreeBattle_SetScreenState(screen, 0xA, 1);
             } else if (res == 2) {
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
+                screen->menuWindow.window.animTimer = 7;
                 FreeBattle_SetScreenState(screen, 0xC, 1);
             }
             break;
         case 8:
-            res = FreeBattle_UpdateMenuWindow((s8*)&screen->ruleMenuWindow);
+            res = FreeBattle_UpdateMenuWindow(&screen->ruleMenuWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 3, 3);
             } else if (res == 1) {
                 FreeBattle_SetScreenState(screen, 9, 0);
             } else if (res == 2) {
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
+                screen->menuWindow.window.animTimer = 7;
                 FreeBattle_SetScreenState(screen, 0xC, 1);
             }
             break;
         case 9:
-            res = FreeBattle_UpdateCupSelect((s8*)&screen->cupWindow);
+            res = FreeBattle_UpdateCupSelect(&screen->cupWindow);
             if (res == -1) {
                 FreeBattle_SetScreenState(screen, 8, 3);
             } else if (res > 0) {
-                M2C_FIELD(screen, s32*, 0x4408) = 7;
-                M2C_FIELD(screen, s32*, 0x448C) = 7;
-                screen->unk_501C = M2C_FIELD(screen, s32*, 0x4520);
+                screen->menuWindow.window.animTimer = 7;
+                screen->ruleMenuWindow.window.animTimer = 7;
+                screen->unk_501C = screen->cupWindow.menu.cursor; // PORT: was +0x4520
                 FreeBattle_SetScreenState(screen, 0xA, 1);
             }
             break;
         case 10:
-            res = FreeBattle_UpdateEntrySelect((s8*)screen + 0x4690);
+            res = FreeBattle_UpdateEntrySelect(&screen->entry);
             if (res == -1) {
-                if (M2C_FIELD(screen, s32*, 0x43AC) == 0) {
+                if (screen->modeWindow.menu.cursor == 0) { // PORT: was +0x43AC
                     FreeBattle_SetScreenState(screen, 2, 1);
                 } else {
                     FreeBattle_SetScreenState(screen, 3, 1);
                 }
             } else if (res == 1) {
-                if (M2C_FIELD(screen, s32*, 0x4DC4) != 0) {
-                    M2C_FIELD(screen, s32*, 0x4318)++;
-                    M2C_FIELD(screen, u8*, 0x4758) |= 1;
-                    ((Blob82004E9C*)((s8*)screen + 0x10))[M2C_FIELD(screen, s32*, 0x4318) - 1] = *(Blob82004E9C*)((s8*)screen + 0x4758);
-                    idx = M2C_FIELD(screen, s32*, 0x4328) + ((M2C_FIELD(screen, s32*, 0x4368) != 0) ? -1 : 0);
-                    func_80027814((s8*)screen + 0x4320, (s8*)&((Blobs82004E9C*)screen)->blobs[M2C_FIELD(screen, s32*, 0x4318) - 1], idx);
+                if (screen->entry.teamChanged != 0) {
+                    screen->teamTable.count++;
+                    screen->entry.team.flags |= 1;
+                    screen->teams[screen->teamTable.count - 1] = screen->entry.team;
+                    idx = screen->teamList.count + ((screen->rentalsAllowed != 0) ? -1 : 0);
+                    func_80027814(&screen->teamList, (char*)&screen->teams[screen->teamTable.count - 1], idx);
                 } else {
-                    idx = M2C_FIELD(screen, s32*, 0x46D8);
+                    idx = screen->entry.teamList.cursor;
                 }
-                M2C_FIELD(screen, s32*, 0x4340 + M2C_FIELD(screen, s32*, 0x4354) * 4) = M2C_FIELD(screen, s32*, 0x4290 + idx * 4);
-                M2C_FIELD(screen, s32*, 0x4354)++;
-                if (M2C_FIELD(screen, s32*, 0x4354) < 5) {
+                screen->playerTeams[screen->currentPlayer] = screen->teamPtrs[idx];
+                screen->currentPlayer++;
+                if (screen->currentPlayer < 5) {
                 loop:
-                    if (((s32*)((s8*)screen + 0x432C))[M2C_FIELD(screen, s32*, 0x4354)] == 0) {
-                        M2C_FIELD(screen, s32*, 0x4354)++;
-                        if (M2C_FIELD(screen, s32*, 0x4354) < 5) {
+                    if (screen->playerActive[screen->currentPlayer] == 0) {
+                        screen->currentPlayer++;
+                        if (screen->currentPlayer < 5) {
                             goto loop; // FAKE: goto loop kept from m2c output
                         }
                     }
                 }
-                if (M2C_FIELD(screen, s32*, 0x4354) >= 5) {
+                if (screen->currentPlayer >= 5) {
                     FreeBattle_CommitEntries(screen);
                     Audio_PlayCommand(0x53, 0, 0);
                     FreeBattle_SetScreenState(screen, 0xB, 0);
                 } else {
-                    M2C_FIELD(screen, s32*, 0x4DC8) = M2C_FIELD(screen, s32*, 0x4354) + 1;
-                    if (M2C_FIELD(screen, s32*, 0x4DC4) != 0) {
-                        FreeBattle_ClearIndices(D_8200AC58, (M2C_FIELD(screen, s32*, 0x46D8) * 6) % 24, 6);
+                    screen->entry.player = screen->currentPlayer + 1;
+                    if (screen->entry.teamChanged != 0) {
+                        FreeBattle_ClearIndices(D_8200AC58, (screen->entry.teamList.cursor * 6) % 24, 6);
                     }
-                    FreeBattle_InitEntryListCursor((s8*)screen + 0x4690);
+                    FreeBattle_InitEntryListCursor(&screen->entry);
                 }
             }
             break;
         case 11:
-            if (M2C_FIELD(screen, s32*, 0x4E3C) >= 0x19) {
-                M2C_FIELD(screen, s32*, 0x4E40) = 1;
+            if (screen->textBox.blinkTimer >= 0x19) {
+                screen->textBox.noBlink = 1;
                 ret = 1;
-                D_82008F84 = 0x8050;
+                D_82008F84.code = 0x8050;
             }
             break;
     }
@@ -593,30 +561,29 @@ void FreeBattle_RestoreMenuState(FreeBattleScreen* screen) {
     s32 var_v0;
 
     if (gSessionContext.mode == 0) {
-        M2C_FIELD((void*)screen, s32 *, 0x43AC) = 0;
+        screen->modeWindow.menu.cursor = 0;
         if (gSessionContext.ruleCategory == 0) {
-            M2C_FIELD((void*)screen, s32 *, 0x4418) = 0;
+            screen->menuWindow.menu.cursor = 0;
         } else {
             if (gSessionContext.ruleCategory == 2) {
                 var_v0 = 1;
             } else {
                 var_v0 = 2;
             }
-            M2C_FIELD((void*)screen, s32 *, 0x4418) = var_v0;
+            screen->menuWindow.menu.cursor = var_v0;
         }
         FreeBattle_SetScreenState(screen, 2, 0);
         return;
     }
-    M2C_FIELD((void*)screen, s32 *, 0x43AC) = 1;
+    screen->modeWindow.menu.cursor = 1;
     if (gSessionContext.mode == 2) {
-        M2C_FIELD((void*)screen, s32 *, 0x4418) = 0;
+        screen->menuWindow.menu.cursor = 0;
     } else {
-        M2C_FIELD((void*)screen, s32 *, 0x4418) = 1;
+        screen->menuWindow.menu.cursor = 1;
     }
     FreeBattle_SetScreenState(screen, 3, 0);
 }
 
-extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 s32 GbSave_GetActivePort(void);
@@ -633,7 +600,7 @@ void FreeBattle_CreateScreen(void) {
     if (D_8200AD2C != -1) {
         func_80027FF8(&D_8200AD30, D_8200AD2C);
     }
-    D_8200AD28 = Util_Malloc(0x5020);
+    D_8200AD28 = Util_Malloc(sizeof(FreeBattleScreen)); // PORT: was 0x5020, the N64 size
     FreeBattle_InitBattleModeScreen(D_8200AD28);
 }
 
@@ -693,7 +660,6 @@ void Cont_StartReadInputs(void);                            /* extern */
 void Cont_ReadInputs(void);                            /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen*);
 s32 FreeBattle_UpdateScreen(FreeBattleScreen*);
-extern s32 D_8200AD28;
 
 /**
  * One frame of the battle setup screen.
@@ -703,13 +669,12 @@ void FreeBattle_RunFrame(FreeBattleScreen* screen) {
     Cont_StartReadInputs();
     Cont_ReadInputs();
     FreeBattle_DrawScreen(D_8200AD28);
-    FreeBattle_UpdateScreen((s8*) D_8200AD28);
+    FreeBattle_UpdateScreen(D_8200AD28);
 }
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen*);
 extern M2C_UNK D_82009E18;
-extern s32 D_8200AD28;
 extern s32 D_8200AD2C;
 extern M2C_UNK D_8200AD30;
 
@@ -731,7 +696,6 @@ s32 FreeBattle_DrawScreenWithSummary(FreeBattleScreen* screen) {
 }
 
 void Util_Free(void* ptr); // PORT: matches the definition
-extern s32 D_8200AD28;
 
 /**
  * Frees the FreeBattleScreen allocated by FreeBattle_CreateScreen.
@@ -741,8 +705,6 @@ void FreeBattle_FreeScreen(void) {
     Util_Free(D_8200AD28);
 }
 
-extern s32 D_8200AD08[8];
-extern s32 D_8200AC40;
 extern s32 D_820090DC[8];
 void* BinArchive_GetFile(void* archive, s32 file_number); // PORT: matches the definition
 
@@ -795,15 +757,6 @@ extern u8 D_004199E0[];
 extern u8 D_0042C4A0[];
 extern u8 D_002F5940[];
 extern u8 D_003139C0[];
-extern ModelLoadContext* D_8200AC44;
-extern u16* D_8200AC48;
-extern s32 D_8200AC4C;
-extern s32 D_8200AC50;
-extern s32 D_8200ACFC;
-extern s32 D_8200AD00;
-extern s32 D_8200AD04;
-extern s32 D_8200AD28;
-extern s32 D_82008F84;
 /**
  * Sets up the battle setup screen (font, Pokémon icons, model archives, segments), opens it and
  * runs it until it closes: a fade in, FreeBattle_RunFrame every frame, then a fade out, and frees
@@ -816,8 +769,8 @@ M2C_UNK FreeBattle_RunSetupScreen(void) {
     Font_Init(0x3C, 0);
     D_8200AC44 = PokeIcon_AllocFramebuffers(1);
     D_8200AC48 = func_80018F2C(D_8200AC44, 0x80, 0x78, 0, 0, 0x78, 0x78, 0);
-    *D_8200AC48 &= ~2;
-    *D_8200AC48 &= ~4;
+    D_8200AC48->flags &= ~2;
+    D_8200AC48->flags &= ~4;
     D_8200AC4C = 0;
     D_8200AC50 = func_80017FDC(D_8200AC44, 0x28, 0x28, 0x28);
     D_8200AC40 = BinArchive_Open(D_002F5940, D_003139C0, 1, 1);
@@ -829,9 +782,9 @@ M2C_UNK FreeBattle_RunSetupScreen(void) {
     Asset_LoadToSegment(((uintptr_t)D_04000000 & 0x0F000000) >> 0x18, D_00400F70, D_004076E0, 0);
     Asset_LoadToSegment(((uintptr_t)D_05000000 & 0x0F000000) >> 0x18, D_004199E0, D_0042C4A0, 0);
 
-    D_8200ACFC = Memmap_GetSegmentVaddr(D_0A000000);
-    D_8200AD00 = Memmap_GetSegmentVaddr(D_0A000C80);
-    D_8200AD04 = Memmap_GetSegmentVaddr(D_0A0016D0);
+    D_8200ACFC = (BattleMon*)Memmap_GetSegmentVaddr((uintptr_t)D_0A000000);
+    D_8200AD00 = (BattleMon*)Memmap_GetSegmentVaddr((uintptr_t)D_0A000C80);
+    D_8200AD04 = (u8*)Memmap_GetSegmentVaddr((uintptr_t)D_0A0016D0);
     FreeBattle_LoadArchiveFiles();
     FreeBattle_CreateScreen();
     StageLoader_UpdateSegments();
@@ -847,7 +800,7 @@ M2C_UNK FreeBattle_RunSetupScreen(void) {
     }
     func_80006828(0, FreeBattle_RunFrame);
 
-    if (D_82008F84 == 0x8050) {
+    if (D_82008F84.code == 0x8050) {
         func_80006998(0xFFFF);
         StageFade_Start(0xF);
         func_80006828(17, FreeBattle_DrawScreenWithSummary);
@@ -866,8 +819,6 @@ M2C_UNK FreeBattle_RunSetupScreen();                            /* extern */
 M2C_UNK FreeBattle_SetupGbCartVersus();                            /* extern */
 extern s8 D_00235D70;
 extern s8 D_00238BD0;
-extern s32 D_82008F84;
-extern SessionContext* D_8200ACF8;
 extern s8 D_88000000;
 /**
  * Entry point of the battle setup fragment: pushes the 'MENT' pool state, runs the setup screen
@@ -892,10 +843,10 @@ s32 FreeBattle_Main(s32 mode, M2C_UNK unused)
     FreeBattle_RunSetupScreen();
   }
   MainPool_PopState(0x4D454E54);
-  temp_v1 = D_82008F84;
+  temp_v1 = D_82008F84.code;
   if (temp_v1 == 0x8040)
   {
     func_80025BA0((((u32) (((uintptr_t) (&D_88000000)) & 0x0FF00000)) >> 0x14) - 0x10, &D_00235D70, &D_00238BD0, 0, 0);
   }
-  return D_82008F84;
+  return D_82008F84.code;
 }

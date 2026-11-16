@@ -26,7 +26,7 @@ char* HAL_Strcpy(char* dest, char* src); // PORT: matches the definition
  * @unverified Name from the code.
  */
 void FreeBattle_LoadGbCartTrainer(TeamRoster* slot, ExtendedRosterInfo* info, s32 controller_port, s32 gb_port) {
-    s32 sp2C;
+    void* sp2C; // PORT: was s32
 
     slot->isHuman = 1;
     slot->controllerPort = controller_port;
@@ -35,7 +35,7 @@ void FreeBattle_LoadGbCartTrainer(TeamRoster* slot, ExtendedRosterInfo* info, s3
     slot->numberOfPokemonBrought = 0;
     slot->rosterInfo = info;
     sp2C = Deck_Open(0x20, gb_port, 0, 0);
-    slot->numberOfPokemonBrought = Deck_ReadEntries(slot->pokemonPicked, 6, sp2C);
+    slot->numberOfPokemonBrought = Deck_ReadEntries((u8*)slot->pokemonPicked, 6, sp2C);
     Deck_CloseAndFlush(sp2C);
     GbSave_GetPlayerName(gb_port, slot->trainerName);
     info->unk_000 = 0;
