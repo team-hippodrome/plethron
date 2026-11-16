@@ -197,7 +197,7 @@ u8 Species_ToInternalIndex(s32 arg0);
 void Deck_InitializeSaveBackend(DeckHandle* arg0);
 void Deck_InitializeBoxBackend(DeckHandle* arg0);
 DeckHandle* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5);
+DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, char* arg3, char* arg4, u16 arg5);
 s32 Deck_CloseAndFlushBox(DeckHandle* arg0);
 
 // functions defined in assembly

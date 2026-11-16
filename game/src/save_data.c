@@ -693,7 +693,7 @@ s32 Deck_GetSaveEntrySecondName(s32 arg0, s32 arg1, u8* arg2) {
  * team, box or item record, then marks it present and dirty.
  * Seen in play (2026-11-12, docs/annotation/n64-save-format.md): the item record got サトシ and ID 0x1234 when the first item was moved in.
  */
-void Deck_SetSaveEntryTrainerIdAndName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, u16 arg4) {
+void Deck_SetSaveEntryTrainerIdAndName(s32 arg0, s32 arg1, char* arg2, char* arg3, u16 arg4) { // PORT: the names are pointers (were s32)
     switch (arg0) {
         case 16: {
             SaveTeamRecord* rec = &gSaveSram->teams[arg1][0];

@@ -53,7 +53,7 @@ void Registration_ReadTeam(s32 deck, s32 pak, s32 slot, ByteMatrix* mons) {
     mons->count = i;
 }
 
-void* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5); // PORT: matches the definition
+void* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, char* arg3, char* arg4, u16 arg5); // PORT: matches the definition
 s32 Deck_CloseAndFlush(void* arg0); // PORT: matches the definition
 s32 Deck_WriteEntries(u8* arg0, s32 arg1, void* arg2); // PORT: matches the definition
 /**
@@ -594,7 +594,7 @@ void Ui_DrawNumber(s32, s32, s32, s32);
  * `cache` (unlike Registration_DrawMonCell it does not render the icon again).
  * Seen in play (2026-11-14): drew ハナ L5, ヒノコ L5, カメ L5 in the 01 row as each Ditto transformed.
  */
-void Registration_DrawRevealedMonCell(s32 x, s32 y, u8* mon, s32 icon_id, s32 text_flags, s32* cache) {
+void Registration_DrawRevealedMonCell(s32 x, s32 y, u8* mon, s32 icon_id, s32 text_flags, RegistrationIconCache* cache) { // PORT: cache typed (was s32*, read at N64 offsets)
     s32 idx;
 
     gSPDisplayList(gDisplayListHead++, D_80060270);
@@ -608,7 +608,7 @@ void Registration_DrawRevealedMonCell(s32 x, s32 y, u8* mon, s32 icon_id, s32 te
         gSPDisplayList(gDisplayListHead++, D_80073450);
         Gfx_DrawTextureIa8(x + 44, y + 25, 8, 10, D_04011A60, 8, 0);
         Ui_DrawNumber(x + 56, y + 23, mon[0x24], 3);
-        idx = icon_id % cache[2] + cache[1];
+        idx = icon_id % cache->count + cache->base;
         gSPDisplayList(gDisplayListHead++, D_80073408);
         Gfx_DrawTextureRgba16(x + 86, y + 6, 40, 40, (u8*)PokeIcon_GetImage((s8*)D_88103074, idx), 40, 0x200000);
         gSPDisplayList(gDisplayListHead++, D_80073438);
@@ -764,8 +764,8 @@ void Registration_DrawDittoTransformRow(s32 x, s32 y, RegisteredTeam* team, s32 
             n = team->mons.count;
         }
     }
-    for (i = 0; i < n; i++, entry += 0x54) {
-        Registration_DrawRevealedMonCell(x + 136 + (i % 3) * 132, (i / 3) * 50 + y, entry + 4, row * 6 + i, 0, (s32*)&cache);
+    for (i = 0; i < n; i++, entry += sizeof(TeamMonSlot)) { // PORT: was 0x54, the N64 size
+        Registration_DrawRevealedMonCell(x + 136 + (i % 3) * 132, (i / 3) * 50 + y, entry + 4, row * 6 + i, 0, &cache);
     }
     for (; i < team->mons.count; i++) {
         Registration_DrawDittoCell(x + 136 + (i % 3) * 132, (i / 3) * 50 + y);
@@ -1192,6 +1192,11 @@ void Registration_AllocScreen(void) {
 typedef struct Col88102A2C { u8 r, g, b, a; } Col88102A2C;
 extern s32 D_88102DCC;
 extern s32 D_88102DD0;
+// PORT: the strings after D_88102DD0 (0x88102DD4-0x88102F14: the menu labels and descriptions D_88102D84 and
+// D_88102D90 point at). Named so the lifter keeps them as bytes: as part of the s32 D_88102DD0 each 4-byte word was
+// byte-swapped, and Register's menu showed garbage.
+extern char D_88102DD4[0x140];
+static const void* const sPortRegistrationStrings __attribute__((used)) = D_88102DD4;
 /* Second name for D_88102DCC; see PartyScreen_FadeFrame in party_summary/mon_summary.c. */
 extern s32 D_88102DCC_2;
 extern char D_88103018[]; // PORT: text (was M2C_UNK, lifted as swapped words)

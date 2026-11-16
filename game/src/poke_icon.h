@@ -26,8 +26,10 @@ typedef struct PokeModelPreview {
 
 typedef union PokeIconSource {
     struct {
-        /* 0x00 */ s16 unk_00;
+        // PORT: the halves swapped: speciesId is the low half of raw, which a little-endian host keeps first. In the
+        // N64 order raw = species left speciesId 0, and Register's icon loader asked for model file -1 and crashed.
         /* 0x02 */ s16 speciesId; // @unverified: species id when the slot was set from an id (low half of raw)
+        /* 0x00 */ s16 unk_00;
     };
     u8* ptr; // @unverified: BattleMon* when slot flag 2 is set
     u32 raw;

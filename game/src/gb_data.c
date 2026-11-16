@@ -60,7 +60,7 @@ u8 Species_FromInternalIndex(s32 arg0);
 void Deck_InitializeSaveBackend(DeckHandle* arg0);
 void Deck_InitializeBoxBackend(DeckHandle* arg0);
 DeckHandle* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5);
+DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, char* arg3, char* arg4, u16 arg5);
 s32 Deck_CloseAndFlushBox(DeckHandle* arg0);
 
 char* Text_UntranscodeName(char* arg0, char* arg1);
@@ -607,7 +607,7 @@ DeckHandle* Deck_Open(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
 }
 
 /** Opens a deck handle and sets its name. */
-DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, s32 arg3, char* arg4, u16 arg5) {
+DeckHandle* Deck_OpenAndSetName(s32 arg0, s32 arg1, s32 arg2, char* arg3, char* arg4, u16 arg5) {
     DeckHandle* sp24;
     DeckHandle* temp_v0;
     DeckHandle* var_v1;

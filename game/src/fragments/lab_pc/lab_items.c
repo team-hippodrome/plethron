@@ -269,7 +269,7 @@ void LabItem_WriteDeckBack(s32 deck_type, s32 port, s32 index, ByteMatrix* table
 
     if (trainer_id != -1) {
         if (1) {}  // karodo
-        sp2C = Deck_OpenAndSetName(deck_type, port, index, arg4, trainer_name, trainer_id);
+        sp2C = Deck_OpenAndSetName(deck_type, port, index, (char*)(uintptr_t)arg4, trainer_name, trainer_id); // PORT: arg4 is a name pointer slot (always 0)
     } else {
         sp2C = Deck_Open(deck_type, port, index, 1);
     }
