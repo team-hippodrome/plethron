@@ -1,6 +1,6 @@
 // The C++ port of tools/save_editor/stadium_save: text.py, schema.py, pokemon.py, save.py and the editor operations of
 // web.py. Function by function it follows the Python code (named in the comments), so the two give the same JSON and
-// the same bytes; tools/save_editor/tests/test_native.py compares them.
+// the same bytes.
 #include "stadium_save.h"
 #include "gamedata.h"
 

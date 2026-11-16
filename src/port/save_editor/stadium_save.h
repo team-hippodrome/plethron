@@ -4,7 +4,7 @@
 // It keeps the Python library's model on purpose: a save decodes to the same JSON document (nlohmann::json here,
 // dicts there), every byte no field covers is kept raw, and building a save from that document gives the same bytes.
 // Edits are made on the document and written back record by record, committed the way the game commits them.
-// tools/save_editor/tests/test_native.py checks this library against the Python one (stadium_save_cli, below).
+// stadium_save_cli (below) drives this library from the command line.
 // Format reference: tools/save_editor/SAVE_FORMAT.md.
 #pragma once
 

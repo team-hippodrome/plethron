@@ -7,7 +7,7 @@
 // LAUNCHER_DEBUG=0|1 and LAUNCHER_SAVE=<file> (override without storing), LAUNCHER_OPEN_EDITOR=1 (open the editor at
 // start), LAUNCHER_EDITOR_SNAPSHOT=<png> (save the editor page picture once loaded and quit; LAUNCHER_EDITOR_JS=<js>
 // runs in the page first), LAUNCHER_EDITOR_TEST=<js> (run an async test suite in the editor page, print its result,
-// close the window and quit; tools/save_editor/tests/test_ui.py) with LAUNCHER_AUTO_CONFIRM=yes|no.
+// close the window and quit) with LAUNCHER_AUTO_CONFIRM=yes|no.
 import AppKit
 import CryptoKit
 import WebKit

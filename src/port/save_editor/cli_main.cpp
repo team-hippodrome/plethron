@@ -1,4 +1,4 @@
-// stadium_save_cli: a command-line driver for the C++ save library, so tools/save_editor/tests/test_native.py can
+// stadium_save_cli: a command-line driver for the C++ save library, so a test can
 // compare it with the Python library (cmake --build <dir> --target stadium_save_cli). Not shipped.
 //
 //   dump SAVE                    the save as JSON (SaveFile.to_dict)
