@@ -2786,7 +2786,7 @@ const ZLiftType gZLiftTypes[] = {
     { 2624, 2752, 570, 25 }, // r:struct Scheduler@scheduler.h:24
     { 104, 184, 595, 22 }, // r:struct SchedTask@scheduler.h:8
     { 4, 8, 617, 1 }, // p:r:union Gfx@gbi.h:1702
-    { 20, 32, 618, 4 }, // r:struct DisplayListBuffers@gfx_buffer.c:11
+    { 20, 32, 618, 4 }, // r:struct DisplayListBuffers@gfx_buffer.c:12
     { 16, 32, 622, 4 }, // r:struct DisplayFrame@dp_intro.h:10
     { 4, 8, 626, 1 }, // p:r:struct StageContext@stage_loader.h:13
     { 36, 48, 627, 5 }, // r:struct StageContext@stage_loader.h:13
@@ -2803,11 +2803,11 @@ const ZLiftType gZLiftTypes[] = {
     { 16, 24, 709, 4 }, // r:struct LeoBootDescriptor@leo.h:8
     { 8, 8, 713, 1 }, // r:struct LeoBootState@leo.h:17
     { 4, 8, 714, 1 }, // ip
-    { 4260, 4392, 715, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:20
+    { 4260, 4392, 715, 4 }, // r:struct unk_D_800AA8C8@geo_render.c:21
     { 392, 392, 719, 4 }, // r:struct unk_D_800AB970@geo_render.h:10
     { 24, 48, 723, 7 }, // r:struct ModelAnimCurveContext@geo_render.h:67
     { 10, 10, 730, 2 }, // r:struct ModelAnimChannel@geo_render.h:57
-    { 16, 32, 732, 5 }, // r:struct EventTrackRender@geo_render.c:343
+    { 16, 32, 732, 5 }, // r:struct EventTrackRender@geo_render.c:344
     { 4, 8, 737, 1 }, // p:r:struct MemoryBlock@memory.h:40
     { 4, 8, 738, 1 }, // p:r:struct GraphNode@global.h:178
     { 2584, 2696, 739, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
