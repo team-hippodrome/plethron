@@ -225,7 +225,8 @@ char* String_CopyBytesAndAdvance(char* buffer, const char* data, u32 size) {
 // PORT: draws translated text with the Unicode glyphs (src/port/unicode_font.cpp) in place of the game font, which
 // has kana and fixed-width ASCII only. Each glyph is sized to the active set's height and advances by its own width.
 // Follows Font_DrawChar: the two-cycle shading texture (glyph 256 of the set) still goes to tile 1 first.
-static s32 Port_Font_DrawCodepoint(s32 x, s32 y, u32 cp) {
+// `x4` is in quarter pixels and `scale` squeezes the glyph horizontally (1.0 = as designed); returns the next x4.
+static s32 Port_Font_DrawCodepointScaled(s32 x4, s32 y, u32 cp, f32 scale) {
     FontGlyphSet8001A3E4* set = &((FontGlyphSet8001A3E4*) font_context)[font_context->unk_50];
     int tex_width, draw_width, advance;
     const unsigned char* tex = Port_Font_Glyph(cp, set->height, &tex_width, &draw_width, &advance);
@@ -233,7 +234,7 @@ static s32 Port_Font_DrawCodepoint(s32 x, s32 y, u32 cp) {
     if (tex == NULL) {
         tex = Port_Font_Glyph('?', set->height, &tex_width, &draw_width, &advance);
         if (tex == NULL) {
-            return x + set->advance;
+            return x4 + (s32)(set->advance * 4 * scale);
         }
     }
     if ((font_context->line_break_flag & 1) && !(font_context->line_break_flag & 2)) {
@@ -245,10 +246,14 @@ static s32 Port_Font_DrawCodepoint(s32 x, s32 y, u32 cp) {
         font_context->unk_4C = (uintptr_t) tex;
         gDPLoadTextureBlock(gDisplayListHead++, tex, G_IM_FMT_IA, G_IM_SIZ_8b, tex_width, set->height, 0, G_TX_CLAMP,
                             G_TX_CLAMP, 0, 0, 0, 0);
-        gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + draw_width) << 2, (y + set->height) << 2,
-                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(gDisplayListHead++, x4, y << 2, x4 + (s32)(draw_width * 4 * scale), (y + set->height) << 2,
+                            G_TX_RENDERTILE, 0, 0, (s32)((1 << 10) / scale), 1 << 10);
     }
-    return x + advance;
+    return x4 + (s32)(advance * 4 * scale);
+}
+
+static s32 Port_Font_DrawCodepoint(s32 x, s32 y, u32 cp) {
+    return Port_Font_DrawCodepointScaled(x << 2, y, cp, 1.0f) >> 2;
 }
 
 // PORT: the width in pixels of one line of `utf8` in the active set, as Port_Font_PrintUtf8 draws it.
@@ -267,18 +272,73 @@ s32 Port_Font_MeasureUtf8(const char* utf8) {
     return width;
 }
 
+// PORT: the box the next translated print must fit in (Port_Font_FitNext), or sFitArmed 0.
+static s32 sFitArmed;
+static s32 sFitLeft;
+static s32 sFitRight;
+static s32 sFitAlign;
+
+// PORT: makes the next translated Font_Printf / Port_Font_PrintUtf8 fit each line between x `left` and `right`.
+// A line that overflows by at most two average characters is squeezed horizontally to fit; a longer one is drawn
+// as is and logged to text_overflows.csv, to be shortened in the translation. `align` 1 centres a line that fits
+// between left and right (for labels the game centres by byte count); 0 keeps the x it is printed at.
+void Port_Font_FitNext(s32 left, s32 right, s32 align) {
+    if (Port_Text_GetLanguage() == PORT_LANG_ORIGINAL) {
+        return;
+    }
+    sFitArmed = 1;
+    sFitLeft = left;
+    sFitRight = right;
+    sFitAlign = align;
+}
+
 // PORT: Font_Printf for a translated language: `utf8` drawn glyph by glyph, '\n' handled as the original does.
 void Port_Font_PrintUtf8(s32 x, s32 y, const char* utf8) {
+    s32 fit = sFitArmed;
     s32 start_x = x;
+    s32 x4;
+    f32 scale = 1.0f;
+    s32 line_start = 1;
     u32 cp;
 
-    while ((cp = Port_Utf8Next(&utf8)) != 0) {
+    sFitArmed = 0;
+    x4 = x << 2;
+    while (1) {
+        if (line_start && fit) {
+            // PORT: measure this line and place or squeeze it inside the box
+            const char* q = utf8;
+            s32 width = Port_Font_MeasureUtf8(utf8);
+            s32 count = 0;
+            s32 left = (sFitAlign != 0) ? sFitLeft : start_x;
+            s32 avail = sFitRight - left;
+
+            while ((cp = Port_Utf8Next(&q)) != 0 && cp != '\n') {
+                count++;
+            }
+            scale = 1.0f;
+            if (width <= avail) {
+                x4 = ((sFitAlign != 0) ? left + (avail - width) / 2 : start_x) << 2;
+            } else {
+                x4 = left << 2;
+                if (count > 0 && (width - avail) * count <= 2 * width) {
+                    scale = (f32) avail / (f32) width;
+                } else {
+                    Port_Text_LogOverflow(utf8, width, avail);
+                }
+            }
+        }
+        line_start = 0;
+        cp = Port_Utf8Next(&utf8);
+        if (cp == 0) {
+            break;
+        }
         if (cp == '\n' && !(font_context->line_break_flag & 4)) {
-            x = start_x;
+            x4 = start_x << 2;
             y += font_context->line_height;
+            line_start = 1;
             continue;
         }
-        x = Port_Font_DrawCodepoint(x, y, cp);
+        x4 = Port_Font_DrawCodepointScaled(x4, y, cp, scale);
     }
 }
 

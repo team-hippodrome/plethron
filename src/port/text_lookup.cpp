@@ -413,6 +413,33 @@ void LogMiss(const std::string& key, const char* s) {
     fflush(t.missLog);
 }
 
+static FILE* sOverflowLog;
+static std::unordered_set<std::string> sOverflowed;
+
+extern "C" void Port_Text_LogOverflow(const char* utf8, int width, int avail) {
+    if (utf8 == nullptr) {
+        return;
+    }
+    std::string line(utf8, strcspn(utf8, "\n"));
+    std::lock_guard<std::mutex> lock(T().mutex);
+    if (!sOverflowed.insert(std::string(kColumns[sLanguage]) + ":" + line).second) {
+        return;
+    }
+    if (sOverflowLog == nullptr) {
+        std::string path = Ship::Context::GetPathRelativeToAppDirectory("text_overflows.csv");
+        sOverflowLog = fopen(path.c_str(), "a");
+        if (sOverflowLog == nullptr) {
+            return;
+        }
+    }
+    std::string quoted;
+    for (char c : line) {
+        quoted += (c == '"') ? std::string("\"\"") : std::string(1, c);
+    }
+    fprintf(sOverflowLog, "%s,%d,%d,\"%s\"\n", kColumns[sLanguage], width, avail, quoted.c_str());
+    fflush(sOverflowLog);
+}
+
 // ---- printf with translated pieces ----
 enum ArgKind { ARG_NONE, ARG_INT, ARG_LONG, ARG_DOUBLE, ARG_PTR };
 struct Arg {
