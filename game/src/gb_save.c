@@ -782,7 +782,7 @@ void Window_DrawLabeled(LabeledButton* arg0, s32 arg1) {
  * Sets an image button's rectangle and its IA16 image and image width.
  * Seen in play (2026-11-14): せいとん's organize window sets up its two image buttons with it.
  */
-void ImageButton_Init(ImageButton* button, s32 x, s32 y, s32 w, s32 h, s32 image_width, s32 image) {
+void ImageButton_Init(ImageButton* button, s32 x, s32 y, s32 w, s32 h, s32 image_width, uintptr_t image) { // PORT: image was s32
     Window_SetRect((s8*)button, x, y, w, h);
     button->image = (u8*)image;
     button->imageWidth = image_width;

@@ -131,7 +131,7 @@ typedef struct Entry8006A9D4 {
     /* 0x04 */ char* name;
     /* 0x08 */ s32 unk_08;
 } Entry8006A9D4; // size = 0xC
-extern Entry8006A9D4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern u8* D_8218AF70[];
 extern Gfx D_800602C8[];
 extern Gfx D_80060398[];
@@ -1160,7 +1160,7 @@ typedef struct Entry8006A9CC {
     /* 0x0 */ char* name;
     /* 0x4 */ char unk04[0x8];
 } Entry8006A9CC; // size = 0xC
-extern Entry8006A9CC D_8006A9CC[];
+// PORT: D_8006A9CC (the move table seen 8 bytes early) is read as D_8006A9D4[id - 1]
 
 extern s32 D_8219A764;
 extern s32 D_8219A760;
@@ -1217,14 +1217,14 @@ void BattleDebug_DrawStepMenu(s16 arg0, s16 arg1) {
     if (D_8219A740 == 0xA6) {
         Font_Printf(arg0 + 35, arg1 + 28, D_82195D70);
     } else {
-        Font_Printf(arg0 + 35, arg1 + 28, D_8006A9CC[D_8219A740].name);
+        Font_Printf(arg0 + 35, arg1 + 28, D_8006A9D4[(D_8219A740) - 1].name);
     }
     Font_Printf(arg0 + 3, arg1 + 40, D_82195D7C);
     Font_Printf(arg0 + 3, arg1 + 52, D_82195D88);
     if (D_8219A744 == 0xA6) {
         Font_Printf(arg0 + 35, arg1 + 52, D_82195D90);
     } else {
-        Font_Printf(arg0 + 35, arg1 + 52, D_8006A9CC[D_8219A744].name);
+        Font_Printf(arg0 + 35, arg1 + 52, D_8006A9D4[(D_8219A744) - 1].name);
     }
     Font_Printf(arg0 + 3, arg1 + 0x40, D_82195D9C);
     Font_Printf(arg0 + 3, arg1 + 76, labels[0]);
@@ -1281,7 +1281,7 @@ void BattleDebug_DrawMoveEffectViewer(s16 arg0, s16 arg1) {
     Font_BeginTranslucentTextRendering();
     Font_SetActive(1, 0);
     Font_Printf(arg0 + 3, arg1 + 4, D_82195E04);
-    Font_Printf(arg0 + 100, arg1 + 4, D_8006A9CC[D_8219A740].name);
+    Font_Printf(arg0 + 100, arg1 + 4, D_8006A9D4[(D_8219A740) - 1].name);
     Font_Printf(arg0 + 3, arg1 + 0x10, D_82195E10);
     Font_Printf(arg0 + 3, arg1 + 28, D_82195E20);
     if (D_8219A75C == 3) {
@@ -1349,7 +1349,7 @@ void BattleDebug_DrawMoveCameraViewer(s16 arg0, s16 arg1) {
     Font_BeginTranslucentTextRendering();
     Font_SetActive(1, 0);
     Font_Printf(arg0 + 3, arg1 + 4, D_82195EF0);
-    Font_Printf(arg0 + 105, arg1 + 4, D_8006A9CC[D_8219A740].name);
+    Font_Printf(arg0 + 105, arg1 + 4, D_8006A9D4[(D_8219A740) - 1].name);
     Font_Printf(arg0 + 3, arg1 + 0x10, D_82195EFC);
     Font_Printf(arg0 + 3, arg1 + 28, D_82195F0C);
     Font_Printf(arg0 + 3, arg1 + 40, D_82195F20);

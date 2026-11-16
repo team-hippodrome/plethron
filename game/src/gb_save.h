@@ -115,7 +115,7 @@ typedef struct BlinkingTextBox {
     /* 0x30 */ s32 lineCount; // @unverified: BlinkingTextBox_Init arg3; sets the frame height
 } BlinkingTextBox; // size = 0x34
 
-void ImageButton_Init(ImageButton* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
+void ImageButton_Init(ImageButton* arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, uintptr_t arg6); // PORT: arg6 was s32 (a pointer)
 void ImageButton_Draw(ImageButton* arg0, s32 arg1);
 
 typedef struct unk_func_8002EBD8_arg0 {

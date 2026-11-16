@@ -40,7 +40,7 @@ extern char D_8A21D854[];
 extern char D_8A21D858[];
 extern s8* sPartyIconList;
 extern Color_RGBA8 D_8A203304;
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 extern Gfx D_80060270[];
 extern s32 sPartyGbPort;
 extern s32 D_8A21DE08;
@@ -443,7 +443,7 @@ typedef struct Entry8006A9D4 {
     /* 0x04 */ const char* name;
     /* 0x08 */ s32 unk_08;
 } Entry8006A9D4; // size = 0xC
-extern Entry8006A9D4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 typedef struct Entry8A203384 {
     /* 0x00 */ s32 boxX;
     /* 0x04 */ s32 boxY;

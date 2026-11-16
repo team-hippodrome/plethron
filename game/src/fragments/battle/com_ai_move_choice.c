@@ -402,7 +402,7 @@ s32 BattleAi_ChooseTurnAction(BattleMonRuntime* arg0, BattleMonRuntime* arg1, s3
 }
 
 extern s32 D_821CF2A4;
-extern u8 D_8006B18F[];
+// PORT: D_8006B18F (gMoveData seen 1 byte early) is read as gMoveData[move - 1].pp
 
 /**
  * Learns the opponent's chosen move once both sides have picked their actions
@@ -426,7 +426,7 @@ void BattleAi_RecordUsedMove(s32 arg0, s32 arg1, s32 arg2) {
         for (i = 0; i < 4; i++) {
             if (D_821CF2A0->mon.moves[i] == 0) {
                 D_821CF2A0->mon.moves[i] = move;
-                pp = D_8006B18F[D_821CF2AC->usedMove * 6];
+                pp = gMoveData[D_821CF2AC->usedMove - 1].pp; // PORT: was D_8006B18F[move * 6], gMoveData seen 1 byte early
                 bonus = (pp / 5 >= 8) ? 7 : pp / 5;
                 pp += bonus * 3;
                 D_821CF2A0->mon.pp[i] = pp - 1;

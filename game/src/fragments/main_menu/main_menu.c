@@ -725,6 +725,49 @@ extern s32 D_88002B00;
 extern M2C_UNK D_88002B08;
 extern MainMenuScreen* D_88002B20;
 
+s32 PcBox_ReadDeck(s32 deck_type, s32 port, s32 index, s8* out, s32 max); // lab_pc/pc_box.c
+s32 Port_GbCartIsWestern(s32 channel); // src/port/transfer_pak.cpp
+
+// PORT: 「ちがう　ちいきの　カセット」 / 「ちがう　ちいきの　ゲームとの　こうかんは　まだ　できません。　せいとんは　つかえません。」
+// (MAIN_MENU_PORT_OTHER_REGION_TITLE/_TEXT in translations/ai.csv)
+static char sOtherRegionTitle[] = "\xA4\xC1\xA4\xAC\xA4\xA6\xA1\xA1\xA4\xC1\xA4\xA4\xA4\xAD\xA4\xCE\xA1\xA1\xA5\xAB\xA5\xBB\xA5\xC3\xA5\xC8";
+static char sOtherRegionText[] =
+    "\xA4\xC1\xA4\xAC\xA4\xA6\xA1\xA1\xA4\xC1\xA4\xA4\xA4\xAD\xA4\xCE\xA1\xA1\xA5\xB2\xA1\xBC\xA5\xE0\xA4\xC8\xA4\xCE\xA1\xA1\xA4\xB3\xA4\xA6\xA4\xAB\xA4\xF3\xA4\xCF\n"
+    "\xA4\xDE\xA4\xC0\xA1\xA1\xA4\xC7\xA4\xAD\xA4\xDE\xA4\xBB\xA4\xF3\xA1\xA3\xA1\xA1\xA4\xBB\xA4\xA4\xA4\xC8\xA4\xF3\xA4\xCF\xA1\xA1\xA4\xC4\xA4\xAB\xA4\xA8\xA4\xDE\xA4\xBB\xA4\xF3\xA1\xA3";
+
+/**
+ * PORT: whether the 64 boxes hold a Pokémon from a cartridge of the other region (Japanese vs Western) than the
+ * one in `port`. Zero has no trade machine, but せいとん moves Pokémon between a cartridge and the shared 64 boxes,
+ * so that is a trade between the two cartridges; converting across regions isn't implemented, so the main menu
+ * turns せいとん off then. A stored Pokémon's region comes from its OT name: a Japanese cartridge's has kana, a
+ * Western one's comes through the converter as full-width Latin letters (gb_save_convert.h).
+ */
+static s32 MainMenu_StorageHasOtherRegion(s32 port) {
+    static BattleMon mons[30];
+    s32 western = Port_GbCartIsWestern(port) != 0;
+    s32 box;
+    s32 i;
+    s32 n;
+    s32 k;
+    s32 japanese;
+
+    for (box = 0; box < 4; box++) {
+        n = PcBox_ReadDeck(0x11, 0, box, (s8*)mons, 30);
+        for (i = 0; i < n; i++) {
+            japanese = 0;
+            for (k = 0; k + 1 < (s32)sizeof(mons[i].otName) && mons[i].otName[k] != 0; k += (mons[i].otName[k] & 0x80) ? 2 : 1) {
+                if (mons[i].otName[k] == 0xA4 || mons[i].otName[k] == 0xA5) {
+                    japanese = 1;
+                }
+            }
+            if (japanese == western) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /**
  * Allocates the 0x3B0-byte object stored in D_88002B20 and starts it with
  * MainMenu_InitScreen. Steps:
@@ -766,6 +809,11 @@ void MainMenu_LoadGbSaveSummary(void) {
     }
     D_88002B20 = (MainMenuScreen*)Util_Malloc(sizeof(MainMenuScreen));
     MainMenu_InitScreen(D_88002B20, var_s0, (D_80073400 == 0) ? 4 : D_80073400 - 1, &D_88002B20);
+    if (var_s0 == 0 && MainMenu_StorageHasOtherRegion(sp24)) { // PORT: see MainMenu_StorageHasOtherRegion
+        D_88002B20->itemList.menu.itemFlags[0] |= 1; // せいとん (Organize) off
+        D_88002B20->mode = 5;
+        MainMenu_InitTextWindow(&D_88002B20->textWindow, 46, 83, sOtherRegionTitle, sOtherRegionText);
+    }
     func_8000B2F4(D_800603C0);
 }
 

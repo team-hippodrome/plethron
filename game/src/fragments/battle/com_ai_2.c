@@ -686,7 +686,7 @@ s32 BattleAi_PickToxicOrLeechSeed(ComBattler* arg0) {
     return -1;
 }
 
-extern u8 D_8006B18B[];
+// PORT: D_8006B18B (gMoveData seen 5 bytes early) is read as gMoveData[move - 1].effect
 /**
  * Picks a stat-lowering move (Sand Attack, Tail Whip, Leer, Growl, String Shot,
  * Screech, Smokescreen, Kinesis, Flash) while the opponent's stage for that stat
@@ -714,7 +714,7 @@ s32 BattleAi_PickStatLowerMove(ComBattler* arg0, ComBattler* arg1) { // PORT: ar
                     case SMOKESCREEN:
                     case KINESIS:
                     case FLASH:
-                        t = D_8006B18B[arg0->mon.moves[i] * 6];
+                        t = gMoveData[arg0->mon.moves[i] - 1].effect; // PORT: was D_8006B18B[move * 6], gMoveData seen 5 bytes early
                         if (t >= 0x44) {
                             t -= 0x44;
                         } else {

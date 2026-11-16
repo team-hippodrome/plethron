@@ -150,7 +150,7 @@ typedef struct Entry80066AD8 {
     const char* str;
     Color82000BC4 color;
 } Entry80066AD8;
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 s32 Pokemon_GetTypeIndex(u8*, s32);
 void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
@@ -180,7 +180,7 @@ typedef struct Label89100FC4 {
     Color82000BC4 color;
     const char* str;
 } Label89100FC4;
-extern Entry89100FC4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern u8 D_800734A8[];
 extern char D_8910DBAC[];
 s32 BattleMon_GetMoveIndexChecked(u8* mon, s32 slot); // PORT: matches the definition

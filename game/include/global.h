@@ -662,4 +662,15 @@ typedef struct Img8002A3F8 {
     /* 0x0C */ u8 *pixels;
 } Img8002A3F8;
 
+// PORT: the move table D_8006A9D4 (165 moves, 0xC bytes each on the N64). The ROM also reads it through views 8 bytes
+// before (D_8006A9CC: [move id].name) and after it (D_8006A9DC: [index].description); with 8-byte pointers those views
+// no longer line up, so the port reads D_8006A9D4 itself. One type here, so the lifter widens every field.
+typedef struct MoveTableEntry {
+    /* 0x00 */ u8 index;
+    /* 0x01 */ u8 type;
+    /* 0x04 */ const char* name;
+    /* 0x08 */ const char* description;
+} MoveTableEntry; // size = 0xC (N64)
+extern MoveTableEntry D_8006A9D4[165];
+
 #endif

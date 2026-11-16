@@ -130,7 +130,7 @@ typedef struct Entry891078E0 {
     /* 0x04 */ const char* name;
     /* 0x08 */ s32 unk_08;
 } Entry891078E0;
-extern Entry891078E0 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern Color_RGBA8 D_800734A8[];
 extern char D_8910E000[];
 extern char D_8910E010[];

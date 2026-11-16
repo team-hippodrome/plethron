@@ -375,7 +375,7 @@ s32 osGbpakCheckConnector(OSPfs* pfs, u8* status) {
     return 0;
 }
 
-// Direct access for a host-side Game Boy core (GB Tower): the cartridge bus of controller 'channel'.
+// Direct access for a host-side Game Boy core (the GB Player): the cartridge bus of controller 'channel'.
 int Port_GbCartPresent(int channel) {
     std::lock_guard<std::mutex> g(gLock);
     LoadCarts();
@@ -400,6 +400,12 @@ void Port_GbPakSetRawMode(int on) {
         }
     }
     gRawMode = on != 0;
+}
+// Whether controller `channel` holds a Western (non-Japanese) Gen 1 cartridge, served through the converter.
+int Port_GbCartIsWestern(int channel) {
+    std::lock_guard<std::mutex> g(gLock);
+    LoadCarts();
+    return channel >= 0 && channel < 4 && gCarts[channel].present && gCarts[channel].western;
 }
 void Port_GbCartFlush(int channel) {
     std::lock_guard<std::mutex> g(gLock);

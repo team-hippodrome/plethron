@@ -117,7 +117,7 @@ extern char D_8A21D9D4[];
 extern char D_8A21D9D8[];
 extern char D_8A21D9DC[];
 typedef struct Entry8006A9DC { char* str; s32 unk4; s32 unk8; } Entry8006A9DC;
-extern Entry8006A9DC D_8006A9DC[];
+// PORT: D_8006A9DC (the move table seen 8 bytes late) is read as D_8006A9D4[i].description
 /**
  * Draws the selected move's タイプ/, いりょく/ (power; --- below 2), めいちゅう/ (accuracy %)
  * and description over its backdrop.
@@ -163,7 +163,7 @@ s32 MonSummary_DrawMoveInfo(s32 x, s32 y, BattleMon* mon, s32 slot) // PORT: mon
         Font_Printf(x + 105, y + 23, D_8A21D9DC, pp);
         func_8001A384(4, -1);
         Font_SetLineHeight(24);
-        Font_Printf(x + 9, y + 58, D_8006A9DC[move].str);
+        Font_Printf(x + 9, y + 58, D_8006A9D4[move].description);
         func_8001ABBC();
     }
 }

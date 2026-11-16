@@ -38,14 +38,14 @@ extern u8 D_8910A848[];
 extern s32 D_8910A804[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 extern s32 D_8910A84C[]; // PORT: s32 tables (was u8), so the lifter swaps them as words
 s32 LabPCList_GetColumnCursorX(LabPCListScreen* screen); // PORT: matches the definition
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 s32 Pokemon_GetTypeIndex(u8*, s32);
 void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void func_8001AA9C(s32 r, s32 g, s32 b, s32 a); // PORT: matches Gfx_SetEnvColor
 void func_8001AB6C(void); // PORT: matches Font_BeginTranslucentTextRendering
 void func_8001ABBC(void); // PORT: matches Font_EndTexturedTextRendering
-extern Entry89100FC4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern M2C_UNK D_800734A8;
 extern char D_8910DBAC[];
 s32 BattleMon_GetMoveIndexChecked(u8* mon, s32 slot); // PORT: matches the definition

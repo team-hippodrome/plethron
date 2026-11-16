@@ -426,13 +426,13 @@ s16 ActivePokemon_GetDisplayModel(ActivePokemon* arg0, M2C_UNK arg1) {
     return arg0->side->displayModel;
 }
 
-extern MoveNameView D_8006A9CC[];
+// PORT: D_8006A9CC (the move table seen 8 bytes early) is read as D_8006A9D4[id - 1]
 
 /**
  * Returns the name string of the Pokemon's current move (move cache byte at 0x80A).
  */
 s32 ActivePokemon_GetMoveName(u8* arg0) {
-    return (uintptr_t)D_8006A9CC[arg0[0x80A]].name;
+    return (uintptr_t)D_8006A9D4[(arg0[0x80A]) - 1].name;
 }
 
 /**

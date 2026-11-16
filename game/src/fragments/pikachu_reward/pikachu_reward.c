@@ -408,7 +408,7 @@ typedef struct MoveNameEntryZ {
     /* 0x04 */ char* name;
     /* 0x08 */ char unk08[4];
 } MoveNameEntryZ; // size = 0xC
-extern MoveNameEntryZ D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 
 /**
  * Shows `prompt` next to Pikachu's four moves and returns the slot the player picks to forget, or
@@ -610,7 +610,7 @@ typedef struct SpeciesNameEntry817010E8 {
 } SpeciesNameEntry817010E8; // size = 0xC
 
 // The move name table (D_8006A9D4) seen from 8 bytes earlier, so [move].name is the name of move id `move`.
-extern SpeciesNameEntry817010E8 D_8006A9CC[];
+// PORT: D_8006A9CC (the move table seen 8 bytes early) is read as D_8006A9D4[id - 1]
 extern char* sTextWantsToLearnSurf;
 extern char* sTextFourMovesAlready;
 extern char* sTextForgetMovePrompt;
@@ -653,7 +653,7 @@ s32 PikachuReward_ResolveMoveSlot(void) {
                 sQuestionMarkTimer = 0;
                 Audio_PlayMoveSound(AMNESIA, PIKACHU, 0);
                 PikachuReward_ShowTextWaitForA(sTextOneTwoPoof, 1);
-                sprintf(buf, sTextForgotMoveFormat, D_8006A9CC[sPikachuPartyMon->moves[choice]].name);
+                sprintf(buf, sTextForgotMoveFormat, D_8006A9D4[(sPikachuPartyMon->moves[choice]) - 1].name);
                 Audio_StopMusic(60);
                 PikachuReward_ScrollTextIn((s8*)*text);
                 PikachuReward_ShowTextWaitForA(buf, 1);

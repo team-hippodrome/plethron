@@ -274,7 +274,7 @@ extern s8* D_8218C744; // PORT: was s32, holds a pointer
 extern s8* D_8218C748; // PORT: was s32, holds a pointer
 extern s8* D_8218C74C; // PORT: was s32, holds a pointer
 extern s8* D_8218C750; // PORT: was s32, holds a pointer
-extern MoveNameView D_8006A9CC[];
+// PORT: D_8006A9CC (the move table seen 8 bytes early) is read as D_8006A9D4[id - 1]
 
 /**
  * Before-move checks for the acting Pokemon: sleep countdown, freeze, and the
@@ -384,7 +384,7 @@ s32 Battle_CheckMonCanAct(void) {
 
     if ((sBattleUser->disabledMove != 0) && (sBattleUser->disabledMove == sBattleUser->usedMove)) {
         sBattleUser->immobilizedReason &= 0xFFEF;
-        sp30 = D_8006A9CC[sBattleUser->usedMove].name;
+        sp30 = D_8006A9D4[(sBattleUser->usedMove) - 1].name;
         BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], 0xF, D_8218C740, ActivePokemon_GetNickname(sActivePokemon[sBattleScene.scene->actingSide]), sp30);
         sBattleScene.scene->moveEffectKind = 0x11;
         return 0;

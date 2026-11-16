@@ -232,7 +232,7 @@ typedef struct Entry80066AD8 {
     const char* str;
     Color890075E0 color;
 } Entry80066AD8;
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void func_8001AB6C(void);
 void func_8001A384(s32 mask, s32 arg1); // PORT: matches Font_SetActive
@@ -246,7 +246,7 @@ typedef struct Entry8006A9D4 {
     /* 0x04 */ const char* name;
     /* 0x08 */ s32 unk_08;
 } Entry8006A9D4; // size = 0xC
-extern Entry8006A9D4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern M2C_UNK D_800734A8;
 extern char D_89018E70[];
 
@@ -255,7 +255,7 @@ extern char D_89018E70[];
  * Seen in play (2026-11-12) in せいとん: drew ハナ's moves たいあたり and なきごえ beside its stats in ポケモンのせいり.
  */
 void PcBox_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
-    Entry8006A9D4* entry;
+    MoveTableEntry* entry;
     const char* str;
     Color890075E0* c;
 
@@ -1317,8 +1317,8 @@ void PcBox_Init(PcBoxScreen* screen) {
         screen->stadiumBoxEntries[i].box = &screen->stadiumBoxes[i];
         screen->stadiumBoxEntries[i].dirty = 0;
     }
-    func_80027410(&screen->gbBoxTable, screen->gbBoxEntries, 8, 8, 8);
-    func_80027410(&screen->stadiumBoxTable, screen->stadiumBoxEntries, 8, 4, 4);
+    func_80027410(&screen->gbBoxTable, screen->gbBoxEntries, sizeof(LabPCBoxEntry), 8, 8); // PORT: was 8, the N64 size
+    func_80027410(&screen->stadiumBoxTable, screen->stadiumBoxEntries, sizeof(LabPCBoxEntry), 4, 4); // PORT: was 8, the N64 size
     PcBox_InitOperationWindow(&screen->operationWindow, 38, 83, &screen->gbBoxTable);
     screen->state = 1;
 }

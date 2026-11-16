@@ -125,7 +125,7 @@ extern s8* sPartyIconList;
 
 extern Color_RGBA8 D_8A203304;
 
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 
 extern Gfx D_80060270[];
 

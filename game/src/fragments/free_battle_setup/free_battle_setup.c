@@ -411,7 +411,7 @@ typedef struct Entry80066AD8 {
     const char* str;
     Color82000BC4 color;
 } Entry80066AD8;
-extern Entry80066AD8 D_80066AD8[];
+extern Entry80066AD8 D_80066AD8[16]; // PORT: sized (the 16 type names and colors), so it stops at the move table
 s32 Pokemon_GetTypeIndex(BattleMon* arg0, s32 arg1); // PORT: matches the definition
 void Font_BeginTranslucentTextRendering(void);
 void Font_SetActive(s32, s32);
@@ -425,7 +425,7 @@ typedef struct Entry8006A9D4 {
     /* 0x04 */ const char* name;
     /* 0x08 */ s32 unk_08;
 } Entry8006A9D4; // size = 0xC
-extern Entry8006A9D4 D_8006A9D4[];
+// PORT: D_8006A9D4 is declared in global.h (MoveTableEntry)
 extern M2C_UNK D_800734A8;
 extern char D_82009B90[];
 
@@ -436,7 +436,7 @@ extern char D_82009B90[];
  * (メガドレイン and ソーラービーム green, どくどく purple, ねむりごな green).
  */
 void FreeBattle_DrawMoveName(s32 x, s32 y, s32 move, s32 centered) {
-    Entry8006A9D4* entry;
+    MoveTableEntry* entry;
     const char* str;
     Color82000BC4* c;
 
