@@ -162,6 +162,9 @@ s32 BattleAi_EstimateDamage(BattleMonRuntime* arg0, BattleMonRuntime* arg1, u8 m
 }
 
 extern u8 D_80065CF8[];
+extern u8 gSpeciesData[]; // PORT: for the D_80065CF8 view below
+// PORT: D_80065CF8 is gSpeciesData - 8 on the N64 (the TM/HM learnset at species * 0x17); the lifted copy is separate
+#define D_80065CF8 (gSpeciesData - 8)
 
 /**
  * Tests bit `bit` of the species' learnset bitfield (0x17 bytes per species at

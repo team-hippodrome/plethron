@@ -2,6 +2,10 @@
 /* C ported from the Stadium 1 decomp: src/fragments/battle_engine/battle_engine_2FA4D0.c, src/ui_graphics.c. */
 
 #include "battle.h"
+#include "port_endian.h" // PORT: Port_ReadBE32
+// PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
+// it as u8** took two entries as one host pointer.
+#define PORT_SEG_TABLE_ENTRY(table, i) ((u8*)(uintptr_t)Port_ReadBE32((const u32*)(table) + (i)))
 #include "fragments/party_summary/party_summary.h"
 #include "gfx_buffer.h"
 #include "graphics_textures.h"
@@ -88,10 +92,10 @@ void BattleHud_DrawSmallDigits(s8* str, s16 x, s16 y) {
                 var_v1 = NULL;
                 break;
             case '-':
-                var_v1 = temp_s4[10];
+                var_v1 = PORT_SEG_TABLE_ENTRY(temp_s4, 10);
                 break;
             default:
-                var_v1 = temp_s4[c - '0'];
+                var_v1 = PORT_SEG_TABLE_ENTRY(temp_s4, c - '0');
                 break;
         }
 

@@ -17,7 +17,7 @@ typedef struct DemoGeoNode {
 } DemoGeoNode;
 
 // vs_results_board.c
-s32 VsResults_CheckBootCode(s32 display_list);
+intptr_t VsResults_CheckBootCode(intptr_t display_list); // PORT: was s32
 Gfx* VsResults_WritePortraitGfx(Gfx* gfx, void* trainer_file);
 void VsResults_PortraitCallback(s32 event, DemoGeoNode* node);
 void VsResults_TitleTextCallback(s32 event, DemoGeoNode* node);

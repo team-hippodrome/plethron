@@ -181,7 +181,19 @@ void GeoLayout_CmdAttachNode(void) {
 void GeoLayout_CmdSetCallback(void) {
 
     if (gCurGraphNodeList[gCurGraphNodeIndex] != NULL) {
-        GeoNode_SetCallback(gCurGraphNodeList[gCurGraphNodeIndex], ((GraphNodeCallback)GL_PTR(0x4)), ((unk_D_86002F34_000_014*)GL_PTR(0x8)));
+        void* arg = GL_PTR(0x8);
+
+        // PORT: a layout passes a variable's N64 address as a raw word (e.g. the VS scene's
+        // &D_82203170 for VsPanel_NicknameCallback); give the callback the lifted host storage. Plain
+        // numbers (e.g. (side << 16) | slot) don't resolve and are kept.
+        if ((uintptr_t)arg >= 0x80000000U && (uintptr_t)arg < 0x100000000ULL) {
+            void* host = ZLift_Resolve((u32)(uintptr_t)arg);
+
+            if ((uintptr_t)host >= 0x100000000ULL) {
+                arg = host;
+            }
+        }
+        GeoNode_SetCallback(gCurGraphNodeList[gCurGraphNodeIndex], ((GraphNodeCallback)GL_PTR(0x4)), ((unk_D_86002F34_000_014*)arg));
     }
 
     gGeoLayoutCommand += GL_CMDSIZE(0xC);

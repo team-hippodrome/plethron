@@ -1,5 +1,9 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
+#include "port_endian.h" // PORT: Port_ReadBE32
+// PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
+// it as u8** took two entries as one host pointer.
+#define PORT_SEG_TABLE_ENTRY(table, i) ((u8*)(uintptr_t)Port_ReadBE32((const u32*)(table) + (i)))
 #include "font.h"
 #include "graphics_textures.h"
 #include "input.h"
@@ -12,7 +16,7 @@ M2C_UNK Ui_DrawPrimColorRect(s32, s32, s32, s32, s32, s32, s32, s32);
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
 void Gfx_SetEnvColor(s32 r, s32 g, s32 b, s32 a); // PORT: signature from the definition (font.c)
 void Font_BeginTranslucentTextRendering(void); // PORT: signature from the definition (font.c)
-extern StatusLabel D_80066AA0[];
+extern StatusLabel D_80066AA0[7]; // PORT: sized (was open; the lifter needs its end)
 s32 LabPC_StatusToIconIndex(s32 arg0); // PORT: signature from the definition (pokemon_lab_support.c)
 void Font_SetActive(M2C_UNK, M2C_UNK);
 void Font_EndTexturedTextRendering(void);
@@ -45,12 +49,12 @@ s32 BattleHud_DrawMovePpTextLTR(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                 break;
 
             case '/':
-                var_v1 = temp_s2[10];
+                var_v1 = PORT_SEG_TABLE_ENTRY(temp_s2, 10);
                 break;
 
             default:
                 if ((c >= 0x30) && (c < 0x3A)) {
-                    var_v1 = temp_s2[c - '0'];
+                    var_v1 = PORT_SEG_TABLE_ENTRY(temp_s2, c - '0');
                 } else {
                     var_v1 = NULL;
                 }
@@ -97,12 +101,12 @@ s32 BattleHud_DrawMovePpTextRTL(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
                 break;
 
             case '/':
-                var_v1 = temp_s2[10];
+                var_v1 = PORT_SEG_TABLE_ENTRY(temp_s2, 10);
                 break;
 
             default:
                 if ((c >= 0x30) && (c < 0x3A)) {
-                    var_v1 = temp_s2[c - '0'];
+                    var_v1 = PORT_SEG_TABLE_ENTRY(temp_s2, c - '0');
                 } else {
                     var_v1 = NULL;
                 }

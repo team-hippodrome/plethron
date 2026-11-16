@@ -11,7 +11,8 @@
 extern const char sStatusNames[7][4];
 extern const char sTypeNames[17][4];
 extern const char sMoveNames[166][8];
-extern SpeciesData gSpeciesData[152];
+extern SpeciesData gSpeciesData[151]; // PORT: was [152]: the doll's partial entry ends at 0x80066AA0, where the
+                                     // status label table D_80066AA0 starts (lifted as species bytes, its text pointers broke the HUD)
 extern unk_D_80071D88 sStatusDisplayInfo[8];
 extern char sMoveComments[165][8];
 extern unk_D_80072338 gMoveDisplayInfo[166];

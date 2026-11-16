@@ -198,7 +198,7 @@ BattleAnimEffectSlot* BattleAnim_AllocEffectSlot(void) {
     }
 
     if (i >= 300) {
-        var_v1 = -1;
+        var_v1 = (BattleAnimEffectSlot*)-1; // PORT: was -1 (same value, made explicit)
     } else {
         var_v1->inUse = -0x1;
 
@@ -289,7 +289,7 @@ Particle* Particle_AllocChain(u8 arg0) {
  * no pointer word, no lui/addiu pair in any fragment), so play cannot reach it.
  * @unverified Name from Stadium 1.
  */
-void BattleAnim_InitializeParticleChain(Particle* arg0, Vec3f arg1, Vec3s arg2, s32 arg3, s32 arg4) {
+void BattleAnim_InitializeParticleChain(Particle* arg0, Vec3f arg1, Vec3s arg2, ParticleUpdateCallback arg3, ParticleDescriptor* arg4) { // PORT: arg3/arg4 were s32
     while (arg0 != NULL) {
         ParticleMath_CopyVec3f(&arg0->origin, &arg1);
         ParticleMath_CopyVec3s(&arg0->rotation, &arg2);
@@ -783,20 +783,20 @@ void BattleAnim_InitializeParticleFromEffect(Particle* arg0, ActivePokemon* arg1
 void BattleAnim_SpawnStandardParticles(BattleAnimEffectSlot* arg0) {
     s16 temp_s2;
     s16 var_s0;
-    s32 temp_s3;
+    ActivePokemon* temp_s3; // PORT: was s32, holds a pointer
 
-    temp_s3 = (uintptr_t)arg0->pokemon;
+    temp_s3 = arg0->pokemon;
     temp_s2 = arg0->param1;
     if (arg0->descriptor->chained == 0) {
         var_s0 = 0;
         if (temp_s2 > 0) {
             do {
-                BattleAnim_InitializeParticleFromEffect((Particle*)Particle_New(), (ActivePokemon*)temp_s3, arg0, var_s0);
+                BattleAnim_InitializeParticleFromEffect(Particle_New(), temp_s3, arg0, var_s0);
                 var_s0 += 1;
             } while (var_s0 < temp_s2);
         }
     } else {
-        BattleAnim_InitializeParticleFromEffect((Particle*)Particle_AllocChain(temp_s2 & 0xFF), (ActivePokemon*)temp_s3, arg0, 0);
+        BattleAnim_InitializeParticleFromEffect(Particle_AllocChain(temp_s2 & 0xFF), temp_s3, arg0, 0);
     }
 }
 
@@ -811,22 +811,22 @@ void BattleAnim_SpawnBatchedParticles(BattleAnimEffectSlot* arg0) {
     s16 step;
     s16 count;
     s16 i;
-    s32 temp_s4;
-    s32 temp_v0;
+    ActivePokemon* temp_s4; // PORT: was s32, holds a pointer
+    Particle* temp_v0; // PORT: was s32, holds a pointer
 
-    temp_s4 = (uintptr_t)arg0->pokemon;
+    temp_s4 = arg0->pokemon;
     step = arg0->param1;
     count = arg0->param0 / step;
     if (arg0->descriptor->chained == 0) {
         for (i = 0; i < count; i++) {
             temp_v0 = Particle_New();
             arg0->param0 = step;
-            BattleAnim_InitializeParticleFromEffect((Particle*)temp_v0, (ActivePokemon*)temp_s4, arg0, i);
+            BattleAnim_InitializeParticleFromEffect(temp_v0, temp_s4, arg0, i);
         }
     } else {
         temp_v0 = Particle_AllocChain(count & 0xFF);
         arg0->param0 = step;
-        BattleAnim_InitializeParticleFromEffect((Particle*)temp_v0, (ActivePokemon*)temp_s4, arg0, 0);
+        BattleAnim_InitializeParticleFromEffect(temp_v0, temp_s4, arg0, 0);
     }
 }
 

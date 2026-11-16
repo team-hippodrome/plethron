@@ -96,11 +96,12 @@ void BattleScene_OpeningStepInitCamera(CameraNode* arg0) {
     Vec3f_SetComponentsDuplicate(&arg0->view.targetPosition, 0.0f, 425.0f, 0.0f);
     Vec3f_SetComponentsDuplicate(&arg0->view.eyePosition, -0.15f, 15.0f, 64.8f);
     BattleAnim_CalculateDistanceAngles(&arg0->view.targetPosition, &arg0->view.eyePosition, &sBattleScene.scene->orbitDistance, &sBattleScene.scene->rotationX, &sBattleScene.scene->rotationY);
-    (*(u8**)&D_82199DE0)[1] &= ~1;
-    ((u8**)&D_82199DE0)[1][1] &= ~1;
+    // PORT: typed through ActivePokemon (sActivePokemon); the N64 byte offsets 0x85C/0x860 are wrong on the host
+    (&D_82199DE0)[0]->displayObject.node.flags &= ~1;
+    (&D_82199DE0)[1]->displayObject.node.flags &= ~1;
     Audio_PlayCommand(4, 0, 0);
-    Announcer_SetTeamSizes(*(u8*)(*(u8**)(((u8**)&D_82199DE0)[0] + 0x860) + 2), *(u8*)(*(u8**)(((u8**)&D_82199DE0)[1] + 0x860) + 2));
-    BattleAnim_LoadModeResourceList(*(u8**)((*(u8**)&D_82199DE0) + 0x85C), 3);
+    Announcer_SetTeamSizes((&D_82199DE0)[0]->teamRoster->numberOfPokemonBrought, (&D_82199DE0)[1]->teamRoster->numberOfPokemonBrought);
+    BattleAnim_LoadModeResourceList((&D_82199DE0)[0]->side, 3);
     sBattleScene.scene->phaseStep++;
 }
 

@@ -951,12 +951,6 @@ void FreeBattle_DrawRentalPrompt(s32 x, s32 y, s32 flags) {
     Font_EndTexturedTextRendering();
 }
 
-typedef struct Img82001E20 {
-    /* 0x00 */ s32 stride;
-    /* 0x04 */ s32 height;
-    /* 0x08 */ s32 width;
-    /* 0x0C */ u8* pixels;
-} Img82001E20;
 typedef struct Slot82001E20 {
     /* 0x00 */ u8 flags;
     /* 0x01 */ u8 kind;
@@ -965,7 +959,7 @@ typedef struct Slot82001E20 {
     /* 0x04 */ s32 value;
     /* 0x08 */ char name[1];
 } Slot82001E20;
-extern Img82001E20 D_82008F64;
+extern Img8002A3F8 D_82008F64;
 extern char D_82009C2C[];
 extern char D_82009C34[];
 extern char D_82009C48[];
@@ -973,7 +967,7 @@ extern u8 D_04010918[];
 extern Gfx D_80073450[];
 u8 GbSave_GetPortGame(s32 arg0);
 void Font_SetColorForFlags(s32);
-void Ui_DrawImageInStrips(Img82001E20*, s32, s32);
+void Ui_DrawImageInStrips(Img8002A3F8*, s32, s32);
 void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void GbSave_DrawCartridgeIcon(s32, s32, s32, s32);
 void Gfx_DrawTextureIa8(s32, s32, s32, s32, void*, s32, s32);
@@ -984,7 +978,7 @@ void Gfx_DrawTextureIa8(s32, s32, s32, s32, void*, s32, s32);
  */
 void FreeBattle_DrawRentalNameList(s32 x, s32 y, s32 flags, Slot82001E20* team) {
     s32 pad[3]; // FAKE
-    Img82001E20 img;
+    Img8002A3F8 img;
 
     FreeBattle_FillTrainerPanel(x, y, D_82008F5C);
     if (team->flags == 0) {

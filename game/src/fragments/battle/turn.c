@@ -206,6 +206,9 @@ s32 Battle_Effect_Counter(void) {
 
 extern u8 D_82199F32;
 extern u8 D_80065CED[];
+extern u8 gSpeciesData[]; // PORT: for the D_80065CED view below
+// PORT: D_80065CED is gSpeciesData - 0x13 on the N64 (base speed at species * 23); the lifted copy is separate storage
+#define D_80065CED (gSpeciesData - 0x13)
 extern u8 D_8218ADEC[];
 s32 Battle_IsByteInArray(u8 lookup, u8* array, s32 array_length); // PORT: signature from the definition (fragments/battle/turn_order.c)
 u8 Battle_Random(void);

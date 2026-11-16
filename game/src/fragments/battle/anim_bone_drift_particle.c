@@ -74,7 +74,7 @@ void BattleAnim_CallbackBoneDriftEmber(Particle* particle) {
 }
 
 extern void* D_82199DE0[];
-extern void* D_8219A810;
+extern ActivePokemon* D_8219A810; // PORT: matches anim_effect_queue.c
 extern s32 gNextGameState;
 extern u8 D_8218E5A0[];
 s32 BattleAnim_GetOwnerSpecies(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)

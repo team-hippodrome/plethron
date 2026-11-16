@@ -58,7 +58,7 @@ void BattleMenu_DrawBottomActionButtons(void) {
 extern Color_RGB8 D_823028C4;
 extern Color_RGB8 D_823028C8;
 extern SessionContext* D_82302BD0;
-extern s16* D_82302808[];
+extern s16* D_82302808[2]; // PORT: two string pointers (was open; the lifter took the COM scripts after them as pointers)
 extern s16 D_82302B42;
 /**
  * Draws the tall gradient panel on the right of the order screen and scrolls its vertical
@@ -343,7 +343,7 @@ extern u8 D_030016C0[];
 void Gfx_DrawPatternRect(s32 x, s32 y, s32 width, s32 height, s32 r, s32 g, s32 b);
 u8* PokeIcon_GetImage(s8* arg0, s32 arg1);
 extern char D_82302A34[];
-extern s32 D_82302BCC;
+extern PokeIconRenderer* D_82302BCC; // PORT: was s32 (the PokeIcon_CreateRenderList result)
 /**
  * Draws a panel's six Pokémon (button glyph, icon, name, L%d). While R is held the picked names
  * turn yellow. While popupEraseFrames (popupEraseFrames) counts down it repaints the prompt area with the
@@ -649,6 +649,11 @@ extern Controller D_82302BD8;
 extern s32 D_82302BFC;
 extern s32 D_82302C00;
 extern unk_D_84803548* D_823028A8[];
+// PORT: the COM order scripts D_823028A8 points to (0x98 bytes after D_82302808's two pointers). Naming them gives them
+// their own u16 storage in the lifted data; inside D_82302808 every word had been widened to a pointer slot, so the COM
+// read its button presses from the wrong offsets and never picked.
+extern unk_D_84803548 D_82302810[38];
+static const void* const sPortComOrderScripts __attribute__((used)) = D_82302810;
 
 /**
  * When side 1 is a COM (isHuman & 2), feeds its panel scripted button presses from D_823028A8,
@@ -811,7 +816,7 @@ void BattleMenu_UndoSelections(OrderSelectPanel* panel) {
         Audio_PlaySoundEffectById(SFX_MENU_BACK);
         temp_v1 = panel->partnerPanelIndex;
         if (temp_v1 != -1) {
-            temp_v0 = (OrderSelectPanel*)((temp_v1 << 5) + (s8*)D_82302B48);
+            temp_v0 = &D_82302B48[temp_v1]; // PORT: was (temp_v1 << 5) + (s8*)D_82302B48, the N64 panel size
             temp_v0->state = 0;
             temp_v0->pickCount = 0;
             temp_v0->highlightPicks = 0;
@@ -959,7 +964,7 @@ s32 BattleMenu_UpdateOrderSelectPanel(s32 fade_mode, OrderSelectPanel* panel) {
 extern s32 D_8480379C;
 extern s16 D_84803798;
 extern OrderSelectPanel D_848037A0[4];
-extern s32 D_82302BCC;
+extern PokeIconRenderer* D_82302BCC; // PORT: was s32 (the PokeIcon_CreateRenderList result)
 extern s16 D_82302B40;
 extern s32 D_82302B44;
 /**
@@ -982,7 +987,7 @@ s32 BattleMenu_UpdateOrderSelect(s32 fade_mode) {
     Input_ResetRepeatState();
     BattleMenu_FeedScriptedComOrderInput();
     GeoRender_AdvanceFrameCounter();
-    i = PokeIcon_ProcessAllSlots((PokeIconRenderer*)D_82302BCC, 0);
+    i = PokeIcon_ProcessAllSlots(D_82302BCC, 0);
     if (i != -1) {
         (D_82302B48)[i % 4].redrawFrames = 3;
     }
@@ -1130,7 +1135,7 @@ void BattleMenu_AddOrderSelectPanel(s16 x, s16 y, TeamRoster* roster, s32 sideba
 
     for (i = 0; i < roster->rosterInfo->numberOfPokemonCanBePicked; i++, j += 4) {
         Pokemon_PrepareBattleMon(&roster->rosterInfo->battleMon[i]);
-        PokeIcon_SetMonSlot((PokeIconRenderer*)D_82302BCC, j, &roster->rosterInfo->battleMon[i], D_82302800[roster->controllerPort]);
+        PokeIcon_SetMonSlot(D_82302BCC, j, &roster->rosterInfo->battleMon[i], D_82302800[roster->controllerPort]);
     }
 
     D_82302B44++;
@@ -1188,7 +1193,7 @@ extern char** D_84803790;
 extern BinArchive* D_84803780;
 extern char** D_84803794;
 extern ModelLoadContext* D_82302BC8;
-extern s32 D_82302BCC;
+extern PokeIconRenderer* D_82302BCC; // PORT: was s32 (the PokeIcon_CreateRenderList result)
 extern u8 D_81000000[];
 extern u8 D_01000000[];
 extern u8 D_02000000[];
@@ -1207,7 +1212,7 @@ extern u8 D_002F3BD0[];
 extern u8 D_003D64A0[];
 extern u8 D_003DCB60[];
 ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0);
-s32 func_80017FDC(s8*, s32, s32, s32);
+PokeIconRenderer* func_80017FDC(ModelLoadContext* arg0, s16 arg1, s16 arg2, s16 arg3); // PORT: matches PokeIcon_CreateRenderList
 s32 Font_Init(s32 load_size, s32 side);
 void PokeIcon_OpenModelArchives(void);
 
@@ -1216,7 +1221,7 @@ void PokeIcon_OpenModelArchives(void);
  * commits the orders to the session. session is the SessionContext.
  * Seen in play (2026-11-14, L50-55 tournament, rental team vs マサハル): ran as the fragment loaded after the tournament entry.
  */
-s32 BattleMenu_RunOrderSelectScreen(s32 arg0, s32 session) {
+s32 BattleMenu_RunOrderSelectScreen(s32 arg0, intptr_t session) { // PORT: session is &gSessionContext (was s32)
     StageContext* sp24;
 
     MainPool_PushState('MSEL');

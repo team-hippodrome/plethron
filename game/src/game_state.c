@@ -930,7 +930,7 @@ Gfx* ImageGrid_Create(s16 x, s16 y, s16 z, void* tex, s16 width, s16 height) { /
     Gfx* sp2C; // PORT: was s32
 
     sp30 = func_800023C4(0xA00, 0);
-    sp2C = func_800023C4(0xA70, 0);
+    sp2C = func_800023C4(0xA70 / 8 * sizeof(Gfx), 0); // PORT: 0xA70 bytes held 334 N64 commands (8 bytes each)
     ImageGrid_BuildDisplayList(x, y, z, sp30, sp2C, tex, width, height);
     sPortImageGridDisplayList = sp2C; // PORT: was sImageGridDisplayList = sp2C
     sImageGridDisplayList = (sp2C != NULL);

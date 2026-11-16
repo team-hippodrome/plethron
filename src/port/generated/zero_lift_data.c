@@ -60,8 +60,8 @@ ZLIFT_STORAGE(D_800609D8, 80);
 ZLIFT_STORAGE(D_80060A00, 96);
 ZLIFT_STORAGE(D_80064C5C, 7248);
 ZLIFT_STORAGE(gBaseStats, 23);
-ZLIFT_STORAGE(gSpeciesData, 3496);
-ZLIFT_STORAGE(D_80066AA8, 96);
+ZLIFT_STORAGE(gSpeciesData, 3473);
+ZLIFT_STORAGE(D_80066AA0, 112);
 ZLIFT_STORAGE(D_80066AD8, 36208);
 ZLIFT_STORAGE(gMoveData, 990);
 ZLIFT_STORAGE(D_8006B570, 672);
@@ -1193,7 +1193,7 @@ ZLIFT_STORAGE(D_8218B204, 40);
 ZLIFT_STORAGE(D_8218B218, 32);
 ZLIFT_STORAGE(D_8218B228, 48);
 ZLIFT_STORAGE(D_8218B240, 96);
-ZLIFT_STORAGE(D_8218B2B8, 120);
+ZLIFT_STORAGE(D_8218B2B8, 48);
 ZLIFT_STORAGE(D_8218B2F4, 88);
 ZLIFT_STORAGE(D_8218B320, 64);
 ZLIFT_STORAGE(D_8218B350, 217);
@@ -1319,7 +1319,7 @@ ZLIFT_STORAGE(D_8218CA60, 3020);
 ZLIFT_STORAGE(D_8218D62C, 3920);
 ZLIFT_STORAGE(D_8218E580, 1376);
 ZLIFT_STORAGE(sMoveAnimEffectStartInitFuncs, 1144);
-ZLIFT_STORAGE(D_8218EA6C, 3296);
+ZLIFT_STORAGE(D_8218EA6C, 712);
 ZLIFT_STORAGE(sD_84386D44, 240);
 ZLIFT_STORAGE(D_8218F154, 96);
 ZLIFT_STORAGE(D_8218F184, 40);
@@ -1898,7 +1898,7 @@ ZLIFT_STORAGE(D_822036A4, 8);
 ZLIFT_STORAGE(D_822036A8, 440);
 ZLIFT_STORAGE(D_82300000, 32);
 ZLIFT_STORAGE(D_82302800, 8);
-ZLIFT_STORAGE(D_82302808, 320);
+ZLIFT_STORAGE(D_82302808, 16);
 ZLIFT_STORAGE(D_823028A8, 56);
 ZLIFT_STORAGE(D_823028C4, 3);
 ZLIFT_STORAGE(D_823028C8, 3);
@@ -1928,7 +1928,7 @@ ZLIFT_STORAGE(D_82302B42, 2);
 ZLIFT_STORAGE(D_82302B44, 4);
 ZLIFT_STORAGE(D_82302B48, 160);
 ZLIFT_STORAGE(D_82302BC8, 8);
-ZLIFT_STORAGE(D_82302BCC, 4);
+ZLIFT_STORAGE(D_82302BCC, 8);
 ZLIFT_STORAGE(D_82302BD0, 16);
 ZLIFT_STORAGE(D_82302BD8, 48);
 ZLIFT_STORAGE(D_82302BFC, 4);
@@ -2666,43 +2666,43 @@ const ZLiftType gZLiftTypes[] = {
     { 2, 2, 31, 1 }, // s2u
     { 12, 12, 32, 1 }, // r:struct Vec3f@math.h:40
     { 6, 6, 33, 1 }, // r:struct Vec3s@math.h:46
-    { 4, 8, 34, 1 }, // p:r:struct CameraNode@global.h:253
-    { 240, 304, 35, 22 }, // r:struct CameraNode@global.h:253
-    { 24, 48, 57, 6 }, // r:struct GraphNode@global.h:177
+    { 4, 8, 34, 1 }, // p:r:struct CameraNode@global.h:254
+    { 240, 304, 35, 22 }, // r:struct CameraNode@global.h:254
+    { 24, 48, 57, 6 }, // r:struct GraphNode@global.h:178
     { 64, 64, 63, 1 }, // r:MtxF@types.h:14
     { 16, 16, 64, 1 }, // af4[4]
     { 32, 32, 65, 1 }, // r:LookAt@gbi.h:1374
     { 16, 16, 66, 4 }, // r:Light@gbi.h:1318
-    { 4, 8, 70, 1 }, // p:r:struct GeoType3Node@global.h:347
-    { 28, 56, 71, 7 }, // r:struct GeoType3Node@global.h:347
-    { 4, 8, 78, 1 }, // p:r:struct GeoModelRootNode@global.h:264
-    { 36, 64, 79, 9 }, // r:struct GeoModelRootNode@global.h:264
+    { 4, 8, 70, 1 }, // p:r:struct GeoType3Node@global.h:348
+    { 28, 56, 71, 7 }, // r:struct GeoType3Node@global.h:348
+    { 4, 8, 78, 1 }, // p:r:struct GeoModelRootNode@global.h:265
+    { 36, 64, 79, 9 }, // r:struct GeoModelRootNode@global.h:265
     { 120, 120, 88, 3 }, // r:Lights7@gbi.h:1369
-    { 4, 8, 91, 1 }, // p:r:struct GeoLayerListNode@global.h:354
-    { 96, 192, 92, 8 }, // r:struct GeoLayerListNode@global.h:354
+    { 4, 8, 91, 1 }, // p:r:struct GeoLayerListNode@global.h:355
+    { 96, 192, 92, 8 }, // r:struct GeoLayerListNode@global.h:355
     { 36, 64, 100, 8 }, // r:struct GeoLayerEntry@geo_render.h:41
-    { 4, 8, 108, 1 }, // p:r:struct DisplayObject@global.h:141
-    { 360, 408, 109, 23 }, // r:struct DisplayObject@global.h:141
-    { 24, 48, 132, 6 }, // r:struct DisplayNodeHeader@global.h:81
-    { 44, 72, 138, 5 }, // r:struct ModelAssetNode@global.h:75
-    { 24, 48, 143, 3 }, // r:struct ModelNodeView@global.h:67
-    { 100, 176, 146, 20 }, // r:struct ModelLoadContext@global.h:48
-    { 12, 16, 166, 3 }, // r:struct ModelLoadResult@global.h:42
+    { 4, 8, 108, 1 }, // p:r:struct DisplayObject@global.h:142
+    { 360, 408, 109, 23 }, // r:struct DisplayObject@global.h:142
+    { 24, 48, 132, 6 }, // r:struct DisplayNodeHeader@global.h:82
+    { 44, 72, 138, 5 }, // r:struct ModelAssetNode@global.h:76
+    { 24, 48, 143, 3 }, // r:struct ModelNodeView@global.h:68
+    { 100, 176, 146, 20 }, // r:struct ModelLoadContext@global.h:49
+    { 20, 24, 166, 3 }, // r:struct ModelLoadResult@global.h:42
     { 432, 456, 169, 9 }, // r:struct OSThread@thread.h:50
     { 4, 8, 178, 1 }, // p:r:struct OSThread@thread.h:50
     { 16, 16, 179, 2 }, // r:__OSThreadprofile@thread.h:44
     { 4, 8, 181, 1 }, // r:LUS_OSMesg@message.h:10
-    { 28, 28, 182, 4 }, // r:struct TransformAnimData@global.h:94
-    { 20, 32, 186, 5 }, // r:struct EventTrackData@global.h:116
-    { 16, 16, 191, 3 }, // r:struct ModelAnchor@global.h:134
-    { 4, 8, 194, 1 }, // p:r:struct GeoTextureBankNode@global.h:474
-    { 44, 88, 195, 12 }, // r:struct GeoTextureBankNode@global.h:474
-    { 12, 16, 207, 3 }, // r:struct GeoTexture@global.h:458
-    { 12, 24, 210, 3 }, // r:struct GeoPalette@global.h:467
+    { 28, 28, 182, 4 }, // r:struct TransformAnimData@global.h:95
+    { 20, 32, 186, 5 }, // r:struct EventTrackData@global.h:117
+    { 16, 16, 191, 3 }, // r:struct ModelAnchor@global.h:135
+    { 4, 8, 194, 1 }, // p:r:struct GeoTextureBankNode@global.h:475
+    { 44, 88, 195, 12 }, // r:struct GeoTextureBankNode@global.h:475
+    { 12, 16, 207, 3 }, // r:struct GeoTexture@global.h:459
+    { 12, 24, 210, 3 }, // r:struct GeoPalette@global.h:468
     { 2, 2, 213, 1 }, // s2s
     { 16, 16, 214, 3 }, // r:union Vtx@gbi.h:1046
     { 36, 36, 217, 1 }, // as4s[9]
-    { 16, 16, 218, 1 }, // r:struct arg1_func_81407874_014_000_010@global.h:525
+    { 16, 16, 218, 1 }, // r:struct arg1_func_81407874_014_000_010@global.h:526
     { 4, 8, 219, 1 }, // fp
     { 28, 48, 220, 8 }, // r:struct SpeciesInfo@variables.h:905
     { 28, 32, 228, 2 }, // r:struct unk_D_80064C60@pokedex.h:15
@@ -2712,8 +2712,8 @@ const ZLiftType gZLiftTypes[] = {
     { 8, 16, 239, 2 }, // r:struct StatusLabel@battle.h:450
     { 8, 16, 241, 2 }, // r:struct Entry80066AA0@party_summary.h:58
     { 8, 16, 243, 2 }, // r:struct Entry80066AD8@party_summary.h:67
-    { 12, 16, 245, 2 }, // r:struct Entry8006A9CC@menu_panels.c:1155
-    { 12, 24, 247, 3 }, // r:struct Entry8006A9D4@menu_panels.c:124
+    { 12, 16, 245, 2 }, // r:struct Entry8006A9CC@menu_panels.c:1159
+    { 12, 24, 247, 3 }, // r:struct Entry8006A9D4@menu_panels.c:128
     { 12, 16, 250, 2 }, // r:struct Entry8006A9DC@mon_summary.c:119
     { 6, 6, 252, 1 }, // r:struct MoveData@variables.h:988
     { 6, 6, 253, 1 }, // r:struct Move8A201D3C@mon_summary.c:53
@@ -2723,7 +2723,7 @@ const ZLiftType gZLiftTypes[] = {
     { 3, 3, 257, 1 }, // r:Color_RGB8@color.h:9
     { 4, 4, 258, 1 }, // r:Color_RGBA8@color.h:15
     { 24, 40, 259, 5 }, // r:struct FrameTextures@gb_save.h:99
-    { 16, 24, 264, 2 }, // r:struct Img8002A3F8@global.h:657
+    { 16, 24, 264, 2 }, // r:struct Img8002A3F8@global.h:658
     { 4, 4, 266, 1 }, // r:struct Color8002A354@gb_save.c:426
     { 12, 12, 267, 1 }, // r:struct Ent8002D188@gb_save.c:1429
     { 4, 4, 268, 1 }, // r:struct Rgba8002D188@gb_save.c:1430
@@ -2804,7 +2804,7 @@ const ZLiftType gZLiftTypes[] = {
     { 10, 10, 734, 2 }, // r:struct ModelAnimChannel@geo_render.h:57
     { 16, 32, 736, 5 }, // r:struct EventTrackRender@geo_render.c:343
     { 4, 8, 741, 1 }, // p:r:struct MemoryBlock@memory.h:40
-    { 4, 8, 742, 1 }, // p:r:struct GraphNode@global.h:177
+    { 4, 8, 742, 1 }, // p:r:struct GraphNode@global.h:178
     { 2584, 2696, 743, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
     { 16, 16, 768, 2 }, // r:struct BinArchive@asset_archive.h:21
     { 4, 8, 770, 1 }, // p:s1s
@@ -2928,7 +2928,7 @@ const ZLiftType gZLiftTypes[] = {
     { 440, 440, 1494, 1 }, // ar:struct ModelParticle@model_callbacks.h:53[10]
     { 44, 44, 1495, 5 }, // r:struct ModelParticle@model_callbacks.h:53
     { 4, 8, 1500, 1 }, // p:r:struct LeoBootDescriptor@leo.h:8
-    { 4, 8, 1501, 1 }, // p:r:struct ModelLoadContext@global.h:48
+    { 4, 8, 1501, 1 }, // p:r:struct ModelLoadContext@global.h:49
     { 4, 8, 1502, 1 }, // p:r:struct PokeIconRenderer@poke_icon.h:45
     { 28, 56, 1503, 7 }, // r:struct PokeIconRenderer@poke_icon.h:45
     { 20, 40, 1510, 6 }, // r:struct PokeIconSlot@poke_icon.h:36
@@ -2948,171 +2948,170 @@ const ZLiftType gZLiftTypes[] = {
     { 14, 14, 1575, 1 }, // r:struct Key80027168@game_state.h:261
     { 18, 18, 1576, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:15
     { 4, 4, 1579, 1 }, // r:struct Color82001CCC@free_battle_setup.c:477
-    { 16, 24, 1580, 2 }, // r:struct Img82001E20@free_battle_setup.c:954
-    { 24, 48, 1582, 2 }, // r:struct FreeBattleExitCode@free_battle_setup.h:249
-    { 12, 24, 1584, 3 }, // r:struct FreeBattleModeEntry@free_battle_setup.h:24
-    { 20, 24, 1587, 2 }, // r:struct FreeBattleMoveRowPos@free_battle_setup.h:44
-    { 4, 4, 1589, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
-    { 20, 40, 1590, 2 }, // r:struct FreeBattleDividerAndNames@free_battle_setup.h:255
-    { 8, 8, 1592, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:411
-    { 8, 16, 1593, 2 }, // r:struct FreeBattleCupEntry@free_battle_setup.h:31
-    { 12, 24, 1595, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:149
-    { 4, 4, 1598, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
-    { 12, 24, 1599, 3 }, // r:struct FreeBattlePopupItems@free_battle_setup.h:37
-    { 4, 8, 1602, 1 }, // p:r:struct FreeBattlePopupItems@free_battle_setup.h:37
-    { 4, 8, 1603, 1 }, // p:r:struct PokeModelPreview@poke_icon.h:8
-    { 48, 72, 1604, 9 }, // r:struct PokeModelPreview@poke_icon.h:8
-    { 4, 8, 1613, 1 }, // p:r:struct BattleMon@game_state.h:34
-    { 4, 8, 1614, 1 }, // p:r:struct FreeBattleScreen@free_battle_setup.h:211
-    { 20512, 21232, 1615, 258 }, // r:struct FreeBattleScreen@free_battle_setup.h:211
-    { 44, 48, 1873, 4 }, // r:struct Window@gb_save.h:40
-    { 532, 532, 1877, 5 }, // r:struct FreeBattleTeam@free_battle_setup.h:12
-    { 84, 84, 1882, 14 }, // r:struct TeamMonSlot@gb_save.h:21
-    { 16, 24, 1896, 2 }, // r:struct ByteMatrix@table_view.h:26
-    { 12, 16, 1898, 2 }, // r:struct PointerList@table_view.h:17
-    { 60, 64, 1900, 4 }, // r:struct LabeledButton@gb_save.h:55
-    { 4, 8, 1904, 1 }, // p:r:struct FreeBattleTeam@free_battle_setup.h:12
-    { 4, 4, 1905, 1 }, // r:struct Color88100D9C@registration.h:70
-    { 4, 8, 1906, 1 }, // p:r:struct RegistrationScreen@registration.h:60
-    { 9908, 10224, 1907, 64 }, // r:struct RegistrationScreen@registration.h:60
-    { 544, 552, 1971, 6 }, // r:struct RegisteredTeam@registration.h:10
-    { 496, 512, 1977, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
-    { 4, 8, 1982, 1 }, // p:r:struct unk_D_86002F30@global.h:486
-    { 20, 24, 1983, 2 }, // r:struct unk_D_86002F30@global.h:486
-    { 512, 512, 1985, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
-    { 4, 8, 1987, 1 }, // p:r:struct ModelNodeView@global.h:67
-    { 4, 8, 1988, 1 }, // p:r:struct PokemonBattleCues@battle.h:300
-    { 2026, 2026, 1989, 6 }, // r:struct PokemonBattleCues@battle.h:300
-    { 11, 11, 1995, 1 }, // r:struct MovePresentationCue@battle.h:286
-    { 4, 8, 1996, 1 }, // p:r:struct SpeciesModelTransform@battle.h:411
-    { 32, 32, 1997, 3 }, // r:struct SpeciesModelTransform@battle.h:411
-    { 16, 16, 2000, 1 }, // r:struct unk_D_84390028@battle.h:420
-    { 24, 24, 2001, 3 }, // r:struct unk_D_843847BC@battle.h:432
-    { 8, 16, 2004, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:879
-    { 44, 80, 2007, 3 }, // r:struct BattleSceneStateRow@battle.h:397
-    { 6, 6, 2010, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1131
-    { 3, 3, 2011, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
-    { 2, 2, 2012, 1 }, // r:struct StatStageMultiplier@battle.h:883
-    { 48, 48, 2013, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
-    { 7, 7, 2014, 1 }, // r:struct Arr82133534@demo_mode11.c:259
-    { 396, 792, 2015, 1 }, // ap:r:struct Cue82133A44@demo_battle_setup.c:147[99]
-    { 6, 6, 2016, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
-    { 14, 14, 2017, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
-    { 20, 20, 2020, 2 }, // r:struct S0Learnset@damage_estimate.c:310
-    { 8, 16, 2022, 2 }, // r:struct ParticleDescriptor@battle.h:648
-    { 16, 32, 2024, 4 }, // r:struct ParticleDescriptorChild@battle.h:633
-    { 8, 16, 2028, 1 }, // ap:s1u[2]
-    { 20, 40, 2029, 1 }, // ap:s1u[5]
-    { 3, 3, 2030, 1 }, // as1u[3]
-    { 8, 8, 2031, 1 }, // f8
-    { 4, 8, 2032, 1 }, // p:r:struct BattleSide@game_state.h:148
-    { 4, 4, 2033, 1 }, // r:union Color_RGBA8_u32@color.h:29
-    { 4, 8, 2034, 1 }, // p:r:struct ActivePokemon@battle.h:259
-    { 2892, 3208, 2035, 124 }, // r:struct ActivePokemon@battle.h:259
-    { 368, 416, 2159, 26 }, // r:struct PokemonAfterimage@battle.h:174
-    { 32, 32, 2185, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
-    { 8, 16, 2188, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:405
-    { 36, 36, 2190, 1 }, // as2u[18]
-    { 4, 8, 2191, 1 }, // p:r:struct BattleMonRuntime@game_state.h:71
-    { 100, 100, 2192, 16 }, // r:struct BattleMonRuntime@game_state.h:71
-    { 36, 36, 2208, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
-    { 4, 8, 2213, 1 }, // p:r:struct BattleMessageQueues@battle.h:442
-    { 1224, 1224, 2214, 5 }, // r:struct BattleMessageQueues@battle.h:442
-    { 64, 64, 2219, 1 }, // as1s[64]
-    { 4, 8, 2220, 1 }, // p:r:struct BattleScene@battle.h:339
-    { 208, 216, 2221, 21 }, // r:struct BattleScene@battle.h:339
-    { 376, 384, 2242, 4 }, // r:struct unk_D_84390240@battle.h:388
-    { 4, 8, 2246, 1 }, // p:r:struct ParticleMatrixPool@battle.h:967
-    { 23520, 23520, 2247, 4 }, // r:struct ParticleMatrixPool@battle.h:967
-    { 12, 12, 2251, 1 }, // r:struct ParticleRenderContext@battle.h:963
-    { 24, 24, 2252, 3 }, // r:struct unk_D_84392040@battle.h:57
-    { 4, 8, 2255, 1 }, // p:r:struct arg1_func_80019420@game_state.h:14
-    { 4, 8, 2256, 1 }, // p:r:struct Particle@battle.h:662
-    { 208, 232, 2257, 15 }, // r:struct Particle@battle.h:662
-    { 4, 8, 2272, 1 }, // p:r:struct BattleAnimEffectSlot@battle.h:929
-    { 28, 40, 2273, 5 }, // r:struct BattleAnimEffectSlot@battle.h:929
-    { 2808, 2808, 2278, 6 }, // r:struct RibbonMesh@battle.h:477
-    { 28, 28, 2284, 4 }, // r:struct RibbonMeshVertexState@battle.h:468
-    { 9232, 9240, 2288, 6 }, // r:struct SurfWaterGrid@battle.h:89
-    { 320, 320, 2294, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
-    { 20, 20, 2295, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
-    { 40, 40, 2297, 2 }, // r:struct CameraFacingQuad@battle.h:501
-    { 1504, 1512, 2299, 7 }, // r:struct Radial20@battle.h:518
-    { 72, 72, 2306, 4 }, // r:struct Radial20Node@battle.h:508
-    { 7188, 7200, 2310, 5 }, // r:struct Trail40@battle.h:540
-    { 448, 448, 2315, 1 }, // ar:struct Trail40Node@battle.h:533[16]
-    { 28, 28, 2316, 2 }, // r:struct Trail40Node@battle.h:533
-    { 4, 8, 2318, 1 }, // p:r:MtxS@types.h:4
-    { 8212, 8224, 2319, 5 }, // r:struct Trail40Variant@battle.h:558
-    { 512, 512, 2324, 1 }, // ar:struct Trail40VariantNode@battle.h:550[16]
-    { 32, 32, 2325, 3 }, // r:struct Trail40VariantNode@battle.h:550
-    { 856, 864, 2328, 6 }, // r:struct TexturedRibbonSheet@battle.h:578
-    { 80, 80, 2334, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:568
-    { 1072, 1080, 2338, 7 }, // r:struct FourStreamTrail@battle.h:604
-    { 68, 68, 2345, 2 }, // r:struct FourStreamTrailNode@battle.h:592
-    { 1076, 1088, 2347, 8 }, // r:struct OwnerLinkedFourStream@battle.h:718
-    { 1048, 1064, 2355, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:735
-    { 864, 872, 2361, 8 }, // r:struct Trail50Effect@battle.h:761
-    { 80, 80, 2369, 2 }, // r:struct Trail50EffectNode@battle.h:748
-    { 576, 584, 2371, 10 }, // r:struct DoubleTextureTrail@battle.h:812
-    { 40, 40, 2381, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:778
-    { 884, 888, 2384, 10 }, // r:struct BeamTrail@battle.h:860
-    { 36, 36, 2394, 1 }, // r:struct BeamTrailSegment@battle.h:852
-    { 484, 484, 2395, 3 }, // r:struct AuxiliaryEffect@battle.h:846
-    { 24, 24, 2398, 2 }, // r:struct AuxiliaryEffectNode@battle.h:837
-    { 4, 8, 2400, 1 }, // p:r:struct ComSide@battle.h:142
-    { 896, 952, 2401, 5 }, // r:struct ComSide@battle.h:142
-    { 144, 152, 2406, 22 }, // r:struct ComBattler@battle.h:122
-    { 4, 8, 2428, 1 }, // p:r:struct ComBattler@battle.h:122
-    { 72, 144, 2429, 7 }, // r:struct VsSceneSide@vs_scene.h:10
-    { 4, 8, 2436, 1 }, // p:r:struct BinArchive@asset_archive.h:21
-    { 24, 32, 2437, 2 }, // r:struct MainMenuImage@main_menu.h:14
-    { 16, 16, 2439, 1 }, // r:struct MainMenuRect@main_menu.c:211
-    { 16, 24, 2440, 2 }, // r:struct MainMenuLabel@main_menu.c:213
-    { 16, 32, 2442, 2 }, // r:struct MainMenuWarningTable@main_menu.c:511
-    { 4, 8, 2444, 1 }, // p:r:struct MainMenuScreen@main_menu.h:65
-    { 944, 1056, 2445, 55 }, // r:struct MainMenuScreen@main_menu.h:65
-    { 48, 48, 2500, 1 }, // as1u[48]
-    { 8, 8, 2501, 1 }, // r:struct PrimEnvColor@lab_pc.h:667
-    { 4, 8, 2502, 1 }, // p:r:struct PrimEnvColor@lab_pc.h:667
-    { 16, 24, 2503, 2 }, // r:struct LabPcImage@lab_pc.h:42
-    { 20, 24, 2505, 2 }, // r:struct Slot890056A4@pc_sort.c:442
-    { 20, 20, 2507, 1 }, // r:struct Slot89007678@pc_box.c:298
-    { 8, 8, 2508, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
-    { 2672, 3016, 2509, 173 }, // r:struct LabItemScreen@lab_pc.h:242
-    { 20, 20, 2682, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:171
-    { 132, 168, 2684, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:232
-    { 8, 8, 2699, 1 }, // ar:Color_RGBA8@color.h:15[2]
-    { 4, 4, 2700, 1 }, // r:struct Str89104D14@popup_menus.c:55
-    { 4, 4, 2701, 1 }, // r:struct Str89104FC0@popup_menus.c:174
-    { 4, 4, 2702, 1 }, // r:struct Rgba891084B4@popup_menus.c:1669
-    { 8, 16, 2703, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:251
-    { 47092, 58784, 2705, 277 }, // r:struct LabPCList@lab_pokemon_list.h:444
-    { 36, 56, 2982, 5 }, // r:struct Entry89100140@lab_pokemon_list.h:206
-    { 32, 40, 2987, 4 }, // r:struct LabPCBox@lab_pokemon_list.h:181
-    { 88, 96, 2991, 15 }, // r:struct LabPCEntry@lab_pokemon_list.h:191
-    { 64, 72, 3006, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:344
-    { 28, 40, 3011, 5 }, // r:struct unk_func_8830867C_02C_154@lab_pokemon_list.h:32
-    { 20, 32, 3016, 3 }, // r:struct TmEntry8910A21C@lab_pokemon_list.h:198
-    { 16, 32, 3019, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:330
-    { 4, 4, 3023, 1 }, // r:struct Rgba8A100620@pokedex.c:205
-    { 2800, 2808, 3024, 3 }, // r:struct PokedexPreviewFrame@pokedex.c:468
-    { 4, 8, 3027, 1 }, // p:r:struct PokedexEncounter@pokedex_2.c:24
-    { 8, 8, 3028, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
-    { 64, 64, 3029, 1 }, // ar:union Vtx@gbi.h:1046[4]
-    { 18, 18, 3030, 1 }, // as1u[18]
-    { 20, 20, 3031, 1 }, // as1u[20]
-    { 12, 12, 3032, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
-    { 4, 4, 3034, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
-    { 624, 696, 3035, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
-    { 28, 56, 3071, 7 }, // r:struct GeoDisplayListNode@global.h:313
-    { 48, 48, 3078, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
-    { 36, 64, 3080, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
-    { 40, 48, 3083, 2 }, // r:struct Entry8A203384@party_screen.c:447
-    { 4, 8, 3085, 1 }, // p:r:struct Fragment@memmap.h:27
-    { 32, 32, 3086, 3 }, // r:struct Fragment@memmap.h:27
+    { 24, 48, 1580, 2 }, // r:struct FreeBattleExitCode@free_battle_setup.h:249
+    { 12, 24, 1582, 3 }, // r:struct FreeBattleModeEntry@free_battle_setup.h:24
+    { 20, 24, 1585, 2 }, // r:struct FreeBattleMoveRowPos@free_battle_setup.h:44
+    { 4, 4, 1587, 1 }, // r:struct Color82001CCC@free_battle_setup_4.c:26
+    { 20, 40, 1588, 2 }, // r:struct FreeBattleDividerAndNames@free_battle_setup.h:255
+    { 8, 8, 1590, 1 }, // r:struct Offset82006508@free_battle_setup_3.c:411
+    { 8, 16, 1591, 2 }, // r:struct FreeBattleCupEntry@free_battle_setup.h:31
+    { 12, 24, 1593, 3 }, // r:struct FreeBattleMonGridConfig@free_battle_setup.h:149
+    { 4, 4, 1596, 1 }, // r:struct Color82001CCC@free_battle_setup_3.c:60
+    { 12, 24, 1597, 3 }, // r:struct FreeBattlePopupItems@free_battle_setup.h:37
+    { 4, 8, 1600, 1 }, // p:r:struct FreeBattlePopupItems@free_battle_setup.h:37
+    { 4, 8, 1601, 1 }, // p:r:struct PokeModelPreview@poke_icon.h:8
+    { 48, 72, 1602, 9 }, // r:struct PokeModelPreview@poke_icon.h:8
+    { 4, 8, 1611, 1 }, // p:r:struct BattleMon@game_state.h:34
+    { 4, 8, 1612, 1 }, // p:r:struct FreeBattleScreen@free_battle_setup.h:211
+    { 20512, 21232, 1613, 258 }, // r:struct FreeBattleScreen@free_battle_setup.h:211
+    { 44, 48, 1871, 4 }, // r:struct Window@gb_save.h:40
+    { 532, 532, 1875, 5 }, // r:struct FreeBattleTeam@free_battle_setup.h:12
+    { 84, 84, 1880, 14 }, // r:struct TeamMonSlot@gb_save.h:21
+    { 16, 24, 1894, 2 }, // r:struct ByteMatrix@table_view.h:26
+    { 12, 16, 1896, 2 }, // r:struct PointerList@table_view.h:17
+    { 60, 64, 1898, 4 }, // r:struct LabeledButton@gb_save.h:55
+    { 4, 8, 1902, 1 }, // p:r:struct FreeBattleTeam@free_battle_setup.h:12
+    { 4, 4, 1903, 1 }, // r:struct Color88100D9C@registration.h:70
+    { 4, 8, 1904, 1 }, // p:r:struct RegistrationScreen@registration.h:60
+    { 9908, 10224, 1905, 64 }, // r:struct RegistrationScreen@registration.h:60
+    { 544, 552, 1969, 6 }, // r:struct RegisteredTeam@registration.h:10
+    { 496, 512, 1975, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
+    { 4, 8, 1980, 1 }, // p:r:struct unk_D_86002F30@global.h:487
+    { 20, 24, 1981, 2 }, // r:struct unk_D_86002F30@global.h:487
+    { 512, 512, 1983, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
+    { 4, 8, 1985, 1 }, // p:r:struct ModelNodeView@global.h:68
+    { 4, 8, 1986, 1 }, // p:r:struct PokemonBattleCues@battle.h:300
+    { 2026, 2026, 1987, 6 }, // r:struct PokemonBattleCues@battle.h:300
+    { 11, 11, 1993, 1 }, // r:struct MovePresentationCue@battle.h:286
+    { 4, 8, 1994, 1 }, // p:r:struct SpeciesModelTransform@battle.h:411
+    { 32, 32, 1995, 3 }, // r:struct SpeciesModelTransform@battle.h:411
+    { 16, 16, 1998, 1 }, // r:struct unk_D_84390028@battle.h:420
+    { 24, 24, 1999, 3 }, // r:struct unk_D_843847BC@battle.h:432
+    { 8, 16, 2002, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:883
+    { 44, 80, 2005, 3 }, // r:struct BattleSceneStateRow@battle.h:397
+    { 6, 6, 2008, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1131
+    { 3, 3, 2009, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
+    { 2, 2, 2010, 1 }, // r:struct StatStageMultiplier@battle.h:890
+    { 48, 48, 2011, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
+    { 7, 7, 2012, 1 }, // r:struct Arr82133534@demo_mode11.c:259
+    { 396, 792, 2013, 1 }, // ap:r:struct Cue82133A44@demo_battle_setup.c:147[99]
+    { 6, 6, 2014, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
+    { 14, 14, 2015, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
+    { 20, 20, 2018, 2 }, // r:struct S0Learnset@damage_estimate.c:310
+    { 8, 16, 2020, 2 }, // r:struct ParticleDescriptor@battle.h:655
+    { 16, 32, 2022, 4 }, // r:struct ParticleDescriptorChild@battle.h:640
+    { 8, 16, 2026, 1 }, // ap:s1u[2]
+    { 20, 40, 2027, 1 }, // ap:s1u[5]
+    { 3, 3, 2028, 1 }, // as1u[3]
+    { 8, 8, 2029, 1 }, // f8
+    { 4, 8, 2030, 1 }, // p:r:struct BattleSide@game_state.h:148
+    { 4, 4, 2031, 1 }, // r:union Color_RGBA8_u32@color.h:29
+    { 4, 8, 2032, 1 }, // p:r:struct ActivePokemon@battle.h:259
+    { 2892, 3208, 2033, 124 }, // r:struct ActivePokemon@battle.h:259
+    { 368, 416, 2157, 26 }, // r:struct PokemonAfterimage@battle.h:174
+    { 32, 32, 2183, 3 }, // r:struct SpeciesLearnsetBuffer@battle.h:242
+    { 8, 16, 2186, 2 }, // r:struct BattleSceneStateTickSlot@battle.h:405
+    { 36, 36, 2188, 1 }, // as2u[18]
+    { 4, 8, 2189, 1 }, // p:r:struct BattleMonRuntime@game_state.h:71
+    { 100, 100, 2190, 16 }, // r:struct BattleMonRuntime@game_state.h:71
+    { 36, 36, 2206, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
+    { 4, 8, 2211, 1 }, // p:r:struct BattleMessageQueues@battle.h:442
+    { 1224, 1224, 2212, 5 }, // r:struct BattleMessageQueues@battle.h:442
+    { 64, 64, 2217, 1 }, // as1s[64]
+    { 4, 8, 2218, 1 }, // p:r:struct BattleScene@battle.h:339
+    { 208, 216, 2219, 21 }, // r:struct BattleScene@battle.h:339
+    { 376, 384, 2240, 4 }, // r:struct unk_D_84390240@battle.h:388
+    { 4, 8, 2244, 1 }, // p:r:struct ParticleMatrixPool@battle.h:974
+    { 23520, 23520, 2245, 4 }, // r:struct ParticleMatrixPool@battle.h:974
+    { 12, 12, 2249, 1 }, // r:struct ParticleRenderContext@battle.h:970
+    { 24, 24, 2250, 3 }, // r:struct unk_D_84392040@battle.h:57
+    { 4, 8, 2253, 1 }, // p:r:struct arg1_func_80019420@game_state.h:14
+    { 4, 8, 2254, 1 }, // p:r:struct Particle@battle.h:669
+    { 208, 232, 2255, 15 }, // r:struct Particle@battle.h:669
+    { 4, 8, 2270, 1 }, // p:r:struct BattleAnimEffectSlot@battle.h:936
+    { 28, 40, 2271, 5 }, // r:struct BattleAnimEffectSlot@battle.h:936
+    { 2808, 2808, 2276, 6 }, // r:struct RibbonMesh@battle.h:484
+    { 28, 28, 2282, 4 }, // r:struct RibbonMeshVertexState@battle.h:475
+    { 9232, 9240, 2286, 6 }, // r:struct SurfWaterGrid@battle.h:89
+    { 320, 320, 2292, 1 }, // ar:struct SurfWaterGridPoint@battle.h:83[16]
+    { 20, 20, 2293, 2 }, // r:struct SurfWaterGridPoint@battle.h:83
+    { 40, 40, 2295, 2 }, // r:struct CameraFacingQuad@battle.h:508
+    { 1504, 1512, 2297, 7 }, // r:struct Radial20@battle.h:525
+    { 72, 72, 2304, 4 }, // r:struct Radial20Node@battle.h:515
+    { 7188, 7200, 2308, 5 }, // r:struct Trail40@battle.h:547
+    { 448, 448, 2313, 1 }, // ar:struct Trail40Node@battle.h:540[16]
+    { 28, 28, 2314, 2 }, // r:struct Trail40Node@battle.h:540
+    { 4, 8, 2316, 1 }, // p:r:MtxS@types.h:4
+    { 8212, 8224, 2317, 5 }, // r:struct Trail40Variant@battle.h:565
+    { 512, 512, 2322, 1 }, // ar:struct Trail40VariantNode@battle.h:557[16]
+    { 32, 32, 2323, 3 }, // r:struct Trail40VariantNode@battle.h:557
+    { 856, 864, 2326, 6 }, // r:struct TexturedRibbonSheet@battle.h:585
+    { 80, 80, 2332, 4 }, // r:struct TexturedRibbonSheetNode@battle.h:575
+    { 1072, 1080, 2336, 7 }, // r:struct FourStreamTrail@battle.h:611
+    { 68, 68, 2343, 2 }, // r:struct FourStreamTrailNode@battle.h:599
+    { 1076, 1088, 2345, 8 }, // r:struct OwnerLinkedFourStream@battle.h:725
+    { 1048, 1064, 2353, 6 }, // r:struct OwnerAnchoredFourStream@battle.h:742
+    { 864, 872, 2359, 8 }, // r:struct Trail50Effect@battle.h:768
+    { 80, 80, 2367, 2 }, // r:struct Trail50EffectNode@battle.h:755
+    { 576, 584, 2369, 10 }, // r:struct DoubleTextureTrail@battle.h:819
+    { 40, 40, 2379, 3 }, // r:struct DoubleTextureTrailSegment@battle.h:785
+    { 884, 888, 2382, 10 }, // r:struct BeamTrail@battle.h:867
+    { 36, 36, 2392, 1 }, // r:struct BeamTrailSegment@battle.h:859
+    { 484, 484, 2393, 3 }, // r:struct AuxiliaryEffect@battle.h:853
+    { 24, 24, 2396, 2 }, // r:struct AuxiliaryEffectNode@battle.h:844
+    { 4, 8, 2398, 1 }, // p:r:struct ComSide@battle.h:142
+    { 896, 952, 2399, 5 }, // r:struct ComSide@battle.h:142
+    { 144, 152, 2404, 22 }, // r:struct ComBattler@battle.h:122
+    { 4, 8, 2426, 1 }, // p:r:struct ComBattler@battle.h:122
+    { 72, 144, 2427, 7 }, // r:struct VsSceneSide@vs_scene.h:10
+    { 4, 8, 2434, 1 }, // p:r:struct BinArchive@asset_archive.h:21
+    { 24, 32, 2435, 2 }, // r:struct MainMenuImage@main_menu.h:14
+    { 16, 16, 2437, 1 }, // r:struct MainMenuRect@main_menu.c:211
+    { 16, 24, 2438, 2 }, // r:struct MainMenuLabel@main_menu.c:213
+    { 16, 32, 2440, 2 }, // r:struct MainMenuWarningTable@main_menu.c:511
+    { 4, 8, 2442, 1 }, // p:r:struct MainMenuScreen@main_menu.h:65
+    { 944, 1056, 2443, 55 }, // r:struct MainMenuScreen@main_menu.h:65
+    { 48, 48, 2498, 1 }, // as1u[48]
+    { 8, 8, 2499, 1 }, // r:struct PrimEnvColor@lab_pc.h:667
+    { 4, 8, 2500, 1 }, // p:r:struct PrimEnvColor@lab_pc.h:667
+    { 16, 24, 2501, 2 }, // r:struct LabPcImage@lab_pc.h:42
+    { 20, 24, 2503, 2 }, // r:struct Slot890056A4@pc_sort.c:442
+    { 20, 20, 2505, 1 }, // r:struct Slot89007678@pc_box.c:298
+    { 8, 8, 2506, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
+    { 2672, 3016, 2507, 173 }, // r:struct LabItemScreen@lab_pc.h:242
+    { 20, 20, 2680, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:171
+    { 132, 168, 2682, 15 }, // r:struct LabTerminalMenuWindow@lab_pc.h:232
+    { 8, 8, 2697, 1 }, // ar:Color_RGBA8@color.h:15[2]
+    { 4, 4, 2698, 1 }, // r:struct Str89104D14@popup_menus.c:55
+    { 4, 4, 2699, 1 }, // r:struct Str89104FC0@popup_menus.c:174
+    { 4, 4, 2700, 1 }, // r:struct Rgba891084B4@popup_menus.c:1669
+    { 8, 16, 2701, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:251
+    { 47092, 58784, 2703, 277 }, // r:struct LabPCList@lab_pokemon_list.h:444
+    { 36, 56, 2980, 5 }, // r:struct Entry89100140@lab_pokemon_list.h:206
+    { 32, 40, 2985, 4 }, // r:struct LabPCBox@lab_pokemon_list.h:181
+    { 88, 96, 2989, 15 }, // r:struct LabPCEntry@lab_pokemon_list.h:191
+    { 64, 72, 3004, 5 }, // r:struct LabFilterSlot@lab_pokemon_list.h:344
+    { 28, 40, 3009, 5 }, // r:struct unk_func_8830867C_02C_154@lab_pokemon_list.h:32
+    { 20, 32, 3014, 3 }, // r:struct TmEntry8910A21C@lab_pokemon_list.h:198
+    { 16, 32, 3017, 4 }, // r:struct LabItemResult@lab_pokemon_list.h:330
+    { 4, 4, 3021, 1 }, // r:struct Rgba8A100620@pokedex.c:205
+    { 2800, 2808, 3022, 3 }, // r:struct PokedexPreviewFrame@pokedex.c:468
+    { 4, 8, 3025, 1 }, // p:r:struct PokedexEncounter@pokedex_2.c:24
+    { 8, 8, 3026, 1 }, // r:struct PokedexEncounter@pokedex_2.c:24
+    { 64, 64, 3027, 1 }, // ar:union Vtx@gbi.h:1046[4]
+    { 18, 18, 3028, 1 }, // as1u[18]
+    { 20, 20, 3029, 1 }, // as1u[20]
+    { 12, 12, 3030, 2 }, // r:struct Area8A104B00@pokedex_2.c:688
+    { 4, 4, 3032, 1 }, // r:struct PokedexGbMapCell@pokedex_2.c:40
+    { 624, 696, 3033, 36 }, // r:struct PokedexIndexScreen@pokedex.h:41
+    { 28, 56, 3069, 7 }, // r:struct GeoDisplayListNode@global.h:314
+    { 48, 48, 3076, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
+    { 36, 64, 3078, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
+    { 40, 48, 3081, 2 }, // r:struct Entry8A203384@party_screen.c:447
+    { 4, 8, 3083, 1 }, // p:r:struct Fragment@memmap.h:27
+    { 32, 32, 3084, 3 }, // r:struct Fragment@memmap.h:27
 };
-const uint32_t gZLiftTypeCount = 466;
+const uint32_t gZLiftTypeCount = 465;
 
 const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -3282,8 +3281,8 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 92, 160, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 0, 96, 168, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
-    { 0, 2, 2, 1, 6, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 8, 8, 4, 1, 4, 8, 40, 0, 0, 0, 0 },
+    { 0, 2, 2, 1, 14, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 16, 16, 4, 1, 4, 8, 40, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 43, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 8, 16, 4, 1, 4, 8, 44, 0, 0, 0, 0 },
@@ -4695,8 +4694,6 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 2, 2, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 14, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 0, 0, 0, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 12, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 5, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
@@ -4717,8 +4714,8 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 0, 0, 4, 1, 4, 8, 13, 0, 0, 0, 0 },
     { 0, 4, 8, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 8, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 313, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 316, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 312, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 315, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 6, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
@@ -4729,18 +4726,18 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 40, 56, 4, 1, 4, 8, 5, 0, 0, 0, 0 },
     { 1, 44, 64, 4, 1, 4, 8, 5, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 287, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 319, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 318, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 8, 8, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
-    { 1, 12, 16, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
-    { 4, 16, 24, 0, 32, 532, 532, 321, 0, 0, 0, 0 },
-    { 1, 17040, 17048, 4, 32, 4, 8, 321, 0, 0, 0, 0 },
+    { 1, 8, 8, 4, 1, 4, 8, 319, 0, 0, 0, 0 },
+    { 1, 12, 16, 4, 1, 4, 8, 319, 0, 0, 0, 0 },
+    { 4, 16, 24, 0, 32, 532, 532, 320, 0, 0, 0, 0 },
+    { 1, 17040, 17048, 4, 32, 4, 8, 320, 0, 0, 0, 0 },
     { 1, 17168, 17304, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17172, 17312, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 17184, 17328, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 17188, 17336, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 17196, 17344, 4, 5, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17216, 17368, 4, 5, 4, 8, 321, 0, 0, 0, 0 },
+    { 1, 17216, 17368, 4, 5, 4, 8, 320, 0, 0, 0, 0 },
     { 0, 17236, 17408, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 17240, 17412, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 17248, 17420, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
@@ -4748,7 +4745,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 17296, 17472, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 17304, 17480, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17308, 17488, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17316, 17496, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17316, 17496, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17320, 17504, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17324, 17512, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17336, 17528, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4757,12 +4754,12 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 17356, 17560, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17360, 17568, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 17372, 17584, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 17376, 17592, 4, 1, 4, 8, 305, 0, 0, 0, 0 },
+    { 1, 17376, 17592, 4, 1, 4, 8, 304, 0, 0, 0, 0 },
     { 0, 17380, 17600, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 17404, 17624, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 17412, 17632, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17416, 17640, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17424, 17648, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17424, 17648, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17428, 17656, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17432, 17664, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17444, 17680, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4777,7 +4774,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 17536, 17792, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 17544, 17800, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17548, 17808, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17556, 17816, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17556, 17816, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17560, 17824, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17564, 17832, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17576, 17848, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4792,7 +4789,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 17668, 17960, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 17676, 17968, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 17680, 17976, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17688, 17984, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17688, 17984, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17692, 17992, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17696, 18000, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17708, 18016, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4807,7 +4804,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 17784, 18112, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 17792, 18120, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 17796, 18128, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17804, 18136, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17804, 18136, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17808, 18144, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17812, 18152, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17824, 18168, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4825,13 +4822,13 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 17916, 18280, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 17924, 18288, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 17928, 18296, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17936, 18304, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17936, 18304, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17940, 18312, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17944, 18320, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17956, 18336, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 1, 17960, 18344, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 17964, 18352, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 17972, 18360, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 17972, 18360, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 17976, 18368, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 17980, 18376, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 17992, 18392, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4843,13 +4840,13 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 18032, 18440, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 18056, 18464, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 18060, 18468, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 18076, 18488, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
+    { 1, 18076, 18488, 4, 1, 4, 8, 319, 0, 0, 0, 0 },
     { 0, 18080, 18496, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 18084, 18504, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 18108, 18528, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 18116, 18536, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 18120, 18544, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 18128, 18552, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 18128, 18552, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 18132, 18560, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 18136, 18568, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 18148, 18584, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4858,16 +4855,16 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 18168, 18612, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 18172, 18616, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 18196, 18640, 2, 32, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 18260, 18704, 4, 1, 4, 8, 324, 0, 0, 0, 0 },
+    { 1, 18260, 18704, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
     { 0, 18264, 18712, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 18268, 18716, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 18272, 18720, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 18288, 18736, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 18292, 18740, 0, 6, 84, 84, 322, 0, 0, 0, 0 },
+    { 4, 18292, 18740, 0, 6, 84, 84, 321, 0, 0, 0, 0 },
     { 1, 18796, 19248, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 18800, 19256, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 18812, 19272, 2, 6, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 18824, 19288, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 18824, 19288, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 18828, 19296, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 18832, 19304, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 18844, 19320, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4911,7 +4908,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 19332, 19872, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 19340, 19880, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 19344, 19888, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 19352, 19896, 0, 3, 60, 64, 325, 0, 0, 0, 0 },
+    { 4, 19352, 19896, 0, 3, 60, 64, 324, 0, 0, 0, 0 },
     { 1, 19532, 20088, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 19536, 20096, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 19548, 20112, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
@@ -4932,7 +4929,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 19732, 20320, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 19736, 20328, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 19748, 20344, 2, 40, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 19828, 20424, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 19828, 20424, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 19832, 20432, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 19836, 20440, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 19848, 20456, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4941,7 +4938,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 19868, 20484, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 19872, 20488, 4, 9, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 19908, 20528, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 19916, 20536, 4, 1, 4, 8, 326, 0, 0, 0, 0 },
+    { 1, 19916, 20536, 4, 1, 4, 8, 325, 0, 0, 0, 0 },
     { 0, 19920, 20544, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 19924, 20552, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 19928, 20560, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -4958,7 +4955,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 20072, 20720, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 20080, 20728, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 20084, 20736, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 20092, 20744, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 20092, 20744, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 20096, 20752, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 20100, 20760, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 20112, 20776, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4969,7 +4966,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 20164, 20840, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 20172, 20848, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 20176, 20856, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 20184, 20864, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 20184, 20864, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 20188, 20872, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 20192, 20880, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 20204, 20896, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -4996,7 +4993,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 4, 4, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 24, 24, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 28, 28, 0, 6, 84, 84, 322, 0, 0, 0, 0 },
+    { 4, 28, 28, 0, 6, 84, 84, 321, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 6, 6, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
@@ -5019,15 +5016,15 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 24, 24, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 36, 36, 4, 5, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 56, 56, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 321, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 329, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 328, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 28, 32, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 36, 40, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 40, 48, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 48, 56, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 48, 56, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 52, 64, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 56, 72, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 68, 88, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5043,7 +5040,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 176, 216, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 180, 224, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 188, 232, 1, 32, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 220, 264, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 220, 264, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 224, 272, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 228, 280, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 240, 296, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5052,14 +5049,14 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 260, 324, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 264, 328, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 288, 352, 2, 16, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 320, 384, 4, 1, 4, 8, 324, 0, 0, 0, 0 },
+    { 1, 320, 384, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
     { 0, 324, 392, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 328, 400, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 332, 404, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 336, 408, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 352, 424, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 356, 432, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 368, 448, 0, 6, 84, 84, 322, 0, 0, 0, 0 },
+    { 4, 368, 448, 0, 6, 84, 84, 321, 0, 0, 0, 0 },
     { 0, 872, 952, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 896, 976, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 904, 984, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
@@ -5080,8 +5077,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 1088, 1192, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 1096, 1200, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 1100, 1208, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 1112, 1224, 0, 16, 544, 552, 330, 0, 0, 0, 0 },
-    { 1, 9816, 10056, 4, 16, 4, 8, 330, 0, 0, 0, 0 },
+    { 4, 1112, 1224, 0, 16, 544, 552, 329, 0, 0, 0, 0 },
+    { 1, 9816, 10056, 4, 16, 4, 8, 329, 0, 0, 0, 0 },
     { 1, 9880, 10184, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 9884, 10192, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 9896, 10208, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
@@ -5091,27 +5088,27 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 8, 8, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 24, 24, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 28, 32, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 40, 48, 0, 6, 84, 84, 322, 0, 0, 0, 0 },
+    { 4, 40, 48, 0, 6, 84, 84, 321, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 8, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 12, 24, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 4, 16, 32, 0, 6, 80, 80, 287, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 333, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 332, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 16, 16, 4, 1, 4, 8, 40, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 508, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 40, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 337, 0, 0, 0, 0 },
-    { 4, 0, 0, 0, 165, 11, 11, 338, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 336, 0, 0, 0, 0 },
+    { 4, 0, 0, 0, 165, 11, 11, 337, 0, 0, 0, 0 },
     { 0, 1815, 1815, 1, 44, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 1859, 1859, 0, 6, 11, 11, 338, 0, 0, 0, 0 },
+    { 4, 1859, 1859, 0, 6, 11, 11, 337, 0, 0, 0, 0 },
     { 0, 1925, 1925, 1, 44, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 1969, 1969, 0, 5, 11, 11, 338, 0, 0, 0, 0 },
+    { 4, 1969, 1969, 0, 5, 11, 11, 337, 0, 0, 0, 0 },
     { 0, 2024, 2024, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 11, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 340, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 339, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 20, 20, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
@@ -5130,7 +5127,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 12, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 7, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 99, 4, 8, 351, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 99, 4, 8, 350, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 3, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
@@ -5138,7 +5135,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 1, 10, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 10, 10, 1, 10, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 4, 8, 4, 1, 4, 8, 355, 0, 0, 0, 0 },
+    { 1, 4, 8, 4, 1, 4, 8, 354, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 2, 4, 8, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 2, 8, 16, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5149,7 +5146,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 8, 1, 8, 8, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 297, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 363, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 362, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, 38, 0, 0, 0, 0 },
     { 1, 8, 16, 4, 1, 4, 8, 38, 0, 0, 0, 0 },
@@ -5173,7 +5170,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 160, 208, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 164, 212, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 4, 168, 216, 0, 12, 16, 16, 49, 0, 0, 0, 0 },
-    { 4, 360, 408, 0, 3, 368, 416, 364, 0, 0, 0, 0 },
+    { 4, 360, 408, 0, 3, 368, 416, 363, 0, 0, 0, 0 },
     { 0, 1464, 1656, 4, 12, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 1512, 1704, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 1516, 1708, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
@@ -5272,8 +5269,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 2564, 2880, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 2572, 2888, 1, 64, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2636, 2952, 1, 64, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 2700, 3016, 0, 3, 32, 32, 365, 0, 0, 0, 0 },
-    { 4, 2796, 3112, 0, 3, 32, 32, 365, 0, 0, 0, 0 },
+    { 4, 2700, 3016, 0, 3, 32, 32, 364, 0, 0, 0, 0 },
+    { 4, 2796, 3112, 0, 3, 32, 32, 364, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, 38, 0, 0, 0, 0 },
     { 1, 8, 16, 4, 1, 4, 8, 38, 0, 0, 0, 0 },
@@ -5303,10 +5300,10 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 1, 10, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 10, 10, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 14, 14, 1, 18, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 363, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 362, 0, 0, 0, 0 },
     { 2, 4, 8, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 18, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 369, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 368, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2, 2, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 6, 6, 1, 6, 1, 1, -1, 0, 0, 0, 0 },
@@ -5328,14 +5325,14 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 10, 10, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 20, 20, 2, 7, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 372, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 371, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 64, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 72, 72, 1, 64, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 136, 136, 0, 17, 64, 64, 373, 0, 0, 0, 0 },
+    { 4, 136, 136, 0, 17, 64, 64, 372, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 64, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 375, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 374, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2, 2, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -5357,11 +5354,11 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 156, 156, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 168, 168, 4, 9, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 204, 208, 4, 1, 4, 8, 22, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 375, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 374, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 12, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 16, 20, 4, 90, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 378, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 377, 0, 0, 0, 0 },
     { 4, 0, 0, 0, 364, 64, 64, 24, 0, 0, 0, 0 },
     { 0, 23296, 23296, 1, 128, 1, 1, -1, 0, 0, 0, 0 },
     { 4, 23424, 23424, 0, 4, 16, 16, 8, 0, 0, 0, 0 },
@@ -5371,12 +5368,12 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 12, 12, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 20, 20, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 298, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 383, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 383, 0, 0, 0, 0 },
-    { 1, 4, 8, 4, 1, 4, 8, 383, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 382, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 382, 0, 0, 0, 0 },
+    { 1, 4, 8, 4, 1, 4, 8, 382, 0, 0, 0, 0 },
     { 2, 8, 16, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
-    { 1, 12, 24, 4, 1, 4, 8, 354, 0, 0, 0, 0 },
-    { 1, 16, 32, 4, 1, 4, 8, 363, 0, 0, 0, 0 },
+    { 1, 12, 24, 4, 1, 4, 8, 353, 0, 0, 0, 0 },
+    { 1, 16, 32, 4, 1, 4, 8, 362, 0, 0, 0, 0 },
     { 1, 20, 40, 4, 1, 4, 8, 37, 0, 0, 0, 0 },
     { 0, 24, 48, 4, 10, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 64, 88, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
@@ -5387,10 +5384,10 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 178, 202, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 186, 210, 1, 10, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 196, 220, 1, 9, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 385, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 384, 0, 0, 0, 0 },
     { 2, 0, 0, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
-    { 1, 4, 8, 4, 1, 4, 8, 354, 0, 0, 0, 0 },
-    { 1, 8, 16, 4, 1, 4, 8, 363, 0, 0, 0, 0 },
+    { 1, 4, 8, 4, 1, 4, 8, 353, 0, 0, 0, 0 },
+    { 1, 8, 16, 4, 1, 4, 8, 362, 0, 0, 0, 0 },
     { 0, 12, 24, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 20, 32, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
@@ -5398,7 +5395,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 32, 32, 4, 10, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 72, 72, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 4, 80, 80, 0, 62, 16, 16, 55, 0, 0, 0, 0 },
-    { 4, 1072, 1072, 0, 62, 28, 28, 387, 0, 0, 0, 0 },
+    { 4, 1072, 1072, 0, 62, 28, 28, 386, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
@@ -5408,8 +5405,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 8, 8, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 1, 12, 16, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 16, 24, 1, 4096, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 4112, 4120, 0, 16, 320, 320, 389, 0, 0, 0, 0 },
-    { 4, 0, 0, 0, 16, 20, 20, 390, 0, 0, 0, 0 },
+    { 4, 4112, 4120, 0, 16, 320, 320, 388, 0, 0, 0, 0 },
+    { 4, 0, 0, 0, 16, 20, 20, 389, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 9, 4, 4, -1, 0, 0, 0, 0 },
@@ -5420,7 +5417,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 24, 24, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 28, 32, 1, 24, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 52, 56, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 64, 68, 0, 20, 72, 72, 393, 0, 0, 0, 0 },
+    { 4, 64, 68, 0, 20, 72, 72, 392, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
@@ -5429,8 +5426,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 8, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 12, 16, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 1, 16, 24, 4, 1, 4, 8, 7, 0, 0, 0, 0 },
-    { 4, 20, 32, 0, 16, 448, 448, 395, 0, 0, 0, 0 },
-    { 4, 0, 0, 0, 16, 28, 28, 396, 0, 0, 0, 0 },
+    { 4, 20, 32, 0, 16, 448, 448, 394, 0, 0, 0, 0 },
+    { 4, 0, 0, 0, 16, 28, 28, 395, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 24, 24, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 7, 0, 0, 0, 0 },
@@ -5438,8 +5435,8 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 8, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 12, 16, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 1, 16, 24, 4, 1, 4, 8, 7, 0, 0, 0, 0 },
-    { 4, 20, 32, 0, 16, 512, 512, 399, 0, 0, 0, 0 },
-    { 4, 0, 0, 0, 16, 32, 32, 400, 0, 0, 0, 0 },
+    { 4, 20, 32, 0, 16, 512, 512, 398, 0, 0, 0, 0 },
+    { 4, 0, 0, 0, 16, 32, 32, 399, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 24, 24, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 28, 28, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -5448,7 +5445,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 16, 16, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 24, 24, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 28, 32, 1, 28, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 56, 64, 0, 10, 80, 80, 402, 0, 0, 0, 0 },
+    { 4, 56, 64, 0, 10, 80, 80, 401, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 4, 10, 4, 4, -1, 0, 0, 0, 0 },
@@ -5459,7 +5456,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 24, 24, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 28, 32, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 40, 44, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 52, 56, 0, 15, 68, 68, 404, 0, 0, 0, 0 },
+    { 4, 52, 56, 0, 15, 68, 68, 403, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 4, 16, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
@@ -5468,14 +5465,14 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 24, 24, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 28, 32, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 40, 44, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 52, 56, 4, 1, 4, 8, 383, 0, 0, 0, 0 },
-    { 4, 56, 64, 0, 15, 68, 68, 404, 0, 0, 0, 0 },
+    { 1, 52, 56, 4, 1, 4, 8, 382, 0, 0, 0, 0 },
+    { 4, 56, 64, 0, 15, 68, 68, 403, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 12, 12, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 20, 24, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
-    { 1, 24, 32, 4, 1, 4, 8, 383, 0, 0, 0, 0 },
-    { 4, 28, 40, 0, 15, 68, 68, 404, 0, 0, 0, 0 },
+    { 1, 24, 32, 4, 1, 4, 8, 382, 0, 0, 0, 0 },
+    { 4, 28, 40, 0, 15, 68, 68, 403, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 5, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 10, 10, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
@@ -5483,7 +5480,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 32, 32, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 36, 40, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 48, 52, 1, 16, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 64, 68, 0, 10, 80, 80, 408, 0, 0, 0, 0 },
+    { 4, 64, 68, 0, 10, 80, 80, 407, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 4, 19, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 3, 2, 2, -1, 0, 0, 0, 0 },
@@ -5495,7 +5492,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 140, 144, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 148, 152, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 150, 154, 1, 26, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 176, 180, 0, 10, 40, 40, 410, 0, 0, 0, 0 },
+    { 4, 176, 180, 0, 10, 40, 40, 409, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 4, 4, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
@@ -5508,20 +5505,20 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 128, 128, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 136, 136, 4, 1, 4, 8, 55, 0, 0, 0, 0 },
     { 0, 140, 144, 1, 24, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 164, 168, 0, 20, 36, 36, 412, 0, 0, 0, 0 },
+    { 4, 164, 168, 0, 20, 36, 36, 411, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 9, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 2, 2, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 4, 4, 0, 20, 24, 24, 414, 0, 0, 0, 0 },
+    { 4, 4, 4, 0, 20, 24, 24, 413, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 416, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 415, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 293, 0, 0, 0, 0 },
-    { 4, 4, 8, 0, 6, 144, 152, 417, 0, 0, 0, 0 },
+    { 4, 4, 8, 0, 6, 144, 152, 416, 0, 0, 0, 0 },
     { 0, 868, 920, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 872, 924, 1, 5, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 877, 929, 1, 19, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 416, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 415, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 12, 16, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 14, 18, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
@@ -5543,7 +5540,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 116, 120, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 124, 128, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 127, 131, 1, 17, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 417, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 416, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 1, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 1, 1, 1, 3, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5559,17 +5556,17 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 12, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 4, 8, 4, 3, 4, 8, 6, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 426, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 425, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 1, 28, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 44, 48, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 52, 56, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 52, 56, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 56, 64, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 60, 72, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 72, 88, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 1, 76, 96, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 80, 104, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 92, 120, 0, 9, 48, 48, 427, 0, 0, 0, 0 },
+    { 4, 92, 120, 0, 9, 48, 48, 426, 0, 0, 0, 0 },
     { 1, 524, 552, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 528, 560, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 540, 576, 2, 9, 2, 2, -1, 0, 0, 0, 0 },
@@ -5593,7 +5590,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 740, 800, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 744, 808, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 748, 816, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 756, 824, 4, 1, 4, 8, 421, 0, 0, 0, 0 },
+    { 1, 756, 824, 4, 1, 4, 8, 420, 0, 0, 0, 0 },
     { 0, 760, 832, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 784, 856, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 792, 864, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
@@ -5605,7 +5602,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 844, 928, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 848, 936, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 880, 968, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 888, 976, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 888, 976, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 892, 984, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 896, 992, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 908, 1008, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5617,7 +5614,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 942, 1054, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 48, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 428, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 427, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 12, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
@@ -5652,7 +5649,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 296, 328, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 304, 336, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 308, 344, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 316, 352, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 316, 352, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 320, 360, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 324, 368, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 336, 384, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5665,7 +5662,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 396, 456, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 404, 464, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 408, 472, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 416, 480, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 416, 480, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 420, 488, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 424, 496, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 436, 512, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5677,7 +5674,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 472, 560, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 480, 568, 4, 1, 4, 8, 13, 0, 0, 0, 0 },
     { 0, 484, 576, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 488, 584, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 488, 584, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 492, 592, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 496, 600, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 508, 616, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5687,7 +5684,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 532, 648, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 556, 672, 2, 100, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 756, 872, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 764, 880, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 764, 880, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 768, 888, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 772, 896, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 784, 912, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5707,7 +5704,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 1152, 1304, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 1160, 1312, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 1164, 1320, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 1172, 1328, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 1172, 1328, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 1176, 1336, 4, 1, 4, 8, 0, 0, 0, 0, 0 },
     { 1, 1180, 1344, 4, 1, 4, 8, 0, 0, 0, 0, 0 },
     { 1, 1184, 1352, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
@@ -5721,7 +5718,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 1280, 1464, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 1288, 1472, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 1292, 1480, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 1300, 1488, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 1300, 1488, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 1304, 1496, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 1308, 1504, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 1320, 1520, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5751,7 +5748,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 1572, 1808, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 1576, 1816, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 1608, 1848, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 1616, 1856, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 1616, 1856, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 1620, 1864, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 1624, 1872, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 1636, 1888, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5780,7 +5777,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 1884, 2168, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 1888, 2176, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 1892, 2184, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 1900, 2192, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 1900, 2192, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 1904, 2200, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 1908, 2208, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 1920, 2224, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5790,20 +5787,20 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 1944, 2256, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 1968, 2280, 2, 100, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 2168, 2480, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 2176, 2488, 4, 1, 4, 8, 435, 0, 0, 0, 0 },
+    { 1, 2176, 2488, 4, 1, 4, 8, 434, 0, 0, 0, 0 },
     { 0, 2180, 2496, 1, 42, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2222, 2538, 1, 102, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 2324, 2640, 1, 204, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 2528, 2848, 0, 3, 16, 24, 323, 0, 0, 0, 0 },
+    { 4, 2528, 2848, 0, 3, 16, 24, 322, 0, 0, 0, 0 },
     { 0, 2576, 2920, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 2592, 2936, 0, 4, 20, 20, 435, 0, 0, 0, 0 },
+    { 4, 2592, 2936, 0, 4, 20, 20, 434, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 24, 24, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 32, 32, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 36, 40, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 44, 48, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 44, 48, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 48, 56, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 52, 64, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 64, 80, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5832,12 +5829,12 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 116, 128, 4, 5, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 136, 152, 4, 1, 4, 8, 0, 0, 0, 0, 0 },
     { 0, 140, 160, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 148, 168, 4, 1, 4, 8, 443, 0, 0, 0, 0 },
+    { 1, 148, 168, 4, 1, 4, 8, 442, 0, 0, 0, 0 },
     { 0, 152, 176, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 168, 192, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 172, 200, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 180, 208, 0, 8, 32, 40, 444, 0, 0, 0, 0 },
-    { 4, 436, 528, 0, 4, 32, 40, 444, 0, 0, 0, 0 },
+    { 4, 180, 208, 0, 8, 32, 40, 443, 0, 0, 0, 0 },
+    { 4, 436, 528, 0, 4, 32, 40, 443, 0, 0, 0, 0 },
     { 0, 564, 688, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 568, 696, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 592, 720, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
@@ -5846,7 +5843,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 636, 768, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 644, 776, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 668, 800, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 676, 808, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 676, 808, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 680, 816, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 684, 824, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 696, 840, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5858,14 +5855,14 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 772, 928, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 776, 936, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 808, 968, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 816, 976, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 816, 976, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 820, 984, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 824, 992, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 836, 1008, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
     { 1, 840, 1016, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 844, 1024, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 876, 1056, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 884, 1064, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 884, 1064, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 888, 1072, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 892, 1080, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 904, 1096, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5874,15 +5871,15 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 920, 1120, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 928, 1128, 2, 8, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 944, 1144, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
-    { 4, 952, 1152, 0, 3, 36, 56, 443, 0, 0, 0, 0 },
+    { 4, 952, 1152, 0, 3, 36, 56, 442, 0, 0, 0, 0 },
     { 1, 1060, 1320, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 1064, 1328, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 1076, 1344, 0, 6, 88, 96, 445, 0, 0, 0, 0 },
-    { 4, 1604, 1920, 0, 240, 88, 96, 445, 0, 0, 0, 0 },
-    { 4, 22724, 24960, 0, 120, 88, 96, 445, 0, 0, 0, 0 },
-    { 1, 33284, 36480, 4, 6, 4, 8, 445, 0, 0, 0, 0 },
-    { 1, 33308, 36528, 4, 240, 4, 8, 445, 0, 0, 0, 0 },
-    { 1, 34268, 38448, 4, 120, 4, 8, 445, 0, 0, 0, 0 },
+    { 4, 1076, 1344, 0, 6, 88, 96, 444, 0, 0, 0, 0 },
+    { 4, 1604, 1920, 0, 240, 88, 96, 444, 0, 0, 0, 0 },
+    { 4, 22724, 24960, 0, 120, 88, 96, 444, 0, 0, 0, 0 },
+    { 1, 33284, 36480, 4, 6, 4, 8, 444, 0, 0, 0, 0 },
+    { 1, 33308, 36528, 4, 240, 4, 8, 444, 0, 0, 0, 0 },
+    { 1, 34268, 38448, 4, 120, 4, 8, 444, 0, 0, 0, 0 },
     { 1, 34748, 39408, 4, 466, 4, 8, -1, 0, 0, 0, 0 },
     { 1, 36612, 43136, 4, 466, 4, 8, -1, 0, 0, 0, 0 },
     { 1, 38476, 46864, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
@@ -5890,7 +5887,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 38512, 46904, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 38520, 46912, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 38524, 46920, 4, 7, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 38552, 46952, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 38552, 46952, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 38556, 46960, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 38560, 46968, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 38572, 46984, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5903,7 +5900,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 38636, 47064, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 38644, 47072, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 38648, 47080, 4, 7, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 38676, 47112, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 38676, 47112, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 38680, 47120, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 38684, 47128, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 38696, 47144, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5916,7 +5913,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 38760, 47224, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 38768, 47232, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 38772, 47240, 4, 7, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 38800, 47272, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 38800, 47272, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 38804, 47280, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 38808, 47288, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 38820, 47304, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5951,7 +5948,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 39228, 47752, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 39236, 47760, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 39240, 47768, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 39248, 47776, 0, 2, 64, 72, 446, 0, 0, 0, 0 },
+    { 4, 39248, 47776, 0, 2, 64, 72, 445, 0, 0, 0, 0 },
     { 0, 39376, 47920, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 39400, 47944, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 39412, 47956, 4, 5, 4, 4, -1, 0, 0, 0, 0 },
@@ -5962,7 +5959,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 39492, 48040, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 39496, 48048, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 39500, 48056, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 39508, 48064, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 39508, 48064, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 39512, 48072, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 39516, 48080, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 39528, 48096, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -5979,7 +5976,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 39716, 48360, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 39724, 48368, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 39728, 48376, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 4, 39736, 48384, 0, 4, 64, 72, 446, 0, 0, 0, 0 },
+    { 4, 39736, 48384, 0, 4, 64, 72, 445, 0, 0, 0, 0 },
     { 0, 39992, 48672, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 40016, 48696, 1, 12, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 40028, 48708, 4, 5, 4, 4, -1, 0, 0, 0, 0 },
@@ -5990,7 +5987,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 40108, 48792, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 1, 40112, 48800, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 40116, 48808, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 40124, 48816, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 40124, 48816, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 40128, 48824, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 40132, 48832, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 40144, 48848, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6005,17 +6002,17 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 40540, 49264, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 40548, 49272, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 40550, 49274, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
-    { 4, 40552, 49280, 0, 3, 28, 40, 447, 0, 0, 0, 0 },
+    { 4, 40552, 49280, 0, 3, 28, 40, 446, 0, 0, 0, 0 },
     { 4, 40636, 49400, 0, 20, 2, 2, 3, 0, 0, 0, 0 },
     { 4, 40676, 49440, 0, 50, 2, 2, 3, 0, 0, 0, 0 },
     { 4, 40776, 49540, 0, 100, 2, 2, 3, 0, 0, 0, 0 },
-    { 4, 40976, 49744, 0, 170, 20, 32, 448, 0, 0, 0, 0 },
-    { 1, 44376, 55184, 4, 170, 4, 8, 448, 0, 0, 0, 0 },
+    { 4, 40976, 49744, 0, 170, 20, 32, 447, 0, 0, 0, 0 },
+    { 1, 44376, 55184, 4, 170, 4, 8, 447, 0, 0, 0, 0 },
     { 1, 45056, 56544, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 45060, 56552, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 45068, 56560, 2, 170, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 45408, 56900, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 45412, 56904, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 45412, 56904, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 45416, 56912, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 45420, 56920, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 45432, 56936, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6028,12 +6025,12 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 46416, 57936, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
     { 0, 46420, 57944, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 46432, 57956, 1, 56, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 46488, 58016, 4, 1, 4, 8, 449, 0, 0, 0, 0 },
+    { 1, 46488, 58016, 4, 1, 4, 8, 448, 0, 0, 0, 0 },
     { 0, 46492, 58024, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 46516, 58048, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 46524, 58056, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 46528, 58064, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 46536, 58072, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 46536, 58072, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 46540, 58080, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 46544, 58088, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 46556, 58104, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6048,7 +6045,7 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 46624, 58184, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 46628, 58192, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 46660, 58224, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 46668, 58232, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 46668, 58232, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 46672, 58240, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 46676, 58248, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 46688, 58264, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6061,7 +6058,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 46764, 58352, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 46772, 58360, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 46776, 58368, 4, 7, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 46804, 58400, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 46804, 58400, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 46808, 58408, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 46812, 58416, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 46824, 58432, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6074,7 +6071,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 46888, 58512, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 46896, 58520, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 46900, 58528, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 46908, 58536, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 46908, 58536, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 46912, 58544, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 46916, 58552, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 46928, 58568, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6086,13 +6083,13 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 46976, 58632, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 46984, 58640, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 46996, 58656, 1, 24, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 47020, 58680, 4, 1, 4, 8, 445, 0, 0, 0, 0 },
+    { 1, 47020, 58680, 4, 1, 4, 8, 444, 0, 0, 0, 0 },
     { 0, 47024, 58688, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 47028, 58696, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 47052, 58720, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 47060, 58728, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 47064, 58736, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 47072, 58744, 4, 1, 4, 8, 449, 0, 0, 0, 0 },
+    { 1, 47072, 58744, 4, 1, 4, 8, 448, 0, 0, 0, 0 },
     { 1, 47076, 58752, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 47080, 58760, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 47084, 58768, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
@@ -6102,11 +6099,11 @@ const ZLiftOp gZLiftOps[] = {
     { 1, 16, 24, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 20, 32, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 32, 48, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 443, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 442, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 20, 24, 4, 1, 4, 8, 122, 0, 0, 0, 0 },
     { 0, 24, 32, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 444, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 443, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 12, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 10, 14, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
@@ -6132,7 +6129,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 16, 24, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 24, 32, 1, 4, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
-    { 1, 4, 8, 4, 1, 4, 8, 447, 0, 0, 0, 0 },
+    { 1, 4, 8, 4, 1, 4, 8, 446, 0, 0, 0, 0 },
     { 0, 8, 16, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 0, 0, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 4, 8, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
@@ -6142,7 +6139,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 12, 16, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 16, 24, 1, 2784, 1, 1, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 453, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 452, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 4, 2, 2, -1, 0, 0, 0, 0 },
     { 4, 0, 0, 0, 4, 16, 16, 55, 0, 0, 0, 0 },
     { 0, 0, 0, 1, 18, 1, 1, -1, 0, 0, 0, 0 },
@@ -6154,7 +6151,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 24, 24, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 32, 32, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 36, 40, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 44, 48, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 44, 48, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 48, 56, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 52, 64, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 64, 80, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6174,7 +6171,7 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 504, 544, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 1, 512, 552, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
     { 0, 516, 560, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
-    { 1, 524, 568, 4, 1, 4, 8, 323, 0, 0, 0, 0 },
+    { 1, 524, 568, 4, 1, 4, 8, 322, 0, 0, 0, 0 },
     { 1, 528, 576, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
     { 0, 532, 584, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
     { 2, 544, 600, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
@@ -6196,11 +6193,11 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 1, 46, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 46, 46, 2, 1, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 2, 2, 2, 2, -1, 0, 0, 0, 0 },
-    { 1, 4, 8, 4, 5, 4, 8, 453, 0, 0, 0, 0 },
+    { 1, 4, 8, 4, 5, 4, 8, 452, 0, 0, 0, 0 },
     { 0, 24, 48, 2, 6, 2, 2, -1, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 9, 4, 4, -1, 0, 0, 0, 0 },
     { 1, 36, 40, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
-    { 1, 0, 0, 4, 1, 4, 8, 465, 0, 0, 0, 0 },
+    { 1, 0, 0, 4, 1, 4, 8, 464, 0, 0, 0, 0 },
     { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
@@ -6263,8 +6260,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x80060A00, 0x30, 6, 10, 0, 0, 0x61600, D_80060A00 }, // D_80060A00
     { 0x80064C5C, 0x1084, 151, 59, 0, 0, 0x6585C, D_80064C5C }, // D_80064C5C
     { 0x80065CE4, 0x17, 1, 61, 0, 0, 0x668E4, gBaseStats }, // gBaseStats
-    { 0x80065D00, 0xDA8, 152, 63, 0, 0, 0x66900, gSpeciesData }, // gSpeciesData
-    { 0x80066AA8, 0x30, 6, 65, 0, 0, 0x676A8, D_80066AA8 }, // D_80066AA8
+    { 0x80065D00, 0xD91, 151, 63, 0, 0, 0x66900, gSpeciesData }, // gSpeciesData
+    { 0x80066AA0, 0x38, 7, 64, 0, 0, 0x676A0, D_80066AA0 }, // D_80066AA0
     { 0x80066AD8, 0x46B8, 2263, 66, 0, 0, 0x676D8, D_80066AD8 }, // D_80066AD8
     { 0x8006B190, 0x3DE, 165, 70, 0, 0, 0x6BD90, gMoveData }, // gMoveData
     { 0x8006B570, 0x150, 84, 13, 0, 0, 0x6C170, D_8006B570 }, // D_8006B570
@@ -7176,10 +7173,10 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x81701FE4, 0x2C, 44, 6, 11, 0, 0x1FE4, sTextWrongCartridgeLine2 }, // sTextWrongCartridgeLine2
     { 0x81702010, 0x4, 1, 159, 11, 0, 0x2010, sSceneRootNode }, // sSceneRootNode
     { 0x81702014, 0x4, 1, 159, 11, 0, 0x2014, sQuestionMarkGeo }, // sQuestionMarkGeo
-    { 0x81702018, 0x4, 1, 332, 11, 0, 0x2018, sPikachuModel }, // sPikachuModel
+    { 0x81702018, 0x4, 1, 331, 11, 0, 0x2018, sPikachuModel }, // sPikachuModel
     { 0x8170201C, 0x4, 1, 295, 11, 0, 0x201C, sSessionContext }, // sSessionContext
     { 0x81702020, 0x5A0, 4, 37, 11, 0, 0x2020, sSceneObjects }, // sSceneObjects
-    { 0x817025C0, 0x200, 1, 334, 11, 1, 0x0, sNextArrowBlink }, // sNextArrowBlink
+    { 0x817025C0, 0x200, 1, 333, 11, 1, 0x0, sNextArrowBlink }, // sNextArrowBlink
     { 0x81800000, 0x20, 8, 0, 12, 0, 0x0, D_81800000 }, // D_81800000
     { 0x81800760, 0x6C, 27, 1, 12, 0, 0x760, sCupClearStageGeoLayout }, // sCupClearStageGeoLayout
     { 0x8180080C, 0x18, 24, 6, 12, 0, 0x80C, sCupClearPokeBallCupText }, // sCupClearPokeBallCupText
@@ -7190,7 +7187,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8180087C, 0xC, 12, 6, 12, 0, 0x87C, sCupClearClearText }, // sCupClearClearText
     { 0x81800888, 0x4, 4, 6, 12, 0, 0x888, sCupClearExclamationText }, // sCupClearExclamationText
     { 0x818008A0, 0x4, 1, 159, 12, 0, 0x8A0, sCupClearStageRoot }, // sCupClearStageRoot
-    { 0x818008A4, 0x4, 1, 335, 12, 0, 0x8A4, sCupClearTrophyModel }, // sCupClearTrophyModel
+    { 0x818008A4, 0x4, 1, 334, 12, 0, 0x8A4, sCupClearTrophyModel }, // sCupClearTrophyModel
     { 0x818008A8, 0x4, 1, 0, 12, 0, 0x8A8, sCupClearTrophyIndex }, // sCupClearTrophyIndex
     { 0x818008AC, 0x4, 1, 0, 12, 0, 0x8AC, sCupClearTitleIndex }, // sCupClearTitleIndex
     { 0x818008B0, 0x168, 1, 37, 12, 0, 0x8B0, sCupClearTrophy }, // sCupClearTrophy
@@ -7200,9 +7197,9 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82008F58, 0x4, 1, 302, 8, 0, 0x8F58, D_82008F58 }, // D_82008F58
     { 0x82008F5C, 0x4, 1, 302, 8, 0, 0x8F5C, D_82008F5C }, // D_82008F5C
     { 0x82008F60, 0x4, 1, 302, 8, 0, 0x8F60, D_82008F60 }, // D_82008F60
-    { 0x82008F64, 0x10, 1, 303, 8, 0, 0x8F64, D_82008F64 }, // D_82008F64
+    { 0x82008F64, 0x10, 1, 78, 8, 0, 0x8F64, D_82008F64 }, // D_82008F64
     { 0x82008F74, 0x10, 4, 13, 8, 0, 0x8F74, D_82008F74 }, // D_82008F74
-    { 0x82008F84, 0x18, 1, 304, 8, 0, 0x8F84, D_82008F84 }, // D_82008F84
+    { 0x82008F84, 0x18, 1, 303, 8, 0, 0x8F84, D_82008F84 }, // D_82008F84
     { 0x82008F9C, 0x8, 2, 13, 8, 0, 0x8F9C, D_82008F9C }, // D_82008F9C
     { 0x82008FA4, 0x8, 2, 13, 8, 0, 0x8FA4, D_82008FA4 }, // D_82008FA4
     { 0x82008FAC, 0x8, 2, 13, 8, 0, 0x8FAC, D_82008FAC }, // D_82008FAC
@@ -7216,16 +7213,16 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82008FF4, 0x8, 2, 13, 8, 0, 0x8FF4, D_82008FF4 }, // D_82008FF4
     { 0x82008FFC, 0x8, 2, 13, 8, 0, 0x8FFC, D_82008FFC }, // D_82008FFC
     { 0x82009004, 0x10, 16, 6, 8, 0, 0x9004, D_82009004 }, // D_82009004
-    { 0x82009014, 0x18, 2, 305, 8, 0, 0x9014, D_82009014 }, // D_82009014
+    { 0x82009014, 0x18, 2, 304, 8, 0, 0x9014, D_82009014 }, // D_82009014
     { 0x8200902C, 0x4, 1, 76, 8, 0, 0x902C, D_8200902C }, // D_8200902C
     { 0x82009030, 0x4, 1, 302, 8, 0, 0x9030, D_82009030 }, // D_82009030
     { 0x82009034, 0x4, 1, 302, 8, 0, 0x9034, D_82009034 }, // D_82009034
     { 0x82009038, 0x4, 1, 76, 8, 0, 0x9038, D_82009038 }, // D_82009038
     { 0x8200903C, 0x4, 1, 76, 8, 0, 0x903C, D_8200903C }, // D_8200903C
-    { 0x82009040, 0x50, 4, 306, 8, 0, 0x9040, D_82009040 }, // D_82009040
-    { 0x82009098, 0x10, 4, 307, 8, 0, 0x9098, D_82009098 }, // D_82009098
+    { 0x82009040, 0x50, 4, 305, 8, 0, 0x9040, D_82009040 }, // D_82009040
+    { 0x82009098, 0x10, 4, 306, 8, 0, 0x9098, D_82009098 }, // D_82009098
     { 0x820090A8, 0x18, 6, 13, 8, 0, 0x90A8, D_820090A8 }, // D_820090A8
-    { 0x820090C0, 0x14, 1, 308, 8, 0, 0x90C0, D_820090C0 }, // D_820090C0
+    { 0x820090C0, 0x14, 1, 307, 8, 0, 0x90C0, D_820090C0 }, // D_820090C0
     { 0x820090D4, 0x4, 1, 0, 8, 0, 0x90D4, D_820090D4 }, // D_820090D4
     { 0x820090D8, 0x4, 1, 0, 8, 0, 0x90D8, D_820090D8 }, // D_820090D8
     { 0x820090DC, 0x24, 9, 0, 8, 0, 0x90DC, D_820090DC }, // D_820090DC
@@ -7240,16 +7237,16 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82009150, 0x4, 1, 76, 8, 0, 0x9150, D_82009150 }, // D_82009150
     { 0x82009154, 0x4, 1, 76, 8, 0, 0x9154, D_82009154 }, // D_82009154
     { 0x82009158, 0x4, 1, 76, 8, 0, 0x9158, D_82009158 }, // D_82009158
-    { 0x8200915C, 0x20, 4, 309, 8, 0, 0x915C, D_8200915C }, // D_8200915C
+    { 0x8200915C, 0x20, 4, 308, 8, 0, 0x915C, D_8200915C }, // D_8200915C
     { 0x8200917C, 0x14, 5, 13, 8, 0, 0x917C, D_8200917C }, // D_8200917C
     { 0x82009190, 0x10, 4, 13, 8, 0, 0x9190, D_82009190 }, // D_82009190
     { 0x820091A0, 0x1C, 7, 13, 8, 0, 0x91A0, D_820091A0 }, // D_820091A0
     { 0x820091BC, 0x4, 1, 76, 8, 0, 0x91BC, D_820091BC }, // D_820091BC
     { 0x820091C0, 0x4, 1, 76, 8, 0, 0x91C0, D_820091C0 }, // D_820091C0
-    { 0x820091C4, 0x20, 4, 310, 8, 0, 0x91C4, D_820091C4 }, // D_820091C4
+    { 0x820091C4, 0x20, 4, 309, 8, 0, 0x91C4, D_820091C4 }, // D_820091C4
     { 0x820091E4, 0x8, 2, 76, 8, 0, 0x91E4, D_820091E4 }, // D_820091E4
-    { 0x820091EC, 0x18, 2, 311, 8, 0, 0x91EC, D_820091EC }, // D_820091EC
-    { 0x82009204, 0x8, 2, 312, 8, 0, 0x9204, D_82009204 }, // D_82009204
+    { 0x820091EC, 0x18, 2, 310, 8, 0, 0x91EC, D_820091EC }, // D_820091EC
+    { 0x82009204, 0x8, 2, 311, 8, 0, 0x9204, D_82009204 }, // D_82009204
     { 0x8200920C, 0x4, 1, 76, 8, 0, 0x920C, D_8200920C }, // D_8200920C
     { 0x82009210, 0x8, 2, 76, 8, 0, 0x9210, D_82009210 }, // D_82009210
     { 0x82009218, 0x4, 1, 76, 8, 0, 0x9218, D_82009218 }, // D_82009218
@@ -7261,8 +7258,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82009234, 0x4, 1, 76, 8, 0, 0x9234, D_82009234 }, // D_82009234
     { 0x82009238, 0x4, 1, 76, 8, 0, 0x9238, D_82009238 }, // D_82009238
     { 0x8200923C, 0x3C, 15, 76, 8, 0, 0x923C, D_8200923C }, // D_8200923C
-    { 0x82009278, 0x168, 30, 313, 8, 0, 0x9278, D_82009278 }, // D_82009278
-    { 0x820093E0, 0xC, 3, 314, 8, 0, 0x93E0, D_820093E0 }, // D_820093E0
+    { 0x82009278, 0x168, 30, 312, 8, 0, 0x9278, D_82009278 }, // D_82009278
+    { 0x820093E0, 0xC, 3, 313, 8, 0, 0x93E0, D_820093E0 }, // D_820093E0
     { 0x82009B80, 0x8, 8, 6, 8, 0, 0x9B80, D_82009B80 }, // D_82009B80
     { 0x82009B88, 0x8, 8, 6, 8, 0, 0x9B88, D_82009B88 }, // D_82009B88
     { 0x82009B90, 0x10, 16, 6, 8, 0, 0x9B90, D_82009B90 }, // D_82009B90
@@ -7324,16 +7321,16 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8200AC30, 0x10, 16, 6, 8, 0, 0xAC30, D_8200AC30 }, // D_8200AC30
     { 0x8200AC40, 0x4, 1, 122, 8, 0, 0xAC40, D_8200AC40 }, // D_8200AC40
     { 0x8200AC44, 0x4, 1, 283, 8, 0, 0xAC44, D_8200AC44 }, // D_8200AC44
-    { 0x8200AC48, 0x4, 1, 315, 8, 0, 0xAC48, D_8200AC48 }, // D_8200AC48
+    { 0x8200AC48, 0x4, 1, 314, 8, 0, 0xAC48, D_8200AC48 }, // D_8200AC48
     { 0x8200AC4C, 0x4, 1, 0, 8, 0, 0xAC4C, D_8200AC4C }, // D_8200AC4C
     { 0x8200AC50, 0x8, 2, 284, 8, 0, 0xAC50, D_8200AC50 }, // D_8200AC50
     { 0x8200AC58, 0xA0, 40, 0, 8, 0, 0xAC58, D_8200AC58 }, // D_8200AC58
     { 0x8200ACF8, 0x4, 1, 295, 8, 0, 0xACF8, D_8200ACF8 }, // D_8200ACF8
-    { 0x8200ACFC, 0x4, 1, 317, 8, 0, 0xACFC, D_8200ACFC }, // D_8200ACFC
-    { 0x8200AD00, 0x4, 1, 317, 8, 0, 0xAD00, D_8200AD00 }, // D_8200AD00
+    { 0x8200ACFC, 0x4, 1, 316, 8, 0, 0xACFC, D_8200ACFC }, // D_8200ACFC
+    { 0x8200AD00, 0x4, 1, 316, 8, 0, 0xAD00, D_8200AD00 }, // D_8200AD00
     { 0x8200AD04, 0x4, 1, 13, 8, 0, 0xAD04, D_8200AD04 }, // D_8200AD04
     { 0x8200AD08, 0x20, 8, 13, 8, 0, 0xAD08, D_8200AD08 }, // D_8200AD08
-    { 0x8200AD28, 0x4, 1, 318, 8, 0, 0xAD28, D_8200AD28 }, // D_8200AD28
+    { 0x8200AD28, 0x4, 1, 317, 8, 0, 0xAD28, D_8200AD28 }, // D_8200AD28
     { 0x8200AD2C, 0x4, 1, 0, 8, 0, 0xAD2C, D_8200AD2C }, // D_8200AD2C
     { 0x8200AD30, 0xE40, 912, 0, 8, 0, 0xAD30, D_8200AD30 }, // D_8200AD30
     { 0x82100000, 0x20, 8, 0, 13, 0, 0x0, D_82100000 }, // D_82100000
@@ -7345,28 +7342,28 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82189120, 0x50, 80, 6, 13, 0, 0x89120, D_82189120 }, // D_82189120
     { 0x82189170, 0x4, 4, 6, 13, 0, 0x89170, D_82189170 }, // D_82189170
     { 0x82189174, 0xC, 12, 6, 13, 0, 0x89174, D_82189174 }, // D_82189174
-    { 0x82189180, 0x8, 2, 336, 13, 0, 0x89180, D_82189180 }, // D_82189180
+    { 0x82189180, 0x8, 2, 335, 13, 0, 0x89180, D_82189180 }, // D_82189180
     { 0x82189188, 0x8, 2, 162, 13, 0, 0x89188, D_82189188 }, // D_82189188
     { 0x82189190, 0x10, 16, 6, 13, 0, 0x89190, D_82189190 }, // D_82189190
     { 0x821891A0, 0x8, 2, 74, 13, 0, 0x891A0, sModelTransformConstants }, // sModelTransformConstants
     { 0x821891CC, 0xC, 1, 19, 13, 0, 0x891CC, D_821891CC }, // D_821891CC
     { 0x8218920E, 0x2, 1, 54, 13, 0, 0x8920E, D_8218920E }, // D_8218920E
     { 0x82189210, 0x13C, 158, 54, 13, 0, 0x89210, sChargeMoveCues }, // sChargeMoveCues
-    { 0x8218934C, 0xA10, 161, 341, 13, 0, 0x8934C, D_8218934C }, // D_8218934C
-    { 0x82189D5C, 0x30, 2, 342, 13, 0, 0x89D5C, sSideThumbnailSettings }, // sSideThumbnailSettings
-    { 0x82189D8C, 0x548, 169, 343, 13, 0, 0x89D8C, D_82189D8C }, // D_82189D8C
+    { 0x8218934C, 0xA10, 161, 340, 13, 0, 0x8934C, D_8218934C }, // D_8218934C
+    { 0x82189D5C, 0x30, 2, 341, 13, 0, 0x89D5C, sSideThumbnailSettings }, // sSideThumbnailSettings
+    { 0x82189D8C, 0x548, 169, 342, 13, 0, 0x89D8C, D_82189D8C }, // D_82189D8C
     { 0x8218A2D4, 0x8, 2, 0, 13, 0, 0x8A2D4, D_8218A2D4 }, // D_8218A2D4
     { 0x8218A2DC, 0x268, 154, 1, 13, 0, 0x8A2DC, D_8218A2DC }, // D_8218A2DC
     { 0x8218A544, 0x26C, 155, 1, 13, 0, 0x8A544, D_8218A544 }, // D_8218A544
     { 0x8218A7B0, 0x4, 1, 58, 13, 0, 0x8A7B0, sBattleSceneStateTickSentinel }, // sBattleSceneStateTickSentinel
-    { 0x8218A7B4, 0x3F4, 23, 344, 13, 0, 0x8A7B4, sBattleSceneStateRowTable }, // sBattleSceneStateRowTable
-    { 0x8218ABB8, 0x36, 9, 345, 13, 0, 0x8ABB8, D_8218ABB8 }, // D_8218ABB8
+    { 0x8218A7B4, 0x3F4, 23, 343, 13, 0, 0x8A7B4, sBattleSceneStateRowTable }, // sBattleSceneStateRowTable
+    { 0x8218ABB8, 0x36, 9, 344, 13, 0, 0x8ABB8, D_8218ABB8 }, // D_8218ABB8
     { 0x8218ABF0, 0x4, 4, 6, 13, 0, 0x8ABF0, D_8218ABF0 }, // D_8218ABF0
     { 0x8218ABF4, 0x8, 8, 6, 13, 0, 0x8ABF4, D_8218ABF4 }, // D_8218ABF4
     { 0x8218ABFC, 0x8, 8, 6, 13, 0, 0x8ABFC, D_8218ABFC }, // D_8218ABFC
     { 0x8218AC04, 0x30, 48, 6, 13, 0, 0x8AC04, D_8218AC04 }, // D_8218AC04
     { 0x8218AC34, 0x1C, 14, 3, 13, 0, 0x8AC34, D_8218AC34 }, // D_8218AC34
-    { 0x8218AC50, 0xFC, 84, 346, 13, 0, 0x8AC50, D_8218AC50 }, // D_8218AC50
+    { 0x8218AC50, 0xFC, 84, 345, 13, 0, 0x8AC50, D_8218AC50 }, // D_8218AC50
     { 0x8218AD4C, 0x10, 16, 6, 13, 0, 0x8AD4C, D_8218AD4C }, // D_8218AD4C
     { 0x8218AD5C, 0x4, 4, 6, 13, 0, 0x8AD5C, D_8218AD5C }, // D_8218AD5C
     { 0x8218AD60, 0x4, 4, 6, 13, 0, 0x8AD60, D_8218AD60 }, // D_8218AD60
@@ -7376,7 +7373,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8218AD9C, 0x2C, 44, 6, 13, 0, 0x8AD9C, D_8218AD9C }, // D_8218AD9C
     { 0x8218ADC8, 0x24, 9, 13, 13, 0, 0x8ADC8, D_8218ADC8 }, // D_8218ADC8
     { 0x8218ADEC, 0x8, 8, 6, 13, 0, 0x8ADEC, D_8218ADEC }, // D_8218ADEC
-    { 0x8218ADF4, 0x1C, 14, 347, 13, 0, 0x8ADF4, D_8218ADF4 }, // D_8218ADF4
+    { 0x8218ADF4, 0x1C, 14, 346, 13, 0, 0x8ADF4, D_8218ADF4 }, // D_8218ADF4
     { 0x8218AE10, 0x160, 88, 58, 13, 0, 0x8AE10, sMoveEffectHandlers }, // sMoveEffectHandlers
     { 0x8218AF70, 0x6C, 27, 13, 13, 0, 0x8AF70, D_8218AF70 }, // D_8218AF70
     { 0x8218AFDC, 0x1C, 7, 13, 13, 0, 0x8AFDC, D_8218AFDC }, // D_8218AFDC
@@ -7395,13 +7392,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8218B204, 0x14, 5, 13, 13, 0, 0x8B204, D_8218B204 }, // D_8218B204
     { 0x8218B218, 0x10, 4, 13, 13, 0, 0x8B218, D_8218B218 }, // D_8218B218
     { 0x8218B228, 0x18, 6, 13, 13, 0, 0x8B228, D_8218B228 }, // D_8218B228
-    { 0x8218B240, 0x60, 2, 348, 13, 0, 0x8B240, D_8218B240 }, // D_8218B240
-    { 0x8218B2B8, 0x3C, 15, 13, 13, 0, 0x8B2B8, D_8218B2B8 }, // D_8218B2B8
+    { 0x8218B240, 0x60, 2, 347, 13, 0, 0x8B240, D_8218B240 }, // D_8218B240
+    { 0x8218B2B8, 0x18, 6, 13, 13, 0, 0x8B2B8, D_8218B2B8 }, // D_8218B2B8
     { 0x8218B2F4, 0x2C, 11, 13, 13, 0, 0x8B2F4, D_8218B2F4 }, // D_8218B2F4
     { 0x8218B320, 0x20, 8, 13, 13, 0, 0x8B320, D_8218B320 }, // D_8218B320
-    { 0x8218B350, 0xD9, 31, 349, 13, 0, 0x8B350, D_8218B350 }, // D_8218B350
-    { 0x8218B42C, 0x18C, 1, 350, 13, 0, 0x8B42C, D_8218B42C }, // D_8218B42C
-    { 0x8218B5D0, 0x54, 6, 352, 13, 0, 0x8B5D0, D_8218B5D0 }, // D_8218B5D0
+    { 0x8218B350, 0xD9, 31, 348, 13, 0, 0x8B350, D_8218B350 }, // D_8218B350
+    { 0x8218B42C, 0x18C, 1, 349, 13, 0, 0x8B42C, D_8218B42C }, // D_8218B42C
+    { 0x8218B5D0, 0x54, 6, 351, 13, 0, 0x8B5D0, D_8218B5D0 }, // D_8218B5D0
     { 0x8218B630, 0xC, 1, 19, 13, 0, 0x8B630, D_8218B630 }, // D_8218B630
     { 0x8218B63C, 0x10B0, 356, 19, 13, 0, 0x8B63C, D_8218B63C }, // D_8218B63C
     { 0x8218C6F0, 0x4, 1, 162, 13, 0, 0x8C6F0, D_8218C6F0 }, // D_8218C6F0
@@ -7518,17 +7515,17 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8218C914, 0x4, 1, 162, 13, 0, 0x8C914, D_8218C914 }, // D_8218C914
     { 0x8218C918, 0x18, 6, 162, 13, 0, 0x8C918, D_8218C918 }, // D_8218C918
     { 0x8218C930, 0x130, 152, 3, 13, 0, 0x8C930, D_8218C930 }, // D_8218C930
-    { 0x8218CA60, 0xBCC, 151, 353, 13, 0, 0x8CA60, D_8218CA60 }, // D_8218CA60
-    { 0x8218D62C, 0xF50, 196, 353, 13, 0, 0x8D62C, D_8218D62C }, // D_8218D62C
-    { 0x8218E580, 0x2B0, 86, 354, 13, 0, 0x8E580, D_8218E580 }, // D_8218E580
+    { 0x8218CA60, 0xBCC, 151, 352, 13, 0, 0x8CA60, D_8218CA60 }, // D_8218CA60
+    { 0x8218D62C, 0xF50, 196, 352, 13, 0, 0x8D62C, D_8218D62C }, // D_8218D62C
+    { 0x8218E580, 0x2B0, 86, 353, 13, 0, 0x8E580, D_8218E580 }, // D_8218E580
     { 0x8218E830, 0x23C, 143, 58, 13, 0, 0x8E830, sMoveAnimEffectStartInitFuncs }, // sMoveAnimEffectStartInitFuncs
-    { 0x8218EA6C, 0x670, 412, 58, 13, 0, 0x8EA6C, D_8218EA6C }, // D_8218EA6C
-    { 0x8218F0DC, 0x78, 15, 356, 13, 0, 0x8F0DC, sD_84386D44 }, // sD_84386D44
+    { 0x8218EA6C, 0x164, 89, 58, 13, 0, 0x8EA6C, D_8218EA6C }, // D_8218EA6C
+    { 0x8218F0DC, 0x78, 15, 355, 13, 0, 0x8F0DC, sD_84386D44 }, // sD_84386D44
     { 0x8218F154, 0x30, 12, 13, 13, 0, 0x8F154, D_8218F154 }, // D_8218F154
     { 0x8218F184, 0x14, 5, 13, 13, 0, 0x8F184, D_8218F184 }, // D_8218F184
     { 0x8218F198, 0x8, 2, 13, 13, 0, 0x8F198, D_8218F198 }, // D_8218F198
-    { 0x8218F1A0, 0xCF8, 166, 357, 13, 0, 0x8F1A0, sMoveAnimEffectScripts }, // sMoveAnimEffectScripts
-    { 0x8218FEA0, 0xC0, 64, 358, 13, 0, 0x8FEA0, gParticlePalette }, // gParticlePalette
+    { 0x8218F1A0, 0xCF8, 166, 356, 13, 0, 0x8F1A0, sMoveAnimEffectScripts }, // sMoveAnimEffectScripts
+    { 0x8218FEA0, 0xC0, 64, 357, 13, 0, 0x8FEA0, gParticlePalette }, // gParticlePalette
     { 0x8218FF60, 0x8, 8, 6, 13, 0, 0x8FF60, gParticlePaletteSetA }, // gParticlePaletteSetA
     { 0x8218FF68, 0x8, 8, 6, 13, 0, 0x8FF68, gParticlePaletteSetB }, // gParticlePaletteSetB
     { 0x8218FF70, 0x8, 8, 6, 13, 0, 0x8FF70, gParticleRandomPaletteIndices }, // gParticleRandomPaletteIndices
@@ -7608,11 +7605,11 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82194908, 0x4, 1, 74, 13, 0, 0x94908, D_FLT_82194908 }, // D_FLT_82194908
     { 0x8219490C, 0x4, 1, 74, 13, 0, 0x9490C, D_FLT_8219490C }, // D_FLT_8219490C
     { 0x82194910, 0x4, 1, 74, 13, 0, 0x94910, D_FLT_82194910 }, // D_FLT_82194910
-    { 0x82194920, 0x8, 1, 359, 13, 0, 0x94920, D_DBL_82194920 }, // D_DBL_82194920
+    { 0x82194920, 0x8, 1, 358, 13, 0, 0x94920, D_DBL_82194920 }, // D_DBL_82194920
     { 0x8219544C, 0x300, 768, 6, 13, 0, 0x9544C, D_8219544C }, // D_8219544C
     { 0x8219574C, 0x24, 36, 6, 13, 0, 0x9574C, D_8219574C }, // D_8219574C
-    { 0x82195770, 0x8, 1, 359, 13, 0, 0x95770, D_DBL_82195770 }, // D_DBL_82195770
-    { 0x82195778, 0x8, 1, 359, 13, 0, 0x95778, D_DBL_82195778 }, // D_DBL_82195778
+    { 0x82195770, 0x8, 1, 358, 13, 0, 0x95770, D_DBL_82195770 }, // D_DBL_82195770
+    { 0x82195778, 0x8, 1, 358, 13, 0, 0x95778, D_DBL_82195778 }, // D_DBL_82195778
     { 0x8219597C, 0x4, 4, 72, 13, 0, 0x9597C, D_8219597C }, // D_8219597C
     { 0x821959C4, 0xC, 12, 6, 13, 0, 0x959C4, D_821959C4 }, // D_821959C4
     { 0x821959D0, 0xC, 12, 6, 13, 0, 0x959D0, D_821959D0 }, // D_821959D0
@@ -7761,7 +7758,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82196250, 0x4, 1, 74, 13, 0, 0x96250, D_FLT_82196250 }, // D_FLT_82196250
     { 0x82196254, 0x4, 1, 74, 13, 0, 0x96254, D_FLT_82196254 }, // D_FLT_82196254
     { 0x82196258, 0x8, 2, 74, 13, 0, 0x96258, D_FLT_82196258 }, // D_FLT_82196258
-    { 0x82196260, 0x8, 1, 359, 13, 0, 0x96260, D_DBL_82196260 }, // D_DBL_82196260
+    { 0x82196260, 0x8, 1, 358, 13, 0, 0x96260, D_DBL_82196260 }, // D_DBL_82196260
     { 0x82196268, 0x4, 1, 74, 13, 0, 0x96268, D_FLT_82196268 }, // D_FLT_82196268
     { 0x821962A4, 0x4, 1, 74, 13, 0, 0x962A4, D_FLT_821962A4 }, // D_FLT_821962A4
     { 0x821963A0, 0x4, 1, 74, 13, 0, 0x963A0, D_FLT_821963A0 }, // D_FLT_821963A0
@@ -7782,8 +7779,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219786C, 0x4, 1, 74, 13, 0, 0x9786C, D_FLT_8219786C }, // D_FLT_8219786C
     { 0x82197890, 0x28, 40, 6, 13, 0, 0x97890, D_82197890 }, // D_82197890
     { 0x82197934, 0x4, 1, 74, 13, 0, 0x97934, D_FLT_82197934 }, // D_FLT_82197934
-    { 0x82197938, 0x8, 1, 359, 13, 0, 0x97938, D_DBL_82197938 }, // D_DBL_82197938
-    { 0x82197940, 0x8, 1, 359, 13, 0, 0x97940, D_DBL_82197940 }, // D_DBL_82197940
+    { 0x82197938, 0x8, 1, 358, 13, 0, 0x97938, D_DBL_82197938 }, // D_DBL_82197938
+    { 0x82197940, 0x8, 1, 358, 13, 0, 0x97940, D_DBL_82197940 }, // D_DBL_82197940
     { 0x82197948, 0x4, 1, 74, 13, 0, 0x97948, D_FLT_82197948 }, // D_FLT_82197948
     { 0x8219794C, 0x4, 1, 74, 13, 0, 0x9794C, D_FLT_8219794C }, // D_FLT_8219794C
     { 0x82197950, 0x4, 1, 74, 13, 0, 0x97950, D_FLT_82197950 }, // D_FLT_82197950
@@ -7803,19 +7800,19 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82197988, 0x4, 1, 74, 13, 0, 0x97988, D_FLT_82197988 }, // D_FLT_82197988
     { 0x8219798C, 0x4, 1, 74, 13, 0, 0x9798C, D_FLT_8219798C }, // D_FLT_8219798C
     { 0x82197990, 0x4, 1, 74, 13, 0, 0x97990, D_FLT_82197990 }, // D_FLT_82197990
-    { 0x821979B8, 0x8, 1, 359, 13, 0, 0x979B8, D_DBL_821979B8 }, // D_DBL_821979B8
+    { 0x821979B8, 0x8, 1, 358, 13, 0, 0x979B8, D_DBL_821979B8 }, // D_DBL_821979B8
     { 0x821979C0, 0x8, 2, 74, 13, 0, 0x979C0, D_FLT_821979C0 }, // D_FLT_821979C0
-    { 0x821979C8, 0x8, 1, 359, 13, 0, 0x979C8, D_DBL_821979C8 }, // D_DBL_821979C8
-    { 0x821979D0, 0x8, 1, 359, 13, 0, 0x979D0, D_DBL_821979D0 }, // D_DBL_821979D0
-    { 0x821979D8, 0x8, 1, 359, 13, 0, 0x979D8, D_DBL_821979D8 }, // D_DBL_821979D8
-    { 0x821979E0, 0x8, 1, 359, 13, 0, 0x979E0, D_DBL_821979E0 }, // D_DBL_821979E0
-    { 0x821979E8, 0x8, 1, 359, 13, 0, 0x979E8, D_DBL_821979E8 }, // D_DBL_821979E8
-    { 0x821979F0, 0x8, 1, 359, 13, 0, 0x979F0, D_DBL_821979F0 }, // D_DBL_821979F0
-    { 0x82197A28, 0x8, 1, 359, 13, 0, 0x97A28, D_DBL_82197A28 }, // D_DBL_82197A28
-    { 0x82197A30, 0x8, 1, 359, 13, 0, 0x97A30, D_DBL_82197A30 }, // D_DBL_82197A30
-    { 0x82197A38, 0x8, 1, 359, 13, 0, 0x97A38, D_DBL_82197A38 }, // D_DBL_82197A38
+    { 0x821979C8, 0x8, 1, 358, 13, 0, 0x979C8, D_DBL_821979C8 }, // D_DBL_821979C8
+    { 0x821979D0, 0x8, 1, 358, 13, 0, 0x979D0, D_DBL_821979D0 }, // D_DBL_821979D0
+    { 0x821979D8, 0x8, 1, 358, 13, 0, 0x979D8, D_DBL_821979D8 }, // D_DBL_821979D8
+    { 0x821979E0, 0x8, 1, 358, 13, 0, 0x979E0, D_DBL_821979E0 }, // D_DBL_821979E0
+    { 0x821979E8, 0x8, 1, 358, 13, 0, 0x979E8, D_DBL_821979E8 }, // D_DBL_821979E8
+    { 0x821979F0, 0x8, 1, 358, 13, 0, 0x979F0, D_DBL_821979F0 }, // D_DBL_821979F0
+    { 0x82197A28, 0x8, 1, 358, 13, 0, 0x97A28, D_DBL_82197A28 }, // D_DBL_82197A28
+    { 0x82197A30, 0x8, 1, 358, 13, 0, 0x97A30, D_DBL_82197A30 }, // D_DBL_82197A30
+    { 0x82197A38, 0x8, 1, 358, 13, 0, 0x97A38, D_DBL_82197A38 }, // D_DBL_82197A38
     { 0x82197A40, 0x10, 4, 74, 13, 0, 0x97A40, D_FLT_82197A40 }, // D_FLT_82197A40
-    { 0x82198A10, 0x10, 2, 359, 13, 0, 0x98A10, D_DBL_82198A10 }, // D_DBL_82198A10
+    { 0x82198A10, 0x10, 2, 358, 13, 0, 0x98A10, D_DBL_82198A10 }, // D_DBL_82198A10
     { 0x82198A20, 0xF0, 1, 22, 13, 0, 0x98A20, D_82198A20 }, // D_82198A20
     { 0x82198B10, 0xF0, 1, 22, 13, 0, 0x98B10, D_82198B10 }, // D_82198B10
     { 0x82198C00, 0xF0, 1, 22, 13, 0, 0x98C00, D_82198C00 }, // D_82198C00
@@ -7828,19 +7825,19 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82198D08, 0x4, 1, 13, 13, 0, 0x98D08, D_82198D08 }, // D_82198D08
     { 0x82198D0C, 0x4, 1, 13, 13, 0, 0x98D0C, D_82198D0C }, // D_82198D0C
     { 0x82198D10, 0x4, 1, 295, 13, 0, 0x98D10, D_82198D10 }, // D_82198D10
-    { 0x82198D14, 0x4, 1, 360, 13, 0, 0x98D14, D_82198D14 }, // D_82198D14
+    { 0x82198D14, 0x4, 1, 359, 13, 0, 0x98D14, D_82198D14 }, // D_82198D14
     { 0x82198D18, 0x4, 1, 0, 13, 0, 0x98D18, D_82198D18 }, // D_82198D18
     { 0x82198D1C, 0x4, 1, 0, 13, 0, 0x98D1C, D_82198D1C }, // D_82198D1C
     { 0x82198D20, 0x4, 1, 0, 13, 0, 0x98D20, D_82198D20 }, // D_82198D20
     { 0x82198D24, 0x4, 4, 6, 13, 0, 0x98D24, D_82198D24 }, // D_82198D24
-    { 0x82198D28, 0x4, 1, 361, 13, 0, 0x98D28, sTintColor }, // sTintColor
+    { 0x82198D28, 0x4, 1, 360, 13, 0, 0x98D28, sTintColor }, // sTintColor
     { 0x82198D2C, 0x4, 1, 74, 13, 0, 0x98D2C, sStageScale }, // sStageScale
     { 0x82198D30, 0x10B0, 1068, 0, 13, 0, 0x98D30, D_82198D30 }, // D_82198D30
-    { 0x82199DE0, 0x8, 2, 362, 13, 0, 0x99DE0, sActivePokemon }, // sActivePokemon
-    { 0x82199DE8, 0x4, 1, 362, 13, 0, 0x99DE8, sSide1ActivePokemon }, // sSide1ActivePokemon
-    { 0x82199DEC, 0x4, 1, 362, 13, 0, 0x99DEC, sSide2ActivePokemon }, // sSide2ActivePokemon
+    { 0x82199DE0, 0x8, 2, 361, 13, 0, 0x99DE0, sActivePokemon }, // sActivePokemon
+    { 0x82199DE8, 0x4, 1, 361, 13, 0, 0x99DE8, sSide1ActivePokemon }, // sSide1ActivePokemon
+    { 0x82199DEC, 0x4, 1, 361, 13, 0, 0x99DEC, sSide2ActivePokemon }, // sSide2ActivePokemon
     { 0x82199DF0, 0x20, 2, 25, 13, 0, 0x99DF0, D_82199DF0 }, // D_82199DF0
-    { 0x82199E10, 0x38, 7, 366, 13, 0, 0x99E10, sBattleSceneStateTickSlots }, // sBattleSceneStateTickSlots
+    { 0x82199E10, 0x38, 7, 365, 13, 0, 0x99E10, sBattleSceneStateTickSlots }, // sBattleSceneStateTickSlots
     { 0x82199E48, 0x68, 26, 0, 13, 0, 0x99E48, sBattleSceneStateTickSlotIndex }, // sBattleSceneStateTickSlotIndex
     { 0x82199EB0, 0x4, 1, 74, 13, 0, 0x99EB0, D_82199EB0 }, // D_82199EB0
     { 0x82199EB4, 0x4, 1, 74, 13, 0, 0x99EB4, D_FLT_82199EB4 }, // D_FLT_82199EB4
@@ -7873,16 +7870,16 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82199FCD, 0x3F3, 1011, 72, 13, 0, 0x99FCD, D_82199FCD }, // D_82199FCD
     { 0x8219A3C0, 0x4, 1, 162, 13, 0, 0x9A3C0, D_8219A3C0 }, // D_8219A3C0
     { 0x8219A3C4, 0x4, 1, 162, 13, 0, 0x9A3C4, D_8219A3C4 }, // D_8219A3C4
-    { 0x8219A3C8, 0xC8, 2, 369, 13, 0, 0x9A3C8, D_8219A3C8 }, // D_8219A3C8
+    { 0x8219A3C8, 0xC8, 2, 368, 13, 0, 0x9A3C8, D_8219A3C8 }, // D_8219A3C8
     { 0x8219A494, 0x6, 1, 70, 13, 0, 0x9A494, D_8219A494 }, // D_8219A494
     { 0x8219A4A0, 0x28, 40, 72, 13, 0, 0x9A4A0, D_8219A4A0 }, // D_8219A4A0
     { 0x8219A4C8, 0x28, 40, 72, 13, 0, 0x9A4C8, D_8219A4C8 }, // D_8219A4C8
-    { 0x8219A4F0, 0x24, 1, 370, 13, 0, 0x9A4F0, D_8219A4F0 }, // D_8219A4F0
-    { 0x8219A520, 0x10, 4, 371, 13, 0, 0x9A520, gBattleMessageQueues }, // gBattleMessageQueues
+    { 0x8219A4F0, 0x24, 1, 369, 13, 0, 0x9A4F0, D_8219A4F0 }, // D_8219A4F0
+    { 0x8219A520, 0x10, 4, 370, 13, 0, 0x9A520, gBattleMessageQueues }, // gBattleMessageQueues
     { 0x8219A530, 0x4, 1, 74, 13, 0, 0x9A530, D_8219A530 }, // D_8219A530
     { 0x8219A534, 0xC, 3, 74, 13, 0, 0x9A534, D_8219A534 }, // D_8219A534
-    { 0x8219A540, 0x4, 1, 362, 13, 0, 0x9A540, sOtherPokemon }, // sOtherPokemon
-    { 0x8219A544, 0x1C, 7, 362, 13, 0, 0x9A544, sActingPokemon }, // sActingPokemon
+    { 0x8219A540, 0x4, 1, 361, 13, 0, 0x9A540, sOtherPokemon }, // sOtherPokemon
+    { 0x8219A544, 0x1C, 7, 361, 13, 0, 0x9A544, sActingPokemon }, // sActingPokemon
     { 0x8219A560, 0x4, 1, 0, 13, 0, 0x9A560, D_8219A560 }, // D_8219A560
     { 0x8219A564, 0x4, 1, 0, 13, 0, 0x9A564, D_8219A564 }, // D_8219A564
     { 0x8219A568, 0x4, 1, 0, 13, 0, 0x9A568, D_8219A568 }, // D_8219A568
@@ -7893,7 +7890,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219A580, 0x10, 4, 162, 13, 0, 0x9A580, D_8219A580 }, // D_8219A580
     { 0x8219A590, 0x4, 1, 162, 13, 0, 0x9A590, D_8219A590 }, // D_8219A590
     { 0x8219A594, 0xC, 12, 6, 13, 0, 0x9A594, D_8219A594 }, // D_8219A594
-    { 0x8219A5A0, 0x178, 1, 376, 13, 0, 0x9A5A0, sBattleScene }, // sBattleScene
+    { 0x8219A5A0, 0x178, 1, 375, 13, 0, 0x9A5A0, sBattleScene }, // sBattleScene
     { 0x8219A718, 0x18, 6, 74, 13, 0, 0x9A718, D_FLT_8219A718 }, // D_FLT_8219A718
     { 0x8219A730, 0x1, 1, 6, 13, 0, 0x9A730, D_8219A730 }, // D_8219A730
     { 0x8219A731, 0x1, 1, 6, 13, 0, 0x9A731, D_8219A731 }, // D_8219A731
@@ -7911,7 +7908,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219A760, 0x4, 1, 0, 13, 0, 0x9A760, D_8219A760 }, // D_8219A760
     { 0x8219A764, 0x4, 1, 0, 13, 0, 0x9A764, D_8219A764 }, // D_8219A764
     { 0x8219A768, 0xC, 3, 0, 13, 0, 0x9A768, D_8219A768 }, // D_8219A768
-    { 0x8219A774, 0x4, 1, 377, 13, 0, 0x9A774, gParticleMatrixPool }, // gParticleMatrixPool
+    { 0x8219A774, 0x4, 1, 376, 13, 0, 0x9A774, gParticleMatrixPool }, // gParticleMatrixPool
     { 0x8219A778, 0x4, 1, 0, 13, 0, 0x9A778, gParticleMatrixPoolIndex }, // gParticleMatrixPoolIndex
     { 0x8219A77C, 0x4, 1, 0, 13, 0, 0x9A77C, D_8219A77C }, // D_8219A77C
     { 0x8219A780, 0x4, 1, 0, 13, 0, 0x9A780, D_8219A780 }, // D_8219A780
@@ -7951,10 +7948,10 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219A80A, 0x2, 1, 54, 13, 0, 0x9A80A, D_8219A80A }, // D_8219A80A
     { 0x8219A80C, 0x2, 1, 54, 13, 0, 0x9A80C, D_8219A80C }, // D_8219A80C
     { 0x8219A80E, 0x2, 1, 54, 13, 0, 0x9A80E, D_8219A80E }, // D_8219A80E
-    { 0x8219A810, 0x4, 1, 122, 13, 0, 0x9A810, D_8219A810 }, // D_8219A810
-    { 0x8219A814, 0x4, 1, 362, 13, 0, 0x9A814, D_8219A814 }, // D_8219A814
-    { 0x8219A818, 0x8, 2, 362, 13, 0, 0x9A818, D_8219A818 }, // D_8219A818
-    { 0x8219A820, 0xC, 1, 379, 13, 0, 0x9A820, gParticleRenderContext }, // gParticleRenderContext
+    { 0x8219A810, 0x4, 1, 361, 13, 0, 0x9A810, D_8219A810 }, // D_8219A810
+    { 0x8219A814, 0x4, 1, 361, 13, 0, 0x9A814, D_8219A814 }, // D_8219A814
+    { 0x8219A818, 0x8, 2, 361, 13, 0, 0x9A818, D_8219A818 }, // D_8219A818
+    { 0x8219A820, 0xC, 1, 378, 13, 0, 0x9A820, gParticleRenderContext }, // gParticleRenderContext
     { 0x8219A82C, 0x4, 1, 0, 13, 0, 0x9A82C, D_8219A82C }, // D_8219A82C
     { 0x8219A830, 0x4, 1, 0, 13, 0, 0x9A830, D_8219A830 }, // D_8219A830
     { 0x8219A834, 0x4, 4, 72, 13, 0, 0x9A834, sBattleAnimEffectCallbackIndex }, // sBattleAnimEffectCallbackIndex
@@ -7992,13 +7989,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219BF88, 0x40, 16, 0, 13, 0, 0x9BF88, sD_84391A50 }, // sD_84391A50
     { 0x8219BFC8, 0x5A0, 4, 37, 13, 0, 0x9BFC8, sD_84391A90 }, // sD_84391A90
     { 0x8219C568, 0x10, 4, 0, 13, 0, 0x9C568, sD_84392030 }, // sD_84392030
-    { 0x8219C578, 0x18, 1, 380, 13, 0, 0x9C578, sD_84392040 }, // sD_84392040
+    { 0x8219C578, 0x18, 1, 379, 13, 0, 0x9C578, sD_84392040 }, // sD_84392040
     { 0x8219C590, 0x60, 24, 74, 13, 0, 0x9C590, D_8219C590 }, // D_8219C590
     { 0x8219C5F0, 0x400, 256, 13, 13, 0, 0x9C5F0, sBattleAnimAssetPointers }, // sBattleAnimAssetPointers
     { 0x8219C9F0, 0x20, 16, 54, 13, 0, 0x9C9F0, sBattleAnimResourceList }, // sBattleAnimResourceList
-    { 0x8219CA10, 0x40, 16, 381, 13, 0, 0x9CA10, sBattleAnimResourceTablePointers }, // sBattleAnimResourceTablePointers
-    { 0x8219CA50, 0x4, 1, 382, 13, 0, 0x9CA50, gParticlePool }, // gParticlePool
-    { 0x8219CA54, 0x4, 1, 384, 13, 0, 0x9CA54, gBattleAnimEffectSlots }, // gBattleAnimEffectSlots
+    { 0x8219CA10, 0x40, 16, 380, 13, 0, 0x9CA10, sBattleAnimResourceTablePointers }, // sBattleAnimResourceTablePointers
+    { 0x8219CA50, 0x4, 1, 381, 13, 0, 0x9CA50, gParticlePool }, // gParticlePool
+    { 0x8219CA54, 0x4, 1, 383, 13, 0, 0x9CA54, gBattleAnimEffectSlots }, // gBattleAnimEffectSlots
     { 0x8219CA58, 0x4, 1, 0, 13, 0, 0x9CA58, gParticlePoolIndex }, // gParticlePoolIndex
     { 0x8219CA5C, 0x64, 25, 0, 13, 0, 0x9CA5C, gBattleAnimEffectSlotIndex }, // gBattleAnimEffectSlotIndex
     { 0x8219CAC0, 0x2, 1, 54, 13, 0, 0x9CAC0, D_8219CAC0 }, // D_8219CAC0
@@ -8014,46 +8011,46 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8219CB16, 0x2, 1, 54, 13, 0, 0x9CB16, D_8219CB16 }, // D_8219CB16
     { 0x8219CB18, 0x2, 1, 54, 13, 0, 0x9CB18, D_8219CB18 }, // D_8219CB18
     { 0x8219CB1A, 0x6, 3, 54, 13, 0, 0x9CB1A, D_8219CB1A }, // D_8219CB1A
-    { 0x8219CB20, 0x2BE0, 4, 386, 13, 0, 0x9CB20, D_8219CB20 }, // D_8219CB20
+    { 0x8219CB20, 0x2BE0, 4, 385, 13, 0, 0x9CB20, D_8219CB20 }, // D_8219CB20
     { 0x8219F700, 0x2, 1, 54, 13, 0, 0x9F700, D_8219F700 }, // D_8219F700
     { 0x8219F702, 0xE, 7, 54, 13, 0, 0x9F702, D_8219F702 }, // D_8219F702
-    { 0x8219F710, 0x2410, 1, 388, 13, 0, 0x9F710, sWaterHeightMap }, // sWaterHeightMap
+    { 0x8219F710, 0x2410, 1, 387, 13, 0, 0x9F710, sWaterHeightMap }, // sWaterHeightMap
     { 0x821A1B20, 0x2, 1, 54, 13, 0, 0xA1B20, D_821A1B20 }, // D_821A1B20
     { 0x821A1B22, 0x2, 1, 54, 13, 0, 0xA1B22, D_821A1B22 }, // D_821A1B22
     { 0x821A1B24, 0x4, 2, 54, 13, 0, 0xA1B24, D_821A1B24 }, // D_821A1B24
-    { 0x821A1B28, 0x28, 1, 391, 13, 0, 0xA1B28, D_821A1B28 }, // D_821A1B28
-    { 0x821A3490, 0x3AC0, 10, 392, 13, 0, 0xA3490, D_821A3490 }, // D_821A3490
-    { 0x821A6F50, 0x1C14, 1, 394, 13, 0, 0xA6F50, sWaterSurface }, // sWaterSurface
-    { 0x821A8B70, 0x2014, 1, 398, 13, 0, 0xA8B70, D_821A8B70 }, // D_821A8B70
-    { 0x821AAB90, 0x1C14, 1, 394, 13, 0, 0xAAB90, D_821AAB90 }, // D_821AAB90
-    { 0x821AC7B0, 0x85C0, 40, 401, 13, 0, 0xAC7B0, D_821AC7B0 }, // D_821AC7B0
-    { 0x821B4D70, 0x10C0, 4, 403, 13, 1, 0x0, D_821B4D70 }, // D_821B4D70
-    { 0x821B5E30, 0x10D0, 4, 405, 13, 1, 0x0, D_821B5E30 }, // D_821B5E30
-    { 0x821B6F00, 0x1060, 4, 406, 13, 1, 0x0, D_821B6F00 }, // D_821B6F00
-    { 0x821B7F60, 0xA8C0, 50, 407, 13, 1, 0x0, D_821B7F60 }, // D_821B7F60
-    { 0x821C2820, 0xA8C0, 50, 407, 13, 1, 0x0, D_821C2820 }, // D_821C2820
-    { 0x821CD0E0, 0x900, 4, 409, 13, 1, 0x0, D_821CD0E0 }, // D_821CD0E0
+    { 0x821A1B28, 0x28, 1, 390, 13, 0, 0xA1B28, D_821A1B28 }, // D_821A1B28
+    { 0x821A3490, 0x3AC0, 10, 391, 13, 0, 0xA3490, D_821A3490 }, // D_821A3490
+    { 0x821A6F50, 0x1C14, 1, 393, 13, 0, 0xA6F50, sWaterSurface }, // sWaterSurface
+    { 0x821A8B70, 0x2014, 1, 397, 13, 0, 0xA8B70, D_821A8B70 }, // D_821A8B70
+    { 0x821AAB90, 0x1C14, 1, 393, 13, 0, 0xAAB90, D_821AAB90 }, // D_821AAB90
+    { 0x821AC7B0, 0x85C0, 40, 400, 13, 0, 0xAC7B0, D_821AC7B0 }, // D_821AC7B0
+    { 0x821B4D70, 0x10C0, 4, 402, 13, 1, 0x0, D_821B4D70 }, // D_821B4D70
+    { 0x821B5E30, 0x10D0, 4, 404, 13, 1, 0x0, D_821B5E30 }, // D_821B5E30
+    { 0x821B6F00, 0x1060, 4, 405, 13, 1, 0x0, D_821B6F00 }, // D_821B6F00
+    { 0x821B7F60, 0xA8C0, 50, 406, 13, 1, 0x0, D_821B7F60 }, // D_821B7F60
+    { 0x821C2820, 0xA8C0, 50, 406, 13, 1, 0x0, D_821C2820 }, // D_821C2820
+    { 0x821CD0E0, 0x900, 4, 408, 13, 1, 0x0, D_821CD0E0 }, // D_821CD0E0
     { 0x821CD9E0, 0x8, 4, 54, 13, 1, 0x0, D_821CD9E0 }, // D_821CD9E0
-    { 0x821CD9E8, 0x14B8, 6, 411, 13, 1, 0x0, D_821CD9E8 }, // D_821CD9E8
-    { 0x821CEEA0, 0x3C8, 2, 413, 13, 1, 0x0, D_821CEEA0 }, // D_821CEEA0
+    { 0x821CD9E8, 0x14B8, 6, 410, 13, 1, 0x0, D_821CD9E8 }, // D_821CD9E8
+    { 0x821CEEA0, 0x3C8, 2, 412, 13, 1, 0x0, D_821CEEA0 }, // D_821CEEA0
     { 0x821CF270, 0x2, 1, 54, 13, 1, 0x0, D_821CF270 }, // D_821CF270
     { 0x821CF272, 0x2, 1, 54, 13, 1, 0x0, D_821CF272 }, // D_821CF272
     { 0x821CF274, 0xC, 6, 54, 13, 1, 0x0, D_821CF274 }, // D_821CF274
     { 0x821CF280, 0x1, 1, 6, 13, 1, 0x0, D_821CF280 }, // D_821CF280
     { 0x821CF281, 0x7, 7, 6, 13, 1, 0x0, D_821CF281 }, // D_821CF281
     { 0x821CF288, 0xC, 3, 0, 13, 1, 0x0, D_821CF288 }, // D_821CF288
-    { 0x821CF294, 0x4, 1, 415, 13, 1, 0x0, D_821CF294 }, // D_821CF294
-    { 0x821CF298, 0x4, 1, 415, 13, 1, 0x0, D_821CF298 }, // D_821CF298
-    { 0x821CF29C, 0x4, 1, 418, 13, 1, 0x0, D_821CF29C }, // D_821CF29C
-    { 0x821CF2A0, 0x4, 1, 418, 13, 1, 0x0, D_821CF2A0 }, // D_821CF2A0
+    { 0x821CF294, 0x4, 1, 414, 13, 1, 0x0, D_821CF294 }, // D_821CF294
+    { 0x821CF298, 0x4, 1, 414, 13, 1, 0x0, D_821CF298 }, // D_821CF298
+    { 0x821CF29C, 0x4, 1, 417, 13, 1, 0x0, D_821CF29C }, // D_821CF29C
+    { 0x821CF2A0, 0x4, 1, 417, 13, 1, 0x0, D_821CF2A0 }, // D_821CF2A0
     { 0x821CF2A4, 0x4, 1, 0, 13, 1, 0x0, D_821CF2A4 }, // D_821CF2A4
-    { 0x821CF2A8, 0x4, 1, 368, 13, 1, 0x0, D_821CF2A8 }, // D_821CF2A8
-    { 0x821CF2AC, 0x4, 1, 368, 13, 1, 0x0, D_821CF2AC }, // D_821CF2AC
+    { 0x821CF2A8, 0x4, 1, 367, 13, 1, 0x0, D_821CF2A8 }, // D_821CF2A8
+    { 0x821CF2AC, 0x4, 1, 367, 13, 1, 0x0, D_821CF2AC }, // D_821CF2AC
     { 0x821CF2B0, 0x4, 1, 0, 13, 1, 0x0, D_821CF2B0 }, // D_821CF2B0
     { 0x821CF2B4, 0x4, 1, 1, 13, 1, 0x0, D_821CF2B4 }, // D_821CF2B4
-    { 0x821CF2B8, 0x360, 6, 417, 13, 1, 0x0, D_821CF2B8 }, // D_821CF2B8
-    { 0x821CF618, 0x380, 1, 416, 13, 1, 0x0, D_821CF618 }, // D_821CF618
-    { 0x821CF998, 0xFF80, 73, 416, 13, 1, 0x0, D_821CF998 }, // D_821CF998
+    { 0x821CF2B8, 0x360, 6, 416, 13, 1, 0x0, D_821CF2B8 }, // D_821CF2B8
+    { 0x821CF618, 0x380, 1, 415, 13, 1, 0x0, D_821CF618 }, // D_821CF618
+    { 0x821CF998, 0xFF80, 73, 415, 13, 1, 0x0, D_821CF998 }, // D_821CF998
     { 0x82200000, 0x20, 8, 0, 14, 0, 0x0, D_82200000 }, // D_82200000
     { 0x82202C1C, 0x4, 1, 13, 14, 0, 0x2C1C, D_82202C1C }, // D_82202C1C
     { 0x82202C3C, 0x24, 9, 13, 14, 0, 0x2C3C, D_82202C3C }, // D_82202C3C
@@ -8078,7 +8075,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82203108, 0x20, 32, 6, 14, 0, 0x3108, D_82203108 }, // D_82203108
     { 0x82203128, 0x24, 36, 6, 14, 0, 0x3128, D_82203128 }, // D_82203128
     { 0x8220314C, 0x24, 36, 6, 14, 0, 0x314C, D_8220314C }, // D_8220314C
-    { 0x82203170, 0x90, 2, 419, 14, 0, 0x3170, D_82203170 }, // D_82203170
+    { 0x82203170, 0x90, 2, 418, 14, 0, 0x3170, D_82203170 }, // D_82203170
     { 0x82203200, 0x4, 1, 36, 14, 0, 0x3200, D_82203200 }, // D_82203200
     { 0x82203204, 0x4, 1, 138, 14, 0, 0x3204, D_82203204 }, // D_82203204
     { 0x82203208, 0x8, 2, 4, 14, 0, 0x3208, D_82203208 }, // D_82203208
@@ -8087,10 +8084,10 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82203244, 0x4, 1, 159, 14, 0, 0x3244, D_82203244 }, // D_82203244
     { 0x82203248, 0x4, 1, 159, 14, 0, 0x3248, D_82203248 }, // D_82203248
     { 0x8220324C, 0x4, 1, 159, 14, 0, 0x324C, D_8220324C }, // D_8220324C
-    { 0x82203250, 0x4, 1, 335, 14, 0, 0x3250, D_82203250 }, // D_82203250
-    { 0x82203254, 0x4, 1, 335, 14, 0, 0x3254, D_82203254 }, // D_82203254
-    { 0x82203258, 0x4, 1, 335, 14, 0, 0x3258, D_82203258 }, // D_82203258
-    { 0x8220325C, 0x4, 1, 420, 14, 0, 0x325C, D_8220325C }, // D_8220325C
+    { 0x82203250, 0x4, 1, 334, 14, 0, 0x3250, D_82203250 }, // D_82203250
+    { 0x82203254, 0x4, 1, 334, 14, 0, 0x3254, D_82203254 }, // D_82203254
+    { 0x82203258, 0x4, 1, 334, 14, 0, 0x3258, D_82203258 }, // D_82203258
+    { 0x8220325C, 0x4, 1, 419, 14, 0, 0x325C, D_8220325C }, // D_8220325C
     { 0x82203260, 0x4, 1, 283, 14, 0, 0x3260, D_82203260 }, // D_82203260
     { 0x82203264, 0x4, 1, 284, 14, 0, 0x3264, D_82203264 }, // D_82203264
     { 0x82203268, 0x168, 1, 37, 14, 0, 0x3268, D_82203268 }, // D_82203268
@@ -8101,7 +8098,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x822036A8, 0x1B8, 110, 0, 14, 0, 0x36A8, D_822036A8 }, // D_822036A8
     { 0x82300000, 0x20, 8, 0, 6, 0, 0x0, D_82300000 }, // D_82300000
     { 0x82302800, 0x8, 4, 18, 6, 0, 0x2800, D_82302800 }, // D_82302800
-    { 0x82302808, 0xA0, 40, 214, 6, 0, 0x2808, D_82302808 }, // D_82302808
+    { 0x82302808, 0x8, 2, 214, 6, 0, 0x2808, D_82302808 }, // D_82302808
     { 0x823028A8, 0x1C, 7, 288, 6, 0, 0x28A8, D_823028A8 }, // D_823028A8
     { 0x823028C4, 0x3, 1, 75, 6, 0, 0x28C4, D_823028C4 }, // D_823028C4
     { 0x823028C8, 0x3, 1, 75, 6, 0, 0x28C8, D_823028C8 }, // D_823028C8
@@ -8131,13 +8128,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82302B44, 0x4, 1, 0, 6, 0, 0x2B44, D_82302B44 }, // D_82302B44
     { 0x82302B48, 0x80, 4, 292, 6, 0, 0x2B48, D_82302B48 }, // D_82302B48
     { 0x82302BC8, 0x4, 1, 283, 6, 0, 0x2BC8, D_82302BC8 }, // D_82302BC8
-    { 0x82302BCC, 0x4, 1, 0, 6, 0, 0x2BCC, D_82302BCC }, // D_82302BCC
+    { 0x82302BCC, 0x4, 1, 284, 6, 0, 0x2BCC, D_82302BCC }, // D_82302BCC
     { 0x82302BD0, 0x8, 2, 295, 6, 0, 0x2BD0, D_82302BD0 }, // D_82302BD0
     { 0x82302BD8, 0x24, 1, 15, 6, 0, 0x2BD8, D_82302BD8 }, // D_82302BD8
     { 0x82302BFC, 0x4, 1, 0, 6, 0, 0x2BFC, D_82302BFC }, // D_82302BFC
     { 0x82302C00, 0x300, 192, 0, 6, 0, 0x2C00, D_82302C00 }, // D_82302C00
     { 0x82400000, 0x20, 32, 6, 10, 0, 0x0, D_82400000 }, // D_82400000
-    { 0x82400400, 0x5B10, 47, 331, 10, 0, 0x400, sTournamentOpponents }, // sTournamentOpponents
+    { 0x82400400, 0x5B10, 47, 330, 10, 0, 0x400, sTournamentOpponents }, // sTournamentOpponents
     { 0x82405F10, 0x9F0, 2544, 72, 10, 0, 0x5F10, sCupFirstOpponent }, // sCupFirstOpponent
     { 0x88000000, 0x20, 32, 6, 15, 0, 0x0, D_88000000 }, // D_88000000
     { 0x88001FD0, 0x4, 1, 76, 15, 0, 0x1FD0, D_88001FD0 }, // D_88001FD0
@@ -8147,11 +8144,11 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x88001FE8, 0x4, 1, 76, 15, 0, 0x1FE8, D_88001FE8 }, // D_88001FE8
     { 0x88001FEC, 0x24, 9, 76, 15, 0, 0x1FEC, D_88001FEC }, // D_88001FEC
     { 0x88002010, 0x24, 9, 76, 15, 0, 0x2010, D_88002010 }, // D_88002010
-    { 0x88002034, 0xD8, 9, 421, 15, 0, 0x2034, D_88002034 }, // D_88002034
-    { 0x8800210C, 0x90, 9, 422, 15, 0, 0x210C, D_8800210C }, // D_8800210C
-    { 0x8800219C, 0x90, 9, 423, 15, 0, 0x219C, D_8800219C }, // D_8800219C
+    { 0x88002034, 0xD8, 9, 420, 15, 0, 0x2034, D_88002034 }, // D_88002034
+    { 0x8800210C, 0x90, 9, 421, 15, 0, 0x210C, D_8800210C }, // D_8800210C
+    { 0x8800219C, 0x90, 9, 422, 15, 0, 0x219C, D_8800219C }, // D_8800219C
     { 0x8800222C, 0x4, 4, 6, 15, 0, 0x222C, D_8800222C }, // D_8800222C
-    { 0x88002230, 0x10, 1, 424, 15, 0, 0x2230, D_88002230 }, // D_88002230
+    { 0x88002230, 0x10, 1, 423, 15, 0, 0x2230, D_88002230 }, // D_88002230
     { 0x88002240, 0x14, 5, 13, 15, 0, 0x2240, D_88002240 }, // D_88002240
     { 0x88002254, 0x4, 1, 0, 15, 0, 0x2254, D_88002254 }, // D_88002254
     { 0x88002258, 0x24, 9, 13, 15, 0, 0x2258, D_88002258 }, // D_88002258
@@ -8167,19 +8164,19 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x88002AAC, 0x10, 16, 6, 15, 0, 0x2AAC, D_88002AAC }, // D_88002AAC
     { 0x88002B00, 0x8, 2, 0, 15, 0, 0x2B00, D_88002B00 }, // D_88002B00
     { 0x88002B08, 0x18, 6, 0, 15, 0, 0x2B08, D_88002B08 }, // D_88002B08
-    { 0x88002B20, 0x340, 208, 425, 15, 0, 0x2B20, D_88002B20 }, // D_88002B20
+    { 0x88002B20, 0x340, 208, 424, 15, 0, 0x2B20, D_88002B20 }, // D_88002B20
     { 0x88100000, 0x20, 8, 0, 9, 0, 0x0, D_88100000 }, // D_88100000
     { 0x88102D70, 0x4, 4, 6, 9, 0, 0x2D70, D_88102D70 }, // D_88102D70
     { 0x88102D74, 0x4, 1, 76, 9, 0, 0x2D74, D_88102D74 }, // D_88102D74
-    { 0x88102D78, 0x8, 2, 327, 9, 0, 0x2D78, D_88102D78 }, // D_88102D78
-    { 0x88102D80, 0x4, 1, 327, 9, 0, 0x2D80, D_88102D80 }, // D_88102D80
+    { 0x88102D78, 0x8, 2, 326, 9, 0, 0x2D78, D_88102D78 }, // D_88102D78
+    { 0x88102D80, 0x4, 1, 326, 9, 0, 0x2D80, D_88102D80 }, // D_88102D80
     { 0x88102D84, 0xC, 3, 13, 9, 0, 0x2D84, D_88102D84 }, // D_88102D84
     { 0x88102D90, 0xC, 3, 13, 9, 0, 0x2D90, D_88102D90 }, // D_88102D90
-    { 0x88102D9C, 0x4, 1, 327, 9, 0, 0x2D9C, D_88102D9C }, // D_88102D9C
-    { 0x88102DA0, 0x4, 1, 327, 9, 0, 0x2DA0, D_88102DA0 }, // D_88102DA0
+    { 0x88102D9C, 0x4, 1, 326, 9, 0, 0x2D9C, D_88102D9C }, // D_88102D9C
+    { 0x88102DA0, 0x4, 1, 326, 9, 0, 0x2DA0, D_88102DA0 }, // D_88102DA0
     { 0x88102DA4, 0x4, 1, 76, 9, 0, 0x2DA4, D_88102DA4 }, // D_88102DA4
-    { 0x88102DA8, 0x4, 1, 327, 9, 0, 0x2DA8, D_88102DA8 }, // D_88102DA8
-    { 0x88102DAC, 0x4, 1, 327, 9, 0, 0x2DAC, D_88102DAC }, // D_88102DAC
+    { 0x88102DA8, 0x4, 1, 326, 9, 0, 0x2DA8, D_88102DA8 }, // D_88102DA8
+    { 0x88102DAC, 0x4, 1, 326, 9, 0, 0x2DAC, D_88102DAC }, // D_88102DAC
     { 0x88102DB0, 0x4, 4, 6, 9, 0, 0x2DB0, D_88102DB0 }, // D_88102DB0
     { 0x88102DB4, 0x4, 4, 6, 9, 0, 0x2DB4, D_88102DB4 }, // D_88102DB4
     { 0x88102DB8, 0x10, 1, 78, 9, 0, 0x2DB8, D_88102DB8 }, // D_88102DB8
@@ -8201,7 +8198,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x88103078, 0x8, 2, 0, 9, 0, 0x3078, D_88103078 }, // D_88103078
     { 0x88103080, 0x18, 6, 0, 9, 0, 0x3080, D_88103080 }, // D_88103080
     { 0x88103098, 0x60, 24, 0, 9, 0, 0x3098, D_88103098 }, // D_88103098
-    { 0x881030F8, 0x388, 226, 328, 9, 0, 0x30F8, D_881030F8 }, // D_881030F8
+    { 0x881030F8, 0x388, 226, 327, 9, 0, 0x30F8, D_881030F8 }, // D_881030F8
     { 0x88400000, 0x20, 8, 0, 7, 0, 0x0, D_88400000 }, // D_88400000
     { 0x88402D70, 0x4, 1, 162, 7, 0, 0x2D70, D_88402D70 }, // D_88402D70
     { 0x88402D74, 0xC, 3, 122, 7, 0, 0x2D74, D_88402D74 }, // D_88402D74
@@ -8287,24 +8284,24 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8900A5F4, 0xC, 3, 13, 16, 0, 0xA5F4, D_8900A5F4 }, // D_8900A5F4
     { 0x8900A600, 0x4, 1, 76, 16, 0, 0xA600, D_8900A600 }, // D_8900A600
     { 0x8900A604, 0x4, 1, 76, 16, 0, 0xA604, D_8900A604 }, // D_8900A604
-    { 0x8900A608, 0x8, 1, 428, 16, 0, 0xA608, D_8900A608 }, // D_8900A608
-    { 0x8900A610, 0x40, 8, 428, 16, 0, 0xA610, D_8900A610 }, // D_8900A610
+    { 0x8900A608, 0x8, 1, 427, 16, 0, 0xA608, D_8900A608 }, // D_8900A608
+    { 0x8900A610, 0x40, 8, 427, 16, 0, 0xA610, D_8900A610 }, // D_8900A610
     { 0x8900A650, 0x10, 4, 13, 16, 0, 0xA650, D_8900A650 }, // D_8900A650
     { 0x8900A660, 0xC, 3, 13, 16, 0, 0xA660, D_8900A660 }, // D_8900A660
     { 0x8900A66C, 0xC, 3, 13, 16, 0, 0xA66C, D_8900A66C }, // D_8900A66C
-    { 0x8900A678, 0x10, 4, 429, 16, 0, 0xA678, D_8900A678 }, // D_8900A678
+    { 0x8900A678, 0x10, 4, 428, 16, 0, 0xA678, D_8900A678 }, // D_8900A678
     { 0x8900A688, 0xC, 3, 13, 16, 0, 0xA688, D_8900A688 }, // D_8900A688
     { 0x8900A694, 0x4, 1, 13, 16, 0, 0xA694, D_8900A694 }, // D_8900A694
     { 0x8900A698, 0x4, 1, 76, 16, 0, 0xA698, D_8900A698 }, // D_8900A698
-    { 0x8900A69C, 0x10, 1, 430, 16, 0, 0xA69C, D_8900A69C }, // D_8900A69C
+    { 0x8900A69C, 0x10, 1, 429, 16, 0, 0xA69C, D_8900A69C }, // D_8900A69C
     { 0x8900A6AC, 0x4, 1, 76, 16, 0, 0xA6AC, D_8900A6AC }, // D_8900A6AC
     { 0x8900A6B0, 0x4, 1, 76, 16, 0, 0xA6B0, D_8900A6B0 }, // D_8900A6B0
     { 0x8900A6B4, 0x4, 1, 76, 16, 0, 0xA6B4, D_8900A6B4 }, // D_8900A6B4
     { 0x8900A6B8, 0x4, 1, 76, 16, 0, 0xA6B8, D_8900A6B8 }, // D_8900A6B8
-    { 0x8900A6BC, 0x8, 1, 428, 16, 0, 0xA6BC, D_8900A6BC }, // D_8900A6BC
-    { 0x8900A6C4, 0x8, 1, 428, 16, 0, 0xA6C4, D_8900A6C4 }, // D_8900A6C4
+    { 0x8900A6BC, 0x8, 1, 427, 16, 0, 0xA6BC, D_8900A6BC }, // D_8900A6BC
+    { 0x8900A6C4, 0x8, 1, 427, 16, 0, 0xA6C4, D_8900A6C4 }, // D_8900A6C4
     { 0x8900A6CC, 0xC, 3, 13, 16, 0, 0xA6CC, D_8900A6CC }, // D_8900A6CC
-    { 0x8900A6D8, 0x10, 4, 429, 16, 0, 0xA6D8, D_8900A6D8 }, // D_8900A6D8
+    { 0x8900A6D8, 0x10, 4, 428, 16, 0, 0xA6D8, D_8900A6D8 }, // D_8900A6D8
     { 0x8900A6E8, 0x14, 5, 76, 16, 0, 0xA6E8, D_8900A6E8 }, // D_8900A6E8
     { 0x8900A6FC, 0x4, 1, 76, 16, 0, 0xA6FC, D_8900A6FC }, // D_8900A6FC
     { 0x8900A700, 0x4, 1, 76, 16, 0, 0xA700, D_8900A700 }, // D_8900A700
@@ -8320,18 +8317,18 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8900A758, 0x34, 13, 13, 16, 0, 0xA758, D_8900A758 }, // D_8900A758
     { 0x8900A78C, 0x8, 2, 76, 16, 0, 0xA78C, D_8900A78C }, // D_8900A78C
     { 0x8900A794, 0x8, 2, 76, 16, 0, 0xA794, D_8900A794 }, // D_8900A794
-    { 0x8900A79C, 0x50, 4, 431, 16, 0, 0xA79C, D_8900A79C }, // D_8900A79C
+    { 0x8900A79C, 0x50, 4, 430, 16, 0, 0xA79C, D_8900A79C }, // D_8900A79C
     { 0x8900A7EC, 0x18, 6, 13, 16, 0, 0xA7EC, D_8900A7EC }, // D_8900A7EC
     { 0x8900A804, 0x18, 6, 13, 16, 0, 0xA804, D_8900A804 }, // D_8900A804
     { 0x8900A81C, 0x18, 6, 13, 16, 0, 0xA81C, D_8900A81C }, // D_8900A81C
-    { 0x8900A834, 0x18, 6, 429, 16, 0, 0xA834, D_8900A834 }, // D_8900A834
+    { 0x8900A834, 0x18, 6, 428, 16, 0, 0xA834, D_8900A834 }, // D_8900A834
     { 0x8900A84C, 0x24, 9, 162, 16, 0, 0xA84C, D_8900A84C }, // D_8900A84C
     { 0x8900A870, 0x4, 4, 6, 16, 0, 0xA870, D_8900A870 }, // D_8900A870
     { 0x8900A874, 0x4, 1, 76, 16, 0, 0xA874, D_8900A874 }, // D_8900A874
     { 0x8900A878, 0x4, 1, 76, 16, 0, 0xA878, D_8900A878 }, // D_8900A878
     { 0x8900A87C, 0x4, 1, 76, 16, 0, 0xA87C, D_8900A87C }, // D_8900A87C
     { 0x8900A880, 0x4, 1, 76, 16, 0, 0xA880, D_8900A880 }, // D_8900A880
-    { 0x8900A884, 0x50, 4, 432, 16, 0, 0xA884, D_8900A884 }, // D_8900A884
+    { 0x8900A884, 0x50, 4, 431, 16, 0, 0xA884, D_8900A884 }, // D_8900A884
     { 0x8900A8D4, 0x4, 1, 76, 16, 0, 0xA8D4, D_8900A8D4 }, // D_8900A8D4
     { 0x8900A8D8, 0x4, 1, 76, 16, 0, 0xA8D8, D_8900A8D8 }, // D_8900A8D8
     { 0x8900A8DC, 0xC, 3, 76, 16, 0, 0xA8DC, D_8900A8DC }, // D_8900A8DC
@@ -8339,13 +8336,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8900A8F0, 0x8, 2, 76, 16, 0, 0xA8F0, D_8900A8F0 }, // D_8900A8F0
     { 0x8900A8F8, 0x8, 2, 76, 16, 0, 0xA8F8, D_8900A8F8 }, // D_8900A8F8
     { 0x8900A900, 0x4, 1, 76, 16, 0, 0xA900, D_8900A900 }, // D_8900A900
-    { 0x8900A904, 0x8, 1, 433, 16, 0, 0xA904, D_8900A904 }, // D_8900A904
-    { 0x8900A90C, 0x8, 1, 433, 16, 0, 0xA90C, D_8900A90C }, // D_8900A90C
+    { 0x8900A904, 0x8, 1, 432, 16, 0, 0xA904, D_8900A904 }, // D_8900A904
+    { 0x8900A90C, 0x8, 1, 432, 16, 0, 0xA90C, D_8900A90C }, // D_8900A90C
     { 0x8900A914, 0x8, 2, 0, 16, 0, 0xA914, D_8900A914 }, // D_8900A914
     { 0x8900A91C, 0x4, 1, 76, 16, 0, 0xA91C, D_8900A91C }, // D_8900A91C
     { 0x8900A920, 0x4, 1, 76, 16, 0, 0xA920, D_8900A920 }, // D_8900A920
     { 0x8900A924, 0x18, 6, 13, 16, 0, 0xA924, D_8900A924 }, // D_8900A924
-    { 0x8900A93C, 0x18, 6, 429, 16, 0, 0xA93C, D_8900A93C }, // D_8900A93C
+    { 0x8900A93C, 0x18, 6, 428, 16, 0, 0xA93C, D_8900A93C }, // D_8900A93C
     { 0x8900A954, 0x18, 6, 122, 16, 0, 0xA954, D_8900A954 }, // D_8900A954
     { 0x8900A96C, 0x1654, 5716, 6, 16, 0, 0xA96C, D_8900A96C }, // D_8900A96C
     { 0x8900BFC0, 0xD88, 3464, 6, 16, 0, 0xBFC0, D_8900BFC0 }, // D_8900BFC0
@@ -8427,10 +8424,10 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x89019114, 0x4, 1, 0, 16, 0, 0x19114, D_89019114 }, // D_89019114
     { 0x89019118, 0x4, 1, 0, 16, 0, 0x19118, D_89019118 }, // D_89019118
     { 0x8901911C, 0xC, 12, 6, 16, 0, 0x1911C, D_8901911C }, // D_8901911C
-    { 0x89019128, 0xA70, 1, 434, 16, 0, 0x19128, D_89019128 }, // D_89019128
+    { 0x89019128, 0xA70, 1, 433, 16, 0, 0x19128, D_89019128 }, // D_89019128
     { 0x89019B98, 0x6A8, 426, 0, 16, 0, 0x19B98, D_89019B98 }, // D_89019B98
     { 0x89021428, 0x7528, 7498, 0, 16, 1, 0x0, D_89021428 }, // D_89021428
-    { 0x89028950, 0x84, 1, 436, 16, 1, 0x0, D_89028950 }, // D_89028950
+    { 0x89028950, 0x84, 1, 435, 16, 1, 0x0, D_89028950 }, // D_89028950
     { 0x890289D4, 0xC, 3, 0, 16, 1, 0x0, D_890289D4 }, // D_890289D4
     { 0x890289E0, 0x4, 4, 72, 16, 1, 0x0, D_890289E0 }, // D_890289E0
     { 0x89100000, 0x20, 8, 0, 17, 0, 0x0, D_89100000 }, // D_89100000
@@ -8441,8 +8438,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8910A844, 0x4, 4, 6, 17, 0, 0xA844, D_8910A844 }, // D_8910A844
     { 0x8910A848, 0x4, 4, 6, 17, 0, 0xA848, D_8910A848 }, // D_8910A848
     { 0x8910A84C, 0x10, 4, 0, 17, 0, 0xA84C, D_8910A84C }, // D_8910A84C
-    { 0x8910A85C, 0x10, 2, 437, 17, 0, 0xA85C, D_8910A85C }, // D_8910A85C
-    { 0x8910A86C, 0x20, 4, 437, 17, 0, 0xA86C, D_8910A86C }, // D_8910A86C
+    { 0x8910A85C, 0x10, 2, 436, 17, 0, 0xA85C, D_8910A85C }, // D_8910A85C
+    { 0x8910A86C, 0x20, 4, 436, 17, 0, 0xA86C, D_8910A86C }, // D_8910A86C
     { 0x8910A88C, 0x4, 1, 76, 17, 0, 0xA88C, D_8910A88C }, // D_8910A88C
     { 0x8910A890, 0x8, 2, 162, 17, 0, 0xA890, D_8910A890 }, // D_8910A890
     { 0x8910A898, 0x10, 4, 13, 17, 0, 0xA898, D_8910A898 }, // D_8910A898
@@ -8454,8 +8451,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8910A908, 0x4, 1, 0, 17, 0, 0xA908, D_8910A908 }, // D_8910A908
     { 0x8910A90C, 0x4, 1, 0, 17, 0, 0xA90C, D_8910A90C }, // D_8910A90C
     { 0x8910A910, 0x4, 1, 76, 17, 0, 0xA910, D_8910A910 }, // D_8910A910
-    { 0x8910A914, 0x8, 2, 438, 17, 0, 0xA914, D_8910A914 }, // D_8910A914
-    { 0x8910A91C, 0x4, 1, 439, 17, 0, 0xA91C, D_8910A91C }, // D_8910A91C
+    { 0x8910A914, 0x8, 2, 437, 17, 0, 0xA914, D_8910A914 }, // D_8910A914
+    { 0x8910A91C, 0x4, 1, 438, 17, 0, 0xA91C, D_8910A91C }, // D_8910A91C
     { 0x8910A920, 0x14, 5, 0, 17, 0, 0xA920, D_8910A920 }, // D_8910A920
     { 0x8910A934, 0x8, 2, 76, 17, 0, 0xA934, D_8910A934 }, // D_8910A934
     { 0x8910A93C, 0x4, 1, 76, 17, 0, 0xA93C, D_8910A93C }, // D_8910A93C
@@ -8475,7 +8472,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8910AAE0, 0x4, 4, 6, 17, 0, 0xAAE0, D_8910AAE0 }, // D_8910AAE0
     { 0x8910AAE4, 0x4, 4, 6, 17, 0, 0xAAE4, D_8910AAE4 }, // D_8910AAE4
     { 0x8910AAE8, 0x4, 1, 13, 17, 0, 0xAAE8, D_8910AAE8 }, // D_8910AAE8
-    { 0x8910AAEC, 0x8, 2, 440, 17, 0, 0xAAEC, D_8910AAEC }, // D_8910AAEC
+    { 0x8910AAEC, 0x8, 2, 439, 17, 0, 0xAAEC, D_8910AAEC }, // D_8910AAEC
     { 0x8910AAF4, 0x4, 4, 6, 17, 0, 0xAAF4, D_8910AAF4 }, // D_8910AAF4
     { 0x8910AAF8, 0x10, 16, 6, 17, 0, 0xAAF8, D_8910AAF8 }, // D_8910AAF8
     { 0x8910AB08, 0x1868, 6248, 6, 17, 0, 0xAB08, D_8910AB08 }, // D_8910AB08
@@ -8484,7 +8481,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8910CF80, 0x1B8, 440, 6, 17, 0, 0xCF80, D_8910CF80 }, // D_8910CF80
     { 0x8910D138, 0x1B8, 440, 6, 17, 0, 0xD138, D_8910D138 }, // D_8910D138
     { 0x8910D2F0, 0x620, 1568, 6, 17, 0, 0xD2F0, D_8910D2F0 }, // D_8910D2F0
-    { 0x8910D910, 0x80, 16, 441, 17, 0, 0xD910, D_8910D910 }, // D_8910D910
+    { 0x8910D910, 0x80, 16, 440, 17, 0, 0xD910, D_8910D910 }, // D_8910D910
     { 0x8910D990, 0x40, 16, 58, 17, 0, 0xD990, D_8910D990 }, // D_8910D990
     { 0x8910D9D0, 0x4, 1, 58, 17, 0, 0xD9D0, D_8910D9D0 }, // D_8910D9D0
     { 0x8910D9D4, 0xC, 3, 58, 17, 0, 0xD9D4, D_8910D9D4 }, // D_8910D9D4
@@ -8567,7 +8564,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8910E398, 0x10, 16, 6, 17, 0, 0xE398, D_8910E398 }, // D_8910E398
     { 0x8910E3A8, 0x10, 16, 6, 17, 0, 0xE3A8, D_8910E3A8 }, // D_8910E3A8
     { 0x8910E3B8, 0x18, 24, 72, 17, 0, 0xE3B8, D_8910E3B8 }, // D_8910E3B8
-    { 0x8910E3D0, 0xB7F4, 1, 442, 17, 0, 0xE3D0, D_8910E3D0 }, // D_8910E3D0
+    { 0x8910E3D0, 0xB7F4, 1, 441, 17, 0, 0xE3D0, D_8910E3D0 }, // D_8910E3D0
     { 0x89119BD0, 0x4, 4, 72, 17, 1, 0x0, D_89119BD0 }, // D_89119BD0
     { 0x8A0005F0, 0x10, 4, 0, 18, 0, 0x5F0, sPokedexMenuSelection }, // sPokedexMenuSelection
     { 0x8A000600, 0x10, 16, 6, 18, 0, 0x600, sPokedexMenuTitleText }, // sPokedexMenuTitleText
@@ -8582,19 +8579,19 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A1057D4, 0x4, 1, 76, 19, 0, 0x57D4, D_8A1057D4 }, // D_8A1057D4
     { 0x8A1057D8, 0x4, 1, 76, 19, 0, 0x57D8, D_8A1057D8 }, // D_8A1057D8
     { 0x8A1057DC, 0x4, 1, 76, 19, 0, 0x57DC, D_8A1057DC }, // D_8A1057DC
-    { 0x8A1057E0, 0x4, 1, 450, 19, 0, 0x57E0, D_8A1057E0 }, // D_8A1057E0
-    { 0x8A1057E4, 0x4, 1, 450, 19, 0, 0x57E4, D_8A1057E4 }, // D_8A1057E4
+    { 0x8A1057E0, 0x4, 1, 449, 19, 0, 0x57E0, D_8A1057E0 }, // D_8A1057E0
+    { 0x8A1057E4, 0x4, 1, 449, 19, 0, 0x57E4, D_8A1057E4 }, // D_8A1057E4
     { 0x8A1057E8, 0x10, 4, 13, 19, 0, 0x57E8, D_8A1057E8 }, // D_8A1057E8
     { 0x8A1057F8, 0x4, 4, 6, 19, 0, 0x57F8, D_8A1057F8 }, // D_8A1057F8
     { 0x8A1057FC, 0x4, 4, 6, 19, 0, 0x57FC, D_8A1057FC }, // D_8A1057FC
     { 0x8A105800, 0x4, 1, 0, 19, 0, 0x5800, D_8A105800_2 }, // D_8A105800_2
     { 0x8A105804, 0x14, 5, 0, 19, 0, 0x5804, sFadingOut }, // sFadingOut
     { 0x8A105818, 0x1A400, 107520, 6, 19, 0, 0x5818, D_8A105818 }, // D_8A105818
-    { 0x8A11FC18, 0xAF0, 1, 451, 19, 0, 0x1FC18, D_8A11FC18 }, // D_8A11FC18
-    { 0x8A120708, 0xBD4, 757, 452, 19, 0, 0x20708, sRedEncounters }, // sRedEncounters
-    { 0x8A1212DC, 0xBD4, 757, 452, 19, 0, 0x212DC, sGreenEncounters }, // sGreenEncounters
-    { 0x8A121EB0, 0xBFC, 767, 452, 19, 0, 0x21EB0, sBlueEncounters }, // sBlueEncounters
-    { 0x8A122AAC, 0x9E44, 10129, 452, 19, 0, 0x22AAC, sYellowEncounters }, // sYellowEncounters
+    { 0x8A11FC18, 0xAF0, 1, 450, 19, 0, 0x1FC18, D_8A11FC18 }, // D_8A11FC18
+    { 0x8A120708, 0xBD4, 757, 451, 19, 0, 0x20708, sRedEncounters }, // sRedEncounters
+    { 0x8A1212DC, 0xBD4, 757, 451, 19, 0, 0x212DC, sGreenEncounters }, // sGreenEncounters
+    { 0x8A121EB0, 0xBFC, 767, 451, 19, 0, 0x21EB0, sBlueEncounters }, // sBlueEncounters
+    { 0x8A122AAC, 0x9E44, 10129, 451, 19, 0, 0x22AAC, sYellowEncounters }, // sYellowEncounters
     { 0x8A12C8F0, 0xF8, 248, 6, 19, 0, 0x2C8F0, D_8A12C8F0 }, // D_8A12C8F0
     { 0x8A12C9E8, 0x2D8, 728, 6, 19, 0, 0x2C9E8, D_8A12C9E8 }, // D_8A12C9E8
     { 0x8A12CCC0, 0x88, 136, 6, 19, 0, 0x2CCC0, D_8A12CCC0 }, // D_8A12CCC0
@@ -8612,7 +8609,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A12E9C8, 0x68, 13, 10, 19, 0, 0x2E9C8, D_8A12E9C8 }, // D_8A12E9C8
     { 0x8A12EA30, 0x18, 3, 10, 19, 0, 0x2EA30, D_8A12EA30 }, // D_8A12EA30
     { 0x8A12EA48, 0x18, 3, 10, 19, 0, 0x2EA48, D_8A12EA48 }, // D_8A12EA48
-    { 0x8A12EA60, 0x100, 4, 454, 19, 0, 0x2EA60, D_8A12EA60 }, // D_8A12EA60
+    { 0x8A12EA60, 0x100, 4, 453, 19, 0, 0x2EA60, D_8A12EA60 }, // D_8A12EA60
     { 0x8A12EB60, 0x30, 6, 10, 19, 0, 0x2EB60, D_8A12EB60 }, // D_8A12EB60
     { 0x8A12EB90, 0x10, 2, 10, 19, 0, 0x2EB90, D_8A12EB90 }, // D_8A12EB90
     { 0x8A12EBA0, 0x18, 3, 10, 19, 0, 0x2EBA0, D_8A12EBA0 }, // D_8A12EBA0
@@ -8632,13 +8629,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A12F1FC, 0x8, 8, 6, 19, 0, 0x2F1FC, D_8A12F1FC }, // D_8A12F1FC
     { 0x8A12F204, 0x4, 4, 6, 19, 0, 0x2F204, D_8A12F204 }, // D_8A12F204
     { 0x8A12F208, 0xC, 12, 6, 19, 0, 0x2F208, D_8A12F208 }, // D_8A12F208
-    { 0x8A12F214, 0x90, 8, 455, 19, 0, 0x2F214, sEncounterRateTierText }, // sEncounterRateTierText
-    { 0x8A12F2A4, 0x2D0, 36, 456, 19, 0, 0x2F2A4, sAreaNames }, // sAreaNames
-    { 0x8A12F574, 0x2C4, 59, 457, 19, 0, 0x2F574, sEncounterLocations }, // sEncounterLocations
+    { 0x8A12F214, 0x90, 8, 454, 19, 0, 0x2F214, sEncounterRateTierText }, // sEncounterRateTierText
+    { 0x8A12F2A4, 0x2D0, 36, 455, 19, 0, 0x2F2A4, sAreaNames }, // sAreaNames
+    { 0x8A12F574, 0x2C4, 59, 456, 19, 0, 0x2F574, sEncounterLocations }, // sEncounterLocations
     { 0x8A12F838, 0xC, 1, 19, 19, 0, 0x2F838, sOverviewCameraTarget }, // sOverviewCameraTarget
     { 0x8A12F844, 0xC, 1, 19, 19, 0, 0x2F844, sOverviewCameraEye }, // sOverviewCameraEye
     { 0x8A12F850, 0x1B0, 36, 19, 19, 0, 0x2F850, sAreaPinPositions }, // sAreaPinPositions
-    { 0x8A12FA00, 0x90, 36, 458, 19, 0, 0x2FA00, sGbMapCells }, // sGbMapCells
+    { 0x8A12FA00, 0x90, 36, 457, 19, 0, 0x2FA00, sGbMapCells }, // sGbMapCells
     { 0x8A12FA90, 0x48, 36, 54, 19, 0, 0x2FA90, sAreaToSlot }, // sAreaToSlot
     { 0x8A12FAD8, 0x48, 36, 54, 19, 0, 0x2FAD8, sSlotToArea }, // sSlotToArea
     { 0x8A12FB20, 0x78, 60, 54, 19, 0, 0x2FB20, sLocationToSlot }, // sLocationToSlot
@@ -8682,7 +8679,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A12FE18, 0x4, 4, 6, 19, 0, 0x2FE18, D_8A12FE18 }, // D_8A12FE18
     { 0x8A12FE1C, 0x4, 4, 6, 19, 0, 0x2FE1C, D_8A12FE1C }, // D_8A12FE1C
     { 0x8A12FE30, 0x168, 90, 0, 19, 0, 0x2FE30, D_8A12FE30 }, // D_8A12FE30
-    { 0x8A12FF98, 0x4, 1, 315, 19, 0, 0x2FF98, sModelPreview }, // sModelPreview
+    { 0x8A12FF98, 0x4, 1, 314, 19, 0, 0x2FF98, sModelPreview }, // sModelPreview
     { 0x8A12FF9C, 0x4, 1, 138, 19, 0, 0x2FF9C, sMenuStageContext }, // sMenuStageContext
     { 0x8A12FFA0, 0x4, 1, 138, 19, 0, 0x2FFA0, sAreaMapStageContext }, // sAreaMapStageContext
     { 0x8A12FFA4, 0x4, 1, 283, 19, 0, 0x2FFA4, sIconFramebuffers }, // sIconFramebuffers
@@ -8691,13 +8688,13 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A12FFB0, 0x4, 1, 0, 19, 0, 0x2FFB0, sGbPort }, // sGbPort
     { 0x8A12FFB4, 0x4, 1, 0, 19, 0, 0x2FFB4, sHighestSeenIndex }, // sHighestSeenIndex
     { 0x8A12FFB8, 0x8, 2, 0, 19, 0, 0x2FFB8, sSelectedDexIndex }, // sSelectedDexIndex
-    { 0x8A12FFC0, 0x270, 1, 459, 19, 0, 0x2FFC0, sIndexScreen }, // sIndexScreen
+    { 0x8A12FFC0, 0x270, 1, 458, 19, 0, 0x2FFC0, sIndexScreen }, // sIndexScreen
     { 0x8A130230, 0x8, 2, 0, 19, 0, 0x30230, sSummaryPort }, // sSummaryPort
     { 0x8A130238, 0x18, 6, 0, 19, 0, 0x30238, sPortSummary }, // sPortSummary
-    { 0x8A130250, 0x1C, 1, 460, 19, 0, 0x30250, sGbMapNode }, // sGbMapNode
-    { 0x8A130270, 0x1C, 1, 460, 19, 0, 0x30270, sAreaPinsNode }, // sAreaPinsNode
-    { 0x8A130290, 0x1C, 1, 460, 19, 0, 0x30290, sLabelFramesNode }, // sLabelFramesNode
-    { 0x8A1302B0, 0x1C, 1, 460, 19, 0, 0x302B0, sGbMapMarkersNode }, // sGbMapMarkersNode
+    { 0x8A130250, 0x1C, 1, 459, 19, 0, 0x30250, sGbMapNode }, // sGbMapNode
+    { 0x8A130270, 0x1C, 1, 459, 19, 0, 0x30270, sAreaPinsNode }, // sAreaPinsNode
+    { 0x8A130290, 0x1C, 1, 459, 19, 0, 0x30290, sLabelFramesNode }, // sLabelFramesNode
+    { 0x8A1302B0, 0x1C, 1, 459, 19, 0, 0x302B0, sGbMapMarkersNode }, // sGbMapMarkersNode
     { 0x8A1302CC, 0x4, 1, 159, 19, 0, 0x302CC, sAreaMapRoot }, // sAreaMapRoot
     { 0x8A1302D0, 0x4, 1, 122, 19, 0, 0x302D0, D_8A1302D0 }, // D_8A1302D0
     { 0x8A1302D4, 0x2, 1, 54, 19, 0, 0x302D4, sGbMapShown }, // sGbMapShown
@@ -8710,7 +8707,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A1302E8, 0x1E, 30, 6, 19, 0, 0x302E8, sAreaMapSpeciesName }, // sAreaMapSpeciesName
     { 0x8A130306, 0x2, 1, 18, 19, 0, 0x30306, sAreaMapFrameCounter }, // sAreaMapFrameCounter
     { 0x8A130308, 0x8, 4, 54, 19, 0, 0x30308, sCameraMoving }, // sCameraMoving
-    { 0x8A130310, 0x120, 6, 461, 19, 0, 0x30310, sAreaLabels }, // sAreaLabels
+    { 0x8A130310, 0x120, 6, 460, 19, 0, 0x30310, sAreaLabels }, // sAreaLabels
     { 0x8A130430, 0x2, 1, 54, 19, 0, 0x30430, sLabelWidth }, // sLabelWidth
     { 0x8A130432, 0x6, 3, 54, 19, 0, 0x30432, sLastLabelWidth }, // sLastLabelWidth
     { 0x8A130438, 0xE, 7, 54, 19, 0, 0x30438, sAreaLabelOrder }, // sAreaLabelOrder
@@ -8718,8 +8715,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A130448, 0x4, 1, 13, 19, 0, 0x30448, sSpeciesIcon }, // sSpeciesIcon
     { 0x8A13044C, 0x4, 1, 74, 19, 0, 0x3044C, sCameraEaseDivisor }, // sCameraEaseDivisor
     { 0x8A130450, 0x4, 1, 0, 19, 0, 0x30450, sCameraSettledFrames }, // sCameraSettledFrames
-    { 0x8A130454, 0x4, 1, 397, 19, 0, 0x30454, sAreaPinMatrices }, // sAreaPinMatrices
-    { 0x8A130458, 0x990, 68, 462, 19, 0, 0x30458, sMapAreas }, // sMapAreas
+    { 0x8A130454, 0x4, 1, 396, 19, 0, 0x30454, sAreaPinMatrices }, // sAreaPinMatrices
+    { 0x8A130458, 0x990, 68, 461, 19, 0, 0x30458, sMapAreas }, // sMapAreas
     { 0x8A200000, 0x20, 8, 0, 20, 0, 0x0, D_8A200000 }, // D_8A200000
     { 0x8A203300, 0x4, 1, 76, 20, 0, 0x3300, D_8A203300 }, // D_8A203300
     { 0x8A203304, 0x44, 17, 76, 20, 0, 0x3304, D_8A203304 }, // D_8A203304
@@ -8734,7 +8731,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A203374, 0x4, 1, 76, 20, 0, 0x3374, D_8A203374 }, // D_8A203374
     { 0x8A203378, 0x4, 1, 76, 20, 0, 0x3378, D_8A203378 }, // D_8A203378
     { 0x8A20337C, 0x8, 2, 76, 20, 0, 0x337C, D_8A20337C }, // D_8A20337C
-    { 0x8A203384, 0xA0, 4, 463, 20, 0, 0x3384, D_8A203384 }, // D_8A203384
+    { 0x8A203384, 0xA0, 4, 462, 20, 0, 0x3384, D_8A203384 }, // D_8A203384
     { 0x8A203424, 0x4, 1, 76, 20, 0, 0x3424, D_8A203424 }, // D_8A203424
     { 0x8A203428, 0x4, 1, 0, 20, 0, 0x3428, D_8A203428 }, // D_8A203428
     { 0x8A20342C, 0xC, 3, 0, 20, 0, 0x342C, D_8A20342C }, // D_8A20342C
@@ -8778,12 +8775,12 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A21D9E4, 0x8, 8, 6, 20, 0, 0x1D9E4, D_8A21D9E4 }, // D_8A21D9E4
     { 0x8A21DA40, 0x8, 2, 0, 20, 0, 0x1DA40, sPartyGbPort }, // sPartyGbPort
     { 0x8A21DA48, 0x4, 1, 283, 20, 0, 0x1DA48, D_8A21DA48 }, // D_8A21DA48
-    { 0x8A21DA4C, 0x4, 1, 315, 20, 0, 0x1DA4C, sPartyModelPreview }, // sPartyModelPreview
+    { 0x8A21DA4C, 0x4, 1, 314, 20, 0, 0x1DA4C, sPartyModelPreview }, // sPartyModelPreview
     { 0x8A21DA50, 0x4, 1, 162, 20, 0, 0x1DA50, sPartyIconList }, // sPartyIconList
-    { 0x8A21DA54, 0x4, 1, 420, 20, 0, 0x1DA54, sMoveBackdropArchive }, // sMoveBackdropArchive
+    { 0x8A21DA54, 0x4, 1, 419, 20, 0, 0x1DA54, sMoveBackdropArchive }, // sMoveBackdropArchive
     { 0x8A21DA58, 0x8, 2, 122, 20, 0, 0x1DA58, D_8A21DA58 }, // D_8A21DA58
     { 0x8A21DA60, 0x10, 4, 122, 20, 0, 0x1DA60, sMoveBackdropPools }, // sMoveBackdropPools
-    { 0x8A21DA70, 0x10, 4, 464, 20, 0, 0x1DA70, sMoveBackdrops }, // sMoveBackdrops
+    { 0x8A21DA70, 0x10, 4, 463, 20, 0, 0x1DA70, sMoveBackdrops }, // sMoveBackdrops
     { 0x8A21DA80, 0x388, 226, 0, 20, 0, 0x1DA80, sPartyScreen }, // sPartyScreen
     { 0x8A21DE08, 0x8, 2, 0, 20, 0, 0x1DE08, D_8A21DE08 }, // D_8A21DE08
     { 0x8A21DE10, 0x140, 80, 0, 20, 0, 0x1DE10, D_8A21DE10 }, // D_8A21DE10

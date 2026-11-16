@@ -160,7 +160,13 @@ typedef struct GbSaveMainData {
 extern PokemonStats gBaseStats[];
 
 // Indexed by species ID - 1: Bulbasaur through Mew, then the Substitute doll.
-extern SpeciesData gSpeciesData[152];
+extern SpeciesData gSpeciesData[151]; // PORT: was [152]: the doll's partial entry ends at 0x80066AA0, where the
+                                     // status label table D_80066AA0 starts (lifted as species bytes, its text pointers broke the HUD)
+
+// PORT: on the N64 gBaseStats is gSpeciesData - 0x1C, a shifted view of the same bytes, but the lifter gives it its
+// own one-entry copy, so species 1 on read the bytes after it (Free Battle levels came out as 1 and 100). Read
+// gSpeciesData through the view instead.
+#define gBaseStats ((PokemonStats*)((u8*)gSpeciesData - 0x1C))
 
 // gb_data.c
 u16 GbData_ReadU16BE(u8* arg0);

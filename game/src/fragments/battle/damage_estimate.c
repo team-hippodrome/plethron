@@ -312,7 +312,11 @@ typedef struct S0Learnset {
     /* 0x0A */ u8 moves[10]; // @unverified: move learned at levels[i]
 } S0Learnset; // size = 0x14
 extern S0Learnset D_8218CA60[];
-extern S0Learnset D_8218D62C[];
+extern S0Learnset D_8218D62C[151]; // PORT: 151 species (was open: the lifter took the particle records after it as learnsets)
+// PORT: the 56 ParticleDescriptorChild records after the learnsets (0x8218E200-0x8218E580; D_8218E580's descriptors
+// point into them). Named so the lifter gives them their own layout, with host-sized callback pointers.
+extern ParticleDescriptorChild D_8218E200[56];
+static const void* const sPortParticleDescriptorChildren __attribute__((used)) = D_8218E200;
 extern u8 D_8218AD9C[];
 extern u8* D_8218ADC8[];
 u8 Move_GetIdFromTableIndex(s32);

@@ -93,6 +93,6 @@ void BattleMenu_AppendUnpickedSlots(s8* order, s32 count);
 void BattleMenu_CommitOrderSelection(void);
 void BattleMenu_AddOrderSelectPanel(s16 x, s16 y, TeamRoster* roster, s32 sidebar_team, s32 partner_panel_index);
 void BattleMenu_InitOrderSelectPanels(SessionContext* session);
-s32 BattleMenu_RunOrderSelectScreen(s32 arg0, s32 session);
+s32 BattleMenu_RunOrderSelectScreen(s32 arg0, intptr_t session); // PORT: was s32 session
 
 #endif // FRAGMENT_BATTLE_ORDER_SELECT_H

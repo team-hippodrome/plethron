@@ -48,7 +48,12 @@ extern u8* D_800603C0;
 void Audio_FadeCategoriesAndStreams(s32 arg0);
 
 extern u8 D_8219A4F4;
-extern u8* D_8218B2B8[];
+extern u8* D_8218B2B8[6]; // PORT: six pointers (was open)
+// PORT: the byte lists after D_8218B2B8 and D_8218B2F4 (D_8218B2F4 points into the first). Named so the lifter keeps
+// them as bytes instead of widening each word into the pointer table before them.
+extern u8 D_8218B2D0[0x24];
+extern u8 D_8218B30C[0x14];
+static const void* const sPortBrollByteLists[] __attribute__((used)) = { D_8218B2D0, D_8218B30C };
 void BattleScene_InitializeBattlePresentation(CameraNode*);
 void Battle_ResetModelToIdleAnim(ActivePokemon* active_pokemon); // PORT: signature from the definition (fragments/battle/participants.c)
 

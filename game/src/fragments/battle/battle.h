@@ -453,8 +453,15 @@ typedef struct StatusLabel {
 } StatusLabel; // size = 0x8
 
 typedef struct arg1_func_84344CE8 {
-    /* 0x00 */ char unk00[0x14];
-    /* 0x14 */ u8* texture; // @unverified: texture passed to the effect display list builders
+    // PORT: the decomp padded the node header as char[0x14], which puts texture and displayList at N64 offsets on the
+    // host. The node is a GeoDisplayListNode: texture is the header's callbackArg and displayList follows the header.
+    union {
+        /* 0x00 */ DisplayNodeHeader node;
+        struct {
+            u8 pad[offsetof(DisplayNodeHeader, callbackArg)];
+            /* 0x14 */ u8* texture; // @unverified: texture passed to the effect display list builders
+        };
+    };
     /* 0x18 */ Gfx* displayList; // @unverified: display list allocated per frame by the effect
 } arg1_func_84344CE8; // size >= 0x1C
 
@@ -1336,7 +1343,7 @@ extern M2C_UNK D_8218E768;
 
 extern s32 D_8219A570;
 
-extern u8* D_8218B2F4[];
+extern u8* D_8218B2F4[6]; // PORT: six pointers (was open)
 
 extern u8 D_8219A4F4;
 
@@ -2560,7 +2567,7 @@ BattleAnimEffectSlot* BattleAnim_SpawnDesc25AlphaHoldFadeOut(s32 arg0, s16 arg1,
 void BattleAnim_InitParticleSystem(void);
 BattleAnimEffectSlot* BattleAnim_AllocEffectSlot(void);
 void BattleAnim_FreeEffectSlot(BattleAnimEffectSlot* arg0);
-void BattleAnim_InitializeParticleChain(Particle* arg0, Vec3f arg1, Vec3s arg2, s32 arg3, s32 arg4);
+void BattleAnim_InitializeParticleChain(Particle* arg0, Vec3f arg1, Vec3s arg2, ParticleUpdateCallback arg3, ParticleDescriptor* arg4); // PORT: matches the definition
 void BattleAnim_CloneParticleState(Particle* arg0, Particle* arg1, ParticleUpdateCallback arg2, ParticleDescriptor* arg3, s32 arg4);
 void BattleAnim_EmitParticleBurst(Particle* arg0, ParticleUpdateCallback arg1, ParticleDescriptor* arg2, s16 arg3); // PORT: signature from the definition (fragments/battle/particle_pool.c)
 void BattleAnim_EmitParticleBurstWithMetadata(Particle* arg0, ParticleUpdateCallback arg1, ParticleDescriptor* arg2, s16 arg3, s16 arg4, s16 arg5);

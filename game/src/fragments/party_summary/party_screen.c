@@ -14,7 +14,7 @@ void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 void Menu_Init(Menu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5); // PORT: matches the definition
 M2C_UNK Ui_DrawTexturedDivider(s32, s32, s32, M2C_UNK *);
-extern Entry80066AA0 D_80066AA0[];
+extern Entry80066AA0 D_80066AA0[7]; // PORT: sized (was open; the lifter needs its end)
 extern M2C_UNK D_800734A8;
 extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
@@ -32,7 +32,7 @@ void func_8001ABE8(void);
 void func_8001AC3C(void);
 void func_80029028(s32, s32, s32, s32, Color_RGBA8);
 
-extern Entry80066AA0 D_80066AA0[];
+extern Entry80066AA0 D_80066AA0[7]; // PORT: sized (was open; the lifter needs its end)
 extern Entry80066AA0 D_80066AA8;
 extern M2C_UNK D_800734A8;
 extern char D_8A21D850[];

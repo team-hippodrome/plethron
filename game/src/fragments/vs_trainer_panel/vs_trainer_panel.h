@@ -6,7 +6,7 @@
 #include "fragments/vs_results_board/vs_results_board.h"
 
 // vs_trainer_panel.c
-s32 VsPanel_CheckBootCode(s32 display_list);
+intptr_t VsPanel_CheckBootCode(intptr_t display_list); // PORT: was s32
 void VsPanel_SelectTitleRound(s32 event, GeoModelRootNode* node);
 Gfx* VsPanel_WritePortraitGfx(Gfx* gfx, void* trainer_file);
 void VsPanel_PortraitCallback(s32 event, DemoGeoNode* node);

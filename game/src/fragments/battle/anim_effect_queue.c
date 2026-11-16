@@ -455,9 +455,9 @@ extern s32 D_8219A7D4;
 extern s32 D_8219A7D8;
 extern s16 D_8219A80C;
 extern s16 D_8219A80E;
-extern s32 D_8219A810;
+extern ActivePokemon* D_8219A810; // PORT: was s32, holds a pointer
 extern ActivePokemon* D_8219A814; // PORT: was s32, holds a pointer
-extern s32 D_8219A818;
+extern ActivePokemon* D_8219A818; // PORT: was s32, holds a pointer
 
 /**
  * Queues the animation of move arg0 with user arg1, target arg2 and anchors arg3 and arg4,
@@ -579,7 +579,7 @@ void BattleAnim_QueueEffectList9(s32 arg0) {
 void BattleAnim_SetQueuedResourceListId(u8 arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 extern s32 D_8219A7E8;
 extern s16 D_8219A80C;
-extern s32 D_8219A810;
+extern ActivePokemon* D_8219A810; // PORT: was s32, holds a pointer
 
 /**
  * Queues effect list arg0 with user arg1. List 3 forces default anchor 7.
@@ -780,7 +780,7 @@ void BattleAnim_ResetDisplayContexts(void) {
  * @unverified Name from Stadium 1.
  */
 Particle* BattleAnim_GetOwnerContextParticle(DisplayObject* arg0) {
-    return arg0->node.callbackArg;
+    return (Particle*)arg0->node.callbackArg; // PORT: callbackArg is intptr_t
 }
 
 /**
@@ -804,7 +804,7 @@ DisplayObject* BattleAnim_AllocOwnerDisplayContext(Particle* arg0) {
     if (var_v0 >= 0) {
         temp_a0 = &sD_843903D0[var_v0];
         sD_84391A50[var_v0] = 1;
-        temp_a0->node.callbackArg = arg0;
+        temp_a0->node.callbackArg = (intptr_t)arg0; // PORT: callbackArg is intptr_t
     } else {
         temp_a0 = NULL;
     }
@@ -855,7 +855,7 @@ DisplayObject* BattleAnim_AllocParticleDisplayContext(Particle* arg0) {
         sp1C = &sD_84391A90[var_a2];
         sD_84392030[var_a2] = 1;
         Particle_SetFlags(arg0, 0x400);
-        sp1C->node.callbackArg = arg0;
+        sp1C->node.callbackArg = (intptr_t)arg0; // PORT: callbackArg is intptr_t
     } else {
         sp1C = NULL;
     }
