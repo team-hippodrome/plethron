@@ -404,7 +404,7 @@ void VsScene_LoadTeamIcons(VsSceneSide* side, s32 side_index) {
         if (i < side->rosterInfo[0]->numberOfPokemonCanBePicked) {
             PokeIcon_SetMonSlot((PokeIconRenderer*)D_82203264, slot, &side->rosterInfo[0]->battleMon[i], 1);
         }
-        side->iconImages[i] = PokeIcon_GetImage((PokeIconRenderer*)D_82203264, slot++);
+        side->iconImages[i] = PokeIcon_GetImage((s8*)D_82203264, slot++);
     }
 }
 
@@ -757,7 +757,7 @@ void VsScene_LoadBroughtIcons(VsSceneSide* side, s32 side_index) {
                 if (j < side->teamMember[i]->numberOfPokemonBrought) {
                     PokeIcon_SetMonSlot((PokeIconRenderer*)D_82203264, slot, &side->teamMember[i]->pokemonPicked[j], 1);
                 }
-                side->iconImages[i * 3 + j] = PokeIcon_GetImage((PokeIconRenderer*)D_82203264, slot);
+                side->iconImages[i * 3 + j] = PokeIcon_GetImage((s8*)D_82203264, slot);
                 side->hpBarImages[i * 3 + j] = D_82203210[slot]->img_p;
                 slot++;
             }
@@ -767,7 +767,7 @@ void VsScene_LoadBroughtIcons(VsSceneSide* side, s32 side_index) {
             if (j < side->teamMember[0]->numberOfPokemonBrought) {
                 PokeIcon_SetMonSlot((PokeIconRenderer*)D_82203264, slot, &side->teamMember[0]->pokemonPicked[j], 1);
             }
-            side->iconImages[j] = PokeIcon_GetImage((PokeIconRenderer*)D_82203264, slot);
+            side->iconImages[j] = PokeIcon_GetImage((s8*)D_82203264, slot);
             side->hpBarImages[j] = D_82203210[slot]->img_p;
             slot++;
         }
@@ -909,7 +909,7 @@ void VsScene_PlayResultsBoard(void) {
     BgStage_RunUntilCondition(30, VsScene_DrawFrame);
 }
 
-s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2); // PORT: signature from the definition (geo_node.c)
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, void* arg2); // PORT: signature from the definition (geo_node.c)
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2);   /* extern */
 extern M2C_UNK D_8F6256E0;
 
@@ -1283,7 +1283,7 @@ extern u8 D_0038A540[];
 s32 Save_LoadSram(void);
 s32 Font_Init(s32 load_size, s32 side);
 
-#define DEMO_FRAGMENT_ID(vram) ((((u32)(vram) & 0x0FF00000) >> 0x14) - 0x10)
+#define DEMO_FRAGMENT_ID(vram) ((((uintptr_t)(vram) & 0x0FF00000) >> 0x14) - 0x10) // PORT: was (u32); Fragment_Register takes the real slot from the image
 
 /**
  * Entry point of the VS scene: pushes the 'BTLS' pool state, loads the stage and model fragments
@@ -1363,7 +1363,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     }
 
     D_82203260 = PokeIcon_AllocFramebuffers(5);
-    D_82203264 = (uintptr_t)PokeIcon_CreateRenderList(D_82203260, 12, 0x40, 0x40);
+    D_82203264 = PokeIcon_CreateRenderList(D_82203260, 12, 0x40, 0x40);
     D_8220325C = BinArchive_Open(D_002F5940, D_003139C0, 1, 1);
     PokeIcon_OpenModelArchives();
     VsScene_LoadGeoLayout(sp24);

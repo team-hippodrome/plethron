@@ -258,13 +258,13 @@ void AudioEffects_InitVibrato(Note* note) {
  * MM's.
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioEffects_InitAdsr(s8 *arg0, s32 arg1, M2C_UNK arg2) {
-    M2C_FIELD(arg0, s8 *, 0) = 0;
-    M2C_FIELD(arg0, s8 *, 1) = 0;
-    M2C_FIELD(arg0, s16 *, 4) = 0;
-    M2C_FIELD(arg0, s32 *, 0x20) = arg1;
-    M2C_FIELD(arg0, f32 *, 8) = 0.0f;
-    M2C_FIELD(arg0, f32 *, 0x14) = 0.0f;
+void AudioEffects_InitAdsr(AdsrState* arg0, EnvelopePoint* arg1, s16* arg2) { // PORT: typed (was s8* with N64 offsets, s32 envelope)
+    arg0->action = 0;
+    arg0->state = 0;
+    arg0->delay = 0;
+    arg0->envelope = arg1;
+    arg0->sustain = 0.0f;
+    arg0->current = 0.0f;
 }
 
 extern f32 D_811858DC;

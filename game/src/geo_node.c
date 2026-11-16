@@ -64,7 +64,7 @@ s32 ModelAnim_HasCrossedFrame(DisplayObject* arg0, s16 arg1);
 s32 ModelAnim_IsAnimationDone(DisplayObject* display_object);
 s32 ModelAnim_IsFinished(DisplayObject* arg0);
 void ModelAnim_ClearEventTrack(DisplayObject* arg0);
-s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2);
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, void* arg2); // PORT: arg2 was s32, holds a pointer
 void ModelAnim_SetEventFrame(DisplayObject* display_object, s16 frame_number);
 
 /**
@@ -820,8 +820,8 @@ void ModelAnim_ClearEventTrack(DisplayObject* arg0) {
 }
 
 /** Attaches an event track to a display object. */
-s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, s32 arg2) {
-    EventTrackData* temp_v0 = Util_ConvertAddrToVirtAddr(arg2);
+s16 ModelAnim_BindEventTrack(DisplayObject* arg0, s16 arg1, void* arg2) { // PORT: arg2 was s32, holds a pointer
+    EventTrackData* temp_v0 = (EventTrackData*)Util_ConvertAddrToVirtAddr((uintptr_t)arg2);
     EventTrackState* ptr = &arg0->eventTrack;
 
     if ((temp_v0 != ptr->data) || (arg1 != ptr->trackId)) {
