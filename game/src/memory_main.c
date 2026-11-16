@@ -29,8 +29,9 @@ s32 MainPool_GetAvailable(void);
  * freeing the object that was most recently allocated from a side.
  */
 void MainPool_Init(void* start, void* end) {
-    sMemPool.start = (void*)(ALIGN16((uintptr_t)start) + 16);
-    sMemPool.end = (void*)(ALIGN16((uintptr_t)end - 15) - 16);
+    // PORT: room for a MainPoolBlock header at each end (16 bytes on the N64, 32 on 64-bit hosts)
+    sMemPool.start = (void*)(ALIGN16((uintptr_t)start) + sizeof(MainPoolBlock));
+    sMemPool.end = (void*)(ALIGN16((uintptr_t)end - 15) - sizeof(MainPoolBlock));
     sMemPool.available = (uintptr_t)sMemPool.end - (uintptr_t)sMemPool.start;
     sMemPool.mainState = NULL;
 

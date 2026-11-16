@@ -8,8 +8,8 @@
 #include "m2c_macros.h"
 char* Text_TranscodeName(char* gbDst, char* src);
 
-extern s8 D_800AD210;
-#define sGbSavePorts ((GbSavePort*)&D_800AD210)
+extern GbSavePort D_800AD210[4]; // PORT: typed (was s8), so the four ports get their host size
+#define sGbSavePorts D_800AD210
 
 extern u8 D_8006BB9C[];
 
@@ -184,7 +184,6 @@ s32 GbSave_ReadMainData(s32 arg0) {
     return sp30;
 }
 
-extern s8 D_800AD210;
 /**
  * Recomputes the checksum of `port`'s main save data, writes the 0x1020 bytes to cartridge SRAM
  * at 0x2580, reads them back and compares. Tries 4 times; returns 1 on a verified write, 0 if all fail.
@@ -195,7 +194,7 @@ s32 GbSave_WriteMainDataWithRetry(s32 port) {
     GbSaveMainData* temp_s1;
     GbSavePort* temp_s3;
 
-    temp_s3 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+    temp_s3 = &D_800AD210[port] /* PORT: was port * 0x48, the N64 stride */;
     temp_s1 = temp_s3->mainData;
     GbSave_ComputeChecksum((u8*)temp_s1->playerName, (u8*)&temp_s1->checksum);
     var_s0 = 0;
@@ -288,20 +287,19 @@ s32 GbSave_WriteBoxBank(s32 arg0, s32 arg1) {
     return 0;
 }
 
-extern s8 D_800AD210;
 /** Frees the save buffers held for a port. */
 void GbSave_ReleasePortBuffers(s32 arg0, u32 arg1) {
     GbSavePort* temp_v0;
     GbSavePort* temp_v0_2;
 
     if ((arg1 >= 0x44415430U) && (arg1 < 0x44415434U)) {
-        temp_v0 = (GbSavePort*)(((arg1 - 0x44415430) * 0x48) + &D_800AD210);
+        temp_v0 = &D_800AD210[(arg1 - 0x44415430)] /* PORT: was (arg1 - 0x44415430) * 0x48, the N64 stride */;
         temp_v0->mainData = NULL;
         temp_v0->flags = (u16) (temp_v0->flags & 0xFFF6);
         return;
     }
     if ((arg1 >= 0x424F5830U) && (arg1 < 0x424F5834U)) {
-        temp_v0_2 = (GbSavePort*)(((arg1 - 0x424F5830) * 0x48) + &D_800AD210);
+        temp_v0_2 = &D_800AD210[(arg1 - 0x424F5830)] /* PORT: was (arg1 - 0x424F5830) * 0x48, the N64 stride */;
         temp_v0_2->boxData = NULL;
         temp_v0_2->flags = (u16) (temp_v0_2->flags & 0xFFED);
     }
@@ -1161,12 +1159,11 @@ void GbSave_CopyPlayerIdentity(s32 arg0, void* arg1) {
     *ptr2++ = *ptr++;
 }
 
-extern s8 D_800AD210;
 /** Returns the trainer ID stored in a port's save data. */
 s32 GbSave_GetTrainerId(s32 arg0) {
     GbSavePort* temp_v0;
 
-    temp_v0 = (GbSavePort*)((arg0 * 0x48) + &D_800AD210);
+    temp_v0 = &D_800AD210[arg0] /* PORT: was arg0 * 0x48, the N64 stride */;
     if (!(temp_v0->flags & 1)) {
         return -1;
     }
@@ -1197,7 +1194,6 @@ s32 GbSave_GetBoxCount(s32 arg0) {
 }
 
 s32 func_8001FCC0(M2C_UNK, s32, M2C_UNK);           /* extern */
-extern s8 D_800AD210;
 /**
  * Copies the player name of `port`'s Gen 1 save into `dst`, converted to the N64 text encoding
  * (Text_UntranscodeFixedName). Returns 0 when the port has no loaded save.
@@ -1214,7 +1210,6 @@ s32 GbSave_GetPlayerName(s32 port, char* dst) { // PORT: dst is a pointer (was M
     return Text_UntranscodeFixedName(dst, (char*)temp_v0->mainData->playerName) != NULL;
 }
 
-extern s8 D_800AD210;
 /**
  * Writes `name` (N64 text) into the player name of `port`'s Gen 1 save in the Game Boy encoding.
  * Returns 0 when the port has no loaded save. @unverified: no caller in the resident code.
@@ -1222,7 +1217,7 @@ extern s8 D_800AD210;
 s32 GbSave_SetPlayerName(s32 port, char* name) {
     GbSavePort* temp_v0;
 
-    temp_v0 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+    temp_v0 = &D_800AD210[port] /* PORT: was port * 0x48, the N64 stride */;
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
@@ -1230,7 +1225,6 @@ s32 GbSave_SetPlayerName(s32 port, char* name) {
 }
 
 s32 func_8001FCC0(M2C_UNK, s32, M2C_UNK);           /* extern */
-extern s8 D_800AD210;
 /**
  * Copies the rival name of `port`'s Gen 1 save into `dst` in the N64 text encoding. Returns 0
  * when the port has no loaded save. @unverified: named from the field it reads.
@@ -1238,14 +1232,13 @@ extern s8 D_800AD210;
 s32 GbSave_GetRivalName(s32 port, M2C_UNK dst) {
     GbSavePort* temp_v0;
 
-    temp_v0 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+    temp_v0 = &D_800AD210[port] /* PORT: was port * 0x48, the N64 stride */;
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
     return func_8001FCC0(dst ^ 0, (uintptr_t)temp_v0->mainData->rivalName, dst); // FAKE
 }
 
-extern s8 D_800AD210;
 /**
  * Writes `name` (N64 text) into the rival name of `port`'s Gen 1 save. Returns 0 when the port has
  * no loaded save. @unverified: no caller in the resident code.
@@ -1253,7 +1246,7 @@ extern s8 D_800AD210;
 s32 GbSave_SetRivalName(s32 port, char* name) {
     GbSavePort* temp_v0;
 
-    temp_v0 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+    temp_v0 = &D_800AD210[port] /* PORT: was port * 0x48, the N64 stride */;
     if (!(temp_v0->flags & 1)) {
         return 0;
     }
@@ -1277,7 +1270,6 @@ s32 GbSave_SavedAtPokemonCenter(s32 arg0) {
     return (sGbSavePorts[arg0].flags & 0x4000) != 0;
 }
 
-extern s8 D_800AD210;
 /**
  * Returns 1 when the port's Gen 1 save has the got-Pokedex event flag: bit 0x20 of byte 0x46D of
  * the main-data copy, which is save file offset 0x29ED. Seen in play (2026-11-12): with that bit
@@ -1289,7 +1281,7 @@ s32 GbSave_HasPokedex(s32 arg0) {
 
     var_v1 = 0;
     if (arg0 >= 0) {
-        temp_v0 = (GbSavePort*)((arg0 * 0x48) + &D_800AD210);
+        temp_v0 = &D_800AD210[arg0] /* PORT: was arg0 * 0x48, the N64 stride */;
         if (temp_v0->flags & 1) {
             var_v1 = (temp_v0->mainData->pokedexEventFlags & 0x20) != 0;
         }
@@ -1297,7 +1289,6 @@ s32 GbSave_HasPokedex(s32 arg0) {
     return var_v1;
 }
 
-extern s8 D_800AD210;
 /**
  * Returns bit 0 of byte 0x513 of `port`'s Gen 1 main data, or 0 when the port has no loaded save.
  * @unverified: no callers found; what the flag means is unknown.
@@ -1308,7 +1299,7 @@ s32 GbSave_UnusedTestFlag513(s32 port) {
 
     var_v1 = 0;
     if (port >= 0) {
-        temp_v0 = (GbSavePort*)((port * 0x48) + &D_800AD210);
+        temp_v0 = &D_800AD210[port] /* PORT: was port * 0x48, the N64 stride */;
         if (temp_v0->flags & 1) {
             var_v1 = (temp_v0->mainData->unk_513 & 1) != 0;
         }

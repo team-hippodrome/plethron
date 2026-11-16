@@ -12,7 +12,7 @@
 #define SRAM_relDuration 0x2
 extern OSThread gRspThread;
 extern u8 gRspThreadStack[156];
-extern OSMesg D_80086F7C;
+extern OSMesg D_80086F7C[16]; // PORT: message buffers typed (were OSMesg / M2C_UNK), so they get host-sized OSMesg slots
 extern StorageQueues D_80087000;
 extern s16 D_8008704C;
 
@@ -40,7 +40,7 @@ s32 Storage_InitializeLeoManager(void) {
     UNUSED s32 unused2[6]; // FAKE: stack padding
     s32 result;
 
-    result = LeoCJCreateLeoManager(0x95, 0x96, &D_80086F7C, 0x10);
+    result = LeoCJCreateLeoManager(0x95, 0x96, D_80086F7C, 0x10);
     if (result == 0) {
         if (osGetMemSize() >= 0x800000U) {
             D_8008704C = 1;
@@ -246,18 +246,18 @@ void Storage_ThreadEntry(UNUSED void* arg) {
 M2C_UNK func_80054AB0(M2C_UNK, M2C_UNK *, M2C_UNK *, M2C_UNK); /* extern */
 extern M2C_UNK D_80084D30;
 extern M2C_UNK D_80086EE0;
-extern M2C_UNK D_80086EFC;
-extern M2C_UNK D_80086FBC;
-extern M2C_UNK D_80086FFC;
+extern OSMesg D_80086EFC[32];
+extern OSMesg D_80086FBC[16];
+extern OSMesg D_80086FFC[1];
 
 /**
  * Creates the storage queues and the PI manager, then starts the storage thread (id 10,
  * Storage_ThreadEntry) that serves ROM, SRAM and 64DD requests. Called from Idle_ThreadEntry at boot.
  */
 void Storage_StartThread(void) {
-    osCreateMesgQueue(&D_80087000.ioDoneQueue, &D_80086FFC, 1);
-    osCreateMesgQueue(&D_80087000.requestQueue, &D_80086FBC, 0x10);
-    func_80054AB0(0x96, &D_80087000.piCmdQueue, &D_80086EFC, 0x20);
+    osCreateMesgQueue(&D_80087000.ioDoneQueue, D_80086FFC, 1);
+    osCreateMesgQueue(&D_80087000.requestQueue, D_80086FBC, 0x10);
+    func_80054AB0(0x96, &D_80087000.piCmdQueue, (M2C_UNK*)D_80086EFC, 0x20);
     osCreateThread(&D_80084D30, 0xA, &Storage_ThreadEntry, 0, &D_80086EE0, 0x5A);
     osStartThread(&D_80084D30);
 }

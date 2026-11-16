@@ -29,7 +29,7 @@ s32 __leoSetReset(void);
 s32 LeoResetClear(void);
 
 extern M2C_UNK D_80100190;
-extern M2C_UNK D_801001A8;
+extern OSMesg D_801001A8[1]; // PORT: typed message buffer (was M2C_UNK)
 extern M2C_UNK D_80100298;
 extern M2C_UNK D_80100448;
 extern M2C_UNK D_801009F8;
@@ -38,20 +38,20 @@ extern M2C_UNK D_80100E10;
 extern M2C_UNK D_80100E28;
 extern M2C_UNK D_80100E40;
 extern M2C_UNK D_80100E58;
-extern M2C_UNK D_80100E70;
-extern M2C_UNK D_80100E74;
-extern M2C_UNK D_80100E78;
-extern M2C_UNK D_80100E80;
+extern OSMesg D_80100E70[1]; // PORT: typed message buffer (was M2C_UNK)
+extern OSMesg D_80100E74[1]; // PORT: typed message buffer (was M2C_UNK)
+extern OSMesg D_80100E78[2]; // PORT: typed message buffer (was M2C_UNK)
+extern OSMesg D_80100E80[1]; // PORT: typed message buffer (was M2C_UNK)
 extern M2C_UNK func_800487A0;
 extern M2C_UNK func_800491A0;
 
 void func_800483E0(s32 arg0, s32 arg1, M2C_UNK *arg2, M2C_UNK arg3) {
     osCreateMesgQueue(&D_80100DF8, arg2, arg3);
-    osCreateMesgQueue(&D_80100E28, &D_80100E74, 1);
-    osCreateMesgQueue(&D_80100E10, &D_80100E70, 1);
-    osCreateMesgQueue(&D_80100E40, &D_80100E78, 2);
-    osCreateMesgQueue(&D_80100E58, &D_80100E80, 1);
-    osCreateMesgQueue(&D_80100190, &D_801001A8, 1);
+    osCreateMesgQueue(&D_80100E28, D_80100E74, 1);
+    osCreateMesgQueue(&D_80100E10, D_80100E70, 1);
+    osCreateMesgQueue(&D_80100E40, D_80100E78, 2);
+    osCreateMesgQueue(&D_80100E58, D_80100E80, 1);
+    osCreateMesgQueue(&D_80100190, D_801001A8, 1);
     osCreateThread(&D_80100298, 1, &func_800491A0, 0, &D_801009F8, arg0);
     osStartThread(&D_80100298);
     osCreateThread(&D_80100448, 1, &func_800487A0, 0, &D_80100DF8, arg1);
