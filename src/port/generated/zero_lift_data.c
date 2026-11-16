@@ -1856,7 +1856,7 @@ ZLIFT_STORAGE(D_821CF2B8, 912);
 ZLIFT_STORAGE(D_821CF618, 952);
 ZLIFT_STORAGE(D_821CF998, 69496);
 ZLIFT_STORAGE(D_82200000, 32);
-ZLIFT_STORAGE(D_82202C1C, 8);
+ZLIFT_STORAGE(D_82202C1C, 64);
 ZLIFT_STORAGE(D_82202C3C, 72);
 ZLIFT_STORAGE(D_82202C60, 28);
 ZLIFT_STORAGE(D_82202C7C, 28);
@@ -2718,7 +2718,7 @@ const ZLiftType gZLiftTypes[] = {
     { 8, 16, 243, 2 }, // r:struct Entry80066AD8@party_summary.h:67
     { 12, 24, 245, 3 }, // r:struct MoveTableEntry@global.h:668
     { 6, 6, 248, 1 }, // r:struct MoveData@variables.h:988
-    { 6, 6, 249, 1 }, // r:struct Move8A201D3C@mon_summary.c:53
+    { 6, 6, 249, 1 }, // r:struct Move8A201D3C@mon_summary.c:54
     { 1, 1, 250, 1 }, // s1s
     { 512, 512, 251, 1 }, // as2u[256]
     { 4, 4, 252, 1 }, // f4
@@ -2992,7 +2992,7 @@ const ZLiftType gZLiftTypes[] = {
     { 24, 24, 2003, 3 }, // r:struct unk_D_843847BC@battle.h:435
     { 8, 16, 2006, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:893
     { 44, 80, 2009, 3 }, // r:struct BattleSceneStateRow@battle.h:400
-    { 6, 6, 2012, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1126
+    { 6, 6, 2012, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1158
     { 3, 3, 2013, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
     { 2, 2, 2014, 1 }, // r:struct StatStageMultiplier@battle.h:923
     { 48, 48, 2015, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
@@ -8337,7 +8337,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x821CF618, 0x380, 1, 414, 13, 1, 0x0, D_821CF618 }, // D_821CF618
     { 0x821CF998, 0xFF80, 73, 414, 13, 1, 0x0, D_821CF998 }, // D_821CF998
     { 0x82200000, 0x20, 8, 0, 14, 0, 0x0, D_82200000 }, // D_82200000
-    { 0x82202C1C, 0x4, 1, 13, 14, 0, 0x2C1C, D_82202C1C }, // D_82202C1C
+    { 0x82202C1C, 0x20, 8, 13, 14, 0, 0x2C1C, D_82202C1C }, // D_82202C1C
     { 0x82202C3C, 0x24, 9, 13, 14, 0, 0x2C3C, D_82202C3C }, // D_82202C3C
     { 0x82202C60, 0x1C, 2, 299, 14, 0, 0x2C60, D_82202C60 }, // D_82202C60
     { 0x82202C7C, 0x1C, 2, 299, 14, 0, 0x2C7C, D_82202C7C }, // D_82202C7C

@@ -52,8 +52,8 @@ extern u8 D_300BAD0[];
 extern u8 D_300BED0[];
 extern u8 D_300C2D0[];
 
-extern u8* D_82202C1C[];
-extern u8* D_82202C3C[];
+extern u8* D_82202C1C[8]; // PORT: sized; [1..7] are rounds 1-7, round 8 reads D_82202C3C[0] as on the N64
+extern u8* D_82202C3C[9];
 extern Key80027168 D_82202C60[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
 extern Key80027168 D_82202C7C[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
 extern Key80027168 D_82202CD0[]; // PORT: was u8[], Bezier keys the lifter must swap as s16
@@ -1019,7 +1019,11 @@ s32 Tournament_PlayBadgeAward(void) {
     if (D_822036A4->battleSides[0].unk_1C == 1) {
         Model_InitDisplayObject(&D_822033D0, 1, 0, D_82203254);
         Model_InitDisplayObject(&D_82203538, 1, 0, D_82203258);
-        ModelAnim_BindTransformCurve(&D_822033D0, 1, D_82202C1C[D_822036A4->roundOrDemoId], 0x10000);
+        // PORT: D_82202C1C[8] (the final) is D_82202C3C[0] on the N64; the lifted tables are separate
+        ModelAnim_BindTransformCurve(&D_822033D0, 1,
+                                     (D_822036A4->roundOrDemoId < 8) ? D_82202C1C[D_822036A4->roundOrDemoId]
+                                                                     : D_82202C3C[D_822036A4->roundOrDemoId - 8],
+                                     0x10000);
         ModelAnim_BindTransformCurve(&D_82203538, 1, D_82202C3C[D_822036A4->roundOrDemoId], 0x10000);
         Audio_PlayCommand(0x50, 0, 0);
         D_8220354C = D_822036A4->roundOrDemoId - 1;
