@@ -1118,6 +1118,20 @@ extern u8 D_81122854[];
  * Seen in play (2026-11-14) ran when the GB Player started (main menu GB, はい "Yes") with JP Green in the
  * Transfer Pak; called from GbEmu_LoadCartridge.
  */
+#ifdef NON_MATCHING
+// PORT: whether the cartridge whose header (an OSGbpakId) is at id is a Western Gen 1 Pokémon cartridge: a title
+// of Red, Blue or Yellow, a destination other than Japan and a ROM size of 1 MB.
+static s32 GbPak_IsWesternCartridge(const u8* id) {
+    const u8* title = id + 0x34;
+
+    if (id[0x4A] == 0 || id[0x48] != 5) {
+        return 0;
+    }
+    return bcmp(title, "POKEMON RED", 11) == 0 || bcmp(title, "POKEMON BLUE", 12) == 0 ||
+           bcmp(title, "POKEMON YEL", 11) == 0;
+}
+#endif
+
 s32 GbPak_IdentifyCartridge(u8* arg0) {
     u8 buf[8];
     u8* entry = D_81122854;
@@ -1130,6 +1144,22 @@ s32 GbPak_IdentifyCartridge(u8* arg0) {
             break;
         }
     }
+#ifdef NON_MATCHING
+    // PORT: Western Red, Blue and Yellow (English, German, French, ...) are let in too, as the game they correspond
+    // to (the same frame and colours). Their headers differ from the Japanese ones in ROM size (1 MB), cartridge type
+    // (MBC3/MBC5), CGB flag (Yellow) and destination (0x01); European titles reach here under their US name
+    // (transfer_pak.cpp, PatchRegion). Zero's own bank lists only fit the Japanese ROMs, so GbEmu_LoadCartridge
+    // copies these whole (GbPak_IsWesternCartridge).
+    if (i == 0 && GbPak_IsWesternCartridge(arg0)) {
+        if (bcmp(arg0 + 0x34, "POKEMON RED", 11) == 0) {
+            i = 1;
+        } else if (bcmp(arg0 + 0x34, "POKEMON BLUE", 12) == 0) {
+            i = 3;
+        } else {
+            i = 4;
+        }
+    }
+#endif
     return i;
 }
 
@@ -1314,6 +1344,11 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
                     : (cur->gameIndex == 3) ? ((cur->maskRomVersion == 0) ? D_81122774 : NULL)
                     : (cur->gameIndex == 2) ? ((cur->maskRomVersion == 1U) ? D_81122694 : (cur->maskRomVersion == 0) ? D_811225B4 : NULL)
                                         : ((cur->maskRomVersion == 1U) ? D_811224D4 : (cur->maskRomVersion == 0) ? D_811223F4 : NULL);
+#ifdef NON_MATCHING
+    if (GbPak_IsWesternCartridge((const u8*)cur)) {
+        cur->bankList = NULL; // PORT: copied whole (see GbPak_IdentifyCartridge)
+    }
+#endif
     cur->sum = 0;
 
     if (cur->bankList == NULL) {

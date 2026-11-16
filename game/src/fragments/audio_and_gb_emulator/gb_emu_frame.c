@@ -431,18 +431,18 @@ extern u8 D_811565A0;
  * Seen in play (2026-11-14) ran when C-Up opened the GB Player menu; called from GbEmu_RunFrame.
  */
 s32 GbPak_CheckConnectionBlocking(void) {
-    volatile u8* chan = (volatile u8*)&D_811561C8[D_811565A0];
+    GbPakChannel* chan = &D_811561C8[D_811565A0]; // PORT: the fields, not N64 byte offsets 0x99/0x9A
 
-    while (chan[0x99] != 0) {
+    while (chan->request != 0) {
     }
-    if (chan[0x9A] != 0) {
+    if (chan->error != 0) {
         return -1;
     }
-    chan[0x99] = 8;
+    chan->request = 8;
     osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
-    while (chan[0x99] != 0) {
+    while (chan->request != 0) {
     }
-    if (chan[0x9A] != 0) {
+    if (chan->error != 0) {
         return -1;
     }
     return 0;

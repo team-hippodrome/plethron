@@ -372,6 +372,75 @@ typedef struct GbApuStatusOverride {
   /* 0x03 */ u8 noise; // @unverified: from the code (GbApu_QueueRegisterWrite, GbMem_ReadIoRegister): same for the noise channel
 } GbApuStatusOverride;
 
+// PORT: the fields of each register byte are listed from bit 0 up on a little-endian host (bitfields fill a byte
+// from its low bit there, from its high bit on the N64), so that D_81138A80's register bytes keep their meaning.
+#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+typedef struct GbApuRegs {
+    /* 0x00 NR10 */ u32 sweepShift : 3;
+                    u32 sweepDir : 1;
+                    u32 sweepTime : 3;
+                    u32 : 1;
+    /* 0x01 NR11 */ u32 length1 : 6;
+                    u32 duty1 : 2;
+    /* 0x02 NR12 */ u32 envSweep1 : 3;
+                    u32 envDir1 : 1;
+                    u32 volume1 : 4;
+    /* 0x03 NR13 */ u32 freqLo1 : 8;
+    /* 0x04 NR14 */ u32 freqHi1 : 3;
+                    u32 : 3;
+                    u32 counter1 : 1;
+                    u32 trigger1 : 1;
+    /* 0x05 */      u32 : 8;
+    /* 0x06 NR21 */ u32 length2 : 6;
+                    u32 duty2 : 2;
+    /* 0x07 NR22 */ u32 envSweep2 : 3;
+                    u32 envDir2 : 1;
+                    u32 volume2 : 4;
+    /* 0x08 NR23 */ u32 freqLo2 : 8;
+    /* 0x09 NR24 */ u32 freqHi2 : 3;
+                    u32 : 3;
+                    u32 counter2 : 1;
+                    u32 trigger2 : 1;
+    /* 0x0A NR30 */ u32 : 7;
+                    u32 waveOn : 1;
+    /* 0x0B NR31 */ u32 length3 : 8;
+    /* 0x0C NR32 */ u32 : 5;
+                    u32 level3 : 2;
+                    u32 : 1;
+    /* 0x0D NR33 */ u32 freqLo3 : 8;
+    /* 0x0E NR34 */ u32 freqHi3 : 3;
+                    u32 : 3;
+                    u32 counter3 : 1;
+                    u32 trigger3 : 1;
+    /* 0x0F */      u32 : 8;
+    /* 0x10 NR41 */ u32 length4 : 6;
+                    u32 : 2;
+    /* 0x11 NR42 */ u32 envSweep4 : 3;
+                    u32 envDir4 : 1;
+                    u32 volume4 : 4;
+    /* 0x12 NR43 */ u32 ratio4 : 3;
+                    u32 width4 : 1;
+                    u32 shift4 : 4;
+    /* 0x13 NR44 */ u32 : 6;
+                    u32 counter4 : 1;
+                    u32 trigger4 : 1;
+    /* 0x14 NR50 */ u32 rightVolume : 3;
+                    u32 vinRight : 1;
+                    u32 leftVolume : 3;
+                    u32 vinLeft : 1;
+    /* 0x15 NR51 */ u32 sq1Right : 1;
+                    u32 sq2Right : 1;
+                    u32 waveRight : 1;
+                    u32 noiseRight : 1;
+                    u32 sq1Left : 1;
+                    u32 sq2Left : 1;
+                    u32 waveLeft : 1;
+                    u32 noiseLeft : 1;
+    /* 0x16 NR52 */ u32 : 7;
+                    u32 power : 1;
+    /* 0x17 */      u32 : 8;
+} GbApuRegs;
+#else
 typedef struct GbApuRegs {
     /* 0x00 NR10 */ u32 : 1;
                     u32 sweepTime : 3;
@@ -437,6 +506,7 @@ typedef struct GbApuRegs {
                     u32 : 7;
     /* 0x17 */      u32 : 8;
 } GbApuRegs;
+#endif
 
 #define GB_APU_REGS (*(GbApuRegs*)D_81138A80)
 
