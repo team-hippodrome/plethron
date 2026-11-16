@@ -109,6 +109,9 @@ s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi) {
         addr = D_800B417C[species + 3];
         size = D_800B4160[8] - addr;
     }
+    Rom_DmaRead(addr, (uintptr_t)D_800B41F0, size); // PORT: restored (the 64-bit pass dropped it)
+    Audio_CopyDataWithCacheSync(D_800B41F0, D_800B41D0[D_800FD605], 0x200); // PORT: restored (the 64-bit pass dropped it)
+    Block_RelocateSelf(D_800B41D0[D_800FD605]); // PORT: restored (the 64-bit pass dropped it)
     return (D_800FD670[side] = func_8003834C(D_800B4198, D_800B41D0[D_800FD605], flags, 0x80, 0x80, 0, -1));
 }
 
@@ -118,6 +121,7 @@ s32 Announcer_CallMove(u8 side, u32 move, u32 species, u32 event, u8 hi) {
  * @unverified: no callers found.
  */
 void Audio_PlaySystemBankSound(s32 id) {
+    func_8003834C(D_800B418C, D_800B41A8, id, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
 }
 
 extern s32 D_800FD698[];

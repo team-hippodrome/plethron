@@ -240,6 +240,7 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
 
         case 80:
             ret = func_8003834C(D_800B418C, D_800B41A8, D_80077540, 0xFF, 96, 0, -1);
+            func_8003834C(D_800B418C, D_800B41A8, D_80077540, 0xFF, 160, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             if (D_80077530 == 0) {
                 D_800FD608 = Audio_StartMusicTrack(14);
             }
@@ -251,6 +252,8 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
 
         case 82:
             ret = func_8003834C(D_800B4188, D_800B41A4, 39, 0xFF, 96, 0, -1);
+            func_8003834C(D_800B4188, D_800B41A4, 39, 0xFF, 160, 0, -1); // PORT: restored (the 64-bit pass dropped it)
+            func_8003834C(D_800B4188, D_800B41A4, 26, 0x80, 0x80, 0, -1); // PORT: restored (the 64-bit pass dropped it)
             break;
 
         case 83:
@@ -269,18 +272,21 @@ s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
+                        func_80037C04(D_800FD680, 80); // PORT: restored (the 64-bit pass dropped it)
                     }
                     break;
                 case 2:
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
+                        func_80037C04(D_800FD680, 80); // PORT: restored (the 64-bit pass dropped it)
                     }
                     break;
                 case 3:
                     if (Audio_QueueSetMonoOutputCommand(D_800FD680) == 0) {
                         D_800FD680 = func_8003834C(D_800B4188, D_800B41A4, 34, 80, 0x80, 0, -1);
                     } else {
+                        func_80037C04(D_800FD680, 80); // PORT: restored (the 64-bit pass dropped it)
                     }
                     break;
                 default:
