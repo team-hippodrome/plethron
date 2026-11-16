@@ -64,11 +64,23 @@ u32 Port_VAlloc(void* host, u32 size, u32 link) {
     if (size > 0x100000) {
         return 0;
     }
-    // The pool hands the same memory out again after a blob is released; drop a stale entry that starts at the same
-    // address so lookups by host address (Port_VAddrOfLink) and by pseudo address cannot find the old blob.
-    for (i = 0; i < PORT_VBLOBS; i++) {
-        if (sVBlobs[i].host == (u8*)host) {
-            sVBlobs[i].host = NULL;
+    // The pool hands the same memory out again after a blob is released; drop every stale entry that overlaps the
+    // new one so lookups by host address (Port_VAddrOfLink, Port_VIsRaw) and by pseudo address cannot find the old
+    // blob. Model blobs are released by resetting their pool, which never calls Port_VFree, so this is also where the
+    // translations made from the old blob's bytes must go: they are cached by host address, and the next model loaded
+    // at that address drew with the previous one's display lists and vertices wherever a list started at the same
+    // offset (the intro's Charizard and Blastoise, loaded one after another into the same pool, spiked).
+    {
+        int dropped = 0;
+        for (i = 0; i < PORT_VBLOBS; i++) {
+            if (sVBlobs[i].host != NULL && sVBlobs[i].host < (u8*)host + size &&
+                (u8*)host < sVBlobs[i].host + sVBlobs[i].size) {
+                sVBlobs[i].host = NULL;
+                dropped = 1;
+            }
+        }
+        if (dropped) {
+            Port_GfxFlushCache();
         }
     }
     for (i = 0; i < PORT_VBLOBS; i++) {
@@ -431,6 +443,11 @@ uintptr_t Port_CallBlobEntry(void* frag, s32 a0, s32 a1) {
  * Set the base virtual address and size of the specified segment memmap.
  */
 void Memmap_SetSegmentMap(u32 id, uintptr_t vaddr, size_t size) {
+    // PORT (from stadion): translated display lists depend on these maps. Menus set the same map again every frame:
+    // only a change flushes (a flush also drops Smooth motion's in-between frames, interp.cpp)
+    if (gSegments[id].vaddr != vaddr || gSegments[id].size != size) {
+        Port_GfxFlushCache();
+    }
     gSegments[id].vaddr = vaddr;
     gSegments[id].size = size;
 }
@@ -480,6 +497,7 @@ u32 Memmap_GetSegmentVaddrMask(u32 i, uintptr_t addr) {
  * Clear the memmap for the segment ID specified.
  */
 void Memmap_ClearSegmentMemmap(u32 id) {
+    Port_GfxFlushCache(); // PORT (from stadion): translated display lists depend on these maps
     gSegments[id].vaddr = NULL;
     gSegments[id].size = 0;
 }
@@ -585,6 +603,7 @@ void Memmap_SetFragmentMap(u32 id, uintptr_t vaddr, size_t size) {
         fprintf(stderr, "[memmap] SetFragmentMap: bad slot id %d ignored\n", (int)id);
         return;
     }
+    Port_GfxFlushCache(); // PORT (from stadion): translated display lists depend on these maps
     gFragments[id].vaddr = vaddr;
     gFragments[id].size = size;
 }
@@ -636,6 +655,7 @@ u32 Memmap_GetFragmentVaddrMask(u32 i, uintptr_t addr) {
  * Clear the memmap for the fragment ID specified.
  */
 void Memmap_ClearFragmentMemmap(u32 id) {
+    Port_GfxFlushCache(); // PORT (from stadion): translated display lists depend on these maps
     gFragments[id].vaddr = NULL;
     gFragments[id].size = 0;
 }
