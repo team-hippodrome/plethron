@@ -9,6 +9,8 @@
 #include "lab_item.h"
 #include "pokemon_stats.h"
 #include "save_data.h"
+#include "stdarg.h"
+#include "text_lookup.h" // PORT: translated PC tab name
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 s32 Ui_GetSelectionDirection(Controller* arg0);
@@ -805,8 +807,16 @@ extern u8 D_8900F5E0[];
 extern char D_890184BC[];
 extern char D_890190F0[];
 extern char D_890184CC[];
-extern s32 D_8901911C;
 extern char* D_8900A5F4[];
+// PORT: lets the text lookup translate a buffer the game sprintf'd (text_lookup.h).
+static void LabItem_NoteFormatted(const char* dst, const char* fmt, ...) {
+    va_list ap;
+
+    va_start(ap, fmt);
+    Port_Text_NoteFormatted(dst, fmt, ap);
+    va_end(ap);
+}
+
 /**
  * Sets up the どうぐのせいり (organize items) window for %sのパソコン (%s's PC).
  * Seen in play (2026-11-12): opened どうぐのせいり with サトシのパソコン.
@@ -839,7 +849,8 @@ void LabItem_InitOrganizeWindow(LabItemOrganizeWindow* win, s32 x, s32 y, ByteMa
     win->exchangeButton.highlightColor = D_8900A5BC;
     win->rightBox = 1;
     win->leftBox = 0;
-    sprintf(D_890190F0, D_890184CC, &D_8901911C);
+    sprintf(D_890190F0, D_890184CC, D_8901911C);
+    LabItem_NoteFormatted(D_890190F0, D_890184CC, D_8901911C); // PORT: the tab translates as "%s's PC"
     win->boxNames = D_8900A5F4;
     win->boxCount = 3;
     win->operationCursor.count = 4;
@@ -860,7 +871,6 @@ extern PrimEnvColor D_8900A608;
 extern PrimEnvColor D_8900A610;
 extern u8* D_89017A80[];
 extern u8 D_89017A98[];
-extern s32 D_89019114;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
@@ -1670,8 +1680,6 @@ s32 LabItem_UpdateSaveDataWindow(LabItemSaveDataWindow* win) {
 }
 
 extern s32 D_89019108;
-extern s32 D_89019118;
-extern s32 D_8901911C;
 
 /**
  * Sets up どうぐのせいり: builds the bag (20), PC (50) and 64 cassette (100) item tables,
@@ -1689,7 +1697,7 @@ void LabItem_Init(LabItemScreen* screen) {
     LabItem_ReadDeckEntries(0x23, D_89019108, 0, &screen->itemTables[0]);
     LabItem_ReadDeckEntries(0x22, D_89019108, 0, &screen->itemTables[1]);
     LabItem_LoadGamePakBoxSlots(screen->saveSlots);
-    screen->gamePakSlot = LabItem_FindOrAllocateGamePakBoxSlot(screen->saveSlots, D_89019118, (char*)&D_8901911C);
+    screen->gamePakSlot = LabItem_FindOrAllocateGamePakBoxSlot(screen->saveSlots, D_89019118, D_8901911C);
     if ((screen->gamePakSlot != -1) && (screen->saveSlots[screen->gamePakSlot].present != 0)) {
         LabItem_ReadDeckEntries(0x12, 0, screen->gamePakSlot, &screen->itemTables[2]);
     }

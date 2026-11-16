@@ -200,6 +200,28 @@ if(_n GREATER 0)
     list(APPEND PORT_WRAPPED_SOURCES ${_orig} ${_wrap})
   endforeach()
 endif()
+# The decomp compiles its sources as EUC-JP (pokestadium0 tools/production.py); clang reads UTF-8. The game files whose
+# string literals hold Japanese text are compiled from copies with those literals in EUC-JP (tools/euc_source.py), so
+# they keep the N64 byte lengths and md5s. List new ones in cmake/euc_sources.txt.
+file(STRINGS cmake/euc_sources.txt PORT_EUC_SOURCES REGEX "^[^#]")
+foreach(_rel ${PORT_EUC_SOURCES})
+  set(_orig ${CMAKE_CURRENT_SOURCE_DIR}/${_rel})
+  set(_euc ${CMAKE_BINARY_DIR}/generated/euc/${_rel})
+  get_filename_component(_euc_dir ${_euc} DIRECTORY)
+  get_filename_component(_orig_dir ${_orig} DIRECTORY)
+  file(MAKE_DIRECTORY ${_euc_dir})
+  execute_process(COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/euc_source.py ${_orig} ${_euc}
+                  RESULT_VARIABLE _euc_result)
+  if(NOT _euc_result EQUAL 0)
+    message(FATAL_ERROR "tools/euc_source.py failed on ${_rel}")
+  endif()
+  list(REMOVE_ITEM STADIUM_GAME_SOURCES ${_orig})
+  list(APPEND STADIUM_GAME_SOURCES ${_euc})
+  # its quoted includes still resolve next to the original
+  set_source_files_properties(${_euc} PROPERTIES INCLUDE_DIRECTORIES ${_orig_dir})
+endforeach()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/euc_sources.txt
+             ${CMAKE_CURRENT_SOURCE_DIR}/tools/euc_source.py)
 if(EMSCRIPTEN)
   # web build: FragmentEntry-typed thunks for the fragment entries (WebAssembly traps on calls through another type)
   execute_process(COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_fragment_thunks.py

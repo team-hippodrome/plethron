@@ -97,7 +97,6 @@ extern PrimEnvColor D_8900A608;
 extern PrimEnvColor D_8900A610;
 extern u8* D_89017A80[];
 extern u8 D_89017A98[];
-extern s32 D_89019114;
 extern Gfx D_80073408[];
 extern Gfx D_80073438[];
 void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
@@ -177,8 +176,6 @@ void BgStage_DrawFrame(void);
 
 
 extern s32 D_89019108;
-extern s32 D_89019118;
-extern u8 D_8901911C[];
 void func_80022118(s32 arg0); // PORT: matches GbSave_ValidateBeforeWrite
 void func_80022188(s32 arg0); // PORT: matches GbSave_RequirePakPresent
 s32 func_8002207C(s32 arg0); // PORT: matches GbSave_RebuildAndWriteSave
@@ -219,7 +216,7 @@ void LabItem_SaveChanges(LabItemScreen* screen) {
             }
         } else if (screen->itemTables[2].count > 0) {
             flush = 1;
-            LabItem_WriteDeckBack(0x12, 0, screen->gamePakSlot, &screen->itemTables[2], 0, (char*)D_8901911C, D_89019118);
+            LabItem_WriteDeckBack(0x12, 0, screen->gamePakSlot, &screen->itemTables[2], 0, D_8901911C, D_89019118);
         }
     }
     if (locked) {
@@ -472,7 +469,6 @@ M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 void LabTerminal_DrawMenuWindow(LabTerminalMenuWindow*);
 extern char D_89018900[]; // PORT: text (was M2C_UNK, lifted as swapped words)
 extern s32 D_89019108;
-extern M2C_UNK D_89019110;
 
 /**
  * Draws the GB save summary bar and the background.
@@ -485,7 +481,7 @@ void LabTerminal_DrawMainScreen(LabTerminalMenuWindow* win) {
     if (D_89019108 == -1) {
         var_a1 = NULL;
     } else {
-        var_a1 = &D_89019110;
+        var_a1 = (M2C_UNK*)&D_89019110;
     }
     GbSave_DrawSummaryBar(0, var_a1, D_89018900, D_89019108);
     LabItem_DrawBackground();
@@ -513,7 +509,6 @@ s32 LabTerminal_UpdateMainMenu(LabTerminalMenuWindow* win) {
     return result;
 }
 
-extern M2C_UNK D_89019110;
 extern LabTerminalMenuWindow D_89028950;
 extern s32 D_890289D4;
 s32 func_80025BD8(void); // PORT: matches GbSave_GetActivePort
@@ -527,7 +522,7 @@ void func_80027FF8(GbSavePortSummary* arg0, s32 arg1); // PORT: matches GbSave_B
 void LabTerminal_InitScreen(void) {
     D_89019108 = func_80025BD8();
     if (D_89019108 != -1) {
-        func_80027FF8(&D_89019110, D_89019108);
+        func_80027FF8(&D_89019110.summary, D_89019108);
     }
     LabTerminal_InitMainMenu(&D_89028950);
     D_890289D4 = 1;
@@ -568,7 +563,7 @@ s32 LabTerminal_UpdateFade(u8 unused) { // PORT: u8 to match BgStage_RunUntilCon
     if (D_89019108 == -1) {
         var_a1 = NULL;
     } else {
-        var_a1 = &D_89019110;
+        var_a1 = (M2C_UNK*)&D_89019110;
     }
     GbSave_DrawSummaryBar(0, var_a1, D_8901890C, D_89019108);
     n = D_8900A71C;

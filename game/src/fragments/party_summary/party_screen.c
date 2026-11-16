@@ -454,9 +454,14 @@ typedef struct Entry8A203384 {
     /* 0x18 */ s32 ppY;
     /* 0x1C */ s32 iconX;
     /* 0x20 */ s32 iconY;
-    /* 0x24 */ void* icon; // PORT: was s32 (holds a pointer)
+    /* 0x24 */ Img8002A3F8* icon; // PORT: was s32 (holds a pointer)
 } Entry8A203384; // size = 0x28
 extern Entry8A203384 D_8A203384[];
+// PORT: the four move-box frame images D_8A203384's icons point at (0x8A203308-0x8A203348, after D_8A203304's color).
+// Named so the lifter types them and widens their pixel pointers: as raw bytes of D_8A203304 their big-endian
+// fields drew from a garbage pointer on the moves page.
+extern Img8002A3F8 D_8A203308[4];
+static const void* const sPortMoveBoxImages __attribute__((used)) = D_8A203308;
 extern Color_RGBA8 D_8A203378;
 extern Color_RGBA8 D_8A20337C;
 extern char D_8A21D980[];

@@ -708,4 +708,18 @@ void PcSort_Unused2(void);
 void LabItem_DecreaseSelectedCount(ScrollList* list, s32 count);
 void LabList_RemoveSelectedEntry(ScrollList* list);
 
+/*
+ * The cartridge summary LabTerminal_InitScreen builds (GbSave_BuildPortSummary), with the trainer name after it.
+ * The decomp names its fields as separate symbols (D_89019114 game, D_89019118 trainer ID, D_8901911C name);
+ * they stay one object so the name written past the struct lands in it on the host too.
+ */
+typedef struct LabPcCartSummary {
+    /* 0x00 */ GbSavePortSummary summary;
+    /* 0x0C */ char name[12];
+} LabPcCartSummary; // size = 0x18
+extern LabPcCartSummary D_89019110;
+#define D_89019114 (D_89019110.summary.gameType)
+#define D_89019118 (D_89019110.summary.trainerId)
+#define D_8901911C (D_89019110.name)
+
 #endif // FRAGMENT_LAB_PC_H
