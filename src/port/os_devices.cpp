@@ -160,6 +160,39 @@ void FlashSave() {
     }
 }
 
+// Zero's own save is the 32 KiB SRAM (Stadium 1's is the flash). It persists in PORT_SRAM_FILE, by default the flash
+// file's path with the extension .sra, so the launcher's save choice covers both.
+bool gSramLoaded = false;
+
+std::string SramPath() {
+    if (const char* p = getenv("PORT_SRAM_FILE")) return p;
+    std::string path = FlashPath();
+    size_t dot = path.find_last_of('.');
+    size_t slash = path.find_last_of("/\\");
+    if (dot != std::string::npos && (slash == std::string::npos || dot > slash)) path.resize(dot);
+    return path + ".sra";
+}
+
+void SramLoad() {
+    if (gSramLoaded) return;
+    gSramLoaded = true;
+    if (FILE* f = Port::OpenFileUtf8(SramPath().c_str(), "rb")) {
+        size_t n = fread(gSram.data(), 1, gSram.size(), f);
+        if (getenv("PORT_TRACE_FLASH")) fprintf(stderr, "[sram] loaded %zu bytes from %s\n", n, SramPath().c_str());
+        fclose(f);
+    }
+}
+
+void SramSave() {
+    std::string error;
+    if (!Port::WriteProtectedSave(std::filesystem::u8path(SramPath()), gSram.data(), gSram.size(), error)) {
+        Port::ReportSaveFailure(error);
+        fprintf(stderr, "[sram] SAVE FAILED: %s\n", error.c_str());
+    } else {
+        Port_SaveWritten();
+    }
+}
+
 bool IsFlash(OSPiHandle* h) { return h->type == DEVICE_TYPE_FLASH; }
 } // namespace
 
@@ -261,8 +294,13 @@ s32 port_osEPiStartDma(OSPiHandle* h, OSIoMesg* mb, s32 direction) {
     } else if (h->type == DEVICE_TYPE_SRAM) {
         size_t off = mb->devAddr & 0x7FFF;
         size_t n = std::min<size_t>(mb->size, gSram.size() - off);
-        if (direction == OS_READ) memcpy(mb->dramAddr, gSram.data() + off, n);
-        else memcpy(gSram.data() + off, mb->dramAddr, n);
+        SramLoad();
+        if (direction == OS_READ) {
+            memcpy(mb->dramAddr, gSram.data() + off, n);
+        } else if (memcmp(gSram.data() + off, mb->dramAddr, n) != 0) {
+            memcpy(gSram.data() + off, mb->dramAddr, n);
+            SramSave();
+        }
     }
     port_PostMesgFromIrq(mb->hdr.retQueue, (OSMesg)mb);
     return 0;

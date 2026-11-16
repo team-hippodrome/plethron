@@ -56,7 +56,8 @@ void LabItem_ReadDeckEntries(s32 arg0, s32 arg1, s32 arg2, ByteMatrix* arg3);
  * cursor picked in the destination list (ホ went to the top of てもち).
  */
 void LabList_InsertRowAtCursor(LabMonEntryList* list, s32 (*row)(s32, s32)) {
-    ByteMatrix_InsertRow(list->items, row, list->count);
+    // PORT: `list` is a ScrollList; LabMonEntryList.count only lines up with its cursor on the N64 (ILP32)
+    ByteMatrix_InsertRow(((ScrollList*)list)->items, (s8*)row, ((ScrollList*)list)->cursor);
 }
 
 s32 func_800275E4(ByteMatrix* arg0, s32 arg1); // PORT: matches ByteMatrix_RemoveRow

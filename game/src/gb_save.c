@@ -1278,7 +1278,7 @@ void BattleInfoWidget_DrawLabel(s32 arg0, s32 arg1, char* arg2, s32 arg3, s32 ar
 
 M2C_UNK func_80027804(s8 *, M2C_UNK *, M2C_UNK, M2C_UNK); /* extern */
 M2C_UNK Menu_Init(s8 *, s8 *, s8 *, M2C_UNK *, s32, s32); /* extern */
-extern M2C_UNK D_800736AC;
+extern char* D_800736AC[3]; // PORT: the three option strings (was M2C_UNK), so the lifter widens them
 extern M2C_UNK func_8002C998;
 
 /**
@@ -1298,7 +1298,7 @@ void SavePrompt_Init(SavePrompt* arg0, s32 arg1, s32 arg2) {
     arg0->window.frame.style = 0x1001;
     temp_a0 = (s8*)&arg0->items;
     sp2C = temp_a0;
-    func_80027804(temp_a0, &D_800736AC, 3, 3);
+    func_80027804(temp_a0, (M2C_UNK*)D_800736AC, 3, 3);
     Menu_Init((s8*)&arg0->menu, sp2C, (s8*)arg0->itemFlags, &func_8002C998, 236, 28);
     arg0->menu.options |= 0x10000;
 }
@@ -1361,9 +1361,9 @@ void Save_DrawReportingWindow(SavePrompt* arg0) {
     BgStage_DrawFrame();
 }
 
-s32 func_8002BC14(s32);
+s32 func_8002BC14(struct Controller*); // PORT: matches Ui_GetSelectionDirection
 s32 Menu_UpdateCursor(void *, void *);
-extern s32 D_800603C0;
+extern struct Controller* D_800603C0; // PORT: gPlayer1Controller, a pointer (was s32)
 
 /**
  * Handles the save-before-leaving window. Returns -1 on cancel, 1 to save, 2 to leave without saving.
