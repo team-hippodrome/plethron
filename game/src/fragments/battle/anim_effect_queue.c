@@ -455,9 +455,9 @@ extern s32 D_8219A7D4;
 extern s32 D_8219A7D8;
 extern s16 D_8219A80C;
 extern s16 D_8219A80E;
-extern s32 D_8219A810;
+extern ActivePokemon* D_8219A810; // PORT: was s32, holds a pointer
 extern ActivePokemon* D_8219A814; // PORT: was s32, holds a pointer
-extern s32 D_8219A818;
+extern ActivePokemon* D_8219A818; // PORT: was s32, holds a pointer
 
 /**
  * Queues the animation of move arg0 with user arg1, target arg2 and anchors arg3 and arg4,
@@ -579,7 +579,7 @@ void BattleAnim_QueueEffectList9(s32 arg0) {
 void BattleAnim_SetQueuedResourceListId(u8 arg0); // PORT: signature from the definition (fragments/battle/anim_effect_queue.c)
 extern s32 D_8219A7E8;
 extern s16 D_8219A80C;
-extern s32 D_8219A810;
+extern ActivePokemon* D_8219A810; // PORT: was s32, holds a pointer
 
 /**
  * Queues effect list arg0 with user arg1. List 3 forces default anchor 7.
