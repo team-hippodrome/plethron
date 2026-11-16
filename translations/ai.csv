@@ -2026,8 +2026,9 @@ ICE_PUNCH_MOVE_DESC,c251222d249d3faf08eded3ba798b98d,80066DF0,"こおりタイ�
 相手を凍らせることがある。","An Ice-type special attack. About 1
 time in 10 it may freeze the foe.","Ataque especial de tipo Hielo. Puede
 congelar al rival 1 vez de cada 10.","Spezial-Attacke vom Typ Eis. In
-etwa 1 von 10 Fällen friert sie ein.","Ataque especial do tipo Gelo. Cerca
-de 1 vez em 10 pode congelar o rival.","얼음 타입 특수 공격. 10번에
+etwa 1 von 10 Fällen friert sie ein.","Ataque especial do tipo Gelo.
+Cerca de 1 vez em 10 pode congelar
+o rival.","얼음 타입 특수 공격. 10번에
 1번꼴로 상대를 얼린다.",
 THUNDER_PUNCH_MOVE_DESC,6220b40dc1a70d541218c4ce62ffae85,80066E50,"でんきタイプの特殊攻撃。
 10回に1回くらい相手を
@@ -2063,9 +2064,9 @@ Agarra o rival para causar dano.","집게를 가진 포켓몬의 노말 타입
 준다.",
 GUILLOTINE_MOVE_DESC,baff70a1da6a6719ae4f4858d6803c4d,80066F68,"ハサミを使った一撃必殺の
 技。大きなハサミを持った
-ポケモンのみが覚えられる。","A one-hit KO move using pincers. Only
-Pokémon with large pincers can
-learn it.","Ataque fulminante con pinzas. Solo
+ポケモンのみが覚えられる。","A one-hit KO move using pincers.
+Only Pokémon with large pincers
+can learn it.","Ataque fulminante con pinzas. Solo
 lo aprenden los Pokémon con pinzas
 grandes.","K.O.-Attacke mit Scheren. Nur
 Pokémon mit großen Scheren lernen
@@ -2270,8 +2271,8 @@ velocidade.","노말 타입 공격. 빠른 속도로
 상대를 몇 번이고 찌른다.",
 HORN_DRILL_MOVE_DESC,874b30f83fca8aa5a91bb8d7cc6f6050,800676E8,"相手のポケモンを一撃で
 倒してしまう必殺の技。
-ツノを持つポケモンが覚える。","A deadly move that knocks out the foe
-in one hit. Pokémon with horns
+ツノを持つポケモンが覚える。","A deadly move that knocks out the
+foe in one hit. Pokémon with horns
 learn it.","Ataque letal que derrota al rival
 de un golpe. Lo aprenden los Pokémon
 con cuernos.","Tödliche Attacke, die den Gegner
@@ -2415,8 +2416,9 @@ selvagens. Golpe útil no campo.","무서운 포효로 야생 포켓몬을
 있는 기술.",
 SING_MOVE_DESC,98fdce26b726fe1f5caad16f54ec9fd2,80067C70,"ノーマルタイプの特殊技。
 心地よい歌声で相手を
-眠らせる。","A Normal-type special move. A soothing
-song puts the foe to sleep.","Movimiento especial de tipo Normal.
+眠らせる。","A Normal-type special move. A
+soothing song puts the foe to
+sleep.","Movimiento especial de tipo Normal.
 Una canción relajante duerme al
 rival.","Normale Spezialattacke. Ein
 sanftes Lied schläfert den Gegner
@@ -2444,9 +2446,9 @@ dano, seja qual for o rival.","노말 타입 공격. 상대가 누구든
 반드시 데미지를 준다.",
 DISABLE_MOVE_DESC,1e29daac472dbe6d77c46b48bc93c289,80067D70,"相手の技を1つ封じることが
 できる。自然に回復するまで
-相手はその技が使えない。","Seals one of the foe's moves. The foe
-can't use that move until it wears
-off.","Bloquea un movimiento del rival. No
+相手はその技が使えない。","Seals one of the foe's moves. The
+foe can't use that move until it
+wears off.","Bloquea un movimiento del rival. No
 podrá usarlo hasta que se pase el
 efecto.","Blockiert eine Attacke des Gegners,
 bis die Wirkung nachlässt.","Bloqueia um golpe do rival. O rival
@@ -2456,8 +2458,9 @@ passar.","상대의 기술 하나를 봉인한다.
 쓸 수 없다.",
 ACID_MOVE_DESC,d9d533380ff652fc014a4fb5d2af2ee3,80067DE0,"どくタイプの攻撃技。
 10回に1回くらい相手の
-防御力を下げることがある。","A Poison-type attack. About 1 time in
-10 it may lower the foe's Defense.","Ataque de tipo Veneno. 1 vez de cada
+防御力を下げることがある。","A Poison-type attack. About 1 time
+in 10 it may lower the foe's
+Defense.","Ataque de tipo Veneno. 1 vez de cada
 10 puede bajar la Defensa del rival.","Gift-Attacke. In etwa 1 von 10
 Fällen senkt sie die Verteidigung.","Ataque do tipo Venenoso. Cerca de 1
 vez em 10 pode reduzir a Defesa.","독 타입 공격. 10번에 1번꼴로
@@ -2545,7 +2548,8 @@ BUBBLE_BEAM_MOVE_DESC,6fb9836c2851a97a2468c2bc04714d44,800681B8,"みずタイプ
 10回に1回くらい相手の
 素早さを下げることがある。","A Water-type attack. About 1 time in
 10 it may lower the foe's Speed.","Ataque de tipo Agua. 1 vez de cada
-10 puede bajar la Velocidad del rival.","Wasser-Attacke. In etwa 1 von 10
+10 puede bajar la Velocidad del
+rival.","Wasser-Attacke. In etwa 1 von 10
 Fällen senkt sie die Initiative.","Ataque do tipo Água. Cerca de 1 vez
 em 10 pode reduzir a Velocidade.","물 타입 공격. 10번에 1번꼴로
 상대의 스피드를 낮춘다.",
@@ -2588,9 +2592,9 @@ acerta com facilidade.","비행 타입 공격. 위력이 강하고
 잘 맞는다.",
 SUBMISSION_MOVE_DESC,25ab0932071aa34ceb3639e3e3061a3a,800683A8,"かくとうタイプ最強の技。
 ただし与えたダメージの
-4分の1が返ってきてしまう。","The strongest Fighting-type move. But
-a quarter of the damage dealt comes
-back to the user.","El ataque de Lucha más fuerte. Pero
+4分の1が返ってきてしまう。","The strongest Fighting-type move.
+But a quarter of the damage dealt
+comes back to the user.","El ataque de Lucha más fuerte. Pero
 un cuarto del daño causado lo recibe
 el usuario.","Die stärkste Kampf-Attacke. Doch ein
 Viertel des Schadens trifft den
@@ -2672,8 +2676,9 @@ usuário.","상대에게 씨앗을 심어 HP를
 준다.",
 GROWTH_MOVE_DESC,9a01b155fabe597ed190a1f8fcac620f,800686CC,"特殊能力を上げる技。
 特殊な攻撃と防御の
-能力が高くなる。","Raises the Special stat. Both special
-attack and special defense go up.","Sube la característica Especial.
+能力が高くなる。","Raises the Special stat. Both
+special attack and special defense
+go up.","Sube la característica Especial.
 Mejoran el ataque y la defensa
 especiales.","Erhöht den Spezial-Wert. Spezial-
 angriff und -abwehr steigen.","Aumenta o Especial. Sobem tanto o
@@ -2784,8 +2789,9 @@ pode se mover.","2~5번 연속으로 공격한다. 상대는
 없다.",
 THUNDER_SHOCK_MOVE_DESC,f71329802b0cbf9e8fbd544a39df5ce1,80068A88 80068AE8,"でんきタイプの攻撃技。
 10回に1回くらい相手を
-まひさせることがある。","An Electric-type attack. About 1 time
-in 10 it may paralyze the foe.","Ataque de tipo Eléctrico. 1 vez de
+まひさせることがある。","An Electric-type attack. About 1
+time in 10 it may paralyze the
+foe.","Ataque de tipo Eléctrico. 1 vez de
 cada 10 puede paralizar al rival.","Elektro-Attacke. In etwa 1 von 10
 Fällen paralysiert sie.","Ataque do tipo Elétrico. Cerca de 1
 vez em 10 pode paralisar o rival.","전기 타입 공격. 10번에 1번꼴로
@@ -2793,8 +2799,8 @@ vez em 10 pode paralisar o rival.","전기 타입 공격. 10번에 1번꼴로
 THUNDER_WAVE_MOVE_DESC,88d8a1f15f1718478f02aff768a0ff78,80068B48,"相手をまひさせる特殊技。
 まひしたポケモンは2回に
 1回くらい技が出せなくなる。","A special move that paralyzes the
-foe. About half the time, a paralyzed
-Pokémon can't use moves.","Movimiento especial que paraliza.
+foe. About half the time, a
+paralyzed Pokémon can't use moves.","Movimiento especial que paraliza.
 La mitad de las veces, un Pokémon
 paralizado no puede moverse.","Spezialattacke, die paralysiert.
 Etwa jedes zweite Mal kann der
@@ -2817,8 +2823,9 @@ rival.","가장 강한 전기 공격. 10번에
 1번꼴로 상대를 마비시킨다.",
 ROCK_THROW_MOVE_DESC,2a01630347cc7afd5dbdb803d9e73ca3,80068C18,"いわタイプの攻撃技。
 その名の通り岩の塊を
-相手に落とす。","A Rock-type attack. As its name says,
-it drops chunks of rock on the foe.","Ataque de tipo Roca. Como dice su
+相手に落とす。","A Rock-type attack. As its name
+says, it drops chunks of rock on
+the foe.","Ataque de tipo Roca. Como dice su
 nombre, lanza rocas al rival.","Gestein-Attacke. Wie der Name sagt,
 wirft sie Felsbrocken.","Ataque do tipo Pedra. Como diz o
 nome, joga pedaços de rocha no
@@ -2907,9 +2914,9 @@ sono profundo.","에스퍼 타입 특수 기술. 암시를
 잠재운다.",
 MEDITATE_MOVE_DESC,e3fb255b7da5cc5a0c3750e080fc40aa,80068F34,"自分の攻撃力が上がる
 特殊技。連続して
-通常6回まで使える。","A special move that raises the user's
-Attack. It can normally be used up
-to 6 times in a row.","Movimiento especial que sube el
+通常6回まで使える。","A special move that raises the
+user's Attack. It can normally be
+used up to 6 times in a row.","Movimiento especial que sube el
 Ataque. Normalmente se puede usar
 hasta 6 veces seguidas.","Spezialattacke, die den Angriff
 erhöht. Meist bis zu 6-mal
@@ -3038,9 +3045,9 @@ MINIMIZE_MOVE_DESC,47099e2f3433de5ee8c69b13a877b275,80069390,"小さくなって
 less likely to hit. It can normally
 be used up to 6 times in a row.","Se encoge para que los ataques del
 rival acierten menos. Normalmente
-hasta 6 veces seguidas.","Es schrumpft, damit Attacken seltener
-treffen. Meist bis zu 6-mal
-hintereinander.","Encolhe para o rival acertar com
+hasta 6 veces seguidas.","Es schrumpft, damit Attacken
+seltener treffen. Meist bis zu
+6-mal hintereinander.","Encolhe para o rival acertar com
 menos facilidade. Em geral pode ser
 usado até 6 vezes seguidas.","몸을 작게 해서 상대의 공격이
 맞기 어렵게 한다. 보통 6번
@@ -3129,9 +3136,9 @@ usuário.","스피드나 회피율 등을 원래대로
 적용된다.",
 REFLECT_MOVE_DESC,915476fa6e38cedf5a04afb1ff41beae,800696AC,"打撃攻撃で受けるダメージを
 半分くらいに減らす技。
-エスパータイプの特殊技。","Halves the damage taken from physical
-attacks. A Psychic-type special
-move.","Reduce a la mitad el daño de los
+エスパータイプの特殊技。","Halves the damage taken from
+physical attacks. A Psychic-type
+special move.","Reduce a la mitad el daño de los
 ataques físicos. Movimiento
 especial de tipo Psíquico.","Halbiert Schaden durch physische
 Attacken. Psycho-Spezialattacke.","Reduz à metade o dano de ataques
@@ -3246,8 +3253,9 @@ acertar, o rival pode recuar.","들고 있는 뼈로 공격한다.
 한다.",
 FIRE_BLAST_MOVE_DESC,99bd7e0833d615443acfb790be5dc918,80069AE0,"ほのおタイプの最強攻撃。
 3回に1回くらい相手に
-火傷を負わせることがある。","The strongest Fire-type attack. About
-1 time in 3 it may burn the foe.","El ataque de Fuego más fuerte. 1 vez
+火傷を負わせることがある。","The strongest Fire-type attack.
+About 1 time in 3 it may burn the
+foe.","El ataque de Fuego más fuerte. 1 vez
 de cada 3 puede quemar al rival.","Die stärkste Feuer-Attacke. In etwa
 1 von 3 Fällen verbrennt sie.","O ataque de Fogo mais forte. Cerca
 de 1 vez em 3 pode queimar o rival.","가장 강한 불꽃 타입 공격. 3번에
@@ -3307,8 +3315,9 @@ seguidas. Acerta com facilidade.","한 번의 공격으로 2~5번 연속
 CONSTRICT_MOVE_DESC,db1a66a0649a1f023b40c2766c03ba85,80069D1C,"ノーマルタイプの攻撃技。
 10回に1回くらい相手の
 素早さを下げることがある。","A Normal-type attack. About 1 time
-in 10 it may lower the foe's Speed.","Ataque de tipo Normal. 1 vez de cada
-10 puede bajar la Velocidad del rival.","Normal-Attacke. In etwa 1 von 10
+in 10 it may lower the foe's Speed.","Ataque de tipo Normal. 1 vez de
+cada 10 puede bajar la Velocidad
+del rival.","Normal-Attacke. In etwa 1 von 10
 Fällen senkt sie die Initiative.","Ataque do tipo Normal. Cerca de 1
 vez em 10 pode reduzir a Velocidade.","노말 타입 공격. 10번에 1번꼴로
 상대의 스피드를 낮춘다.",
@@ -3436,8 +3445,8 @@ seguinte.","가장 강한 비행 타입 기술. 먼저
 공격한다.",
 TRANSFORM_MOVE_DESC,ed5ce575954d2b9fc11c1a7fb64ab1a4,8006A198,"相手の姿だけでなくタイプも
 そっくりに変身する。ただし
-変身したらPPはどれも5。","It transforms into a copy of the foe,
-type and all. But after
+変身したらPPはどれも5。","It transforms into a copy of the
+foe, type and all. But after
 transforming, every move has 5 PP.","Se transforma en una copia del
 rival, tipo incluido. Pero después
 todos los movimientos tienen 5 PP.","Verwandelt sich in eine Kopie des
@@ -3451,14 +3460,15 @@ BUBBLE_MOVE_DESC,4e02f6d20be25ed243420d8b0351a992,8006A204,"みずタイプの�
 10回に1回くらい相手の
 素早さを下げることがある。","A Water-type attack. About 1 time in
 10 it may lower the foe's Speed.","Ataque de tipo Agua. 1 vez de cada
-10 puede bajar la Velocidad del rival.","Wasser-Attacke. In etwa 1 von 10
+10 puede bajar la Velocidad del
+rival.","Wasser-Attacke. In etwa 1 von 10
 Fällen senkt sie die Initiative.","Ataque do tipo Água. Cerca de 1 vez
 em 10 pode reduzir a Velocidade.","물 타입 공격. 10번에 1번꼴로
 상대의 스피드를 낮춘다.",
 DIZZY_PUNCH_MOVE_DESC,e9d2a6bc0ff5398682396f6fd8534a33,8006A264,"パンチの力は結構強く
 当たりやすい。
-ノーマルタイプの攻撃技。","Its punches are fairly strong and hit
-easily. A Normal-type attack.","Sus puñetazos son bastante fuertes
+ノーマルタイプの攻撃技。","Its punches are fairly strong and
+hit easily. A Normal-type attack.","Sus puñetazos son bastante fuertes
 y aciertan con facilidad. Ataque de
 tipo Normal.","Ziemlich starke, treffsichere
 Schläge. Normal-Attacke.","Socos bem fortes que acertam com
@@ -3512,9 +3522,9 @@ Pular não faz nada.","상대 앞에서 그저 튀어 오른다.
 일어나지 않는다.",
 ACID_ARMOR_MOVE_DESC,39666e68818b9b731f99f39dcbbac299,8006A420,"体を溶かして身を守る
 特殊な技。防御力が
-グ〜ンと上がる。","A special move that melts its body to
-protect itself. Its Defense rises
-sharply.","Movimiento especial que derrite su
+グ〜ンと上がる。","A special move that melts its body
+to protect itself. Its Defense
+rises sharply.","Movimiento especial que derrite su
 cuerpo para protegerse. Su Defensa
 sube mucho.","Spezialattacke: Es verflüssigt
 seinen Körper zum Schutz. Die
@@ -3667,9 +3677,9 @@ máximos para criar um substituto.","최대 HP의 4분의 1을 써서
 분신을 만드는 특수 기술.",
 STRUGGLE_MOVE_DESC,adee68e53b5f9921e476997ab2cb0911,8006A964,"持ち技全部のPPがなくなると
 この技が出る。与えたダメージの
-4分の1が自分に返ってくる。","This move comes out when all of its
-moves run out of PP. A quarter of the
-damage dealt comes back to the user.","Sale cuando todos sus movimientos
+4分の1が自分に返ってくる。","Used when all of its moves are out
+of PP. A quarter of the damage dealt
+comes back to the user.","Sale cuando todos sus movimientos
 se quedan sin PP. Un cuarto del
 daño causado vuelve al usuario.","Kommt, wenn alle Attacken keine AP
 mehr haben. Ein Viertel des
@@ -7050,7 +7060,7 @@ LAB_MOVE_2,13e44c2ad6620a840efdf6a4988ad836,8910DB4C,技 2,Move 2,Mov. 2,Attacke
 LAB_MOVE_3,905087112f76ce3c348877452934fdf6,8910DB58,技 3,Move 3,Mov. 3,Attacke 3,Golpe 3,기술3,
 LAB_MOVE_4,5000c6ada459311b54c54909e85cf0d6,8910DB64,技 4,Move 4,Mov. 4,Attacke 4,Golpe 4,기술4,
 STAT_LEVEL,456b035f17367449e7568d75a0dfc55a,8910DB70 8910DE34 8A12F1FC,,Level,Nivel,Level,Nível,레벨,
-LAB_TOGGLE_VERTICAL_HORIZONTAL,19e5c1e30ac4b638df24b7b73901e561,8910DBF0,タテ／ヨコ切り替え,Toggle vertical/horizontal,Vertical/horizontal,Hoch-/Querformat,Alternar vertical/horizontal,세로/가로 전환,
+LAB_TOGGLE_VERTICAL_HORIZONTAL,19e5c1e30ac4b638df24b7b73901e561,8910DBF0,タテ／ヨコ切り替え,Vertical/horizontal,Vertical/horizontal,Hoch-/Querformat,Alternar vertical/horizontal,세로/가로 전환,
 LAB_PAGE_3,ccd72d53c012b70bb48ad25119284e4f,8910DC04,ページ送り%d/3,Page %d/3,Página %d/3,Seite %d/3,Página %d/3,%d/3 페이지,
 LAB_GATHER,610b3e82b625311bdd9878eb86e36a52,8910DC18 8910DC60,を集める,: gather,: reunir,: sammeln,: reunir,: 모으기,
 LAB_RELEASE,f3ec0ea3ed86c7251ea367acb85a4dc6,8910DC24 8910DC6C,を解除する,: release,: soltar,: lösen,: soltar,: 풀기,

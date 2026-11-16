@@ -12,6 +12,7 @@
 #include "memory_main.h"
 #include "pokemon_stats.h"
 #include "ui_graphics.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
@@ -163,6 +164,7 @@ s32 MonSummary_DrawMoveInfo(s32 x, s32 y, BattleMon* mon, s32 slot) // PORT: mon
         Font_Printf(x + 105, y + 23, D_8A21D9DC, pp);
         func_8001A384(4, -1);
         Font_SetLineHeight(24);
+        Port_Font_FitNext(x + 9, x + 282, 0); // PORT: translated descriptions fit the panel
         Font_Printf(x + 9, y + 58, D_8006A9D4[move].description);
         func_8001ABBC();
     }

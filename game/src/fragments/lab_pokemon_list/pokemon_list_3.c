@@ -1,5 +1,6 @@
 /* Stadium Zero fragment016_252E10. */
 
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 #include "global.h"
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
@@ -232,6 +233,7 @@ void LabPCList_DrawPageHint(LabPCListScreen* screen) {
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
     Font_SetActive(8, 0);
+    Port_Font_FitNext(screen->headerFrame.x + 32, screen->headerFrame.x + 216, 1); // PORT: fits between the L and R icons
     Font_Printf(screen->headerFrame.x + 34, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DBF0);
     Font_Printf(screen->headerFrame.x + 338, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DC04,
                   screen->page + 1);

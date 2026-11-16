@@ -1,5 +1,6 @@
 /* Stadium Zero fragment016_252E10. */
 
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 #include "global.h"
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
@@ -66,12 +67,17 @@ void LabPCList_DrawDetailColumns(LabPCListScreen* screen, s32 left, s32 top, s32
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(((Color_RGBA8*)&D_800734A8)->r, ((Color_RGBA8*)&D_800734A8)->g, ((Color_RGBA8*)&D_800734A8)->b, ((Color_RGBA8*)&D_800734A8)->a);
     Font_SetActive(4, 0);
+    Port_Font_FitNext(left + 36, left + 118, 0); // PORT: the translated name heading fits its column
     Font_Printf(left + 46, top + 2, D_8910DAF8);
     Font_EndTexturedTextRendering();
     Font_BeginTranslucentTextRendering();
     for (x = left + 120, i = screen->pageColumnStart[screen->page]; x < screen->listFrame.width; i++) {
         hl = (i + 2 == screen->pageColumnStart[screen->page] + screen->headerCursor.cursor) ? 0x12 : 0;
         Font_SetColorForFlags(hl & flags);
+        if (i <= 15) {
+            // PORT: translated headings fit their column, centred as the game centres the Japanese ones
+            Port_Font_FitNext(x + 2, x + screen->columnWidths[i] - 2, 1);
+        }
         switch (i) {
             case 0:
                 Font_SetActive(4, -1);
