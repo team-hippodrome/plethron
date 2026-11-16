@@ -446,9 +446,9 @@ void BattleAnim_DigContinue(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT:
 void BattleAnim_DigSinkUnderground(ActivePokemon* transform, ActivePokemon* active_pokemon) { // PORT: transform was s32
     BattleAnim_ApproachAngleAndCheckThreshold(transform, active_pokemon->oscillationPhase, (s16)(active_pokemon->facingDirection << 0xE));
     BattleScene_UpdateSecondaryModelTrailPosition(active_pokemon, active_pokemon->oscillationPhase);
-    BattleAnim_ApproachF((f32*)(transform + 0x28), -(BattleScene_GetParticipantHeight(active_pokemon) * 2.6), 0.04f);
-    if (*(f32*)(transform + 0x28) <= -(BattleScene_GetParticipantHeight(active_pokemon) * 2.5)) {
-        Vec3s_SetComponents(transform + 0x1E, 0, (s16)(active_pokemon->facingDirection << 0xE), 0);
+    BattleAnim_ApproachF(&((DisplayObject*)transform)->position.y /* PORT: was transform + 0x28 */, -(BattleScene_GetParticipantHeight(active_pokemon) * 2.6), 0.04f);
+    if (((DisplayObject*)transform)->position.y <= -(BattleScene_GetParticipantHeight(active_pokemon) * 2.5)) {
+        Vec3s_SetComponents(&((DisplayObject*)transform)->rotation, /* PORT: was transform + 0x1E */ 0, (s16)(active_pokemon->facingDirection << 0xE), 0);
         BattleScene_ResetParticipantModelFlags(active_pokemon);
         BattleScene_HideParticipantSecondaryModels((uintptr_t)active_pokemon);
     }
@@ -481,7 +481,7 @@ void BattleAnim_AgilityStart(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT
     arg1->animationState = 0;
     arg1->oscillationAmplitude = 0.0f;
     BattleScene_PositionParticipantModel(arg1);
-    Vec3s_SetComponents(arg0 + 0x1E, 0, (s16) (arg1->facingDirection << 0xE), 0);
+    Vec3s_SetComponents(&((DisplayObject*)arg0)->rotation, /* PORT: was arg0 + 0x1E */ 0, (s16) (arg1->facingDirection << 0xE), 0);
     BattleScene_ShowSecondaryModelsStaggeredFrame(arg1);
     arg1->modelTransformTimer = (s32) (arg1->modelTransformTimer + 1);
 }
@@ -566,7 +566,7 @@ void BattleAnim_DoubleTeamStart(ActivePokemon* arg0, ActivePokemon* arg1) { // P
     BattleScene_ShowSecondaryModelsAtMainTransform(arg1);
     arg1->doubleTeamTimer = 0;
     BattleScene_PositionParticipantModel(arg1);
-    Vec3s_SetComponents(arg0 + 0x1E, 0, (s16) (arg1->facingDirection << 0xE), 0);
+    Vec3s_SetComponents(&((DisplayObject*)arg0)->rotation, /* PORT: was arg0 + 0x1E */ 0, (s16) (arg1->facingDirection << 0xE), 0);
     arg1->modelTransformTimer = (s32) (arg1->modelTransformTimer + 1);
 }
 
@@ -630,7 +630,7 @@ void BattleAnim_SeismicTossStart(ActivePokemon* arg0, ActivePokemon* arg1) { // 
     arg1->animationState = 0;
     arg1->oscillationAmplitude = 0.0f;
     BattleScene_PositionParticipantModel(arg1);
-    Vec3s_SetComponents(arg0 + 0x1E, 0, (s16) (arg1->facingDirection << 0xE), 0);
+    Vec3s_SetComponents(&((DisplayObject*)arg0)->rotation, /* PORT: was arg0 + 0x1E */ 0, (s16) (arg1->facingDirection << 0xE), 0);
     arg1->modelTransformTimer = (s32) (arg1->modelTransformTimer + 1);
 }
 
@@ -706,9 +706,9 @@ void BattleAnim_MinimizeStart(DisplayObject* arg0, ActivePokemon* arg1) {
  * Minimize: eases the model scale toward 0.65.
  */
 void BattleAnim_MinimizeContinue(ActivePokemon* arg0, ActivePokemon* arg1) { // PORT: arg0 was s32 PORT: arg1 was s32
-    BattleAnim_ApproachF(arg0 + 0x30, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
-    BattleAnim_ApproachF(arg0 + 0x34, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
-    BattleAnim_ApproachF(arg0 + 0x38, 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
+    BattleAnim_ApproachF(&((DisplayObject*)arg0)->scale.x, /* PORT: was arg0 + 0x30 */ 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
+    BattleAnim_ApproachF(&((DisplayObject*)arg0)->scale.y, /* PORT: was arg0 + 0x34 */ 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
+    BattleAnim_ApproachF(&((DisplayObject*)arg0)->scale.z, /* PORT: was arg0 + 0x38 */ 0.65f /* PORT: was 0x3F266666 */, 0.04f /* PORT: was 0x3D23D70A */);
     if (BattleAnim_StepMinimizeAfterimages(arg1) != 0) {
         BattleScene_ResetParticipantModelFlags(arg1);
         BattleScene_HideParticipantSecondaryModels(arg1);

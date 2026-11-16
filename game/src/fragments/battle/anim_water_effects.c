@@ -1893,7 +1893,7 @@ void BattleAnim_RunHydroPumpColorShiftFade(Particle* arg0) { // PORT: was s8*
         Particle_DecrementParam0ToZeroThenAdvance(arg0);
         return;
     case 3:
-        ParticleMath_ApproachFloat(arg0 + 0x70, 0.008f /* PORT: was 0x3C03126F */, 0.001f /* PORT: was 0x3A83126F */); // 0.008f, 0.001f
+        ParticleMath_ApproachFloat(&arg0->stepMagnitude, /* PORT: was arg0 + 0x70 */ 0.008f /* PORT: was 0x3C03126F */, 0.001f /* PORT: was 0x3A83126F */); // 0.008f, 0.001f
         Particle_ApproachScale(arg0, 2.0f /* PORT: was 0x40000000 */, arg0->stepMagnitude /* PORT: was read as s32 bits */); // 2.0f
         Particle_ApproachPrimRed(arg0, 0x78, 8);
         Particle_ApproachPrimBlue(arg0, 0x96, 8);

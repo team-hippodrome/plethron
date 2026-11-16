@@ -161,7 +161,8 @@ s32 ModelAnim_SetEventTrack(DisplayObject* display_object, s32 track_id) {
 
 /** Sets the material color of a display object. */
 void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha) {
-    Color_SetRGBA(&display_object->fogColor, r, g, b, alpha);
+    // PORT: fogColor is the numeric 0xRRGGBBAA (Color_RGBA8_u32); a byte-wise Color_RGBA8 write lands reversed here
+    display_object->fogColor.rgba = ((u32)r << 24) | ((u32)g << 16) | ((u32)b << 8) | alpha;
 }
 
 /** Sets the material alpha (LOD fraction) of a display object. */

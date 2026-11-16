@@ -387,8 +387,10 @@ typedef struct BattleScene {
 
 typedef struct unk_D_84390240 {
     /* 0x00 */ BattleScene* scene;
-    /* 0x04 */ char unk04[0x3C];
-} unk_D_84390240; // size = 0x40
+    /* 0x04 */ s32 unk_04; // D_8219A5A4
+    /* 0x08 */ char unk08[0x8];
+    /* 0x10 */ f32 cameraPath[0x168 / 4]; // D_FLT_8219A5B0: demo camera path keyframes, DMA'd from ROM (participant_models.c)
+} unk_D_84390240; // size = 0x178 (PORT: was 0x40, which left the camera path without host storage)
 
 typedef void (*BattleSceneStateCallback)(ActivePokemon*);
 

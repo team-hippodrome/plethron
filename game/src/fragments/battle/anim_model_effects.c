@@ -847,7 +847,7 @@ void BattleAnim_BlizzardParticleUpdate(Particle* arg0) { // PORT: was s8*
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        ParticleMath_GetPointAlongView(arg0 + 0x4C, 3700.0f /* PORT: was 0x45674000 */); // 3700.0f
+        ParticleMath_GetPointAlongView(&arg0->motionOffset, /* PORT: was arg0 + 0x4C */ 3700.0f /* PORT: was 0x45674000 */); // 3700.0f
     }
 }
 
@@ -1884,7 +1884,7 @@ void BattleAnim_CallbackStartEffect10Model60AlphaFadeIn(Particle* arg0) { // POR
         break;
     }
     if (Particle_IsRunning(arg0) != 0) {
-        ParticleMath_GetPointAlongView(arg0 + 0x4C, 200.0f /* PORT: was 0x43480000 */); // 200.0f
+        ParticleMath_GetPointAlongView(&arg0->motionOffset, /* PORT: was arg0 + 0x4C */ 200.0f /* PORT: was 0x43480000 */); // 200.0f
     }
 }
 
@@ -2622,10 +2622,10 @@ void BattleAnim_CallbackStart71And74And111ColorCycle(Particle* arg0) { // PORT: 
     }
     if (Particle_IsRunning(arg0) != 0) {
         if (sp26 == 0) {
-            ParticleMath_GetPointAlongView(arg0 + 0x4C, 170.0f /* PORT: was 0x432A0000 */); // 170.0f
+            ParticleMath_GetPointAlongView(&arg0->motionOffset, /* PORT: was arg0 + 0x4C */ 170.0f /* PORT: was 0x432A0000 */); // 170.0f
             return;
         }
-        ParticleMath_GetPointAlongView(arg0 + 0x4C, 140.0f /* PORT: was 0x430C0000 */); // 140.0f
+        ParticleMath_GetPointAlongView(&arg0->motionOffset, /* PORT: was arg0 + 0x4C */ 140.0f /* PORT: was 0x430C0000 */); // 140.0f
     }
 }
 

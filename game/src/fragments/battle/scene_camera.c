@@ -423,7 +423,7 @@ s32 BattleScene_ApproachCameraRotationY(CameraNode* arg0, s16 arg1, s16 arg2) { 
         return 1;
     }
 block_7:
-    Camera_ComputeEyeFromAngles(arg0 + 0xB4, arg0 + 0xA8, sBattleScene.scene->distance, sBattleScene.scene->rotationX, (s32) var_v0);
+    Camera_ComputeEyeFromAngles(&arg0->view.targetPosition, &arg0->view.eyePosition, sBattleScene.scene->distance, sBattleScene.scene->rotationX, (s32) var_v0);
     return 0;
 }
 

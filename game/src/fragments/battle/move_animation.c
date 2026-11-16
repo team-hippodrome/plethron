@@ -220,7 +220,7 @@ void BattleScene_TickStartRowAnimRecord(ActivePokemon* active_pokemon) {
     }
 }
 
-extern ModelDimensions D_8218934C[];
+extern ModelDimensions D_8218934C[161]; // PORT: one per species up to sSideThumbnailSettings (an open array lifted only one)
 
 /**
  * trigger unknown
@@ -410,6 +410,16 @@ extern s8* D_82189188[];
 extern u8 D_0004EDA8[][0x20];
 extern u8 D_00050228[][0x10];
 extern f32 D_82199DF0[2][4]; // PORT: one row per side (declared [][4], which lifted only row 0)
+// PORT (as stadion's Battle_LoadAnimationAndMarkMoveIllegality): the per-species records are copied raw from the
+// big-endian ROM: swap their f32 words and s16 halves after each copy.
+static void Port_SwapSpeciesModelTransform(SpeciesModelTransform* t) {
+    Port_SwapWords(&t->coordinates, 3);
+    t->rotationX = Port_Swap16(t->rotationX);
+    t->rotationY = Port_Swap16(t->rotationY);
+    t->mirrorBySide = Port_Swap16(t->mirrorBySide);
+    t->idleTimer = Port_Swap16(t->idleTimer);
+}
+
 /**
  * Loads the species' model, animation and texture data for the Pokemon's side into its slots. Ran
  * in play when 1P switched and when 1P used Substitute (the doll model).
@@ -439,17 +449,18 @@ void ActivePokemon_LoadSpeciesModelAssets(ActivePokemon* arg0) {
 
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
         Dma_WriteChunks(*p, src, src + 0x20, 0);
-        // PORT: the record is big-endian ROM data, read and restore its halfword at 0x10 in that order
-        if ((s16)Port_ReadBE16(*p + 0x10) != 0xFF) {
-            saved = (s16)Port_ReadBE16(*p + 0x10);
+        Port_SwapSpeciesModelTransform((SpeciesModelTransform*)*p);
+        if (((SpeciesModelTransform*)*p)->mirrorBySide != 0xFF) {
+            saved = ((SpeciesModelTransform*)*p)->mirrorBySide;
             src = (s8*)(((uintptr_t)D_0004EDA8[saved - 2] & 0xFFFFFF) + (u32)base);
             Dma_WriteChunks(*p, src, src + 0x20, 0);
-            (*p)[0x10] = (u16)saved >> 8;
-            (*p)[0x11] = (u8)saved;
+            Port_SwapSpeciesModelTransform((SpeciesModelTransform*)*p);
+            ((SpeciesModelTransform*)*p)->mirrorBySide = saved;
         }
     } else {
         src = (s8*)((u32)base + ((uintptr_t)D_0004EDA8[type] & 0xFFFFFF));
         Dma_WriteChunks(D_82189188[side], src, src + 0x20, 0);
+        Port_SwapSpeciesModelTransform((SpeciesModelTransform*)D_82189188[side]);
     }
     src = (s8*)((u32)base + ((uintptr_t)D_00050228[type] & 0xFFFFFF));
     Dma_WriteChunks(D_82199DF0[side], src, src + 0x10, 0);
