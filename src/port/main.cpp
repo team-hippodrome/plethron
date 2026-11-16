@@ -367,7 +367,7 @@ static int RunGame(int argc, char** argv) {
         }
         const bool ok = diagnostics ? Port::ExportLauncherDiagnostics(directory, PORT_BUILD_VERSION,
             requested, "Not running (frontend export; see recent log)", path, error) :
-            Port::ExportStadiumSave(std::filesystem::u8path(argv[2]), directory, path, error);
+            Port::ExportZeroSave(std::filesystem::u8path(argv[2]), directory, path, error);
         if (!ok) { fprintf(stderr, "%s\n", error.c_str()); return 1; }
         printf("%s\n", path.c_str()); return 0;
     }
@@ -378,11 +378,11 @@ static int RunGame(int argc, char** argv) {
     // The legacy macOS frontend shares the native cartridge-save importer instead of maintaining another format reader.
     if (argc > 1 && strcmp(argv[1], "--import-stadium-save") == 0) {
         if (argc != 3) {
-            fprintf(stderr, "Usage: pokestadium --import-stadium-save <raw cartridge save>\n");
+            fprintf(stderr, "Usage: pokestadium --import-stadium-save <raw 32 KiB SRAM save (.sra)>\n");
             return 1;
         }
         std::string imported, error;
-        if (!Port::ImportStadiumSave(std::filesystem::u8path(argv[2]), std::filesystem::u8path(Port::AppPath("")),
+        if (!Port::ImportZeroSave(std::filesystem::u8path(argv[2]), std::filesystem::u8path(Port::AppPath("")),
                                      imported, error)) {
             fprintf(stderr, "%s\n", error.c_str());
             return 1;

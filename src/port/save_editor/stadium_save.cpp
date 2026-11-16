@@ -2,6 +2,8 @@
 // web.py. Function by function it follows the Python code (named in the comments), so the two give the same JSON and
 // the same bytes.
 #include "stadium_save.h"
+#include "zero_text.h"
+#include "../zero_sram.h"
 #include "gamedata.h"
 
 #include <algorithm>
@@ -469,11 +471,14 @@ struct BytesCodec : Codec {
     }
 };
 
+// gb: the Western Game Boy charset (gbsave); jp: the Japanese one Zero's save uses (zero_text.h), padded with `pad`
 struct TextCodec : Codec {
-    bool gb;
+    bool gb, jp = false;
+    uint8_t pad = 0;
     TextCodec(size_t n, bool isGb) : gb(isGb) { size = n; }
-    Bytes enc(const std::string& s) const { return gb ? EncodeGb(s, size) : EncodeN64(s, size); }
-    std::string dec(const uint8_t* d, size_t n) const { return gb ? DecodeGb(d, n) : DecodeN64(d, n); }
+    TextCodec(size_t n, uint8_t padding) : gb(false), jp(true), pad(padding) { size = n; }
+    Bytes enc(const std::string& s) const { return jp ? EncodeJp(s, size, pad) : gb ? EncodeGb(s, size) : EncodeN64(s, size); }
+    std::string dec(const uint8_t* d, size_t n) const { return jp ? DecodeJp(d, n) : gb ? DecodeGb(d, n) : DecodeN64(d, n); }
     json decode(const uint8_t* d) const override {
         std::string s = dec(d, size);
         try {
@@ -577,6 +582,7 @@ CodecPtr F32() { return std::make_shared<F32Codec>(); }
 CodecPtr Raw(size_t n) { return std::make_shared<RawCodec>(n); }
 CodecPtr BytesOf(size_t n) { return std::make_shared<BytesCodec>(n); }
 CodecPtr Text(size_t n, bool gb) { return std::make_shared<TextCodec>(n, gb); }
+CodecPtr JpText(size_t n, uint8_t pad) { return std::make_shared<TextCodec>(n, pad); }
 CodecPtr ArrayOf(CodecPtr c, size_t n) { return std::make_shared<ArrayCodec>(std::move(c), n); }
 CodecPtr StructOf(size_t n, std::vector<Field> f, bool emptyIsNull = false) {
     return std::make_shared<StructCodec>(n, std::move(f), emptyIsNull);
@@ -601,8 +607,9 @@ namespace pokemon {
 
 const char* const STAT_KEYS[5] = { "hp", "atk", "def", "spd", "spc" };
 
+// SaveMonRecord's names: Japanese GB charset, 5 characters and the terminator, padded with 0x50 like the cartridges
 static const TextCodec& Name() {
-    static TextCodec c(11, true);
+    static TextCodec c(6, uint8_t(0x50));
     return c;
 }
 
@@ -723,8 +730,12 @@ int MaxPp(int move, int ppUp) {
 }
 
 namespace {
+// The Gen 1 box struct (0x21 bytes) and the nickname and OT name: Zero's SaveMonRecord (0x2D, Japanese names of 6
+// bytes) or, for the Western Game Boy saves (gbsave), Stadium 1's layout with names of 11 bytes (0x37).
 struct MonCodec : Codec {
-    MonCodec() { size = SIZE; }
+    const TextCodec* name;
+    size_t otOff;
+    MonCodec(size_t n, const TextCodec* nameCodec, size_t ot) : name(nameCodec), otOff(ot) { size = n; }
 
     json decode(const uint8_t* d) const override {
         json out = json::object();
@@ -755,8 +766,8 @@ struct MonCodec : Codec {
         out["stat_exp"] = se;
         unsigned dvw = Be(d + 0x1B, 2);
         out["dvs"] = { { "atk", dvw >> 12 }, { "def", (dvw >> 8) & 15 }, { "spd", (dvw >> 4) & 15 }, { "spc", dvw & 15 } };
-        out["nickname"] = Name().decode(d + 0x21);
-        out["ot_name"] = Name().decode(d + 0x2C);
+        out["nickname"] = name->decode(d + 0x21);
+        out["ot_name"] = name->decode(d + otOff);
         if (dex) {
             json info = json::object();
             info["dex"] = *dex;
@@ -770,7 +781,7 @@ struct MonCodec : Codec {
     }
 
     Bytes encode(const json& v) const override {
-        Bytes b(SIZE, 0);
+        Bytes b(size, 0);
         if (v.contains("species_index")) b[0] = (uint8_t)ByteValue(v["species_index"]);
         else b[0] = (uint8_t)DexToIndex(SpeciesLookup(v.at("species")));
         PutBe(&b[1], 2, PyInt(Get(v, "hp", 0)));
@@ -798,17 +809,23 @@ struct MonCodec : Codec {
         long long dvw = (PyInt(Get(dv, "atk", 0)) << 12) | (PyInt(Get(dv, "def", 0)) << 8) |
                         (PyInt(Get(dv, "spd", 0)) << 4) | PyInt(Get(dv, "spc", 0));
         PutBe(&b[0x1B], 2, dvw);
-        Bytes nick = Name().encode(Get(v, "nickname", ""));
-        Bytes ot = Name().encode(Get(v, "ot_name", ""));
+        Bytes nick = name->encode(Get(v, "nickname", ""));
+        Bytes ot = name->encode(Get(v, "ot_name", ""));
         std::copy(nick.begin(), nick.end(), b.begin() + 0x21);
-        std::copy(ot.begin(), ot.end(), b.begin() + 0x2C);
+        std::copy(ot.begin(), ot.end(), b.begin() + otOff);
         return b;
     }
 };
 } // namespace
 
 const Codec& Mon() {
-    static MonCodec c;
+    static MonCodec c(SIZE, &Name(), 0x27);
+    return c;
+}
+
+const Codec& WesternMon() {
+    static TextCodec name(11, true);
+    static MonCodec c(WESTERN_SIZE, &name, 0x2C);
     return c;
 }
 
@@ -818,7 +835,7 @@ static CodecPtr MonPtr() {
 }
 
 json MakeMon(const json& species, int level, const json& movesIn, const json& nickname, const json& otName, int otId,
-             const json& dvsIn, const json& statExpIn) {
+             const json& dvsIn, const json& statExpIn, bool western) {
     int dex = SpeciesLookup(species);
     if (dex <= 0 || dex > 151) throw Error("'NoneType' object is not subscriptable");
     const gd::Base& base = gd::BASE[dex];
@@ -845,7 +862,7 @@ json MakeMon(const json& species, int level, const json& movesIn, const json& ni
     return json{ { "species", gd::SPECIES[dex] }, { "level", level }, { "hp", stats["hp"] }, { "status", 0 },
                  { "type1", base.type1 }, { "type2", base.type2 }, { "catch_rate", base.catch_rate }, { "moves", mlist },
                  { "ot_id", otId }, { "exp", ExpForLevel(dex, level) }, { "stat_exp", statExp }, { "dvs", dvs },
-                 { "nickname", nickname.is_null() ? json(gd::SPECIES[dex]) : nickname }, { "ot_name", otName } };
+                 { "nickname", nickname.is_null() ? json(western ? gd::SPECIES[dex] : JP_SPECIES[dex]) : nickname }, { "ot_name", otName } };
 }
 
 std::vector<std::string> Validate(const json& mon) {
@@ -878,26 +895,14 @@ std::vector<std::string> Validate(const json& mon) {
 
 } // namespace pokemon
 
-// ---- save.py ---------------------------------------------------------------------------------------------------------
+// ---- save.py (Zero's SRAM) ---------------------------------------------------------------------------------------------------------
 
-const char* const TEAM_CATEGORIES[9] = { "free_battle", "category_1", "category_2", "poke_cup", "petit_cup",
-                                         "pika_cup", "prime_cup", "gym_leader_castle", "mewtwo" };
-const char* const CUP_DIVISIONS[4] = { "Poké Ball", "Great Ball", "Ultra Ball", "Master Ball" };
-const char* const GLC_STAGES[10] = { "Pewter Gym", "Cerulean Gym", "Vermilion Gym", "Celadon Gym", "Fuchsia Gym",
-                                     "Saffron Gym", "Cinnabar Gym", "Viridian Gym", "Elite Four", "Rival" };
+const char* const CUP_NAMES[4] = { "Poké Ball Cup", "Great Ball Cup", "Ultra Ball Cup", "Master Ball Cup" };
 
 const char* ModeName(int mode) {
     switch (mode) {
-        case 0: return "Free Battle";
-        case 1: return "Poké Cup (hidden copy 1)";
-        case 2: return "Poké Cup (hidden copy 2)";
-        case 3: return "Poké Cup";
-        case 4: return "Petit Cup";
-        case 5: return "Pika Cup";
-        case 6: return "Prime Cup";
-        case 7: return "Gym Leader Castle";
-        case 8: return "Vs. Mewtwo";
-        case 10: return "Event Battle";
+        case 1: return "Lv 50-55 tournament";
+        case 2: return "Lv 1-30 cups";
     }
     return nullptr;
 }
@@ -906,47 +911,11 @@ namespace {
 
 const uint8_t MAGIC_VALID[4] = { 'P', 'O', 'K', 'E' };
 const uint8_t MAGIC_PENDING[4] = { 'X', 'X', 'X', 'X' };
-const size_t BANK_RECORD_END[4] = { 0x3700, 0x3700, 0x3E04, 0x3860 };
+constexpr size_t RECORDS_END = 0x7F70; // the rest of the SRAM is unused (kept as "_tail")
 
-CodecPtr GbName() { return Text(11, true); }
-
-std::vector<Field> HeaderFields() { // DeckRecordHeader
-    return { { 0x00, "flags", U8() }, { 0x01, "name", GbName() }, { 0x0C, "trainer_id", U16() }, { 0x0E, "count", S16() } };
-}
-
-CodecPtr Photo() {
-    CodecPtr vec = ArrayOf(F32(), 3);
-    return StructOf(0x8C, {
-        { 0x00, "y_position", F32() }, { 0x04, "subject", U8() }, { 0x05, "animation", U8() },
-        { 0x06, "anim_frame", S16() }, { 0x08, "event_track", U8() }, { 0x09, "event_frame", U8() },
-        { 0x0A, "slot_data", Raw(0x46) }, { 0x50, "camera_a", vec }, { 0x5C, "camera_b", vec },
-        { 0x68, "word_68", U32() }, { 0x6C, "flags", U8() }, { 0x70, "ot_id", U16() }, { 0x72, "species", U8() },
-        { 0x73, "nickname", Text(11, false) }, { 0x7E, "ot_name", Text(11, false) },
-    }, true);
-}
-
-CodecPtr VictoryEntry() {
-    return StructOf(0x1A, { { 0x00, "mode", U8() }, { 0x01, "level", U8() }, { 0x02, "ot_id", U16() },
-                            { 0x04, "nickname", GbName() }, { 0x0F, "ot_name", GbName() } }, true);
-}
-
-CodecPtr ContinueData() {
-    return StructOf(0x20, { { 0x00, "mode", U8() }, { 0x01, "mode_selection", U8() }, { 0x02, "battle", U8() },
-                            { 0x03, "round2", U8() }, { 0x04, "continues", U8() }, { 0x05, "opponent_history", BytesOf(8) },
-                            { 0x0D, "gb_starter_choice", U8() }, { 0x0E, "trainer_id", U16() },
-                            { 0x10, "player_name", Text(16, true) } });
-}
-
-CodecPtr ModeProgress() {
-    return StructOf(8, { { 0x00, "cleared_modes", U16() }, { 0x04, "gym_leader_castle", U8() },
-                         { 0x05, "poke_cup", U8() }, { 0x06, "prime_cup", U8() }, { 0x07, "mewtwo_unlocked", U8() } });
-}
-
-CodecPtr Options() {
-    return StructOf(0x22, { { 0x00, "flags", U8() }, { 0x02, "sound", U16() }, { 0x04, "gb_tower_speed", S16() },
-                            { 0x08, "gb_tower_word", U32() }, { 0x0C, "progress", ArrayOf(ModeProgress(), 2) },
-                            { 0x1C, "bonus_pokemon", U16() }, { 0x1E, "kids_club", U8() }, { 0x1F, "bonus_flag", U8() } });
-}
+// trainer names: Text_TranscodeName writes the terminator and leaves the zeroed bytes after it
+CodecPtr TrainerName() { return JpText(6, 0); }
+CodecPtr SecondName() { return JpText(8, 0); }
 
 struct ItemCodec : Codec {
     ItemCodec() { size = 2; }
@@ -978,13 +947,19 @@ struct Body {
     virtual Bytes encode(const json& v) const = 0;
 };
 
-struct ListBody : Body { // DeckRecordHeader + count entries of a codec + raw rest
+// A header (with a "count" field) + count entries of a codec + raw rest: teams, boxes, item records, the list
+struct ListBody : Body {
+    StructCodec header;
+    std::vector<std::string> keys; // header fields but count
+    size_t entriesOff;
     CodecPtr codec;
     size_t capacity, tailOff;
-    StructCodec header{ 0x10, HeaderFields() };
-    ListBody(size_t n, CodecPtr c, size_t cap) : codec(std::move(c)), capacity(cap) {
+    ListBody(size_t n, std::vector<Field> fields, size_t entries, CodecPtr c, size_t cap)
+        : header(entries, fields), entriesOff(entries), codec(std::move(c)), capacity(cap) {
         size = n;
-        tailOff = 0x10 + codec->size * cap;
+        tailOff = entriesOff + codec->size * cap;
+        for (const Field& f : fields)
+            if (f.name != "count") keys.push_back(f.name);
     }
     json decode(const uint8_t* d) const override {
         json h = header.decode(d);
@@ -994,11 +969,11 @@ struct ListBody : Body { // DeckRecordHeader + count entries of a codec + raw re
         json out = h;
         out.erase("count");
         json entries = json::array();
-        for (long long i = 0; i < n; i++) entries.push_back(codec->decode(d + 0x10 + i * es));
+        for (long long i = 0; i < n; i++) entries.push_back(codec->decode(d + entriesOff + i * es));
         out["entries"] = entries;
         if (n != count) out["count_raw"] = count;
-        const uint8_t* un = d + 0x10 + n * es;
-        size_t unLen = tailOff - (0x10 + n * es);
+        const uint8_t* un = d + entriesOff + n * es;
+        size_t unLen = tailOff - (entriesOff + n * es);
         if (std::any_of(un, un + unLen, [](uint8_t b) { return b != 0; })) out["_unused_entries"] = RawToJson(un, unLen);
         if (std::any_of(d + tailOff, d + size, [](uint8_t b) { return b != 0; })) {
             out["_tail"] = RawToJson(d + tailOff, size - tailOff);
@@ -1010,20 +985,22 @@ struct ListBody : Body { // DeckRecordHeader + count entries of a codec + raw re
         json entries = Get(v, "entries", json::array());
         if (entries.size() > capacity) throw Error("at most " + std::to_string(capacity) + " entries");
         json h = json::object();
-        for (const char* k : { "flags", "name", "trainer_id" })
+        for (const std::string& k : keys)
             if (v.contains(k)) h[k] = v[k];
+        for (auto& [k, x] : v.items()) // the header's gaps (_raw_XXXX)
+            if (k.rfind("_raw_", 0) == 0) h[k] = x;
         h["count"] = v.contains("count_raw") ? v["count_raw"] : json(entries.size());
         Bytes hb = header.encode(h);
         std::copy(hb.begin(), hb.end(), buf.begin());
         size_t es = codec->size;
         if (v.contains("_unused_entries")) {
             Bytes un = RawFromJson(v["_unused_entries"].get<std::string>());
-            size_t start = 0x10 + entries.size() * es;
+            size_t start = entriesOff + entries.size() * es;
             for (size_t i = 0; i < un.size() && start + i < tailOff; i++) buf[start + i] = un[i]; // more entries: less room
         }
         for (size_t i = 0; i < entries.size(); i++) {
             Bytes e = codec->encode(entries[i]);
-            std::copy(e.begin(), e.end(), buf.begin() + 0x10 + i * es);
+            std::copy(e.begin(), e.end(), buf.begin() + entriesOff + i * es);
         }
         if (v.contains("_tail")) {
             Bytes t = RawFromJson(v["_tail"].get<std::string>(), (long)(size - tailOff));
@@ -1040,8 +1017,20 @@ struct StructBody : Body {
     Bytes encode(const json& v) const override { return s->encode(v); }
 };
 
-std::shared_ptr<Body> FlaggedArray(size_t n, CodecPtr entry, size_t count) {
-    return std::make_shared<StructBody>(n, StructOf(n, { { 0x00, "flags", U8() }, { 0x02, "entries", ArrayOf(entry, count) } }));
+// teams and boxes: SaveTeamRecord / SaveBoxRecord
+std::vector<Field> DeckHeader() {
+    return { { 0x00, "flags", U16() }, { 0x02, "name", TrainerName() }, { 0x08, "trainer_id", U16() },
+             { 0x0A, "second_name", SecondName() }, { 0x12, "count", S16() } };
+}
+
+CodecPtr ContinueSession() { // SaveContinueSession
+    return StructOf(0xC, { { 0x00, "mode", U8() }, { 0x01, "cup", U8() }, { 0x02, "round", U8() },
+                           { 0x04, "opponent_history", BytesOf(8) } });
+}
+
+CodecPtr Options() { // SaveOptionsRecord
+    return StructOf(0xA, { { 0x00, "flags", U16() }, { 0x02, "gb_player_frames", U8() }, { 0x03, "sound", U8() },
+                           { 0x04, "gb_player_buttons", U32() }, { 0x08, "progress", U16() } });
 }
 
 } // namespace
@@ -1050,46 +1039,46 @@ struct RecordType {
     std::string key;
     size_t size;
     std::shared_ptr<Body> body;
-    uint8_t resetFlags;
+    uint16_t resetFlags;
+    std::vector<size_t> resetNames; // Save_ClearTypedRecord writes 0x50 here
 };
 
 namespace {
 
 const RecordType& TEAM() {
-    static RecordType t{ "team", 0x160, std::make_shared<ListBody>(0x15A, pokemon::MonPtr(), 6), 0 };
+    static RecordType t{ "team", 0x128, std::make_shared<ListBody>(0x122, DeckHeader(), 0x14, pokemon::MonPtr(), 6), 0, { 0x02, 0x0A } };
     return t;
 }
 const RecordType& BOX() {
-    static RecordType t{ "box", 0x468, std::make_shared<ListBody>(0x462, pokemon::MonPtr(), 20), 0 };
+    static RecordType t{ "box", 0x560, std::make_shared<ListBody>(0x55A, DeckHeader(), 0x14, pokemon::MonPtr(), 30), 0, { 0x02, 0x0A } };
     return t;
 }
 const RecordType& ITEM_BOX() {
-    static RecordType t{ "item_box", 0xE0, std::make_shared<ListBody>(0xDA, std::make_shared<ItemCodec>(), 100), 0 };
+    static RecordType t{ "item_box", 0xE0,
+                         std::make_shared<ListBody>(0xDA, std::vector<Field>{ { 0x00, "flags", U16() }, { 0x02, "name", TrainerName() },
+                                                                             { 0x08, "trainer_id", U16() }, { 0x0A, "count", S16() } },
+                                                    0x0C, std::make_shared<ItemCodec>(), 100),
+                         0, { 0x02 } };
     return t;
 }
-const RecordType& VICTORY() {
-    static RecordType t{ "victory_palace", 0xF60, FlaggedArray(0xF5A, VictoryEntry(), 151), 1 };
-    return t;
-}
-const RecordType& CONTINUE() {
-    static RecordType t{ "continue", 0x180,
-                         std::make_shared<StructBody>(0x17A, StructOf(0x17A, {
-                             { 0x00, "flags", U8() }, { 0x02, "session", ContinueData() }, { 0x22, "count", S16() },
-                             { 0x24, "pokemon", ArrayOf(Raw(0x37), 6) }, { 0x16E, "battle_byte_52", BytesOf(6) },
-                             { 0x174, "battle_byte_53", BytesOf(6) } })),
-                         0 };
+const RecordType& LIST() {
+    static RecordType t{ "list", 0x11A0,
+                         std::make_shared<ListBody>(0x119A, std::vector<Field>{ { 0x00, "flags", U16() }, { 0x02, "count", S16() } }, 0x04,
+                                                    pokemon::MonPtr(), 100),
+                         1, {} };
     return t;
 }
 const RecordType& OPTIONS_REC() {
-    static RecordType t{ "options", 0x28, std::make_shared<StructBody>(0x22, Options()), 1 };
+    static RecordType t{ "options", 0x10, std::make_shared<StructBody>(0xA, Options()), 1, {} };
     return t;
 }
-const RecordType& ALBUM() {
-    static RecordType t{ "album", 0x13B8, FlaggedArray(0x13B2, Photo(), 36), 1 };
-    return t;
-}
-const RecordType& PHOTO_SET() {
-    static RecordType t{ "photos", 0xB84, FlaggedArray(0xB7E, Photo(), 21), 1 };
+const RecordType& CONTINUE() {
+    static RecordType t{ "continue", 0x288,
+                         std::make_shared<StructBody>(0x282, StructOf(0x282, {
+                             { 0x000, "flags", U16() }, { 0x002, "session", ContinueSession() }, { 0x00E, "count", S16() },
+                             { 0x010, "pokemon", ArrayOf(Raw(pokemon::SIZE), 6) }, { 0x11E, "gb_snapshot", Raw(0x162) },
+                             { 0x280, "rental_mask", U8() } })),
+                         0, {} };
     return t;
 }
 
@@ -1104,8 +1093,9 @@ void WriteFooter(uint8_t* rec, size_t n, bool valid) {
 // Save_ClearTypedRecord followed by Save_CommitTypedRecord
 Bytes ResetRecord(const RecordType& t) {
     Bytes rec(t.size, 0);
-    if (&t == &TEAM() || &t == &BOX() || &t == &ITEM_BOX()) rec[1] = 0x50; // empty name (terminator only)
-    rec[0] = t.resetFlags;
+    for (size_t off : t.resetNames) rec[off] = 0x50;
+    rec[0] = (uint8_t)(t.resetFlags >> 8);
+    rec[1] = (uint8_t)t.resetFlags;
     WriteFooter(rec.data(), rec.size(), true);
     return rec;
 }
@@ -1125,21 +1115,16 @@ std::string RecordRef::key() const {
     return k;
 }
 
+// SaveSram: each record twice, primary then backup (zero_sram.h Kinds)
 const std::vector<RecordRef>& Records() {
     static std::vector<RecordRef> recs = [] {
         std::vector<RecordRef> r;
-        for (int c = 0; c < 9; c++) {
-            for (int s = 0; s < 10; s++) {
-                r.push_back({ json::array({ "teams", TEAM_CATEGORIES[c], s }), &TEAM(), c / 4, (c % 4) * 0xDC0 + s * 0x160 });
-            }
-        }
-        r.push_back({ json::array({ "victory_palace" }), &VICTORY(), 2, 0x0DC0 });
-        r.push_back({ json::array({ "continue" }), &CONTINUE(), 2, 0x1D20 });
-        r.push_back({ json::array({ "options" }), &OPTIONS_REC(), 2, 0x1EA0 });
-        r.push_back({ json::array({ "album" }), &ALBUM(), 2, 0x1EC8 });
-        r.push_back({ json::array({ "photos" }), &PHOTO_SET(), 2, 0x3280 });
-        for (int i = 0; i < 12; i++) r.push_back({ json::array({ "boxes", i }), &BOX(), 3, i * 0x468 });
-        for (int i = 0; i < 4; i++) r.push_back({ json::array({ "item_boxes", i }), &ITEM_BOX(), 3, 0x34E0 + i * 0xE0 });
+        for (int i = 0; i < 16; i++) r.push_back({ json::array({ "teams", i }), &TEAM(), size_t(0x0000 + i * 0x250) });
+        for (int i = 0; i < 4; i++) r.push_back({ json::array({ "boxes", i }), &BOX(), size_t(0x2500 + i * 0xAC0) });
+        for (int i = 0; i < 4; i++) r.push_back({ json::array({ "item_boxes", i }), &ITEM_BOX(), size_t(0x5000 + i * 0x1C0) });
+        r.push_back({ json::array({ "list" }), &LIST(), 0x5700 });
+        r.push_back({ json::array({ "options" }), &OPTIONS_REC(), 0x7A40 });
+        r.push_back({ json::array({ "continue" }), &CONTINUE(), 0x7A60 });
         return r;
     }();
     return recs;
@@ -1171,7 +1156,7 @@ const json& GetPath(const json& root, const json& path) {
 }
 
 Bytes NewSaveBytes() {
-    Bytes data(FLASH_SIZE, 0xFF);
+    Bytes data(SRAM_SIZE, 0);
     for (const RecordRef& ref : Records()) {
         Bytes rec = ResetRecord(*ref.type);
         std::copy(rec.begin(), rec.end(), data.begin() + ref.primary());
@@ -1183,8 +1168,8 @@ Bytes NewSaveBytes() {
 SaveFile::SaveFile() : data(NewSaveBytes()) {}
 
 SaveFile::SaveFile(Bytes bytes) : data(std::move(bytes)) {
-    if (data.size() != FLASH_SIZE) {
-        throw Error("a Pokémon Stadium FlashRAM image is " + std::to_string(FLASH_SIZE) + " bytes, got " +
+    if (data.size() != SRAM_SIZE) {
+        throw Error("a Pocket Monsters Stadium SRAM save is " + std::to_string(SRAM_SIZE) + " bytes, got " +
                     std::to_string(data.size()));
     }
 }
@@ -1195,8 +1180,16 @@ Bytes ReadFile(const std::string& path) {
     return Bytes((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 }
 
+Bytes ReadSave(const std::string& path) {
+    Bytes raw = ReadFile(path), normalized;
+    std::string error;
+    // any emulator byte order (zero_sram.h); a file no order fits is taken as it is (every record shows as broken)
+    if (ZeroSram::Normalize(raw, normalized, nullptr, error)) return normalized;
+    return raw;
+}
+
 SaveFile SaveFile::Load(const std::string& path) {
-    return SaveFile(ReadFile(path));
+    return SaveFile(ReadSave(path));
 }
 
 Bytes SaveFile::RecordBytes(const RecordRef& ref, bool backup) const {
@@ -1257,7 +1250,7 @@ json SaveFile::DecodeRecord(const RecordRef& ref, bool backup) const {
     if (ref.type == &CONTINUE()) {
         long long n = std::max(0LL, std::min(body["count"].get<long long>(), 6LL));
         for (long long i = 0; i < n; i++) {
-            Bytes raw = RawFromJson(body["pokemon"][i].get<std::string>(), 0x37);
+            Bytes raw = RawFromJson(body["pokemon"][i].get<std::string>(), (long)pokemon::SIZE);
             body["pokemon"][i] = pokemon::Mon().decode(raw.data());
         }
     }
@@ -1289,14 +1282,14 @@ void SaveFile::SetRecord(const RecordRef& ref, const json& bodyIn, bool commit) 
     json body = bodyIn;
     if (commit) {
         body["_footer"] = "valid";
-        if (body.contains("flags")) body["flags"] = PyInt(body["flags"]) & ~2LL;
+        if (body.contains("flags")) body["flags"] = PyInt(body["flags"]) & ~2LL; // Save_CommitRecord clears "dirty"
     }
     Bytes rec = EncodeRecord(ref, body);
     if (rec != RecordBytes(ref) || rec != RecordBytes(ref, true)) WriteRecord(ref, rec);
 }
 
 json SaveFile::ToDict() const {
-    json out = { { "format", "pokestadium-us-flashram" }, { "version", 1 } };
+    json out = { { "format", "pocket-monsters-stadium-sram" }, { "version", 1 } };
     for (const RecordRef& ref : Records()) {
         json body = DecodeRecord(ref);
         Bytes back = RecordBytes(ref, true);
@@ -1311,31 +1304,14 @@ json SaveFile::ToDict() const {
         if (key.is_number()) node->push_back(body);
         else (*node)[key.get<std::string>()] = body;
     }
-    json banks = json::array();
-    for (int b = 0; b < 4; b++) {
-        size_t end = BANK_RECORD_END[b];
-        const uint8_t* prim = data.data() + b * BANK_STRIDE + end;
-        const uint8_t* back = data.data() + BACKUP_BASE + b * BANK_STRIDE + end;
-        size_t n = BANK_STRIDE - end;
-        json e = { { "bank", b }, { "tail", RawToJson(prim, n) } };
-        if (memcmp(prim, back, n) != 0) e["backup_tail"] = RawToJson(back, n);
-        banks.push_back(e);
-    }
-    out["_banks"] = banks;
+    out["_tail"] = RawToJson(data.data() + RECORDS_END, SRAM_SIZE - RECORDS_END);
     return out;
 }
 
 SaveFile SaveFile::FromDict(const json& d) {
-    SaveFile s(Bytes(FLASH_SIZE, 0xFF));
-    const json& banks = d.at("_banks");
-    for (size_t b = 0; b < banks.size() && b < 4; b++) {
-        const json& e = banks[b];
-        size_t end = BANK_RECORD_END[b], n = BANK_STRIDE - end;
-        Bytes prim = RawFromJson(e.at("tail").get<std::string>(), (long)n);
-        Bytes back = RawFromJson(Get(e, "backup_tail", e.at("tail")).get<std::string>(), (long)n);
-        std::copy(prim.begin(), prim.end(), s.data.begin() + b * BANK_STRIDE + end);
-        std::copy(back.begin(), back.end(), s.data.begin() + BACKUP_BASE + b * BANK_STRIDE + end);
-    }
+    SaveFile s(Bytes(SRAM_SIZE, 0));
+    Bytes tail = RawFromJson(d.at("_tail").get<std::string>(), (long)(SRAM_SIZE - RECORDS_END));
+    std::copy(tail.begin(), tail.end(), s.data.begin() + RECORDS_END);
     for (const RecordRef& ref : Records()) {
         const json& body = GetPath(d, ref.path);
         Bytes rec = s.EncodeRecord(ref, body);
@@ -1377,7 +1353,7 @@ bool IsValidRecord(const json& rec) {
 Bytes EncodeEdit(const json& base, const json& editedIn) {
     SaveFile s = SaveFile::FromDict(base);
     json edited = editedIn;
-    // a Pokémon leaving a Lab box: the game leaves the old bytes behind the new count (as its Lab PC writes them)
+    // a Pokémon leaving an N64 box: the old bytes stay behind the new count, as a Deck write leaves them
     const json& oldBoxes = base.at("boxes");
     json& newBoxes = edited.at("boxes");
     for (size_t i = 0; i < oldBoxes.size() && i < newBoxes.size(); i++) {
@@ -1386,7 +1362,7 @@ Bytes EncodeEdit(const json& base, const json& editedIn) {
         if (Get(old, "_footer", nullptr) == json("valid") && now["entries"].size() < old["entries"].size() &&
             !now.contains("_unused_entries")) {
             Bytes rec = s.RecordBytes(s.Record(json::array({ "boxes", (int)i })));
-            size_t a = 0x10 + now["entries"].size() * 0x37, b = 0x10 + 20 * 0x37;
+            size_t a = 0x14 + now["entries"].size() * pokemon::SIZE, b = 0x14 + 30 * pokemon::SIZE;
             if (std::any_of(rec.begin() + a, rec.begin() + b, [](uint8_t x) { return x != 0; })) {
                 now["_unused_entries"] = RawToJson(rec.data() + a, b - a);
             }
@@ -1396,7 +1372,9 @@ Bytes EncodeEdit(const json& base, const json& editedIn) {
     return s.data;
 }
 
+// p["western"]: a Pokémon for a Western Game Boy save (11-letter names) instead of Zero's save (Japanese names)
 json MakeMonRequest(const json& p) {
+    const bool western = Truthy(Get(p, "western", false));
     long long level = PyInt(p.at("level"));
     if (level < 1 || level > 100) throw Error("level must be 1..100");
     json dvs = json::object(), se = json::object();
@@ -1426,7 +1404,7 @@ json MakeMonRequest(const json& p) {
     }
     json nick = Get(p, "nickname", nullptr);
     json m = pokemon::MakeMon(p.at("species"), (int)level, moveIds, Truthy(nick) ? nick : json(nullptr),
-                              Get(p, "ot_name", "STADIUM"), (int)PyInt(Get(p, "ot_id", 0)), dvs, se);
+                              Get(p, "ot_name", western ? "STADIUM" : "レッド"), (int)PyInt(Get(p, "ot_id", 0)), dvs, se, western);
     if (!moves.is_null()) {
         for (size_t i = 0; i < moves.size(); i++) {
             const json& x = moves[i];
@@ -1437,8 +1415,9 @@ json MakeMonRequest(const json& p) {
             }
         }
     }
-    Bytes raw = pokemon::Mon().encode(m); // also checks the names fit the Game Boy charset
-    json mon = pokemon::Mon().decode(raw.data());
+    const Codec& codec = western ? pokemon::WesternMon() : pokemon::Mon();
+    Bytes raw = codec.encode(m); // also checks the names fit the character set
+    json mon = codec.decode(raw.data());
     json warnings = json::array();
     for (const std::string& w : pokemon::Validate(mon)) warnings.push_back(w);
     return json{ { "mon", mon }, { "warnings", warnings } };
@@ -1527,7 +1506,7 @@ struct MonList { // party (capacity 6, 44-byte structures) or PC box (capacity 2
             Bytes raw(d + mons + i * monSize, d + mons + i * monSize + 33);
             raw.insert(raw.end(), d + nicks + i * 11, d + nicks + (i + 1) * 11);
             raw.insert(raw.end(), d + ots + i * 11, d + ots + (i + 1) * 11);
-            out.push_back(pokemon::Mon().decode(raw.data()));
+            out.push_back(pokemon::WesternMon().decode(raw.data()));
         }
         return out;
     }
@@ -1539,7 +1518,7 @@ struct MonList { // party (capacity 6, 44-byte structures) or PC box (capacity 2
         for (size_t i = 0; i < capacity + 1; i++) d[1 + i] = i == count ? 0xFF : (i > count ? d[1 + i] : 0);
         for (size_t i = 0; i < count; i++) {
             const json& m = list[i];
-            Bytes raw = pokemon::Mon().encode(m);
+            Bytes raw = pokemon::WesternMon().encode(m);
             d[1 + i] = raw[0];
             Bytes core(raw.begin(), raw.begin() + 33);
             if (monSize == 44) { // party: level and stats
@@ -1761,13 +1740,14 @@ Bytes ApplyEdit(const Bytes& data, const json& base, const json& edited) {
 json GameInfo(const std::string& romPath, const std::string& savePath) {
     std::string title = "Pokémon (Game Boy)", kind;
     std::string both = romPath + savePath;
-    bool german = false;
+    bool german = false, japanese = false;
     for (const char* s : { "Germany", "(G)", "_de.", "_de/" })
         if (both.find(s) != std::string::npos) german = true;
     if (!romPath.empty()) {
         std::ifstream f(fs::u8path(romPath), std::ios::binary);
         char head[0x150] = {};
         if (f.read(head, sizeof(head)) || f.gcount() > 0x134) {
+            japanese = f.gcount() > 0x14A && head[0x14A] == 0; // destination code 0: Japan (Zero's own layout)
             std::string t;
             for (int i = 0x134; i < 0x144; i++) {
                 char c = head[i];
@@ -1784,7 +1764,7 @@ json GameInfo(const std::string& romPath, const std::string& savePath) {
             }
         }
     }
-    return json{ { "title", title }, { "kind", kind }, { "lang", german ? "de" : "en" } };
+    return json{ { "title", title }, { "kind", kind }, { "lang", japanese ? "ja" : german ? "de" : "en" }, { "japanese", japanese } };
 }
 
 } // namespace gb

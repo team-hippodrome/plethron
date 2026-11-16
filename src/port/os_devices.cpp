@@ -1,5 +1,6 @@
 #include "launcher_reliability.h"
 #include "launcher_files.h"
+#include "zero_sram.h"
 #include <unordered_set>
 #include "port_platform.h"
 // Host stand-ins for the N64 hardware the game talks to through libultra: cartridge ROM (PI DMA),
@@ -160,9 +161,11 @@ void FlashSave() {
     }
 }
 
-// Zero's own save is the 32 KiB SRAM (Stadium 1's is the flash). It persists in PORT_SRAM_FILE, by default the flash
-// file's path with the extension .sra, so the launcher's save choice covers both.
+// Zero's own save is the 32 KiB SRAM (Stadium 1's is the flash, which Zero never uses). It persists in
+// PORT_SRAM_FILE, which the launcher sets to its save (saves/stadium.sra), in N64 byte order (zero_sram.h); without
+// it, the flash file's path with the extension .sra.
 bool gSramLoaded = false;
+void SramSave();
 
 std::string SramPath() {
     if (const char* p = getenv("PORT_SRAM_FILE")) return p;
@@ -177,9 +180,28 @@ void SramLoad() {
     if (gSramLoaded) return;
     gSramLoaded = true;
     if (FILE* f = Port::OpenFileUtf8(SramPath().c_str(), "rb")) {
-        size_t n = fread(gSram.data(), 1, gSram.size(), f);
-        if (getenv("PORT_TRACE_FLASH")) fprintf(stderr, "[sram] loaded %zu bytes from %s\n", n, SramPath().c_str());
+        std::vector<uint8_t> file(kSramSize + 1);
+        size_t n = fread(file.data(), 1, file.size(), f);
         fclose(f);
+        if (getenv("PORT_TRACE_FLASH")) fprintf(stderr, "[sram] loaded %zu bytes from %s\n", n, SramPath().c_str());
+        file.resize(n);
+        // The file is in N64 byte order (zero_sram.h). One in another order (a Project64 .sra, or a save of an
+        // earlier port build, which kept the fields in host order) is turned around and written back once, the
+        // original kept in <save>.backups. One that fits no order is loaded as it is: the game repairs or resets it.
+        std::vector<uint8_t> normalized;
+        ZeroSram::Order order = ZeroSram::Order::N64;
+        std::string error;
+        if (n == kSramSize && ZeroSram::Normalize(file, normalized, &order, error)) {
+            memcpy(gSram.data(), normalized.data(), kSramSize);
+            if (order != ZeroSram::Order::N64 && order != ZeroSram::Order::Blank) {
+                fprintf(stderr, "[sram] %s was in %s; rewriting it in N64 byte order\n", SramPath().c_str(),
+                        ZeroSram::OrderName(order));
+                SramSave();
+            }
+        } else {
+            if (n == kSramSize) fprintf(stderr, "[sram] %s: %s\n", SramPath().c_str(), error.c_str());
+            memcpy(gSram.data(), file.data(), std::min(n, kSramSize));
+        }
     }
 }
 
@@ -302,11 +324,19 @@ s32 port_osEPiStartDma(OSPiHandle* h, OSIoMesg* mb, s32 direction) {
         size_t off = mb->devAddr & 0x7FFF;
         size_t n = std::min<size_t>(mb->size, gSram.size() - off);
         SramLoad();
+        // gSram (and the file) is in N64 byte order; the game's image at gSaveBuffer has its record fields in host
+        // order (zero_sram.h), so every transfer swaps them on the way.
         if (direction == OS_READ) {
             memcpy(mb->dramAddr, gSram.data() + off, n);
-        } else if (memcmp(gSram.data() + off, mb->dramAddr, n) != 0) {
-            memcpy(gSram.data() + off, mb->dramAddr, n);
-            SramSave();
+            ZeroSram::ToHost(reinterpret_cast<uint8_t*>(mb->dramAddr), off, n);
+        } else {
+            std::vector<uint8_t> n64(reinterpret_cast<const uint8_t*>(mb->dramAddr),
+                                     reinterpret_cast<const uint8_t*>(mb->dramAddr) + n);
+            ZeroSram::ToN64(n64.data(), off, n);
+            if (memcmp(gSram.data() + off, n64.data(), n) != 0) {
+                memcpy(gSram.data() + off, n64.data(), n);
+                SramSave();
+            }
         }
     }
     port_PostMesgFromIrq(mb->hdr.retQueue, (OSMesg)mb);

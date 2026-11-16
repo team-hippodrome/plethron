@@ -2,7 +2,7 @@
 // design as the macOS app's launcher (tools/launcher/Launcher.swift): four player cards with the Game Boy cartridge
 // of each Transfer Pak (picture, game, trainer from the save, save file) and a bar with the Stadium ROM, its save and
 // PLAY. The choices are remembered in pokestadium.cfg.json and passed to the game the way the command line does
-// (PORT_FLASH_FILE, PORT_GB_ROM*, PORT_GB_SAVE*). Auto-play skips it next time (hold Shift while starting to see it
+// (PORT_SRAM_FILE, PORT_GB_ROM*, PORT_GB_SAVE*). Auto-play skips it next time (hold Shift while starting to see it
 // again); Debug adds a button that opens the save editor (save_editor/save_editor_ui.cpp, built in: it takes the
 // launcher's place until it is closed; on the handheld layout it is under Files & help). Controls
 // swaps the player cards for the key and controller bindings of each player (libultraship's ControlDeck mappings).
@@ -83,8 +83,18 @@ std::string GbKey(int i, const char* name) {
     return "gLauncher.Gb" + std::to_string(i + 1) + "." + name;
 }
 
+// Zero's save: the 32 KiB SRAM in N64 byte order (zero_sram.h), with stadium.sra.western beside it
 std::string DefaultSave() {
-    return Ship::Context::GetPathRelativeToAppDirectory("saves/stadium.flash");
+    return Ship::Context::GetPathRelativeToAppDirectory("saves/stadium.sra");
+}
+
+// Settings from before Zero's save had its own choice name Stadium 1's flash file (saves/stadium.flash); the game
+// already kept the SRAM beside it with the extension .sra (os_devices.cpp SramPath), so that file is the save.
+std::string MigrateSavePath(const std::string& path) {
+    const auto p = fs::u8path(path);
+    const auto ext = p.extension().u8string();
+    if (ext != u8".flash" && ext != u8".fla") return path;
+    return Port::PathUtf8(fs::path(p).replace_extension(".sra"));
 }
 
 // the Game Boy save next to the cartridge unless one was chosen
@@ -184,7 +194,7 @@ State Load() {
     State s;
     const auto directory = fs::u8path(Ship::Context::GetAppDirectoryPath());
     s.rom = Port::ResolveLauncherPath(CVarGetString(Key("Rom").c_str(), ""), directory);
-    s.save = Port::ResolveLauncherPath(CVarGetString(Key("Save").c_str(), DefaultSave().c_str()), directory);
+    s.save = MigrateSavePath(Port::ResolveLauncherPath(CVarGetString(Key("Save").c_str(), DefaultSave().c_str()), directory));
     for (int i = 0; i < 4; i++) {
         s.gb[i].enabled = CVarGetInteger(GbKey(i, "Enabled").c_str(), 0) != 0;
         s.gb[i].rom = Port::ResolveLauncherPath(CVarGetString(GbKey(i, "Rom").c_str(), ""), directory);
@@ -497,7 +507,7 @@ bool ApplyPick() {
     } else if (!gPickResult.empty()) {
         if (gPickStadiumSave) {
             std::string imported, error;
-            if (Port::ImportStadiumSave(fs::u8path(gPickResult), fs::u8path(Ship::Context::GetAppDirectoryPath()),
+            if (Port::ImportZeroSave(fs::u8path(gPickResult), fs::u8path(Ship::Context::GetAppDirectoryPath()),
                                        imported, error)) {
                 *gPickTarget = imported;
             } else {
@@ -512,7 +522,7 @@ bool ApplyPick() {
 }
 
 const SDL_DialogFileFilter kRomFilter[] = { { "N64 ROM (.z64)", "z64" }, { "All files", "*" } };
-const SDL_DialogFileFilter kSaveFilter[] = { { "N64 cartridge save", "flash;fla;sra;sav;bin" }, { "All files", "*" } };
+const SDL_DialogFileFilter kSaveFilter[] = { { "N64 SRAM save (.sra)", "sra;sav;bin" }, { "All files", "*" } };
 const SDL_DialogFileFilter kGbRomFilter[] = { { "Game Boy ROM", "gb;gbc" }, { "All files", "*" } };
 const SDL_DialogFileFilter kGbSaveFilter[] = { { "Game Boy save (.sav)", "sav" }, { "All files", "*" } };
 
@@ -556,7 +566,7 @@ void OfferExport(const std::string& path) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Export saved locally", "Close the existing file picker before exporting another document. The local export was kept.", MainWindow());
         return;
     }
-    static const SDL_DialogFileFilter saveFilter[] = {{"N64 save (.fla)", "fla"}};
+    static const SDL_DialogFileFilter saveFilter[] = {{"N64 SRAM save (.sra)", "sra"}};
     static const SDL_DialogFileFilter reportFilter[] = {{"Diagnostic report (.txt)", "txt"}};
     const bool report = fs::u8path(path).extension() == ".txt";
     SDL_ShowSaveFileDialog(ExportPicked, nullptr, MainWindow(), report ? reportFilter : saveFilter, 1, path.c_str());
@@ -1026,7 +1036,7 @@ class LauncherWindow : public Ship::GuiWindow {
             if (ToolAction("Open saves folder")) OpenFolder(fs::u8path(mState->save).parent_path());
             if (ToolAction("Export N64 save")) {
                 std::string path, error;
-                if (Port::ExportStadiumSave(fs::u8path(mState->save), directory, path, error)) {
+                if (Port::ExportZeroSave(fs::u8path(mState->save), directory, path, error)) {
                     mToolsStatus = "Exported: " + path + "\nThe active save was kept unchanged.";
                     OfferExport(path);
                 } else mToolsStatus = error;
@@ -1717,7 +1727,7 @@ class LauncherWindow : public Ship::GuiWindow {
         if (Button("Import save", x + 450, y + 56, 100, 26)) {
             Pick(&s.save, false, kSaveFilter, 2, s.save, true);
         }
-        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Import a raw N64 Stadium cartridge save. A working copy is saved beside the launcher; the original is kept.");
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Import a raw 32 KiB Pocket Monsters Stadium SRAM save (.sra, any emulator byte order). A working copy is saved beside the launcher with its Western names file; the original is kept.");
         if (s.debug) {
             static bool sTestClicked = false; // test hook: PORT_LAUNCHER_TEST_SAVE_EDITOR=1 clicks it once
             if (Button("Save editor", x + 556, y + 56, 96, 26) ||
@@ -2312,7 +2322,7 @@ std::string RunLauncher(const std::shared_ptr<Fast::Fast3dWindow>& window, bool&
     if (!state.save.empty()) {
         std::error_code ec;
         fs::create_directories(fs::u8path(state.save).parent_path(), ec);
-        SetEnv("PORT_FLASH_FILE", state.save);
+        SetEnv("PORT_SRAM_FILE", state.save);
     }
     static const char* romVars[4] = { "PORT_GB_ROM", "PORT_GB_ROM2", "PORT_GB_ROM3", "PORT_GB_ROM4" };
     static const char* saveVars[4] = { "PORT_GB_SAVE", "PORT_GB_SAVE2", "PORT_GB_SAVE3", "PORT_GB_SAVE4" };
@@ -2330,10 +2340,10 @@ void UseShipHomeDefaults() {
     if (getenv("PORT_RECORD") == nullptr) {
         SetEnv("PORT_RECORD", Ship::Context::GetPathRelativeToAppDirectory("last_input.rec"));
     }
-    if (getenv("PORT_FLASH_FILE") == nullptr) { // the launcher's default save
+    if (getenv("PORT_SRAM_FILE") == nullptr && getenv("PORT_FLASH_FILE") == nullptr) { // the launcher's default save
         std::error_code ec;
         fs::create_directories(fs::u8path(DefaultSave()).parent_path(), ec);
-        SetEnv("PORT_FLASH_FILE", DefaultSave());
+        SetEnv("PORT_SRAM_FILE", DefaultSave());
     }
 }
 

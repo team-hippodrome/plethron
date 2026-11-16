@@ -1,11 +1,12 @@
-// Pokémon Stadium (US) save library: the C++ port of tools/save_editor/stadium_save (save.py, schema.py, pokemon.py,
+// Pocket Monsters Stadium save library (Zero's 32 KiB SRAM; Western Game Boy saves), ported from Stadium 1's
+// tools/save_editor/stadium_save (save.py, schema.py, pokemon.py,
 // text.py, gbsave.py), used by the save editor built into the launcher (save_editor_ui.cpp).
 //
 // It keeps the Python library's model on purpose: a save decodes to the same JSON document (nlohmann::json here,
 // dicts there), every byte no field covers is kept raw, and building a save from that document gives the same bytes.
 // Edits are made on the document and written back record by record, committed the way the game commits them.
 // stadium_save_cli (below) drives this library from the command line.
-// Format reference: tools/save_editor/SAVE_FORMAT.md.
+// Format reference: SaveSram in game/src/save_data.h, src/port/zero_sram.h, pokestadium0 docs/annotation/n64-save-format.md.
 #pragma once
 
 #include <nlohmann/json.hpp>
@@ -55,9 +56,11 @@ struct Codec {
 
 // ---- pokemon.py ----
 namespace pokemon {
-constexpr size_t SIZE = 0x37;
+constexpr size_t SIZE = 0x2D;          // Zero's SaveMonRecord: box struct, Japanese nickname and OT name (6 bytes each)
+constexpr size_t WESTERN_SIZE = 0x37;  // box struct and Western names (11 bytes each), for the Game Boy saves
 extern const char* const STAT_KEYS[5];
-const Codec& Mon();
+const Codec& Mon();        // Zero's records
+const Codec& WesternMon(); // Western Game Boy saves (gb::GBSave)
 int SpeciesLookup(const json& v);
 int MoveLookup(const json& v);
 std::optional<int> IndexToDex(int index);
@@ -70,28 +73,25 @@ int MaxPp(int move, int ppUp = 0);
 const char* SpeciesName(int dex);                            // nullptr outside 1..151
 const char* TypeName(int type);                              // nullptr = none
 json MakeMon(const json& species, int level, const json& moves = nullptr, const json& nickname = nullptr,
-             const json& otName = "STADIUM", int otId = 0, const json& dvs = nullptr, const json& statExp = nullptr);
+             const json& otName = "STADIUM", int otId = 0, const json& dvs = nullptr, const json& statExp = nullptr,
+             bool western = false); // the nickname defaults to the Japanese (or, western, English) species name
 std::vector<std::string> Validate(const json& mon);
 } // namespace pokemon
 
-// ---- save.py ----
-constexpr size_t FLASH_SIZE = 0x20000;
-constexpr size_t BANK_STRIDE = 0x4000;
-constexpr size_t BACKUP_BASE = 0x10000;
-extern const char* const TEAM_CATEGORIES[9];
-extern const char* const CUP_DIVISIONS[4];
-extern const char* const GLC_STAGES[10];
-const char* ModeName(int mode);                              // save.MODES; nullptr when unknown
+// ---- save.py: Zero's 32 KiB SRAM (zero_sram.h), in N64 byte order ----
+constexpr size_t SRAM_SIZE = 0x8000;
+extern const char* const CUP_NAMES[4];                       // the Lv 1-30 cups, Poké Ball Cup first
+const char* ModeName(int mode);                              // SaveContinueSession.mode; nullptr when unknown
 
 struct RecordType;
 struct RecordRef {
-    json path;                // ["teams", "poke_cup", 0], ["options"], ["boxes", 3] ...
+    json path;                // ["teams", 0], ["boxes", 3], ["item_boxes", 1], ["list"], ["options"], ["continue"]
     const RecordType* type;
-    int bank, offset;
+    size_t offset;            // the primary copy; the backup follows it
     size_t size() const;
-    size_t primary() const { return bank * BANK_STRIDE + offset; }
-    size_t backup() const { return BACKUP_BASE + bank * BANK_STRIDE + offset; }
-    std::string key() const;  // "teams/poke_cup/0"
+    size_t primary() const { return offset; }
+    size_t backup() const { return offset + size(); }
+    std::string key() const;  // "teams/0"
 };
 const std::vector<RecordRef>& Records();
 
@@ -110,8 +110,8 @@ class SaveFile {
     Bytes data;
 
     SaveFile();                       // a new save, as the game writes it for a blank chip
-    explicit SaveFile(Bytes bytes);   // throws Error unless 128 KiB
-    static SaveFile Load(const std::string& path);
+    explicit SaveFile(Bytes bytes);   // throws Error unless 32 KiB; N64 byte order
+    static SaveFile Load(const std::string& path); // any emulator byte order (ReadSave)
 
     Bytes RecordBytes(const RecordRef& ref, bool backup = false) const;
     std::string LoadedCopy(const RecordRef& ref) const;      // "primary", "backup" or "reset"
@@ -135,10 +135,11 @@ Bytes NewSaveBytes();
 
 // web.py: the editor's operations
 Bytes EncodeEdit(const json& base, const json& edited);     // _encode: base dump + edited dump -> save bytes
-json MakeMonRequest(const json& request);                    // _make_mon: {"mon", "warnings"}
+json MakeMonRequest(const json& request);                    // _make_mon: {"mon", "warnings"}; "western": a GB save's
 bool IsValidRecord(const json& rec);                         // editor.html valid(): _footer == "valid"
 void WriteWithBackup(const std::string& path, const Bytes& data); // previous contents kept as path + ".bak"
 Bytes ReadFile(const std::string& path);
+Bytes ReadSave(const std::string& path);                     // a 32 KiB save turned to N64 byte order when one fits
 
 // ---- gbsave.py: Pokémon Red / Blue / Yellow saves (32 KiB, international layout) ----
 namespace gb {

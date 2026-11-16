@@ -45,7 +45,7 @@ final class PortableLauncherStore {
             if FileManager.default.fileExists(atPath: file.path) {
                 root = try read()
             } else {
-                root = ["CVars": ["gLauncher": ["Rom": "", "Save": "saves/stadium.flash", "AutoPlay": 0, "Debug": 0]]]
+                root = ["CVars": ["gLauncher": ["Rom": "", "Save": "saves/stadium.sra", "AutoPlay": 0, "Debug": 0]]]
                 // Migrate only known legacy launcher preferences; unrelated UserDefaults never enter the config.
                 for (name, key) in Self.keys {
                     if let value = legacy[name] { apply(value, key: key) }

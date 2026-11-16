@@ -1,6 +1,7 @@
 #include "launcher_reliability.h"
 #include "launcher_files.h"
 #include "file_io.h"
+#include "zero_sram.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -73,7 +74,7 @@ LauncherCheck CheckLauncherFiles(const fs::path& directory, const std::string& s
     LauncherCheck result;
     std::string error;
     if (!Writable(directory / "pokestadium.cfg.json", error)) result.errors.push_back("Settings: " + error);
-    auto checkSave = [&](const std::string& path, const std::string& label, bool stadium, size_t size) {
+    auto checkSave = [&](const std::string& path, const std::string& label, bool stadium, size_t size, bool japanese) {
         if (path.empty()) { result.errors.push_back(label + "Choose a save location."); return; }
         const auto p = fs::u8path(path);
         if (!Writable(p, error)) result.errors.push_back(label + error);
@@ -86,15 +87,21 @@ LauncherCheck CheckLauncherFiles(const fs::path& directory, const std::string& s
         if (!Read(p, bytes, size) || bytes.size() != size) {
             result.errors.push_back(label + "Save has the wrong size or cannot be read: " + path); return;
         }
-        if (stadium && (!NormalizeStadiumSave(bytes, normalized, error) || bytes != normalized))
-            result.errors.push_back(label + "Invalid or byte-swapped cartridge save. Use Import save to select a working copy. " + path);
+        ZeroSram::Order order = ZeroSram::Order::N64;
+        if (stadium && !ZeroSram::Normalize(bytes, normalized, &order, error))
+            result.errors.push_back(label + "Invalid cartridge save: " + error + " Use Import save to select a working copy. " + path);
+        else if (stadium && order != ZeroSram::Order::N64 && order != ZeroSram::Order::Blank)
+            result.warnings.push_back(label + "The save is in " + ZeroSram::OrderName(order) +
+                                      "; the game rewrites it in N64 byte order when it starts (the original is kept in <save>.backups).");
         if (!stadium && size == 0x8000) {
-            unsigned sum = 0; for (size_t i = 0x2598; i <= 0x3522; ++i) sum += bytes[i];
-            if (static_cast<uint8_t>(~sum) != bytes[0x3523])
+            // the trainer's main data and its checksum: Japanese saves end it earlier (5-letter names)
+            const size_t sumAt = japanese ? 0x3594 : 0x3523;
+            unsigned sum = 0; for (size_t i = 0x2598; i < sumAt; ++i) sum += bytes[i];
+            if (static_cast<uint8_t>(~sum) != bytes[sumAt])
                 result.warnings.push_back(label + "Trainer checksum is not valid; the save may be blank, damaged or incompatible with this cartridge.");
         }
     };
-    checkSave(save, "Stadium save: ", true, 0x20000);
+    checkSave(save, "Stadium save: ", true, ZeroSram::kSize, true);
     std::vector<fs::path> selected;
     if (!save.empty()) selected.push_back(fs::absolute(fs::u8path(save)).lexically_normal());
     for (size_t i = 0; i < slots.size(); i++) {
@@ -109,12 +116,13 @@ LauncherCheck CheckLauncherFiles(const fs::path& directory, const std::string& s
             result.errors.push_back(label + "Game Boy ROM header or size is invalid. Choose a complete cartridge dump."); continue;
         }
         std::string title(reinterpret_cast<const char*>(rom.data() + 0x134), 16);
-        if (title.find("POKEMON RED") != 0 && title.find("POKEMON BLUE") != 0 && title.find("POKEMON YEL") != 0)
-            result.warnings.push_back(label + "This cartridge is not a recognized Red, Blue or Yellow release; Stadium compatibility is not assured.");
+        if (title.find("POKEMON RED") != 0 && title.find("POKEMON BLUE") != 0 && title.find("POKEMON YEL") != 0 &&
+            title.find("POKEMON GREEN") != 0)
+            result.warnings.push_back(label + "This cartridge is not a recognized Red, Green, Blue or Yellow release; Stadium compatibility is not assured.");
         static const size_t sizes[] = {0, 0x800, 0x2000, 0x8000, 0x20000, 0x10000};
         const size_t size = rom[0x149] < 6 ? sizes[rom[0x149]] : 0;
         if (size == 0) { result.errors.push_back(label + "Cartridge has no supported battery RAM."); continue; }
-        checkSave(slot.save, label, false, size);
+        checkSave(slot.save, label, false, size, rom[0x14a] == 0); // destination code 0: Japan
         if (!slot.save.empty()) {
             const auto battery = fs::absolute(fs::u8path(slot.save)).lexically_normal();
             for (const auto& other : selected) {
@@ -173,16 +181,18 @@ bool WriteProtectedSave(const fs::path& source, const uint8_t* data, size_t size
     return true;
 }
 
-bool ExportStadiumSave(const fs::path& source, const fs::path& directory, std::string& exported, std::string& error) {
+bool ExportZeroSave(const fs::path& source, const fs::path& directory, std::string& exported, std::string& error) {
     std::vector<uint8_t> data, normalized;
-    if (!Read(source, data, 0x20000) || !NormalizeStadiumSave(data, normalized, error)) {
+    if (!Read(source, data, ZeroSram::kSize) || !NormalizeZeroSave(data, normalized, error)) {
         if (error.empty()) error = "No readable Stadium cartridge save to export yet."; return false;
     }
     const auto folder = directory / "exports";
     std::error_code ec; fs::create_directories(folder, ec);
     if (ec) { error = "Cannot create exports folder: " + ec.message(); return false; }
-    const auto path = folder / fs::u8path("stadium-" + Unique() + ".fla");
+    // N64 byte order, as ares and mupen64plus read it (Project64 users: zero_sram.h, the game takes either back)
+    const auto path = folder / fs::u8path("stadium-" + Unique() + ".sra");
     if (!WriteNew(path, normalized.data(), normalized.size(), error)) return false;
+    if (!CopyWesternSideFile(source, path, error)) { fs::remove(path, ec); return false; }
     exported = PathUtf8(path); return true;
 }
 
