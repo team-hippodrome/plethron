@@ -1,7 +1,7 @@
 # Non-void game functions that fall off the end: the host returns garbage where the N64 left v0 (VS Mewtwo intro skipped)
 
 - **Category:** game-logic
-- **Zero status:** check (34 such functions in Zero; most results unused, three audio/GB ones need a look)
+- **Zero status:** check (taken up by plethron PR #38, which returns what the N64 left in v0 where callers read it, with a check for the class)
 - **stadion:** [PR #74](https://github.com/team-hippodrome/stadion/pull/74), commit(s) `7de4f52`
 - **stadion files:** `patches/game` (`demo_scenes_169A40.c` `MewtwoIntro_UpdateFade`, Lab PC widget draws, `Pokedex_DrawSortOrderLabel`)
 

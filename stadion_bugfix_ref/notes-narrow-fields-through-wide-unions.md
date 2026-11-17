@@ -1,7 +1,7 @@
 # Unions that overlay a narrow field on a wider integer read the wrong half on a little-endian host (animation frame counter, GB APU phase)
 
 - **Category:** endianness
-- **Zero status:** needed (Zero's `AnimFixedFrame` and `GbApuChannelState.phase` still use the N64 member order)
+- **Zero status:** already ported (plethron 4f2cad9 / PR #34 swapped AnimFixedFrame; plethron 5134413 added GBAPU_PHASE / GBAPU_SET_PHASE)
 - **stadion:** no PR (initial port work and the ares comparison rounds, before PR #1; history squashed into `be110fe`). The later sweep of the same class is PR #61 (covered separately).
 - **stadion files:** `game/src/model_animation.c`, `game/src/fragments/gb_tower_emulator/gb_tower_emulator_86CB0.c`, `game/include/color.h`, `game/src/matrix.c`
 

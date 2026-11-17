@@ -1,7 +1,7 @@
 # Lab PC list: box picker grid, column header page and "Group by TYPE" read through N64-offset views
 
 - **Category:** abi-64bit
-- **Zero status:** check (Zero's いちらん screens differ; one equivalent bug found, see 070)
+- **Zero status:** not applicable (the N64-offset views have no C user; the live case was 070, now fixed)
 - **stadion:** [PR #68](https://github.com/team-hippodrome/stadion/pull/68), commit(s) `c3a8fca`
 - **stadion files:** `patches/game/20-fragment-lab_pc_list.patch` (`lab_pc_list.h`, `BattleInfoWidget_*`, `LabPCList_SwitchColumnPage`, `BattleMoveListWidget_SetMoves`)
 

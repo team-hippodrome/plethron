@@ -1,7 +1,7 @@
 # Lab list filters: PointerList_Filter counted 4-byte pointers (count doubled, garbage rows, crash)
 
 - **Category:** abi-64bit
-- **Zero status:** needed (same `>> 2` in Zero's table_view.c)
+- **Zero status:** already ported (plethron 5134413: `arg1->count = var_s1 - arg1->items`)
 - **stadion:** [PR #64](https://github.com/team-hippodrome/stadion/pull/64), commit(s) `971fe15`
 - **stadion files:** `patches/game/02-core.patch` (`game/src/table_view.c`)
 
