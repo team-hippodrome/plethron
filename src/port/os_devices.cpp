@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <sstream>
 #include <deque>
 #include <future>
 #include <memory>
@@ -557,6 +558,57 @@ std::mutex gClockLock;
 uint64_t gVTime = 0;      // virtual CPU count of the current event
 uint64_t gCountBump = 0;  // advances osGetCount between events, deterministically
 std::atomic<uint64_t> gTick{ 0 }; // VI retraces so far
+
+// ---- Route sync points (tools/screen_diff: sync:<event>) ----------------------------------------------------------
+// PORT_SYNC=<frame>:<event>,...: the replay, PORT_SHOT_AT and PORT_STOP_AT count "route frames", which follow VI
+// retraces except that at each sync point's frame they wait until the game reports that event (Port_SyncEvent: e.g.
+// "cmd", 1P's command phase starts), so input and pictures after it line up with the game whatever its speed before
+// (the N64 slows down in battle effects, the port does not). tools/ares_ref does the same (its "sync" lines).
+// PORT_SYNC_LOG=<file>: one line per sync point: "sync <n> <event> <frame> waited <retraces>".
+struct SyncPoint { uint64_t at; std::string event; };
+std::vector<SyncPoint> gSync;
+size_t gSyncNext = 0;
+std::atomic<uint64_t> gSyncLag{ 0 }; // retraces spent waiting so far: route frame = retrace count - this
+std::atomic<bool> gSyncSeen{ false };
+uint64_t gSyncWaitStart = 0;
+FILE* gSyncLog = nullptr;
+
+void SyncInit() {
+    const char* e = getenv("PORT_SYNC");
+    if (!e) return;
+    std::stringstream ss(e);
+    std::string item;
+    while (std::getline(ss, item, ',')) {
+        auto colon = item.find(':');
+        if (colon == std::string::npos) continue;
+        gSync.push_back({ strtoull(item.c_str(), nullptr, 10), item.substr(colon + 1) });
+    }
+    if (const char* l = getenv("PORT_SYNC_LOG")) gSyncLog = fopen(l, "w");
+    fprintf(stderr, "[sync] %zu sync points\n", gSync.size());
+}
+
+// a new retrace: the route clock waits at the next sync point until its event has been seen
+void SyncStep(uint64_t tick) {
+    if (gSyncNext >= gSync.size()) return;
+    const SyncPoint& sp = gSync[gSyncNext];
+    uint64_t route = tick - gSyncLag.load();
+    if (route <= sp.at) {
+        gSyncWaitStart = tick;
+        return;
+    }
+    uint64_t waited = tick - gSyncWaitStart;
+    if (gSyncSeen.load() || waited > 6000) { // (a sync that never comes: go on after 100 s rather than hang)
+        if (gSyncLog) {
+            fprintf(gSyncLog, "sync %zu %s %llu waited %llu%s\n", gSyncNext, sp.event.c_str(), (unsigned long long)sp.at,
+                    (unsigned long long)waited, gSyncSeen.load() ? "" : " timeout");
+            fflush(gSyncLog);
+        }
+        gSyncSeen = false;
+        gSyncNext++;
+        return;
+    }
+    gSyncLag++;
+}
 struct VTimer {
     uint64_t due, seq;
     OSMesgQueue* mq;
@@ -837,6 +889,17 @@ void InputInit() {
 
 } // namespace
 
+// the game reached a sync event (PORT_SYNC, above): the route clock may go on past the next sync point if it is
+// waiting for this event (one seen before the route clock gets there counts too: then it does not wait)
+extern "C" void Port_SyncEvent(const char* name) {
+    if (gSyncNext < gSync.size() && gSync[gSyncNext].event == name) gSyncSeen = true;
+}
+
+// the route frame (PORT_SYNC): retraces less the ones spent waiting at sync points
+extern "C" uint64_t Port_RouteTick(void) {
+    return gTick.load() - gSyncLag.load();
+}
+
 // Records the frame the run reached, so a replay knows how long the recording lasted (also called on crash).
 extern "C" void Port_InputFinish() {
     if (gRecord != nullptr) {
@@ -1112,7 +1175,8 @@ void LockstepClock() {
             gCountBump = 0;
         }
         gTick = ++tick;
-        LatchPads(tick);
+        SyncStep(tick);
+        LatchPads(tick - gSyncLag.load());
         if (Port_FreezeCheckEnabled()) { // freeze report: the picture has not changed for PORT_FREEZE_FRAMES game frames
             static const uint64_t limit = getenv("PORT_FREEZE_FRAMES") ? strtoull(getenv("PORT_FREEZE_FRAMES"), nullptr, 10) : 300;
             static uint64_t reportedFor = UINT64_MAX, nextReport = 0;
@@ -1221,6 +1285,7 @@ void port_osCreateViManager(OSPri) {
 #endif
     if (Port_Lockstep()) {
         InputInit();
+        SyncInit();
         if (getenv("PORT_STOP_AT")) gStopAt = strtoull(getenv("PORT_STOP_AT"), nullptr, 10);
         std::thread(LockstepClock).detach();
         return;
@@ -1379,7 +1444,8 @@ extern "C" void Port_RequestCapture(uint64_t frame);
 
 // PORT_STOP_AT / PORT_SHOT_AT=f1,f2,...: whether the frame drawn now is to be saved (and the run ended at the stop frame)
 static void CheckCapture(bool* stopFrame, bool* shotFrame) {
-    *stopFrame = gStopAt != 0 && gTick.load() >= gStopAt;
+    const uint64_t now = gTick.load() - gSyncLag.load(); // the route frame (PORT_SYNC)
+    *stopFrame = gStopAt != 0 && now >= gStopAt;
     static std::vector<uint64_t> sShots = [] {
         std::vector<uint64_t> v;
         if (const char* e = getenv("PORT_SHOT_AT")) {
@@ -1395,12 +1461,12 @@ static void CheckCapture(bool* stopFrame, bool* shotFrame) {
         return v;
     }();
     static size_t sShotNext = 0;
-    *shotFrame = sShotNext < sShots.size() && gTick.load() >= sShots[sShotNext];
+    *shotFrame = sShotNext < sShots.size() && now >= sShots[sShotNext];
     if (*shotFrame) {
-        while (sShotNext < sShots.size() && gTick.load() >= sShots[sShotNext]) sShotNext++;
+        while (sShotNext < sShots.size() && now >= sShots[sShotNext]) sShotNext++;
     }
     if (*stopFrame || *shotFrame) {
-        Port_RequestCapture(gTick.load());
+        Port_RequestCapture(now);
     }
 }
 

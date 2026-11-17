@@ -1,0 +1,4 @@
+# Main menu -> ずかん (Pokédex): list, then Bulbasaur's entry.
+@gb green
+1200 START 300 A 400 shot:main_menu
+LEFT 40 A 150 shot:dex_prompt A 400 shot:dex_list 200 shot:dex_list_idle A 200 shot:dex_entry 300 shot:dex_entry_idle

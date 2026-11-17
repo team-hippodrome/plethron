@@ -170,6 +170,8 @@ u16 BattleScene_IsParticipantInViewWedge(ActivePokemon* owner, CameraNode* camer
     f32 radius;
 
     sp5C = 0;
+    // PORT: half_angle is the half-angle of the 4:3 picture; at 16:9 the sides show more
+    half_angle = Port_WidenViewAngle(half_angle);
     BattleAnim_CalculateDistanceAngles(&camera->view.targetPosition, &camera->view.eyePosition, &sp70, &sp6E, &sp6C);
     sp60.z = (COSS((sp6C - 0x8000)) * 30.0f) + camera->view.eyePosition.z;
     sp60.x = (SINS((sp6C - 0x8000)) * 30.0f) + camera->view.eyePosition.x;

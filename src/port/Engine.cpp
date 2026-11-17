@@ -68,6 +68,7 @@ using Fast::gPortScreenW;
 using Fast::gPortScreenH;
 extern bool gPortDrawLog;
 extern "C" void Port_RequestCapture(uint64_t frame) { sCaptureFrame = frame; }
+extern "C" uint64_t Port_RouteTick(void); // os_devices.cpp
 namespace {
 std::shared_ptr<Ship::Context> sContext;
 std::shared_ptr<Fast::Fast3dWindow> sWindow;
@@ -540,7 +541,8 @@ static void MaybeScreenshot() {
     static uint64_t lastHash = 0;
     static bool all = getenv("PORT_SCREENSHOT_ALL") != nullptr;
     // Files are named by game frame (VI retrace count) in lockstep mode, so they line up with PORT_STOP_AT and replays.
-    int name = Port_Lockstep() ? (int)Port_ViTick() : frame;
+    // (with PORT_SYNC the route frame: retraces less those spent waiting at sync points)
+    int name = Port_Lockstep() ? (int)Port_RouteTick() : frame;
     if (sCaptureFrame != 0) {
         char path[1024];
         snprintf(path, sizeof path, "%s/stop_%05d.ppm", dir, name);

@@ -216,7 +216,18 @@ void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
     }
     std::stringstream ss;
     ss << f.rdbuf();
-    auto rows = ParseCsv(ss.str());
+    // Line breaks inside quoted fields are part of the text. A checkout with CRLF line endings (git's core.autocrlf on
+    // Windows) turns each into CR LF, and the CR was kept in the string and drawn as "?" at the end of every line.
+    std::string text = ss.str();
+    std::string lf;
+    lf.reserve(text.size());
+    for (size_t i = 0; i < text.size(); i++) {
+        if (text[i] == '\r' && i + 1 < text.size() && text[i + 1] == '\n') {
+            continue;
+        }
+        lf += text[i];
+    }
+    auto rows = ParseCsv(lf);
     if (rows.empty()) {
         return;
     }
@@ -608,11 +619,15 @@ void Port_Text_SetLanguage(int lang) {
 }
 
 int Port_Text_GetLanguage(void) {
-    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen.
+    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen;
+    // PORT_LANGUAGE=kana starts in the original text (as on the N64: tools/screen_diff compares with ares).
     static bool sEnvChecked = false;
     if (!sEnvChecked) {
         sEnvChecked = true;
         if (const char* env = getenv("PORT_LANGUAGE")) {
+            if (strcmp(env, "kana") == 0) {
+                Port_Text_SetLanguage(PORT_LANG_ORIGINAL);
+            }
             for (int l = 1; l < PORT_LANG_COUNT; l++) {
                 if (strcmp(env, kColumns[l]) == 0) {
                     Port_Text_SetLanguage(l);

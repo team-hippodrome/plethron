@@ -2,6 +2,7 @@
 #include "battle.h"
 #include "audio_commands.h"
 #include "geo_node.h"
+#include "StadionPort.h" // PORT: Port_XcheckMoveStart, Port_SyncEvent
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void BattleScene_MoveIntroCameraBelow(CameraNode* camera);
@@ -140,6 +141,10 @@ void BattleScene_ActionStepSetHitCount(CameraNode* arg0, s32 arg1) {
         scene->hitCountWaitFrames = temp_v1 + 1;
         return;
     }
+    // PORT: a move's presentation starts (its message is done): guRandom restarts when comparing against ares, and
+    // tools/screen_diff's sync:move (ares_ref hooks the call below from here)
+    Port_XcheckMoveStart();
+    Port_SyncEvent("move");
     BattleScene_ResetAnimationStep();
     if (1) {  // karodo
     }

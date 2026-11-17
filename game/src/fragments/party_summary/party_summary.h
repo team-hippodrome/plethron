@@ -182,7 +182,7 @@ void PartyScreen_Draw(void* screen);
 void PartyScreen_WriteParty(PointerList* monList, PartyScreen* screen);
 void PartyScreen_CloseWindow(PartyScreen* screen, s32 nextState, Window* nextWindow);
 M2C_UNK PartyScreen_Update(PartyScreen* screen);
-void PartyScreen_RunFrame(s32 unused);
+s32 PartyScreen_RunFrame(s32 unused); // PORT: was void (see mon_summary.c)
 s32 PartyScreen_FadeFrame(u8 unused);
 s32 PartyScreen_Init(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2);
 

@@ -372,8 +372,11 @@ void Battle_DrawCompactStatusBoxesIfVisible(void) {
     ActivePokemon* ptr2 = sActivePokemon[1];
 
     if (sBattleScene.scene->transitionStep == 0) {
+        gDPPortAnchorLeft(gDisplayListHead++); // PORT: at the screen's edges in widescreen
         BattleHud_DrawCompactMonStatusBox(ptr1, 0x15, 0xF, ptr1->side->teamMember[ptr1->thumbnail.shownTeamMemberIndex]->controllerPort);
+        gDPPortAnchorRight(gDisplayListHead++);
         BattleHud_DrawCompactMonStatusBox(ptr2, 0xE1, 0xF, ptr2->side->teamMember[ptr2->thumbnail.shownTeamMemberIndex]->controllerPort);
+        gDPPortAnchorEnd(gDisplayListHead++);
         BattleMessage_TickTypewriter();
     }
 }
@@ -506,12 +509,18 @@ void Battle_RenderHud(void) {
     ActivePokemonState* s0 = &sActivePokemon[0]->state;
     ActivePokemonState* s1 = &sActivePokemon[1]->state;
 
+    // PORT: in a widescreen picture each side's HUD sits at its screen edge (the portraits too, stage.c)
+    Port_SetHudAnchorCameras(sActivePokemon[0]->thumbnail.camera, sActivePokemon[1]->thumbnail.camera);
+
     switch (sBattleScene.scene->mode) {
         case 11:
             break;
         case 1:
+            gDPPortAnchorLeft(gDisplayListHead++);
             BattleMenu_DrawSide0Menus(sActivePokemon[0], s0);
+            gDPPortAnchorRight(gDisplayListHead++);
             BattleMenu_DrawSide1Menus(sActivePokemon[1], s1);
+            gDPPortAnchorEnd(gDisplayListHead++);
             ActivePokemon_TickCaptionTypewriter(sActivePokemon[0]);
             ActivePokemon_TickCaptionTypewriter(sActivePokemon[1]);
             BattleScene_DrawStripWipeIfActive();

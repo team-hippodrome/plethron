@@ -1,0 +1,4 @@
+# Main menu -> てもち (party): the party list and a selection.
+@gb green
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 A 150 shot:party_prompt A 400 shot:party_list A 300 shot:party_selected 200 shot:party_selected_idle

@@ -1,0 +1,8 @@
+# Boot to the title with no input, then the attract-mode battle the title starts by itself. No cartridge.
+# Before the first press the port runs @boot_offset frames ahead (it skips the N64 boot); the window absorbs the
+# intro's few percent of drift.
+@window 12 160
+120 shot:n64_logo 120 shot:venusaur 120 shot:articuno 240 shot:arcanine 120 shot:charizard 180 shot:blastoise
+260 shot:title 900 shot:title_idle
+1100 shot:attract_overhead 240 shot:attract_arena 240 shot:attract_machamp_close 120 shot:attract_pikachu
+240 shot:attract_wide 400 shot:attract_late1 400 shot:attract_late2

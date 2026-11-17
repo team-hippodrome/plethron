@@ -1094,21 +1094,22 @@ Vec3f* ParticleMath_NormalizedDirection(Vec3f* arg0, Vec3f arg1, Vec3f arg2); //
  * Takes the scene camera (BattleAnim_GetCameraContext returns a CameraNode*), asks
  * ParticleMath_NormalizedDirection for the direction from its eye to its target position (the
  * Vec3f arguments are passed by value, in $a1-$a3 and on the stack), and
- * passes the result's z and x components to MathUtil_Atan2s. Declared void here, but the
+ * passes the result's z and x components to MathUtil_Atan2s. The decomp declares it void, but the
  * angle stays in $v0 and the callers in anim_model_effects.c use it as the camera's
  * rotationY (adding 0x8000 to face the camera).
  * Seen in play (2026-11-14) (Metronome bench, one movie per move, 1P Onix vs Pinsir on Splash, exec
  * breakpoint): ran only for Confuse Ray.
  * @unverified Name guessed from the code.
  */
-void ParticleMath_ComputeViewRotationY(void) {
+// PORT: v0. Was void with no return; the callers use the angle MathUtil_Atan2s left in v0 (see above).
+s32 ParticleMath_ComputeViewRotationY(void) {
     UNUSED s32 pad; // FAKE: stack padding
     Vec3f sp30;
     CameraNode* camera;
 
     camera = (CameraNode*)BattleAnim_GetCameraContext();
     ParticleMath_NormalizedDirection(&sp30, camera->view.eyePosition, camera->view.targetPosition);
-    MathUtil_Atan2s(sp30.z, sp30.x);
+    return MathUtil_Atan2s(sp30.z, sp30.x);
 }
 
 /**

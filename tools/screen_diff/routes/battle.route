@@ -1,0 +1,16 @@
+# Free Battle vs COM to an actual battle: 1P and COM both enter with the cartridge team, whose only battle-eligible
+# Pokémon is Pikachu (Zero's 40-species roster), so it is Pikachu vs Pikachu, two turns: 1P picks the move on C-Up,
+# then the one on C-Right. Random numbers are seeded alike (@rng), so the COM's choices and the damage match, and
+# sync points line each turn's command phase and each move up (the N64 slows down in effects, the port
+# does not).
+@rng 1
+@gb green
+1200 START 300 A 400 A 200 A 200 A 250 A 250 A 250 DOWN 60 A 200 A 200 DOWN 60 A 200 A 200 A 1300 B 60 A 518
+shot:ball_throw 60 shot:sendout_flash 60 shot:pikachu_out 120 shot:com_sendout_flash 100 shot:com_pikachu_out
+sync:cmd 30 shot:command_menu 150 shot:command_wait 42 A 21 shot:move_list 19 CU
+sync:move 2 shot:t1_move1_start 30 shot:t1_move1_30 30 shot:t1_move1_60 30 shot:t1_move1_90 30 shot:t1_move1_120
+sync:move 2 shot:t1_move2_start 30 shot:t1_move2_30 30 shot:t1_move2_60 30 shot:t1_move2_90 30 shot:t1_move2_120
+sync:cmd 30 shot:turn2_menu 150 shot:turn2_wait 42 A 17 shot:turn2_moves 23 CR
+sync:move 2 shot:t2_move1_start 30 shot:t2_move1_30 30 shot:t2_move1_60 30 shot:t2_move1_90 30 shot:t2_move1_120
+sync:move 2 shot:t2_move2_start 30 shot:t2_move2_30 30 shot:t2_move2_60 30 shot:t2_move2_90 30 shot:t2_move2_120
+sync:cmd 30 shot:turn3_menu 50
