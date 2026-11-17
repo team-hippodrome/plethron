@@ -68,7 +68,7 @@ void SingTrail_InitPool(s16 arg0) {
         for (j = 0; j < 16; j++) {
             tmp1 = i * 0x20;
 
-            var_v0->position.x = (i * 9.0f) - 72.0f;
+            var_v0->position.x = Port_WidenEffectGridX((i * 9.0f) - 72.0f); // PORT: covers a widescreen picture
 
             var_v0->wavePhase = 0.0f;
             var_v0->position.y = (__sinf(var_v0->wavePhase) * 0.5) + 1.0;

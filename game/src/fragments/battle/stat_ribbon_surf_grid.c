@@ -407,6 +407,7 @@ void SurfTerrainGrid_BuildCameraBounds(CameraFacingQuad* arg0, f32 arg1) {
 
     var_fs0 = Math_AbsF32(var_fs0);
     sp94 = spB4->perspective.unk_0C * var_fs0 * sp48 * 1.2f;
+    sp94 = Port_WidenViewSpan(sp94); // PORT: covers the current camera's horizontal view (widescreen)
 
     Vec3f_CrossProductComponents(sp84, sp80, sp7C, sp78, sp74, sp70, &sp68, &sp64, &sp60);
     Vec3f_CrossProductComponents(sp84, sp80, sp7C, sp68, sp64, sp60, &sp5C, &sp58, &sp54);
