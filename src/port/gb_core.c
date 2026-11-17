@@ -60,6 +60,7 @@ static struct {
     u32 romBank, ramBank;
     int ramEnable, mbc1Mode;
     int error; // a bank could not be loaded: GbCpu_Run stops with it
+    int crashed; // the game ran into something Zero's core stops on (see Trap): GbCpu_Run returns -1
     // timer / serial
     u32 divCounter, timaCounter, serialCounter;
     // LCD
@@ -928,6 +929,19 @@ static u32 ExecCB(void) {
     return cyc;
 }
 
+// Zero's own Game Boy CPU (fragment000 0x81118018, MIPS assembly) gives up on a crashed game instead of running it on:
+// the undefined opcodes, LD r,r with the same register, STOP and RST 00-30 jump to its exit with -1 (0x8111B778), and
+// so does a PC in VRAM (0x8000-0x9FFF) or in 0xE000-0xFF7F, checked between its time slices (0x8111881C). GbEmu_UpdateFrame
+// then stops the GB Player, and a save the game rejects ends on Zero's レポートがただしくない screen, as on the console.
+static u32 Trap(void) {
+    G.crashed = 1;
+    return 4;
+}
+
+static int PcOutOfBounds(u16 pc) {
+    return (pc >= 0x8000 && pc < 0xA000) || (pc >= 0xE000 && pc < 0xFF80);
+}
+
 static u32 Step(void) {
     // interrupts
     u8 pending = G.mem[0xFFFF] & G.io[0x0F] & 0x1F;
@@ -970,9 +984,8 @@ static u32 Step(void) {
         case 0x0A: G.a = Read(BC); return 8;
         case 0x0B: SET_BC(BC - 1); return 8;
         case 0x0F: { int c = G.a & 1; G.a = (u8)((G.a >> 1) | (c << 7)); G.f = c ? FC : 0; return 4; }
-        case 0x10: // STOP (the Super Game Boy has no speed switch)
-            Fetch();
-            return 4;
+        case 0x10: // STOP: Zero's core stops the game (0x81118FFC)
+            return Trap();
         case 0x11: { u16 v = Fetch16(); SET_DE(v); return 12; }
         case 0x12: Write(DE, G.a); return 8;
         case 0x13: SET_DE(DE + 1); return 8;
@@ -1038,7 +1051,9 @@ static u32 Step(void) {
         case 0xC6: case 0xCE: case 0xD6: case 0xDE: case 0xE6: case 0xEE: case 0xF6: case 0xFE:
             Alu((op >> 3) & 7, Fetch());
             return 8;
-        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7: case 0xFF:
+        case 0xC7: case 0xCF: case 0xD7: case 0xDF: case 0xE7: case 0xEF: case 0xF7:
+            return Trap(); // RST 00-30: Zero's core only has RST 38 (0x8111A304)
+        case 0xFF:
             Push(G.pc);
             G.pc = (u16)(op & 0x38);
             return 16;
@@ -1072,6 +1087,9 @@ static u32 Step(void) {
             break;
     }
     if (op >= 0x40 && op < 0x80) { // LD r,r'
+        if (((op >> 3) & 7) == (op & 7) && op != 0x76) {
+            return Trap(); // LD B,B ... LD A,A: Zero's core stops the game (opcode table entry 0x811188A0)
+        }
         SetR((op >> 3) & 7, GetR(op & 7));
         return ((op & 7) == 6 || ((op >> 3) & 7) == 6) ? 8 : 4;
     }
@@ -1102,8 +1120,8 @@ static u32 Step(void) {
             return r == 6 ? 12 : 8;
         }
     }
-    // undefined opcodes (0xD3, 0xDB, ...): the CPU locks up; treat as NOP
-    return 4;
+    // undefined opcodes (0xD3, 0xDB, ...): Zero's core stops the game (0x811188A0)
+    return Trap();
 }
 
 
@@ -1228,7 +1246,14 @@ s32 Port_GbCoreRun(u16* pc, u16 buttons) {
     G.error = 0;
     G.frameDone = 0;
     G.frameCycles = 0;
-    for (u32 guard = 0; !G.frameDone && !G.error && guard < 200000; guard++) {
+    if (G.crashed) {
+        return -1;
+    }
+    for (u32 guard = 0; !G.frameDone && !G.error && !G.crashed && guard < 200000; guard++) {
+        if (PcOutOfBounds(G.pc)) {
+            G.crashed = 1;
+            break;
+        }
         u32 c = Step();
         G.frameCycles += c;
         TimerStep(c);
@@ -1243,6 +1268,9 @@ s32 Port_GbCoreRun(u16* pc, u16 buttons) {
                 G.pc, G.romBank, G.io[0x40], G.io[0x44], G.mem[0xFFFF], G.io[0x0F], G.ime, G.halted, G.error);
     }
     *pc = G.pc;
+    if (G.crashed) {
+        return -1;
+    }
     return G.error ? 0x8001 : 0;
 }
 

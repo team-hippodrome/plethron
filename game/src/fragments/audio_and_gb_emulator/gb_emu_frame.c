@@ -333,7 +333,7 @@ s32 GbEmu_UpdateFrame(void) {
         i = 0;
     }
 
-    while (D_811561C8[D_811565A0].request == 8) {
+    while (D_811561C8[D_811565A0].request == 8) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if (D_811561C8[D_811565A0].error != 0) {
         D_81154C48 = 2;
@@ -433,14 +433,14 @@ extern u8 D_811565A0;
 s32 GbPak_CheckConnectionBlocking(void) {
     GbPakChannel* chan = &D_811561C8[D_811565A0]; // PORT: the fields, not N64 byte offsets 0x99/0x9A
 
-    while (chan->request != 0) {
+    while (chan->request != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if (chan->error != 0) {
         return -1;
     }
     chan->request = 8;
     osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
-    while (chan->request != 0) {
+    while (chan->request != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if (chan->error != 0) {
         return -1;
@@ -462,7 +462,7 @@ s32 GbPak_ReidentifyCartridge(void) {
     ch->request = 0x80;
     ch->error = 0;
     osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
 
     if (ch->error != 0) {
@@ -487,7 +487,7 @@ s32 GbPak_IsCartridgeInserted(void) {
     ch->status = 0;
     ch->request = 8;
     osSendMesg(&D_81156458, (OSMesg)(intptr_t)idx, 1); // PORT: OSMesg value
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     return D_811561C8[D_811565A0].status & 0x80;
 }
@@ -541,7 +541,7 @@ extern volatile u8 D_81156475;
 void GbPak_PowerOff(void) {
     D_811561C8[D_811565A0].request = 4; // PORT: was D_81156261 (&D_811561C8[0].request) with the N64 stride 0xA4
     osSendMesg(&D_81156458, (OSMesg)(uintptr_t)D_811565A0, OS_MESG_BLOCK); // PORT: OSMesg value
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
 }
 
@@ -692,7 +692,7 @@ extern u16 D_811270E8[];
 extern u16 D_81127390[];
 extern u16 D_81127638[];
 extern u16 D_811278E0[];
-extern u16 D_81127B88[];
+extern u16 D_81127B88[88 * 33]; // PORT: sized: the N64 console picture (86x33, rows of 88) runs on over the decomp's D_81128B70; the lifter sized it to that symbol
 extern u8 D_8112A938[];
 void GbEmu_DrawTextCommands(u16*, u8*);
 void GbEmu_DrawFramedPanel(u16* arg0);
@@ -735,8 +735,8 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     for (j = 0; j < 6; j++) {
         for (i = 0; i < 320; i++) {
-            dst[(j + 27) * 320 + i] = 0x25A;
-            dst[(j + 121) * 320 + i] = 0x25A;
+            dst[(j + 27) * 320 + i] = 0x5A02; // PORT: 0x25A in N64 byte order (the frame buffer holds N64 order)
+            dst[(j + 121) * 320 + i] = 0x5A02; // PORT: 0x25A in N64 byte order (the frame buffer holds N64 order)
         }
     }
 
@@ -747,7 +747,7 @@ void GbEmu_DrawLoadingScreen(u16* dst, u8 (*party_icons)[0xC80], s32 port, s32 v
 
     for (j = 0; j < 72; j++) {
         for (i = 0; i < 320; i++) {
-            dst[(j + 41) * 320 + i] = 0x2BA4;
+            dst[(j + 41) * 320 + i] = 0xA42B; // PORT: 0x2BA4 in N64 byte order (the frame buffer holds N64 order)
         }
     }
 
@@ -807,21 +807,27 @@ void GbEmu_BlendScrollingLayer(u16* arg0, u16* arg1, s16* arg2, s32 arg3, s32 ar
 
     for (j = 0; j < arg3; j++) {
         for (i = 0; i < 320; i++) {
-            var_v1 = (arg0[(j * 320) + ((arg4 + i) % 320)] & 0xF800) + (arg1[(j * 320) + i] & 0xF800);
+            // PORT: all three images hold RGBA5551 in N64 byte order: swap to add the channels, and back
+            u16 a = arg0[(j * 320) + ((arg4 + i) % 320)];
+            u16 b = arg1[(j * 320) + i];
+            a = (u16)((a >> 8) | (a << 8));
+            b = (u16)((b >> 8) | (b << 8));
+            var_v1 = (a & 0xF800) + (b & 0xF800);
             if (var_v1 > 0xF800) {
                 var_v1 = 0xF800;
             }
             var_t4 = var_v1;
-            var_v1 = (arg0[(j * 320) + ((arg4 + i) % 320)] & 0x7C0) + (arg1[(j * 320) + i] & 0x7C0);
+            var_v1 = (a & 0x7C0) + (b & 0x7C0);
             if (var_v1 > 0x7C0) {
                 var_v1 = 0x7C0;
             }
             var_t4 |= var_v1;
-            var_v1 = (arg0[(j * 320) + ((arg4 + i) % 320)] & 0x3E) + (arg1[(j * 320) + i] & 0x3E);
+            var_v1 = (a & 0x3E) + (b & 0x3E);
             if (var_v1 > 0x3E) {
                 var_v1 = 0x3E;
             }
-            arg2[(j * 320) + i] = var_t4 | var_v1;
+            var_t4 |= var_v1;
+            arg2[(j * 320) + i] = (s16)(u16)(((var_t4 >> 8) & 0xFF) | ((var_t4 & 0xFF) << 8));
         }
     }
 }

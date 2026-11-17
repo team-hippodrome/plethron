@@ -103,7 +103,7 @@ def clean_dir(d):
 def run_port(r, out, extra_env):
     rec = os.path.join(out, "port.rec")
     lines = ["# pokestadium input recording v1: frame, then button stick_x stick_y for pads 1-4\n",
-             "# game audio\n", "# load waits\n", "# paced logo hold\n"]
+             "# game audio\n", "# load waits\n", "# paced logo hold\n", "# tpak timing\n"]
     for f, spec, hold in r["presses"]:
         lines.append("%d %d 0 0 0 0 0 0 0 0 0 0 0\n" % (f, mask(spec)))
         lines.append("%d 0 0 0 0 0 0 0 0 0 0 0 0\n" % (f + hold))

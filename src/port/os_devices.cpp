@@ -707,6 +707,12 @@ extern "C" int Port_LoadWaits(void) {
     return on;
 }
 
+// The Transfer Pak at the console's speed (transfer_pak.cpp PaceTransfer); "# tpak timing", PORT_TPAK_TIMING=0/1.
+extern "C" int Port_TpakTiming(void) {
+    static const int on = Switch("PORT_TPAK_TIMING", "# tpak timing", "Transfer Pak timing");
+    return on;
+}
+
 extern "C" int Port_PacedLogoHold(void) {
     static const int on = Switch("PORT_PACED_LOGO_HOLD", "# paced logo hold", "paced logo hold");
     return on;
@@ -823,6 +829,9 @@ void InputInit() {
         }
         if (Port_PacedLogoHold()) {
             fprintf(gRecord, "# paced logo hold\n");
+        }
+        if (Port_TpakTiming()) {
+            fprintf(gRecord, "# tpak timing\n"); // (see Port_TpakTiming)
         }
         if (Port_ControllerBits() != 1) { // the controllers plugged in (see Port_ControllerBits)
             fprintf(gRecord, "# controllers");
@@ -1272,6 +1281,26 @@ extern "C" void Port_SpinWait(void) {
     osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
 }
 
+// The GB Player's busy waits for its Transfer Pak thread: with the Transfer Pak at the console's speed
+// (Port_TpakTiming) that thread sleeps in virtual time, which passes only while every game thread is blocked, so each
+// spin waits a little (8192 CPU cycles, under a quarter of one 32-byte transfer). Without it, transfers finish at once
+// and the loops never spin.
+extern "C" void Port_GbIoSpin(void) {
+    if (!Port_TpakTiming()) {
+        return;
+    }
+    if (!Port_Lockstep()) {
+        osYieldThread();
+        return;
+    }
+    OSMesgQueue queue;
+    OSMesg message;
+    OSTimer timer;
+    osCreateMesgQueue(&queue, &message, 1);
+    osSetTimer(&timer, 8192, 0, &queue, nullptr);
+    osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
+}
+
 // The comparison runner supplies an observed N64 retrace schedule for battle frames.
 extern "C" void Port_XcheckWaitRetraces(uint64_t retraces) {
     OSMesgQueue queue;
@@ -1468,8 +1497,19 @@ static void PresentCpuFrame(void* fb, bool black, float xscale, bool repeatLine)
 }
 
 // Runs on the thread that owns the window: executes queued RSP tasks and signals completion.
+static bool gViCurrentIsCpu = false;  // the frame buffer on screen was drawn by the CPU (presented from memory)
+static uint64_t gViCurrentHash = 0;    // its pixels when last presented
+static uint64_t gViRescanTick = ~0ull; // the retrace it was last checked for in-place changes
+static bool gViCurrentBlack = false;   // osViBlack when it was last presented
+static uint64_t HashFrame(const void* fb) {
+    uint64_t h = 1469598103934665603ull;
+    const uint64_t* p = (const uint64_t*)fb;
+    for (int i = 0; i < 320 * 240 * 2 / 8; i++) h = (h ^ p[i]) * 1099511628211ull;
+    return h;
+}
 static void TryPresentCpuFrame() {
     void* fb = nullptr;
+    void* rescan = nullptr;
     bool black;
     bool repeatLine;
     float xscale;
@@ -1486,6 +1526,15 @@ static void TryPresentCpuFrame() {
             gViCurrent = fb;
             gViPending = nullptr;
             gSwapDone.notify_all();
+        } else if (gViPending == nullptr && !gfxQueued && gViCurrent != nullptr && gViCurrentIsCpu && !gViRepeatLine &&
+                   gTick.load() != gViRescanTick) {
+            // The VI scans the current frame buffer out every retrace: a CPU-drawn picture changed in place without a
+            // new swap is shown too (the GB Player's 「よみこみちゅうです」 copy screen animates its buffer while
+            // osViBlack(0) shows it). Checked once per retrace, presented only when the pixels changed.
+            gViRescanTick = gTick.load();
+            if (HashFrame(gViCurrent) != gViCurrentHash || gViBlack != gViCurrentBlack) {
+                rescan = gViCurrent;
+            }
         }
         black = gViBlack;
         repeatLine = gViRepeatLine;
@@ -1511,6 +1560,9 @@ static void TryPresentCpuFrame() {
                 fputc('\n', stderr);
             }
             PresentCpuFrame(fb, black, xscale, repeatLine);
+            gViCurrentIsCpu = !repeatLine; // (a repeat-line buffer is one line: never rescanned)
+            gViCurrentHash = repeatLine ? 0 : HashFrame(fb);
+            gViCurrentBlack = black;
             if (stopFrame) {
                 fprintf(stderr, "[stop] reached frame %llu\n", (unsigned long long)gTick.load());
                 Port_InputFinish();
@@ -1518,7 +1570,23 @@ static void TryPresentCpuFrame() {
                 _exit(0);
             }
         }
+        else {
+            gViCurrentIsCpu = false;
+        }
         gViStampAtLastSwap[fb] = Port_GpuDrawStamp(fb);
+    } else if (rescan != nullptr && Port_GpuDrawStamp(rescan) == gViStampAtLastSwap[rescan]) {
+        bool stopFrame, shotFrame;
+        CheckCapture(&stopFrame, &shotFrame);
+        PresentCpuFrame(rescan, black, xscale, repeatLine);
+        gViCurrentHash = HashFrame(rescan);
+        gViCurrentBlack = black;
+        gViStampAtLastSwap[rescan] = Port_GpuDrawStamp(rescan); // (presenting draws into it too)
+        if (stopFrame) {
+            fprintf(stderr, "[stop] reached frame %llu\n", (unsigned long long)gTick.load());
+            Port_InputFinish();
+            fflush(stderr);
+            _exit(0);
+        }
     }
 }
 
