@@ -73,6 +73,7 @@ put checkpoints where the screen has settled or right after the press that start
 | `gb_frames_speed` | frames and speed unlocked (`zero_sram_options.py --gb-frames 2`): Z cycles Dodrio, green, Doduo, Dodrio; C-Right x2, x4, x1; a new game at x4 |
 | `gb_cart_check` | Green with an empty save: ????? on the cartridge select, GBのポケモンがいない main menu, GB Player |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `rules_free_battle`, `rules_l30`, `rules_l50` | ルールを見る of Free Battle and both tournaments: the rules list, every rule page and the usable Pokémon grid (port checked; checkpoints not yet tuned against ares) |
 | `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 | `main_menu` | the main menu with a party cartridge: the cursor on every item, the バトル prompt, OFF > はい back to the cartridge check screen and in again |
 | `no_cart` | no Transfer Pak: the cartridge check screen, the main menu with the Game Boy items greyed out, the バトル and OFF prompts |
