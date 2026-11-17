@@ -732,7 +732,7 @@ ZLIFT_STORAGE(D_81186250, 16);
 ZLIFT_STORAGE(D_81186258, 24);
 ZLIFT_STORAGE(D_81186270, 4);
 ZLIFT_STORAGE(D_81200000, 32);
-ZLIFT_STORAGE(sNoControllerMessage, 1);
+ZLIFT_STORAGE(sNoControllerMessage, 136);
 ZLIFT_STORAGE(sNoControllerScroll, 4);
 ZLIFT_STORAGE(sDemoBattleSpecies, 584);
 ZLIFT_STORAGE(sTitleBackgroundImage, 8);
@@ -1428,7 +1428,7 @@ ZLIFT_STORAGE(D_82302BD8, 48);
 ZLIFT_STORAGE(D_82302BFC, 4);
 ZLIFT_STORAGE(D_82302C00, 768);
 ZLIFT_STORAGE(D_82400000, 32);
-ZLIFT_STORAGE(sTournamentOpponents, 1);
+ZLIFT_STORAGE(sTournamentOpponents, 24064);
 ZLIFT_STORAGE(sCupFirstOpponent, 2544);
 ZLIFT_STORAGE(D_88000000, 32);
 ZLIFT_STORAGE(D_88001FD0, 4);
@@ -1623,9 +1623,8 @@ ZLIFT_STORAGE(D_8A12ECD0, 64);
 ZLIFT_STORAGE(D_8A12ECF0, 2160);
 ZLIFT_STORAGE(D_8A12F128, 48);
 ZLIFT_STORAGE(D_8A12F150, 128);
-ZLIFT_STORAGE(D_8A12F190, 132);
-ZLIFT_STORAGE(sAreaNames, 720);
-ZLIFT_STORAGE(sEncounterLocations, 1);
+ZLIFT_STORAGE(D_8A12F190, 996);
+ZLIFT_STORAGE(sEncounterLocations, 708);
 ZLIFT_STORAGE(sOverviewCameraTarget, 12);
 ZLIFT_STORAGE(sOverviewCameraEye, 12);
 ZLIFT_STORAGE(sAreaPinPositions, 432);
@@ -6323,7 +6322,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x81186258, 0x18, 3, 118, 1, 1, 0x0, D_81186258 }, // D_81186258
     { 0x81186270, 0x4, 4, 6, 1, 1, 0x0, D_81186270 }, // D_81186270
     { 0x81200000, 0x20, 8, 0, 3, 0, 0x0, D_81200000 }, // D_81200000
-    { 0x81200D20, 0x0, 0, 54, 3, 0, 0xD20, sNoControllerMessage }, // sNoControllerMessage
+    { 0x81200D20, 0x88, 68, 54, 3, 0, 0xD20, sNoControllerMessage }, // sNoControllerMessage
     { 0x81200DA8, 0x4, 1, 0, 3, 0, 0xDA8, sNoControllerScroll }, // sNoControllerScroll
     { 0x81200DAC, 0x248, 584, 6, 3, 0, 0xDAC, sDemoBattleSpecies }, // sDemoBattleSpecies
     { 0x81201010, 0x4, 1, 13, 3, 0, 0x1010, sTitleBackgroundImage }, // sTitleBackgroundImage
@@ -7019,7 +7018,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82302BFC, 0x4, 1, 0, 6, 0, 0x2BFC, D_82302BFC }, // D_82302BFC
     { 0x82302C00, 0x300, 192, 0, 6, 0, 0x2C00, D_82302C00 }, // D_82302C00
     { 0x82400000, 0x20, 32, 6, 10, 0, 0x0, D_82400000 }, // D_82400000
-    { 0x82400400, 0x0, 0, 328, 10, 0, 0x400, sTournamentOpponents }, // sTournamentOpponents
+    { 0x82400400, 0x5B10, 47, 328, 10, 0, 0x400, sTournamentOpponents }, // sTournamentOpponents
     { 0x82405F10, 0x9F0, 2544, 70, 10, 0, 0x5F10, sCupFirstOpponent }, // sCupFirstOpponent
     { 0x88000000, 0x20, 32, 6, 15, 0, 0x0, D_88000000 }, // D_88000000
     { 0x88001FD0, 0x4, 1, 74, 15, 0, 0x1FD0, D_88001FD0 }, // D_88001FD0
@@ -7214,9 +7213,8 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A12ECF0, 0x438, 135, 10, 19, 0, 0x2ECF0, D_8A12ECF0 }, // D_8A12ECF0
     { 0x8A12F128, 0x18, 3, 10, 19, 0, 0x2F128, D_8A12F128 }, // D_8A12F128
     { 0x8A12F150, 0x40, 8, 10, 19, 0, 0x2F150, D_8A12F150 }, // D_8A12F150
-    { 0x8A12F190, 0x84, 132, 6, 19, 0, 0x2F190, D_8A12F190 }, // D_8A12F190
-    { 0x8A12F2A4, 0x2D0, 36, 460, 19, 0, 0x2F2A4, sAreaNames }, // sAreaNames
-    { 0x8A12F574, 0x0, 0, 461, 19, 0, 0x2F574, sEncounterLocations }, // sEncounterLocations
+    { 0x8A12F190, 0x3E4, 996, 6, 19, 0, 0x2F190, D_8A12F190 }, // D_8A12F190
+    { 0x8A12F574, 0x2C4, 59, 461, 19, 0, 0x2F574, sEncounterLocations }, // sEncounterLocations
     { 0x8A12F838, 0xC, 1, 19, 19, 0, 0x2F838, sOverviewCameraTarget }, // sOverviewCameraTarget
     { 0x8A12F844, 0xC, 1, 19, 19, 0, 0x2F844, sOverviewCameraEye }, // sOverviewCameraEye
     { 0x8A12F850, 0x1B0, 36, 19, 19, 0, 0x2F850, sAreaPinPositions }, // sAreaPinPositions
@@ -7352,7 +7350,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8FB00000, 0x8F70, 36720, 6, 29, 0, 0x0, D_8FB00000 }, // D_8FB00000
     { 0x8FC00000, 0x1260, 4704, 6, 42, 0, 0x0, D_8FC00000 }, // D_8FC00000
 };
-const uint32_t gZLiftSymCount = 1756;
+const uint32_t gZLiftSymCount = 1755;
 
 const ZLiftImage gZLiftImages[] = {
     { "resident", 0x7FFFF400, 0x0 },

@@ -1315,6 +1315,7 @@ D_8A12F1FC = D_8A12F190 + 108;
 D_8A12F204 = D_8A12F190 + 116;
 D_8A12F208 = D_8A12F190 + 120;
 sEncounterRateTierText = D_8A12F190 + 132;
+sAreaNames = D_8A12F190 + 276;
 D_8A12FC30 = sAreaMapGeoLayout + 152;
 D_8A12FC38 = sAreaMapGeoLayout + 160;
 D_8A12FC48 = sAreaMapGeoLayout + 176;
