@@ -1,0 +1,16 @@
+# Title -> lobby -> cartridge check screen (no Transfer Pak) -> C-Right: the Options menu (rows サウンド, じっきょう,
+# バックアップ, おわり; the cursor wraps). Toggles Sound and Commentary, answers both Backup questions (B on the first,
+# はい then B on the second), leaves with おわり (saves the flags) and reopens, toggles back and leaves with B (discards),
+# clears the save with はい/はい, then B on the cartridge screen back to the title and in again.
+@window 12 160
+1200 START 140 shot:lobby 160 shot:cart_none
+CR 40 shot:options_menu
+DOWN 20 shot:row_commentary DOWN 20 shot:row_backup DOWN 20 shot:row_exit DOWN 20 shot:row_wrap_sound UP 20 shot:row_wrap_up
+DOWN 20 A 20 shot:sound_mono DOWN 20 A 20 shot:commentary_off
+DOWN 20 A 30 shot:clear_ask1 RIGHT 20 shot:clear_ask1_toggle B 30 shot:clear_cancelled
+A 30 LEFT 20 shot:clear_ask1_yes A 30 shot:clear_ask2 B 30 shot:clear_ask2_cancelled
+DOWN 20 A 60 shot:options_saved CR 40 shot:options_reopened
+A 20 DOWN 20 A 20 shot:toggled_back B 60 shot:options_discarded CR 40 shot:options_after_discard
+DOWN 20 DOWN 20 A 30 LEFT 20 A 30 LEFT 20 A 60 shot:clear_done B 60 shot:cart_after_clear
+B 120 shot:exit_to_title 200 shot:title_back 300 shot:title_back_idle
+START 140 shot:lobby_again 160 shot:cart_again

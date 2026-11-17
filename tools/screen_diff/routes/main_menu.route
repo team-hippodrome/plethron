@@ -1,0 +1,10 @@
+# The main menu itself with the Green cartridge (a party save). The grid's cursor starts on バトル, wraps sideways and
+# skips the empty slot right of せいとん; every item has its own picture frame. Then the バトル prompt and B on it, and
+# OFF > はい (the camera pulls back to the cartridge check screen) and back in with A (the second, shorter entry).
+@gb green
+1200 START 300 A 400 shot:main_menu 120 shot:main_menu_idle
+LEFT 40 shot:hover_pokedex UP 40 shot:hover_organize RIGHT 40 shot:hover_list RIGHT 40 shot:hover_wrap
+RIGHT 40 DOWN 40 shot:hover_party DOWN 40 shot:hover_register LEFT 40 shot:hover_off LEFT 40 shot:hover_gb
+UP 40 RIGHT 40 shot:hover_battle A 120 shot:battle_prompt RIGHT 30 shot:battle_prompt_no B 60 shot:prompt_cancelled
+DOWN 40 A 120 shot:off_prompt RIGHT 30 shot:off_prompt_no LEFT 30 A 60 shot:off_lower 120 shot:off_lower2 200 shot:cart_check
+A 120 shot:zoom_in 200 shot:main_menu_again 120 shot:main_menu_again_idle

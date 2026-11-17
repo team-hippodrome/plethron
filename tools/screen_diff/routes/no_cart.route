@@ -1,0 +1,5 @@
+# No Transfer Pak: the cartridge check screen, then A to the main menu with every Game Boy item greyed out and the
+# 「GBのカートリッジがない」 window (the cursor only reaches バトル and OFF), the バトル prompt and the OFF prompt.
+1200 START 300 shot:cart_none A 400 shot:main_menu 120 shot:main_menu_idle
+LEFT 40 shot:left_stays A 120 shot:battle_prompt B 60 shot:battle_cancelled
+DOWN 40 shot:hover_off A 120 shot:off_prompt B 60 shot:off_cancelled

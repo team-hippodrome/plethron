@@ -183,6 +183,11 @@ unsigned long long Port_CamlogAnimFrame(void);
         sPortEnvValue_;                                                         \
     })
 
+// Draw the frame the game is building now even when frames are being skipped (running fast, or catching up after a
+// slow frame). For screens that draw part of the picture only on some frames and keep it from the frame buffer on the
+// N64 afterwards (the main menu's top bar): skipping the frames that draw it leaves an old picture there for good.
+void Port_MustDrawThisFrame(void);
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Battle cross-check against the original game in ares, and scripted battle boot (src/port/xcheck.cpp,
 // tools/battle_xcheck.py); all off unless PORT_XCHECK* / PORT_BATTLE* is set

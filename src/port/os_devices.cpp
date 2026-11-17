@@ -910,6 +910,9 @@ std::atomic<bool> gViRunning{false};
 std::atomic<bool> gStop{false};
 std::atomic<uint64_t> gStopAt{ 0 }; // PORT_STOP_AT=<frame>: draw and capture that frame, then exit
 std::mutex gTaskLock;
+// Port_MustDrawThisFrame: set by the game while it builds a frame, taken by the next display list task submitted
+std::atomic<int> gMustDrawPending{ 0 };
+std::deque<OSTask*> gMustDrawTasks; // (gTaskLock) display list tasks that must be drawn, not skipped
 std::condition_variable gTaskDoneCv;
 uint64_t gTasksSubmitted = 0, gTasksProcessed = 0;
 std::condition_variable gTaskQueuedCv; // the window loop waits on it (Port::WaitForRspTasks)
@@ -1319,6 +1322,10 @@ static void Port_CpuTaskThread() {
 
 extern "C" {
 
+void Port_MustDrawThisFrame(void) {
+    gMustDrawPending.store(1);
+}
+
 void osSpTaskLoad(OSTask* t) { gLoaded = t; }
 
 void osSpTaskStartGo(OSTask* t) {
@@ -1355,6 +1362,9 @@ void osSpTaskStartGo(OSTask* t) {
         gCpuTaskCv.notify_one();
     } else
 #endif
+    if ((t ? t : gLoaded)->t.type == M_GFXTASK && gMustDrawPending.exchange(0) != 0) {
+        gMustDrawTasks.push_back(t ? t : gLoaded);
+    }
     gTasks.push_back(t ? t : gLoaded);
     uint64_t mine = ++gTasksSubmitted;
     gTaskQueuedCv.notify_one();
@@ -1573,7 +1583,16 @@ void Port::PumpRspTasks() {
             const bool regular = (gfxCount++ % Port_RenderEvery()) == 0;
             const bool catchUp = regular && sSkipsInRow < kMaxSkipsInRow && WantSkipWhileBehind();
             bool skipped = false;
-            if ((regular && !catchUp) || stopFrame || shotFrame || Port_XcheckWantDraw()) {
+            bool mustDraw = false;
+            {
+                std::lock_guard<std::mutex> g(gTaskLock);
+                auto it = std::find(gMustDrawTasks.begin(), gMustDrawTasks.end(), t);
+                if (it != gMustDrawTasks.end()) {
+                    gMustDrawTasks.erase(it);
+                    mustDraw = true;
+                }
+            }
+            if ((regular && !catchUp) || stopFrame || shotFrame || mustDraw || Port_XcheckWantDraw()) {
                 Port::RunGameFrame(t->t.data_ptr, stopFrame || shotFrame); // (interp.cpp: in-between frames)
             } else if (Port::TrackFrame(t->t.data_ptr)) { // not drawn, but its state changes must still happen
                 Port::CancelInterpolation();

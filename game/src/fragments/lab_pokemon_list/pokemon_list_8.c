@@ -728,7 +728,7 @@ s32 LabPCList_UpdateFade(UNUSED u8 unused) { // PORT: u8 to match BgStage_RunUnt
     }
     GbSave_DrawSummaryBar(0, var_a1, D_8910DE44, D_8910E37C);
     n = D_8910A908;
-    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8910A7F0, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(Port_WordColor(D_8910A7F0), n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_8910A90C == 0) {
         n = D_8910A908;

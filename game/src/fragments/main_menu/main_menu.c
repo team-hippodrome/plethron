@@ -840,7 +840,7 @@ s32 MainMenu_DrawFadeInBackground(u8 fade_mode) { // PORT: u8 to match BgStage_R
         StageFade_Start(1);
     }
     BgStage_DrawFrame();
-    sp24 = MainMenu_ScaleColor(*(Color_RGBA8*)&D_88002254, D_880022C4 / 20.0);
+    sp24 = MainMenu_ScaleColor(Port_WordColor(D_88002254), D_880022C4 / 20.0);
     Ui_DrawTintedScreenBackground(0, 480, sp24.r, sp24.g, sp24.b);
     D_880022C4++;
     return 0;
