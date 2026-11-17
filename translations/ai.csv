@@ -5414,14 +5414,16 @@ BATTLE_MODE_YOU_MAY_ENTER_AS_FEW,5be2c533718b56f10e4d57f2e64cdffb,8200A5A4,エ�
 BATTLE_MODE_ONE_POKEMON,ef5d40df70db68e909690729b03b404f,8200A5C8,構わない。,one Pokémon.,un solo Pokémon.,eines einzigen Pokémon.,um só Pokémon.,참가할 수 있습니다.,
 BATTLE_MODE_THERE_IS_NO_LEVEL_LIMIT,8194b8f74cab2dc06d312e20a49ba49e,8200A5D8,それぞれのポケモンにレベルによる,There is no level limit,No hay límite de nivel,Für kein Pokémon gibt es,Não há limite de nível,어떤 포켓몬에게도,
 BATTLE_MODE_FOR_ANY_POKEMON,37b3284fe41c9937970b7b8278e5caca,8200A600,制限はなし。,for any Pokémon.,para ningún Pokémon.,eine Level-Grenze.,para nenhum Pokémon.,레벨 제한은 없습니다.,
-BATTLE_MODE_YOU_MAY_ALSO_CHOOSE_SEVERAL,c356f7b92573f54ee269a271817031ac,8200A614 8200A73C 8200AAA0,同じ種類のポケモンを複数,You may also choose several Pokémon,También puedes elegir varios,Du kannst auch mehrere Pokémon,Também pode escolher vários,같은 종류의 포켓몬을,
+BATTLE_MODE_YOU_MAY_ALSO_CHOOSE_SEVERAL,c356f7b92573f54ee269a271817031ac,8200A614,同じ種類のポケモンを複数,You may also choose several Pokémon,También puedes elegir varios,Du kannst auch mehrere Pokémon,Também pode escolher vários,같은 종류의 포켓몬을,Free Battle rules; continues with BATTLE_MODE_OF_THE_SAME_KIND (duplicates allowed). Same bytes as BATTLE_MODE_SEVERAL_POKEMON_OF_THE_SAME_KIND.
+BATTLE_MODE_SEVERAL_POKEMON_OF_THE_SAME_KIND,c356f7b92573f54ee269a271817031ac,8200A73C 8200AAA0,同じ種類のポケモンを複数,Several Pokémon of the same kind,Varios Pokémon de la misma especie,Mehrere Pokémon derselben Art,Vários Pokémon da mesma espécie,같은 종류의 포켓몬을,Tournament rules; continues with BATTLE_MODE_MAY_NOT_BE_CHOSEN (no duplicates). Same bytes as BATTLE_MODE_YOU_MAY_ALSO_CHOOSE_SEVERAL.
 BATTLE_MODE_OF_THE_SAME_KIND,762a8560e346cb36955b6d23c67c7727,8200A640,選ぶこともできる。,of the same kind.,Pokémon de la misma especie.,derselben Art wählen.,Pokémon da mesma espécie.,여러 마리 골라도 됩니다.,
 BATTLE_MODE_ENTER_FROM_YOUR_PARTY_OR,9da98f3765b62b5b855247f02e2a1d23,8200A658,「手持ち」か「登録」でエントリー,Enter from your party or registered,Equipo del cartucho o registrados,Team vom Modul oder registriert,Use sua equipe ou registrados,지닌 포켓몬이나 등록 포켓몬으로,
 BATTLE_MODE_ENTER_1_TO_6_POKEMON,9426bd7e1068b56c39402f272cc4fcf4,8200A680,1匹から6匹までエントリー,Enter 1 to 6 Pokémon,Inscribe de 1 a 6 Pokémon,1 bis 6 Pokémon anmelden,Inscreva de 1 a 6 Pokémon,1~6마리 참가,
 BATTLE_MODE_NO_POKEMON_LEVEL_LIMIT,6ae866d27aecd34aa60875ed093df8b9,8200A6A4,ポケモンのレベル制限はなし,No Pokémon level limit,Sin límite de nivel,Keine Level-Grenze,Sem limite de nível,포켓몬의 레벨 제한 없음,
 BATTLE_MODE_40_KINDS_OF_POKEMON_CAN_2,dcee67a198e55503695a74c4919d72a2,8200A6C8 8200AA2C,エントリーできるポケモン40種類,40 kinds of Pokémon can enter,Pueden participar 40 tipos,40 Pokémon-Arten erlaubt,40 tipos de Pokémon podem entrar,40종류의 포켓몬이 참가 가능,
 BATTLE_MODE_FIRST_PICK_6_KINDS_OF,a9a8d2d5efc6c0eac6bd17b20aea06c8,8200A6F0,まず40種類のポケモンから,"First, pick 6 kinds of Pokémon","Primero, elige 6 tipos de Pokémon",Wähle zuerst 6 Pokémon-Arten,"Primeiro, escolha 6 tipos de",먼저 40종류 중에서,
-BATTLE_MODE_FROM_AMONG_THE_40_KINDS,d4d3e0a43bfcd39696cc9d62635dd8bc,8200A714 8200AA78,6種類のポケモンを選び出す。,from among the 40 kinds.,entre los 40 tipos.,aus den 40 Arten.,Pokémon entre os 40 tipos.,포켓몬 6종류를 고릅니다.,
+BATTLE_MODE_FROM_AMONG_THE_40_KINDS,d4d3e0a43bfcd39696cc9d62635dd8bc,8200A714,6種類のポケモンを選び出す。,from among the 40 kinds.,entre los 40 tipos.,aus den 40 Arten.,Pokémon entre os 40 tipos.,포켓몬 6종류를 고릅니다.,Follows BATTLE_MODE_FIRST_PICK_6_KINDS_OF (the 40-kind page). Same bytes as BATTLE_MODE_PICK_6_KINDS_OF_POKEMON.
+BATTLE_MODE_PICK_6_KINDS_OF_POKEMON,d4d3e0a43bfcd39696cc9d62635dd8bc,8200AA78,6種類のポケモンを選び出す。,pick 6 kinds of Pokémon.,elige 6 tipos de Pokémon.,6 Pokémon-Arten wählen.,escolha 6 tipos de Pokémon.,포켓몬 6종류를 고릅니다.,L1-30 rules; follows BATTLE_MODE_FIRST_FROM_AMONG_THE_33 (33 kinds). Same bytes as BATTLE_MODE_FROM_AMONG_THE_40_KINDS.
 BATTLE_MODE_MAY_NOT_BE_CHOSEN,ed2663f9eba69fac926ea5520efd79ca,8200A768 8200AACC,選ぶことはできない。,may not be chosen.,no se pueden elegir.,dürfen nicht gewählt werden.,não podem ser escolhidos.,고를 수 없습니다.,
 BATTLE_MODE_FROM_THE_6_YOU_CHOSE,c51a0f268ace7ea2fabfcea8c56c308c,8200A784,最初に選んだ6匹の中から,"From the 6 you chose first,","De los 6 que elegiste primero,",Von den 6 zuerst gewählten,"Dos 6 escolhidos primeiro,",처음 고른 6마리 중에서,
 BATTLE_MODE_CHOOSE_THE_3_TO_USE,84f833038ac508424702e7b505c66a60,8200A7AC,その対戦に使う3匹を選ぶ。,choose the 3 to use in that battle.,elige los 3 para ese combate.,wählst du 3 für den Kampf.,escolha os 3 para aquela batalha.,그 배틀에 쓸 3마리를 고릅니다.,
@@ -6879,7 +6881,7 @@ MAIN_MENU_ENTER,e9fcb5b3af4246b594f0d39a90e55dfc,88002A00 88002A10 88002A20 8800
 MAIN_MENU_LEAVE,5d3d651ed098c3984ab9b35eec9bcac9,88002A70,出ますか？,Leave?,¿Salir?,Verlassen?,Sair?,나갈까요?,
 MAIN_MENU_MAIN_MENU,ff324b22a915d62706d8f8b6468739d7,88002A8C 88002A9C 88002AAC,,Main Menu,Menú principal,Hauptmenü,Menu Principal,메인 메뉴,
 LAB_NO_ROOM_LEFT_IN_THE,50d64f633575d6281848f8268a14de37,8900A96C,ボックスの空きがありません,No room left in the Box,No queda sitio en la Caja,Kein Platz mehr in der Box,Não há espaço na Caixa,박스에 빈자리가 없습니다,
-LAB_COUNT_TIMES,91aa56e9685327cc8b1e14785d8fd5b0,89018470,,x,x,x,x,x,"the × before the count picker's digits; the picker's font has no ×"
+LAB_COUNT_TIMES,91aa56e9685327cc8b1e14785d8fd5b0,89018470,,x,x,x,x,x,the × before the count picker's digits; the picker's font has no ×
 LAB_YOUR_ITEMS_ARE_FULL,0db3044c51ac449f2710e7e5c91b5776,89018474 89018648,道具がいっぱいです,Your items are full,No caben más objetos,Dein Beutel ist voll,Seus itens estão cheios,도구가 가득 찼습니다,
 LAB_1657,c815a0dfb96f3f1376aed929f50834ca,8901848C 8910E118,,×%02d,×%02d,×%02d,×%02d,×%02d,
 LAB_PARTY_ITEMS,3bff24abe8c25619e1275c6e3b42b574,89018494, 手持ちの道具 , Party items , Objetos del equipo , Items im Team , Itens da equipe , 지닌 도구 ,
@@ -7201,7 +7203,7 @@ SUMMARY_TYPE2,9f3fca3c9772b7d52e81ac2dea8e7c09,8A21D92C,,Type2/,Tipo2/,Typ2/,Tip
 SUMMARY_OT,a6bb0022359fea873948b27ec08dedac,8A21D940,親の名前/,OT/,EO/,OT/,TO/,어버이/,
 SUMMARY_EXP_POINTS,5a26ba27176a856c76cdb1dd3013e8ef,8A21D950,経験値/,Exp. Points/,Exp./,E.-Punkte/,Pontos Exp./,경험치/,
 SUMMARY_TO_NEXT,ace7388678ec76a605100d5885225c6f,8A21D95C,,Need,Faltan,Noch,Faltam,남은,
-SUMMARY_TO_NEXT_TO,c3a5dfb5ef3b18575ab2e8cc7df3fe17,8A21D964,,to,a,bis,até,→,"between the Exp. still needed and the next level: あと 91 で L 6"
+SUMMARY_TO_NEXT_TO,c3a5dfb5ef3b18575ab2e8cc7df3fe17,8A21D964,,to,a,bis,até,→,between the Exp. still needed and the next level: あと 91 で L 6
 STAT_TYPE,2f203f5fc25652dc20b48eddc2d15176,8A21D9A4,,Type,Tipo,Typ,Tipo,타입,
 SUMMARY_TYPE,5e9c6a6c96084779e4a09202e0bfb230,8A21D9B4,,Type/,Tipo/,Typ/,Tipo/,타입/,
 SUMMARY_POWER,8d8a09bb820569be0c617b5157ffb2be,8A21D9BC,威力/,Power/,Potencia/,Stärke/,Poder/,위력/,
