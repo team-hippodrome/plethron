@@ -1,3 +1,4 @@
 [submodule "libultraship"]
 	path = libultraship
 	url = https://github.com/team-hippodrome/libultraship
+	branch = main
