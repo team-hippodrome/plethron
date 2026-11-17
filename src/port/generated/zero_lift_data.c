@@ -828,7 +828,7 @@ ZLIFT_STORAGE(D_820091C4, 64);
 ZLIFT_STORAGE(D_820091E4, 8);
 ZLIFT_STORAGE(D_820091EC, 48);
 ZLIFT_STORAGE(D_82009204, 116);
-ZLIFT_STORAGE(D_82009278, 720);
+ZLIFT_STORAGE(D_82009278, 72);
 ZLIFT_STORAGE(D_820093E0, 24);
 ZLIFT_STORAGE(D_820093EC, 2612);
 ZLIFT_STORAGE(D_82009F70, 696);
@@ -1695,7 +1695,7 @@ ZLIFT_STORAGE(sMoveBackdropArchive, 8);
 ZLIFT_STORAGE(D_8A21DA58, 16);
 ZLIFT_STORAGE(sMoveBackdropPools, 32);
 ZLIFT_STORAGE(sMoveBackdrops, 32);
-ZLIFT_STORAGE(sPartyScreen, 904);
+ZLIFT_STORAGE(sPartyScreen, 1048);
 ZLIFT_STORAGE(D_8A21DE08, 8);
 ZLIFT_STORAGE(D_8A21DE10, 320);
 ZLIFT_STORAGE(D_8E000000, 32);
@@ -1811,14 +1811,14 @@ const ZLiftType gZLiftTypes[] = {
     { 28, 28, 182, 4 }, // r:struct TransformAnimData@global.h:95
     { 20, 32, 186, 5 }, // r:struct EventTrackData@global.h:117
     { 16, 16, 191, 3 }, // r:struct ModelAnchor@global.h:135
-    { 4, 8, 194, 1 }, // p:r:struct GeoTextureBankNode@global.h:475
-    { 44, 88, 195, 12 }, // r:struct GeoTextureBankNode@global.h:475
-    { 12, 16, 207, 3 }, // r:struct GeoTexture@global.h:459
-    { 12, 24, 210, 3 }, // r:struct GeoPalette@global.h:468
+    { 4, 8, 194, 1 }, // p:r:struct GeoTextureBankNode@global.h:482
+    { 44, 88, 195, 12 }, // r:struct GeoTextureBankNode@global.h:482
+    { 12, 16, 207, 3 }, // r:struct GeoTexture@global.h:466
+    { 12, 24, 210, 3 }, // r:struct GeoPalette@global.h:475
     { 2, 2, 213, 1 }, // s2s
     { 16, 16, 214, 3 }, // r:union Vtx@gbi.h:1046
     { 36, 36, 217, 1 }, // as4s[9]
-    { 16, 16, 218, 1 }, // r:struct arg1_func_81407874_014_000_010@global.h:526
+    { 16, 16, 218, 1 }, // r:struct arg1_func_81407874_014_000_010@global.h:533
     { 4, 8, 219, 1 }, // fp
     { 28, 48, 220, 8 }, // r:struct SpeciesInfo@variables.h:905
     { 28, 32, 228, 2 }, // r:struct unk_D_80064C60@pokedex.h:15
@@ -1828,7 +1828,7 @@ const ZLiftType gZLiftTypes[] = {
     { 8, 16, 239, 2 }, // r:struct StatusLabel@battle.h:453
     { 8, 16, 241, 2 }, // r:struct Entry80066AA0@party_summary.h:58
     { 8, 16, 243, 2 }, // r:struct Entry80066AD8@party_summary.h:67
-    { 12, 24, 245, 3 }, // r:struct MoveTableEntry@global.h:668
+    { 12, 24, 245, 3 }, // r:struct MoveTableEntry@global.h:675
     { 6, 6, 248, 1 }, // r:struct MoveData@variables.h:988
     { 6, 6, 249, 1 }, // r:struct Move8A201D3C@mon_summary.c:54
     { 1, 1, 250, 1 }, // s1s
@@ -1837,7 +1837,7 @@ const ZLiftType gZLiftTypes[] = {
     { 3, 3, 253, 1 }, // r:Color_RGB8@color.h:9
     { 4, 4, 254, 1 }, // r:Color_RGBA8@color.h:15
     { 24, 40, 255, 5 }, // r:struct FrameTextures@gb_save.h:99
-    { 16, 24, 260, 2 }, // r:struct Img8002A3F8@global.h:658
+    { 16, 24, 260, 2 }, // r:struct Img8002A3F8@global.h:665
     { 4, 4, 262, 1 }, // r:struct Color8002A354@gb_save.c:435
     { 12, 12, 263, 1 }, // r:struct Ent8002D188@gb_save.c:1438
     { 4, 4, 264, 1 }, // r:struct Rgba8002D188@gb_save.c:1439
@@ -2061,7 +2061,7 @@ const ZLiftType gZLiftTypes[] = {
     { 4, 4, 1575, 1 }, // as1u[4]
     { 14, 14, 1576, 1 }, // r:struct Key80027168@game_state.h:261
     { 18, 18, 1577, 3 }, // r:struct GbPortSummaryZ@cartridge_check.h:15
-    { 4, 4, 1580, 1 }, // r:struct Color82001CCC@free_battle_setup.c:477
+    { 4, 4, 1580, 1 }, // r:struct Color82001CCC@free_battle_setup.c:478
     { 24, 48, 1581, 2 }, // r:struct FreeBattleExitCode@free_battle_setup.h:249
     { 12, 24, 1583, 3 }, // r:struct FreeBattleModeEntry@free_battle_setup.h:24
     { 20, 24, 1586, 2 }, // r:struct FreeBattleMoveRowPos@free_battle_setup.h:44
@@ -2090,8 +2090,8 @@ const ZLiftType gZLiftTypes[] = {
     { 9908, 10224, 1907, 64 }, // r:struct RegistrationScreen@registration.h:60
     { 544, 552, 1971, 6 }, // r:struct RegisteredTeam@registration.h:10
     { 496, 512, 1977, 5 }, // r:struct TournamentOpponentTemplate@nintendo_cup_teams.h:13
-    { 4, 8, 1982, 1 }, // p:r:struct unk_D_86002F30@global.h:487
-    { 20, 24, 1983, 2 }, // r:struct unk_D_86002F30@global.h:487
+    { 4, 8, 1982, 1 }, // p:r:struct unk_D_86002F30@global.h:494
+    { 20, 24, 1983, 2 }, // r:struct unk_D_86002F30@global.h:494
     { 512, 512, 1985, 2 }, // r:struct unk_D_832025C8@pikachu_reward.h:9
     { 4, 8, 1987, 1 }, // p:r:struct ModelNodeView@global.h:68
     { 4, 8, 1988, 1 }, // p:r:struct PokemonBattleCues@battle.h:300
@@ -2101,16 +2101,16 @@ const ZLiftType gZLiftTypes[] = {
     { 32, 32, 1997, 3 }, // r:struct SpeciesModelTransform@battle.h:414
     { 16, 16, 2000, 1 }, // r:struct unk_D_84390028@battle.h:423
     { 24, 24, 2001, 3 }, // r:struct unk_D_843847BC@battle.h:435
-    { 8, 16, 2004, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:894
+    { 8, 16, 2004, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:897
     { 44, 80, 2007, 3 }, // r:struct BattleSceneStateRow@battle.h:400
-    { 6, 6, 2010, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1159
+    { 6, 6, 2010, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1164
     { 3, 3, 2011, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:140
     { 2, 2, 2012, 1 }, // r:struct StatStageMultiplier@battle.h:923
     { 48, 48, 2013, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
     { 7, 7, 2014, 1 }, // r:struct Arr82133534@demo_mode11.c:259
-    { 396, 792, 2015, 1 }, // ap:r:struct Cue82133A44@demo_battle_setup.c:147[99]
-    { 6, 6, 2016, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
-    { 14, 14, 2017, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
+    { 396, 792, 2015, 1 }, // ap:r:struct Cue82133A44@demo_battle_setup.c:148[99]
+    { 6, 6, 2016, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:148
+    { 14, 14, 2017, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:245
     { 20, 20, 2020, 2 }, // r:struct S0Learnset@damage_estimate.c:314
     { 16, 32, 2022, 4 }, // r:struct ParticleDescriptorChild@battle.h:673
     { 8, 16, 2026, 2 }, // r:struct ParticleDescriptor@battle.h:688
@@ -2128,7 +2128,7 @@ const ZLiftType gZLiftTypes[] = {
     { 36, 36, 2190, 1 }, // as2u[18]
     { 4, 8, 2191, 1 }, // p:r:struct BattleMonRuntime@game_state.h:71
     { 100, 100, 2192, 16 }, // r:struct BattleMonRuntime@game_state.h:71
-    { 36, 36, 2208, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:153
+    { 36, 36, 2208, 5 }, // r:struct Scene82133A44@demo_battle_setup.c:154
     { 4, 8, 2213, 1 }, // p:r:struct BattleMessageQueues@battle.h:445
     { 1224, 1224, 2214, 5 }, // r:struct BattleMessageQueues@battle.h:445
     { 64, 64, 2219, 1 }, // as1s[64]
@@ -2189,9 +2189,9 @@ const ZLiftType gZLiftTypes[] = {
     { 8, 8, 2501, 1 }, // r:struct PrimEnvColor@lab_pc.h:667
     { 4, 8, 2502, 1 }, // p:r:struct PrimEnvColor@lab_pc.h:667
     { 16, 24, 2503, 2 }, // r:struct LabPcImage@lab_pc.h:42
-    { 20, 24, 2505, 2 }, // r:struct Slot890056A4@pc_sort.c:441
-    { 20, 20, 2507, 1 }, // r:struct Slot89007678@pc_box.c:298
-    { 8, 8, 2508, 1 }, // r:struct ColorPair890088F8@pc_box.c:686
+    { 20, 24, 2505, 2 }, // r:struct Slot890056A4@pc_sort.c:442
+    { 20, 20, 2507, 1 }, // r:struct Slot89007678@pc_box.c:299
+    { 8, 8, 2508, 1 }, // r:struct ColorPair890088F8@pc_box.c:693
     { 24, 24, 2509, 2 }, // r:struct LabPcCartSummary@lab_pc.h:716
     { 2672, 3016, 2511, 173 }, // r:struct LabItemScreen@lab_pc.h:242
     { 20, 20, 2684, 2 }, // r:struct LabItemSaveSlot@lab_pc.h:171
@@ -2205,7 +2205,7 @@ const ZLiftType gZLiftTypes[] = {
     { 8, 8, 2966, 1 }, // ar:Color_RGBA8@color.h:15[2]
     { 4, 4, 2967, 1 }, // r:struct Str89104D14@popup_menus.c:55
     { 4, 4, 2968, 1 }, // r:struct Str89104FC0@popup_menus.c:174
-    { 4, 4, 2969, 1 }, // r:struct Rgba891084B4@popup_menus.c:1668
+    { 4, 4, 2969, 1 }, // r:struct Rgba891084B4@popup_menus.c:1651
     { 8, 16, 2970, 2 }, // r:struct Pair8910D910@pokemon_list_4.c:251
     { 47092, 58784, 2972, 277 }, // r:struct LabPCList@lab_pokemon_list.h:444
     { 36, 56, 3249, 5 }, // r:struct Entry89100140@lab_pokemon_list.h:206
@@ -2228,11 +2228,12 @@ const ZLiftType gZLiftTypes[] = {
     { 28, 56, 3337, 7 }, // r:struct GeoDisplayListNode@global.h:314
     { 48, 48, 3344, 2 }, // r:struct Label8A104B00@pokedex_2.c:684
     { 36, 64, 3346, 3 }, // r:struct PokedexMapArea@pokedex_2.c:32
-    { 40, 48, 3349, 2 }, // r:struct Entry8A203384@party_screen.c:447
+    { 40, 48, 3349, 2 }, // r:struct Entry8A203384@party_screen.c:448
     { 4, 8, 3351, 1 }, // p:r:struct Fragment@memmap.h:27
     { 32, 32, 3352, 3 }, // r:struct Fragment@memmap.h:27
+    { 904, 1048, 3355, 55 }, // r:struct PartyScreen@party_summary.h:99
 };
-const uint32_t gZLiftTypeCount = 470;
+const uint32_t gZLiftTypeCount = 471;
 const int32_t gZLiftGfxType = 10; // display-list commands (zero_lift.c liftElems)
 
 const ZLiftOp gZLiftOps[] = {
@@ -5591,6 +5592,61 @@ const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
     { 0, 8, 8, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
     { 0, 16, 16, 4, 4, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 0, 0, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 8, 8, 4, 1, 4, 8, 317, 0, 0, 0, 0 },
+    { 1, 12, 16, 4, 1, 4, 8, 317, 0, 0, 0, 0 },
+    { 0, 16, 24, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 40, 48, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 48, 56, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
+    { 0, 52, 64, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 60, 72, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
+    { 1, 64, 80, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
+    { 0, 68, 88, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
+    { 2, 80, 104, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
+    { 1, 84, 112, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
+    { 0, 88, 120, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 96, 128, 2, 6, 2, 2, -1, 0, 0, 0, 0 },
+    { 0, 108, 144, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 112, 152, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 136, 176, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 144, 184, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
+    { 0, 148, 192, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 156, 200, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
+    { 1, 160, 208, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
+    { 0, 164, 216, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
+    { 2, 176, 232, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
+    { 1, 180, 240, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
+    { 0, 184, 248, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 192, 256, 4, 1, 4, 8, 120, 0, 0, 0, 0 },
+    { 0, 196, 264, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 204, 272, 2, 3, 2, 2, -1, 0, 0, 0, 0 },
+    { 0, 210, 278, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 0, 212, 280, 4, 6, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 236, 304, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 244, 312, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
+    { 0, 248, 320, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 256, 328, 4, 1, 4, 8, 285, 0, 0, 0, 0 },
+    { 0, 260, 336, 4, 8, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 292, 368, 1, 8, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 300, 376, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
+    { 0, 304, 384, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 312, 392, 4, 1, 4, 8, 320, 0, 0, 0, 0 },
+    { 1, 316, 400, 4, 1, 4, 8, 18, 0, 0, 0, 0 },
+    { 0, 320, 408, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
+    { 2, 332, 424, 4, 1, 4, 8, -1, 0, 0, 0, 0 },
+    { 1, 336, 432, 4, 1, 4, 8, 15, 0, 0, 0, 0 },
+    { 0, 340, 440, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 348, 448, 4, 1, 4, 8, 120, 0, 0, 0, 0 },
+    { 0, 352, 456, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 0, 360, 464, 2, 3, 2, 2, -1, 0, 0, 0, 0 },
+    { 0, 366, 470, 1, 2, 1, 1, -1, 0, 0, 0, 0 },
+    { 1, 368, 472, 4, 1, 4, 8, 6, 0, 0, 0, 0 },
+    { 0, 372, 480, 4, 3, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 384, 496, 4, 1, 4, 8, 120, 0, 0, 0, 0 },
+    { 0, 388, 504, 4, 2, 4, 4, -1, 0, 0, 0, 0 },
+    { 1, 396, 512, 4, 6, 4, 8, 285, 0, 0, 0, 0 },
+    { 4, 420, 560, 0, 6, 80, 80, 285, 0, 0, 0, 0 },
+    { 0, 900, 1040, 4, 1, 4, 4, -1, 0, 0, 0, 0 },
 };
 
 const ZLiftSym gZLiftSyms[] = {
@@ -6418,7 +6474,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x820091E4, 0x8, 2, 74, 8, 0, 0x91E4, D_820091E4 }, // D_820091E4
     { 0x820091EC, 0x18, 2, 308, 8, 0, 0x91EC, D_820091EC }, // D_820091EC
     { 0x82009204, 0x74, 116, 6, 8, 0, 0x9204, D_82009204 }, // D_82009204
-    { 0x82009278, 0x168, 30, 310, 8, 0, 0x9278, D_82009278 }, // D_82009278
+    { 0x82009278, 0x24, 3, 310, 8, 0, 0x9278, D_82009278 }, // D_82009278
     { 0x820093E0, 0xC, 3, 311, 8, 0, 0x93E0, D_820093E0 }, // D_820093E0
     { 0x820093EC, 0xA34, 2612, 6, 8, 0, 0x93EC, D_820093EC }, // D_820093EC
     { 0x82009F70, 0x2B8, 696, 6, 8, 0, 0x9F70, D_82009F70 }, // D_82009F70
@@ -7285,7 +7341,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8A21DA58, 0x8, 2, 120, 20, 0, 0x1DA58, D_8A21DA58 }, // D_8A21DA58
     { 0x8A21DA60, 0x10, 4, 120, 20, 0, 0x1DA60, sMoveBackdropPools }, // sMoveBackdropPools
     { 0x8A21DA70, 0x10, 4, 468, 20, 0, 0x1DA70, sMoveBackdrops }, // sMoveBackdrops
-    { 0x8A21DA80, 0x388, 226, 0, 20, 0, 0x1DA80, sPartyScreen }, // sPartyScreen
+    { 0x8A21DA80, 0x388, 1, 470, 20, 0, 0x1DA80, sPartyScreen }, // sPartyScreen
     { 0x8A21DE08, 0x8, 2, 0, 20, 0, 0x1DE08, D_8A21DE08 }, // D_8A21DE08
     { 0x8A21DE10, 0x140, 80, 0, 20, 0, 0x1DE10, D_8A21DE10 }, // D_8A21DE10
     { 0x8E000000, 0x20, 32, 6, 21, 0, 0x0, D_8E000000 }, // D_8E000000
