@@ -1,7 +1,7 @@
 # Lab PC boxes read through an `s32*` view of a pointer list / N64 row stride (Check BOX crash, icons shifted)
 
 - **Category:** abi-64bit
-- **Zero status:** needed (Zero's `LabBoxList_ApplyChecks` walks the box rows with the N64 stride and offset)
+- **Zero status:** already ported (plethron 5134413: LabBoxList_ApplyChecks walks LabPCBox rows and sets `checked`)
 - **stadion:** [PR #70](https://github.com/team-hippodrome/stadion/pull/70), commit(s) `567532e`
 - **stadion files:** `patches/game/20-fragment-lab_pc.patch` (`func_882052F4`, `func_88201488`)
 

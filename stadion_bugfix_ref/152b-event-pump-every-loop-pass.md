@@ -1,7 +1,7 @@
 # Window loop pumped OS events and polled pads on every ~1 ms pass (85 % of the window thread's time)
 
 - **Category:** performance
-- **Zero status:** needed (plethron `PumpFrame` pumps unconditionally; see also `157-...`)
+- **Zero status:** already ported (plethron PR #54: stadion 08e38c1, retrace hunk placed by hand next to the sync-lag `LatchPads`)
 - **stadion:** [PR #152](https://github.com/team-hippodrome/stadion/pull/152), commit(s) `08e38c1`
 - **stadion files:** `src/port/Engine.cpp`, `src/port/os_devices.cpp`
 

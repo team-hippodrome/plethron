@@ -1,7 +1,7 @@
 # N64 logo held by a busy-wait on osGetTime: no frames presented for a second (frame gap at boot)
 
 - **Category:** timing-pacing
-- **Zero status:** check (Zero has the same busy-wait, `N64Logo_HoldForOneSecond`; decide whether the gap shows on Zero's targets)
+- **Zero status:** already ported (plethron PR #56, 7c9ce36: worse in Zero than in stadion: in lockstep the hold collapsed to one retrace (logo up ~8 frames, ares 64); `Port_ZeroLogoHold` draws it every retrace for the same second, tag `# zero logo hold`)
 - **stadion:** [PR #106](https://github.com/team-hippodrome/stadion/pull/106), commit(s) `153a418` (merge `7c408e8`)
 - **stadion files:** `patches/game/20-fragment-n64_logo.patch` (n64_logo.c `N64Logo_Main`), `src/port/os_devices.cpp` (`Port_PacedLogoHold`, replay marker `# paced logo hold`)
 

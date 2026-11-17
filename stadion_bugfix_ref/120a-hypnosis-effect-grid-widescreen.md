@@ -1,7 +1,7 @@
 # Widescreen: Hypnosis' swirl (camera-facing effect grids) stopped short of the right edge
 
 - **Category:** rendering
-- **Zero status:** needed (helper `Port_WidenEffectGridX` is inherited; Zero's three grid inits do not call it)
+- **Zero status:** already ported (plethron b1ea1c8: the three grid inits call `Port_WidenEffectGridX`)
 - **stadion:** [PR #120](https://github.com/team-hippodrome/stadion/pull/120), commit(s) `ce24d57` (merge `1c00cf4`)
 - **stadion files:** `patches/game/20-fragment-battle_engine.patch` (battle_engine_34E1A0.c `Trail40_Init`, battle_engine_34F1A0.c `Trail40Variant_InitPool`, battle_engine_3502D0.c `Trail40GridAlt_Init`), `src/port/Engine.cpp`, `src/port/sdk/port_compat.h`
 
@@ -26,6 +26,11 @@ var_v0->unk_00 = Port_WidenEffectGridX((i * 9.0f) - 72.0f); // PORT: covers a wi
   - `game/src/fragments/battle/sing_trail.c:71` (`SingTrail_InitPool`, = Trail40Variant_InitPool)
   - `game/src/fragments/battle/trail40_grid.c:47` (`Trail40GridAlt_Init`)
   Wrap each in `Port_WidenEffectGridX(...)`.
+
+## Fixed in plethron (b1ea1c8)
+`hypnosis_screech_trail.c`, `sing_trail.c` and `trail40_grid.c` wrap `(i * 9.0f) - 72.0f` in `Port_WidenEffectGridX`. Checked in 16:9 with the demo battle forced to Hypno using Hypnosis: before, the swirl stopped about 1/10 of the picture short of the right edge; after, it covers the whole width.
+
+The same commit also ports stadion's other battle widescreen game hooks, which have no case of their own: the view wedge (`BattleScene_IsParticipantInViewWedge`, `Port_WidenViewAngle`), the strip wipe (`BattleScene_BuildStripWipeDisplayList`, `gDPPortWideRects*`) and the HUD and portraits at the screen edges (`Battle_RenderHud`, `Battle_DrawCompactStatusBoxesIfVisible`, `Battle_FillActivePokemonThumbnail`; stadion PR #119).
 
 ## How to detect
 `grep -rn "\* 9.0f) - 72.0f" game/src` for the grids; generally any effect whose geometry is laid out in fixed

@@ -1,7 +1,7 @@
 # Pikachu Surf reward crash: animation in a data fragment read as native (not recognised as raw ROM data)
 
 - **Category:** endianness
-- **Zero status:** check (Zero's raw test does not cover segment/fragment-mapped data)
+- **Zero status:** not applicable (no animation header bound on any of the 13 screen-diff routes was raw by Port_IsRawData but not by Anim_IsRaw; Zero links its fragments statically, so the fragment-slot case does not arise. The Pikachu reward was not played)
 - **stadion:** [PR #67](https://github.com/team-hippodrome/stadion/pull/67), commit(s) `e621388`
 - **stadion files:** `patches/game/02-core.patch` (`src/model_animation.c`: `ANIM_RAW` -> `Port_IsRawData`), `PORTING_NOTES.md`
 
