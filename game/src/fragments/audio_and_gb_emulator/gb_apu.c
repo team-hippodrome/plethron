@@ -107,6 +107,9 @@ s32 GbApu_GetWaveformSample(u32 arg0, s32 arg1) {
     case 7:
         return (u8)(D_81182468[arg1] << 3);
     }
+    // PORT: v0. Types 4, 5 and 8+ fall through without a value on the N64 (the caller's v0 stays). No caller
+    // reaches them: the square channels pass their 2-bit duty, the wave and noise channels pass 7 and 6.
+    return 0;
 }
 
 /**

@@ -2803,8 +2803,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed prim_r (0xBA) of the
  * live particle, e.g. 0xffff -> 0xf7ff.
  */
-void Particle_ApproachPrimRed(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once prim_r arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachPrimRed(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->prim_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
@@ -2814,8 +2816,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed prim_g (0xBB) of the
  * live particle, e.g. 0xf7ff -> 0xf7f7.
  */
-void Particle_ApproachPrimGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once prim_g arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachPrimGreen(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->prim_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
@@ -2825,8 +2829,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed prim_b (0xBC) of the
  * live particle, e.g. 0xffffffff -> 0xf7ffffff.
  */
-void Particle_ApproachPrimBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once prim_b arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachPrimBlue(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->prim_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 extern s16 D_8219A8B2;
@@ -2879,8 +2885,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed env_r (0xBD) of the
  * live particle, e.g. 0xff0000 -> 0xdf0000.
  */
-void Particle_ApproachEnvRed(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once env_r arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachEnvRed(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->env_r, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
@@ -2890,8 +2898,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed env_b (0xBF) of the
  * live particle, e.g. 0xf7c0cfff -> 0xf7c0cff7.
  */
-void Particle_ApproachEnvBlue(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once env_b arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachEnvBlue(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->env_b, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from the definition (fragments/battle/particle_math.c)
@@ -2901,8 +2911,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed env_g (0xBE) of the
  * live particle, e.g. 0xe7ffff00 -> 0xe7ffe700.
  */
-void Particle_ApproachEnvGreen(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once env_g arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachEnvGreen(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->env_g, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -2920,8 +2932,10 @@ s32 ParticleMath_ApproachU8(u8* arg0, u8 arg1, u8 arg2); // PORT: signature from
  * Seen in play (2026-11-12) in move animations (30-move sweep): it changed prim_a (0xC0) of the
  * live particle, e.g. 0xc8000000 -> 0xc4000000.
  */
-void Particle_ApproachPrimAlpha(Particle* arg0, s32 arg1, s32 arg2) {
-    ParticleMath_ApproachU8((uintptr_t)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
+// PORT: v0. Was void with no return; callers use the result (nonzero once prim_a arrives), which on the N64
+// is what ParticleMath_ApproachU8 left in v0.
+s32 Particle_ApproachPrimAlpha(Particle* arg0, s32 arg1, s32 arg2) {
+    return ParticleMath_ApproachU8((uintptr_t)&arg0->prim_a, arg1 & 0xFF, arg2 & 0xFF);
 }
 
 /**
@@ -3173,8 +3187,10 @@ void Particle_SetScratchA(Particle* arg0, s16 arg1) {
  * Seen in play (2026-11-13) in the 165-move sweep (Pay Day): with target 0 and step 0x40, scratchA
  * (offset 0xAA) went from 0xE1 to 0xA1.
  */
-void Particle_ApproachScratchA(Particle* arg0, s16 arg1, s16 arg2) {
-    ParticleMath_StepS16Toward(&arg0->scratchA, arg1, arg2);
+// PORT: v0. Was void with no return; callers use the result (nonzero once scratchA arrives), which on the
+// N64 is what ParticleMath_StepS16Toward left in v0.
+s32 Particle_ApproachScratchA(Particle* arg0, s16 arg1, s16 arg2) {
+    return ParticleMath_StepS16Toward(&arg0->scratchA, arg1, arg2);
 }
 
 /**

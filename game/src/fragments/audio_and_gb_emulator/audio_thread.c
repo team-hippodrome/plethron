@@ -169,9 +169,12 @@ s32 AudioThread_ScheduleProcessCmds(void) {
         D_811381D8 = count;
     }
     head = ((u8)tail << 8) | (u8)head; // FAKE: reuses head for the message
-    if (osSendMesg(D_81186230, OS_MESG_32(head), 0) /* PORT: OS_MESG_32 */ != -1) {
+    // PORT: v0. No return statement in the decomp: the caller gets osSendMesg's result, which stays in v0
+    s32 sent = osSendMesg(D_81186230, OS_MESG_32(head), 0); // PORT: OS_MESG_32
+    if (sent != -1) {
         D_811861DB = D_811861DA;
     }
+    return sent;
 }
 
 /**

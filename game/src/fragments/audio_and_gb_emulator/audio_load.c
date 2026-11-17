@@ -1118,6 +1118,7 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 arg0, s32 arg1, s32 arg2) {
     AudioSeq_SkipForwardSequence(slot);
     for (i = 0; i < 16; i++) { // karodo: empty loop over the 16 channels
     }
+    return i; // PORT: v0. No return statement in the decomp; IDO kept the loop counter (16) in v0
 }
 
 s32 AudioLoad_SyncLoad(s32 tableType, s32 id, s32* didAllocate);
@@ -1133,7 +1134,7 @@ s32 AudioLoad_SyncLoadSeq(s32 arg0) {
     s32 sp18;
 
     idx = AudioLoad_GetRealTableIndex(0, arg0);
-    AudioLoad_SyncLoad(0, idx, &sp18);
+    return AudioLoad_SyncLoad(0, idx, &sp18); // PORT: v0. No return statement in the decomp; v0 held this result
 }
 
 u8* AudioLoad_GetLoadTable(s32);
