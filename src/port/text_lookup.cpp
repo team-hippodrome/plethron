@@ -216,7 +216,18 @@ void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
     }
     std::stringstream ss;
     ss << f.rdbuf();
-    auto rows = ParseCsv(ss.str());
+    // Line breaks inside quoted fields are part of the text. A checkout with CRLF line endings (git's core.autocrlf on
+    // Windows) turns each into CR LF, and the CR was kept in the string and drawn as "?" at the end of every line.
+    std::string text = ss.str();
+    std::string lf;
+    lf.reserve(text.size());
+    for (size_t i = 0; i < text.size(); i++) {
+        if (text[i] == '\r' && i + 1 < text.size() && text[i + 1] == '\n') {
+            continue;
+        }
+        lf += text[i];
+    }
+    auto rows = ParseCsv(lf);
     if (rows.empty()) {
         return;
     }
