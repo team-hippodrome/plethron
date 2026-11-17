@@ -442,7 +442,9 @@ def main():
         for key, n64s, hs, n64a, ops in g.tab:
             w('    { %d, %d, %d, %d }, // %s\n' % (n64s, hs, opi, len(ops), key[:100]))
             opi += len(ops); allops += ops
-        w('};\nconst uint32_t gZLiftTypeCount = %d;\n\n' % len(g.tab))
+        w('};\nconst uint32_t gZLiftTypeCount = %d;\n' % len(g.tab))
+        gfx = [i for i, t in enumerate(g.tab) if t[0].startswith('r:union Gfx@')]
+        w('const int32_t gZLiftGfxType = %d; // display-list commands (zero_lift.c liftElems)\n\n' % (gfx[0] if gfx else -1))
         w('const ZLiftOp gZLiftOps[] = {\n')
         for o in allops:
             w('    { %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d },\n' % tuple(o))

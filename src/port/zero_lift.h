@@ -62,6 +62,7 @@ typedef struct ZLiftPart {
 
 extern const ZLiftType gZLiftTypes[];
 extern const uint32_t gZLiftTypeCount;
+extern const int32_t gZLiftGfxType; // the type of display-list commands (union Gfx), or -1
 extern const ZLiftOp gZLiftOps[];
 extern const ZLiftSym gZLiftSyms[];
 extern const uint32_t gZLiftSymCount;
