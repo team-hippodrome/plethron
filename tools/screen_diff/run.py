@@ -22,8 +22,9 @@ and header lines:
                        them, which lines the two up again)
 # starts a comment.
 
-The port runs hidden at native resolution (PORT_RESOLUTION=native, 4:3) in the original text (PORT_LANGUAGE=kana: no
-language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
+The port runs hidden at 640x480 (PORT_RESOLUTION=2x, 4:3; SCREEN_DIFF_PORT_RESOLUTION overrides it: Zero draws its
+menus and text in 640x480, and at native 320x240 every other texel row and column is dropped, which makes the small
+font look wrong) in the original text (PORT_LANGUAGE=kana: no language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
 tools/ares_ref (build it with tools/ares_ref/build.sh). Pictures go to <out>/port/<label>.ppm and
 <out>/ares/<label>/f_<frame>.png; nothing goes into the repository (the pictures are the game's own: keep them out of
 git). Environment: ROM (the Pocket Monsters Stadium .z64), PORT_BIN (default build/pokestadium), ARES_REF_BUILD and
@@ -122,7 +123,8 @@ def run_port(r, out, extra_env):
     clean_dir(home)
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_RESOLUTION="native", PORT_UPSCALE="exact",
+               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_UPSCALE="exact",
+               PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")
     if r["gb"]:

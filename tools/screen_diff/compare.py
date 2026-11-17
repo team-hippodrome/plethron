@@ -16,6 +16,7 @@ blurred slightly first (see load()), so the VI filter and dither of ares do not 
   detail  edge energy of the port relative to ares (< 1: blurrier or missing detail, > 1: extra or sharper detail)
   cells   the worst cells of an 8x6 grid (where on the screen the difference is)
   hints   short guesses from the numbers above (offset, colour shift, missing/extra content, blur, timing)
+A 640x480 port picture (run.py's default) is compared field by field with ares's 240-line field (see load()).
 Writes <report dir>/report.md and report.json (worst first), and <report dir>/cmp/<run>__<label>.png: port | ares |
 difference (red where they differ, over a grey copy of ares), 2x size.
 """
@@ -32,17 +33,32 @@ GRID_X, GRID_Y = 8, 6
 BLUR = 1.0  # see load()
 
 
-def load(path, blur=True):
+def load(path, blur=True, field=None):
     """The picture at 320x240. With blur, also softened a little (Gaussian, radius BLUR): ares shows the frame through
     the VI's dither and horizontal resampling filter and the port does not, which alone makes every edge and every
     textured background differ by a few levels (about 10 points of score on every screen in the first run); the blur
-    removes that floor and keeps what matters (missing or extra things, wrong colours, offsets)."""
+    removes that floor and keeps what matters (missing or extra things, wrong colours, offsets).
+    field 0 or 1 takes only the even or odd rows of a 480-line picture first: ares_ref writes one 240-line field of
+    the N64's 480-line interlaced picture (Zero draws its menus and text at 640x480), so a 640x480 port picture is
+    compared one field at a time (see fields()); halving it to 240 lines instead would blend two fields and smear the
+    small font."""
     im = Image.open(path).convert("RGB")
+    if field is not None and im.size[1] == 2 * H:
+        im = Image.fromarray(np.asarray(im)[field::2])
     if im.size != (W, H):
         im = im.resize((W, H), Image.BOX)
     if blur and BLUR > 0:
         im = im.filter(ImageFilter.GaussianBlur(BLUR))
     return np.asarray(im, dtype=np.int16)
+
+
+def fields(path):
+    """The port picture as candidates to compare with an ares field: both fields of a 480-line picture (the port draws
+    a full frame, ares shows the field of the moment, and which one that is changes from frame to frame), or the
+    picture itself."""
+    if Image.open(path).size[1] == 2 * H:
+        return [(0, load(path, field=0)), (1, load(path, field=1))]
+    return [(None, load(path))]
 
 
 def edges(a):
@@ -130,14 +146,15 @@ def compare_run(run, cmp_dir):
             row.update(score=None, missing="port" if not os.path.exists(pp) else "ares")
             rows.append(row)
             continue
-        p = load(pp)
+        cands = fields(pp)
         best = None
         for f in afiles:
             a = load(os.path.join(ad, f))
-            s = float(np.abs(p - a).mean())
-            if best is None or s < best[0]:
-                best = (s, f, a)
-        _, af, a = best
+            for fld, p in cands:
+                s = float(np.abs(p - a).mean())
+                if best is None or s < best[0]:
+                    best = (s, f, a, fld, p)
+        _, af, a, fld, p = best
         port_frame = int(open(os.path.join(run, "port", label + ".frame")).read())
         row.update(analyse(p, a))
         row["port_frame"] = port_frame
@@ -146,7 +163,7 @@ def compare_run(run, cmp_dir):
         lo, hi = int(afiles[0][2:-4]), int(afiles[-1][2:-4])
         if int(af[2:-4]) in (lo, hi) and row["score"] > 2:
             row["hints"].append("best ares frame at the window's edge: timing?")
-        p0, a0 = load(pp, blur=False), load(os.path.join(ad, af), blur=False)
+        p0, a0 = load(pp, blur=False, field=fld), load(os.path.join(ad, af), blur=False)
         img = np.concatenate([p0.astype(np.uint8), a0.astype(np.uint8), heat(p, a)], axis=1)
         out = os.path.join(cmp_dir, "%s__%s.png" % (name, label))
         Image.fromarray(img).resize((img.shape[1] * 2, img.shape[0] * 2), Image.NEAREST).save(out, optimize=True)
