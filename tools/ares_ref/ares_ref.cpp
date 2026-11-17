@@ -249,6 +249,8 @@ constexpr u32 kUpdatePhase = 0x82131610;       // BattleScene_UpdatePhase (ARES_
 constexpr u32 kBattleScene = 0x8219A5A0;       // sBattleScene: its first word points at the BattleScene
 constexpr u32 kCommandTimer = 0x82199EB0;      // its timer (f32)
 constexpr u32 kResetAnimStep = 0x82124A40;     // BattleScene_ResetAnimationStep: a move's presentation starts when
+constexpr u32 kReadCommandButtons = 0x8210D6BC; // BattleMenu_ReadCommandButtons(active_pokemon): ARES_REF_WEAK_COM
+constexpr u32 kActivePokemon = 0x82199DE0;      // sActivePokemon[2]
 constexpr u32 kSetHitCount = 0x82128F2C, kSetHitCountEnd = 0x82128FBC; // BattleScene_ActionStepSetHitCount calls it
                                                // (sync event "move"; guRandom restarts)
 struct Caller { u32 from, to; const char* name; }; // [from, to) link addresses of osGetCount's callers to replace
@@ -267,6 +269,7 @@ bool gSyncSeen = false;
 FILE* gSyncLog = nullptr;
 
 bool gForce = false;
+bool gWeakCom = false; // ARES_REF_WEAK_COM=1: the port's PORT_DEBUG_WEAK_COM (Port_Debug_WeakenCom, command_menu.c)
 u32 gSeed = 0, gBase = 0;
 FILE* gOut = nullptr;
 u64 gFrame = 0;
@@ -299,6 +302,7 @@ void wr8(u32 vaddr, u8 v) {
     w = (w & ~(0xFFu << sh)) | ((u32)v << sh);
     ram().Nintendo64::Memory::Writable::write<Nintendo64::Word>(p, w);
 }
+void wr16(u32 vaddr, u16 v) { wr8(vaddr, (u8)(v >> 8)); wr8(vaddr + 1, (u8)v); }
 void wr32(u32 vaddr, u32 v) { for (int i = 0; i < 4; i++) wr8(vaddr + i, (u8)(v >> (24 - 8 * i))); }
 u32 rt(u32 link) { return gBase + (link - kLinkBase); } // link address -> runtime address
 
@@ -383,6 +387,30 @@ bool hook(u32 address) {
         if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart);
         return false;
     }
+    if (gWeakCom && address == rt(kReadCommandButtons)) {
+        // as the port's Port_Debug_WeakenCom, at the same call (its first statement): when the player's Pokémon reads
+        // its command buttons, the COM side keeps its shown Pokémon at 1 HP (at most) and the rest at 0. N64 layout:
+        // ActivePokemon.side 0x85C, .teamRoster 0x860; TeamRoster.isHuman 0x0 (bit 1: COM), .pokemonPicked[6] 0x1C
+        // (BattleMon 0x50, .hp 0x2); BattleSide.displayMon 0x4
+        u32 self = cpu.ipu.r[4].u32;
+        u32 a = rd32(rt(kActivePokemon)), b = rd32(rt(kActivePokemon) + 4);
+        u32 foe = self == a ? b : a;
+        u32 mine = rd32(self + 0x860), theirs = rd32(foe + 0x860);
+        if (!(rd32(mine) >> 24 & 2) && (rd32(theirs) >> 24 & 2)) {
+            u32 shown = rd32(rd32(foe + 0x85C) + 4);
+            if (shown) {
+                u32 battleHp = rd32(foe + 0x7D0) & 0xFFFF; // state.runtime.hp (0x78C + 0x3A + 0xC): the HP damage uses
+                if (battleHp > 1) wr16(foe + 0x7D2, 1);
+                for (u32 i = 0; i < 6; i++) {
+                    u32 mon = theirs + 0x1C + i * 0x50;
+                    u32 hp = rd32(mon) & 0xFFFF; // (hp is the low halfword of the word at +0)
+                    if (mon == shown) { if (hp > 1) wr16(mon + 2, 1); }
+                    else wr16(mon + 2, 0);
+                }
+            }
+        }
+        return false;
+    }
     if (address == rt(kResetAnimStep)) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
@@ -426,6 +454,7 @@ void place(u32 base) {
     if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime), rt(kActionStepIntro) }) cpu.hostHooks.addresses.push_back(a);
     if (gForce || !gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kResetAnimStep));
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
+    if (gWeakCom) cpu.hostHooks.addresses.push_back(rt(kReadCommandButtons));
     if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));
     std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
     cpu.recompiler.reset();
@@ -436,8 +465,9 @@ void place(u32 base) {
 void init() {
     const char* rng = getenv("ARES_REF_XCHECK_RNG");
     if (const char* l = getenv("ARES_REF_SYNC_LOG")) gSyncLog = fopen(l, "w");
+    gWeakCom = getenv("ARES_REF_WEAK_COM") != nullptr;
     if (const char* l = getenv("ARES_REF_PHASELOG")) gPhaseLog = fopen(l, "w");
-    if (!rng && gSync.empty() && !gPhaseLog) return;
+    if (!rng && gSync.empty() && !gWeakCom && !gPhaseLog) return;
     gForce = rng != nullptr;
     if (rng) gSeed = (u32)strtoul(rng, nullptr, 0);
     if (const char* out = getenv("ARES_REF_XCHECK")) gOut = fopen(out, "w");
@@ -447,6 +477,7 @@ void init() {
     cpu.recompiler.reset();
     if (gForce) fprintf(stderr, "[xcheck] seeded battle random numbers, seed %u\n", gSeed);
     if (!gSync.empty()) fprintf(stderr, "[xcheck] %zu sync points\n", gSync.size());
+    if (gWeakCom) fprintf(stderr, "[xcheck] weak COM (one hit wins)\n");
 }
 } // namespace xcheck
 
