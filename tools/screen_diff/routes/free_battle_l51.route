@@ -1,0 +1,29 @@
+# Free Battle vs COM with rental teams at Lv.51: 1P enters ボーイ (Venusaur, Charizard, Blastoise, Pikachu, Lapras,
+# Snorlax), the COM ミニスカ (Gengar, Electrode, Starmie, Clefable, ...). 1P picks all six on the order screen (a Free
+# Battle takes the whole team). Turn 1 Venusaur's first move, turn 2 switch to Charizard (B, then C-Left), turns 3-4
+# Charizard's moves on C-Up, C-Right; Charizard faints in turn 4, A sends out the next (Snorlax), turns 5-6 its C-Up and
+# C-Right moves. Random numbers seeded, sync points at each command phase and move.
+@rng 1
+@gb green
+1200 START 300 A 400 A 200 A 200 A 250 A 250 A 250 DOWN 60 A 200 DOWN 53 DOWN 53 DOWN 53 DOWN 53 DOWN 53 DOWN 53
+A 100 shot:entry_rental A 200 DOWN 60 A 200 shot:entry_com A 200 A 400 shot:arena_intro
+1300 shot:order_ready B 40 CL 40 CU 40 A 40 CD 40 CR 60 shot:order_confirm 40 A
+sync:cmd 30 shot:t1_menu 150 A 21 shot:t1_moves 19 CU
+sync:move 2 shot:t1_m1_0 30 shot:t1_m1_30 30 shot:t1_m1_60 30 shot:t1_m1_90
+sync:move 2 shot:t1_m2_0 30 shot:t1_m2_30 30 shot:t1_m2_60 30 shot:t1_m2_90
+sync:cmd 30 shot:t2_menu B 40 shot:t2_party CL
+sync:move 2 shot:t2_m1_0 30 shot:t2_m1_30 30 shot:t2_m1_60 30 shot:t2_m1_90
+sync:cmd 30 shot:t3_menu 150 A 21 shot:t3_moves 19 CU
+sync:move 2 shot:t3_m1_0 30 shot:t3_m1_30 30 shot:t3_m1_60 30 shot:t3_m1_90
+sync:move 2 shot:t3_m2_0 30 shot:t3_m2_30 30 shot:t3_m2_60 30 shot:t3_m2_90
+sync:cmd 30 shot:t4_menu 150 A 21 shot:t4_moves 19 CR
+sync:move 2 shot:t4_m1_0 30 shot:t4_m1_30 30 shot:t4_m1_60 30 shot:t4_m1_90
+sync:move 2 shot:t4_m2_0 30 shot:t4_m2_30 30 shot:t4_m2_60 30 shot:t4_m2_90
+sync:cmd 30 shot:t5_faint 150 A 60 shot:t5_sendout
+sync:cmd 30 shot:t5_menu 150 A 21 shot:t5_moves 19 CU
+sync:move 2 shot:t5_m1_0 30 shot:t5_m1_30 30 shot:t5_m1_60 30 shot:t5_m1_90
+sync:move 2 shot:t5_m2_0 30 shot:t5_m2_30 30 shot:t5_m2_60 30 shot:t5_m2_90
+sync:cmd 30 shot:t6_menu 150 A 21 shot:t6_moves 19 CR
+sync:move 2 shot:t6_m1_0 30 shot:t6_m1_30 30 shot:t6_m1_60 30 shot:t6_m1_90
+sync:move 2 shot:t6_m2_0 30 shot:t6_m2_30 30 shot:t6_m2_60 30 shot:t6_m2_90
+sync:cmd 30 shot:t7_menu 30
