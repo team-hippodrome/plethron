@@ -180,6 +180,11 @@ void Battle_DrawStageBackdrop(void) {
         bottom = sStageCamera.viewport.height + top;
         texture_step_y = 0x10000 / (sStageCamera.viewport.height / 2);
 
+        // PORT: the sky comes before the arena: without this mark its two full-screen rectangles make the frame a 2D
+        // screen, which widescreen keeps inside the 4:3 area (the Tournament stadiums' arena boxed in 4:3 between
+        // stretched sky). Same fix as stadion's Battle_DrawStageBackdrop.
+        gDPPort3DScene(gDisplayListHead++);
+
         switch (D_82198D1C) {
             case 1: tex = (void*)Memmap_GetFragmentVaddr(D_8F908980); break;
             case 2: tex = (void*)Memmap_GetFragmentVaddr(D_8FA08900); break;
