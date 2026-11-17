@@ -51,6 +51,8 @@ put checkpoints where the screen has settled or right after the press that start
 | `intro_attract` | N64 logo, intro Pokémon, title, the attract-mode battle (no cartridge) |
 | `free_battle` | lobby, cartridge select, P-OS, main menu, Battle, Free Battle vs COM, entry, arena intro, VS, order screen |
 | `tournament` | Battle → tournament menus |
+| `tournament_l30` | L1～30 tournament, Poké Ball Cup round 1: cup select, rentals (5 + the cart's Pikachu), VS scene (round title, trainer panels, teams), order screen, battle intro, surrender, results board, かち / まけ, back to the menu (`@rng`) |
+| `tournament_l50` | the same for the L50～55 tournament (no cup select, all six from rentals) |
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |

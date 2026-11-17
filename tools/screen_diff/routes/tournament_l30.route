@@ -1,0 +1,22 @@
+# Lv.1-30 tournament, Poké Ball Cup, round 1: Battle -> トーナメント -> L1～30 -> モンスターボールカップ -> entry. The
+# cartridge party (jp_gen1_save.py: Pikachu L25, Bulbasaur L20, Charmander L18) has one battle-eligible Pokémon (Pikachu,
+# which the entry keeps), so the game offers rentals for the other five: five picks (each A opens the rental's card, A on はい takes it and moves the cursor on), the team
+# confirm, then the VS scene (バトル-1 title, trainer panels, both teams), the order screen (1P picks B, C-Up, C-Right
+# once the COM has finished its own picks), the battle intro up to the command menu, then 1P surrenders (Start,
+# はい: no turn is played, so the battle's timing cannot drift) for the results board, かち / まけ and the way back to
+# the tournament menu.
+@gb green
+@rng 1
+@window 12 200
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:battle_mode RIGHT 40 shot:tour_cursor
+A 300 shot:tour_select A 300 shot:l30_menu A 300 shot:cup_select 100
+A 200 shot:entry 100 A 200 shot:rentals_prompt 100 A 150 shot:rental_list
+A 120 shot:rental_card 30 A 150 shot:rental_taken A 150 A 150 A 150 A 150 A 150 A 150 A 150 shot:rental_card5 A 300 shot:team_confirm
+A 60 shot:entry_done 150 shot:stadium_fly 200 shot:screen_flames 130 shot:round_title 160 shot:trainer_panels 120 shot:vs
+120 shot:teams 250 shot:order_screen 90 shot:com_confirm 100 shot:com_ready 200
+B 60 CU 60 CR 60 shot:p1_confirm 40
+A 150 shot:arena_spin 120 shot:ball_throw 160 shot:sendout_flash 90 shot:p1_out 100 shot:com_sendout 90 shot:com_out
+150 shot:field 60 shot:command_menu 100
+START 40 shot:surrender_prompt 60 RIGHT 40 A 60 shot:white_flash 180 shot:results_board 160 shot:results_hp
+60 shot:trainer_panels_after 80 shot:lose_win 140 shot:win_panel 300 shot:tour_menu_return 100
