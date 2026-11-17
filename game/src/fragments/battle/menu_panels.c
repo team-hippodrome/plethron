@@ -265,41 +265,44 @@ void BattleMenu_DrawMovePanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3)
     Font_BeginTranslucentTextRendering();
     Font_SetActive(1, 0);
 
+    // PORT: the C-Up/C-Left names are right-aligned by byte count (BattleHud_DrawTextCentered), which places
+    // translated text by the Japanese width; each Port_Font_FitNext below anchors a name to its C icon by its drawn
+    // width and fits it inside the panel's border (8..192). No-op for the original text.
     if (runtime->uniqueStatusFlags & 8) {
-        if (runtime->moves[0] && (runtime->moves[0] < 166)) { BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
+        if (runtime->moves[0] && (runtime->moves[0] < 166)) { Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
+            Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
+            Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
+            Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
         }
     } else {
-        if (runtime->moves[0] && (runtime->moves[0] < 166)) { BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
+        if (runtime->moves[0] && (runtime->moves[0] < 166)) { Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
+            Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
+            Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
+            Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
         }
     }
 
     if (runtime->moves[0] >= 166) {
-        BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_82195A14);
+        Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_82195A14);
     }
     if (runtime->moves[1] >= 166) {
-        Font_Printf(arg1 + 124, arg2 + 17, D_82195A20);
+        Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_82195A20);
     }
     if (runtime->moves[2] >= 166) {
-        Font_Printf(arg1 + 110, arg2 + 37, D_82195A2C);
+        Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_82195A2C);
     }
     if (runtime->moves[3] >= 166) {
-        BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_82195A38);
+        Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_82195A38);
     }
 
     Font_EndTexturedTextRendering();
