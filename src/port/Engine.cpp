@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "file_io.h"
 #include "launcher_reliability.h"
 #include "touch_controls.h"
 #include "pacing.h"
@@ -159,7 +160,7 @@ static void EnsureControllerDb() {
         return;
     }
     const std::string path = Ship::Context::GetPathRelativeToAppDirectory("gamecontrollerdb.txt");
-    if (FILE* f = fopen(path.c_str(), "w")) {
+    if (FILE* f = Port::OpenFileUtf8(path.c_str(), "w")) { // UTF-8 path: the app folder can be non-ASCII on Windows
         fputs("# SDL game controller mappings, one per line (https://github.com/mdqinc/SDL_GameControllerDB).\n"
               "# SDL knows the common controllers already: add a line here only for a controller it does not.\n",
               f);
