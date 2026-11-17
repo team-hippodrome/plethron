@@ -65,6 +65,8 @@ put checkpoints where the screen has settled or right after the press that start
 | `tournament` | Battle → tournament menus |
 | `tournament_l30` | L1～30 tournament, Poké Ball Cup round 1: cup select, rentals (5 + the cart's Pikachu), VS scene (round title, trainer panels, teams), order screen, battle intro, surrender, results board, かち / まけ, back to the menu (`@rng`) |
 | `tournament_l50` | the same for the L50～55 tournament (no cup select, all six from rentals) |
+| `tournament_l30_cup` | the Poké Ball Cup through all eight rounds to チャンピオン! and the winning team's parade, one turn a round with `@weak_com`: results board, かち, round token, つづける, next round's title, VS panels and order screen (`@rng`, `sync:cmd`) |
+| `tournament_l50_cup` | the same for the L50～55 tournament (Venusaur leads), ending at the parade and トーナメント クリア!! |
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `gb_red`, `gb_green`, `gb_blue`, `gb_pikachu` | each Japanese cart in the GB Player: boot, border, intro, title, new game, Prof. Oak's intro (A every 120 frames); Pikachu first shows the cartridge copy screen |

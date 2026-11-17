@@ -1976,7 +1976,7 @@ s32 BattleAnim_TrySetModelEventTrackFromRow(ActivePokemon* active_pokemon, s32 c
 
     ModelAnim_SetEventFrame(&active_pokemon->displayObject, 0);
     ModelAnim_SetEventTrack(&active_pokemon->displayObject, event_track);
-    ModelAnim_SetEventFrame(&active_pokemon->displayObject, ANIM_END(active_pokemon->displayObject.eventTrack.data));
+    ModelAnim_SetEventFrame(&active_pokemon->displayObject, ANIM_END(active_pokemon->displayObject.eventTrack.data)); // PORT: anim_raw.h
 
     active_pokemon->state.modelEventTrackState = event_state;
     return 0;

@@ -9,7 +9,7 @@ different layout, so the access lands on another field (ActivePokemon_SetStateFl
 underground flag into the Poke Ball model, and Dugtrio stayed on screen: the battle softlocked).
 
 For every function parameter of byte-pointer type (and locals copied from it) the tool records the
-raw `base + K` accesses and the width read or written. Then it collects, over all TUs, the struct
+raw `base + K` and `base[K]` accesses and the width read or written. Then it collects, over all TUs, the struct
 types actually passed for that parameter (direct calls, through aliases; casts at the call site
 are looked through). Each (struct, K) is mapped to the field at N64 (ILP32, big-endian) offset K
 and that field's host offset:
@@ -205,6 +205,14 @@ def collect(out_path, files):
                                     width = max(pt.get_pointee().get_canonical().get_size(), 1)
                                     break
                             accesses.append((fn.spelling, taint[L.spelling], v, width, loc(c)))
+                if c.kind == CK.ARRAY_SUBSCRIPT_EXPR:
+                    # p[K] on a tainted byte pointer: the same raw offset as *(p + K)
+                    kids = list(c.get_children())
+                    if len(kids) == 2:
+                        L = strip(kids[0])
+                        v = lit(kids[1])
+                        if v is not None and L.kind == CK.DECL_REF_EXPR and L.spelling in taint and is_byteptr(L.type):
+                            accesses.append((fn.spelling, taint[L.spelling], v, 1, loc(c)))
                 for ch in c.get_children():
                     visit(ch, parent_chain + [c])
 

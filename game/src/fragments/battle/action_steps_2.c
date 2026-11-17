@@ -25,7 +25,7 @@ void BattleScene_ActionStepTravel(CameraNode* arg0, s32 arg1) {
         return;
     }
     BattleScene_RestoreUserAfterTravel(sActingPokemon);
-    if (6 == D_80073D90[runtime->usedMove - 1].travelCameraShot) {
+    if (6 == Port_MoveAnimU16(runtime->usedMove, 4) /* PORT: was D_80073D90[usedMove - 1].travelCameraShot */) {
         arg1 = D_8219A568;
     }
     if ((arg1 != 5) && (arg1 != 6) && (arg1 != 7)) {

@@ -29,7 +29,12 @@ and header lines:
   @rng <seed>          seed the battle's random numbers alike on both sides (PORT_XCHECK_RNG / ARES_REF_XCHECK_RNG:
                        Battle_Random, the COM's BattleAi_StirRandom and guRandom); without it battles differ, since
                        both games time their random numbers with the CPU counter. The values drawn go to
-                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them)
+                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them). Both sides also log each
+                       battle scene state change to <out>/port_phase.txt / ares_phase.txt, and run.py lists the
+                       states that last a different number of frames (phase_diff.py: where the pacing differs)
+  @weak_com            one hit wins: whenever 1P reads its command buttons, the COM's shown Pokémon is left at 1 HP
+                       and the rest of its team at 0, alike on both sides (PORT_DEBUG_WEAK_COM / ARES_REF_WEAK_COM),
+                       to reach later tournament rounds and the Cup clear; use it with @rng and sync points
 # starts a comment.
 
 The port runs hidden at 640x480 (PORT_RESOLUTION=2x, 4:3; SCREEN_DIFF_PORT_RESOLUTION overrides it: Zero draws its
@@ -50,7 +55,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[])
+    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[], weak_com=False)
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -73,6 +78,8 @@ def parse_route(path):
                 r["boot_offset"] = int(val)
             elif key == "rng":
                 r["rng"] = str(int(val, 0))
+            elif key == "weak_com":
+                r["weak_com"] = True
             else:
                 sys.exit("%s: unknown header @%s" % (path, key))
             continue
@@ -160,6 +167,9 @@ def run_port(r, out, extra_env):
     if r["rng"]:
         env["PORT_XCHECK_RNG"] = r["rng"]
         env["PORT_XCHECK"] = os.path.join(out, "port_rng.txt")
+        env["PORT_PHASELOG"] = os.path.join(out, "port_phase.txt")
+    if r["weak_com"]:
+        env["PORT_DEBUG_WEAK_COM"] = "1"
     env.update(extra_env)
     binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
     with open(os.path.join(out, "port.log"), "w") as log:
@@ -217,6 +227,9 @@ def run_ares(r, out):
     if r["rng"]:
         env["ARES_REF_XCHECK_RNG"] = r["rng"]
         env["ARES_REF_XCHECK"] = os.path.join(out, "ares_rng.txt")
+        env["ARES_REF_PHASELOG"] = os.path.join(out, "ares_phase.txt")
+    if r["weak_com"]:
+        env["ARES_REF_WEAK_COM"] = "1"
     link = os.path.join(out, "rom.z64")  # nall rewrites path arguments with spaces
     if os.path.lexists(link):
         os.remove(link)
@@ -272,6 +285,9 @@ def main():
         check_sync(out, len(r["syncs"]))
     if r["rng"]:
         check_rng(out)
+        if os.path.exists(os.path.join(out, "port_phase.txt")) and os.path.exists(os.path.join(out, "ares_phase.txt")):
+            import phase_diff
+            phase_diff.report(os.path.join(out, "port_phase.txt"), os.path.join(out, "ares_phase.txt"))
     print("%s: %d checkpoints, %d frames -> %s" % (os.path.basename(route), len(r["shots"]), r["end"], out))
 
 
