@@ -1,7 +1,7 @@
 # Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)
 
 - **Category:** rendering
-- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f; no Zero trigger known, the fix is in place if one shows up)
+- **Zero status:** already ported, and harmful to Zero: the skip blacked out the Pikachu cartridge copy screen (CPU-written frame buffer copied onto itself); plethron PR #57 sets `PORT_DRAW_FB_SELF_COPIES=1` by default. Only screen-diff route gb_pikachu reaches the path
 - **stadion:** [PR #156](https://github.com/team-hippodrome/stadion/pull/156), commit(s) `d1b0c65` (libultraship `89d2976`, fork PR #7)
 - **stadion files:** `libultraship` (`src/fast/interpreter.cpp`)
 

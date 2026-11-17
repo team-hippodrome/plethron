@@ -1,7 +1,7 @@
 # Music / Sound effects sliders followed slider^4 (50 % = -24 dB, 25 % silent)
 
 - **Category:** audio
-- **Zero status:** needed (the curve fix is present, but Zero's game never applies the Music/Effects/Voices gains, so those sliders do nothing)
+- **Zero status:** already ported (plethron b1ea1c8: `Audio_ComputeVoiceVolume` applies the Music / Sound effects / Voices gains)
 - **stadion:** [PR #137](https://github.com/team-hippodrome/stadion/pull/137), commit(s) `29276a6` (hook from [PR #126](https://github.com/team-hippodrome/stadion/pull/126) `fc77ede`)
 - **stadion files:** `src/port/sound_settings.cpp`, `src/port/sound_settings.h`, `game/src/libnumus/player.c`
 
@@ -30,6 +30,9 @@ The game side (#126) multiplies the voice volume by it in `Audio_ComputeVoiceVol
   are SDL stream gain in `audio_out.cpp`, identical to stadion).
 - To do: add the stadion block after `volume >>= 0xF;` (`player.c:1786`) in Zero's `Audio_ComputeVoiceVolume`; for Voices find where
   Zero plays cries/announcer (stadion uses `audio_stream.c:182`; Zero has no `audio_stream.c`) or hide that slider.
+
+## Fixed in plethron (b1ea1c8)
+`game/src/libnumus/player.c` `Audio_ComputeVoiceVolume` scales the voice volume by `Port_SoundPartGainQ15(Audio_PortSoundPart(cp))`. Zero has no `audio_stream.c`: cries (bank `D_800B4190`, `Audio_PlayCry`) and the announcer (bank `D_800B418C`, JIKKYOU) are music-player effects, so `Audio_PortSoundPart` sends them to Voices, and plethron's `Port_SoundPartGainQ15` returns the linear gain for Voices too (the synthesizer squares the voice volume, `audio_manager.c`). `PORT_AUDIO_DUMP` over boot, intro and the title demo battle with each slider at 0: Music 0 silences the songs (e.g. 5075 to 12 RMS), Sound effects 0 the effects, Voices 0 the send-out cries; all at 100 gives the same samples as before.
 
 ## How to detect
 `PORT_AUDIO_DUMP` with a slider at 0 vs 100 (dump must change); `grep -rn Port_SoundPartGainQ15 game/`.

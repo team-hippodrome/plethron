@@ -1,7 +1,7 @@
 # First-entry save stall: every FlashRAM page write rewrote the save file (with backups)
 
 - **Category:** performance
-- **Zero status:** check (Zero saves to SRAM; plethron writes the whole .sra with a backup snapshot on every changed DMA write)
+- **Zero status:** already ported (plethron 8298280: Port_BeginSramWrite / Port_EndSramWrite around Sram_TransferChunked and Save_LoadSram; 31 file writes on the Options route became 3)
 - **stadion:** [PR #106](https://github.com/team-hippodrome/stadion/pull/106), commit(s) `153a418` (merge `7c408e8`)
 - **stadion files:** `src/port/os_devices.cpp` (`FlashSave`, `Port_Begin/EndFlashBankWrite`), `patches/game/02-core.patch` (save_data.c `Save_FlushBank`, `Save_EnsureBankLoaded`)
 

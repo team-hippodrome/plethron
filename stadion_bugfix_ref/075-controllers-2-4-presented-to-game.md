@@ -1,7 +1,7 @@
 # Only controller 1 was presented to the game (every multiplayer choice greyed out)
 
 - **Category:** input
-- **Zero status:** needed (port side inherited, but Zero's `Cont_SetupControllers` does not use it)
+- **Zero status:** already ported (plethron b1ea1c8: `Cont_SetupControllers` takes `Port_ControllerBits()` after `osContInit`)
 - **stadion:** [PR #75](https://github.com/team-hippodrome/stadion/pull/75), commit(s) `bacbf7e`
 - **stadion files:** `src/port/os_devices.cpp`, `src/port/launcher.cpp`, `src/port/sdk/port_compat.h`, `patches/game/02-core.patch` (`src/controller.c`)
 
@@ -20,6 +20,9 @@ gControllerBits = Port_ControllerBits(); // PORT: libultraship reports only cont
 
 ## Zero / plethron
 Port side present: `src/port/os_devices.cpp:718-750` (`Port_ControllerBits`), recording line at `:827-830`, launcher check at `src/port/launcher.cpp:1232-1237`, declared in `src/port/StadionPort.h:79`. Game side missing: `game/src/controller.c:125-133` (`Cont_SetupControllers`) calls `osContInit(&gSIEventMesgQueue, &D_800AAFF8, ...)` and returns `D_800AAFF8` without overriding it; `port_osContInit` (`src/port/os_devices.cpp:488-501`) passes libultraship's bits through. `grep -rn Port_ControllerBits game/` is empty. Zero reads the mask via `Cont_GetConnectedMask` (`controller.c:181`) and Free Battle keeps a `connectedControllerMask` (`free_battle_setup.h:161`). Fix: `D_800AAFF8 = Port_ControllerBits();` after `osContInit` at `controller.c:130`.
+
+## Fixed in plethron (b1ea1c8)
+`game/src/controller.c` `Cont_SetupControllers`: `D_800AAFF8 = Port_ControllerBits();` after `osContInit`. Checked with `PORT_CONTROLLERS=1,2` on the free_battle screen-diff route: before, あいてをせんたく showed one controller with 2P-4P greyed and the cursor on COM; after, controller 2 appears and 2P is selectable.
 
 ## How to detect
 grep the game for the `osContInit` call and check what writes the bits afterwards; at runtime, the Free Battle player-count options with `PORT_CONTROLLERS=1,2`.
