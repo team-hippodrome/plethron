@@ -31,3 +31,29 @@ jobs:
         with:
           name: return-values
           path: return-values.txt
+
+  windows-abi-calls:
+    # Direct calls whose arguments arrive under the SysV ABI (Linux, macOS) but not under Win64, usually through a func_X
+    # alias declared with other parameter types than the definition: Win64 passes a 3-byte struct by reference, so
+    # Trade_DrawSolidFillRect read every caller's 4-byte color as a pointer and the main menu crashed on Windows only
+    # (tools/abi_audit/README.md)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true  # libultraship's headers
+      - run: pip install --break-system-packages libclang==18.1.1
+      - run: |
+          python3 -I tools/abi_audit/ci_compdb.py "$RUNNER_TEMP/cdb.json"
+          python3 -I tools/abi_audit/abi_calls.py collect "$RUNNER_TEMP/cdb.json" "$RUNNER_TEMP/abi.json"
+          python3 -I tools/abi_audit/abi_calls.py report src/port/generated/zero_aliases.ld "$RUNNER_TEMP/abi.json" \
+            | tee abi-calls.txt
+          if grep -q '^WIN64-ONLY' abi-calls.txt; then
+            echo "::error::calls that only break on Windows (WIN64-ONLY above): make the prototype match the definition"
+            exit 1
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-abi-calls
+          path: abi-calls.txt

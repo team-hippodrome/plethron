@@ -17,3 +17,7 @@ python3 tools/abi_audit/abi_calls.py report src/port/generated/zero_aliases.ld /
 ```
 
 Both should print nothing (after `errors: 0` for the first). Indirect calls (function pointers) are not covered.
+
+CI (`.github/workflows/checks.yml`, job `windows-abi-calls`) runs `abi_calls.py` on every pull request, with a
+compile database written by `ci_compdb.py` (no CMake configure needed), and fails on any WIN64-ONLY call. Keep
+`ci_compdb.py`'s flags in step with the `stadium_game` target in CMakeLists.txt.
