@@ -41,6 +41,7 @@
 #include "ui_graphics.h"
 #include "global.h"
 #include "m2c_macros.h"
+#include "text3d.h" // PORT: translated 3D words
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void MainPool_FinalizeAllocation(struct MemoryBlock* block);
@@ -1195,6 +1196,99 @@ extern u8 D_8EB37440[];
 extern u8 D_8F20A788[];
 Gfx* ImageGrid_Create(s16 x, s16 y, s16 z, void* tex, s16 width, s16 height); // PORT: signature from the definition (game_state.c)
 
+// PORT: translated 3D words (src/port/text3d.cpp). The glyph display lists of each word the VS scene draws as
+// models, in reading order, by their link addresses in the round title fragments (035 rounds 1-6, 036 round 7, 037
+// round 8) and the results board (033). The round number and its dash stay the original models.
+static const u32 sPortTitleBattle[] = { 0x8EC136D0, 0x8EC13438, 0x8EC12FF8 };                // バ ト ル
+static const u32 sPortTitleSemifinal[] = { 0x8ED0D968, 0x8ED0D460, 0x8ED0D1E0, 0x8ED0CE08, // セ ミ フ ァ
+                                           0x8ED0CB08, 0x8ED0C7A0, 0x8ED0C360 };            // イ ナ ル
+static const u32 sPortTitleFinalBattle[] = { 0x8EE0E1E0, 0x8EE0D2F0, 0x8EE0ED88, 0x8EE0E460, // フ ァ イ ナ
+                                             0x8EE0DB08, 0x8EE0E7C8, 0x8EE0DF48, 0x8EE0D6C8 }; // ル バ ト ル
+static const u32 sPortWin[] = { 0x8F6176D0, 0x8F6170B0 };  // か ち
+static const u32 sPortLose[] = { 0x8F616820, 0x8F6162A8 }; // ま け
+
+typedef struct PortSlotSearch {
+    const u32* dls;
+    s32 count;
+    s32 found;
+    Port3DTextSlot* slots;
+} PortSlotSearch;
+
+// Walks the graph below `node` with the rest pose of the animated parts (their default translation and scale) and
+// records where each wanted glyph list's part sits.
+static void VsScene_PortFindGlyphs(GraphNode* node, f32 x, f32 y, f32 z, f32 sx, f32 sy, f32 sz,
+                                   PortSlotSearch* search) {
+    GraphNode* first = node;
+    s32 i;
+
+    if (node == NULL) {
+        return;
+    }
+    do {
+        f32 nx = x, ny = y, nz = z, nsx = sx, nsy = sy, nsz = sz;
+
+        if (node->type == 0x14) {
+            GeoAnimatedPartNode* part = (GeoAnimatedPartNode*)node;
+            nx = x + sx * part->translation.x;
+            ny = y + sy * part->translation.y;
+            nz = z + sz * part->translation.z;
+            // a part whose default scale is 0 is grown by its curve (round 8's title root): take it at full size
+            nsx = sx * ((part->scale.x != 0.0f) ? part->scale.x : 1.0f);
+            nsy = sy * ((part->scale.y != 0.0f) ? part->scale.y : 1.0f);
+            nsz = sz * ((part->scale.z != 0.0f) ? part->scale.z : 1.0f);
+        } else if (node->type == 0x19) {
+            u32 dl = (u32)(uintptr_t)((GeoDisplayListNode*)node)->displayList;
+            for (i = 0; i < search->count; i++) {
+                if (search->dls[i] == dl) {
+                    Port3DTextSlot* slot = &search->slots[i];
+                    slot->dl = dl;
+                    slot->x = x;
+                    slot->y = y;
+                    slot->z = z;
+                    slot->scaleX = sx;
+                    slot->scaleY = sy;
+                    slot->scaleZ = sz;
+                    search->found++;
+                }
+            }
+        }
+        VsScene_PortFindGlyphs((GraphNode*)node->children, nx, ny, nz, nsx, nsy, nsz, search);
+        node = node->nextSibling;
+    } while (node != NULL && node != first);
+}
+
+static void VsScene_PortTranslateWord(GraphNode* root, const char* id, const u32* dls, s32 count, f32 maxGrow) {
+    Port3DTextSlot slots[8];
+    PortSlotSearch search;
+
+    search.dls = dls;
+    search.count = count;
+    search.found = 0;
+    search.slots = slots;
+    VsScene_PortFindGlyphs(root, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, &search);
+    if (search.found == count) {
+        Port_Text3D_Build(id, slots, count, maxGrow);
+    }
+}
+
+// The round title of `round` and かち / まけ, built once the scene's models are set up.
+static void VsScene_PortTranslateWords(s32 round) {
+    if (!Port_Text3D_Enabled()) {
+        return;
+    }
+    if ((round > 0) && (round < 7)) {
+        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_BATTLE", sPortTitleBattle, ARRAY_COUNT(sPortTitleBattle), 1.0f);
+    } else if (round == 7) {
+        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_SEMIFINAL", sPortTitleSemifinal,
+                                  ARRAY_COUNT(sPortTitleSemifinal), 1.1f);
+    } else if (round == 8) {
+        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_FINAL_BATTLE", sPortTitleFinalBattle,
+                                  ARRAY_COUNT(sPortTitleFinalBattle), 1.1f);
+    }
+    VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_WIN", sPortWin, ARRAY_COUNT(sPortWin), 1.4f);
+    VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_LOSE", sPortLose, ARRAY_COUNT(sPortLose), 1.4f);
+}
+
 /**
  * Builds the scene's geo layouts: the stadium for the current stage kind (D_822036A8: Free Battle,
  * or tournament rounds 1-6, 7, 8), the scene root, the round title for `round`, the trainer panels
@@ -1371,6 +1465,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     D_8220325C = BinArchive_Open(D_002F5940, D_003139C0, 1, 1);
     PokeIcon_OpenModelArchives();
     VsScene_LoadGeoLayout(sp24);
+    VsScene_PortTranslateWords(sp24); // PORT
     StageContext_Activate(D_82203204);
 
     switch (kind) {
@@ -1390,6 +1485,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     StageContext_Deactivate();
     ImageGrid_Clear();
     Gfx_FreeDisplayListBuffers();
+    Port_Text3D_Clear(); // PORT
     MainPool_PopState('BTLS');
     return 0;
 }
