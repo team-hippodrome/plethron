@@ -1,0 +1,4 @@
+# Main menu -> GB Player: the Game Boy boot screens with the Green cartridge.
+@gb green
+1200 START 300 A 400 shot:main_menu
+LEFT 40 DOWN 40 A 150 shot:gb_prompt A 260 shot:gb_frame 120 shot:gb_nintendo 120 shot:gb_nintendo2 180 shot:gb_copyright 120 shot:gb_intro_border 120 shot:gb_gamefreak

@@ -1,0 +1,4 @@
+# Main menu -> いちらん (list).
+@gb green
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 UP 40 A 150 shot:list_prompt A 400 shot:list_dialog A 300 shot:list_table 200 shot:list_table_idle

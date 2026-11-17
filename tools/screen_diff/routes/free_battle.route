@@ -1,0 +1,9 @@
+# Title -> Pokémon Center lobby -> cartridge select -> main menu -> Battle -> Free Battle vs COM -> entry -> arena
+# intro -> VS screen -> order screen. 1P enters with the cartridge team (only its Pikachu is battle-eligible).
+# (The order screen's 1P picks did not register in ares or in the port with these inputs, so the route stops there.)
+@gb green
+1200 START 140 shot:lobby 160 shot:cart_select A 120 shot:pos_loading 280 shot:main_menu
+A 200 shot:battle_prompt A 200 shot:battle_mode A 250 shot:free_battle_rules A 250 shot:free_battle_menu
+A 250 shot:opponent_select DOWN 60 A 200 shot:entry_confirm A 200 shot:entry_com DOWN 60 A 200 shot:entry_com_confirm
+A 200 A 400 shot:arena_intro 200 shot:arena_screen 300 shot:vs_trainers 300 shot:team_preview 200 shot:order_screen
+200 shot:order_com_ready

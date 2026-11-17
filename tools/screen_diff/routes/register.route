@@ -1,0 +1,4 @@
+# Main menu -> とうろく (registration).
+@gb green
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 DOWN 40 A 150 shot:register_prompt A 400 shot:register_menu A 300 shot:register_team 200 shot:register_team_idle

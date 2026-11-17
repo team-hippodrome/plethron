@@ -619,11 +619,15 @@ void Port_Text_SetLanguage(int lang) {
 }
 
 int Port_Text_GetLanguage(void) {
-    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen.
+    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen;
+    // PORT_LANGUAGE=kana starts in the original text (as on the N64: tools/screen_diff compares with ares).
     static bool sEnvChecked = false;
     if (!sEnvChecked) {
         sEnvChecked = true;
         if (const char* env = getenv("PORT_LANGUAGE")) {
+            if (strcmp(env, "kana") == 0) {
+                Port_Text_SetLanguage(PORT_LANG_ORIGINAL);
+            }
             for (int l = 1; l < PORT_LANG_COUNT; l++) {
                 if (strcmp(env, kColumns[l]) == 0) {
                     Port_Text_SetLanguage(l);

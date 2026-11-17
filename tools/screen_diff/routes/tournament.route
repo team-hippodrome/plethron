@@ -1,0 +1,4 @@
+# Main menu -> Battle -> トーナメント (tournament menus).
+@gb green
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:tour_battle_mode RIGHT 40 shot:tour_cursor A 300 shot:tour_menu A 300 shot:tour_cup_list 200 shot:tour_cup_idle
