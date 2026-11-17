@@ -1,0 +1,43 @@
+# Lv.50-55 tournament, all rounds to the Cup clear, with the weak-COM aid (@weak_com: the COM's shown Pokémon at 1 HP,
+# the rest of its team at 0, alike on both sides), so each round is one turn: 1P's lead uses its C-Up move. Entry as
+# tournament_l50.route (six rentals: no cartridge Pokémon is eligible). Each round: the command phase (sync:cmd), the
+# hit, the results board, かち, the round token and トーナメントをつづけますか？ (A: つづける), then the next round's
+# title, VS panels and order screen. After the last round: チャンピオン! and the parade of the winning team.
+# The C-Right and C-Down taps before A in each turn do nothing in the command menu; they pick the replacement if 1P's
+# Pokémon has fainted (not needed with the aid, kept so the turn works either way).
+@gb green
+@rng 1
+@weak_com
+@window 12 200
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:battle_mode RIGHT 40 shot:tour_cursor
+A 300 shot:tour_select DOWN 40 shot:l50_cursor A 300 shot:l50_menu A 300 shot:entry 100 A 200 shot:rentals_prompt 100 A 150 shot:rental_list
+A 120 shot:rental_card 30 A 150 shot:rental_taken A 150 A 150 A 150 A 150 A 150 A 150 A 150 shot:rental_card5 A 150 A 150 shot:rental_card6 A 300 shot:team_confirm
+A 60 shot:entry_done 150 shot:stadium_fly 200 shot:screen_flames 130 shot:round_title 160 shot:trainer_panels 120 shot:vs
+120 shot:teams 250 shot:order_screen 90 shot:com_confirm 100 shot:com_ready 200
+B 60 CU 60 CR 60 shot:p1_confirm 40
+A 150 shot:arena_spin 120 shot:ball_throw 160 shot:sendout_flash 90 shot:p1_out 100 shot:com_sendout 90 shot:com_out
+30
+sync:cmd 30 shot:r1_command 172 CR 10 CD 10 A 21 CU 200 shot:r1_hit 800 shot:r1_results 400 shot:r1_win 300 shot:r1_token
+600 shot:r1_continue 600 A 300 shot:r2_title 150 shot:r2_vs 350 shot:r2_order 100
+B 60 CU 60 CR 60 shot:r2_order_done 40 A 150
+sync:cmd 30 shot:r2_command 172 CR 10 CD 10 A 21 CU 200 shot:r2_hit 800 shot:r2_results 400 shot:r2_win 300 shot:r2_token
+600 shot:r2_continue 600 A 300 shot:r3_title 150 shot:r3_vs 350 shot:r3_order 100
+B 60 CU 60 CR 60 shot:r3_order_done 40 A 150
+sync:cmd 30 shot:r3_command 172 CR 10 CD 10 A 21 CU 200 shot:r3_hit 800 shot:r3_results 400 shot:r3_win 300 shot:r3_token
+600 shot:r3_continue 600 A 300 shot:r4_title 150 shot:r4_vs 350 shot:r4_order 100
+B 60 CU 60 CR 60 shot:r4_order_done 40 A 150
+sync:cmd 30 shot:r4_command 172 CR 10 CD 10 A 21 CU 200 shot:r4_hit 800 shot:r4_results 400 shot:r4_win 300 shot:r4_token
+600 shot:r4_continue 600 A 300 shot:r5_title 150 shot:r5_vs 350 shot:r5_order 100
+B 60 CU 60 CR 60 shot:r5_order_done 40 A 150
+sync:cmd 30 shot:r5_command 172 CR 10 CD 10 A 21 CU 200 shot:r5_hit 800 shot:r5_results 400 shot:r5_win 300 shot:r5_token
+600 shot:r5_continue 600 A 300 shot:r6_title 150 shot:r6_vs 350 shot:r6_order 100
+B 60 CU 60 CR 60 shot:r6_order_done 40 A 150
+sync:cmd 30 shot:r6_command 172 CR 10 CD 10 A 21 CU 200 shot:r6_hit 800 shot:r6_results 400 shot:r6_win 300 shot:r6_token
+600 shot:r6_continue 600 A 300 shot:r7_title 150 shot:r7_vs 350 shot:r7_order 100
+B 60 CU 60 CR 60 shot:r7_order_done 40 A 150
+sync:cmd 30 shot:r7_command 172 CR 10 CD 10 A 21 CU 200 shot:r7_hit 800 shot:r7_results 400 shot:r7_win 300 shot:r7_token
+600 shot:r7_continue 600 A 300 shot:r8_title 150 shot:r8_vs 350 shot:r8_order 100
+B 60 CU 60 CR 60 shot:r8_order_done 40 A 150
+sync:cmd 30 shot:r8_command 172 CR 10 CD 10 A 21 CU 200 shot:r8_hit 800 shot:r8_results 400 shot:r8_win 300 shot:r8_token
+500 shot:champion 300 shot:champion_cap 200 shot:parade01 200 shot:parade02 200 shot:parade03 200 shot:parade04 200 shot:parade05 200 shot:parade06 200 shot:parade07 200 shot:parade08 200 shot:parade09 200 shot:parade10 200 shot:parade11 200 shot:parade12 200 shot:parade13 200 shot:parade14 200 shot:parade15 200 shot:parade16
