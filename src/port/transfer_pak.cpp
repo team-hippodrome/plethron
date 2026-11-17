@@ -247,6 +247,23 @@ void BusWrite(Cart& c, uint32_t a, uint8_t v) {
     }
 }
 
+// Transfer Pak speed: on the N64 every osGbpakReadWrite goes through the PIF in 32-byte blocks, about 36,000 CPU
+// cycles each (ares: Pocket Monsters Pikachu's 1 MB ROM and 32 KB RAM take ~1,560 frames to copy, the GB Player's
+// 「よみこみちゅうです」 screen). Zero is preservation work, so the port takes that time too: the GB Player's copy screen
+// and ロードちゅう banner last as long as on the console. "# tpak timing" in recordings, PORT_TPAK_TIMING=0/1.
+extern "C" int Port_TpakTiming(void);
+void PaceTransfer(u16 size) {
+    if (!Port_TpakTiming()) return;
+    constexpr uint64_t kCyclesPerBlock = 36070;
+    uint64_t blocks = (size + 31u) / 32u;
+    OSMesgQueue queue;
+    OSMesg message;
+    OSTimer timer;
+    osCreateMesgQueue(&queue, &message, 1);
+    osSetTimer(&timer, blocks * kCyclesPerBlock, 0, &queue, nullptr);
+    osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
+}
+
 Cart* CartFor(OSPfs* pfs) {
     if (pfs == nullptr || pfs->channel < 0 || pfs->channel > 3) {
         return nullptr;
@@ -311,7 +328,7 @@ s32 osGbpakGetStatus(OSPfs* pfs, u8* status) {
 }
 
 s32 osGbpakReadWrite(OSPfs* pfs, u16 flag, u16 address, u8* buffer, u16 size) {
-    std::lock_guard<std::mutex> g(gLock);
+    std::unique_lock<std::mutex> g(gLock);
     Cart* c = CartFor(pfs);
     if (c == nullptr) {
         return PFS_ERR_NOPACK;
@@ -332,6 +349,8 @@ s32 osGbpakReadWrite(OSPfs* pfs, u16 flag, u16 address, u8* buffer, u16 size) {
     if (flag != OS_READ) {
         FlushSave(*c);
     }
+    g.unlock(); // (released before waiting: the wait lets other game threads run)
+    PaceTransfer(size);
     return 0;
 }
 

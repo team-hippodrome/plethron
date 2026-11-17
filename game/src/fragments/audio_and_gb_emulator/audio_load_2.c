@@ -704,9 +704,11 @@ extern u8 D_81137F04[];
  */
 void AudioLoad_AsyncDma(s8* arg0, u32 arg1) {
     arg1 = (arg1 + 0xF) & ~0xF;
-    osInvalDCache((void*)M2C_FIELD(arg0, s32*, 0xC), arg1);
-    osCreateMesgQueue((OSMesgQueue*)(arg0 + 0x20), (OSMesg*)(arg0 + 0x38), 1);
-    AudioLoad_Dma(arg0 + 0x3C, 0, 0, M2C_FIELD(arg0, s32*, 8), M2C_FIELD(arg0, s32*, 0xC), arg1, (OSMesgQueue*)(arg0 + 0x20), arg0[2], D_81137F04);
+    Entry8110EABC* load = (Entry8110EABC*)arg0; // PORT: fields instead of N64 offsets (queue 0x20, msg 0x38, unk3C 0x3C)
+
+    osInvalDCache((void*)(uintptr_t)load->curAddr, arg1);
+    osCreateMesgQueue(&load->queue, &load->msg, 1);
+    AudioLoad_Dma(load->unk3C, 0, 0, load->romAddr, load->curAddr, arg1, &load->queue, load->medium, D_81137F04);
     if (arg1) {}  // karodo
 }
 

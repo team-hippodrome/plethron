@@ -15,6 +15,7 @@ extern u8 pad_D_80075944[];
 extern ParticleDescriptor gDefaultParticleDescriptor;
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_MustDrawThisFrame
 // PORT: declared before its first use (IDO allowed the implicit declaration)
 void Gfx_DrawTextureIa8(s32 x1, s32 y1, s32 draw_width, s32 height, u8* texture, s32 load_width, s32 texture_spread_x_mode);
 
@@ -145,6 +146,9 @@ void Ui_DrawNumberZeroPadded(s32 x, s32 y, s32 value, s32 digits);
  * IDNo/12345 bar at the top.
  */
 void GbSave_DrawSummaryBar(s32 y, GbSaveSummary* summary, char* label, s32 arg3) {
+    // PORT: screens draw this bar on their first frames only and keep it from the frame buffer afterwards (the main
+    // menu repaints rows 56 down), so these frames must not be skipped when running fast or catching up
+    Port_MustDrawThisFrame();
     if (summary != NULL) {
         gSPDisplayList(gDisplayListHead++, D_80060270);
         Ui_FillRectRgba5551(0, y, 392, 54, D_800734C8[GbSave_GameToCategoryIndex(summary->game)]);

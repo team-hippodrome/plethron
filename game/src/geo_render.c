@@ -40,8 +40,11 @@ extern unk_D_800AB970 D_800AC508;
 
 typedef union AnimFixedFrame {
     struct {
-        s16 whole;
+        // PORT: halves of the 16.16 value in host (little-endian) order, as in stadion. In N64 order "whole" read the
+        // fraction on the host, so curves never clamped or looped at their end: the cartridge check screen's console
+        // ran past its rise-in and raised its monitor, where the N64 holds the last frame
         s16 fraction; // low 16 bits; signed declaration retained for matching
+        s16 whole;
     };
     s32 raw;
 } AnimFixedFrame;

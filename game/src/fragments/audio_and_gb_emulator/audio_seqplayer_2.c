@@ -169,13 +169,13 @@ void AudioSeq_SetInstrument(u8* arg0, u8 arg1) {
     s16 ret;
 
     if (arg1 >= 0x80) {
-        M2C_FIELD(arg0, s16*, 0x22) = arg1;
-        M2C_FIELD(arg0, s32*, 0x48) = 0;
+        ((SequenceChannel*)arg0)->instOrWave = arg1; // PORT: fields instead of N64 offsets 0x22 / 0x48 / 0x7C
+        ((SequenceChannel*)arg0)->instrument = (u8*)(uintptr_t)0;
     } else if (arg1 == 0x7F) {
-        M2C_FIELD(arg0, s16*, 0x22) = 0;
-        M2C_FIELD(arg0, s32*, 0x48) = 1;
+        ((SequenceChannel*)arg0)->instOrWave = 0;
+        ((SequenceChannel*)arg0)->instrument = (u8*)(uintptr_t)1;
     } else {
-        ret = M2C_FIELD(arg0, s16*, 0x22) = AudioSeq_GetInstrument(arg0, arg1, (u8**)(arg0 + 0x48), arg0 + 0x7C);
+        ret = ((SequenceChannel*)arg0)->instOrWave = AudioSeq_GetInstrument(arg0, arg1, &((SequenceChannel*)arg0)->instrument, (u8*)&((SequenceChannel*)arg0)->adsr);
         if (ret == 0) {
             ((SequenceChannel*)arg0)->hasInstrument = 0;
             return;

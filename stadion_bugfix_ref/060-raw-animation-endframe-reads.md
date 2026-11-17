@@ -1,7 +1,7 @@
 # Raw big-endian animation headers read natively: endFrame 256x too large (Dream Eater's sparkles missing)
 
 - **Category:** endianness
-- **Zero status:** needed (four raw `endFrame` reads remain in Zero's battle code)
+- **Zero status:** already ported (plethron 5134413: the four battle reads and the debug prints use ANIM_END)
 - **stadion:** [PR #60](https://github.com/team-hippodrome/stadion/pull/60), commit(s) `19bb77a`
 - **stadion files:** `patches/game/02-core.patch` (`model_animation.c` `ModelAnim_GetEndFrame`, `model_animation_events.c` `ModelAnim_GetEventEndFrame`), `patches/game/20-fragment-battle_engine.patch` (`battle_engine_315D50.c`, `battle_engine_2EC3C0.c`, `battle_engine_309ED0.c`), minigame patches
 

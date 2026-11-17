@@ -206,7 +206,32 @@ void SramLoad() {
     }
 }
 
+// Zero writes SRAM in DMA chunks of up to 4 KiB (Sram_TransferChunked), and every changed chunk used to rewrite the
+// whole .sra with a backup snapshot: a save record of 8 KiB cost three file writes. The game brackets one transfer
+// with Port_BeginSramWrite / Port_EndSramWrite, and the file is written once at the end (stadion's flash bracket,
+// PR #106). Separate transfers (a record's 'XXXX' invalidation and its later commit) stay separate writes.
+std::atomic<int> gSramBracket{0};
+std::atomic<bool> gSramBracketDirty{false};
+
+void SramWriteFile();
+
 void SramSave() {
+    if (gSramBracket.load() > 0) {
+        gSramBracketDirty = true;
+        return;
+    }
+    SramWriteFile();
+}
+
+extern "C" void Port_BeginSramWrite(void) {
+    gSramBracket++;
+}
+
+extern "C" void Port_EndSramWrite(void) {
+    if (--gSramBracket == 0 && gSramBracketDirty.exchange(false)) SramWriteFile();
+}
+
+void SramWriteFile() {
     std::string error;
     if (!Port::WriteProtectedSave(std::filesystem::u8path(SramPath()), gSram.data(), gSram.size(), error)) {
         Port::ReportSaveFailure(error);
@@ -759,6 +784,12 @@ extern "C" int Port_LoadWaits(void) {
     return on;
 }
 
+// The Transfer Pak at the console's speed (transfer_pak.cpp PaceTransfer); "# tpak timing", PORT_TPAK_TIMING=0/1.
+extern "C" int Port_TpakTiming(void) {
+    static const int on = Switch("PORT_TPAK_TIMING", "# tpak timing", "Transfer Pak timing");
+    return on;
+}
+
 extern "C" int Port_PacedLogoHold(void) {
     static const int on = Switch("PORT_PACED_LOGO_HOLD", "# paced logo hold", "paced logo hold");
     return on;
@@ -876,6 +907,9 @@ void InputInit() {
         if (Port_PacedLogoHold()) {
             fprintf(gRecord, "# paced logo hold\n");
         }
+        if (Port_TpakTiming()) {
+            fprintf(gRecord, "# tpak timing\n"); // (see Port_TpakTiming)
+        }
         if (Port_ControllerBits() != 1) { // the controllers plugged in (see Port_ControllerBits)
             fprintf(gRecord, "# controllers");
             for (int i = 0; i < 4; i++) {
@@ -973,6 +1007,9 @@ std::atomic<bool> gViRunning{false};
 std::atomic<bool> gStop{false};
 std::atomic<uint64_t> gStopAt{ 0 }; // PORT_STOP_AT=<frame>: draw and capture that frame, then exit
 std::mutex gTaskLock;
+// Port_MustDrawThisFrame: set by the game while it builds a frame, taken by the next display list task submitted
+std::atomic<int> gMustDrawPending{ 0 };
+std::deque<OSTask*> gMustDrawTasks; // (gTaskLock) display list tasks that must be drawn, not skipped
 std::condition_variable gTaskDoneCv;
 uint64_t gTasksSubmitted = 0, gTasksProcessed = 0;
 std::condition_variable gTaskQueuedCv; // the window loop waits on it (Port::WaitForRspTasks)
@@ -1337,6 +1374,26 @@ extern "C" void Port_SpinWait(void) {
     osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
 }
 
+// The GB Player's busy waits for its Transfer Pak thread: with the Transfer Pak at the console's speed
+// (Port_TpakTiming) that thread sleeps in virtual time, which passes only while every game thread is blocked, so each
+// spin waits a little (8192 CPU cycles, under a quarter of one 32-byte transfer). Without it, transfers finish at once
+// and the loops never spin.
+extern "C" void Port_GbIoSpin(void) {
+    if (!Port_TpakTiming()) {
+        return;
+    }
+    if (!Port_Lockstep()) {
+        osYieldThread();
+        return;
+    }
+    OSMesgQueue queue;
+    OSMesg message;
+    OSTimer timer;
+    osCreateMesgQueue(&queue, &message, 1);
+    osSetTimer(&timer, 8192, 0, &queue, nullptr);
+    osRecvMesg(&queue, nullptr, OS_MESG_BLOCK);
+}
+
 // The comparison runner supplies an observed N64 retrace schedule for battle frames.
 extern "C" void Port_XcheckWaitRetraces(uint64_t retraces) {
     OSMesgQueue queue;
@@ -1384,6 +1441,10 @@ static void Port_CpuTaskThread() {
 
 extern "C" {
 
+void Port_MustDrawThisFrame(void) {
+    gMustDrawPending.store(1);
+}
+
 void osSpTaskLoad(OSTask* t) { gLoaded = t; }
 
 void osSpTaskStartGo(OSTask* t) {
@@ -1420,6 +1481,9 @@ void osSpTaskStartGo(OSTask* t) {
         gCpuTaskCv.notify_one();
     } else
 #endif
+    if ((t ? t : gLoaded)->t.type == M_GFXTASK && gMustDrawPending.exchange(0) != 0) {
+        gMustDrawTasks.push_back(t ? t : gLoaded);
+    }
     gTasks.push_back(t ? t : gLoaded);
     uint64_t mine = ++gTasksSubmitted;
     gTaskQueuedCv.notify_one();
@@ -1534,8 +1598,19 @@ static void PresentCpuFrame(void* fb, bool black, float xscale, bool repeatLine)
 }
 
 // Runs on the thread that owns the window: executes queued RSP tasks and signals completion.
+static bool gViCurrentIsCpu = false;  // the frame buffer on screen was drawn by the CPU (presented from memory)
+static uint64_t gViCurrentHash = 0;    // its pixels when last presented
+static uint64_t gViRescanTick = ~0ull; // the retrace it was last checked for in-place changes
+static bool gViCurrentBlack = false;   // osViBlack when it was last presented
+static uint64_t HashFrame(const void* fb) {
+    uint64_t h = 1469598103934665603ull;
+    const uint64_t* p = (const uint64_t*)fb;
+    for (int i = 0; i < 320 * 240 * 2 / 8; i++) h = (h ^ p[i]) * 1099511628211ull;
+    return h;
+}
 static void TryPresentCpuFrame() {
     void* fb = nullptr;
+    void* rescan = nullptr;
     bool black;
     bool repeatLine;
     float xscale;
@@ -1552,6 +1627,15 @@ static void TryPresentCpuFrame() {
             gViCurrent = fb;
             gViPending = nullptr;
             gSwapDone.notify_all();
+        } else if (gViPending == nullptr && !gfxQueued && gViCurrent != nullptr && gViCurrentIsCpu && !gViRepeatLine &&
+                   gTick.load() != gViRescanTick) {
+            // The VI scans the current frame buffer out every retrace: a CPU-drawn picture changed in place without a
+            // new swap is shown too (the GB Player's 「よみこみちゅうです」 copy screen animates its buffer while
+            // osViBlack(0) shows it). Checked once per retrace, presented only when the pixels changed.
+            gViRescanTick = gTick.load();
+            if (HashFrame(gViCurrent) != gViCurrentHash || gViBlack != gViCurrentBlack) {
+                rescan = gViCurrent;
+            }
         }
         black = gViBlack;
         repeatLine = gViRepeatLine;
@@ -1577,6 +1661,9 @@ static void TryPresentCpuFrame() {
                 fputc('\n', stderr);
             }
             PresentCpuFrame(fb, black, xscale, repeatLine);
+            gViCurrentIsCpu = !repeatLine; // (a repeat-line buffer is one line: never rescanned)
+            gViCurrentHash = repeatLine ? 0 : HashFrame(fb);
+            gViCurrentBlack = black;
             if (stopFrame) {
                 fprintf(stderr, "[stop] reached frame %llu\n", (unsigned long long)gTick.load());
                 Port_InputFinish();
@@ -1584,7 +1671,23 @@ static void TryPresentCpuFrame() {
                 _exit(0);
             }
         }
+        else {
+            gViCurrentIsCpu = false;
+        }
         gViStampAtLastSwap[fb] = Port_GpuDrawStamp(fb);
+    } else if (rescan != nullptr && Port_GpuDrawStamp(rescan) == gViStampAtLastSwap[rescan]) {
+        bool stopFrame, shotFrame;
+        CheckCapture(&stopFrame, &shotFrame);
+        PresentCpuFrame(rescan, black, xscale, repeatLine);
+        gViCurrentHash = HashFrame(rescan);
+        gViCurrentBlack = black;
+        gViStampAtLastSwap[rescan] = Port_GpuDrawStamp(rescan); // (presenting draws into it too)
+        if (stopFrame) {
+            fprintf(stderr, "[stop] reached frame %llu\n", (unsigned long long)gTick.load());
+            Port_InputFinish();
+            fflush(stderr);
+            _exit(0);
+        }
     }
 }
 
@@ -1639,7 +1742,16 @@ void Port::PumpRspTasks() {
             const bool regular = (gfxCount++ % Port_RenderEvery()) == 0;
             const bool catchUp = regular && sSkipsInRow < kMaxSkipsInRow && WantSkipWhileBehind();
             bool skipped = false;
-            if ((regular && !catchUp) || stopFrame || shotFrame || Port_XcheckWantDraw()) {
+            bool mustDraw = false;
+            {
+                std::lock_guard<std::mutex> g(gTaskLock);
+                auto it = std::find(gMustDrawTasks.begin(), gMustDrawTasks.end(), t);
+                if (it != gMustDrawTasks.end()) {
+                    gMustDrawTasks.erase(it);
+                    mustDraw = true;
+                }
+            }
+            if ((regular && !catchUp) || stopFrame || shotFrame || mustDraw || Port_XcheckWantDraw()) {
                 Port::RunGameFrame(t->t.data_ptr, stopFrame || shotFrame); // (interp.cpp: in-between frames)
             } else if (Port::TrackFrame(t->t.data_ptr)) { // not drawn, but its state changes must still happen
                 Port::CancelInterpolation();

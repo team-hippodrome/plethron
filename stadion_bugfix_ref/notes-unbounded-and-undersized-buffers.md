@@ -1,7 +1,7 @@
 # Buffers the N64 overran harmlessly crash on the host (unterminated GB names, char[1] sprintf targets, 6-entry locals written 7-8 times)
 
 - **Category:** abi-64bit
-- **Zero status:** check (Zero's `Text_UntranscodeName` is the unbounded JP form; whether a real input lacks the 0x50 terminator was not proven)
+- **Zero status:** already ported (plethron 5134413: Text_UntranscodeName bounded to the 6-byte JP name field; GbSave_ScanAllPorts writes the empty-port 0x50 into playerName[0] instead of a u64 constant)
 - **stadion:** no PR (Stage 3 "fortified libc", third ares round long battle / Lab AREA, Linux bring-up; before PR #1, history squashed into `be110fe`)
 - **stadion files:** `game/src/gb_data.c`, `game/src/fragments/battle_engine/battle_engine_com_decision_logic.c`, Lab PC / Pokédex sources
 

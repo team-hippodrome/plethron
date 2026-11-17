@@ -395,7 +395,7 @@ void PointerList_Filter(LabMonEntryList* arg0, LabMonEntryList* arg1,
         var_s0++;
     }
 
-    arg1->count = ((uintptr_t)var_s1 - (uintptr_t)arg1->items) >> 2;
+    arg1->count = var_s1 - arg1->items; // PORT: count entries (was the byte difference >> 2, i.e. 4-byte N64 pointers)
 }
 
 /** Compares two zero-terminated 16-bit strings. */
