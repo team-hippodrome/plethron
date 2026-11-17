@@ -11,7 +11,8 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
 and header lines:
   @sram <file>         start from this Stadium Zero SRAM (32 KiB, N64 byte order; relative to the route file or $ZERO_SAVES);
                        default: a blank save on both sides
-  @gb <name>           a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> (and save $GB_SAV_<NAME> if set)
+  @gb <name> [<save>]  a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> and the save $GB_SAV_<NAME> (if set), or
+                       with <save>, $GB_SAV_<NAME>_<SAVE> (e.g. `@gb green lab`: $GB_SAV_GREEN_LAB, the Lab routes' save)
   @window <before> <after>  the ares frames kept around each checkpoint (default 12 before, 120 after): the port is
                        usually ahead of ares after a load (it loads faster, e.g. the P-OS "NOW LOADING" screen), so
                        tools/screen_diff/compare.py compares the port picture with each of these and keeps the closest;
@@ -20,10 +21,15 @@ and header lines:
                        skips the N64's boot and runs the intro a few percent fast, so it is that far ahead of ares
                        until the first input; presses happen on the same frame on both sides, and the game waits for
                        them, which lines the two up again)
+  @rng <seed>          seed the battle's random numbers alike on both sides (PORT_XCHECK_RNG / ARES_REF_XCHECK_RNG:
+                       Battle_Random, the COM's BattleAi_StirRandom and guRandom); without it battles differ, since
+                       both games time their random numbers with the CPU counter. The values drawn go to
+                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them)
 # starts a comment.
 
-The port runs hidden at native resolution (PORT_RESOLUTION=native, 4:3) in the original text (PORT_LANGUAGE=kana: no
-language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
+The port runs hidden at 640x480 (PORT_RESOLUTION=2x, 4:3; SCREEN_DIFF_PORT_RESOLUTION overrides it: Zero draws its
+menus and text in 640x480, and at native 320x240 every other texel row and column is dropped, which makes the small
+font look wrong) in the original text (PORT_LANGUAGE=kana: no language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
 tools/ares_ref (build it with tools/ares_ref/build.sh). Pictures go to <out>/port/<label>.ppm and
 <out>/ares/<label>/f_<frame>.png; nothing goes into the repository (the pictures are the game's own: keep them out of
 git). Environment: ROM (the Pocket Monsters Stadium .z64), PORT_BIN (default build/pokestadium), ARES_REF_BUILD and
@@ -39,7 +45,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, window=(12, 120), boot_offset=-165)
+    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None)
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -54,11 +60,14 @@ def parse_route(path):
                     cand.insert(0, os.path.join(os.environ["ZERO_SAVES"], val))
                 r["sram"] = next((c for c in cand if os.path.exists(c)), cand[-1])
             elif key == "gb":
-                r["gb"] = val.upper()
+                r["gb"], _, sv = val.upper().partition(" ")
+                r["gbsav"] = "GB_SAV_" + r["gb"] + ("_" + sv.strip() if sv.strip() else "")
             elif key == "window":
                 r["window"] = tuple(int(v) for v in val.split())
             elif key == "boot_offset":
                 r["boot_offset"] = int(val)
+            elif key == "rng":
+                r["rng"] = str(int(val, 0))
             else:
                 sys.exit("%s: unknown header @%s" % (path, key))
             continue
@@ -122,15 +131,19 @@ def run_port(r, out, extra_env):
     clean_dir(home)
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_RESOLUTION="native", PORT_UPSCALE="exact",
+               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_UPSCALE="exact",
+               PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")
     if r["gb"]:
         env["PORT_GB_ROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
             gbsav = os.path.join(out, "port_gb.sav")
-            shutil.copyfile(os.environ["GB_SAV_" + r["gb"]], gbsav)
+            shutil.copyfile(os.environ[r["gbsav"]], gbsav)
             env["PORT_GB_SAVE"] = gbsav
+    if r["rng"]:
+        env["PORT_XCHECK_RNG"] = r["rng"]
+        env["PORT_XCHECK"] = os.path.join(out, "port_rng.txt")
     env.update(extra_env)
     binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
     with open(os.path.join(out, "port.log"), "w") as log:
@@ -178,9 +191,12 @@ def run_ares(r, out):
         env["ARES_REF_SRAM"] = os.path.abspath(r["sram"])
     if r["gb"]:
         env["ARES_REF_GBROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
-            env["ARES_REF_GBSAV"] = os.environ["GB_SAV_" + r["gb"]]
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
+            env["ARES_REF_GBSAV"] = os.environ[r["gbsav"]]
         env.setdefault("ARES_REF_GBBOARD", "MBC3" if r["gb"] in ("YELLOW", "PIKACHU") else "MBC1")
+    if r["rng"]:
+        env["ARES_REF_XCHECK_RNG"] = r["rng"]
+        env["ARES_REF_XCHECK"] = os.path.join(out, "ares_rng.txt")
     link = os.path.join(out, "rom.z64")  # nall rewrites path arguments with spaces
     if os.path.lexists(link):
         os.remove(link)
@@ -232,7 +248,29 @@ def main():
         run_port(r, out, extra)
     if "--port-only" not in flags:
         run_ares(r, out)
+    if r["rng"]:
+        check_rng(out)
     print("%s: %d checkpoints, %d frames -> %s" % (os.path.basename(route), len(r["shots"]), r["end"], out))
+
+
+def check_rng(out):
+    """Compares the random values both games drew (@rng): the same function, call and value in the same order, or
+    the battles went apart (a function called a different number of times, e.g. one side's extra turn)."""
+    def draws(name):
+        path = os.path.join(out, name)
+        if not os.path.exists(path):
+            return None
+        return [tuple(l.split()[1:5]) for l in open(path) if l.startswith("R ")]
+    port, ares = draws("port_rng.txt"), draws("ares_rng.txt")
+    if port is None or ares is None:
+        return
+    first = next((i for i, (a, b) in enumerate(zip(port, ares)) if a[0::3] != b[0::3] or a[1] != b[1]), None)
+    if first is None and len(port) == len(ares):
+        print("random numbers: the same %d draws on both sides" % len(port))
+    elif first is None:
+        print("random numbers: the first %d draws agree; port drew %d, ares %d" % (min(len(port), len(ares)), len(port), len(ares)))
+    else:
+        print("random numbers: draw %d differs (port %s, ares %s)" % (first, " ".join(port[first]), " ".join(ares[first])))
 
 
 if __name__ == "__main__":

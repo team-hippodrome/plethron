@@ -20,7 +20,8 @@
 // Environment: ARES_REF_SRAM / ARES_REF_SRAM_OUT (Stadium Zero's 32 KiB SRAM in / out, N64 byte order, the same bytes
 // as the port's saves/stadium.sra), ARES_REF_GBROM / ARES_REF_GBSAV / ARES_REF_GBSAV_OUT / ARES_REF_GBBOARD
 // (Transfer Pak cartridge; needs ares built with the Game Boy core), ARES_REF_WAV=<file> (the N64 audio output (AI),
-// resampled to 48 kHz, as raw signed 16-bit stereo little-endian PCM).
+// resampled to 48 kHz, as raw signed 16-bit stereo little-endian PCM), ARES_REF_XCHECK_RNG=<seed> and
+// ARES_REF_XCHECK=<file> (the battle's random numbers seeded as the port's PORT_XCHECK_RNG: the xcheck section below).
 // Pictures are what ares's VI shows (normally 640x480 for Zero's 320x240 frame buffers at "Quality SD").
 #include <ares/ares.hpp>
 #include <n64/n64.hpp>
@@ -221,6 +222,139 @@ uint32_t parseButtons(const std::string& s) {
 
 
 
+// ---- seeded battle random numbers (ARES_REF_XCHECK_RNG=<seed>; needs ares-host-hooks.patch, see build.sh) ----
+// Stadium Zero's battle draws entropy from osGetCount in Battle_Random and the COM's BattleAi_StirRandom; with a seed,
+// those two osGetCount calls return a splitmix64 stream instead, and guRandom (the effects' particles) restarts at each
+// move animation. The port does the same with PORT_XCHECK_RNG (src/port/xcheck.cpp),
+// so both games draw the same numbers although their CPU timing differs. Each battle's start
+// (BattleScene_InitializeRuntime) restarts the streams, guRandom and Battle_Random's sum. ARES_REF_XCHECK=<file> writes the drawn values
+// ("R <function> <call> 0 <value> frame=<n>"), as the port's PORT_XCHECK trace. Addresses: pokestadium0's
+// linker_scripts/jp/symbol_addrs.txt; the battle engine is fragment 0x11 (link address 0x82100000), relocated to
+// wherever the pool put it, which Memmap_SetFragmentMap records in gFragments.
+namespace xcheck {
+constexpr u32 kFragmentTable = 0x800A8D20;   // gFragments[240] {vaddr, size}
+constexpr u32 kBattleId = 0x11, kLinkBase = 0x82100000;
+constexpr u32 kSetFragmentMap = 0x80001EB0;  // Memmap_SetFragmentMap(id, vaddr, size): main code
+constexpr u32 kOsGetCount = 0x80053A80;      // osGetCount: main code
+constexpr u32 kGuRandomSeed = 0x80079100;    // guRandom's xseed (lui 0x8008 / lw -0x6F00 in the ROM's guRandom)
+constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port_GuRandomSeed
+constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
+constexpr u32 kTickRow5 = 0x82104EAC;        // BattleScene_TickRow5StartMoveAnimation
+constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
+struct Caller { u32 from, to; const char* name; }; // [from, to) link addresses of osGetCount's callers to replace
+const Caller kCallers[] = { { 0x8210F3F0, 0x8210F4E0, "Battle_Random" }, { 0x82183B60, 0x82183BA8, "BattleAi_StirRandom" } };
+
+bool gForce = false;
+u32 gSeed = 0, gBase = 0;
+FILE* gOut = nullptr;
+u64 gFrame = 0;
+std::map<u32, u32> gCalls; // per function: calls since the battle engine was mapped
+
+auto& ram() { return Nintendo64::rdram.ram; }
+u32 phys(u32 vaddr) { return vaddr & 0x1FFFFFFF; }
+// a word as the CPU sees it: from its data cache when the line is there, else from RDRAM
+u32 rd32(u32 vaddr) {
+    u32 p = phys(vaddr) & ~3u;
+    if (vaddr >= 0x80000000u && vaddr < 0xA0000000u) {
+        auto& line = Nintendo64::cpu.dcache.line(vaddr);
+        if (line.valid() && (line.tagKey & ~1u) == (p & ~0xFFFu)) return line.words[p >> 2 & 3];
+    }
+    if (p + 4 > ram().size) return 0;
+    return ram().Nintendo64::Memory::Writable::read<Nintendo64::Word>(p);
+}
+// a byte as the CPU would store it: into its data cache line when the line is there, and into RDRAM
+void wr8(u32 vaddr, u8 v) {
+    u32 p = phys(vaddr) & ~3u, sh = (3 - (vaddr & 3)) * 8;
+    if (p + 4 > ram().size) return;
+    if (vaddr >= 0x80000000u && vaddr < 0xA0000000u) {
+        auto& line = Nintendo64::cpu.dcache.line(vaddr);
+        if (line.valid() && (line.tagKey & ~1u) == (p & ~0xFFFu)) {
+            u32& w = line.words[p >> 2 & 3];
+            w = (w & ~(0xFFu << sh)) | ((u32)v << sh);
+        }
+    }
+    u32 w = ram().Nintendo64::Memory::Writable::read<Nintendo64::Word>(p);
+    w = (w & ~(0xFFu << sh)) | ((u32)v << sh);
+    ram().Nintendo64::Memory::Writable::write<Nintendo64::Word>(p, w);
+}
+void wr32(u32 vaddr, u32 v) { for (int i = 0; i < 4; i++) wr8(vaddr + i, (u8)(v >> (24 - 8 * i))); }
+u32 rt(u32 link) { return gBase + (link - kLinkBase); } // link address -> runtime address
+
+// splitmix64 of (seed, function, call index): identical in src/port/xcheck.cpp (StreamValue / StreamKey)
+u32 streamValue(u32 seed, u32 key, u32 k) {
+    u64 z = ((u64)seed << 32) ^ ((u64)key << 24) ^ k;
+    z += 0x9E3779B97F4A7C15ull;
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
+    return (u32)(z ^ (z >> 31));
+}
+
+bool returnWith(u64 value) {
+    auto& cpu = Nintendo64::cpu;
+    cpu.ipu.r[2].u64 = value;
+    cpu.pipeline.setPc(cpu.ipu.r[31].u64);
+    return true;
+}
+
+void place(u32 base);
+
+bool hook(u32 address) {
+    auto& cpu = Nintendo64::cpu;
+    if (address == kSetFragmentMap) {
+        if (cpu.ipu.r[4].u32 == kBattleId) place(cpu.ipu.r[5].u32);
+        return false;
+    }
+    if (!gBase) return false;
+    if (address == kOsGetCount) {
+        u32 ra = (u32)cpu.ipu.r[31].u64;
+        for (int fn = 0; fn < 2; fn++) {
+            if (ra < rt(kCallers[fn].from) || ra >= rt(kCallers[fn].to)) continue;
+            u32 key = (u32)fn << 16, k = gCalls[key]++;
+            u32 v = streamValue(gSeed, key, k);
+            if (gOut) {
+                fprintf(gOut, "R %s %u 0 %u frame=%llu\n", kCallers[fn].name, k, v, (unsigned long long)gFrame);
+                fflush(gOut);
+            }
+            return returnWith((u64)(s64)(s32)v);
+        }
+        return false;
+    }
+    if (address == rt(kTickRow5)) wr32(kGuRandomSeed, kGuRandomStart);
+    if (address == rt(kInitRuntime)) { // a battle starts (as the port's Port_XcheckBattleStart)
+        gCalls.clear();
+        wr32(kGuRandomSeed, kGuRandomStart);
+        wr8(rt(kBattleRandomSum), 0);
+        if (gOut) fprintf(gOut, "B frame=%llu\n", (unsigned long long)gFrame);
+    }
+    return false;
+}
+
+// the battle engine was just mapped (Memmap_SetFragmentMap, before its relocation and the clearing of its bss, so
+// nothing is written into it here): hooks at its new address
+void place(u32 base) {
+    auto& cpu = Nintendo64::cpu;
+    gBase = base;
+    cpu.hostHooks.addresses = { kSetFragmentMap, kOsGetCount, rt(kTickRow5), rt(kInitRuntime) };
+    std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
+    cpu.recompiler.reset();
+    fprintf(stderr, "[xcheck] battle engine mapped at %08x (frame %llu)\n", base, (unsigned long long)gFrame);
+    if (gOut) fprintf(gOut, "F base=%08x frame=%llu\n", base, (unsigned long long)gFrame);
+}
+
+void init() {
+    const char* rng = getenv("ARES_REF_XCHECK_RNG");
+    if (!rng) return;
+    gForce = true;
+    gSeed = (u32)strtoul(rng, nullptr, 0);
+    if (const char* out = getenv("ARES_REF_XCHECK")) gOut = fopen(out, "w");
+    auto& cpu = Nintendo64::cpu;
+    cpu.hostHooks.callback = hook;
+    cpu.hostHooks.addresses = { kSetFragmentMap };
+    cpu.recompiler.reset();
+    fprintf(stderr, "[xcheck] seeded battle random numbers, seed %u\n", gSeed);
+}
+} // namespace xcheck
+
 struct Hold { uint64_t from, to; uint32_t buttons; };
 struct Fill { uint64_t from, to; uint32_t addr, bytes; uint16_t value; };
 struct Action { std::string kind, arg; uint64_t n; };
@@ -368,7 +502,9 @@ static int realMain(int argc, char** argv) {
     }
 
     auto t0 = std::chrono::steady_clock::now();
+    xcheck::init();
     for (uint64_t frame = 1; !endFrame || frame <= endFrame; frame++) {
+        xcheck::gFrame = frame;
         uint32_t b = 0;
         for (auto& h : holds) {
             if (frame >= h.from && frame <= h.to) b |= h.buttons;

@@ -5,10 +5,10 @@
 //                                 ("E <n> <event> ..." with the raw bytes of both Pokemon's ActivePokemonState, the
 //                                 BattleScene, sBattleDamage and the message queues)
 //   PORT_XCHECK_VI_TIMING=<file>  observed "game-frame retrace" pairs; comparison-only mixer-clock pacing
-//   PORT_XCHECK_RNG=<seed>        the battle's random functions (Battle_Random, Battle_RandomAccuracy,
-//                                 BattleAI_RandomBelowInclusive, BattleAnim_RandomRange, BattleAnim_RandomIntWithWarmup)
-//                                 return a seeded stream instead of their osGetCount-timed generators, so the port and the
-//                                 emulator, whose CPU timing differs, draw the same numbers
+//   PORT_XCHECK_RNG=<seed>        the battle's osGetCount-timed random sources (Battle_Random, BattleAi_StirRandom)
+//                                 read a seeded stream instead, and guRandom restarts at each battle's start
+//                                 and at each move animation, so the port and the emulator, whose CPU timing differs,
+//                                 draw the same numbers (tools/screen_diff: @rng <seed>)
 //   PORT_XCHECK_CASE=<file>       a case (tools/battle_sweep.py writes them), lines:
 //                                   mon <side> <slot|*> <field>=<value> ...   the parties, written when the battle engine
 //                                                                             is mapped (fields: see kMonFields)
@@ -58,9 +58,12 @@ extern "C" int gPortXcheckTraceGuRandom;              // (below)
 
 namespace {
 // the order is the function index in the value stream (tools/ares_ref/ares_ref.cpp kRandomNames)
-const char* const kRandomNames[] = { "Battle_Random", "Battle_RandomAccuracy", "BattleAI_RandomBelowInclusive",
-                                     "BattleAnim_RandomRange", "BattleAnim_RandomIntWithWarmup" };
-constexpr int kRandomFns = 5;
+// PORT(zero): Stadium Zero's battle draws its entropy from osGetCount in two places (Battle_Random and the COM's
+// BattleAi_StirRandom); the stream value replaces that osGetCount and the game code does the rest. Its other random
+// numbers come from guRandom (restarted at each move animation, Port_XcheckMoveAnimTick) and the COM's own LCG
+// (seeded with constants by BattleAi_SelectTeam).
+const char* const kRandomNames[] = { "Battle_Random", "BattleAi_StirRandom" };
+constexpr int kRandomFns = 2;
 
 // BattleMon fields a case can set (game/src/game_state.h): name, offset, size
 struct MonField { const char* name; int offset, size; };
@@ -358,12 +361,7 @@ int Port_XcheckRandom(int fn, int arg, int* out, void* caller) {
         rule->next = (rule->next + 1) % rule->values.size();
     }
     uint32_t r = 0;
-    switch (fn) {
-        case 0: case 1: r = v & 0xFF; break;                                    // Battle_Random(Accuracy): u8
-        case 2: r = arg <= 0 ? 0 : v % (uint32_t)(arg + 1); break;              // 0..arg
-        case 3: r = arg <= 0 ? 0 : (uint16_t)(v % (uint32_t)arg); break;        // 0..arg-1
-        case 4: r = arg <= 0 ? 0 : v % (uint32_t)arg; break;                    // 0..arg-1
-    }
+    r = v; // PORT(zero): the osGetCount value both functions read
     if (g.out) {
         fprintf(g.out, "R %s %u %d %u frame=%llu gf=%llu caller=%s\n", kRandomNames[fn], k, arg, r, (unsigned long long)Port_ViTick(),
                 g.gameFrame, from);
@@ -450,6 +448,23 @@ void Port_XcheckMoveAnim(int side, int move) {
         g.animOn = true;
     }
     g.animCount++;
+}
+
+// PORT(zero): BattleScene_InitializeRuntime (each battle's start): the random streams and guRandom restart, and the
+// caller zeroes Battle_Random's sum, as the ares driver does at the same function's entry
+int Port_XcheckBattleStart(void) {
+    Init();
+    if (!g.force) return 0;
+    g.calls.clear();
+    Port_GuRandomSeed(174823885);
+    return 1;
+}
+
+// PORT(zero): BattleScene_TickRow5StartMoveAnimation (each tick until the move's model is ready): guRandom restarts, as
+// the ares driver does at the same function's entry
+void Port_XcheckMoveAnimTick(void) {
+    Init();
+    if (g.force) Port_GuRandomSeed(174823885);
 }
 
 int Port_XcheckAnimActive(void) {

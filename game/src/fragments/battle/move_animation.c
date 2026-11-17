@@ -58,6 +58,7 @@ extern char** sBattleControllerDisconnectedMessage;
 #include "status.h"
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_Xcheck*
 
 void Audio_PlayMoveSound(u8, s32, s32);
 
@@ -1691,6 +1692,7 @@ void BattleScene_TickRow5StartMoveAnimation(ActivePokemon* active_pokemon) {
     MovePresentationCue* row_cue;
     MovePresentationCue* cue;
 
+    Port_XcheckMoveAnimTick(); // PORT: comparison against ares: guRandom restarts here on both (src/port/xcheck.cpp)
     cue_index = D_8218920E[active_pokemon->state.runtime.usedMove];
     row_cue = &sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)]->moveCues[cue_index];
     runtime = &active_pokemon->state.runtime;
@@ -2858,6 +2860,11 @@ void Battle_InitBothParticipants(void);
  */
 void BattleScene_InitializeRuntime(BattleSide* session_teams) {
     s32 i;
+
+    if (Port_XcheckBattleStart()) { // PORT: comparison against ares (src/port/xcheck.cpp); the ares driver does the same
+        extern u8 D_82199F7C;         // Battle_Random's running sum
+        D_82199F7C = 0;
+    }
 
     for (i = 0; i < 7; i++) {
         sBattleSceneStateTickSlots[i].callback = sBattleSceneStateTickSentinel;

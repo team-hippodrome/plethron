@@ -92,7 +92,7 @@ void PokeIcon_SetPreviewMon(PokeModelPreview* arg0, BattleMon* arg1, u16 arg2) {
     s16 tmp3 = (s16)(D_80064C5C[arg1->species.id - 1].unk_14 << 5) >> 5;
 
     arg0->flags |= 1;
-    arg0->source = arg1;
+    arg0->source = (uintptr_t)arg1;
     arg0->spinSpeed = 0x100;
     arg0->idleTimer = 0;
     arg0->fillColor = arg2;
@@ -123,7 +123,7 @@ void PokeIcon_SetPreviewSpecies(PokeModelPreview* arg0, s32 arg1, u16 arg2) {
     s16 tmp3 = (s16)(D_80064C5C[arg1 - 1].unk_14 << 5) >> 5;
 
     arg0->flags &= ~1;
-    arg0->source = arg1;
+    arg0->source = (uintptr_t)arg1;
     arg0->spinSpeed = 0x100;
     arg0->idleTimer = 0;
     arg0->fillColor = arg2;
@@ -241,7 +241,7 @@ void PokeIcon_UpdatePreview(PokeModelPreview* arg0) {
 /** Draws the preview scene. */
 void PokeIcon_DrawPreview(PokeModelPreview* arg0) {
     s32 var_v0;
-    s32 var_s2;
+    u8* var_s2; // PORT: was s32 (a host pointer)
     s32 i;
 
     if (arg0->backgroundImage == 0) {

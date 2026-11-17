@@ -13,6 +13,10 @@ tools/ares_ref/build.sh build/ares            # safe to rerun
 pip install numpy pillow
 # a Japanese Green cartridge save with a party, for the routes that need the Transfer Pak
 python3 tools/screen_diff/jp_gen1_save.py saves/green_party.sav
+# the Pokédex route's save: owned, held, seen-only and unseen species
+python3 tools/screen_diff/jp_gen1_save.py saves/green_dex.sav --owned 1-8,12-130 --seen 9-10,131-150
+# the Lab routes' save: six in the party, eight in Game Boy box 1, eight items in the bag
+python3 tools/screen_diff/jp_gen1_save.py saves/green_lab.sav --lab
 ```
 
 Environment for the runs (the ROMs are yours and stay out of the repository):
@@ -22,6 +26,8 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `ROM` | Pocket Monsters Stadium (Japan) `.z64` |
 | `ARES_REF_BUILD`, `ARES_REF_SRC` | default `build/ares/build`, `build/ares/ares` (what `build.sh build/ares` makes) |
 | `GB_ROM_GREEN`, `GB_SAV_GREEN` | Pocket Monsters Green `.gb` and the save from `jp_gen1_save.py` |
+| `GB_ROM_GREENDEX`, `GB_SAV_GREENDEX` | the same Green `.gb` and `saves/green_dex.sav` (route `pokedex`) |
+| `GB_SAV_GREEN_LAB` | `saves/green_lab.sav` (routes `party`, `list`, `organize`, `register`: `@gb green lab`) |
 | `PORT_BIN` | default `build/pokestadium` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
@@ -51,9 +57,13 @@ put checkpoints where the screen has settled or right after the press that start
 | `intro_attract` | N64 logo, intro Pokémon, title, the attract-mode battle (no cartridge) |
 | `free_battle` | lobby, cartridge select, P-OS, main menu, Battle, Free Battle vs COM, entry, arena intro, VS, order screen |
 | `tournament` | Battle → tournament menus |
-| `pokedex` | ずかん list and an entry |
+| `pokedex` | ずかん list (number and kana order, scrolled to the end), データをみる pages with the turning 3D model (held and seen-only species), ぶんぷをみる habitat maps (unknown habitat; ポッポ with the GB map, zoom and the next area), やめる |
 | `gb_player` | GB Player booting the Green cartridge |
-| `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `party` | てもち: list, つよさをみる (stats page, moves page and each move's description), ならびかえ, レポートしてやめる |
+| `list` | いちらん: source dialog with the Game Boy box, the table's three pages, L/R mode, a row's menu, どうぐをつかう (Protein's stat pop-up), あつめる |
+| `organize` | せいとん: ポケモンをいどうする (party to 64 box 1, report), どうぐをいどうする (lists, count picker), ボックスをいどうする (GB box 1 to 64 box 2, report) |
+| `register` | とうろく: register the party (the Ditto transform), view it, the delete screen |
+| `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 
 ## Timing: why there is a window
 
@@ -64,6 +74,18 @@ picture per checkpoint (`@boot_offset` shifts the ones before the first press) a
 before to 120 after it (`@window`); `compare.py` scores the port picture against the closest of those. The chosen
 offset is in the report: a large one is a timing difference, not a rendering one.
 
-Known limits: the attract battle picks its Pokémon at random, and the port's random numbers differ from ares's, so
-its late checkpoints compare different battles. On the Free Battle order screen 1P's picks did not register with
-these inputs in either the port or ares, so `free_battle` stops there.
+## Battles: seeded random numbers (`@rng <seed>`)
+
+Both games time their random numbers with the CPU counter, so without help the same inputs give different battles.
+`@rng <seed>` makes the battle's two osGetCount reads (`Battle_Random`, the COM's `BattleAi_StirRandom`) return a
+seeded stream instead, and restarts `guRandom` (particles) at each battle's start and each move animation, on both
+sides: `PORT_XCHECK_RNG` in the port (`src/port/xcheck.cpp`) and `ARES_REF_XCHECK_RNG` in ares_ref (CPU host hooks:
+`build.sh` applies `ares-host-hooks.patch`). The values drawn go to `port_rng.txt` and `ares_rng.txt` in the run
+directory, and run.py says whether they agree.
+
+The order screen takes 1P's picks only after the COM panel has made its own (about 250 frames after the screen
+appears); presses before that are dropped in both games.
+
+Known limits: the attract battle (no presses) is not seeded the same way yet: its Pokémon come from the title
+screen's own generator. In battle the N64 slows down in busy effects while the port does not, so ares falls further
+behind during a battle and fixed-frame presses late in a battle can land in a different state.

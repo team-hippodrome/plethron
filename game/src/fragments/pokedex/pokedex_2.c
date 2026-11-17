@@ -989,7 +989,7 @@ void Pokedex_LoadAreaMap(s32 species, MainPoolState* pool, UNUSED s32 pool_size,
     }
 
     sAreaMapSpeciesIndex = species - 1;
-    sprintf(sAreaMapSpeciesName, "%s", D_80064C60[sAreaMapSpeciesIndex].unk_00);
+    sprintf(sAreaMapSpeciesName, "%s", D_80064C5C[sAreaMapSpeciesIndex].name); // PORT: was D_80064C60[...].unk_00 (see Pokedex_DrawListRow)
     MainPool_PushState('MAPV');
 
     sSpeciesIcon = MainPool_Alloc(0x3200, 0);

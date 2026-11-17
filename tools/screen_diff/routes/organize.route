@@ -1,4 +1,15 @@
-# Main menu -> せいとん (organize).
-@gb green
+# Main menu -> せいとん (organize), deep: ポケモンをいどうする (party -> Stadium Zero's own box 64-1, then report),
+# どうぐをいどうする (bag -> PC: the lists, the count picker, the target slot; left with B), ボックスをいどうする
+# (Game Boy box 1 -> 64 box 2, then report), then B out. The reports write both the cartridge save and Zero's SRAM.
+# Needs the Lab save: tools/screen_diff/jp_gen1_save.py <file> --lab, in $GB_SAV_GREEN_LAB.
+@gb green lab
 1200 START 300 A 400 shot:main_menu
-LEFT 40 UP 40 A 150 shot:organize_prompt A 400 shot:organize_menu 200 shot:organize_idle
+LEFT 40 UP 40 A 150 shot:organize_prompt A 300 shot:organize_menu
+50 A 200 shot:move_mon_screen A 100 shot:move_from_list A 150 shot:move_to_list
+DOWN 25 DOWN 25 DOWN 25 DOWN 25 DOWN 25 DOWN 25 DOWN 25 DOWN 25 shot:move_to_64box A 100 shot:move_64box_empty
+A 120 shot:mon_moved1 A 120 shot:mon_moved2
+B 80 B 80 shot:org_report_dialog A 150 shot:org_menu_after
+DOWN 25 A 200 shot:items_screen A 100 shot:items_from A 100 shot:items_to A 100 shot:item_pick A 100 shot:item_target 100 shot:item_after
+B 80 B 80 B 80 shot:items_exit 100
+DOWN 25 A 200 shot:boxes_screen A 100 shot:boxes_from A 100 shot:boxes_to A 100 shot:boxes_moved
+B 80 shot:boxes_report_dialog A 150 shot:boxes_saved 100 shot:org_menu_after2 B 150 shot:main_menu_after
