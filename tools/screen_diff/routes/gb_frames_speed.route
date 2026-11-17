@@ -1,0 +1,10 @@
+# GB Player with the frames and speed unlocked (Master Ball Cup reward, options +0x02 = 2): Z cycles the
+# picture frame (it starts on the highest: Dodrio, then green, Doduo, Dodrio), C-Right the speed (x2, x4, x1).
+# Make the save once: tools/screen_diff/zero_sram_options.py <a Zero save> $ZERO_SAVES/gb_unlocked.sra --gb-frames 2
+@gb green
+@sram gb_unlocked.sra
+@window 60 120
+1200 START 300 A 400 shot:main_menu LEFT 40 DOWN 40 A 150 shot:gb_prompt A 828 shot:frame_dodrio_boot 1190
+shot:gb_title_dodrio 10 Z 173 shot:frame_green 20 Z 153 shot:frame_doduo 40 Z 153 shot:frame_dodrio 40 CR 53
+shot:speed_x2 140 CR 53 shot:speed_x4 140 START 93 shot:menu_x4 20 DOWN 33 A 53 shot:oak_x4_a 60 shot:oak_x4_b
+20 CR 53 shot:speed_x1 40 A 93 shot:oak_x1

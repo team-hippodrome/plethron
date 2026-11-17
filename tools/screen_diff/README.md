@@ -13,6 +13,10 @@ tools/ares_ref/build.sh build/ares            # safe to rerun
 pip install numpy pillow
 # a Japanese Green cartridge save with a party, for the routes that need the Transfer Pak
 python3 tools/screen_diff/jp_gen1_save.py saves/green_party.sav
+# the GB Player routes: the same save for Red, Blue and Pikachu, and a Zero save with the GB Player's frames and speed
+# unlocked (from any save the game wrote, e.g. <out>/<route>/port.sra of a route without @sram)
+for g in red blue pikachu; do python3 tools/screen_diff/jp_gen1_save.py saves/${g}_party.sav; done
+python3 tools/screen_diff/zero_sram_options.py <a Zero save> saves/gb_unlocked.sra --gb-frames 2
 ```
 
 Environment for the runs (the ROMs are yours and stay out of the repository):
@@ -22,6 +26,8 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `ROM` | Pocket Monsters Stadium (Japan) `.z64` |
 | `ARES_REF_BUILD`, `ARES_REF_SRC` | default `build/ares/build`, `build/ares/ares` (what `build.sh build/ares` makes) |
 | `GB_ROM_GREEN`, `GB_SAV_GREEN` | Pocket Monsters Green `.gb` and the save from `jp_gen1_save.py` |
+| `GB_ROM_RED`, `GB_ROM_BLUE`, `GB_ROM_PIKACHU` (+ `GB_SAV_*`) | the other Japanese carts for the `gb_*` routes; `GB_ROM_GREEN_EMPTY` = the Green `.gb` again, with no save (`gb_cart_check`) |
+| `ZERO_SAVES` | directory with `gb_unlocked.sra` (`gb_frames_speed`) |
 | `PORT_BIN` | default `build/pokestadium` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
@@ -53,6 +59,11 @@ put checkpoints where the screen has settled or right after the press that start
 | `tournament` | Battle → tournament menus |
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
+| `gb_red`, `gb_green`, `gb_blue`, `gb_pikachu` | each Japanese cart in the GB Player: boot, border, intro, title, new game, Prof. Oak's intro (A every 120 frames); Pikachu first shows the cartridge copy screen |
+| `gb_menu` | the C-Up menu and its three help texts, the START/SELECT config screen and choices, then quit to Stadium |
+| `gb_continue_error` | continue with the crafted save: Zero's レポートがただしくないので screen |
+| `gb_frames_speed` | frames and speed unlocked (`zero_sram_options.py --gb-frames 2`): Z cycles Dodrio, green, Doduo, Dodrio; C-Right x2, x4, x1; a new game at x4 |
+| `gb_cart_check` | Green with an empty save: ????? on the cartridge select, GBのポケモンがいない main menu, GB Player |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
 
 ## Timing: why there is a window
