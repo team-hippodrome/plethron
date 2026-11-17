@@ -40,7 +40,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 ## Index
 
 <!-- BEGIN INDEX -->
-147 cases: 13 needed, 5 check, 97 already ported, 32 not applicable.
+147 cases: 13 needed, 4 check, 98 already ported, 32 not applicable.
 
 ### Needed in plethron
 
@@ -68,7 +68,6 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [N64 logo held by a busy-wait on osGetTime: no frames presented for a second (frame gap at boot)](106b-n64-logo-busy-wait-hold.md) | timing-pacing | measured under Xvfb with PORT_TRACE_PACING=1: longest present gap in the first 10 s was 70 ms, so a gap like stadion's 35-50 ms is likely there too; port Port_PacedLogoHold with its replay marker if Windows shows it |
 | [Vulkan stutter at first battle/scene: pipeline states built at first draw (warm-up list)](108-vulkan-pipeline-warmup-first-battle.md) | performance | the list file is inherited byte-identical; its entries come from Stadium 1 recordings |
 | [Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)](lus-89d2976-framebuffer-self-copy-texrect.md) | rendering | comes with the libultraship bump; the known trigger is Stadium 1's Gallery, absent in Zero |
-| [Code that indexes past one global into the next (N64 link order) reads or writes unrelated host memory](notes-adjacent-globals-out-of-bounds.md) | abi-64bit | plethron 915a208 lays byte-layout neighbours out as one N64-shaped block, which fixed the Lab PC tool button colours; reads before a typed symbol such as `gMoveData[usedMove - 1]` are still only covered by an ASan run |
 
 ## All cases by category
 
@@ -143,7 +142,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [Ditto drew as a flat white blob: its conditional-segment callback cut the display-list pointer to 4 bytes](078-ditto-surface-display-list-truncated-pointer.md) | not applicable | Zero's callback tables are converted to u32 segment words, not host pointers, so the 4-byte read is the whole value |
 | [Reset (PRE-NMI) wipe used libultraship's null current-framebuffer stub and detached reset globals](092-prenmi-wipe-null-framebuffer.md) | not applicable | Zero's reset wipe uses its own typed `shownFrame.framebuffer`, not `osViGetCurrentFramebuffer` |
 | [Battle crash with tail-flame Pokemon: static flame draw used slot templates before host conversion](131-tail-flame-slot-templates-unconverted.md) | not applicable | Zero's flame templates are typed and converted by the lifter at load, no lazy converter |
-| [Code that indexes past one global into the next (N64 link order) reads or writes unrelated host memory](notes-adjacent-globals-out-of-bounds.md) | check | plethron 915a208 lays byte-layout neighbours out as one N64-shaped block, which fixed the Lab PC tool button colours; reads before a typed symbol such as `gMoveData[usedMove - 1]` are still only covered by an ASan run |
+| [Code that indexes past one global into the next (N64 link order) reads or writes unrelated host memory](notes-adjacent-globals-out-of-bounds.md) | already ported | plethron 915a208 lays byte-layout neighbours out as one N64-shaped block; an ASan build over all 13 screen-diff routes found one overrun, `ModelScrollStrip.textures[frame & 7]` read past the 6-entry host copy in the intro, fixed in 66ed03b by keeping 8 entries; the rerun is clean. `gMoveData[usedMove - 1]` never fired on these routes |
 | [OSMesg is 8 bytes on the host: message buffers and osRecvMesg destinations sized for 4-byte messages overflow](notes-message-queue-slot-width.md) | already ported | identical port layer: `_Generic` osRecvMesg and port-owned queue storage |
 | [Allocations, clears and strides written as N64 byte counts overflow host structs (Gfx is 16 bytes, pointers 8)](notes-n64-sized-allocations-and-strides.md) | already ported | plethron replaced the literal sizes it found with sizeof / GFX counts; keep auditing new code |
 | [Pointers kept in u32/s32 fields, casts and return values are cut to 32 bits on a 64-bit host](notes-pointers-truncated-in-32bit-slots.md) | already ported | Zero's equivalents are widened; strict per-file ratchet in place |
