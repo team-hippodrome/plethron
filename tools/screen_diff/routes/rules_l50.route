@@ -1,0 +1,4 @@
+# Battle -> トーナメント -> L50～55 -> ルールを見る: the five rules, each opened and closed; the fifth is the 40 Pokémon grid.
+@gb green
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:battle_mode RIGHT 40 A 300 shot:tour_select DOWN 40 A 300 shot:l50_menu DOWN 60 A 200 shot:rules_list A 200 shot:rule1 B 100 DOWN 40 A 200 shot:rule2 B 100 DOWN 40 A 200 shot:rule3 B 100 DOWN 40 A 200 shot:rule4 B 100 DOWN 40 A 200 shot:rule5_grid B 100 shot:back B 100 B 100 shot:out

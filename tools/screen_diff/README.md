@@ -56,6 +56,7 @@ put checkpoints where the screen has settled or right after the press that start
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `rules_free_battle`, `rules_l30`, `rules_l50` | ルールを見る of Free Battle and both tournaments: the rules list, every rule page and the usable Pokémon grid (port checked; checkpoints not yet tuned against ares) |
 | `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 
 ## Timing: why there is a window

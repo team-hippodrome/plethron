@@ -1059,7 +1059,7 @@ ZLIFT_STORAGE(D_82009230, 4);
 ZLIFT_STORAGE(D_82009234, 4);
 ZLIFT_STORAGE(D_82009238, 4);
 ZLIFT_STORAGE(D_8200923C, 60);
-ZLIFT_STORAGE(D_82009278, 720);
+ZLIFT_STORAGE(D_82009278, 72);
 ZLIFT_STORAGE(D_820093E0, 24);
 ZLIFT_STORAGE(D_820093EC, 1940);
 ZLIFT_STORAGE(D_82009B80, 8);
@@ -2729,9 +2729,9 @@ const ZLiftType gZLiftTypes[] = {
     { 4, 4, 254, 1 }, // r:Color_RGBA8@color.h:15
     { 24, 40, 255, 5 }, // r:struct FrameTextures@gb_save.h:99
     { 16, 24, 260, 2 }, // r:struct Img8002A3F8@global.h:658
-    { 4, 4, 262, 1 }, // r:struct Color8002A354@gb_save.c:426
-    { 12, 12, 263, 1 }, // r:struct Ent8002D188@gb_save.c:1429
-    { 4, 4, 264, 1 }, // r:struct Rgba8002D188@gb_save.c:1430
+    { 4, 4, 262, 1 }, // r:struct Color8002A354@gb_save.c:431
+    { 12, 12, 263, 1 }, // r:struct Ent8002D188@gb_save.c:1434
+    { 4, 4, 264, 1 }, // r:struct Rgba8002D188@gb_save.c:1435
     { 10, 10, 265, 3 }, // r:struct MoveAnimInfoZ@battle.h:34
     { 16, 16, 268, 3 }, // r:Vtx_t@gbi.h:1020
     { 32, 56, 271, 7 }, // r:struct ModelSegment@model_vertex_draw.h:75
@@ -2857,8 +2857,8 @@ const ZLiftType gZLiftTypes[] = {
     { 4, 8, 979, 1 }, // p:r:struct OSPiHandle@pi.h:24
     { 4, 8, 980, 1 }, // p:r:struct File1Header@audio_commands.h:16
     { 16, 16, 981, 1 }, // r:struct File1Header@audio_commands.h:16
-    { 4, 8, 982, 1 }, // p:r:struct Bank8003F96C@audio_commands.c:713
-    { 16, 16, 983, 1 }, // r:struct Bank8003F96C@audio_commands.c:713
+    { 4, 8, 982, 1 }, // p:r:struct Bank8003F96C@audio_commands.c:720
+    { 16, 16, 983, 1 }, // r:struct Bank8003F96C@audio_commands.c:720
     { 4, 8, 984, 1 }, // p:r:struct SoundFileTable@audio_commands.c:45
     { 16, 16, 985, 1 }, // r:struct SoundFileTable@audio_commands.c:45
     { 4, 8, 986, 1 }, // p:r:struct song_t@player.h:51
@@ -2869,7 +2869,7 @@ const ZLiftType gZLiftTypes[] = {
     { 4, 8, 991, 1 }, // p:r:struct GbMusicBank@audio_commands.h:57
     { 16, 24, 992, 3 }, // r:struct GbMusicBank@audio_commands.h:57
     { 8, 8, 995, 2 }, // r:struct GbMusicTrackHeader@audio_commands.h:52
-    { 12, 12, 997, 1 }, // r:struct QueuedEntry80043CE8@audio_commands_4.c:748
+    { 12, 12, 997, 1 }, // r:struct QueuedEntry80043CE8@audio_commands_4.c:763
     { 48, 48, 998, 10 }, // r:struct GbSynthSquare1@gb_audio_render.c:63
     { 40, 40, 1008, 7 }, // r:struct GbSynthSquare2@gb_audio_render.c:42
     { 32, 32, 1015, 2 }, // r:struct GbSynthWave@gb_audio_render.c:57
@@ -2883,21 +2883,21 @@ const ZLiftType gZLiftTypes[] = {
     { 928, 928, 1044, 1 }, // as1u[928]
     { 16, 24, 1045, 4 }, // r:block_param_form@internal.h:19
     { 4, 4, 1049, 1 }, // r:LEOVersion@leo.h:33
-    { 24, 32, 1050, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:885
+    { 24, 32, 1050, 17 }, // r:struct NoteSampleState@audio_and_gb_emulator.h:955
     { 8, 16, 1067, 2 }, // r:struct SoundFontSound@audio_and_gb_emulator.h:261
     { 16, 32, 1069, 8 }, // r:struct Sample@audio_and_gb_emulator.h:203
-    { 8, 8, 1077, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:566
+    { 8, 8, 1077, 1 }, // r:struct GbAudioStream@audio_and_gb_emulator.h:636
     { 48, 56, 1078, 5 }, // r:struct AudioSpec@audio_and_gb_emulator.h:179
     { 18, 18, 1083, 4 }, // r:struct ReverbSettings@audio_and_gb_emulator.h:166
     { 32, 32, 1087, 6 }, // r:struct AudioTable@audio_and_gb_emulator.h:235
-    { 100, 160, 1093, 22 }, // r:struct GbPlayerTask@gb_emu_screen.c:272
-    { 60, 96, 1115, 15 }, // r:struct GbEmuTask@audio_and_gb_emulator.h:523
-    { 88, 120, 1130, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:458
+    { 100, 160, 1093, 22 }, // r:struct GbPlayerTask@gb_emu_screen.c:275
+    { 60, 96, 1115, 15 }, // r:struct GbEmuTask@audio_and_gb_emulator.h:593
+    { 88, 120, 1130, 16 }, // r:struct GbEmuState@audio_and_gb_emulator.h:528
     { 4, 8, 1146, 1 }, // p:s2u
     { 196, 328, 1147, 2 }, // r:struct SlowLoads8110E500@audio_load_2.c:332
     { 96, 160, 1149, 23 }, // r:struct AudioSlowLoad@audio_and_gb_emulator.h:245
     { 80, 80, 1172, 17 }, // r:struct GbApuChannelState@audio_and_gb_emulator.h:329
-    { 4, 4, 1189, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:445
+    { 4, 4, 1189, 2 }, // r:struct GbApuWrite@audio_and_gb_emulator.h:515
     { 4, 4, 1191, 1 }, // r:struct GbApuStatusOverride@audio_and_gb_emulator.h:368
     { 344, 528, 1192, 26 }, // r:struct SynthesisReverb@audio_and_gb_emulator.h:276
     { 100, 160, 1218, 1 }, // ar:struct ReverbRingBufferItem@audio_and_gb_emulator.h:266[5]
@@ -2910,14 +2910,14 @@ const ZLiftType gZLiftTypes[] = {
     { 16, 16, 1253, 1 }, // r:struct AudioSessionPoolSplit@audio_and_gb_emulator.h:310
     { 8, 8, 1254, 1 }, // r:struct AudioCachePoolSplit@audio_and_gb_emulator.h:317
     { 12, 12, 1255, 1 }, // r:struct AudioCommonPoolSplit@audio_and_gb_emulator.h:322
-    { 4, 8, 1256, 1 }, // p:r:struct Note@audio_and_gb_emulator.h:911
-    { 204, 272, 1257, 57 }, // r:struct Note@audio_and_gb_emulator.h:911
-    { 16, 32, 1314, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:581
-    { 64, 128, 1318, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:600
-    { 132, 192, 1334, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:773
-    { 4, 4, 1370, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:625
-    { 212, 352, 1371, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:709
-    { 348, 512, 1419, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:667
+    { 4, 8, 1256, 1 }, // p:r:struct Note@audio_and_gb_emulator.h:981
+    { 204, 272, 1257, 57 }, // r:struct Note@audio_and_gb_emulator.h:981
+    { 16, 32, 1314, 4 }, // r:struct AudioListItem@audio_and_gb_emulator.h:651
+    { 64, 128, 1318, 16 }, // r:struct NotePool@audio_and_gb_emulator.h:670
+    { 132, 192, 1334, 36 }, // r:struct SequenceLayer@audio_and_gb_emulator.h:843
+    { 4, 4, 1370, 1 }, // r:struct EnvelopePoint@audio_and_gb_emulator.h:695
+    { 212, 352, 1371, 48 }, // r:struct SequenceChannel@audio_and_gb_emulator.h:779
+    { 348, 512, 1419, 40 }, // r:struct SequencePlayer@audio_and_gb_emulator.h:737
     { 348, 348, 1459, 2 }, // r:struct SequencePlayerFromSkipTicks@audio_load.c:1031
     { 4, 8, 1461, 1 }, // p:r:SampleFlags8110F64C@audio_load_2.c:723
     { 4, 4, 1462, 5 }, // r:SampleFlags8110F64C@audio_load_2.c:723
@@ -2927,7 +2927,7 @@ const ZLiftType gZLiftTypes[] = {
     { 16, 24, 1482, 4 }, // r:struct SampleDma8110C1C0@audio_load.c:451
     { 4, 8, 1486, 1 }, // p:r:struct SoundFont@audio_and_gb_emulator.h:93
     { 12, 24, 1487, 3 }, // r:struct SoundFont@audio_and_gb_emulator.h:93
-    { 56, 56, 1490, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:546
+    { 56, 56, 1490, 4 }, // r:struct AudioBufferParameters@audio_and_gb_emulator.h:616
     { 8, 8, 1494, 1 }, // as4s[2]
     { 4, 8, 1495, 1 }, // p:r:struct OSMesgQueue@message.h:47
     { 12, 12, 1496, 2 }, // r:struct ModelSmokeSpawnFrames@model_callbacks.h:66
@@ -2995,15 +2995,15 @@ const ZLiftType gZLiftTypes[] = {
     { 24, 24, 2003, 3 }, // r:struct unk_D_843847BC@battle.h:435
     { 8, 16, 2006, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:893
     { 44, 80, 2009, 3 }, // r:struct BattleSceneStateRow@battle.h:400
-    { 6, 6, 2012, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1158
-    { 3, 3, 2013, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:139
+    { 6, 6, 2012, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1159
+    { 3, 3, 2013, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:140
     { 2, 2, 2014, 1 }, // r:struct StatStageMultiplier@battle.h:923
     { 48, 48, 2015, 1 }, // r:struct BRollShotSequence@broll_camera.c:376
     { 7, 7, 2016, 1 }, // r:struct Arr82133534@demo_mode11.c:259
     { 396, 792, 2017, 1 }, // ap:r:struct Cue82133A44@demo_battle_setup.c:147[99]
     { 6, 6, 2018, 1 }, // r:struct Cue82133A44@demo_battle_setup.c:147
     { 14, 14, 2019, 3 }, // r:struct Step82133B6C@demo_battle_setup.c:221
-    { 20, 20, 2022, 2 }, // r:struct S0Learnset@damage_estimate.c:310
+    { 20, 20, 2022, 2 }, // r:struct S0Learnset@damage_estimate.c:314
     { 16, 32, 2024, 4 }, // r:struct ParticleDescriptorChild@battle.h:673
     { 8, 16, 2028, 2 }, // r:struct ParticleDescriptor@battle.h:688
     { 8, 16, 2030, 1 }, // ap:s1u[2]
@@ -7542,7 +7542,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x82009234, 0x4, 1, 74, 8, 0, 0x9234, D_82009234 }, // D_82009234
     { 0x82009238, 0x4, 1, 74, 8, 0, 0x9238, D_82009238 }, // D_82009238
     { 0x8200923C, 0x3C, 15, 74, 8, 0, 0x923C, D_8200923C }, // D_8200923C
-    { 0x82009278, 0x168, 30, 311, 8, 0, 0x9278, D_82009278 }, // D_82009278
+    { 0x82009278, 0x24, 3, 311, 8, 0, 0x9278, D_82009278 }, // D_82009278
     { 0x820093E0, 0xC, 3, 312, 8, 0, 0x93E0, D_820093E0 }, // D_820093E0
     { 0x820093EC, 0x794, 1940, 6, 8, 0, 0x93EC, D_820093EC }, // D_820093EC
     { 0x82009B80, 0x8, 8, 6, 8, 0, 0x9B80, D_82009B80 }, // D_82009B80

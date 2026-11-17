@@ -79,6 +79,7 @@ bool Port::LoadRom(const char* path) {
         return false;
     }
     ZLift_LoadImage(0); // Stadium Zero's resident data, from this ROM (zero_lift.c)
+    ZLift_AuditAll();   // only with PORT_LIFT_AUDIT
     return true;
 }
 

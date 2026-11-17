@@ -270,6 +270,88 @@ static void liftElems(const uint8_t* src, uint8_t* dst, int type, uint32_t count
 }
 
 static int sWarnedUnknown;
+static int typeIsBytes(int type);
+
+// Whether a type's lifted form holds host pointers (pointer, function pointer or maybe-pointer words, at any depth).
+static int typeHasPtr(int type) {
+    const ZLiftType* t = &gZLiftTypes[type];
+    for (uint32_t i = 0; i < t->opCount; i++) {
+        const ZLiftOp* o = &gZLiftOps[t->opStart + i];
+        if (o->kind == ZLIFT_PTR || o->kind == ZLIFT_FNPTR || o->kind == ZLIFT_MAYBEPTR) {
+            return 1;
+        }
+        if (o->kind == ZLIFT_REC && typeHasPtr(o->sub)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int sAudit = -1;
+#define AUDIT (sAudit < 0 ? (sAudit = getenv("PORT_LIFT_AUDIT") != NULL) : sAudit)
+static uint32_t sPointerTails;
+
+// A pointer into a symbol's storage that cannot be read through the pointer's type. gen_lift.py sizes a symbol up to
+// the next named one, so a symbol declared as one small object (D_8200923C, one Color_RGBA8) also owns the unnamed data
+// after it, laid out as more elements of its own type. When that type holds no pointers and the pointee type does
+// (the 14 rule-row string tables of the Battle Mode rules lists, char*[] at 0x82009240..0x82009278), the storage
+// there is the N64's 32-bit words, and reading them as host pointers crashes (ルールを見る, every mode). Such data is
+// lifted on its own as the pointee type, as unnamed data is. Only for initialized data: bss is written by host code
+// in the symbol's host layout.
+static int pointsIntoForeignTail(const ZLiftSym* s, uint32_t v, int pointee) {
+    if (pointee < 0 || v == s->addr || s->bss || v >= s->addr + s->n64Ext) {
+        return 0;
+    }
+    if (pointee == s->type) {
+        // the symbol's own type, but not at an element boundary: another table of that type after it
+        uint32_t n = gZLiftTypes[pointee].n64Size;
+        if (n == 0 || (v - s->addr) % n == 0 || findPart(v) == NULL) {
+            return 0;
+        }
+        if (TRACE || AUDIT) {
+            fprintf(stderr, "[lift] pointer 0x%08X into the symbol at 0x%08X (type %d x%u) between two elements: "
+                    "lifted on its own\n", v, s->addr, s->type, s->count);
+        }
+        sPointerTails++;
+        return 1;
+    }
+    if (AUDIT && typeIsBytes(pointee) && !typeIsBytes(s->type) && findPart(v) != NULL) {
+        // not redirected (code reads lifted words through byte pointers on purpose, ZLift_ScalarSize), only listed
+        fprintf(stderr, "[lift] audit: byte pointer 0x%08X into the converted data of the symbol at 0x%08X (type %d)\n",
+                v, s->addr, s->type);
+    }
+    if (typeHasPtr(s->type) || !typeHasPtr(pointee)) {
+        return 0;
+    }
+    if (findPart(v) == NULL) {
+        return 0;
+    }
+    if (TRACE || AUDIT) {
+        fprintf(stderr, "[lift] pointer 0x%08X into the pointer-free data of the symbol at 0x%08X (type %d x%u), "
+                "read as type %d: lifted on its own\n", v, s->addr, s->type, s->count, pointee);
+    }
+    sPointerTails++;
+    return 1;
+}
+
+// Whether data pointed at as `pointee` can be read in a lazy block lifted as another type. An unnamed block runs to
+// the next named symbol, so it can cover tables of other types after the one it was lifted for (after the Battle Mode
+// rules' records at 0x820092C8 come the string tables their rows point at): a pointer into those gets its own block.
+static int lazyFits(const LazyBlock* b, uint32_t v, int pointee) {
+    if (pointee < 0) {
+        return 1;
+    }
+    if (b->type == pointee) {
+        // an element of the block's own type must start on an element boundary: the mode 2 rule records
+        // (0x820093A4) are 0xDC bytes, not a whole number of records, after the mode 0 ones (0x820092C8)
+        uint32_t n = gZLiftTypes[pointee].n64Size;
+        return n == 0 || (v - b->addr) % n == 0;
+    }
+    if (b->type < 0 || typeIsBytes(b->type)) {
+        return !typeHasPtr(pointee) && typeIsBytes(pointee);
+    }
+    return 0;
+}
 
 static void* resolve(uint32_t v, int pointee) {
     if (v == 0) {
@@ -283,6 +365,9 @@ static void* resolve(uint32_t v, int pointee) {
         nextBound(v) > v) {
         // One past a symbol, where unnamed data of another type starts (the Pokédex text after D_80060A00's display
         // list): a pointer to that data, not an end pointer of the symbol.
+        s = NULL;
+    }
+    if (s != NULL && pointsIntoForeignTail(s, v, pointee)) {
         s = NULL;
     }
     if (s != NULL) {
@@ -305,6 +390,13 @@ static void* resolve(uint32_t v, int pointee) {
     for (uint32_t i = 0; i < sLazyCount; i++) {
         LazyBlock* b = &sLazy[i];
         if (v >= b->addr && v < b->addr + b->n64Ext) {
+            if (v != b->addr && !lazyFits(b, v, pointee)) {
+                if (AUDIT) {
+                    fprintf(stderr, "[lift] pointer 0x%08X into the unnamed block at 0x%08X (type %d), read as type %d: "
+                            "lifted on its own\n", v, b->addr, b->type, pointee);
+                }
+                continue; // another table that only follows this block's start (the rules' row and record tables)
+            }
             long off = b->type >= 0 ? translate(b->type, v - b->addr) : (long)(v - b->addr);
             return b->host + (off < 0 ? 0 : off);
         }
@@ -566,4 +658,18 @@ void ZLift_LoadImage(int image) {
         fprintf(stderr, "[lift] image %d (%s): %u symbols\n", image,
                 image >= 0 && (uint32_t)image < gZLiftImageCount ? gZLiftImages[image].name : "?", n);
     }
+}
+
+// PORT_LIFT_AUDIT=1: lifts every image once and lists the pointers that pointsIntoForeignTail() redirected (stderr),
+// then exits. Run after regenerating the lifter tables or changing an extern data declaration.
+void ZLift_AuditAll(void) {
+    if (!AUDIT) {
+        return;
+    }
+    for (uint32_t i = 0; i < gZLiftImageCount; i++) {
+        ZLift_LoadImage((int)i);
+    }
+    fprintf(stderr, "[lift] audit: %u images, %u pointers into pointer-free symbol tails, %u unnamed blocks\n",
+            gZLiftImageCount, sPointerTails, sLazyCount);
+    exit(0);
 }

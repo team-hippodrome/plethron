@@ -77,6 +77,8 @@ extern const uint32_t gZLiftPartCount;
 // Fills (or resets) every symbol of an image from the ROM; bss is zeroed. Image 0 is the resident code, image n+1
 // is fragment n.
 void ZLift_LoadImage(int image);
+// PORT_LIFT_AUDIT=1: lift every image, report pointers the lifter had to redirect, exit (zero_lift.c).
+void ZLift_AuditAll(void);
 // The image whose vram slot holds addr (-1 if none).
 int ZLift_ImageOfAddr(uint32_t addr);
 // Host address of an N64 address in lifted data or code (NULL if unknown). Unnamed data is lifted on first use as

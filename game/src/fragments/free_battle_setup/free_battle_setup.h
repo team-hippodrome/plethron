@@ -281,7 +281,7 @@ extern char* D_82009190[4];
 extern char* D_820091A0[7];
 extern FreeBattleCupEntry D_820091C4[4];
 extern FreeBattleMonGridConfig D_820091EC[2];
-extern FreeBattlePopupItems D_82009278[30];
+extern FreeBattlePopupItems D_82009278[3]; // the rules list of each mode; the record and row tables after it are reached through D_820093E0 and the lifter lifts them on their own
 extern FreeBattlePopupItems* D_820093E0[3];
 extern void* D_8200AC40; // the archive of FreeBattle_LoadArchiveFiles
 extern ModelLoadContext* D_8200AC44;
