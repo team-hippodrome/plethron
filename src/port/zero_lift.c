@@ -492,6 +492,22 @@ uint32_t ZLift_N64Addr(const void* host) {
     return 0;
 }
 
+// The bytes at N64 link address addr as the image holds them (big-endian, relocated pointers as link
+// addresses), with at least len bytes available; NULL otherwise. For data the lifter typed too small.
+const uint8_t* ZLift_ImageData(uint32_t addr, uint32_t len) {
+    int image = ZLift_ImageOfAddr(addr);
+    if (image < 0 || addr < gZLiftImages[image].vram) {
+        return NULL;
+    }
+    size_t size;
+    const uint8_t* img = imageBytes(image, &size);
+    uint32_t off = addr - gZLiftImages[image].vram;
+    if (img == NULL || (size_t)off + len > imageDataEnd(image, img, size)) {
+        return NULL;
+    }
+    return img + off;
+}
+
 int ZLift_ImageOfAddr(uint32_t addr) {
     for (uint32_t i = 1; i < gZLiftImageCount; i++) {
         if ((addr & 0xFFF00000u) == (gZLiftImages[i].vram & 0xFFF00000u)) {
