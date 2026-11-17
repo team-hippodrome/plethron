@@ -21,6 +21,9 @@ extern f32 D_FLT_82199EB0;
  * final at frame 90 (or 10 once the player has picked). Nothing times out.
  */
 s32 BattleMenu_TickCommandTimer(void) {
+    if (D_FLT_82199EB0 == 0.0f) {
+        Port_SyncEvent("cmd"); // PORT: a command phase starts (tools/screen_diff sync:cmd; ares_ref hooks this entry)
+    }
     if (D_FLT_82199EB0 >= 150.0f) {
         return 1;
     }
@@ -690,11 +693,13 @@ static void Port_Debug_WeakenCom(ActivePokemon* active_pokemon) {
     ActivePokemon* foe;
     s32 i;
 
-    if (!Port_DebugWeakCom() || !active_pokemon->teamRoster->isHuman) {
+    // isHuman is 1 for a player and 2 (Free Battle) or 3 (tournament templates) for the COM: bit 1 marks the COM, as
+    // the battle code itself tests it (turn_actions.c). Testing it for zero never matched, so the aid never ran.
+    if (!Port_DebugWeakCom() || (active_pokemon->teamRoster->isHuman & 2)) {
         return;
     }
     foe = sActivePokemon[BattleScene_GetParticipantSideIndex(active_pokemon) == 0];
-    if (foe->teamRoster->isHuman || foe->side->displayMon == NULL) {
+    if (!(foe->teamRoster->isHuman & 2) || foe->side->displayMon == NULL) {
         return;
     }
     for (i = 0; i < 6; i++) {

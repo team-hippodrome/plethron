@@ -16,3 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 tools/check_port_decls.py
+
+  return-values:
+    # Callers that use the value of a function with no return statement (or a void one declared non-void elsewhere):
+    # on the N64 they read whatever the callee left in v0, on the PC garbage (tools/check_return_values.py)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true  # libultraship's headers
+      - run: python3 -I tools/check_return_values.py --report return-values.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: return-values
+          path: return-values.txt

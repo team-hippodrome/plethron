@@ -8,6 +8,11 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
   hold:A:30                                                hold 30 frames (then 1 idle)
   <number>                                                 wait that many frames
   shot:<label>                                             a checkpoint: capture this frame on both sides
+  sync:<event>                                             a sync point: each side waits here until its game reaches
+                                                           the event, then goes on counting frames (events: cmd = a
+                                                           battle command phase starts, move = a move's presentation
+                                                           starts, after its "X used Y" message);
+                                                           put it right after the press that leads to the event
 and header lines:
   @sram <file>         start from this Stadium Zero SRAM (32 KiB, N64 byte order; relative to the route file or $ZERO_SAVES);
                        default: a blank save on both sides
@@ -20,6 +25,10 @@ and header lines:
                        skips the N64's boot and runs the intro a few percent fast, so it is that far ahead of ares
                        until the first input; presses happen on the same frame on both sides, and the game waits for
                        them, which lines the two up again)
+  @rng <seed>          seed the battle's random numbers alike on both sides (PORT_XCHECK_RNG / ARES_REF_XCHECK_RNG:
+                       Battle_Random, the COM's BattleAi_StirRandom and guRandom); without it battles differ, since
+                       both games time their random numbers with the CPU counter. The values drawn go to
+                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them)
 # starts a comment.
 
 The port runs hidden at native resolution (PORT_RESOLUTION=native, 4:3) in the original text (PORT_LANGUAGE=kana: no
@@ -39,7 +48,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, window=(12, 120), boot_offset=-165)
+    r = dict(presses=[], shots=[], sram=None, gb=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[])
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -59,6 +68,8 @@ def parse_route(path):
                 r["window"] = tuple(int(v) for v in val.split())
             elif key == "boot_offset":
                 r["boot_offset"] = int(val)
+            elif key == "rng":
+                r["rng"] = str(int(val, 0))
             else:
                 sys.exit("%s: unknown header @%s" % (path, key))
             continue
@@ -70,6 +81,11 @@ def parse_route(path):
                 if any(l == label for _, l in r["shots"]):
                     sys.exit("%s: checkpoint %s twice" % (path, label))
                 r["shots"].append((frame, label))
+            elif tok.lower().startswith("sync:"):
+                event = tok.split(":", 1)[1]
+                if event not in SYNC_EVENTS:
+                    sys.exit("%s: unknown sync event %r (known: %s)" % (path, event, " ".join(SYNC_EVENTS)))
+                r["syncs"].append((frame, event))
             elif tok.lower().startswith("hold:"):
                 _, spec, n = tok.split(":")
                 mask(spec)
@@ -83,6 +99,9 @@ def parse_route(path):
     first = r["presses"][0][0] if r["presses"] else None
     r["port_shots"] = [(f + r["boot_offset"] if first is None or f <= first else f, l) for f, l in r["shots"]]
     return r
+
+
+SYNC_EVENTS = ("cmd", "move")  # PORT_SYNC events: game/src/fragments/battle (Port_SyncEvent), tools/ares_ref (hooks)
 
 
 def mask(spec):
@@ -131,6 +150,12 @@ def run_port(r, out, extra_env):
             gbsav = os.path.join(out, "port_gb.sav")
             shutil.copyfile(os.environ["GB_SAV_" + r["gb"]], gbsav)
             env["PORT_GB_SAVE"] = gbsav
+    if r["syncs"]:
+        env["PORT_SYNC"] = ",".join("%d:%s" % s for s in r["syncs"])
+        env["PORT_SYNC_LOG"] = os.path.join(out, "port_sync.txt")
+    if r["rng"]:
+        env["PORT_XCHECK_RNG"] = r["rng"]
+        env["PORT_XCHECK"] = os.path.join(out, "port_rng.txt")
     env.update(extra_env)
     binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
     with open(os.path.join(out, "port.log"), "w") as log:
@@ -168,6 +193,8 @@ def run_ares(r, out):
         d = os.path.join(adir, label)
         os.makedirs(d)
         lines.append("window %d %d %s\n" % (max(1, f + 1 - w[0]), f + 1 + w[1], d))
+    for f, event in r["syncs"]:
+        lines.append("sync %d %s\n" % (f + 1, event))
     lines.append("end %d\n" % (r["end"] + 1))
     scr = os.path.join(out, "ares.txt")
     open(scr, "w").writelines(lines)
@@ -181,6 +208,11 @@ def run_ares(r, out):
         if os.environ.get("GB_SAV_" + r["gb"]):
             env["ARES_REF_GBSAV"] = os.environ["GB_SAV_" + r["gb"]]
         env.setdefault("ARES_REF_GBBOARD", "MBC3" if r["gb"] in ("YELLOW", "PIKACHU") else "MBC1")
+    if r["syncs"]:
+        env["ARES_REF_SYNC_LOG"] = os.path.join(out, "ares_sync.txt")
+    if r["rng"]:
+        env["ARES_REF_XCHECK_RNG"] = r["rng"]
+        env["ARES_REF_XCHECK"] = os.path.join(out, "ares_rng.txt")
     link = os.path.join(out, "rom.z64")  # nall rewrites path arguments with spaces
     if os.path.lexists(link):
         os.remove(link)
@@ -232,7 +264,40 @@ def main():
         run_port(r, out, extra)
     if "--port-only" not in flags:
         run_ares(r, out)
+    if r["syncs"]:
+        check_sync(out, len(r["syncs"]))
+    if r["rng"]:
+        check_rng(out)
     print("%s: %d checkpoints, %d frames -> %s" % (os.path.basename(route), len(r["shots"]), r["end"], out))
+
+
+def check_sync(out, n):
+    """How long each side waited at each sync point (a timeout: the event never came, so the two went apart)."""
+    for side in ("port", "ares"):
+        path = os.path.join(out, side + "_sync.txt")
+        rows = [l.split() for l in open(path)] if os.path.exists(path) else []
+        waits = " ".join("%s:%s%s" % (r[2], r[5], "(timeout)" if "timeout" in r else "") for r in rows)
+        print("%s sync points reached %d/%d, waited %s" % (side, len(rows), n, waits or "-"))
+
+
+def check_rng(out):
+    """Compares the random values both games drew (@rng): the same function, call and value in the same order, or
+    the battles went apart (a function called a different number of times, e.g. one side's extra turn)."""
+    def draws(name):
+        path = os.path.join(out, name)
+        if not os.path.exists(path):
+            return None
+        return [tuple(l.split()[1:5]) for l in open(path) if l.startswith("R ")]
+    port, ares = draws("port_rng.txt"), draws("ares_rng.txt")
+    if port is None or ares is None:
+        return
+    first = next((i for i, (a, b) in enumerate(zip(port, ares)) if a[0::3] != b[0::3] or a[1] != b[1]), None)
+    if first is None and len(port) == len(ares):
+        print("random numbers: the same %d draws on both sides" % len(port))
+    elif first is None:
+        print("random numbers: the first %d draws agree; port drew %d, ares %d" % (min(len(port), len(ares)), len(port), len(ares)))
+    else:
+        print("random numbers: draw %d differs (port %s, ares %s)" % (first, " ".join(port[first]), " ".join(ares[first])))
 
 
 if __name__ == "__main__":

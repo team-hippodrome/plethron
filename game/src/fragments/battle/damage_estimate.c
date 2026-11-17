@@ -63,6 +63,7 @@ extern char** sBattleControllerDisconnectedMessage;
 #define CLOYSTER_OB1  (CLOYSTER - 1)
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_Xcheck*
 
 u16 BattleAi_ApplyMoveEffectDamageOverride(BattleMonRuntime* arg0, BattleMonRuntime* arg1); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
 void BattleAi_ClampDamageRatio(void);
@@ -279,7 +280,10 @@ void BattleCalc_AddBaseDamage(u8*, u8*);
  * switch in battle.
  * @unverified Name guessed from the code; comment kept.
  */
-void BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
+// PORT: was void with no return statement; the COM AI (BattleAi_EstimateDamage) uses its result, which on the N64 is
+// whatever BattleAi_ApplyMoveEffectDamageOverride left in v0. On the PC that value was garbage (12208 for a
+// ThunderShock), so the COM thought every damaging move would knock out and never picked a status move.
+u16 BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
     D_82199F33 = D_82199F32;
     D_82199F32 = 0;
     BattleAi_PrepareDamageCalcState(arg0, arg1, arg2);
@@ -287,7 +291,7 @@ void BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
     BattleCalc_ApplyTypeEffectAndStab(arg0, arg1);
     BattleAi_ClampDamageRatio();
     D_82199F32 = D_82199F33;
-    BattleAi_ApplyMoveEffectDamageOverride(arg0, arg1);
+    return BattleAi_ApplyMoveEffectDamageOverride(arg0, arg1);
 }
 
 /**
@@ -471,5 +475,11 @@ extern f64 D_DBL_82195778;
  */
 u8 Battle_Random(void)
 {
-  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (osGetCount() / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
+  u32 count = osGetCount();
+  int forced;
+
+  // PORT: comparison against ares (src/port/xcheck.cpp, PORT_XCHECK_RNG): a seeded stream instead of the CPU timer,
+  // which the ares driver puts in the same place, so both games draw the same numbers
+  if (Port_XcheckRandom(0, 0, &forced, __builtin_return_address(0))) count = (u32)forced;
+  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (count / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
 }

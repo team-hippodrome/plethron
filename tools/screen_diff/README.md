@@ -51,9 +51,12 @@ put checkpoints where the screen has settled or right after the press that start
 | `intro_attract` | N64 logo, intro Pokémon, title, the attract-mode battle (no cartridge) |
 | `free_battle` | lobby, cartridge select, P-OS, main menu, Battle, Free Battle vs COM, entry, arena intro, VS, order screen |
 | `tournament` | Battle → tournament menus |
+| `tournament_l30` | L1～30 tournament, Poké Ball Cup round 1: cup select, rentals (5 + the cart's Pikachu), VS scene (round title, trainer panels, teams), order screen, battle intro, surrender, results board, かち / まけ, back to the menu (`@rng`) |
+| `tournament_l50` | the same for the L50～55 tournament (no cup select, all six from rentals) |
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 
 ## Timing: why there is a window
 
@@ -64,6 +67,18 @@ picture per checkpoint (`@boot_offset` shifts the ones before the first press) a
 before to 120 after it (`@window`); `compare.py` scores the port picture against the closest of those. The chosen
 offset is in the report: a large one is a timing difference, not a rendering one.
 
-Known limits: the attract battle picks its Pokémon at random, and the port's random numbers differ from ares's, so
-its late checkpoints compare different battles. On the Free Battle order screen 1P's picks did not register with
-these inputs in either the port or ares, so `free_battle` stops there.
+## Battles: seeded random numbers (`@rng <seed>`)
+
+Both games time their random numbers with the CPU counter, so without help the same inputs give different battles.
+`@rng <seed>` makes the battle's two osGetCount reads (`Battle_Random`, the COM's `BattleAi_StirRandom`) return a
+seeded stream instead, and restarts `guRandom` (particles) at each battle's start and each move, on both
+sides: `PORT_XCHECK_RNG` in the port (`src/port/xcheck.cpp`) and `ARES_REF_XCHECK_RNG` in ares_ref (CPU host hooks:
+`build.sh` applies `ares-host-hooks.patch`). The values drawn go to `port_rng.txt` and `ares_rng.txt` in the run
+directory, and run.py says whether they agree.
+
+The order screen takes 1P's picks only after the COM panel has made its own (about 250 frames after the screen
+appears); presses before that are dropped in both games.
+
+Known limits: the attract battle (no presses) is not seeded the same way yet: its Pokémon come from the title
+screen's own generator. In battle the N64 slows down in busy effects while the port does not, so ares falls further
+behind during a battle and fixed-frame presses late in a battle can land in a different state.

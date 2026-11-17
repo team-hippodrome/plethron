@@ -9,7 +9,7 @@
 void AudioEffects_SequencePlayerProcessSound(SequencePlayer*);
 void AudioPlayback_NotePoolClear(s8*);
 void AudioThread_QueueCmdS8(u32 cmd, s8 arg1);
-void AudioThread_ScheduleProcessCmds(void);
+s32 AudioThread_ScheduleProcessCmds(void); // PORT: matches the definition
 
 s32 AudioLoad_IsFontLoadComplete(s32);
 s32 AudioLoad_IsSeqLoadComplete(s32);

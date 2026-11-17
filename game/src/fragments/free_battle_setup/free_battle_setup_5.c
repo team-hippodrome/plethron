@@ -665,11 +665,13 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen*);
  * One frame of the battle setup screen.
  * Seen in play: runs every frame on the battle menu screens (バトルモード, たいせんルールせんたく).
  */
-void FreeBattle_RunFrame(FreeBattleScreen* screen) {
+// PORT: v0. Was void with no return; BgStage_RunUntilCondition (func_80006828) runs it until it returns nonzero,
+// which on the N64 is what FreeBattle_UpdateScreen left in v0 (the screen closing).
+s32 FreeBattle_RunFrame(FreeBattleScreen* screen) {
     Cont_StartReadInputs();
     Cont_ReadInputs();
     FreeBattle_DrawScreen(D_8200AD28);
-    FreeBattle_UpdateScreen(D_8200AD28);
+    return FreeBattle_UpdateScreen(D_8200AD28);
 }
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */

@@ -18,6 +18,10 @@ if [ ! -d "$WORK/ares/.git" ]; then
 fi
 git -C "$WORK/ares" fetch --depth 1 origin "$ARES_COMMIT" 2>/dev/null || true
 git -C "$WORK/ares" checkout -q "$ARES_COMMIT"
+# CPU host hooks (an inert list unless the driver fills it; the battle's seeded random numbers use them)
+if ! grep -q "hostHooks" "$WORK/ares/ares/n64/cpu/cpu.hpp"; then
+    git -C "$WORK/ares" apply "$HERE/ares-host-hooks.patch"
+fi
 # add the driver target before the top-level CMakeLists' final return()
 if ! grep -q "ares_ref" "$WORK/ares/CMakeLists.txt"; then
     python3 -I - "$WORK/ares/CMakeLists.txt" "$HERE/ares_ref.cpp" <<'EOF'

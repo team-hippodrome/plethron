@@ -9,7 +9,7 @@ typedef struct unk_D_800FCF28 {
 } unk_D_800FCF28; // size = 0x1140
 
 // audio_channel.c
-void Audio_SetMonoOutput(s32 arg0);
+s32 Audio_SetMonoOutput(s32 arg0); // PORT: was void (see audio_channel.c)
 void Audio_IsSoundPlayingWrapper(s32 arg0);
 
 #endif // AUDIO_CHANNEL_H
