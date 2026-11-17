@@ -54,7 +54,7 @@ void AudioPlayback_InitSampleState(s8* note, NoteSubAttributes* reverb_info) {
     pan = reverb_info->pan;
     reverb_vol = reverb_info->reverbVol;
     reverb_bits = reverb_info->reverbBits;
-    sub = (NoteSampleState*)(note + 0xB4);
+    sub = &((Note*)note)->sampleState; // PORT: was (NoteSampleState*)(note + 0xB4), the N64 offset
     pan &= 0x7F;
 
     if (sub->stereoHeadsetEffects && D_811858EE == 1) {
@@ -146,7 +146,7 @@ typedef struct SampleStateFlags811105DC {
  * @unverified Name and comment guessed from the code.
  */
 void AudioPlayback_NoteSetResamplingRate(s8* arg0, f32 arg1) {
-    SampleStateFlags811105DC* flags = (SampleStateFlags811105DC*)(arg0 + 0xB4);
+    SampleStateFlags811105DC* flags = (SampleStateFlags811105DC*)&((Note*)arg0)->sampleState; // PORT: was (arg0 + 0xB4), the N64 offset
     f32 resampling_rate;
 
     if (arg1 < 2.0f) {

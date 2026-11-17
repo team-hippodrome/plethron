@@ -4029,7 +4029,7 @@ s32 BattleScene_Init(StageContext* arg0);
 s32 BattleAnim_PollAssetLoadBusy(ActivePokemon* active_pokemon);
 s32 BattleAnim_IsModelBusy(ActivePokemon* active_pokemon);
 void Battle_MarkIllegalMoves(ActivePokemon* pokemon, u16 pokemon_id, SpeciesLearnsetBuffer* red_blue_learnset, SpeciesLearnsetBuffer* yellow_learnset);
-void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon);
+void BattleScene_TryQueueIdleCueEffect(ActivePokemon* active_pokemon);
 void BattleThumbnail_InitializeOwnerCameraFraming(CameraNode* camera0, ActivePokemon* pokemon0, CameraNode* camera1, ActivePokemon* pokemon1); // PORT: signature from the definition (fragments/battle/thumbnail.c)
 void BattleThumbnail_TickOwnerSlideOut(ActivePokemon* active_pokemon, s32 delta);
 s32 BattleScene_GetTeamMemberTeamSize(ActivePokemon* active_pokemon);

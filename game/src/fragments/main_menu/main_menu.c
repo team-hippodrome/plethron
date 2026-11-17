@@ -598,7 +598,7 @@ void MainMenu_DrawScreen(MainMenuScreen* screen) {
     s32 temp_v0;
 
     BgStage_DrawFrame();
-    Ui_DrawTintedScreenBackground(56, 480, M2C_FIELD(&D_88002254, u8 *, 0), M2C_FIELD(&D_88002254, u8 *, 1), (s32) M2C_FIELD(&D_88002254, u8 *, 2));
+    Ui_DrawTintedScreenBackground(56, 480, Port_WordByte(D_88002254, 0), Port_WordByte(D_88002254, 1), (s32) Port_WordByte(D_88002254, 2)); // PORT: was M2C_FIELD(&D_88002254, u8*, 0..2): the lifted word is in host order
     temp_v0 = screen->state;
     switch (temp_v0) {                              /* irregular */
     case 1:
@@ -856,7 +856,7 @@ extern M2C_UNK D_88002254;
  */
 s32 MainMenu_DrawBackground(u8 fade_mode) { // PORT: u8 to match BgStage_RunUntilCondition's callback type
     BgStage_DrawFrame();
-    Ui_DrawTintedScreenBackground(0, 480, M2C_FIELD(&D_88002254, u8 *, 0), M2C_FIELD(&D_88002254, u8 *, 1), (s32) M2C_FIELD(&D_88002254, u8 *, 2));
+    Ui_DrawTintedScreenBackground(0, 480, Port_WordByte(D_88002254, 0), Port_WordByte(D_88002254, 1), (s32) Port_WordByte(D_88002254, 2)); // PORT: was M2C_FIELD(&D_88002254, u8*, 0..2): the lifted word is in host order
     return 0;
 }
 
@@ -936,7 +936,7 @@ s32 MainMenu_DrawSummaryBarAndBackground(u8 fade_mode) { // PORT: u8 to match Bg
         var_a1 = &D_88002B08;
     }
     GbSave_DrawSummaryBar(0, var_a1, D_88002AAC, D_88002B00);
-    Ui_DrawTintedScreenBackground(56, 480, M2C_FIELD(&D_88002254, u8 *, 0), M2C_FIELD(&D_88002254, u8 *, 1), (s32) M2C_FIELD(&D_88002254, u8 *, 2));
+    Ui_DrawTintedScreenBackground(56, 480, Port_WordByte(D_88002254, 0), Port_WordByte(D_88002254, 1), (s32) Port_WordByte(D_88002254, 2)); // PORT: was M2C_FIELD(&D_88002254, u8*, 0..2): the lifted word is in host order
     MainMenu_DrawItemList(&D_88002B20->itemList, 2);
     return 0;
 }

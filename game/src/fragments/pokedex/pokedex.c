@@ -120,11 +120,14 @@ extern M2C_UNK D_8A12FC38;
  * Seen in play (2026-11-14): called with (54, 85) as the Pokédex opened.
  */
 void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
+    static char sPortIndexTitle[16]; // PORT: D_8A12FC38's text, which the lifter holds as four host-order words
+
     Window_SetRect((s8 *)list_window, x, y, 272, 366);
     list_window->window.animTimer = 0;
     list_window->window.state = 0;
     list_window->window.frame.style = 0x801;
-    list_window->window.title = (char*)&D_8A12FC38;
+    Port_WordsToBytes(sPortIndexTitle, &D_8A12FC38, 4);
+    list_window->window.title = sPortIndexTitle; // PORT: was (char*)&D_8A12FC38
     func_80027410((s8*)&list_window->entries, D_80064C5C, sizeof(SpeciesInfo), 0x97, 0x97); // PORT: host stride
     ScrollList_Init((s8*)&list_window->list, (s8*)&list_window->entries, (s8*)list_window->itemFlags, 8, &Pokedex_DrawListRow, 260, 36);
     list_window->sortByKana = 0;

@@ -625,7 +625,7 @@ extern M2C_UNK D_8910A7F0;
  * Seen in play (2026-11-12): the いちらん background.
  */
 void LabPCList_DrawBackground(void) {
-    Ui_DrawTintedScreenBackground(56, 480, M2C_FIELD(&D_8910A7F0, u8 *, 0), M2C_FIELD(&D_8910A7F0, u8 *, 1), (s32) M2C_FIELD(&D_8910A7F0, u8 *, 2));
+    Ui_DrawTintedScreenBackground(56, 480, Port_WordByte(D_8910A7F0, 0), Port_WordByte(D_8910A7F0, 1), (s32) Port_WordByte(D_8910A7F0, 2)); // PORT: was M2C_FIELD(&D_8910A7F0, u8*, 0..2): the lifted word is in host order
 }
 
 void BgStage_DrawFrame(void);

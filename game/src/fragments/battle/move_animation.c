@@ -77,7 +77,7 @@ s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams
 void BattleThumbnail_SetFlagToUpdatePokemonThumbnail(CameraNode* camera);
 
 void BattleAnim_SetModelEventTrackFromRow(ActivePokemon* pokemon, s32 cue_index);
-void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon);
+void BattleScene_TryQueueIdleCueEffect(ActivePokemon* active_pokemon);
 void BattleScene_AllocateParticipantRecord(BattleSide* session_teams, s32 side_index);
 void BattleScene_InitializeRuntime(BattleSide* session_teams);
 
@@ -2206,21 +2206,21 @@ void BattleAnim_QueueEffectList3(s32 move_id, ActivePokemon* user, ActivePokemon
  * sound or effect (BattleAnim_QueueEffectList3).
  * @unverified Name guessed from the code.
  */
-void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon) {
+void BattleScene_TryQueueIdleCueEffect(ActivePokemon* active_pokemon) { // PORT: was s8*
     s16 id;
     u8* cue = D_82189180[BattleScene_GetParticipantSideIndex(active_pokemon)] + 0x717; // PORT: the argument was passed through a0
 
     if (BattleAnim_IsModelBusy(active_pokemon) != 0) {
         return;
     }
-    id = *(s16*)(active_pokemon + 0x40);
+    id = active_pokemon->displayObject.transformAnim.animationId; // PORT: was *(s16*)(active_pokemon + 0x40)
     if (id == -1) {
         return;
     }
-    if (!(*(u8*)(active_pokemon + 1) & 1)) {
+    if (!(active_pokemon->displayObject.node.flags & 1)) { // PORT: was *(u8*)(active_pokemon + 1)
         return;
     }
-    if (!(*(u8*)(active_pokemon + 2) & 0x20)) {
+    if (!(active_pokemon->displayObject.node.renderFlags & 0x20)) { // PORT: was *(u8*)(active_pokemon + 2)
         return;
     }
     if ((sBattleScene.scene->mode != 1) && (sBattleScene.scene->mode != 5)) {
@@ -2229,7 +2229,7 @@ void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon) {
     if (id != cue[0]) {
         return;
     }
-    if ((*(s32*)(active_pokemon + 0x48) >> 16) != cue[4]) {
+    if ((active_pokemon->displayObject.transformAnim.frameFixed >> 16) != cue[4]) { // PORT: was *(s32*)(active_pokemon + 0x48)
         return;
     }
     if (cue[5] == 0) {
@@ -2245,11 +2245,9 @@ void BattleScene_TryQueueIdleCueEffect(s8* active_pokemon) {
  * Seen in play (2026-11-13) in the 165-move sweep (Fly, Sing, Dig, Hypnosis, Selfdestruct): with
  * 0x200 it ORed the flag into the state flags at 0x7C2 (0 to 0x200) and left the other bits alone.
  */
-s32 ActivePokemon_SetStateFlags(s8 *arg0, unsigned short arg1)
+s32 ActivePokemon_SetStateFlags(ActivePokemon* arg0, unsigned short arg1) // PORT: was s8*
 {
-  s8 *new_var; // FAKE: permuter temp
-  new_var = (s8 *) arg0; // FAKE
-  *((u16 *) (new_var + 0x7C2)) = (u16) ((*((u16 *) (new_var + 0x7C2))) | arg1); // FAKE
+  arg0->state.flags = (u16) ((arg0->state.flags) | arg1); // PORT: was raw N64 offsets (+0x7C2 is inside pokeBall on a 64-bit host)
 }
 
 /**
