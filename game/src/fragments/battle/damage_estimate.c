@@ -63,6 +63,7 @@ extern char** sBattleControllerDisconnectedMessage;
 #define CLOYSTER_OB1  (CLOYSTER - 1)
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_Xcheck*
 
 u16 BattleAi_ApplyMoveEffectDamageOverride(BattleMonRuntime* arg0, BattleMonRuntime* arg1); // PORT: signature from the definition (fragments/battle/damage_estimate.c)
 void BattleAi_ClampDamageRatio(void);
@@ -471,5 +472,11 @@ extern f64 D_DBL_82195778;
  */
 u8 Battle_Random(void)
 {
-  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (osGetCount() / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
+  u32 count = osGetCount();
+  int forced;
+
+  // PORT: comparison against ares (src/port/xcheck.cpp, PORT_XCHECK_RNG): a seeded stream instead of the CPU timer,
+  // which the ares driver puts in the same place, so both games draw the same numbers
+  if (Port_XcheckRandom(0, 0, &forced, __builtin_return_address(0))) count = (u32)forced;
+  return (D_82199F7C += (u8) ((u32) ((((f32) ((s32) ((u16) (count / 5577)))) / D_DBL_82195770) * D_DBL_82195778))) ^ 0; // FAKE: ^ 0 keeps the sum in v0
 }
