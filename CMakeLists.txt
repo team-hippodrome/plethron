@@ -265,6 +265,7 @@ endif()
 # are still off while those are fixed subsystem by subsystem; remove an entry here once its count reaches zero.
 set(STADION_GAME_WARNINGS
   ${PORT_ALL_WARNINGS} -Wno-error
+  -Wno-error=format-security    # the Android NDK adds -Werror=format-security, which -Wno-error does not undo (stadion #153)
   -Wno-unused-parameter         # decomp signatures keep parameters the body never reads
   -Wno-unused-function
   -Wno-unused-variable          # stack pads (s32 pad[2]) that keep the original frame layout

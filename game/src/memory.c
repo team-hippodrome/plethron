@@ -4,6 +4,7 @@
 #include "global.h"
 #include "memory.h"
 #include "memory_main.h"
+#include "StadionPort.h" // PORT: Port_GfxForgetRenderTargets
 
 MemoryPool* MemPool_TryInit(u32 size, s32 side);
 MainPool* MemPool_Init(MainPool* pool, s32 size);
@@ -79,6 +80,9 @@ void* MemPool_Alloc(MemoryPool* node, s32 size) {
         free_block = free_block->next;
     }
     osSendMesg(&node->queue, 0, 0);
+    if (addr != NULL) { // PORT: a reused block is no longer a GPU render target (same as MainPool_AllocFromPool)
+        Port_GfxForgetRenderTargets(addr, size);
+    }
     return addr;
 }
 

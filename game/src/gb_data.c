@@ -108,8 +108,10 @@ extern u16 D_80076FD4_jp[0x100];
  */
 char* Text_UntranscodeName(char* arg0, char* arg1) {
     char* sp34 = arg0;
+    char* end = arg1 + 6; // PORT: a Japanese Game Boy name field is 6 bytes (5 characters + 0x50). Bound the loop like
+                          // stadion's Text_UntranscodeName: a field without the terminator ran past both buffers
 
-    while (*arg1 != 'P') {
+    while (*arg1 != 'P' && arg1 < end) {
         if (*arg1 == ']') {
             memcpy(arg0, D_80076FD0_jp, 10);
             arg0 += 10;

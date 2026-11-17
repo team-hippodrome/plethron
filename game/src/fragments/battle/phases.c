@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "battle.h"
 #include "audio_commands.h"
+#include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id); // PORT: signature from the definition (model_renderer.c)
@@ -70,7 +71,7 @@ void BattleScene_ReactionMultiHitEnd(CameraNode* arg0, void* arg1) {
     if (sOtherPokemon->displayObject.objectType == 0x98) {
         sp1C = 0xF;
     } else if (temp_v1->frameCounter == 0xFF) {
-        sp1C = M2C_FIELD((sActingPokemon)->displayObject.transformAnim.data, u16*, 0xA) - temp_v1->currentFrame;
+        sp1C = ANIM_END((sActingPokemon)->displayObject.transformAnim.data) - temp_v1->currentFrame;
     } else {
         sp1C = temp_v1->frameCounter - temp_v1->currentFrame;
     }

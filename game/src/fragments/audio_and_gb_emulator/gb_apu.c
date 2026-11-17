@@ -136,7 +136,7 @@ u16 GbApu_UpdateSquare1Channel(void) {
         gGbApuSquare1.outOfRange = 0U;
     }
     {
-        s32 temp_v0 = GbApu_GetWaveformSample(gGbApuSquare1.duty, gGbApuSquare1.phase.index);
+        s32 temp_v0 = GbApu_GetWaveformSample(gGbApuSquare1.duty, GBAPU_PHASE(gGbApuSquare1));
         gGbApuSquare1.phase.acc += gGbApuSquare1.step;
         gGbApuSquare1.phase.acc &= 0x1FFFFF;
         if (gGbApuSquare1.outOfRange == 1) {
@@ -234,7 +234,7 @@ s32 GbApu_UpdateSquare2Channel(void) {
     } else {
         gGbApuSquare2.outOfRange = 0U;
     }
-    temp_v0 = GbApu_GetWaveformSample(gGbApuSquare2.duty, gGbApuSquare2.phase.index);
+    temp_v0 = GbApu_GetWaveformSample(gGbApuSquare2.duty, GBAPU_PHASE(gGbApuSquare2));
     gGbApuSquare2.phase.acc += gGbApuSquare2.step;
     gGbApuSquare2.phase.acc &= 0x1FFFFF;
     if (gGbApuSquare2.outOfRange == 1) {
@@ -327,7 +327,7 @@ u16 GbApu_UpdateWaveChannel(void) {
             }
         }
     }
-    temp_a0 = GbApu_GetWaveformSample(7, gGbApuWave.phase.index);
+    temp_a0 = GbApu_GetWaveformSample(7, GBAPU_PHASE(gGbApuWave));
     gGbApuWave.phase.acc += gGbApuWave.step;
     gGbApuWave.phase.acc &= 0x1FFFFF;
     if (gGbApuWave.outOfRange - 1 == 0) {
@@ -397,10 +397,10 @@ u16 GbApu_UpdateNoiseChannel(void) {
         gGbApuNoise.amplitude = gGbApuNoise.appliedAmplitude;
         gGbApuNoise.step = gGbApuNoise.appliedStep;
     }
-    temp_v0 = GbApu_GetWaveformSample(6, gGbApuNoise.phase.index);
+    temp_v0 = GbApu_GetWaveformSample(6, GBAPU_PHASE(gGbApuNoise));
     gGbApuNoise.phase.acc += var_a2;
-    if (gGbApuNoise.phase.index  >= (u32)D_81138AD4) {
-        gGbApuNoise.phase.index  = D_81138AD0;
+    if (GBAPU_PHASE(gGbApuNoise) >= (u32)D_81138AD4) { // PORT: GBAPU_PHASE / GBAPU_SET_PHASE (was phase.index)
+        GBAPU_SET_PHASE(gGbApuNoise, D_81138AD0);
     }
     temp_v0 *= gGbApuNoise.appliedAmplitude;
     if ((gGbApuNoise.appliedAmplitude != gGbApuNoise.amplitude) && ((D_8120EB6C % 95) == 0)) {

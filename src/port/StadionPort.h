@@ -80,6 +80,8 @@ int Port_ControllerBits(void);
 // Bracket a multi-page flash write (save_data.c): the save file is written once, at the end, if anything changed.
 void Port_BeginFlashBankWrite(void);
 void Port_EndFlashBankWrite(void);
+void Port_BeginSramWrite(void); // brackets one chunked SRAM transfer: the save file is written once, at the end
+void Port_EndSramWrite(void);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Graphics and data translation (src/port/gfx_translate.cpp, interp.cpp, gb_core.c, libultraship fork)
@@ -182,6 +184,11 @@ unsigned long long Port_CamlogAnimFrame(void);
         if (sPortEnvValue_ == (const char*)1) sPortEnvValue_ = getenv(name);    \
         sPortEnvValue_;                                                         \
     })
+
+// Draw the frame the game is building now even when frames are being skipped (running fast, or catching up after a
+// slow frame). For screens that draw part of the picture only on some frames and keep it from the frame buffer on the
+// N64 afterwards (the main menu's top bar): skipping the frames that draw it leaves an old picture there for good.
+void Port_MustDrawThisFrame(void);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Battle cross-check against the original game in ares, and scripted battle boot (src/port/xcheck.cpp,

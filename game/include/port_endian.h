@@ -54,4 +54,23 @@ static inline void Port_SwapHalves(void* halves, u32 count) {
     }
 }
 
+// Byte `index` (0 = lowest address on the N64) of a 32-bit word held in host order. For data the decomp declares as a
+// word (s32, M2C_UNK) but the game reads byte by byte: the lifter stores such a word in host order, so
+// ((u8*)&word)[0] is the N64's last byte on a little-endian host (an RGBA color reads back as ABG).
+static inline u8 Port_WordByte(u32 word, u32 index) {
+    return (u8)(word >> (24 - 8 * (index & 3)));
+}
+
+// The RGBA color a 32-bit word held in host order had in N64 memory (for colors the decomp declares as a word but the
+// game reads as a Color_RGBA8: *(Color_RGBA8*)&word reads ABGR on a little-endian host).
+#define Port_WordColor(word) \
+    ((Color_RGBA8){ Port_WordByte((word), 0), Port_WordByte((word), 1), Port_WordByte((word), 2), Port_WordByte((word), 3) })
+
+// Copy `count` words held in host order to `dest` as the bytes the N64 had in memory (text the decomp declares as
+// words, for example).
+static inline void Port_WordsToBytes(void* dest, const void* words, u32 count) {
+    memcpy(dest, words, count * 4);
+    Port_SwapWords(dest, count);
+}
+
 #endif

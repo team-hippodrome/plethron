@@ -54,6 +54,9 @@ put checkpoints where the screen has settled or right after the press that start
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `main_menu` | the main menu with a party cartridge: the cursor on every item, the バトル prompt, OFF > はい back to the cartridge check screen and in again |
+| `no_cart` | no Transfer Pak: the cartridge check screen, the main menu with the Game Boy items greyed out, the バトル and OFF prompts |
+| `options` | the cartridge check screen's Options (C-Right): every row, Sound/Commentary toggles saved and discarded, both Backup questions and a save clear, B back to the title |
 
 ## Timing: why there is a window
 
