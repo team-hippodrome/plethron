@@ -192,8 +192,9 @@ int Port_XcheckEnabled(void);
 int Port_XcheckForcingRandom(void);
 int Port_XcheckCom(void);
 int Port_XcheckRandom(int fn, int arg, int* out, void* caller);
-void Port_XcheckMoveAnimTick(void);
+void Port_XcheckMoveStart(void);
 int Port_XcheckBattleStart(void);
+void Port_SyncEvent(const char* name); // tools/screen_diff sync points (os_devices.cpp, PORT_SYNC)
 int Port_XcheckHasCase(void);
 void Port_XcheckPatchMon(int side, int slot, void* battleMon);
 int Port_XcheckWantDraw(void);

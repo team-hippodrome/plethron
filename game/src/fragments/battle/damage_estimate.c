@@ -280,7 +280,10 @@ void BattleCalc_AddBaseDamage(u8*, u8*);
  * switch in battle.
  * @unverified Name guessed from the code; comment kept.
  */
-void BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
+// PORT: was void with no return statement; the COM AI (BattleAi_EstimateDamage) uses its result, which on the N64 is
+// whatever BattleAi_ApplyMoveEffectDamageOverride left in v0. On the PC that value was garbage (12208 for a
+// ThunderShock), so the COM thought every damaging move would knock out and never picked a status move.
+u16 BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
     D_82199F33 = D_82199F32;
     D_82199F32 = 0;
     BattleAi_PrepareDamageCalcState(arg0, arg1, arg2);
@@ -288,7 +291,7 @@ void BattleCalc_EstimateDamage(u8* arg0, u8* arg1, u8 arg2) {
     BattleCalc_ApplyTypeEffectAndStab(arg0, arg1);
     BattleAi_ClampDamageRatio();
     D_82199F32 = D_82199F33;
-    BattleAi_ApplyMoveEffectDamageOverride(arg0, arg1);
+    return BattleAi_ApplyMoveEffectDamageOverride(arg0, arg1);
 }
 
 /**

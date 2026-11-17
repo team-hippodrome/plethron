@@ -69,7 +69,7 @@ offset is in the report: a large one is a timing difference, not a rendering one
 
 Both games time their random numbers with the CPU counter, so without help the same inputs give different battles.
 `@rng <seed>` makes the battle's two osGetCount reads (`Battle_Random`, the COM's `BattleAi_StirRandom`) return a
-seeded stream instead, and restarts `guRandom` (particles) at each battle's start and each move animation, on both
+seeded stream instead, and restarts `guRandom` (particles) at each battle's start and each move, on both
 sides: `PORT_XCHECK_RNG` in the port (`src/port/xcheck.cpp`) and `ARES_REF_XCHECK_RNG` in ares_ref (CPU host hooks:
 `build.sh` applies `ares-host-hooks.patch`). The values drawn go to `port_rng.txt` and `ares_rng.txt` in the run
 directory, and run.py says whether they agree.

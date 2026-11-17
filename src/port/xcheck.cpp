@@ -7,7 +7,7 @@
 //   PORT_XCHECK_VI_TIMING=<file>  observed "game-frame retrace" pairs; comparison-only mixer-clock pacing
 //   PORT_XCHECK_RNG=<seed>        the battle's osGetCount-timed random sources (Battle_Random, BattleAi_StirRandom)
 //                                 read a seeded stream instead, and guRandom restarts at each battle's start
-//                                 and at each move animation, so the port and the emulator, whose CPU timing differs,
+//                                 and at each move, so the port and the emulator, whose CPU timing differs,
 //                                 draw the same numbers (tools/screen_diff: @rng <seed>)
 //   PORT_XCHECK_CASE=<file>       a case (tools/battle_sweep.py writes them), lines:
 //                                   mon <side> <slot|*> <field>=<value> ...   the parties, written when the battle engine
@@ -22,7 +22,7 @@
 //                                 second query of each decision, so the game picks its first usable move and its first
 //                                 healthy replacement (BattleScene_IsActionSelectionTimerExpired); the opponent is the
 //                                 computer as usual
-//   PORT_XCHECK_ANIM=<dir>        the frames of each move animation, from its start to the next battle event, one per
+//   PORT_XCHECK_ANIM=<dir>        the frames of each move, from its start to the next battle event, one per
 //                                 game frame, as <dir>/m<k>_<move>/f_<n>.ppm (n: battle game frames since the start; at
 //                                 most PORT_XCHECK_ANIM_FRAMES game frames, default 300); every frame is drawn meanwhile
 //   PORT_BATTLE=<file>            battle boot (below): skip the menus and start the battle the case file describes
@@ -60,7 +60,7 @@ namespace {
 // the order is the function index in the value stream (tools/ares_ref/ares_ref.cpp kRandomNames)
 // PORT(zero): Stadium Zero's battle draws its entropy from osGetCount in two places (Battle_Random and the COM's
 // BattleAi_StirRandom); the stream value replaces that osGetCount and the game code does the rest. Its other random
-// numbers come from guRandom (restarted at each move animation, Port_XcheckMoveAnimTick) and the COM's own LCG
+// numbers come from guRandom (restarted at each move, Port_XcheckMoveStart) and the COM's own LCG
 // (seeded with constants by BattleAi_SelectTeam).
 const char* const kRandomNames[] = { "Battle_Random", "BattleAi_StirRandom" };
 constexpr int kRandomFns = 2;
@@ -460,9 +460,9 @@ int Port_XcheckBattleStart(void) {
     return 1;
 }
 
-// PORT(zero): BattleScene_TickRow5StartMoveAnimation (each tick until the move's model is ready): guRandom restarts, as
-// the ares driver does at the same function's entry
-void Port_XcheckMoveAnimTick(void) {
+// PORT(zero): a move's presentation starts (BattleScene_ActionStepSetHitCount, once its message is done): guRandom
+// restarts, as the ares driver does at the same moment
+void Port_XcheckMoveStart(void) {
     Init();
     if (g.force) Port_GuRandomSeed(174823885);
 }

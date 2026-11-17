@@ -16,6 +16,9 @@
 //   dump <frame> <file>           write RDRAM (8 MB, big-endian byte order) to a file
 //   fill <from> <to> <addr> <bytes> <u16 hex>   before each of those frames, fill RDRAM [addr, addr+bytes) with a
 //                                halfword (experiments: what does the RDP read from there?)
+//   sync <frame> <event>          a sync point: from that frame on, the frames above wait until the game reaches
+//                                 the event ("cmd": a battle command phase starts; "move": a move's presentation starts, after its message),
+//                                 as the port's PORT_SYNC (tools/screen_diff sync:<event>; the xcheck section below)
 //   end <frame>                   stop
 // Environment: ARES_REF_SRAM / ARES_REF_SRAM_OUT (Stadium Zero's 32 KiB SRAM in / out, N64 byte order, the same bytes
 // as the port's saves/stadium.sra), ARES_REF_GBROM / ARES_REF_GBSAV / ARES_REF_GBSAV_OUT / ARES_REF_GBBOARD
@@ -225,7 +228,7 @@ uint32_t parseButtons(const std::string& s) {
 // ---- seeded battle random numbers (ARES_REF_XCHECK_RNG=<seed>; needs ares-host-hooks.patch, see build.sh) ----
 // Stadium Zero's battle draws entropy from osGetCount in Battle_Random and the COM's BattleAi_StirRandom; with a seed,
 // those two osGetCount calls return a splitmix64 stream instead, and guRandom (the effects' particles) restarts at each
-// move animation. The port does the same with PORT_XCHECK_RNG (src/port/xcheck.cpp),
+// move's presentation. The port does the same with PORT_XCHECK_RNG (src/port/xcheck.cpp),
 // so both games draw the same numbers although their CPU timing differs. Each battle's start
 // (BattleScene_InitializeRuntime) restarts the streams, guRandom and Battle_Random's sum. ARES_REF_XCHECK=<file> writes the drawn values
 // ("R <function> <call> 0 <value> frame=<n>"), as the port's PORT_XCHECK trace. Addresses: pokestadium0's
@@ -239,10 +242,26 @@ constexpr u32 kOsGetCount = 0x80053A80;      // osGetCount: main code
 constexpr u32 kGuRandomSeed = 0x80079100;    // guRandom's xseed (lui 0x8008 / lw -0x6F00 in the ROM's guRandom)
 constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port_GuRandomSeed
 constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
-constexpr u32 kTickRow5 = 0x82104EAC;        // BattleScene_TickRow5StartMoveAnimation
 constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
+constexpr u32 kTickCommandTimer = 0x8210C6B0;  // BattleMenu_TickCommandTimer: sync event "cmd" when its timer is 0
+constexpr u32 kCommandTimer = 0x82199EB0;      // its timer (f32)
+constexpr u32 kResetAnimStep = 0x82124A40;     // BattleScene_ResetAnimationStep: a move's presentation starts when
+constexpr u32 kSetHitCount = 0x82128F2C, kSetHitCountEnd = 0x82128FBC; // BattleScene_ActionStepSetHitCount calls it
+                                               // (sync event "move"; guRandom restarts)
 struct Caller { u32 from, to; const char* name; }; // [from, to) link addresses of osGetCount's callers to replace
 const Caller kCallers[] = { { 0x8210F3F0, 0x8210F4E0, "Battle_Random" }, { 0x82183B60, 0x82183BA8, "BattleAi_StirRandom" } };
+
+// ---- sync points (script "sync <frame> <event>", tools/screen_diff sync:<event>) ----
+// The script's frames are route frames: they follow VI frames, except that at each sync point's frame they wait until
+// the game reaches that event, so input and pictures after it line up with the game whatever its speed before (the
+// N64 slows down in battle effects, the port does not). The port does the same (PORT_SYNC, src/port/os_devices.cpp).
+// ARES_REF_SYNC_LOG=<file>: one line per sync point: "sync <n> <event> <frame> waited <VI frames>".
+struct SyncPoint { u64 at; std::string event; };
+std::vector<SyncPoint> gSync;
+size_t gSyncNext = 0;
+u64 gSyncLag = 0, gSyncWaitStart = 0;
+bool gSyncSeen = false;
+FILE* gSyncLog = nullptr;
 
 bool gForce = false;
 u32 gSeed = 0, gBase = 0;
@@ -296,6 +315,34 @@ bool returnWith(u64 value) {
     return true;
 }
 
+// the route frame of VI frame <tick> (called once per frame, in order)
+u64 routeFrame(u64 tick) {
+    if (gSyncNext >= gSync.size()) return tick - gSyncLag;
+    const SyncPoint& sp = gSync[gSyncNext];
+    if (tick - gSyncLag <= sp.at) {
+        gSyncWaitStart = tick;
+        return tick - gSyncLag;
+    }
+    u64 waited = tick - gSyncWaitStart;
+    if (gSyncSeen || waited > 6000) { // (a sync that never comes: go on after 100 s rather than hang)
+        if (gSyncLog) {
+            fprintf(gSyncLog, "sync %zu %s %llu waited %llu%s\n", gSyncNext, sp.event.c_str(), (unsigned long long)sp.at,
+                    (unsigned long long)waited, gSyncSeen ? "" : " timeout");
+            fflush(gSyncLog);
+        }
+        gSyncSeen = false;
+        gSyncNext++;
+        return tick - gSyncLag;
+    }
+    return tick - ++gSyncLag;
+}
+
+// the game reached a sync event: the next sync point, if it is waiting for this event, lets the route clock go on (one
+// seen before the route clock gets there counts too: then it does not wait), as the port's Port_SyncEvent
+void syncEvent(const char* name) {
+    if (gSyncNext < gSync.size() && gSync[gSyncNext].event == name) gSyncSeen = true;
+}
+
 void place(u32 base);
 
 bool hook(u32 address) {
@@ -305,6 +352,19 @@ bool hook(u32 address) {
         return false;
     }
     if (!gBase) return false;
+    if (address == rt(kTickCommandTimer)) {
+        if (rd32(rt(kCommandTimer)) == 0) syncEvent("cmd"); // (0.0f)
+        return false;
+    }
+    if (address == rt(kResetAnimStep)) {
+        u32 ra = (u32)cpu.ipu.r[31].u64;
+        if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
+            if (gForce) wr32(kGuRandomSeed, kGuRandomStart); // (as the port's Port_XcheckMoveStart)
+            syncEvent("move");
+        }
+        return false;
+    }
+    if (!gForce) return false;
     if (address == kOsGetCount) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         for (int fn = 0; fn < 2; fn++) {
@@ -312,14 +372,15 @@ bool hook(u32 address) {
             u32 key = (u32)fn << 16, k = gCalls[key]++;
             u32 v = streamValue(gSeed, key, k);
             if (gOut) {
-                fprintf(gOut, "R %s %u 0 %u frame=%llu\n", kCallers[fn].name, k, v, (unsigned long long)gFrame);
+                // the caller of Battle_Random / BattleAi_StirRandom: its return address, saved at sp+0x14 / sp+0x1C
+                u32 caller = rd32((u32)cpu.ipu.r[29].u64 + (fn == 0 ? 0x14 : 0x1C)) - gBase + kLinkBase;
+                fprintf(gOut, "R %s %u 0 %u frame=%llu caller=%08x\n", kCallers[fn].name, k, v, (unsigned long long)gFrame, caller);
                 fflush(gOut);
             }
             return returnWith((u64)(s64)(s32)v);
         }
         return false;
     }
-    if (address == rt(kTickRow5)) wr32(kGuRandomSeed, kGuRandomStart);
     if (address == rt(kInitRuntime)) { // a battle starts (as the port's Port_XcheckBattleStart)
         gCalls.clear();
         wr32(kGuRandomSeed, kGuRandomStart);
@@ -334,7 +395,10 @@ bool hook(u32 address) {
 void place(u32 base) {
     auto& cpu = Nintendo64::cpu;
     gBase = base;
-    cpu.hostHooks.addresses = { kSetFragmentMap, kOsGetCount, rt(kTickRow5), rt(kInitRuntime) };
+    cpu.hostHooks.addresses = { kSetFragmentMap };
+    if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime) }) cpu.hostHooks.addresses.push_back(a);
+    if (gForce || !gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kResetAnimStep));
+    if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
     std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
     cpu.recompiler.reset();
     fprintf(stderr, "[xcheck] battle engine mapped at %08x (frame %llu)\n", base, (unsigned long long)gFrame);
@@ -343,15 +407,17 @@ void place(u32 base) {
 
 void init() {
     const char* rng = getenv("ARES_REF_XCHECK_RNG");
-    if (!rng) return;
-    gForce = true;
-    gSeed = (u32)strtoul(rng, nullptr, 0);
+    if (const char* l = getenv("ARES_REF_SYNC_LOG")) gSyncLog = fopen(l, "w");
+    if (!rng && gSync.empty()) return;
+    gForce = rng != nullptr;
+    if (rng) gSeed = (u32)strtoul(rng, nullptr, 0);
     if (const char* out = getenv("ARES_REF_XCHECK")) gOut = fopen(out, "w");
     auto& cpu = Nintendo64::cpu;
     cpu.hostHooks.callback = hook;
     cpu.hostHooks.addresses = { kSetFragmentMap };
     cpu.recompiler.reset();
-    fprintf(stderr, "[xcheck] seeded battle random numbers, seed %u\n", gSeed);
+    if (gForce) fprintf(stderr, "[xcheck] seeded battle random numbers, seed %u\n", gSeed);
+    if (!gSync.empty()) fprintf(stderr, "[xcheck] %zu sync points\n", gSync.size());
 }
 } // namespace xcheck
 
@@ -394,6 +460,7 @@ static int realMain(int argc, char** argv) {
             else if (cmd == "window") { Window w; ss >> w.from >> w.to >> w.dir; windows.push_back(w); }
             else if (cmd == "every") { ss >> everyN >> everyDir; }
             else if (cmd == "end") { ss >> endFrame; }
+            else if (cmd == "sync") { xcheck::SyncPoint p; ss >> p.at >> p.event; xcheck::gSync.push_back(p); }
             else { fprintf(stderr, "bad script line: %s\n", line.c_str()); return 2; }
         }
     }
@@ -503,8 +570,14 @@ static int realMain(int argc, char** argv) {
 
     auto t0 = std::chrono::steady_clock::now();
     xcheck::init();
-    for (uint64_t frame = 1; !endFrame || frame <= endFrame; frame++) {
-        xcheck::gFrame = frame;
+    uint64_t lastFrame = 0;
+    for (uint64_t tick = 1;; tick++) {
+        xcheck::gFrame = tick;
+        // the script's frames are route frames: VI frames, except that they wait at each sync point for its event
+        const uint64_t frame = xcheck::routeFrame(tick);
+        if (endFrame && frame > endFrame) break;
+        const bool fresh = frame != lastFrame; // (while waiting at a sync point the route frame stays put)
+        lastFrame = frame;
         uint32_t b = 0;
         for (auto& h : holds) {
             if (frame >= h.from && frame <= h.to) b |= h.buttons;
@@ -529,23 +602,23 @@ static int realMain(int argc, char** argv) {
         }
         bool inWindow = false;
         for (auto& w : windows) inWindow |= frame >= w.from && frame <= w.to;
-        bool wantShot = actions.count(frame) || (everyN && frame % everyN == 0) || inWindow;
+        bool wantShot = fresh && (actions.count(frame) || (everyN && frame % everyN == 0) || inWindow);
         if (getenv("REF_DEBUG") && frame % 30 == 0) { std::this_thread::sleep_for(std::chrono::milliseconds(50)); fprintf(stderr, "[ref] frame %llu pictures %llu\n", (unsigned long long)frame, (unsigned long long)gPictures.load()); }
         if (wantShot) { // the screen thread delivers the picture shortly after the frame
             for (int i = 0; i < 200 && gPictures.load() == before; i++) std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-        if (everyN && frame % everyN == 0) {
+        if (fresh && everyN && frame % everyN == 0) {
             char name[64];
             snprintf(name, sizeof(name), "/f_%06llu.ppm", (unsigned long long)frame);
             savePicture(everyDir + name);
         }
         for (auto& w : windows) {
-            if (frame < w.from || frame > w.to) continue;
+            if (!fresh || frame < w.from || frame > w.to) continue;
             char name[64];
             snprintf(name, sizeof(name), "/f_%06llu.ppm", (unsigned long long)frame);
             savePicture(w.dir + name);
         }
-        auto range = actions.equal_range(frame);
+        auto range = fresh ? actions.equal_range(frame) : std::make_pair(actions.end(), actions.end());
         for (auto it = range.first; it != range.second; ++it) {
             const Action& a = it->second;
             if (a.kind == "shot") {

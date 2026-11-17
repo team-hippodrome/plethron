@@ -21,6 +21,9 @@ extern f32 D_FLT_82199EB0;
  * final at frame 90 (or 10 once the player has picked). Nothing times out.
  */
 s32 BattleMenu_TickCommandTimer(void) {
+    if (D_FLT_82199EB0 == 0.0f) {
+        Port_SyncEvent("cmd"); // PORT: a command phase starts (tools/screen_diff sync:cmd; ares_ref hooks this entry)
+    }
     if (D_FLT_82199EB0 >= 150.0f) {
         return 1;
     }
