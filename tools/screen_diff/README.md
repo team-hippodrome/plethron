@@ -15,6 +15,8 @@ pip install numpy pillow
 python3 tools/screen_diff/jp_gen1_save.py saves/green_party.sav
 # the Pokédex route's save: owned, held, seen-only and unseen species
 python3 tools/screen_diff/jp_gen1_save.py saves/green_dex.sav --owned 1-8,12-130 --seen 9-10,131-150
+# the Lab routes' save: six in the party, eight in Game Boy box 1, eight items in the bag
+python3 tools/screen_diff/jp_gen1_save.py saves/green_lab.sav --lab
 ```
 
 Environment for the runs (the ROMs are yours and stay out of the repository):
@@ -25,6 +27,7 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `ARES_REF_BUILD`, `ARES_REF_SRC` | default `build/ares/build`, `build/ares/ares` (what `build.sh build/ares` makes) |
 | `GB_ROM_GREEN`, `GB_SAV_GREEN` | Pocket Monsters Green `.gb` and the save from `jp_gen1_save.py` |
 | `GB_ROM_GREENDEX`, `GB_SAV_GREENDEX` | the same Green `.gb` and `saves/green_dex.sav` (route `pokedex`) |
+| `GB_SAV_GREEN_LAB` | `saves/green_lab.sav` (routes `party`, `list`, `organize`, `register`: `@gb green lab`) |
 | `PORT_BIN` | default `build/pokestadium` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
@@ -56,7 +59,10 @@ put checkpoints where the screen has settled or right after the press that start
 | `tournament` | Battle → tournament menus |
 | `pokedex` | ずかん list (number and kana order, scrolled to the end), データをみる pages with the turning 3D model (held and seen-only species), ぶんぷをみる habitat maps (unknown habitat; ポッポ with the GB map, zoom and the next area), やめる |
 | `gb_player` | GB Player booting the Green cartridge |
-| `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `party` | てもち: list, つよさをみる (stats page, moves page and each move's description), ならびかえ, レポートしてやめる |
+| `list` | いちらん: source dialog with the Game Boy box, the table's three pages, L/R mode, a row's menu, どうぐをつかう (Protein's stat pop-up), あつめる |
+| `organize` | せいとん: ポケモンをいどうする (party to 64 box 1, report), どうぐをいどうする (lists, count picker), ボックスをいどうする (GB box 1 to 64 box 2, report) |
+| `register` | とうろく: register the party (the Ditto transform), view it, the delete screen |
 | `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 
 ## Timing: why there is a window

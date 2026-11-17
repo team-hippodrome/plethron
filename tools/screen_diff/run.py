@@ -11,7 +11,8 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
 and header lines:
   @sram <file>         start from this Stadium Zero SRAM (32 KiB, N64 byte order; relative to the route file or $ZERO_SAVES);
                        default: a blank save on both sides
-  @gb <name>           a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> (and save $GB_SAV_<NAME> if set)
+  @gb <name> [<save>]  a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> and the save $GB_SAV_<NAME> (if set), or
+                       with <save>, $GB_SAV_<NAME>_<SAVE> (e.g. `@gb green lab`: $GB_SAV_GREEN_LAB, the Lab routes' save)
   @window <before> <after>  the ares frames kept around each checkpoint (default 12 before, 120 after): the port is
                        usually ahead of ares after a load (it loads faster, e.g. the P-OS "NOW LOADING" screen), so
                        tools/screen_diff/compare.py compares the port picture with each of these and keeps the closest;
@@ -44,7 +45,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, window=(12, 120), boot_offset=-165, rng=None)
+    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None)
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -59,7 +60,8 @@ def parse_route(path):
                     cand.insert(0, os.path.join(os.environ["ZERO_SAVES"], val))
                 r["sram"] = next((c for c in cand if os.path.exists(c)), cand[-1])
             elif key == "gb":
-                r["gb"] = val.upper()
+                r["gb"], _, sv = val.upper().partition(" ")
+                r["gbsav"] = "GB_SAV_" + r["gb"] + ("_" + sv.strip() if sv.strip() else "")
             elif key == "window":
                 r["window"] = tuple(int(v) for v in val.split())
             elif key == "boot_offset":
@@ -135,9 +137,9 @@ def run_port(r, out, extra_env):
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")
     if r["gb"]:
         env["PORT_GB_ROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
             gbsav = os.path.join(out, "port_gb.sav")
-            shutil.copyfile(os.environ["GB_SAV_" + r["gb"]], gbsav)
+            shutil.copyfile(os.environ[r["gbsav"]], gbsav)
             env["PORT_GB_SAVE"] = gbsav
     if r["rng"]:
         env["PORT_XCHECK_RNG"] = r["rng"]
@@ -189,8 +191,8 @@ def run_ares(r, out):
         env["ARES_REF_SRAM"] = os.path.abspath(r["sram"])
     if r["gb"]:
         env["ARES_REF_GBROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
-            env["ARES_REF_GBSAV"] = os.environ["GB_SAV_" + r["gb"]]
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
+            env["ARES_REF_GBSAV"] = os.environ[r["gbsav"]]
         env.setdefault("ARES_REF_GBBOARD", "MBC3" if r["gb"] in ("YELLOW", "PIKACHU") else "MBC1")
     if r["rng"]:
         env["ARES_REF_XCHECK_RNG"] = r["rng"]
