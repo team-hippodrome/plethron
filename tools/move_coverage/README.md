@@ -52,8 +52,18 @@ Nothing from the ROM is stored in the repository; the dump, the saves and the pi
   ares and runs `compare.py`; ares's frames are deleted afterwards (`--keep-frames` keeps them).
 * **Second pass.** `all` plans the moves that were not done again, in new teams and battles.
 
-`coverage.md` lists every pair: done (with the worst picture score of its checkpoints and a link to the
-port | ares | difference picture), not animated, or not reached.
+`coverage.md` lists every pair: done (with its worst checkpoint and a link to the port | ares | difference
+picture), not animated, or not reached. Each done pair shows two numbers:
+
+* **lit**, which ranks the list: the score once a smooth lighting difference is taken out
+  (`tools/screen_diff/compare.py` `lit_score()`). The colosseum floor is lit a little differently from ares, and many
+  screens are a few levels brighter, so the raw score of a move that otherwise matches is 7-9; its lit score is 2-4.
+  Missing or extra things, other shapes, cameras and timing keep their score.
+* **raw**: the plain score of that checkpoint. A raw score far above lit means the difference is mostly smooth: the
+  floor, the overall brightness, or a wash over the screen (Light Screen, Reflect), so look at the picture.
+
+`python3 tools/screen_diff/compare.py --rescore <work>/pass1/bNN/report` recomputes a report's numbers from its
+pictures, for reports made before a scoring change (ares's frames are not needed).
 
 ## Running time
 
