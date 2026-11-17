@@ -5,6 +5,7 @@
 #include "controller.h"
 #include "gb_player.h"
 #include "matrix.h"
+#include "StadionPort.h" // PORT: Port_ControllerBits
 extern Controller* gPlayer1Controller;
 extern Controller* gPlayer2Controller;
 extern Controller* gPlayer3Controller;
@@ -128,6 +129,7 @@ u8 Cont_SetupControllers(u8 arg0) {
     osCreateMesgQueue(&gSIEventMesgQueue, gSIEventMesgBuf, 1);
     osSetEventMesg(OS_EVENT_SI, &gSIEventMesgQueue, NULL);
     osContInit(&gSIEventMesgQueue, &D_800AAFF8, &gControllerStatuses[0]);
+    D_800AAFF8 = Port_ControllerBits(); // PORT: libultraship reports only controller 1
     gEepromProbe = osEepromProbe(&gSIEventMesgQueue);
     Cont_InitControllers();
     return D_800AAFF8;

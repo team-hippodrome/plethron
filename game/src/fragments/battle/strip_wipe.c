@@ -92,6 +92,7 @@ Gfx* BattleScene_BuildStripWipeDisplayList(Gfx* arg0, s32 arg1) {
     temp_v1 = (arg1 + 1) & 1;
 
     gSPDisplayList(arg0++, D_82194458);
+    gDPPortWideRectsBegin(arg0++); // PORT: the wipe covers a widescreen picture too
     gDPLoadTextureBlock_4b(arg0++, D_821942D8, G_IM_FMT_I, 12, 48, 0, G_TX_NOMIRROR | G_TX_CLAMP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     gDPPipeSync(arg0++);
@@ -116,6 +117,7 @@ Gfx* BattleScene_BuildStripWipeDisplayList(Gfx* arg0, s32 arg1) {
                                 -(1 << 6), 1 << 10);
     }
 
+    gDPPortWideRectsEnd(arg0++);
     gSPDisplayList(arg0++, D_821944A0);
 
     return arg0;

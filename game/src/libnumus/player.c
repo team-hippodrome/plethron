@@ -7,6 +7,7 @@
 #include "audio_manager.h"
 #include "libnaudio/n_synsetpriority.h"
 #include "audio_port.h"
+#include "StadionPort.h" // PORT: Port_SoundPartGainQ15
 typedef u8* (*command_func_t)(channel_t*, u8*);
 typedef u8* (*api_func_t)(u8*);
 extern s32 mus_song_stop_countdown;
@@ -1769,6 +1770,19 @@ void func_80039010(channel_t* arg0) {
     }
 }
 
+// PORT: which launcher sound slider a voice follows. Zero plays Pokémon cries (bank D_800B4190, Audio_PlayCry) and the
+// announcer (bank D_800B418C, JIKKYOU, see subtitles.c) as music-player effects rather than through Stadium 1's sample
+// streams, so Voices is applied here like Music and Sound effects.
+static s32 Audio_PortSoundPart(channel_t* cp) {
+    if (cp->IsFX == 0) {
+        return PORT_SOUND_MUSIC;
+    }
+    if ((cp->fx_sample_bank != NULL) && ((cp->fx_sample_bank == D_800B4190) || (cp->fx_sample_bank == D_800B418C))) {
+        return PORT_SOUND_VOICES;
+    }
+    return PORT_SOUND_EFFECTS;
+}
+
 s32 Audio_ComputeVoiceVolume(channel_t* cp) {
     u32 volume = cp->volume * cp->env_current_vol * cp->velocity * cp->volume_scale;
 
@@ -1784,6 +1798,13 @@ s32 Audio_ComputeVoiceVolume(channel_t* cp) {
     }
 
     volume >>= 0xF;
+
+    { // PORT: launcher > Sound > Music / Sound effects / Voices (unchanged at 100 %)
+        const u32 gain = (u32)Port_SoundPartGainQ15(Audio_PortSoundPart(cp));
+        if (gain < 0x8000) {
+            volume = (volume * gain) >> 15;
+        }
+    }
 
     if (cp->duration != -1) {
         volume = (cp->duration * volume) / cp->duration_scale;
