@@ -80,6 +80,35 @@ def one(path):
                 ext.setdefault(c.spelling, []).append({'sp': c.type.spelling, 't': tref(c.type, cx)})
         elif c.is_definition() and c.storage_class != ci.StorageClass.STATIC:
             defs[c.spelling] = {'sp': c.type.spelling, 't': tref(c.type, cx)}
+    # Symbols the code passes where a function takes text (char*/u8*/s8*): `Font_Printf(x, y, &D_8910DBBC)` with D_8910DBBC
+    # declared M2C_UNK. gen_lift lifts those as bytes, not words (a word in host order reverses its 4 characters).
+    texts = set()
+    def strip(e):
+        while e.kind in (ci.CursorKind.UNEXPOSED_EXPR, ci.CursorKind.CSTYLE_CAST_EXPR, ci.CursorKind.PAREN_EXPR):
+            ch = list(e.get_children())
+            if not ch: break
+            e = ch[-1]
+        return e
+    def bytes_ptr(t):
+        t = t.get_canonical()
+        return t.kind == K.POINTER and t.get_pointee().get_canonical().kind in (K.CHAR_S, K.CHAR_U, K.SCHAR, K.UCHAR)
+    def calls(cur):
+        for c in cur.get_children():
+            if c.kind == ci.CursorKind.CALL_EXPR and c.referenced is not None:
+                try: params = list(c.referenced.type.argument_types())
+                except Exception: params = []
+                for i, arg in enumerate(c.get_arguments()):
+                    if i >= len(params) or not bytes_ptr(params[i]): continue
+                    e = strip(arg)
+                    if e.kind == ci.CursorKind.UNARY_OPERATOR:
+                        toks = [t.spelling for t in e.get_tokens()]
+                        if toks[:1] != ['&']: continue
+                        e = strip(list(e.get_children())[0])
+                    if e.kind == ci.CursorKind.DECL_REF_EXPR and e.spelling in want:
+                        texts.add(e.spelling)
+            calls(c)
+    calls(tu.cursor)
+    if texts: ext.setdefault('__text_args__', []).append({'names': sorted(texts)})
     errs = [str(d) for d in tu.diagnostics if d.severity >= ci.Diagnostic.Error][:3]
     return str(path), ext, defs, cx.types, errs
 
