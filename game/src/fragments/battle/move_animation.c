@@ -66,6 +66,7 @@ void Audio_PlayMoveSound(u8, s32, s32);
 void BattleScene_ClearStateTickCallbacks(void); // PORT: signature from the definition (fragments/battle/move_animation.c)
 void BattleScene_QueueRowEffectList3(ActivePokemon* actor, s32 effect_entry);
 void BattleAnim_PlayMoveEffectScript(ActivePokemon* user, s32 move_id);
+void Port_MoveCoverageAnim(ActivePokemon* user, s32 move, int charging); // PORT: src/port/move_coverage.c
 void BattleAnim_PlayChargingMoveEffectScript(ActivePokemon* user, s32 move_id);
 void BattleAnim_PlayMoveEffectEnd(ActivePokemon* user, s32 move_id);
 void BattleAnim_ClearRockThrowingMoveFlag(ActivePokemon* active_pokemon);
@@ -134,6 +135,7 @@ void BattleAnim_PlayMoveEffectScript(ActivePokemon* user, s32 move_id) {
 
     target_side_index = BattleScene_GetParticipantSideIndex(user) == 0;
     camera_shot = BattleScene_GetMoveCueDefaultAnchor(user);
+    Port_MoveCoverageAnim(user, move_id, 0); // PORT: tools/move_coverage (which moves animated)
     BattleAnim_QueueMoveEffectScript(move_id, user, sActivePokemon[target_side_index], camera_shot, BattleScene_GetMoveCueAlternateAnchor(user));
 }
 
@@ -160,6 +162,7 @@ void BattleAnim_PlayChargingMoveEffectScript(ActivePokemon* user, s32 move_id) {
 
     target_side_index = BattleScene_GetParticipantSideIndex(user) == 0;
     camera_shot = BattleScene_GetMoveCueDefaultAnchor(user);
+    Port_MoveCoverageAnim(user, move_id, 1); // PORT: tools/move_coverage (which moves animated)
     BattleAnim_QueueChargingMoveEffectScript(move_id, user, sActivePokemon[target_side_index], camera_shot, BattleScene_GetMoveCueAlternateAnchor(user));
 }
 

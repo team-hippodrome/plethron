@@ -253,6 +253,9 @@ constexpr u32 kReadCommandButtons = 0x8210D6BC; // BattleMenu_ReadCommandButtons
 constexpr u32 kActivePokemon = 0x82199DE0;      // sActivePokemon[2]
 constexpr u32 kSetHitCount = 0x82128F2C, kSetHitCountEnd = 0x82128FBC; // BattleScene_ActionStepSetHitCount calls it
                                                // (sync event "move"; guRandom restarts)
+constexpr u32 kPlayMoveAnim = 0x82101B54;      // BattleAnim_PlayMoveEffectScript(user, move) and
+constexpr u32 kPlayChargeAnim = 0x82101BBC;    // BattleAnim_PlayChargingMoveEffectScript: sync event "anim1" when the
+constexpr u32 kSide1Active = 0x82199DE8;       // user is 1P's Pokémon (sSide1ActivePokemon) (tools/move_coverage)
 struct Caller { u32 from, to; const char* name; }; // [from, to) link addresses of osGetCount's callers to replace
 const Caller kCallers[] = { { 0x8210F3F0, 0x8210F4E0, "Battle_Random" }, { 0x82183B60, 0x82183BA8, "BattleAi_StirRandom" } };
 
@@ -411,6 +414,10 @@ bool hook(u32 address) {
         }
         return false;
     }
+    if (address == rt(kPlayMoveAnim) || address == rt(kPlayChargeAnim)) {
+        if ((u32)cpu.ipu.r[4].u64 == rd32(rt(kSide1Active))) syncEvent("anim1");
+        return false;
+    }
     if (address == rt(kResetAnimStep)) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
@@ -456,6 +463,10 @@ void place(u32 base) {
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
     if (gWeakCom) cpu.hostHooks.addresses.push_back(rt(kReadCommandButtons));
     if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));
+    if (!gSync.empty()) {
+        cpu.hostHooks.addresses.push_back(rt(kPlayMoveAnim));
+        cpu.hostHooks.addresses.push_back(rt(kPlayChargeAnim));
+    }
     std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
     cpu.recompiler.reset();
     fprintf(stderr, "[xcheck] battle engine mapped at %08x (frame %llu)\n", base, (unsigned long long)gFrame);
