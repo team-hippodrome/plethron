@@ -919,7 +919,7 @@ AudioCmd* AudioSynth_ProcessSample(s32 note_index, ZNoteSubEu* note_sub_eu, Note
             {                                                                                            \
                 AudioCmd* a = (cmd)++;                                                                   \
                 a->w0 = SHIFTL_81109(5, 24, 8) | SHIFTL_81109(arg5, 16, 8) | SHIFTL_81109(count, 0, 16); \
-                a->w1 = (u32)(*(s32*)((arg1) + 0xC) + 0x80000020);                                       \
+                a->w1 = (u32)((uintptr_t)((NoteSynthesisState*)(arg1))->synthesisBuffers + 0x80000020); /* PORT: was *(s32*)(arg1 + 0xC), the N64 offset of synthesisBuffers */ \
             }                                                                                            \
         }                                                                                                \
     } while (0)
