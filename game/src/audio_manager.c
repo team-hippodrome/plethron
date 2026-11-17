@@ -794,7 +794,6 @@ s32 Cry_IsPlaying(void) {
  */
 s32 Audio_GetActivityScore();                                /* extern */
 extern u8 D_80075E0C;
-extern s32 D_80075E30;
 extern s8 D_800B3F78;
 extern s32 D_800B3F94;
 
@@ -815,7 +814,7 @@ s32 Audio_SetEnabled(s32 arg0) {
         goto block_5; // FAKE: goto
     }
     osAiSetFrequency(D_800B3F94);
-    D_80075E30 = 0;
+    lastInfo = NULL; // PORT: was D_80075E30 = 0, an s32 alias of the pointer (zeroed only its low half on 64-bit)
     D_800B3F78 = 0;
     D_80075E0C = 0;
 block_5:

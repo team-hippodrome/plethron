@@ -484,7 +484,7 @@ s32 GbPak_RequestBankLoad(s32 chan, s32 bank) {
     u8* entry;
     u8* state;
 
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if ((D_81156476 == 0) || (D_811561C8[chan].request != 0) || (D_811561C8[chan].error != 0)) {
         return -2;
@@ -507,7 +507,7 @@ found:
         D_811561C8[chan].bankEntry = entry;
         if (!entry && !entry && !entry) {} // FAKE: empty test found by the permuter; only changes instruction scheduling
         osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811561C8[chan].channel, 1); // PORT: OSMesg value
-        while (D_81156475 != 0) {
+        while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
         }
     }
     if (D_811561C8[chan].error != 0) {

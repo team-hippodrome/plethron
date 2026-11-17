@@ -170,7 +170,7 @@ s32 GbPak_VerifyRamBlocks(s32 arg0) {
             break;
         }
     }
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if (ch->error != 0) {
         goto fail;
@@ -184,7 +184,7 @@ restart:
             ch->size = 0x100;
             ch->buf = ch->verifyBuf;
             osSendMesg(&D_81156458, (OSMesg)(intptr_t)arg0, 1); // PORT: OSMesg value
-            while (D_81156475 != 0) {
+            while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
             }
             if (ch->error != 0) {
                 goto fail;
@@ -202,7 +202,7 @@ restart:
                 ch->buf = ch->ramBuf + off;
                 ch->size = 0x100;
                 osSendMesg(&D_81156458, (OSMesg)(intptr_t)arg0, 1); // PORT: OSMesg value
-                while (D_81156475 != 0) {
+                while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
                 }
                 if (ch->error) {
                     goto fail;
@@ -521,17 +521,17 @@ extern OSMesgQueue D_81156458;
 void GbPak_StopIoThread(s32 arg0) {
     s32 i;
 
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     for (i = 0; i < 4; i++) {
         if ((1 << i) & arg0) {
             osGbpakPower(D_811561C8[i].pfs, 0); // PORT: the pfs field (offset 0x50 on the N64)
         }
     }
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     osSendMesg(&D_81156458, (OSMesg)(intptr_t)0xFF, 1); // PORT: OSMesg value
-    while (D_81156474 != 0) {
+    while (D_81156474 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     D_81156470 = 0;
     D_81156475 = 0;
@@ -657,7 +657,11 @@ void GbEmu_DrawTextCommands(u16* fb, u8* cmd) {
             for (row = 0; row != tile_size; row++) {
                 for (col = 0; col != width; col++) {
                     if (trans || (pal[*src & 0xF] != 0)) {
+#ifdef NON_MATCHING
+                        *dst = (u16)((pal[*src & 0xF] >> 8) | (pal[*src & 0xF] << 8)); // PORT: the palettes are lifted u16 (host order), the frame buffer holds N64 byte order
+#else
                         *dst = pal[*src & 0xF];
+#endif
                     }
                     dst++;
                     src++;
@@ -1292,7 +1296,7 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
     i = func_80025BD8();
     D_811561C8[i].request = 0x80;
     osSendMesg(&D_81156458, (OSMesg)(intptr_t)i, 1); // PORT: OSMesg value
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
 
     buf = (u8*)GbEmu_AllocAligned64(0x200, 0);
@@ -1322,7 +1326,7 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
         return GbEmu_BlackScreenAndFail(1);
     }
     D_81156540.colorIndex = cur->gameIndex - 1;
-    while (D_81156475 != 0) {
+    while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
     }
     if (GbPak_WriteVerifiedSramBlock(D_811565A0, 0, 0xFF) != 0) {
         GbEmu_BlackScreenAndFail(1);
@@ -1362,7 +1366,7 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
             cur->buf = i * 0x2000 + D_81156540.sram;
             cur->size = 0x2000;
             osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
-            while (D_81156475 != 0) {
+            while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
                 GbEmu_AnimateLoadingScreen();
             }
             if (cur->error) goto fail; /* one line: gives the ROM's beqz/b pair */
@@ -1379,7 +1383,7 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
             cur->buf = i * 0x2000 + D_81156540.rom;
             cur->size = 0x2000;
             osSendMesg(&D_81156458, (OSMesg)(intptr_t)D_811565A0, 1); // PORT: OSMesg value
-            while (D_81156475 != 0) {
+            while (D_81156475 != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
                 GbEmu_AnimateLoadingScreen();
             }
             if (cur->error) goto fail; /* one line: gives the ROM's beqz/b pair */
@@ -1400,7 +1404,7 @@ s32 GbEmu_LoadCartridge(uintptr_t arg0, uintptr_t arg1, s32 arg2, s32 arg3, GbPl
         osWritebackDCacheAll();
         D_81156476 = 1;
         GbPak_RequestBankLoad(D_811565A0, 0);
-        while (*cur->bankState != 0) {
+        while (*cur->bankState != 0) { Port_GbIoSpin(); // PORT: let the Transfer Pak thread take its time (transfer_pak.cpp PaceTransfer)
             GbPak_QueueNextBankLoad(cur);
             if (cur->error != 0) {
             fail:
