@@ -84,8 +84,14 @@ extern GbSynthWave D_800FD798;
 extern GbSynthNoise D_800FD7B8;
 extern u32 D_800FD7E4;
 extern GbSoundRegisters D_800FD7E8;
-extern GbSoundRegWrite D_800FD848[199];
-extern u8 D_800FDE80[8];
+// PORT: the write queue has 200 entries (indices wrap at 200; the N64's 200th overlaps D_800FDE80), and D_800FDE80 is
+// the shadow of every register (indexed by the register's low byte, 0x10-0x3F: on the N64 it runs on over
+// D_800FDE88 / D_800FDE8C's unused tail). With the lifter's separately placed storage both overflowed into the queue
+// indices and the Pokédex cry crashed in GbAudio_ApplyQueuedWrites. Port-sized arrays instead.
+static GbSoundRegWrite sPortGbRegWrites[200];
+static u8 sPortGbRegShadow[0x100];
+#define D_800FD848 sPortGbRegWrites
+#define D_800FDE80 sPortGbRegShadow
 extern u32 D_800FDE88;
 extern u32 D_800FDE8C;
 extern u8 D_800FDEC0;

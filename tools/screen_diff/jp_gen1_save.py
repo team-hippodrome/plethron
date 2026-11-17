@@ -2,7 +2,8 @@
 """Writes a Japanese Pocket Monsters Red/Green/Blue battery save from scratch, for the routes that need a Game Boy
 cartridge in the Transfer Pak (Stadium Zero reads only Japanese carts).
 
-Usage: tools/screen_diff/jp_gen1_save.py <out.sav> [--party SPECIES:LEVEL,...]
+Usage: tools/screen_diff/jp_gen1_save.py <out.sav> [--party SPECIES:LEVEL,...] [--owned RANGES] [--seen RANGES]
+RANGES: dex numbers, e.g. 1-8,12-130 (--owned sets owned and seen, --seen sets seen only), on top of the party's.
 Species: PIKACHU BULBASAUR CHARMANDER SQUIRTLE PIDGEY RATTATA (tools/gb_save.py's table).
 
 What Zero checks is set: player name サトシ, rival ナコ, nicknames ハナ, ヒメ, カコ, ..., the party with its Pokédex owned/seen flags, the got-Pokédex
@@ -24,6 +25,16 @@ NICKNAMES = ["ハナ", "ヒメ", "カコ", "ノコ", "ナシ", "メカ"]
 def name(s):
     b = bytes(KANA[c] for c in s) + b"\x50"
     return b + b"\x50" * (6 - len(b))
+
+
+def parse_ranges(text):
+    out = []
+    for part in text.split(","):
+        lo, _, hi = part.partition("-")
+        out += range(int(lo), int(hi or lo) + 1)
+    if any(not 1 <= d <= 151 for d in out):
+        sys.exit("dex numbers are 1-151: %s" % text)
+    return out
 
 
 def main():
@@ -54,6 +65,11 @@ def main():
         sav[base + 8 + 300 + 6 * i:base + 8 + 300 + 6 * (i + 1)] = name(NICKNAMES[i])
         sav[main_data + (dex - 1) // 8] |= 1 << ((dex - 1) % 8)  # owned
         sav[main_data + 0x13 + (dex - 1) // 8] |= 1 << ((dex - 1) % 8)  # seen
+    for flag, offsets in (("--owned", (0, 0x13)), ("--seen", (0x13,))):
+        if flag in args:
+            for dex in parse_ranges(args[args.index(flag) + 1]):
+                for off in offsets:
+                    sav[main_data + off + (dex - 1) // 8] |= 1 << ((dex - 1) % 8)
     sav[0x3594] = (~sum(sav[0x2598:0x3594])) & 0xFF
     open(args[0], "wb").write(bytes(sav))
     print("%s: サトシ, party %s" % (args[0], ", ".join("%s L%d" % m for m in mons)))

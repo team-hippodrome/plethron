@@ -13,6 +13,8 @@ tools/ares_ref/build.sh build/ares            # safe to rerun
 pip install numpy pillow
 # a Japanese Green cartridge save with a party, for the routes that need the Transfer Pak
 python3 tools/screen_diff/jp_gen1_save.py saves/green_party.sav
+# the Pokédex route's save: owned, held, seen-only and unseen species
+python3 tools/screen_diff/jp_gen1_save.py saves/green_dex.sav --owned 1-8,12-130 --seen 9-10,131-150
 ```
 
 Environment for the runs (the ROMs are yours and stay out of the repository):
@@ -22,6 +24,7 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `ROM` | Pocket Monsters Stadium (Japan) `.z64` |
 | `ARES_REF_BUILD`, `ARES_REF_SRC` | default `build/ares/build`, `build/ares/ares` (what `build.sh build/ares` makes) |
 | `GB_ROM_GREEN`, `GB_SAV_GREEN` | Pocket Monsters Green `.gb` and the save from `jp_gen1_save.py` |
+| `GB_ROM_GREENDEX`, `GB_SAV_GREENDEX` | the same Green `.gb` and `saves/green_dex.sav` (route `pokedex`) |
 | `PORT_BIN` | default `build/pokestadium` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
@@ -51,7 +54,7 @@ put checkpoints where the screen has settled or right after the press that start
 | `intro_attract` | N64 logo, intro Pokémon, title, the attract-mode battle (no cartridge) |
 | `free_battle` | lobby, cartridge select, P-OS, main menu, Battle, Free Battle vs COM, entry, arena intro, VS, order screen |
 | `tournament` | Battle → tournament menus |
-| `pokedex` | ずかん list and an entry |
+| `pokedex` | ずかん list (number and kana order, scrolled to the end), データをみる pages with the turning 3D model (held and seen-only species), ぶんぷをみる habitat maps (unknown habitat; ポッポ with the GB map, zoom and the next area), やめる |
 | `gb_player` | GB Player booting the Green cartridge |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
 

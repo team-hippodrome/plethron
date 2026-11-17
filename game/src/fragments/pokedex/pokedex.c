@@ -104,7 +104,7 @@ void Pokedex_DrawListRow(s32 x, s32 y, char* item, s32 row, s32 flags, s32* sort
     Font_Printf(x + 0x10, y + 8, D_8A12FC30, idx + 1);
     if (progress != 0) {
         Font_SetActive(0x10, 0);
-        Font_Printf(x + 124, y + 6, D_80064C60[idx].unk_00);
+        Font_Printf(x + 124, y + 6, D_80064C5C[idx].name); // PORT: was D_80064C60[idx].unk_00 (0x1C-byte rows on the N64; the host's SpeciesInfo is wider, so that alias strode into the wrong species)
     }
     Font_EndTexturedTextRendering();
 }
