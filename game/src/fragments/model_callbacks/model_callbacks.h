@@ -34,8 +34,8 @@ typedef struct DisplayListState {
 typedef struct ModelScrollStrip {
     /* 0x00 */ s16 scrollSpeed;
     /* 0x02 */ s16 unk_02;
-    /* 0x04 */ s32 textures[6];
-} ModelScrollStrip; // size = 0x1C
+    /* 0x04 */ s32 textures[8]; // PORT: 6 in the table, but the strip indexes (frame & 7): entries 6 and 7 are the 8 bytes after it
+} ModelScrollStrip; // size = 0x1C on the N64 (0x24 here, read only through ModelCallback_HostScrollStrip)
 
 typedef struct ModelScrollStripState {
     /* 0x00 */ MODEL_CALLBACK_STATE_HEAD;
