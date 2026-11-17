@@ -272,14 +272,14 @@ void Display_ClearFramebufferLine(u16 color) {
     u16* buf = (u16*)D_800870D0.lineImage->img_p;
 
     while (width-- > 0) {
-        *(buf)++ = color;
+        *(buf)++ = Port_Swap16(color); // PORT: CPU frame buffers hold RGBA5551 in N64 byte order (PresentCpuFrame), else black 0x0001 shows as dark green
     }
 }
 
 /** Returns the color the framebuffer is cleared to. */
 u16 Display_GetFramebufferClearColor(void) {
     u16* ptr = (u16*)D_800870D0.lineImage->img_p;
-    return *ptr;
+    return Port_Swap16(*ptr); // PORT: stored in N64 byte order (Display_ClearFramebufferLine)
 }
 
 /** Blocks until the queued frame has finished. */

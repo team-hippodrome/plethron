@@ -357,11 +357,10 @@ void LabBoxList_SetAllChecked(LabBoxListWindow* widget, s32 enabled) { // PORT: 
  */
 void LabBoxList_ApplyChecks(LabBoxListWindow* box_list) {
     s32 i;
-    s32* entry = (s32*)box_list->menu.items->rows;
+    LabPCBox* entry = (LabPCBox*)box_list->menu.items->rows; // PORT: typed (was s32* with entry[3] and a stride of 8 words, the N64 layout)
 
-    for (i = 0; i < box_list->menu.items->count; i++) {
-        entry[3] = (box_list->menu.itemFlags[i] & 8) != 0;
-        entry += 8;
+    for (i = 0; i < box_list->menu.items->count; i++, entry++) {
+        entry->checked = (box_list->menu.itemFlags[i] & 8) != 0;
     }
 }
 

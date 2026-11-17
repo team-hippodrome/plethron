@@ -58,6 +58,7 @@ extern char** sBattleControllerDisconnectedMessage;
 #include "status.h"
 
 #include "m2c_macros.h"
+#include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
 
 void Audio_PlayMoveSound(u8, s32, s32);
 
@@ -1974,7 +1975,7 @@ s32 BattleAnim_TrySetModelEventTrackFromRow(ActivePokemon* active_pokemon, s32 c
 
     ModelAnim_SetEventFrame(&active_pokemon->displayObject, 0);
     ModelAnim_SetEventTrack(&active_pokemon->displayObject, event_track);
-    ModelAnim_SetEventFrame(&active_pokemon->displayObject, active_pokemon->displayObject.eventTrack.data->endFrame);
+    ModelAnim_SetEventFrame(&active_pokemon->displayObject, ANIM_END(active_pokemon->displayObject.eventTrack.data));
 
     active_pokemon->state.modelEventTrackState = event_state;
     return 0;

@@ -563,7 +563,8 @@ s32 GbSave_ScanAllPorts(void) {
         var_s0->gameType = 0;
 
         temp = (u64*)&var_s0->identity;
-        *temp = 0x500000000000;
+        *temp = 0; // PORT: was 0x500000000000, which puts the 0x50 in playerName[0] only on the big-endian N64; on the
+        var_s0->identity.playerName[0] = 0x50; // host it landed in playerName[3] and an empty port showed 3 glyphs
 
         if (D_800AD335 & (1 << i)) {
             var_s0->saveState = 2;

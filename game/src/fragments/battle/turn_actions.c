@@ -2,6 +2,7 @@
 #include "battle.h"
 #include "audio_commands.h"
 #include "geo_node.h"
+#include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
@@ -1127,7 +1128,7 @@ void ModelAnim_SetFrame(DisplayObject* display_object, s16 animation_timer);
  * @unverified Name guessed from the code.
  */
 void BattleAnim_AlignIdleLoopToFrameCount(ActivePokemon* active_pokemon, s32 frame_count) { // PORT: was DisplayObject* (it reads state.flags)
-    s32 frames = active_pokemon->displayObject.transformAnim.data->endFrame;
+    s32 frames = ANIM_END(active_pokemon->displayObject.transformAnim.data);
 
     if (active_pokemon->state.flags & 2) {
         return;
