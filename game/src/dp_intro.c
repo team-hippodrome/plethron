@@ -9,6 +9,7 @@
 #include "game_state.h"
 #include "profiler.h"
 #include "stage_loader.h"
+#include "StadionPort.h" // PORT: Port_NoteFrameBuffer
 extern u64 F3DEX2_data_bin[];
 extern s32 sImageGridDisplayList;
 extern u64 D_80087B88[0x100 / sizeof(u64)];
@@ -68,6 +69,11 @@ void DisplayTask_Initialize(SchedTask* arg0) {
 
 /** Fills in a graphics task from a display list buffer and submits it. */
 void DisplayTask_Submit(SchedTask* arg0, DisplayFrame* arg1, s32 arg2) {
+    // PORT: name the task's frame buffer before it is drawn, so its first frame (a newly allocated buffer the VI has
+    // not shown yet) is not taken for an off-screen picture (one black frame after the title)
+    if (arg1->framebuffer != NULL) {
+        Port_NoteFrameBuffer(arg1->framebuffer->img_p);
+    }
     arg0->task.t.data_ptr = (void*)(uintptr_t)arg1->dlist;
     arg0->task.t.data_size = (uintptr_t)arg1->dlistSize;
     Sched_SubmitTask(arg0, arg2);
