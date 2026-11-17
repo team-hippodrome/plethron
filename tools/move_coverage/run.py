@@ -19,7 +19,7 @@ four of its moves (an enabler such as Substitute for healing moves or a sleep mo
 there is room). The COM enters a passive team (Chansey, Snorlax, Vaporeon, Blastoise, Lapras, Cloyster at L100 with
 only self-boosting and healing moves), so nothing the COM does gets in the way. The planner picks 1P's moves from the
 battle state the port reports at each command phase until every test move has started its animation (or failed four
-times), Rage last (it never ends), then surrenders. The input it gave becomes a tools/screen_diff route with seeded
+times), Rage last (it never ends), and stops there. The input it gave becomes a tools/screen_diff route with seeded
 random numbers (@rng) and a sync point at every command phase and move, which replays the same battle on ares.
 
 The registered teams live in a crafted Zero save (tools/move_coverage/zero_teams.py): no Game Boy cartridge is needed.
@@ -234,7 +234,7 @@ def play_one(work, b, moves):
                gave_up=sorted([s, m] for (s, m), n in battle.tries.items() if (s, m) not in battle.done),
                not_reached=sorted([s, m] for (s, m) in battle.pending),
                turns=battle.turn, ended=battle.ended, surrendered=battle.surrendered,
-               anims=[[f, k, s, m] for f, k, s, m in battle.events if k in ("anim", "charge")])
+               events=[[f, k, s, m] for f, k, s, m in battle.events], presses=battle.presses)
     json.dump(res, open(os.path.join(bdir, "play.json"), "w"), indent=1)
     shutil.rmtree(out + "_home", ignore_errors=True)
     return b["battle"], len(battle.done), len(res["gave_up"]), len(res["not_reached"]), battle.turn
@@ -254,8 +254,10 @@ def diff_one(work, b, keep):
     if not os.path.exists(route):
         return b["battle"], "no route (play first)"
     run = os.path.join(bdir, "screens")
+    env = dict(os.environ)
+    env.setdefault("SCREEN_DIFF_TIMEOUT", "21600")  # (a battle is 30,000-60,000 frames; ares on a software renderer is slow)
     p = subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools", "screen_diff", "run.py"), route, run],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, env=env)
     open(os.path.join(bdir, "screens.log"), "w").write(p.stdout + p.stderr)
     rep = os.path.join(bdir, "report")
     subprocess.run([sys.executable, "-I", os.path.join(ROOT, "tools", "screen_diff", "compare.py"), rep, run],

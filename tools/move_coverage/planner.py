@@ -10,7 +10,7 @@ The strategy: each 1P Pokémon knows up to four test moves; a move is done once 
 it was picked. Moves whose effect needs a condition wait until it holds (a status move needs a target without that
 status, Dream Eater a sleeping target, a healing move missing HP, ...); when nothing on the field can be used, 1P
 switches, and when no test move can be used at all it attacks with a move that is already done (to knock the COM's
-Pokémon out: the next one has no status). Rage (which never ends) comes last, then 1P surrenders.
+Pokémon out: the next one has no status). Rage (which never ends) comes last; the route ends when nothing is left.
 """
 import os, sys, threading
 
@@ -231,9 +231,7 @@ class Battle:
         me = st[0]
         if me.get("opt") == 3 and not self.surrendered and not any(
                 k[0] in [i for i, r in enumerate(me["roster"]) if r[1] > 0] for k in self.pending):
-            self.log("  poll %d: locked and nothing left: surrender" % frame)
-            self.surrendered = True
-            return self.press(frame + 10, "START") + self.press(frame + 50, "RIGHT") + self.press(frame + 90, "A")
+            return self.finish(frame)
         if me.get("opt") == 3:
             self.log("  poll %d: 1P's action is committed (locked)" % frame)
             slot = me["ri"]
@@ -258,11 +256,16 @@ class Battle:
                 out += self.press(frame + 10, "B")
                 out += self.press(frame + 50, SWITCH_BUTTONS[d[1]])
         elif d[0] == "surrender":
-            self.surrendered = True
-            out += self.press(frame + 10, "START")
-            out += self.press(frame + 50, "RIGHT")
-            out += self.press(frame + 90, "A")
+            out += self.finish(frame)
         return out
+
+    def finish(self, frame):
+        """Nothing left to cover: the route ends here, in the middle of the battle (a surrender is not needed, and
+        does not work while 1P is locked, e.g. raging)."""
+        self.log("  poll %d: nothing left, the run ends" % frame)
+        self.surrendered = True
+        self.ended = frame
+        return ["stop %d" % (frame + 30)]
 
     def on_idle(self, frame):
         if not self.started:
@@ -299,7 +302,7 @@ def play(prefix_route, team, moves, out_dir, seed="1", log=print, extra_env=None
     if pending is not None:
         b.pending = set(pending)  # (the moves to cover; the others are enablers)
     b.prefix_presses = list(r["presses"])
-    env = dict(extra_env or {}, PORT_PLANNER_IN=fin, PORT_PLANNER_OUT=fout, PORT_PLANNER_IDLE="1500")
+    env = dict(extra_env or {}, PORT_PLANNER_IN=fin, PORT_PLANNER_OUT=fout, PORT_PLANNER_IDLE="5000")
 
     def loop():
         with open(fout) as rd, open(fin, "w") as wr:
@@ -341,16 +344,19 @@ def write_route(path, header, prefix_presses, battle, shots_per_move=(2, 30, 60,
     items = []  # (frame, order, token)
     for f, spec, hold in prefix_presses + battle.presses:
         items.append((f, 2, "hold:%s:%d" % (spec, hold), hold + 1))
-    # sync points: every cmd and move event, in order; 1P's move = the last move event before a 1P anim/charge
+    # sync points: every command phase, and 1P's moves (the last move event before a 1P animation). The COM's move
+    # events are left out: a sync point waits for the next event of its kind, so one event that a side does not
+    # report (seen once on ares in a COM turn) would hold it there until the timeout and miss the command phase after
     last_move = None
     shots = []
     for f, kind, side, move in battle.events:
         if kind == "cmd":
             items.append((f, 0, "sync:cmd", 0))
+            last_move = None
         elif kind == "move":
-            items.append((f, 0, "sync:move", 0))
             last_move = f
         elif kind in ("anim", "charge") and side == 0 and last_move is not None:
+            items.append((last_move, 0, "sync:move", 0))
             shots.append((last_move, move, kind))
             last_move = None
     n = 0

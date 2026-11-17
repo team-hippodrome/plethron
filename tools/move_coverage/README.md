@@ -41,9 +41,9 @@ Nothing from the ROM is stored in the repository; the dump, the saves and the pi
   Normal types, ...); when the active Pokémon has nothing usable 1P switches, and when nothing at all is usable it
   attacks with a move already done, to knock the COM's Pokémon out (the next one is fresh). A move that does not
   animate in four tries (ten for one-hit-KO moves) is reported as not animated. Rage never ends, so it comes last,
-  then 1P surrenders (START, RIGHT, A).
+  and the route ends there, mid-battle (a surrender does not work while 1P is locked).
 * **The route.** Everything the planner pressed becomes `battle.route`, a `tools/screen_diff` route with seeded
-  random numbers (`@rng`) and a sync point at every command phase and every move, plus checkpoints 2, 30, 60, 90 and
+  random numbers (`@rng`) and a sync point at every command phase and every 1P move, plus checkpoints 2, 30, 60, 90 and
   120 frames into each 1P move. `diff` plays it on the port and on ares and runs `compare.py`; ares's frames are
   deleted afterwards (`--keep-frames` keeps them).
 * **Second pass.** `all` plans the moves that were not done again, in new teams and battles.
