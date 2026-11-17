@@ -8,6 +8,7 @@
 #include "stage_loader.h"
 #include "util.h"
 #include "lib/ultralib/include/PR/leo.h"
+#include "StadionPort.h" // PORT: Port_BeginSramWrite / Port_EndSramWrite
 
 // PORT: from stadion (defined below)
 void Port_FixPersHeader(void* h);
@@ -99,6 +100,9 @@ void Sram_TransferChunked(u8* arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 var_s0;
     OSMesgQueue* mesq = &D_800A96F0;
 
+    if (arg3 != 0) {
+        Port_BeginSramWrite(); // PORT: one save-file write for the whole transfer, not one per 4 KiB chunk
+    }
     for (; arg2 > 0; arg2 -= var_s0) {
         if (arg2 >= 0x1000) {
             var_s0 = 0x1000;
@@ -111,6 +115,9 @@ void Sram_TransferChunked(u8* arg0, s32 arg1, s32 arg2, s32 arg3) {
 
         arg0 += var_s0;
         arg1 += var_s0;
+    }
+    if (arg3 != 0) {
+        Port_EndSramWrite(); // PORT
     }
 }
 

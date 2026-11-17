@@ -80,6 +80,8 @@ int Port_ControllerBits(void);
 // Bracket a multi-page flash write (save_data.c): the save file is written once, at the end, if anything changed.
 void Port_BeginFlashBankWrite(void);
 void Port_EndFlashBankWrite(void);
+void Port_BeginSramWrite(void); // brackets one chunked SRAM transfer: the save file is written once, at the end
+void Port_EndSramWrite(void);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Graphics and data translation (src/port/gfx_translate.cpp, interp.cpp, gb_core.c, libultraship fork)

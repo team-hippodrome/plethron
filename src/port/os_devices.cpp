@@ -205,7 +205,32 @@ void SramLoad() {
     }
 }
 
+// Zero writes SRAM in DMA chunks of up to 4 KiB (Sram_TransferChunked), and every changed chunk used to rewrite the
+// whole .sra with a backup snapshot: a save record of 8 KiB cost three file writes. The game brackets one transfer
+// with Port_BeginSramWrite / Port_EndSramWrite, and the file is written once at the end (stadion's flash bracket,
+// PR #106). Separate transfers (a record's 'XXXX' invalidation and its later commit) stay separate writes.
+std::atomic<int> gSramBracket{0};
+std::atomic<bool> gSramBracketDirty{false};
+
+void SramWriteFile();
+
 void SramSave() {
+    if (gSramBracket.load() > 0) {
+        gSramBracketDirty = true;
+        return;
+    }
+    SramWriteFile();
+}
+
+extern "C" void Port_BeginSramWrite(void) {
+    gSramBracket++;
+}
+
+extern "C" void Port_EndSramWrite(void) {
+    if (--gSramBracket == 0 && gSramBracketDirty.exchange(false)) SramWriteFile();
+}
+
+void SramWriteFile() {
     std::string error;
     if (!Port::WriteProtectedSave(std::filesystem::u8path(SramPath()), gSram.data(), gSram.size(), error)) {
         Port::ReportSaveFailure(error);

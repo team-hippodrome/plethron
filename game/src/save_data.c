@@ -11,6 +11,7 @@ extern s32 D_800AAE30;
 extern s32 D_800AAF3C;
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_BeginSramWrite / Port_EndSramWrite
 
 u16 Save_Checksum(u8* arg0, s32 arg1);
 s32 Save_RecordIsValid(u8* arg0, s32 arg1);
@@ -259,6 +260,7 @@ s32 Save_LoadSram(void)
       gSaveBufferLoaded = 1;
       bzero(temp_v0, 0x8000);
       func_80003774(gSaveBuffer, 0, 0x8000, 0);
+      Port_BeginSramWrite(); // PORT: the repairs of a blank or damaged save (up to 27 records) are one save-file write
       for (i = 0; i < 16; i++)
       {
         Save_LoadTypedRecordWithRepair(0x10, i);
@@ -271,6 +273,7 @@ s32 Save_LoadSram(void)
       Save_LoadTypedRecordWithRepair(0x13, 0);
       Save_LoadTypedRecordWithRepair(0x14, 0);
       Save_LoadTypedRecordWithRepair(0x15, 0);
+      Port_EndSramWrite(); // PORT
     }
   }
   return gSaveBufferLoaded;
