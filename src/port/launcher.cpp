@@ -353,7 +353,20 @@ CartInfo InspectCart(const std::string& rom, const std::string& save) {
         info.label = end == std::string::npos ? "Unknown cartridge" : title.substr(0, end + 1);
     }
     std::vector<uint8_t> s = ReadFile(save);
-    if (s.size() >= 0x3524) {
+    // Japanese carts (destination code 0, Zero's own) keep the Japanese Gen 1 layout: 5-letter names, so the main data
+    // ends earlier (checksum at 0x3594) and the player ID sits at 0x25FB. The code below this branch is stadion's,
+    // which only knew the Western layout. Names are kana, which the launcher's font cannot draw: show the ID only.
+    if (r[0x14A] == 0 && s.size() >= 0x3595) {
+        uint32_t sum = 0;
+        for (int i = 0x2598; i <= 0x3593; i++) {
+            sum += s[i];
+        }
+        if ((uint8_t)~sum == s[0x3594]) {
+            char id[8];
+            snprintf(id, sizeof id, "%05d", (s[0x25FB] << 8) | s[0x25FC]);
+            info.trainerId = id;
+        }
+    } else if (s.size() >= 0x3524) {
         uint32_t sum = 0;
         for (int i = 0x2598; i <= 0x3522; i++) {
             sum += s[i];
