@@ -691,11 +691,24 @@ static size_t Port_PictureLoopSize() {
 }
 
 extern "C" int port_ThreadsIdle(void);
+extern "C" void port_NotifyMaybeIdle(void);
 extern "C" void port_DumpThreads(void);
 
 extern "C" bool Port_Lockstep() {
     static bool on = getenv("PORT_REALTIME") == nullptr;
     return on;
+}
+
+// Steady-clock time of the last VI retrace (both clocks), for Port_NextRetraceNs.
+static std::atomic<int64_t> gLastRetraceNs{ 0 };
+
+// When the next VI retrace is expected (steady clock, ns), or 0 when retraces do not follow real time (PORT_SPEED=max,
+// none yet). The window thread polls input just before it (Engine.cpp, PumpFrame).
+extern "C" int64_t Port_NextRetraceNs() {
+    const double periodNs = 16666667.0 / Port_Speed();
+    const int64_t last = gLastRetraceNs.load(std::memory_order_relaxed);
+    if (last == 0 || periodNs < 1000000.0) return 0;
+    return last + (int64_t)periodNs;
 }
 
 extern "C" uint64_t Port_ViTick() {
@@ -1025,6 +1038,21 @@ std::deque<OSTask*> gCpuTasks;
 std::condition_variable gCpuTaskCv;
 #endif
 
+// The lockstep clock sleeps until the game may have gone idle (LockstepClock): woken when the last runnable game
+// thread blocks (os_thread.cpp, Reschedule) and when a task completes. It used to poll every 20 us, which cost a
+// wake-up and two context switches per poll (~28000 per second, more kernel time than the game itself used).
+std::mutex gIdleLock;
+std::condition_variable gIdleCv;
+uint64_t gIdleEpoch = 0; // (gIdleLock) bumped by every notification
+
+void NotifyMaybeIdle() {
+    {
+        std::lock_guard<std::mutex> g(gIdleLock);
+        gIdleEpoch++;
+    }
+    gIdleCv.notify_all();
+}
+
 bool TasksDrained() {
     std::lock_guard<std::mutex> g(gTaskLock);
 #if defined(__EMSCRIPTEN__)
@@ -1149,9 +1177,18 @@ void LockstepClock() {
         bool reported = false;
         // drained, idle, drained: the two are read under different locks; a completion posted after the first check
         // leaves a runnable thread, and a task submitted after the idle check shows in the second one
-        while (!(TasksDrained() && port_ThreadsIdle() && TasksDrained())) {
+        for (;;) {
+            uint64_t epoch;
+            {
+                std::lock_guard<std::mutex> g(gIdleLock);
+                epoch = gIdleEpoch; // read before the checks: a change after them ends the wait below at once
+            }
+            if (TasksDrained() && port_ThreadsIdle() && TasksDrained()) break;
             if (gStop) return;
-            std::this_thread::sleep_for(std::chrono::microseconds(20));
+            {   // (the timeout is only a safety net: every way into the idle state notifies)
+                std::unique_lock<std::mutex> g(gIdleLock);
+                gIdleCv.wait_for(g, std::chrono::milliseconds(1), [&] { return gIdleEpoch != epoch || gStop; });
+            }
             // (after 150 ms with PORT_TRACE_PACING=1, to see what a hitch waits for)
             static const auto reportAfter = getenv("PORT_TRACE_PACING") ? std::chrono::milliseconds(150)
                                                                          : std::chrono::milliseconds(3000);
@@ -1212,6 +1249,7 @@ void LockstepClock() {
             gCountBump = 0;
         }
         gTick = ++tick;
+        gLastRetraceNs = Port_SteadyNs();
         SyncStep(tick);
         LatchPads(tick - gSyncLag.load());
         if (Port_FreezeCheckEnabled()) { // freeze report: the picture has not changed for PORT_FREEZE_FRAMES game frames
@@ -1259,6 +1297,10 @@ void LockstepClock() {
     }
 }
 } // namespace
+
+extern "C" void port_NotifyMaybeIdle(void) {
+    NotifyMaybeIdle();
+}
 
 // The battle's portrait cameras, anchored to the picture's edges like its HUD (port_compat.h): registered every frame
 // the battle draws its HUD; a registration older than 4 retraces is ignored, so a camera node that a later scene
@@ -1344,6 +1386,7 @@ void port_osCreateViManager(OSPri) {
                 every = gViEvery;
             }
             gTick = ++tick;
+            gLastRetraceNs = Port_SteadyNs();
             if (q && (tick % every) == 0) {
                 port_PostMesgFromIrq(q, m);
             }
@@ -1435,6 +1478,7 @@ static void Port_CpuTaskThread() {
             gTasksProcessed++;
         }
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
     }
 }
 #endif
@@ -1470,6 +1514,7 @@ void osSpTaskStartGo(OSTask* t) {
         gTasksProcessed++;
         g.unlock();
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
         return;
     }
 #endif
@@ -1807,6 +1852,7 @@ void Port::PumpRspTasks() {
             gTasksProcessed++;
         }
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
     }
     TryPresentCpuFrame(); // a frame buffer swapped while the tasks above ran
 }
