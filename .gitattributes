@@ -1,0 +1,9 @@
+# Data the game reads at run time must keep LF line endings on every platform: with core.autocrlf (the Git for Windows
+# default) a CRLF checkout put a CR into every multi-line translation, drawn as "?" at each line end.
+*.csv text eol=lf
+*.hex text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+# Scripts run by Unix shells
+*.sh text eol=lf
+gradlew text eol=lf

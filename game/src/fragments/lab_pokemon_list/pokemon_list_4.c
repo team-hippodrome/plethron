@@ -49,7 +49,7 @@ void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void Font_SetColorForFlags(s32);
 void LabPCList_DrawPlainText(s32, s32, s8*, s32, s32);
 
-s32 Window_DrawAnimatedFrame(void);
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: the definition's prototype (was (void))
 void Window_DrawHeaderStripe(s32, s32, s32);
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
@@ -75,7 +75,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     s32 y;
     s32 flags[2]; // FAKE (only [0] is used; has to live on the stack)
 
-    if (Window_DrawAnimatedFrame() != 0) {
+    if (Window_DrawAnimatedFrame(&screen->window) != 0) { // PORT: the decomp relied on a0 still holding screen
         return;
     }
     Window_DrawHeaderStripe(screen->window.frame.x, screen->window.frame.y - 10, 500);

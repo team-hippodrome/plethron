@@ -1,0 +1,4 @@
+# Main menu -> せいとん (organize).
+@gb green
+1200 START 300 A 400 shot:main_menu
+LEFT 40 UP 40 A 150 shot:organize_prompt A 400 shot:organize_menu 200 shot:organize_idle

@@ -32,6 +32,7 @@ if(CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
   set(PORT_ALL_WARNINGS /W4) # clang-cl: /W4 is -Wall -Wextra (its -Wall means -Weverything)
   set(PORT_UNSIGNED_CHAR /J)
   set(PORT_NO_BUILTIN /clang:-fno-builtin)
+  set(PORT_GNU_BITFIELDS /clang:-mno-ms-bitfields)
 else()
   set(PORT_FORCE_INCLUDE "-include")
   set(PORT_DEBUG_INFO -g)
@@ -39,6 +40,13 @@ else()
   set(PORT_ALL_WARNINGS -Wall -Wextra)
   set(PORT_UNSIGNED_CHAR -funsigned-char)
   set(PORT_NO_BUILTIN -fno-builtin)
+  set(PORT_GNU_BITFIELDS -mno-ms-bitfields)
+endif()
+# Windows targets lay bitfields out the Microsoft way (a field of another type starts a new storage unit), so the
+# game's records would differ from the host layouts the data lifter computed (SequencePlayer's u32 flag bits moved its
+# u8 fields). The game code uses the GCC layout on every host; tools/abi_audit/layouts.py compares Linux and MinGW.
+if(NOT WIN32)
+  set(PORT_GNU_BITFIELDS "")
 endif()
 
 # libultraship is built as a subproject; it is the N64 SDK reimplementation
@@ -333,7 +341,7 @@ target_compile_definitions(stadium_game PRIVATE
   BUILD_VERSION=VERSION_I_P VERSION_JP=1
   PORT_STATIC_FRAGMENTS)
 target_compile_options(stadium_game PRIVATE
-  ${PORT_DEBUG_INFO} ${PORT_NO_BUILTIN} ${PORT_UNSIGNED_CHAR} ${STADION_GAME_WARNINGS}
+  ${PORT_DEBUG_INFO} ${PORT_NO_BUILTIN} ${PORT_UNSIGNED_CHAR} ${PORT_GNU_BITFIELDS} ${STADION_GAME_WARNINGS}
   # keep a symbol per static array: arm64 global merging folds them into _MergedGlobals, and the renderer finds the
   # 16/32-bit word arrays it must byte-swap (textures, palettes; gen_word_arrays.py) by symbol name
   $<$<AND:$<C_COMPILER_ID:Clang,AppleClang>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-mno-global-merge>

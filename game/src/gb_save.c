@@ -230,8 +230,13 @@ void Gfx_LoadTextureBlock16b(s32 width, s32 height, void* texture, s32 fmt) {
     gDPLoadTextureBlock(gDisplayListHead++, texture, fmt, G_IM_SIZ_16b, width, height, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 }
 
-/** Draws a solid-colored rectangle. */
-void Trade_DrawSolidFillRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGB8 arg4) {
+/**
+ * Draws a solid-colored rectangle.
+ * PORT: the color is taken as a 4-byte struct (was Color_RGB8), the type every caller passes. Win64 passes a 3-byte
+ * struct by reference but a 4-byte one in a register, so the callee read the caller's color as a pointer and crashed
+ * (main menu window headers); on the N64 and SysV hosts both are one register with r, g, b in the same bytes.
+ */
+void Trade_DrawSolidFillRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, Color_RGBA8 arg4) {
     s32 color = RGBA5551(arg4.r, arg4.g, arg4.b, 1);
 
     gDPPipeSync(gDisplayListHead++);
@@ -1303,7 +1308,7 @@ void SavePrompt_Init(SavePrompt* arg0, s32 arg1, s32 arg2) {
     arg0->menu.options |= 0x10000;
 }
 
-s32 func_8002AE6C();
+s32 func_8002AE6C(Window* arg0); // PORT: Window_UpdateAndDrawFrame's prototype (was unprototyped)
 void Ui_DrawTexturedDivider(s32, s32, s32, FrameTextures*);
 void Menu_DrawItems(Menu* arg0, s32 arg1, s32 arg2, s32 arg3, intptr_t arg4); // PORT: matches the definition
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
@@ -1317,7 +1322,7 @@ extern u8 D_8007B920[];
  * Seen in play (2026-11-12) in いちらん: drew that window every frame while it was open.
  */
 void SavePrompt_Draw(SavePrompt* arg0) {
-    if (func_8002AE6C() != 0) {
+    if (func_8002AE6C(&arg0->window) != 0) { // PORT: the decomp relied on a0 still holding arg0
         return;
     }
     Ui_DrawTexturedDivider(arg0->window.frame.x, arg0->window.frame.y + 69, arg0->window.frame.width, &D_8007356C);
@@ -1471,7 +1476,7 @@ extern Rgba8002D188 D_800736F0[];
  * every frame while it was up.
  */
 void TextBox_Draw(TextBox* arg0) {
-    if (func_8002AE6C(arg0) != 0) {
+    if (func_8002AE6C(&arg0->window) != 0) {
         return;
     }
     func_8001AB6C();
