@@ -40,7 +40,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 ## Index
 
 <!-- BEGIN INDEX -->
-147 cases: 20 needed, 11 check, 86 already ported, 30 not applicable.
+147 cases: 15 needed, 11 check, 91 already ported, 30 not applicable.
 
 ### Needed in plethron
 
@@ -50,12 +50,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [Raw big-endian animation headers read natively: endFrame 256x too large (Dream Eater's sparkles missing)](060-raw-animation-endframe-reads.md) | endianness | four raw `endFrame` reads remain in Zero's battle code |
 | [Lab list filters: PointerList_Filter counted 4-byte pointers (count doubled, garbage rows, crash)](064-pointerlist-filter-count-pointer-size.md) | abi-64bit | same `>> 2` in Zero's table_view.c |
 | [Lab PC boxes read through an `s32*` view of a pointer list / N64 row stride (Check BOX crash, icons shifted)](070-lab-pc-box-pointer-list-read-through-s32.md) | abi-64bit | Zero's `LabBoxList_ApplyChecks` walks the box rows with the N64 stride and offset |
-| [Only controller 1 was presented to the game (every multiplayer choice greyed out)](075-controllers-2-4-presented-to-game.md) | input | port side inherited, but Zero's `Cont_SetupControllers` does not use it |
-| [One black frame after the title: a new frame buffer's first frame was rendered as an off-screen picture](079-black-frame-new-framebuffer-first-frame.md) | rendering | the port half is inherited, but Zero's `DisplayTask_Submit` never calls `Port_NoteFrameBuffer` |
 | [Windows: settings and save files under non-ASCII paths (narrow fopen/ifstream on UTF-8 paths)](103-unicode-config-and-save-paths.md) | saves | save/config paths are fixed, but plethron's own `gb_save_convert.cpp` still opens its store with plain `fopen` |
-| [Widescreen: Surf's camera-facing water panel kept its 4:3 width (visible edges in 16:9)](116-surf-water-panel-widescreen.md) | rendering | helper `Port_WidenViewSpan` is inherited but Zero's `SurfTerrainGrid_BuildCameraBounds` does not call it |
-| [Widescreen: Hypnosis' swirl (camera-facing effect grids) stopped short of the right edge](120a-hypnosis-effect-grid-widescreen.md) | rendering | helper `Port_WidenEffectGridX` is inherited; Zero's three grid inits do not call it |
-| [Music / Sound effects sliders followed slider^4 (50 % = -24 dB, 25 % silent)](137a-music-effects-volume-slider-curve.md) | audio | the curve fix is present, but Zero's game never applies the Music/Effects/Voices gains, so those sliders do nothing |
 | [Lockstep clock polled for "game idle" every 20 us (~28k wake-ups/s, more kernel than game time)](152a-lockstep-clock-idle-polling.md) | performance | plethron's `LockstepClock` still sleeps 20 us in a polling loop |
 | [Window loop pumped OS events and polled pads on every ~1 ms pass (85 % of the window thread's time)](152b-event-pump-every-loop-pass.md) | performance | plethron `PumpFrame` pumps unconditionally; see also `157-...` |
 | [Event pump's 4 ms floor still cost twice the game's drawing; replaced by 33 ms floor + mid-frame pump](157-event-pump-4ms-floor.md) | performance | depends on `152b-...`, also missing |
@@ -104,12 +99,12 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [RDP NOISE combiner input only covered [0.5, 1) (Sand-Attack's cloud smooth and bright)](056-rdp-noise-range-sand-attack.md) | already ported | libultraship fork at pin 4148f93 |
 | [Texgen: lookat kept as floats instead of the RSP's s0.7 bytes (Sing overlay flickers between two looks)](062-texgen-lookat-s07-quantisation-sing.md) | already ported | libultraship fork at pin 4148f93 |
 | [Skipped frames ignored render-to-texture into an unshown screen-sized image (Bonus stickers on black)](073-skipped-frames-unshown-screen-image-rtt.md) | already ported | libultraship fork at pin 4148f93; `Port_ViFrameBufferState` in src/port |
-| [One black frame after the title: a new frame buffer's first frame was rendered as an off-screen picture](079-black-frame-new-framebuffer-first-frame.md) | needed | the port half is inherited, but Zero's `DisplayTask_Submit` never calls `Port_NoteFrameBuffer` |
+| [One black frame after the title: a new frame buffer's first frame was rendered as an off-screen picture](079-black-frame-new-framebuffer-first-frame.md) | already ported | plethron b1ea1c8: `DisplayTask_Submit` calls `Port_NoteFrameBuffer` |
 | [Window resize blacked out menus that draw their background only once](081-window-resize-keeps-picture.md) | already ported | libultraship fork at plethron's pin 4148f93 has `resize_keep.h` and the backend changes |
 | [Rock moves drew a black quad on OpenGL/Vulkan: invisible depth masks kept an opaque blend alpha](087-dual-source-blend-invisible-mask-black.md) | already ported | pinned libultraship GLSL shaders zero the alpha before both output paths |
-| [Widescreen: Surf's camera-facing water panel kept its 4:3 width (visible edges in 16:9)](116-surf-water-panel-widescreen.md) | needed | helper `Port_WidenViewSpan` is inherited but Zero's `SurfTerrainGrid_BuildCameraBounds` does not call it |
+| [Widescreen: Surf's camera-facing water panel kept its 4:3 width (visible edges in 16:9)](116-surf-water-panel-widescreen.md) | already ported | plethron b1ea1c8: `SurfTerrainGrid_BuildCameraBounds` calls `Port_WidenViewSpan` |
 | [Defeated trainer's portrait vanished: the red X was blended onto an empty GPU render target](117-castle-portrait-red-x-render-target.md) | not applicable | Castle badge carousel only; the libultraship mechanism `gDPPortPreserveColorImage` is inherited |
-| [Widescreen: Hypnosis' swirl (camera-facing effect grids) stopped short of the right edge](120a-hypnosis-effect-grid-widescreen.md) | needed | helper `Port_WidenEffectGridX` is inherited; Zero's three grid inits do not call it |
+| [Widescreen: Hypnosis' swirl (camera-facing effect grids) stopped short of the right edge](120a-hypnosis-effect-grid-widescreen.md) | already ported | plethron b1ea1c8: the three grid inits call `Port_WidenEffectGridX` |
 | [Widescreen: screens drawn once (rental list) lost their outer 4 px columns to the margin clear](122b-widescreen-edge-band-on-draw-once-screens.md) | already ported | libultraship fork at 4148f93 clears the edge band only on full repaints |
 | [Rental screen: Rapidash's flames used Ponyta's texture offsets (stale cache keyed by host address)](123-rapidash-flames-stale-animated-texture-cache.md) | not applicable | Zero's model-callback table conversions are rebuilt on every call, no cache |
 | [Widescreen: a battle stage whose sky is drawn as full-screen rectangles was treated as a 2D screen (boxed in 4:3)](125-elite-four-sky-locked-widescreen-to-4x3.md) | already ported | plethron 6ecd2d8 emits `gDPPort3DScene` in Zero's `Battle_DrawStageBackdrop` |
@@ -134,7 +129,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 |---|---|---|
 | [Steady audio pitch: playback-rate PI control oscillated (wobbling pitch)](047a-audio-playback-rate-control-pitch-wobble.md) | already ported | inherited `src/port/audio_out.cpp` |
 | [macOS: sound ~90 ms behind the picture; overdue retraces burst frames into the audio queue](110-macos-audio-lag-and-retrace-bursts.md) | already ported | `src/port/audio_out.cpp` is byte-identical to stadion's; pacing code present |
-| [Music / Sound effects sliders followed slider^4 (50 % = -24 dB, 25 % silent)](137a-music-effects-volume-slider-curve.md) | needed | the curve fix is present, but Zero's game never applies the Music/Effects/Voices gains, so those sliders do nothing |
+| [Music / Sound effects sliders followed slider^4 (50 % = -24 dB, 25 % silent)](137a-music-effects-volume-slider-curve.md) | already ported | plethron b1ea1c8: `Audio_ComputeVoiceVolume` applies the Music / Sound effects / Voices gains |
 | [GB sound ran 1.5 % slow with host output off: osAiGetLength reported an empty queue](notes-gb-audio-virtual-ai-queue.md) | already ported | `src/port/gb_audio_out.cpp` is identical to stadion's |
 
 ### ABI / 64-bit (21)
@@ -186,7 +181,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 
 | Case | Zero status | Notes |
 |---|---|---|
-| [Only controller 1 was presented to the game (every multiplayer choice greyed out)](075-controllers-2-4-presented-to-game.md) | needed | port side inherited, but Zero's `Cont_SetupControllers` does not use it |
+| [Only controller 1 was presented to the game (every multiplayer choice greyed out)](075-controllers-2-4-presented-to-game.md) | already ported | plethron b1ea1c8: `Cont_SetupControllers` takes `Port_ControllerBits()` after `osContInit` |
 | [Intermittent frame-0 crash: osContInit on the game thread raced the window thread's pad polling](098-controller-init-on-window-thread.md) | already ported | `port_osContInit` marshals to the window thread; Zero calls `osContInit` through the macro |
 
 ### Saves (4)
