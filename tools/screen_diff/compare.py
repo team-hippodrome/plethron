@@ -2,6 +2,8 @@
 """Scores the port's pictures against ares's and writes a ranked report.
 
 Usage: tools/screen_diff/compare.py <report dir> <run dir> [<run dir> ...]   (run dirs from tools/screen_diff/run.py)
+       tools/screen_diff/compare.py --rescore <report dir> [...]   recompute the numbers from the report's cmp pictures
+                                                                     (after a change here; ares's frames not needed)
 
 Needs numpy and Pillow (pip install numpy pillow).
 
@@ -14,6 +16,9 @@ blurred slightly first (see load()), so the VI filter and dither of ares do not 
   bias    mean signed difference port - ares per channel (a uniform colour or brightness shift shows here)
   shift   the whole-picture offset (dx, dy within 4 pixels) that fits best, and how much of the score it removes
   detail  edge energy of the port relative to ares (< 1: blurrier or missing detail, > 1: extra or sharper detail)
+  lit     the score once a smooth lighting difference is taken out (see lit_score()), without the 4-pixel border:
+          a floor or wall lit a little differently, or a picture slightly brighter overall, is close to the floor
+          here, while missing or extra things, other shapes, other cameras and timing stay
   cells   the worst cells of an 8x6 grid (where on the screen the difference is)
   hints   short guesses from the numbers above (offset, colour shift, missing/extra content, blur, timing)
 A 640x480 port picture (run.py's default) is compared field by field with ares's 240-line field (see load()).
@@ -80,6 +85,28 @@ def best_shift(p, a, r=4):
     return best
 
 
+LIT_CELL = 40  # see lit_score()
+LIT_BORDER = 4
+
+
+def lit_score(p, a):
+    """The score with a smooth lighting difference taken out. The signed difference port - ares is summarised by its
+    median in each 40x40 cell (8x6 cells), that field is smoothed back to full size (bilinear) and subtracted, and
+    what is left is scored inside a 4-pixel border (the two sides crop the picture's edge differently). A difference
+    smaller than about half a cell (a missing rock, a misplaced streak) or with edges of its own (another camera, a
+    missing model) keeps its score; a gentle gradient or brightness offset over the whole floor does not count. A
+    smooth tint over most of the screen (a light wash) is also taken out: the raw score and the colour-shift hint
+    still show it."""
+    d = (p - a).astype(np.float32)
+    gh, gw = H // LIT_CELL, W // LIT_CELL
+    cells = d.reshape(gh, LIT_CELL, gw, LIT_CELL, 3).transpose(0, 2, 1, 3, 4).reshape(gh, gw, -1, 3)
+    med = np.median(cells, axis=2)
+    field = np.stack([np.asarray(Image.fromarray(med[..., c], "F").resize((W, H), Image.BILINEAR)) for c in range(3)],
+                     axis=2)
+    b = LIT_BORDER
+    return float(np.abs(d - field)[b:-b, b:-b].mean())
+
+
 def heat(p, a):
     d = np.abs(p - a).max(axis=2).astype(np.float32)
     grey = a.mean(axis=2, keepdims=True).repeat(3, axis=2) * 0.45
@@ -95,6 +122,7 @@ def heat(p, a):
 def analyse(p, a):
     diff = np.abs(p - a)
     score = float(diff.mean())
+    lit = lit_score(p, a)
     bad = float((diff.max(axis=2) > BAD).mean() * 100)
     bias = [float(x) for x in (p - a).reshape(-1, 3).mean(axis=0)]
     dx, dy, shifted = best_shift(p, a)
@@ -117,6 +145,8 @@ def analyse(p, a):
         hints.append("black where ares draws (%.0f%%)" % ((pm & ~am).mean() * 100))
     if (am & ~pm).mean() > 0.05:
         hints.append("drawn where ares is black (%.0f%%)" % ((am & ~pm).mean() * 100))
+    if score > 7 and lit < score * 0.6:
+        hints.append("mostly smooth lighting (lit %.1f)" % lit)
     if detail < 0.75:
         hints.append("less detail (%.2f)" % detail)
     elif detail > 1.33:
@@ -124,7 +154,7 @@ def analyse(p, a):
     spread = sum(1 for c in cells if c[0] > 10)
     if bad > 1:
         hints.append("local (%d cells)" % spread if spread <= 6 else "whole screen (%d cells)" % spread)
-    return dict(score=round(score, 2), bad=round(bad, 2), bias=[round(b, 1) for b in bias],
+    return dict(score=round(score, 2), lit=round(lit, 2), bad=round(bad, 2), bias=[round(b, 1) for b in bias],
                 shift=[dx, dy], shift_score=round(float(shifted), 2), detail=round(detail, 3),
                 cells=[[gx, gy, round(v, 1)] for v, gx, gy in cells[:4] if v > 0], hints=hints)
 
@@ -172,28 +202,59 @@ def compare_run(run, cmp_dir):
     return rows
 
 
+def rescore(rep):
+    """The rows of an existing report, with the numbers recomputed from its cmp pictures (port | ares | difference at
+    2x, unblurred): for a report whose ares frames were deleted."""
+    rows = json.load(open(os.path.join(rep, "report.json")))
+    for r in rows:
+        if r.get("score") is None or not r.get("picture"):
+            continue
+        im = Image.open(os.path.join(rep, r["picture"])).convert("RGB")
+        im = im.resize((im.size[0] // 2, im.size[1] // 2), Image.NEAREST)
+        w = im.size[0] // 3
+        pa = []
+        for x in (0, w):
+            panel = im.crop((x, 0, x + w, im.size[1]))
+            if BLUR > 0:
+                panel = panel.filter(ImageFilter.GaussianBlur(BLUR))
+            pa.append(np.asarray(panel, dtype=np.int16))
+        hints_keep = [h for h in r["hints"] if h.startswith("best ares frame")]
+        r.update(analyse(*pa))
+        r["hints"] += hints_keep
+    return rows
+
+
 def main():
     if len(sys.argv) < 3:
         sys.exit(__doc__)
+    if sys.argv[1] == "--rescore":
+        for rep in sys.argv[2:]:
+            write_report(os.path.abspath(rep), rescore(os.path.abspath(rep)))
+        return
     rep = os.path.abspath(sys.argv[1])
     cmp_dir = os.path.join(rep, "cmp")
     os.makedirs(cmp_dir, exist_ok=True)
     rows = []
     for run in sys.argv[2:]:
         rows += compare_run(run, cmp_dir)
+    write_report(rep, rows)
+
+
+def write_report(rep, rows):
     ok = sorted((r for r in rows if r.get("score") is not None), key=lambda r: -r["score"])
     missing = [r for r in rows if r.get("score") is None]
     json.dump(ok + missing, open(os.path.join(rep, "report.json"), "w"), indent=1, ensure_ascii=False)
     md = ["# Port vs ares: %d checkpoints\n" % len(rows),
           "Score = mean absolute RGB difference at 320x240 after a slight blur (0 = identical). Pictures: port | ares | difference.\n",
-          "| # | checkpoint | score | bad% | frames off | bias R/G/B | detail | hints |",
-          "|---|---|---|---|---|---|---|---|"]
+          "Lit = the score with a smooth lighting difference (floor, overall brightness) taken out.\n",
+          "| # | checkpoint | score | lit | bad% | frames off | bias R/G/B | detail | hints |",
+          "|---|---|---|---|---|---|---|---|---|"]
     for i, r in enumerate(ok, 1):
-        md.append("| %d | [%s / %s](%s) | %.1f | %.1f | %+d | %s | %.2f | %s |" % (
-            i, r["run"], r["label"], r["picture"], r["score"], r["bad"], r["ares_offset"],
+        md.append("| %d | [%s / %s](%s) | %.1f | %.1f | %.1f | %+d | %s | %.2f | %s |" % (
+            i, r["run"], r["label"], r["picture"], r["score"], r["lit"], r["bad"], r["ares_offset"],
             "/".join("%+.0f" % b for b in r["bias"]), r["detail"], "; ".join(r["hints"])))
     for r in missing:
-        md.append("| - | %s / %s | no %s picture | | | | | |" % (r["run"], r["label"], r["missing"]))
+        md.append("| - | %s / %s | no %s picture | | | | | | |" % (r["run"], r["label"], r["missing"]))
     open(os.path.join(rep, "report.md"), "w").write("\n".join(md) + "\n")
     print("%d checkpoints compared, %d missing -> %s" % (len(ok), len(missing), os.path.join(rep, "report.md")))
     for r in ok[:10]:

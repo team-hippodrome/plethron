@@ -321,23 +321,35 @@ def coverage(work):
             res = json.load(open(pj))
             rep = os.path.join(bdir, "report", "report.json")
             rows = json.load(open(rep)) if os.path.exists(rep) else []
+            # checkpoint labels m<n>_<move>_<frames>, n = the n-th 1P turn with an animation (planner.write_route).
+            # The done moves are in the order they were done, so each takes the next turn that animated it (its own
+            # animation, or what Metronome / Mirror Move called): two species of one battle with the same move get
+            # their own turns, and turns that only repeat a move (to knock the COM out) are left out.
+            turns = {}
+            for r in rows:
+                if r.get("score") is not None:
+                    n, name = r["label"].split("_")[:2]
+                    turns.setdefault(int(n[1:]), dict(name=name, rows=[]))["rows"].append(r)
+            order, k = sorted(turns), 0
+            norm = lambda m: MOVE_NAMES.get(m, str(m)).replace(" ", "").replace("-", "")
             for s, m, anims in res["done"]:
                 key = (b["team"][s]["dex"], m)
-                if key in cov and cov[key]["state"] != "done":
-                    cov[key] = dict(state="done", battle=b["dir"], anims=anims, scores=[])
+                if key not in cov or cov[key]["state"] == "done":
+                    continue
+                cov[key] = dict(state="done", battle=b["dir"], anims=anims, scores=[])
+                names = {norm(m)} | {norm(x) for _, x in anims}
+                j = k
+                while j < len(order) and turns[order[j]]["name"] not in names:
+                    j += 1
+                if j < len(order):
+                    cov[key]["scores"] = [(r.get("lit", r["score"]), r["score"],
+                                           os.path.join(b["dir"], "report", r["picture"])) for r in turns[order[j]]["rows"]]
+                    k = j + 1
             for state, items in (("not animated", res["gave_up"]), ("not reached", res["not_reached"])):
                 for s, m in items:
                     key = (b["team"][s]["dex"], m)
                     if key in cov and cov[key]["state"] in ("not played", "not reached"):
                         cov[key] = dict(state=state, battle=b["dir"])
-            for r in rows:
-                if r.get("score") is None:
-                    continue
-                # labels m<n>_<move>_<frames>: which done move the checkpoint belongs to
-                for key, v in cov.items():
-                    if v.get("battle") == b["dir"] and v["state"] == "done":
-                        if r["label"].split("_")[1] == MOVE_NAMES.get(key[1], str(key[1])).replace(" ", "").replace("-", ""):
-                            v["scores"].append((r["score"], os.path.join(b["dir"], "report", r["picture"])))
         npass += 1
     return cov
 
@@ -351,14 +363,18 @@ def cmd_report(work):
     md = ["# Move coverage: every battle Pokémon using every move\n",
           "%d species-move pairs (Zero's legality check, %d species): %s.\n" % (
               len(cov), len(legal), ", ".join("%d %s" % (n, s) for s, n in sorted(counts.items()))),
-          "Score: the worst port-vs-ares picture difference among the move's checkpoints (tools/screen_diff/compare.py;"
-          " ~5-7 is the floor).\n",
-          "| species | move | state | worst score | picture |", "|---|---|---|---|---|"]
+          "Lit: the worst port-vs-ares picture difference among the move's checkpoints once a smooth lighting"
+          " difference is taken out (tools/screen_diff/compare.py lit_score(): the colosseum floor's lighting and an"
+          " overall brightness offset differ from ares on every screen and would hide the moves that really differ;"
+          " ~2-4 is the floor). Raw: the plain score of that checkpoint (~6-9 is the floor). A raw score far above"
+          " lit means the difference is mostly smooth lighting or a wash over the screen.\n",
+          "| species | move | state | lit | raw | picture |", "|---|---|---|---|---|---|"]
     for (d, m), v in sorted(cov.items()):
-        worst = max(v.get("scores") or [(None, "")], key=lambda x: -1 if x[0] is None else x[0])
-        md.append("| %s | %s | %s | %s | %s |" % (SPECIES_NAMES.get(d, d), MOVE_NAMES.get(m, m), v["state"],
-                                                  "%.1f" % worst[0] if worst[0] is not None else "",
-                                                  "[cmp](%s)" % worst[1] if worst[1] else ""))
+        worst = max(v.get("scores") or [(None, None, "")], key=lambda x: -1 if x[0] is None else x[0])
+        md.append("| %s | %s | %s | %s | %s | %s |" % (
+            SPECIES_NAMES.get(d, d), MOVE_NAMES.get(m, m), v["state"],
+            "%.1f" % worst[0] if worst[0] is not None else "", "%.1f" % worst[1] if worst[1] is not None else "",
+            "[cmp](%s)" % worst[2] if worst[2] else ""))
     open(os.path.join(work, "coverage.md"), "w").write("\n".join(md) + "\n")
     json.dump({"%d:%d" % k: v for k, v in cov.items()}, open(os.path.join(work, "coverage.json"), "w"), indent=1)
     print("%s -> %s" % (", ".join("%d %s" % (n, s) for s, n in sorted(counts.items())), os.path.join(work, "coverage.md")))
