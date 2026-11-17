@@ -122,6 +122,11 @@ int Port_MoveCoverageState(char* out, int size) {
 void Port_PlannerEvent(const char* kind, int side, int move); // (os_devices.cpp)
 
 // a move animation starts (BattleAnim_PlayMoveEffectScript / BattleAnim_PlayChargingMoveEffectScript)
+void Port_SyncEvent(const char* name);
+
 void Port_MoveCoverageAnim(ActivePokemon* user, s32 move, int charging) {
+    if (Side(user) == 0) {
+        Port_SyncEvent("anim1"); // tools/screen_diff sync:anim1 (tools/ares_ref hooks the same two functions)
+    }
     Port_PlannerEvent(charging ? "charge" : "anim", Side(user), move);
 }

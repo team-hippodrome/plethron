@@ -11,7 +11,8 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
   sync:<event>                                             a sync point: each side waits here until its game reaches
                                                            the event, then goes on counting frames (events: cmd = a
                                                            battle command phase starts, move = a move's presentation
-                                                           starts, after its "X used Y" message);
+                                                           starts, after its "X used Y" message; anim1 = a move
+                                                           animation of 1P's Pokémon starts);
                                                            put it right after the press that leads to the event
 and header lines:
   @sram <file>         start from this Stadium Zero SRAM (32 KiB, N64 byte order; relative to the route file or $ZERO_SAVES);
@@ -104,7 +105,7 @@ def parse_route(path):
     return r
 
 
-SYNC_EVENTS = ("cmd", "move")  # PORT_SYNC events: game/src/fragments/battle (Port_SyncEvent), tools/ares_ref (hooks)
+SYNC_EVENTS = ("cmd", "move", "anim1")  # PORT_SYNC events: game/src/fragments/battle (Port_SyncEvent), tools/ares_ref (hooks)
 
 
 def mask(spec):

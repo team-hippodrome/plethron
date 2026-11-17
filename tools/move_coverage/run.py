@@ -6,6 +6,7 @@ Usage:
   tools/move_coverage/run.py plan <work> [--pass N]       moveset dump (from your ROM), test teams, saves, menu routes
   tools/move_coverage/run.py play <work> [--battles A-B] [--jobs N]   the port plays each battle with the planner and
                                                           writes <work>/pass<N>/b<NN>/battle.route
+  tools/move_coverage/run.py route <work> [--battles A-B] rewrites battle.route from play.json (no replay)
   tools/move_coverage/run.py diff <work> [--battles A-B] [--jobs N] [--keep-frames]
                                                           each battle route on the port and on ares, compared
                                                           (tools/screen_diff); ares's frames are deleted afterwards
@@ -31,12 +32,14 @@ window on Linux).
 """
 import json, math, os, shutil, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
+from types import SimpleNamespace
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools", "screen_diff"))
 import planner  # noqa: E402
+from planner import sd  # tools/screen_diff/run.py  # noqa: E402
 import zero_teams as zt  # noqa: E402
 from move_names import MOVE_NAMES, SPECIES_NAMES  # noqa: E402
 
@@ -210,6 +213,43 @@ def pick(plan, spec):
     return [b for b in plan if int(lo) <= b["battle"] <= int(hi or lo)]
 
 
+def write_battle_route(bdir, b, battle):
+    """battle.route from the planner's battle (or one rebuilt from play.json): the menu route's settings and presses,
+    then the battle's presses, sync points and checkpoints."""
+    menus = os.path.join(bdir, "menus.route")
+    header = "".join(l for l in open(menus) if l.startswith("@"))
+    header = "# move coverage battle %d (tools/move_coverage): %s\n" % (b["battle"], ", ".join(
+        "%s (%s)" % (SPECIES_NAMES.get(g["dex"], g["dex"]), "/".join(MOVE_NAMES.get(m, str(m)) for m in g["moves"]))
+        for g in b["team"])) + header
+
+    def label(k):
+        n, move, kind, d = k
+        return "m%02d_%s_%s%d" % (n, MOVE_NAMES.get(move, str(move)).replace(" ", "").replace("-", ""),
+                                  "c_" if kind == "charge" else "", d)
+    prefix = getattr(battle, "prefix_presses", None)
+    if prefix is None:
+        prefix = list(sd.parse_route(menus)["presses"])
+    planner.write_route(os.path.join(bdir, "battle.route"), header, prefix, battle, SHOTS, label)
+
+
+def route_one(work, b):
+    """Rewrites battle.route from play.json without playing again (after a change to the route format)."""
+    bdir = os.path.join(work, b["dir"])
+    pj = os.path.join(bdir, "play.json")
+    if not os.path.exists(pj):
+        return b["battle"], "no play.json (play first)"
+    r = json.load(open(pj))
+    battle = SimpleNamespace(events=[tuple(e) for e in r["events"]], presses=[tuple(p) for p in r["presses"]],
+                             ended=r["ended"])
+    write_battle_route(bdir, b, battle)
+    return b["battle"], "battle.route rewritten"
+
+
+def cmd_route(work, npass, spec):
+    for b in pick(load_plan(work, npass), spec):
+        print("battle %d: %s" % route_one(work, b), flush=True)
+
+
 def play_one(work, b, moves):
     bdir = os.path.join(work, b["dir"])
     team = [dict(dex=g["dex"], moves=g["moves"], wanted=g["wanted"]) for g in b["team"]]
@@ -219,17 +259,7 @@ def play_one(work, b, moves):
                           pending=pend, com_species=[d for d, _ in COM_TEAM])
     if battle.wrong_com:
         return b["battle"], 0, 0, len(pend), 0
-    header = "".join(l for l in open(os.path.join(bdir, "menus.route")) if l.startswith("@"))
-    header = "# move coverage battle %d (tools/move_coverage): %s\n" % (b["battle"], ", ".join(
-        "%s (%s)" % (SPECIES_NAMES.get(g["dex"], g["dex"]), "/".join(MOVE_NAMES.get(m, str(m)) for m in g["moves"]))
-        for g in b["team"])) + header
-    names = {}
-
-    def label(k):
-        n, move, kind, d = k
-        return "m%02d_%s_%s%s_%d" % (n, MOVE_NAMES.get(move, str(move)).replace(" ", "").replace("-", ""),
-                                     "c" if kind == "charge" else "", "", d)
-    planner.write_route(os.path.join(bdir, "battle.route"), header, battle.prefix_presses, battle, SHOTS, label)
+    write_battle_route(bdir, b, battle)
     res = dict(done=[[s, m, a] for (s, m), a in battle.done.items()],
                gave_up=sorted([s, m] for (s, m), n in battle.tries.items() if (s, m) not in battle.done),
                not_reached=sorted([s, m] for (s, m) in battle.pending),
@@ -348,6 +378,8 @@ def main():
         cmd_plan(work, npass)
     elif cmd == "play":
         cmd_play(work, npass, opt("--battles"), jobs)
+    elif cmd == "route":
+        cmd_route(work, npass, opt("--battles"))
     elif cmd == "diff":
         cmd_diff(work, npass, opt("--battles"), jobs, "--keep-frames" in a)
     elif cmd == "report":

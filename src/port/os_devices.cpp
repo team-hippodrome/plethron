@@ -1617,7 +1617,7 @@ static void Port_PlannerSyncEvent(const char* name) {
     uint64_t frame = Port_RouteTick();
     if (strcmp(name, "cmd") == 0) {
         PlanExchange("cmd", frame, true);
-    } else {
+    } else if (strcmp(name, "move") == 0) {
         fprintf(gPlanOut, "%s %llu\n", name, (unsigned long long)frame);
         fflush(gPlanOut);
     }

@@ -11,6 +11,7 @@ python3 tools/move_coverage/run.py all out/moves --jobs 3     # everything: two 
 # or step by step
 python3 tools/move_coverage/run.py plan out/moves               # moveset dump, teams, saves, menu routes
 python3 tools/move_coverage/run.py play out/moves --battles 0-3 # the port plays battles 0-3, writes their routes
+python3 tools/move_coverage/run.py route out/moves --battles 0-3 # (only after a route format change) rewrite routes from play.json
 python3 tools/move_coverage/run.py diff out/moves --battles 0-3 # those routes on the port and on ares, compared
 python3 tools/move_coverage/run.py report out/moves             # out/moves/coverage.md
 ```
@@ -43,13 +44,24 @@ Nothing from the ROM is stored in the repository; the dump, the saves and the pi
   animate in four tries (ten for one-hit-KO moves) is reported as not animated. Rage never ends, so it comes last,
   and the route ends there, mid-battle (a surrender does not work while 1P is locked).
 * **The route.** Everything the planner pressed becomes `battle.route`, a `tools/screen_diff` route with seeded
-  random numbers (`@rng`) and a sync point at every command phase and every 1P move, plus checkpoints 2, 30, 60, 90 and
-  120 frames into each 1P move. `diff` plays it on the port and on ares and runs `compare.py`; ares's frames are
-  deleted afterwards (`--keep-frames` keeps them).
+  random numbers (`@rng`), a sync point at every command phase (`sync:cmd`) and at every 1P move animation
+  (`sync:anim1`: `BattleAnim_PlayMoveEffectScript` / `BattleAnim_PlayChargingMoveEffectScript` with 1P's active
+  Pokémon, hooked in the port and in `tools/ares_ref`), and checkpoints 2, 30, 60, 90 and 120 frames after the first
+  1P animation of each turn. The checkpoints are anchored on the animation itself, so the "X used Y" message, which
+  the two sides show for slightly different times, does not shift them. `diff` plays the route on the port and on
+  ares and runs `compare.py`; ares's frames are deleted afterwards (`--keep-frames` keeps them).
 * **Second pass.** `all` plans the moves that were not done again, in new teams and battles.
 
 `coverage.md` lists every pair: done (with the worst picture score of its checkpoints and a link to the
 port | ares | difference picture), not animated, or not reached.
+
+## Running time
+
+The planner plays a battle on the port in about 6 minutes (it runs at ~100 fps). ares on a software Vulkan renderer
+(lavapipe) replays the same battle, 35,000-60,000 frames, at about 30 fps: 20-35 minutes per battle with one job,
+slower when jobs share cores. All 49 battles of the first pass are a night's run on 4 cores; `--battles` splits it.
+The planner talks to the port through named pipes (`os.mkfifo`), so `play` runs on Linux and macOS; `route`, `diff`
+and `report` run anywhere `tools/screen_diff` does.
 
 ## Limits
 

@@ -340,25 +340,26 @@ def play(prefix_route, team, moves, out_dir, seed="1", log=print, extra_env=None
 def write_route(path, header, prefix_presses, battle, shots_per_move=(2, 30, 60, 90, 120),
                 label=lambda k: "m%02d_%d%s_%d" % (k[0], k[1], "c" if k[2] == "charge" else "", k[3])):
     """The replayable route: the prefix's presses, then each command phase and move as a sync point, 1P's presses,
-    and checkpoints after each 1P move (by its sync:move)."""
+    and checkpoints after each 1P move (by its sync:anim1)."""
     items = []  # (frame, order, token)
     for f, spec, hold in prefix_presses + battle.presses:
         items.append((f, 2, "hold:%s:%d" % (spec, hold), hold + 1))
-    # sync points: every command phase, and 1P's moves (the last move event before a 1P animation). The COM's move
-    # events are left out: a sync point waits for the next event of its kind, so one event that a side does not
-    # report (seen once on ares in a COM turn) would hold it there until the timeout and miss the command phase after
-    last_move = None
-    shots = []
+    # sync points: every command phase, and each 1P move animation (sync:anim1), which the checkpoints follow. The
+    # "move" events are left out: they also come in the COM's turns (sometimes three in a row), and one that a side
+    # does not report holds that side at the sync point until the timeout and makes it miss the command phase after
+    # Animations before the first command phase belong to the title screen's demo battle and are left out; a move
+    # that animates more than once in a turn (Double Slap, Twineedle, ...) syncs at each hit but its checkpoints
+    # follow the first.
+    shots, started, shot_this_turn = [], False, False
     for f, kind, side, move in battle.events:
         if kind == "cmd":
             items.append((f, 0, "sync:cmd", 0))
-            last_move = None
-        elif kind == "move":
-            last_move = f
-        elif kind in ("anim", "charge") and side == 0 and last_move is not None:
-            items.append((last_move, 0, "sync:move", 0))
-            shots.append((last_move, move, kind))
-            last_move = None
+            started, shot_this_turn = True, False
+        elif kind in ("anim", "charge") and side == 0 and started:
+            items.append((f, 0, "sync:anim1", 0))
+            if not shot_this_turn:
+                shots.append((f, move, kind))
+                shot_this_turn = True
     n = 0
     for f0, move, kind in shots:
         n += 1
