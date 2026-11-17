@@ -6,7 +6,7 @@ Usage: tools/screen_diff/compare.py <report dir> <run dir> [<run dir> ...]   (ru
 Needs numpy and Pillow (pip install numpy pillow).
 
 For each checkpoint both pictures are brought to the N64's 320x240 (box filter: ares's 640x480 VI output, the port's
-native frame), then the port picture is compared with each ares frame in the checkpoint's window and the closest one
+640x480 frame), then the port picture is compared with each ares frame in the checkpoint's window and the closest one
 is kept (its offset in frames is reported: a consistent offset is timing drift, not rendering). Both pictures are
 blurred slightly first (see load()), so the VI filter and dither of ares do not count. Per checkpoint:
   score   mean absolute RGB difference, 0-255 (the ranking)

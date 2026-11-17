@@ -135,7 +135,7 @@ extern Color_RGBA8 D_8A203300;
 
 extern s32 sPartyGbPort;
 
-extern M2C_UNK sPartyScreen;
+extern PartyScreen sPartyScreen; // PORT: typed (M2C_UNK got the N64 size, 0x388 bytes: the host struct is larger and ran over D_8A21DE08, the GB port number of the top bar)
 
 extern u8 D_0015B1A0[];
 

@@ -45,7 +45,7 @@ extern Gfx D_80060270[];
 extern s32 sPartyGbPort;
 extern s32 D_8A21DE08;
 extern M2C_UNK D_8A21DE10;
-extern M2C_UNK sPartyScreen;
+extern PartyScreen sPartyScreen; // PORT: typed (see party_summary.h)
 
 /**
  * Draws the status condition name in its color, or ひんし (fainted) when HP is 0.
