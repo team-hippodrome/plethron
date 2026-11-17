@@ -244,6 +244,7 @@ constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port
 constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
 constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
 constexpr u32 kTickCommandTimer = 0x8210C6B0;  // BattleMenu_TickCommandTimer: sync event "cmd" when its timer is 0
+constexpr u32 kActionStepIntro = 0x82128CDC;   // BattleScene_ActionStepIntro: guRandom restarts on its first frame
 constexpr u32 kUpdatePhase = 0x82131610;       // BattleScene_UpdatePhase (ARES_REF_PHASELOG)
 constexpr u32 kBattleScene = 0x8219A5A0;       // sBattleScene: its first word points at the BattleScene
 constexpr u32 kCommandTimer = 0x82199EB0;      // its timer (f32)
@@ -378,6 +379,10 @@ bool hook(u32 address) {
         if (rd32(rt(kCommandTimer)) == 0) syncEvent("cmd"); // (0.0f)
         return false;
     }
+    if (address == rt(kActionStepIntro)) { // (as the port's Port_XcheckMoveStart there; substep 0x3C of the scene)
+        if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart);
+        return false;
+    }
     if (address == rt(kResetAnimStep)) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
@@ -418,7 +423,7 @@ void place(u32 base) {
     auto& cpu = Nintendo64::cpu;
     gBase = base;
     cpu.hostHooks.addresses = { kSetFragmentMap };
-    if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime) }) cpu.hostHooks.addresses.push_back(a);
+    if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime), rt(kActionStepIntro) }) cpu.hostHooks.addresses.push_back(a);
     if (gForce || !gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kResetAnimStep));
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
     if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));

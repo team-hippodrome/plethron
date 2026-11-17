@@ -58,6 +58,11 @@ s32 BattleScene_PrepareResidualStatusPresentation(void);
 void BattleScene_ActionStepIntro(CameraNode* arg0, s32 arg1) {
     s8* sp1C = ((s8*)&sActingPokemon->state.unk00[0]);
 
+    // PORT: an action's intro starts (its first frame): guRandom restarts when comparing against ares, since the
+    // random intro camera (BattleScene_MoveIntroCameraRandom) draws from it before the move's own restart below
+    if (sBattleScene.scene->phaseSubstep == 0) {
+        Port_XcheckMoveStart();
+    }
     BattleScene_SetCameraClipMaskBothSides(0x1FFE);
     BattleScene_CleanupParticipantEffectMode((uintptr_t)sActivePokemon[0]);
     BattleScene_CleanupParticipantEffectMode((uintptr_t)sActivePokemon[1]);
