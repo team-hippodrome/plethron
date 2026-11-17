@@ -808,6 +808,18 @@ extern "C" int Port_PacedLogoHold(void) {
     return on;
 }
 
+// Zero's N64 logo hold (n64_logo.c N64Logo_Main): the game busy-waits one second on osGetTime with the logo up. In
+// lockstep, time only moves at a retrace, which never comes while the game thread spins, so each osGetTime read
+// stepping the clock ended the second after ~0.1 s of host time and a single retrace: the logo was up for 0.2 s
+// instead of the N64's second. With this on, the hold draws the logo every retrace until the same second has passed.
+// stadion's "# paced logo hold" tag is in every recording Zero made before this switch existed (it was never called
+// from Zero's code), so the hold has its own tag; recordings without it keep the short hold. "# zero logo hold",
+// PORT_ZERO_LOGO_HOLD=0/1.
+extern "C" int Port_ZeroLogoHold(void) {
+    static const int on = Switch("PORT_ZERO_LOGO_HOLD", "# zero logo hold", "the N64 logo's one-second hold");
+    return on;
+}
+
 // The controllers plugged into the N64, as the game's controller bits (bit 0 = controller 1). libultraship's
 // ControlDeck::Init reports only controller 1, which greys out every multiplayer choice (Free Battle with 2-4
 // players, team battles, minigames for several players). Controller 1 is always plugged in; controllers 2-4 when the
@@ -919,6 +931,9 @@ void InputInit() {
         }
         if (Port_PacedLogoHold()) {
             fprintf(gRecord, "# paced logo hold\n");
+        }
+        if (Port_ZeroLogoHold()) {
+            fprintf(gRecord, "# zero logo hold\n"); // (see Port_ZeroLogoHold)
         }
         if (Port_TpakTiming()) {
             fprintf(gRecord, "# tpak timing\n"); // (see Port_TpakTiming)
