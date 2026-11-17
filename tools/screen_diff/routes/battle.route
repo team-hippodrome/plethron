@@ -1,3 +1,4 @@
+@rng 1
 # Free Battle vs COM to an actual battle: 1P and COM both enter with the cartridge team, whose only battle-eligible
 # Pokémon is Pikachu (Zero's 40-species roster), so it is Pikachu vs Pikachu, two turns: 1P picks the move on C-Up,
 # then the one on C-Right. Random numbers are seeded alike (@rng), so the COM's choices and the damage match, and

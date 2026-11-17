@@ -17,6 +17,10 @@ python3 tools/screen_diff/jp_gen1_save.py saves/green_party.sav
 # unlocked (from any save the game wrote, e.g. <out>/<route>/port.sra of a route without @sram)
 for g in red blue pikachu; do python3 tools/screen_diff/jp_gen1_save.py saves/${g}_party.sav; done
 python3 tools/screen_diff/zero_sram_options.py <a Zero save> saves/gb_unlocked.sra --gb-frames 2
+# the Pokédex route's save: owned, held, seen-only and unseen species
+python3 tools/screen_diff/jp_gen1_save.py saves/green_dex.sav --owned 1-8,12-130 --seen 9-10,131-150
+# the Lab routes' save: six in the party, eight in Game Boy box 1, eight items in the bag
+python3 tools/screen_diff/jp_gen1_save.py saves/green_lab.sav --lab
 ```
 
 Environment for the runs (the ROMs are yours and stay out of the repository):
@@ -28,6 +32,8 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `GB_ROM_GREEN`, `GB_SAV_GREEN` | Pocket Monsters Green `.gb` and the save from `jp_gen1_save.py` |
 | `GB_ROM_RED`, `GB_ROM_BLUE`, `GB_ROM_PIKACHU` (+ `GB_SAV_*`) | the other Japanese carts for the `gb_*` routes; `GB_ROM_GREEN_EMPTY` = the Green `.gb` again, with no save (`gb_cart_check`) |
 | `ZERO_SAVES` | directory with `gb_unlocked.sra` (`gb_frames_speed`) |
+| `GB_ROM_GREENDEX`, `GB_SAV_GREENDEX` | the same Green `.gb` and `saves/green_dex.sav` (route `pokedex`) |
+| `GB_SAV_GREEN_LAB` | `saves/green_lab.sav` (routes `party`, `list`, `organize`, `register`: `@gb green lab`) |
 | `PORT_BIN` | default `build/pokestadium` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
@@ -71,6 +77,11 @@ put checkpoints where the screen has settled or right after the press that start
 | `main_menu` | the main menu with a party cartridge: the cursor on every item, the バトル prompt, OFF > はい back to the cartridge check screen and in again |
 | `no_cart` | no Transfer Pak: the cartridge check screen, the main menu with the Game Boy items greyed out, the バトル and OFF prompts |
 | `options` | the cartridge check screen's Options (C-Right): every row, Sound/Commentary toggles saved and discarded, both Backup questions and a save clear, B back to the title |
+| `pokedex` | ずかん list (number and kana order, scrolled to the end), データをみる pages with the turning 3D model (held and seen-only species), ぶんぷをみる habitat maps (unknown habitat; ポッポ with the GB map, zoom and the next area), やめる |
+| `party` | てもち: list, つよさをみる (stats page, moves page and each move's description), ならびかえ, レポートしてやめる |
+| `list` | いちらん: source dialog with the Game Boy box, the table's three pages, L/R mode, a row's menu, どうぐをつかう (Protein's stat pop-up), あつめる |
+| `organize` | せいとん: ポケモンをいどうする (party to 64 box 1, report), どうぐをいどうする (lists, count picker), ボックスをいどうする (GB box 1 to 64 box 2, report) |
+| `register` | とうろく: register the party (the Ditto transform), view it, the delete screen |
 
 ## Timing: why there is a window
 

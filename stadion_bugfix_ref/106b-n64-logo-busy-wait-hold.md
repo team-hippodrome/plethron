@@ -1,7 +1,7 @@
 # N64 logo held by a busy-wait on osGetTime: no frames presented for a second (frame gap at boot)
 
 - **Category:** timing-pacing
-- **Zero status:** check (measured under Xvfb with PORT_TRACE_PACING=1: longest present gap in the first 10 s was 70 ms, so a gap like stadion's 35-50 ms is likely there too; port Port_PacedLogoHold with its replay marker if Windows shows it)
+- **Zero status:** check (Zero has the same busy-wait, `N64Logo_HoldForOneSecond`; decide whether the gap shows on Zero's targets)
 - **stadion:** [PR #106](https://github.com/team-hippodrome/stadion/pull/106), commit(s) `153a418` (merge `7c408e8`)
 - **stadion files:** `patches/game/20-fragment-n64_logo.patch` (n64_logo.c `N64Logo_Main`), `src/port/os_devices.cpp` (`Port_PacedLogoHold`, replay marker `# paced logo hold`)
 

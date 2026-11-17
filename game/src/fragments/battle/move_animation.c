@@ -1693,6 +1693,7 @@ void BattleScene_TickRow5StartMoveAnimation(ActivePokemon* active_pokemon) {
     MovePresentationCue* row_cue;
     MovePresentationCue* cue;
 
+    Port_XcheckMoveAnimTick(); // PORT: comparison against ares: guRandom restarts here on both (src/port/xcheck.cpp)
     cue_index = D_8218920E[active_pokemon->state.runtime.usedMove];
     row_cue = &sSideBattleCues[BattleScene_GetParticipantSideIndex(active_pokemon)]->moveCues[cue_index];
     runtime = &active_pokemon->state.runtime;

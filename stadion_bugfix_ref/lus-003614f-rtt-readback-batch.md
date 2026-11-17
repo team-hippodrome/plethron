@@ -1,7 +1,7 @@
 # Each render-to-texture readback waited for the GPU on its own (up to 8 ms hitches at scene changes)
 
 - **Category:** performance
-- **Zero status:** needed (libultraship bump; Zero's VS screen and portraits use off-screen targets)
+- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f, the fork's main)
 - **stadion:** [PR #155](https://github.com/team-hippodrome/stadion/pull/155), commit(s) `649c4fa` (libultraship `003614f`, fork PR #6)
 - **stadion files:** `libultraship` (`src/fast/interpreter.cpp`, backends `gfx_metal.cpp`, rendering API header)
 

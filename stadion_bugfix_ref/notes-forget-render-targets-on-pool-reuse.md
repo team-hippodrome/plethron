@@ -1,7 +1,7 @@
 # Memory reused after a render target still served stale GPU pixels (black HUD labels): tell the renderer when a pool block is handed out again
 
 - **Category:** rendering
-- **Zero status:** already ported (plethron 5134413: MainPool_AllocFromPool and MemPool_Alloc call Port_GfxForgetRenderTargets)
+- **Zero status:** needed (the hook exists in libultraship, Zero's allocator never calls it)
 - **stadion:** no PR (third ares round, Mewtwo battle, before PR #1; history squashed into `be110fe`)
 - **stadion files:** `game/src/memory_main.c`, `src/port/StadionPort.h`, libultraship `src/fast/interpreter.cpp`
 

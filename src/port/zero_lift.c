@@ -260,11 +260,30 @@ static void applyOp(const ZLiftOp* o, const uint8_t* src, uint8_t* dst) {
     }
 }
 
+// Display-list commands whose second word is an address (F3DEX2: G_VTX, G_MTX, G_MOVEWORD, G_MOVEMEM, G_DL,
+// G_RDPHALF_1, G_SETTIMG, G_SETZIMG, G_SETCIMG). Every other command's second word is a value, and some values look
+// like resident addresses: G_TEXTURE's scale 0x80008000 (0.5, 0.5) was relocated to a host pointer, so the habitat
+// map's signpost pins sampled their frame texture at a garbage scale and came out cut into strips.
+static int gfxWordIsAddress(uint8_t op) {
+    switch (op) {
+        case 0x01: case 0xDA: case 0xDB: case 0xDC: case 0xDE: case 0xE1: case 0xFD: case 0xFE: case 0xFF:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 static void liftElems(const uint8_t* src, uint8_t* dst, int type, uint32_t count) {
     const ZLiftType* t = &gZLiftTypes[type];
     for (uint32_t i = 0; i < count; i++) {
+        const uint8_t* s = src + (size_t)i * t->n64Size;
+        uint8_t* d = dst + (size_t)i * t->hostSize;
         for (uint32_t k = 0; k < t->opCount; k++) {
-            applyOp(&gZLiftOps[t->opStart + k], src + (size_t)i * t->n64Size, dst + (size_t)i * t->hostSize);
+            applyOp(&gZLiftOps[t->opStart + k], s, d);
+        }
+        if (type == gZLiftGfxType && !gfxWordIsAddress(s[0])) {
+            uintptr_t w1 = be32(s + 4); // the host Gfx: two pointer-sized words
+            memcpy(d + sizeof(uintptr_t), &w1, sizeof(w1));
         }
     }
 }

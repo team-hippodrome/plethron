@@ -1,7 +1,7 @@
 # Texture cache key hashed every imported texture one byte at a time (FNV-1a, ~19 us per 4 KB)
 
 - **Category:** performance
-- **Zero status:** needed (libultraship bump; pin 4148f93 has the byte loop)
+- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f, the fork's main)
 - **stadion:** [PR #152](https://github.com/team-hippodrome/stadion/pull/152), commit(s) `e75ec0b` (libultraship `5a3431c`, fork PR #5)
 - **stadion files:** `libultraship` (`src/fast/interpreter.cpp`)
 

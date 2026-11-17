@@ -1,7 +1,7 @@
 # Blank screen between scenes: the one-line frame buffer must be written in N64 byte order (dark green instead of black)
 
 - **Category:** endianness
-- **Zero status:** already ported (plethron 5134413: Display_ClearFramebufferLine / Display_GetFramebufferClearColor swap)
+- **Zero status:** needed (Zero's `Display_ClearFramebufferLine` writes host order)
 - **stadion:** no PR (third ares round, before PR #1; history squashed into `be110fe`)
 - **stadion files:** `game/src/dp_intro.c`, `src/port/os_devices.cpp`, `src/port/stubs.c`
 

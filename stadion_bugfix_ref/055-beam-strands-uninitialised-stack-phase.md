@@ -1,7 +1,7 @@
 # Hyper Beam / Ice Beam strands lost their wave: a never-written local folded to 0 by clang
 
 - **Category:** game-logic
-- **Zero status:** already ported (plethron 5134413: `spA8 = 0` in HyperBeamIceBeamTrail_UpdateSlot)
+- **Zero status:** needed (same function, same unset `spA8`)
 - **stadion:** [PR #55](https://github.com/team-hippodrome/stadion/pull/55), commit(s) `22b0571`
 - **stadion files:** `patches/game/20-fragment-battle_engine.patch` (`battle_engine_357C30.c`, now `game/src/fragments/battle_engine/battle_engine_hyper_beam_ice_beam_trails.c`)
 

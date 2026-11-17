@@ -16,7 +16,8 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
 and header lines:
   @sram <file>         start from this Stadium Zero SRAM (32 KiB, N64 byte order; relative to the route file or $ZERO_SAVES);
                        default: a blank save on both sides
-  @gb <name>           a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> (and save $GB_SAV_<NAME> if set)
+  @gb <name> [<save>]  a Transfer Pak with the Game Boy ROM $GB_ROM_<NAME> and the save $GB_SAV_<NAME> (if set), or
+                       with <save>, $GB_SAV_<NAME>_<SAVE> (e.g. `@gb green lab`: $GB_SAV_GREEN_LAB, the Lab routes' save)
   @window <before> <after>  the ares frames kept around each checkpoint (default 12 before, 120 after): the port is
                        usually ahead of ares after a load (it loads faster, e.g. the P-OS "NOW LOADING" screen), so
                        tools/screen_diff/compare.py compares the port picture with each of these and keeps the closest;
@@ -31,8 +32,9 @@ and header lines:
                        <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them)
 # starts a comment.
 
-The port runs hidden at native resolution (PORT_RESOLUTION=native, 4:3) in the original text (PORT_LANGUAGE=kana: no
-language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
+The port runs hidden at 640x480 (PORT_RESOLUTION=2x, 4:3; SCREEN_DIFF_PORT_RESOLUTION overrides it: Zero draws its
+menus and text in 640x480, and at native 320x240 every other texel row and column is dropped, which makes the small
+font look wrong) in the original text (PORT_LANGUAGE=kana: no language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
 tools/ares_ref (build it with tools/ares_ref/build.sh). Pictures go to <out>/port/<label>.ppm and
 <out>/ares/<label>/f_<frame>.png; nothing goes into the repository (the pictures are the game's own: keep them out of
 git). Environment: ROM (the Pocket Monsters Stadium .z64), PORT_BIN (default build/pokestadium), ARES_REF_BUILD and
@@ -48,7 +50,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[])
+    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[])
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -63,7 +65,8 @@ def parse_route(path):
                     cand.insert(0, os.path.join(os.environ["ZERO_SAVES"], val))
                 r["sram"] = next((c for c in cand if os.path.exists(c)), cand[-1])
             elif key == "gb":
-                r["gb"] = val.upper()
+                r["gb"], _, sv = val.upper().partition(" ")
+                r["gbsav"] = "GB_SAV_" + r["gb"] + ("_" + sv.strip() if sv.strip() else "")
             elif key == "window":
                 r["window"] = tuple(int(v) for v in val.split())
             elif key == "boot_offset":
@@ -141,14 +144,15 @@ def run_port(r, out, extra_env):
     clean_dir(home)
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_RESOLUTION="native", PORT_UPSCALE="exact",
+               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_UPSCALE="exact",
+               PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")
     if r["gb"]:
         env["PORT_GB_ROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
             gbsav = os.path.join(out, "port_gb.sav")
-            shutil.copyfile(os.environ["GB_SAV_" + r["gb"]], gbsav)
+            shutil.copyfile(os.environ[r["gbsav"]], gbsav)
             env["PORT_GB_SAVE"] = gbsav
     if r["syncs"]:
         env["PORT_SYNC"] = ",".join("%d:%s" % s for s in r["syncs"])
@@ -205,8 +209,8 @@ def run_ares(r, out):
         env["ARES_REF_SRAM"] = os.path.abspath(r["sram"])
     if r["gb"]:
         env["ARES_REF_GBROM"] = os.environ["GB_ROM_" + r["gb"]]
-        if os.environ.get("GB_SAV_" + r["gb"]):
-            env["ARES_REF_GBSAV"] = os.environ["GB_SAV_" + r["gb"]]
+        if r["gbsav"] in os.environ or r["gbsav"] != "GB_SAV_" + r["gb"]:
+            env["ARES_REF_GBSAV"] = os.environ[r["gbsav"]]
         env.setdefault("ARES_REF_GBBOARD", "MBC3" if r["gb"] in ("YELLOW", "PIKACHU") else "MBC1")
     if r["syncs"]:
         env["ARES_REF_SYNC_LOG"] = os.path.join(out, "ares_sync.txt")

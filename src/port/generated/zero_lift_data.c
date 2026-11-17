@@ -2237,6 +2237,7 @@ const ZLiftType gZLiftTypes[] = {
     { 32, 32, 3354, 3 }, // r:struct Fragment@memmap.h:27
 };
 const uint32_t gZLiftTypeCount = 471;
+const int32_t gZLiftGfxType = 10; // display-list commands (zero_lift.c liftElems)
 
 const ZLiftOp gZLiftOps[] = {
     { 0, 0, 0, 4, 1, 4, 4, -1, 0, 0, 0, 0 },

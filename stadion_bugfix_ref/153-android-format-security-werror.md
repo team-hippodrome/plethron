@@ -1,7 +1,7 @@
 # Android APK build failed: NDK's -Werror=format-security not undone by the game's -Wno-error
 
 - **Category:** platform-build
-- **Zero status:** already ported (plethron 8298280: -Wno-error=format-security in STADION_GAME_WARNINGS)
+- **Zero status:** check (flag missing in plethron, but no triggering call found in Zero's game code today)
 - **stadion:** [PR #153](https://github.com/team-hippodrome/stadion/pull/153), commit(s) `851df50`
 - **stadion files:** `CMakeLists.txt`
 
