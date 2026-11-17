@@ -244,6 +244,8 @@ constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port
 constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
 constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
 constexpr u32 kTickCommandTimer = 0x8210C6B0;  // BattleMenu_TickCommandTimer: sync event "cmd" when its timer is 0
+constexpr u32 kUpdatePhase = 0x82131610;       // BattleScene_UpdatePhase (ARES_REF_PHASELOG)
+constexpr u32 kBattleScene = 0x8219A5A0;       // sBattleScene: its first word points at the BattleScene
 constexpr u32 kCommandTimer = 0x82199EB0;      // its timer (f32)
 constexpr u32 kResetAnimStep = 0x82124A40;     // BattleScene_ResetAnimationStep: a move's presentation starts when
 constexpr u32 kSetHitCount = 0x82128F2C, kSetHitCountEnd = 0x82128FBC; // BattleScene_ActionStepSetHitCount calls it
@@ -345,6 +347,22 @@ void syncEvent(const char* name) {
 
 void place(u32 base);
 
+// ARES_REF_PHASELOG=<file>: the battle scene's state each time it changes (BattleScene_UpdatePhase's entry), as the
+// port's PORT_PHASELOG: "P <frame> <mode> <phase> <step> <substep> <acting side> <move effect kind>". Fields of the
+// scene sBattleScene.scene points at: mode 0x1C, phaseStep 0x20, actingSide 0x2C (u16), phase 0x38, substep 0x3C, kind 0x48.
+FILE* gPhaseLog = nullptr;
+void phaseLog() {
+    static u32 last[6] = { 0xFFFFFFF7 };
+    u32 sc = rd32(rt(kBattleScene));
+    u32 side = rd32(sc + 0x2C) >> 16;
+    u32 v[6] = { rd32(sc + 0x1C), rd32(sc + 0x38), rd32(sc + 0x20), rd32(sc + 0x3C), side, rd32(sc + 0x48) };
+    if (memcmp(v, last, sizeof v) == 0) return;
+    memcpy(last, v, sizeof v);
+    fprintf(gPhaseLog, "P %llu %d %d %d %d %d %d\n", (unsigned long long)gFrame, (s32)v[0], (s32)v[1], (s32)v[2], (s32)v[3],
+            (s32)v[4], (s32)v[5]);
+    fflush(gPhaseLog);
+}
+
 bool hook(u32 address) {
     auto& cpu = Nintendo64::cpu;
     if (address == kSetFragmentMap) {
@@ -352,6 +370,10 @@ bool hook(u32 address) {
         return false;
     }
     if (!gBase) return false;
+    if (address == rt(kUpdatePhase)) {
+        phaseLog();
+        return false;
+    }
     if (address == rt(kTickCommandTimer)) {
         if (rd32(rt(kCommandTimer)) == 0) syncEvent("cmd"); // (0.0f)
         return false;
@@ -399,6 +421,7 @@ void place(u32 base) {
     if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime) }) cpu.hostHooks.addresses.push_back(a);
     if (gForce || !gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kResetAnimStep));
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
+    if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));
     std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
     cpu.recompiler.reset();
     fprintf(stderr, "[xcheck] battle engine mapped at %08x (frame %llu)\n", base, (unsigned long long)gFrame);
@@ -408,7 +431,8 @@ void place(u32 base) {
 void init() {
     const char* rng = getenv("ARES_REF_XCHECK_RNG");
     if (const char* l = getenv("ARES_REF_SYNC_LOG")) gSyncLog = fopen(l, "w");
-    if (!rng && gSync.empty()) return;
+    if (const char* l = getenv("ARES_REF_PHASELOG")) gPhaseLog = fopen(l, "w");
+    if (!rng && gSync.empty() && !gPhaseLog) return;
     gForce = rng != nullptr;
     if (rng) gSeed = (u32)strtoul(rng, nullptr, 0);
     if (const char* out = getenv("ARES_REF_XCHECK")) gOut = fopen(out, "w");

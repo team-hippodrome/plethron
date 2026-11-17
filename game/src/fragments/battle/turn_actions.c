@@ -1,4 +1,5 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
+#include "anim_raw.h"
 #include "battle.h"
 #include "audio_commands.h"
 #include "geo_node.h"
@@ -1127,7 +1128,7 @@ void ModelAnim_SetFrame(DisplayObject* display_object, s16 animation_timer);
  * @unverified Name guessed from the code.
  */
 void BattleAnim_AlignIdleLoopToFrameCount(ActivePokemon* active_pokemon, s32 frame_count) { // PORT: was DisplayObject* (it reads state.flags)
-    s32 frames = active_pokemon->displayObject.transformAnim.data->endFrame;
+    s32 frames = ANIM_END(active_pokemon->displayObject.transformAnim.data); // PORT: anim_raw.h (a raw read gave 10240 for 40)
 
     if (active_pokemon->state.flags & 2) {
         return;

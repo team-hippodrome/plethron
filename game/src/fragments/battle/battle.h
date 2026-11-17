@@ -1381,6 +1381,13 @@ extern u8* D_8218B2F4[6]; // PORT: six pointers (was open)
 extern u8 D_8219A4F4;
 
 extern u8 D_80073D84[];
+// PORT: the move animation table (D_80073D84 + 2 + move * 10, the same records as D_80073D90[move - 1]) sits inside
+// D_80073B30's extent, which the data lifter fills as host-order u32 words (move_animation.c reads D_80073B30 as
+// words). Its halfwords therefore sit at host offset ^ 2: read through this, never as u16 or MoveAnimInfoZ fields.
+// Each record: +0 intro camera variant, +2 userCameraShot, +4 travelCameraShot, +6 targetCameraShot, +8 reaction.
+static inline u16 Port_MoveAnimU16(s32 move, s32 field) {
+    return *(u16*)(D_80073D84 + ((2 + move * 10 + field) ^ 2));
+}
 
 extern u8* D_8218B320[];
 

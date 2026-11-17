@@ -895,6 +895,19 @@ extern "C" void Port_SyncEvent(const char* name) {
     if (gSyncNext < gSync.size() && gSync[gSyncNext].event == name) gSyncSeen = true;
 }
 
+// PORT_PHASELOG=<file>: one line each time the battle scene's state changes (BattleScene_UpdatePhase): "P <retrace>
+// <mode> <phase> <step> <substep> <acting side> <move effect kind>". tools/ares_ref writes the same (ARES_REF_PHASELOG);
+// tools/screen_diff/phase_diff.py lists the states that last a different number of frames on the two sides.
+extern "C" void Port_PhaseLog(int mode, int phase, int step, int substep, int side, int kind) {
+    static FILE* f = getenv("PORT_PHASELOG") ? fopen(getenv("PORT_PHASELOG"), "w") : nullptr;
+    static int last[6] = { -9 };
+    int v[6] = { mode, phase, step, substep, side, kind };
+    if (f == nullptr || memcmp(v, last, sizeof v) == 0) return;
+    memcpy(last, v, sizeof v);
+    fprintf(f, "P %llu %d %d %d %d %d %d\n", (unsigned long long)gTick.load(), mode, phase, step, substep, side, kind);
+    fflush(f);
+}
+
 // the route frame (PORT_SYNC): retraces less the ones spent waiting at sync points
 extern "C" uint64_t Port_RouteTick(void) {
     return gTick.load() - gSyncLag.load();

@@ -416,19 +416,19 @@ void BattleScene_PhaseFirstAction(CameraNode* arg0) {
     } else {
         switch (sBattleScene.scene->phaseStep) {
             case 0:
-                BattleScene_ActionStepIntro(arg0, *(u16*)(D_80073D84 + 2 + sp->usedMove * n));
+                BattleScene_ActionStepIntro(arg0, Port_MoveAnimU16(sp->usedMove, 0) /* PORT: was *(u16*)(D_80073D84 + 2 + sp->usedMove * n) */);
                 break;
             case 1:
                 BattleScene_ActionStepSetHitCount(arg0, 0);
                 break;
             case 2:
-                BattleScene_ActionStepUseMove(arg0, *(u16*)(D_80073D84 + 4 + sp->usedMove * n));
+                BattleScene_ActionStepUseMove(arg0, Port_MoveAnimU16(sp->usedMove, 2) /* PORT: was *(u16*)(D_80073D84 + 4 + sp->usedMove * n) */);
                 break;
             case 3:
-                BattleScene_ActionStepTravel(arg0, *(u16*)(D_80073D84 + 6 + sp->usedMove * n));
+                BattleScene_ActionStepTravel(arg0, Port_MoveAnimU16(sp->usedMove, 4) /* PORT: was *(u16*)(D_80073D84 + 6 + sp->usedMove * n) */);
                 break;
             case 4:
-                BattleScene_ActionStepReaction(arg0, (void*)*(u16*)(D_80073D84 + 8 + sp->usedMove * n));
+                BattleScene_ActionStepReaction(arg0, (void*)Port_MoveAnimU16(sp->usedMove, 6) /* PORT: was *(u16*)(D_80073D84 + 8 + sp->usedMove * n) */);
                 break;
         }
     }
@@ -464,19 +464,19 @@ void BattleScene_PhaseSecondAction(CameraNode* arg0) {
     } else {
         switch (sBattleScene.scene->phaseStep) {
             case 0:
-                BattleScene_ActionStepIntro(arg0, *(u16*)(D_80073D84 + 2 + sp->usedMove * n));
+                BattleScene_ActionStepIntro(arg0, Port_MoveAnimU16(sp->usedMove, 0) /* PORT: was *(u16*)(D_80073D84 + 2 + sp->usedMove * n) */);
                 break;
             case 1:
                 BattleScene_ActionStepSetHitCount(arg0, 0);
                 break;
             case 2:
-                BattleScene_ActionStepUseMove(arg0, *(u16*)(D_80073D84 + 4 + sp->usedMove * n));
+                BattleScene_ActionStepUseMove(arg0, Port_MoveAnimU16(sp->usedMove, 2) /* PORT: was *(u16*)(D_80073D84 + 4 + sp->usedMove * n) */);
                 break;
             case 3:
-                BattleScene_ActionStepTravel(arg0, *(u16*)(D_80073D84 + 6 + sp->usedMove * n));
+                BattleScene_ActionStepTravel(arg0, Port_MoveAnimU16(sp->usedMove, 4) /* PORT: was *(u16*)(D_80073D84 + 6 + sp->usedMove * n) */);
                 break;
             case 4:
-                BattleScene_ActionStepReaction(arg0, (void*)*(u16*)(D_80073D84 + 8 + sp->usedMove * n));
+                BattleScene_ActionStepReaction(arg0, (void*)Port_MoveAnimU16(sp->usedMove, 6) /* PORT: was *(u16*)(D_80073D84 + 8 + sp->usedMove * n) */);
                 break;
         }
     }
@@ -664,17 +664,17 @@ void BattleCamera_PlayMoveUserShot(CameraNode* camera) { // PORT: camera was s32
 
     runtime = &(sActingPokemon)->state.runtime;
     sBattleScene.scene->easeFovAfterUserShot = 0;
-    if (D_80073D90[runtime->usedMove - 1].userCameraShot == 5) {
+    if (Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */ == 5) {
         BattleCamera_PlayRandomUserShot3(camera);
-    } else if (D_80073D90[runtime->usedMove - 1].userCameraShot == 6) {
+    } else if (Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */ == 6) {
         BattleCamera_PlayRandomUserShot4(camera);
-    } else if (D_80073D90[runtime->usedMove - 1].userCameraShot == 7) {
+    } else if (Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */ == 7) {
         BattleCamera_PlayRandomUserShotWith4(camera);
-    } else if (D_80073D90[runtime->usedMove - 1].userCameraShot == 4) {
+    } else if (Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */ == 4) {
         sBattleScene.scene->easeFovAfterUserShot = 1;
-        BattleCamera_PlayUserShot(camera, D_80073D90[runtime->usedMove - 1].userCameraShot);
+        BattleCamera_PlayUserShot(camera, Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */);
     } else {
-        BattleCamera_PlayUserShot(camera, D_80073D90[runtime->usedMove - 1].userCameraShot);
+        BattleCamera_PlayUserShot(camera, Port_MoveAnimU16(runtime->usedMove, 2) /* PORT: was D_80073D90[usedMove - 1].userCameraShot */);
     }
 }
 
@@ -1644,14 +1644,14 @@ void BattleCamera_PlayMoveTargetShot(CameraNode* camera) {
     ActivePokemon* opp = sActivePokemon[other];
     BattleMonRuntime* runtime = &opp->state.runtime;
 
-    if (D_80073D90[runtime->usedMove - 1].targetCameraShot == 5) {
+    if (Port_MoveAnimU16(runtime->usedMove, 6) /* PORT: was D_80073D90[usedMove - 1].targetCameraShot */ == 5) {
         BattleCamera_PlayTargetShot(opp, camera, D_8219A568);
-    } else if (D_80073D90[runtime->usedMove - 1].targetCameraShot == 4) {
+    } else if (Port_MoveAnimU16(runtime->usedMove, 6) /* PORT: was D_80073D90[usedMove - 1].targetCameraShot */ == 4) {
         BattleCamera_PlayRandomTargetFraming3(opp, camera);
-    } else if (D_80073D90[runtime->usedMove - 1].targetCameraShot == 6) {
+    } else if (Port_MoveAnimU16(runtime->usedMove, 6) /* PORT: was D_80073D90[usedMove - 1].targetCameraShot */ == 6) {
         BattleCamera_PlayRandomTargetFraming4(opp, camera);
     } else {
-        BattleCamera_PlayTargetShot(opp, camera, D_80073D90[runtime->usedMove - 1].targetCameraShot);
+        BattleCamera_PlayTargetShot(opp, camera, Port_MoveAnimU16(runtime->usedMove, 6) /* PORT: was D_80073D90[usedMove - 1].targetCameraShot */);
     }
 }
 
