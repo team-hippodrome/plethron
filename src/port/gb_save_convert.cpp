@@ -1,6 +1,7 @@
 // Western Gen 1 saves in the Japanese layout for Zero: see gb_save_convert.h.
 #include "gb_save_convert.h"
 
+#include "file_io.h"
 #include "launcher_reliability.h"
 
 #include <algorithm>
@@ -241,7 +242,7 @@ bool Unhex(const std::string& h, std::string& out) {
 void LoadStore() {
     if (gStoreLoaded) return;
     gStoreLoaded = true;
-    FILE* f = fopen(StorePath().c_str(), "rb");
+    FILE* f = Port::OpenFileUtf8(StorePath().c_str(), "rb"); // UTF-8 path: a non-ASCII save folder on Windows
     if (f == nullptr) return;
     char line[512], a[160], b[160], c[160];
     while (fgets(line, sizeof(line), f) != nullptr) {
