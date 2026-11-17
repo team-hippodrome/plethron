@@ -287,6 +287,7 @@ def main():
     if r["rng"]:
         check_rng(out)
         if os.path.exists(os.path.join(out, "port_phase.txt")) and os.path.exists(os.path.join(out, "ares_phase.txt")):
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # run_all.py starts us with -I
             import phase_diff
             phase_diff.report(os.path.join(out, "port_phase.txt"), os.path.join(out, "ares_phase.txt"))
     print("%s: %d checkpoints, %d frames -> %s" % (os.path.basename(route), len(r["shots"]), r["end"], out))
