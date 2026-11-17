@@ -47,7 +47,7 @@ GeoMaterialNode* GeoNode_CreateMaterial(MainPoolState* arg0, GeoMaterialNode* ar
                                     s16 arg5, s16 arg6, u8 r, u8 g, u8 b, u8 a);
 GeoAnchorNode* GeoNode_CreateAnchor(MainPoolState* arg0, GeoAnchorNode* arg1, s16 arg2);
 GeoGroupNode* GeoNode_CreateGroup(MainPoolState* arg0, GeoGroupNode* arg1, s32 arg2, s16 arg3, s16 arg4,
-                                    s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, u8 r, u8 g, u8 b, u8 a);
+                                    s16 arg5, s16 arg6, s16 arg7, s16 arg8, const char* arg9, u8 r, u8 g, u8 b, u8 a);
 void GeoCamera_SetViewport(CameraNode* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 void GeoCamera_SetPerspective(CameraNode* arg0, f32 arg1, f32 arg2, f32 arg3);
 void GeoCamera_SetEyeAtUp(CameraNode* arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, s32 arg7);
@@ -596,20 +596,20 @@ GeoAnchorNode* GeoNode_CreateAnchor(MainPoolState* arg0, GeoAnchorNode* arg1, s1
  * word parameter and an RGBA color.
  */
 GeoGroupNode* GeoNode_CreateGroup(MainPoolState* arg0, GeoGroupNode* arg1, s32 arg2, s16 arg3, s16 arg4,
-                                    s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, u8 r, u8 g, u8 b, u8 a) {
+                                    s16 arg5, s16 arg6, s16 arg7, s16 arg8, const char* arg9, u8 r, u8 g, u8 b, u8 a) {
     if (arg0 != NULL) {
         arg1 = MainPool_AllocAligned(arg0, sizeof(GeoGroupNode), 4);
     }
 
     if (arg1 != NULL) {
-        arg1->unk_1C = arg3;
-        arg1->unk_1E = arg4;
-        arg1->unk_20 = arg5;
-        arg1->unk_22 = arg6;
-        arg1->unk_18 = arg7;
-        arg1->unk_1A = arg8;
-        arg1->unk_24 = arg9;
-        arg1->unk_28.rgba = (r << 0x18) | (g << 0x10) | (b << 8) | a;
+        arg1->x = arg3;
+        arg1->y = arg4;
+        arg1->w = arg5;
+        arg1->h = arg6;
+        arg1->font = arg7;
+        arg1->fontArg = arg8;
+        arg1->text = arg9;
+        arg1->color.rgba = (r << 0x18) | (g << 0x10) | (b << 8) | a;
         GeoNode_Init(arg1, 0x1C);
         arg1->node.renderLayer = arg2;
     }

@@ -93,34 +93,34 @@ void VsResults_PortraitCallback(s32 event, DemoGeoNode* node) {
  * Free Battle) on the win/lose panel.
  * Seen in play (2026-11-14): poking 1P's title to ＡＢ showed ＡＢ over the name.
  */
-void VsResults_TitleTextCallback(s32 event, DemoGeoNode* node) {
+void VsResults_TitleTextCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
+        node->text = (const char*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
     }
 }
 
 /**
  * Name text node callback: shows the side's name (rosterInfo[0]->fullName, 1P / ＣＯＭ in Free
- * Battle) on the win/lose panel and moves the text by the roster's flags: bit 0 sets unk_20 to
- * 210, bit 1 sets unk_22 to -240, otherwise unk_22 is -300.
+ * Battle) on the win/lose panel and moves the text by the roster's flags: bit 0 sets w to
+ * 210, bit 1 sets h to -240, otherwise h is -300.
  * Seen in play (2026-11-14): poking 1P's fullName to ＣＤ showed ＣＤ as the name.
  * @unverified: the offsets; setting COM's unk_000 to 1 or 2 moved nothing visible.
  */
-void VsResults_NameTextCallback(s32 event, DemoGeoNode* node) {
+void VsResults_NameTextCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
+        node->text = (const char*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
         if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
-            node->unk_20 = 210;
+            node->w = 210;
         } else if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
-            node->unk_22 = -240;
+            node->h = -240;
         } else {
-            node->unk_22 = -300;
+            node->h = -300;
         }
     }
 }
@@ -132,7 +132,7 @@ void VsResults_NameTextCallback(s32 event, DemoGeoNode* node) {
  * Seen in play (2026-11-14): stubbing it left every label on the board showing the last nickname
  * copied (フデフデ).
  */
-void VsResults_NicknameCallback(s32 event, DemoGeoNode* node) {
+void VsResults_NicknameCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
     s32 team;
     s32 slot;
@@ -144,9 +144,9 @@ void VsResults_NicknameCallback(s32 event, DemoGeoNode* node) {
         if (slot < teams[team].teamMember[0]->numberOfPokemonBrought) {
             sVsResultsNicknameText[0] = 9;
             _bcopy(teams[team].teamMember[0]->pokemonPicked[slot].nickname, &sVsResultsNicknameText[1], 12);
-            node->unk_24 = sVsResultsNicknameText;
+            node->text = (const char*)sVsResultsNicknameText;
         } else {
-            node->unk_24 = NULL;
+            node->text = NULL;
         }
     }
 }

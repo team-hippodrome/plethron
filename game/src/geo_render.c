@@ -1715,17 +1715,7 @@ void Geo_NodeAnchor(GraphNode* arg0) {
     Geo_ProcessNodeChildren(arg0);
 }
 
-typedef struct GeoTextNode {
-    /* 0x00 */ GraphNode node;
-    /* 0x18 */ s16 font;
-    /* 0x1A */ s16 fontArg;
-    /* 0x1C */ s16 x;
-    /* 0x1E */ s16 y;
-    /* 0x20 */ s16 w;
-    /* 0x22 */ s16 h;
-    /* 0x24 */ const char* text;
-    /* 0x28 */ Color_RGBA8_u32 arg;
-} GeoTextNode;
+// GeoTextNode: global.h
 Gfx* Font_PrintfToDisplayList(s16 x, s16 y, s16 arg2, s16 arg3, Color_RGBA8_u32 color, const char* fmt, ...);
 /**
  * Geo callback for a text node: prints the node's formatted string with its
@@ -1740,7 +1730,7 @@ void Geo_NodeText(GraphNode* arg0) {
 
     if (arg->text != NULL) {
         Font_SetActive(arg->font, arg->fontArg);
-        dl = Font_PrintfToDisplayList(arg->x, arg->y, arg->w, arg->h, arg->arg, arg->text);
+        dl = Font_PrintfToDisplayList(arg->x, arg->y, arg->w, arg->h, arg->color, arg->text);
         if (dl != NULL) {
             GeoRender_SubmitLayerDisplayList(arg->node.renderLayer, (uintptr_t)dl, 0, arg->node.renderFlags & 4);
         }
