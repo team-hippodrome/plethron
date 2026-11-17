@@ -730,13 +730,15 @@ s32 PartyScreen_FadeFrame(u8 unused) {
  * Seen in play (2026-11-14): every frame of the てもち (party) screen, reached from the main menu with a
  * crafted Pocket Monsters Green save.
  */
-void PartyScreen_RunFrame(s32 unused) {
+// PORT: v0. Was void with no return; BgStage_RunUntilCondition runs it until it returns nonzero, which on the
+// N64 is what PartyScreen_Update left in v0 (the screen closing).
+s32 PartyScreen_RunFrame(s32 unused) {
     Cont_StartReadInputs();
     Cont_ReadInputs();
     func_8001B5F0();
     func_800158C0();
     PartyScreen_Draw(&sPartyScreen);
-    PartyScreen_Update(&sPartyScreen);
+    return PartyScreen_Update(&sPartyScreen);
 }
 
 /**

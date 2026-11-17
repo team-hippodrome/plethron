@@ -6,12 +6,14 @@
 
 #include "libnumus/player.h"
 
-void Audio_SetMonoOutput(s32 arg0);
+s32 Audio_SetMonoOutput(s32 arg0);
 void Audio_IsSoundPlayingWrapper(s32 arg0);
 
 /** Sets mono or stereo audio output. */
-void Audio_SetMonoOutput(s32 arg0) {
-    Audio_QueueSetMonoOutputCommand(arg0);
+// PORT: v0. Was void with no return; Audio_PlayCommand returns its result, which on the N64 is what
+// Audio_QueueSetMonoOutputCommand left in v0.
+s32 Audio_SetMonoOutput(s32 arg0) {
+    return Audio_QueueSetMonoOutputCommand(arg0);
 }
 
 /** Wrapper that checks whether a sound is playing. */

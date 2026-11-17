@@ -97,7 +97,7 @@ void Cont_ReadInputs(void);                            /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
 s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen); // PORT: matches the definition
 
-void FreeBattle_RunFrame(FreeBattleScreen* screen); // PORT: matches the definition
+s32 FreeBattle_RunFrame(FreeBattleScreen* screen); // PORT: matches the definition
 
 M2C_UNK GbSave_DrawSummaryBar(M2C_UNK, M2C_UNK *, M2C_UNK *, s32); /* extern */
 M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen); // PORT: matches the definition
