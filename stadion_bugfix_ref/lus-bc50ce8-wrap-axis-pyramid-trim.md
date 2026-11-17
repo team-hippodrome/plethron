@@ -1,7 +1,7 @@
 # Scrolled wrapping textures squashed for a few frames (mipmap-style tile trim applied to a wrapping axis)
 
 - **Category:** rendering
-- **Zero status:** needed (libultraship bump; plethron's pin 4148f93 predates it, and Zero draws the same 32x64 sleep-Z sheet)
+- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f, the fork's main)
 - **stadion:** [PR #155](https://github.com/team-hippodrome/stadion/pull/155) (bump that brought fork PR #4), commit(s) libultraship `bc50ce8`
 - **stadion files:** `libultraship` (`src/fast/interpreter.cpp`)
 

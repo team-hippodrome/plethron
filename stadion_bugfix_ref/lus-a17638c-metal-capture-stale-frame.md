@@ -1,7 +1,7 @@
 # Metal screenshots showed the previous capture point's frame (or black), not the frame just drawn
 
 - **Category:** rendering
-- **Zero status:** needed (libultraship bump; plethron's replay/screen-diff tools rely on `PORT_SHOT_AT` captures)
+- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f, the fork's main)
 - **stadion:** [PR #156](https://github.com/team-hippodrome/stadion/pull/156), commit(s) `d1b0c65` (libultraship `a17638c`, fork PR #7)
 - **stadion files:** `libultraship` (`src/fast/backends/gfx_metal.cpp`)
 

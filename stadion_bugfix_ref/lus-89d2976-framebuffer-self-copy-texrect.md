@@ -1,7 +1,7 @@
 # Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)
 
 - **Category:** rendering
-- **Zero status:** check (comes with the libultraship bump; the known trigger is Stadium 1's Gallery, absent in Zero)
+- **Zero status:** already ported (plethron 4db7329: libultraship pin 95a0f1f; no Zero trigger known, the fix is in place if one shows up)
 - **stadion:** [PR #156](https://github.com/team-hippodrome/stadion/pull/156), commit(s) `d1b0c65` (libultraship `89d2976`, fork PR #7)
 - **stadion files:** `libultraship` (`src/fast/interpreter.cpp`)
 

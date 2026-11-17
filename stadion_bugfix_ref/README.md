@@ -7,7 +7,7 @@ Checked against plethron at `6ecd2d8` (head of PR #27), libultraship pin `4148f9
 ## Read this first: what plethron already has
 
 - **`src/port/` came from stadion at PR #148** (2026-11-15). About 77 port files are byte-identical. That means port-layer fixes merged up to #148 are normally already in plethron. Port fixes merged after that (#152, #157) are not.
-- **libultraship:** plethron pins `4148f93` and stadion pins `8556b99`. Every renderer fix up to the pin is inherited, including everything that used to live in stadion's `patches/libultraship.patch`. The 5 fork commits after the pin are cases `lus-*`, and they come in with one submodule bump.
+- **libultraship:** plethron follows the team-hippodrome fork's `main` (`.gitmodules` `branch = main`; pinned at `95a0f1f` since plethron `4db7329`, the same tree as stadion's pin `8556b99`). Every renderer fix in the fork is inherited, including everything that used to live in stadion's `patches/libultraship.patch` and the 5 `lus-*` cases. Cases checked before the bump cite the old pin `4148f93`; those fixes are all still in the fork.
 - **`game/` is the Zero decomp**, not stadion's. stadion's game-side fixes are never inherited and have to be redone in Zero's code. Several "needed" cases are this split: **the port half of the fix is already in `src/port`, but Zero's game code never calls it** (075 controllers, 079 black frame, 116/120a widescreen helpers, 137a volume sliders, notes-forget-render-targets).
 - Cases about modes Zero doesn't have (Gym Leader Castle, Gallery, Victory Palace, minigames, Trade Machine, GBC mode) are marked *not applicable*, so nobody has to check them again.
 
@@ -24,7 +24,7 @@ Checked against plethron at `6ecd2d8` (head of PR #27), libultraship pin `4148f9
 2. **Settings that do nothing:** 137a (the Music / Sound effects / Voices sliders have no game hook in Zero).
 3. **Widescreen game hooks:** 116 (Surf water panel), 120a (Hypnosis-style effect grids). See also stadion PR #119 (battle HUD anchors), which is a feature rather than a bug fix and so has no case here, though plethron lacks it too.
 4. **Windows paths:** 103 (`gb_save_convert.cpp` opens with narrow `fopen`).
-5. **One libultraship bump** (`4148f93` to `8556b99`): lus-bc50ce8, lus-5a3431c, lus-003614f, lus-a17638c (and lus-89d2976 comes with it).
+5. ~~One libultraship bump~~ done in plethron `4db7329` (pin `4148f93` to the fork's main `95a0f1f`): lus-bc50ce8, lus-5a3431c, lus-003614f, lus-a17638c, lus-89d2976.
 6. **Port-layer performance after #148:** 152a, 152b, 157 (port them together; 157 builds on 152b).
 
 ## Adding a case
@@ -40,7 +40,7 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 ## Index
 
 <!-- BEGIN INDEX -->
-147 cases: 20 needed, 11 check, 86 already ported, 30 not applicable.
+147 cases: 16 needed, 10 check, 91 already ported, 30 not applicable.
 
 ### Needed in plethron
 
@@ -59,10 +59,6 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [Lockstep clock polled for "game idle" every 20 us (~28k wake-ups/s, more kernel than game time)](152a-lockstep-clock-idle-polling.md) | performance | plethron's `LockstepClock` still sleeps 20 us in a polling loop |
 | [Window loop pumped OS events and polled pads on every ~1 ms pass (85 % of the window thread's time)](152b-event-pump-every-loop-pass.md) | performance | plethron `PumpFrame` pumps unconditionally; see also `157-...` |
 | [Event pump's 4 ms floor still cost twice the game's drawing; replaced by 33 ms floor + mid-frame pump](157-event-pump-4ms-floor.md) | performance | depends on `152b-...`, also missing |
-| [Each render-to-texture readback waited for the GPU on its own (up to 8 ms hitches at scene changes)](lus-003614f-rtt-readback-batch.md) | performance | libultraship bump; Zero's VS screen and portraits use off-screen targets |
-| [Texture cache key hashed every imported texture one byte at a time (FNV-1a, ~19 us per 4 KB)](lus-5a3431c-texture-hash-8-bytes.md) | performance | libultraship bump; pin 4148f93 has the byte loop |
-| [Metal screenshots showed the previous capture point's frame (or black), not the frame just drawn](lus-a17638c-metal-capture-stale-frame.md) | rendering | libultraship bump; plethron's replay/screen-diff tools rely on `PORT_SHOT_AT` captures |
-| [Scrolled wrapping textures squashed for a few frames (mipmap-style tile trim applied to a wrapping axis)](lus-bc50ce8-wrap-axis-pyramid-trim.md) | rendering | libultraship bump; plethron's pin 4148f93 predates it, and Zero draws the same 32x64 sleep-Z sheet |
 | [Memory reused after a render target still served stale GPU pixels (black HUD labels): tell the renderer when a pool block is handed out again](notes-forget-render-targets-on-pool-reuse.md) | rendering | the hook exists in libultraship, Zero's allocator never calls it |
 | [Unions that overlay a narrow field on a wider integer read the wrong half on a little-endian host (animation frame counter, GB APU phase)](notes-narrow-fields-through-wide-unions.md) | endianness | Zero's `AnimFixedFrame` and `GbApuChannelState.phase` still use the N64 member order |
 | [Blank screen between scenes: the one-line frame buffer must be written in N64 byte order (dark green instead of black)](notes-vi-blank-line-n64-byte-order.md) | endianness | Zero's `Display_ClearFramebufferLine` writes host order |
@@ -79,7 +75,6 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [First-entry save stall: every FlashRAM page write rewrote the save file (with backups)](106c-flash-save-per-bank-write-stall.md) | performance | Zero saves to SRAM; plethron writes the whole .sra with a backup snapshot on every changed DMA write |
 | [Vulkan stutter at first battle/scene: pipeline states built at first draw (warm-up list)](108-vulkan-pipeline-warmup-first-battle.md) | performance | the list file is inherited byte-identical; its entries come from Stadium 1 recordings |
 | [Android APK build failed: NDK's -Werror=format-security not undone by the game's -Wno-error](153-android-format-security-werror.md) | platform-build | flag missing in plethron, but no triggering call found in Zero's game code today |
-| [Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)](lus-89d2976-framebuffer-self-copy-texrect.md) | rendering | comes with the libultraship bump; the known trigger is Stadium 1's Gallery, absent in Zero |
 | [Code that indexes past one global into the next (N64 link order) reads or writes unrelated host memory](notes-adjacent-globals-out-of-bounds.md) | abi-64bit | Zero's data is lifted per symbol, sized to the gap to the next N64 symbol; reads before a symbol, e.g. `gMoveData[-1]`, are not covered |
 | [Buffers the N64 overran harmlessly crash on the host (unterminated GB names, char[1] sprintf targets, 6-entry locals written 7-8 times)](notes-unbounded-and-undersized-buffers.md) | abi-64bit | Zero's `Text_UntranscodeName` is the unbounded JP form; whether a real input lacks the 0x50 terminator was not proven |
 
@@ -118,9 +113,9 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [Smooth motion slid recycled effects (sleep Zs, flames, sparkles) towards other objects' places](136b-smooth-motion-matrix-pairing-recycled-slots.md) | already ported | plethron `src/port/interp.cpp` is identical to stadion's current one |
 | [Vulkan crashed when the window was minimized (zero-sized swapchain)](137c-vulkan-minimized-zero-swapchain.md) | already ported | libultraship 4148f93 contains fork commit 1a0d7d5 |
 | [OpenGL: only the first render-to-texture target got its texture (cup grid crosses missing)](139-opengl-texture-cache-after-framebuffer-create.md) | already ported | libultraship 4148f93 contains fork commit e0a4b28 |
-| [Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)](lus-89d2976-framebuffer-self-copy-texrect.md) | check | comes with the libultraship bump; the known trigger is Stadium 1's Gallery, absent in Zero |
-| [Metal screenshots showed the previous capture point's frame (or black), not the frame just drawn](lus-a17638c-metal-capture-stale-frame.md) | needed | libultraship bump; plethron's replay/screen-diff tools rely on `PORT_SHOT_AT` captures |
-| [Scrolled wrapping textures squashed for a few frames (mipmap-style tile trim applied to a wrapping axis)](lus-bc50ce8-wrap-axis-pyramid-trim.md) | needed | libultraship bump; plethron's pin 4148f93 predates it, and Zero draws the same 32x64 sleep-Z sheet |
+| [Texture rectangles copying the shown frame buffer onto itself painted stale RDRAM (black/noise on OpenGL)](lus-89d2976-framebuffer-self-copy-texrect.md) | already ported | plethron 4db7329: libultraship pin 95a0f1f; no Zero trigger known, the fix is in place if one shows up |
+| [Metal screenshots showed the previous capture point's frame (or black), not the frame just drawn](lus-a17638c-metal-capture-stale-frame.md) | already ported | plethron 4db7329: libultraship pin 95a0f1f, the fork's main |
+| [Scrolled wrapping textures squashed for a few frames (mipmap-style tile trim applied to a wrapping axis)](lus-bc50ce8-wrap-axis-pyramid-trim.md) | already ported | plethron 4db7329: libultraship pin 95a0f1f, the fork's main |
 | [Memory reused after a render target still served stale GPU pixels (black HUD labels): tell the renderer when a pool block is handed out again](notes-forget-render-targets-on-pool-reuse.md) | needed | the hook exists in libultraship, Zero's allocator never calls it |
 | [OpenGL on Linux: shader preprocessor dropped the rest of the shader after a taken @elseif; game picture upside down](notes-opengl-shader-preprocessor-and-orientation.md) | already ported | libultraship fork at 4148f93 |
 | [Render-to-texture targets: empty viewports, wrong row/column offsets, passes out of order, markers in RDRAM, images taken for frame buffers](notes-render-to-texture-target-lifecycle.md) | already ported | libultraship fork at 4148f93 and the identical `Port_ViFrameBufferState` in `src/port/os_devices.cpp` |
@@ -279,8 +274,8 @@ When a "needed" case gets fixed, change its status line to `already ported (plet
 | [Lockstep clock polled for "game idle" every 20 us (~28k wake-ups/s, more kernel than game time)](152a-lockstep-clock-idle-polling.md) | needed | plethron's `LockstepClock` still sleeps 20 us in a polling loop |
 | [Window loop pumped OS events and polled pads on every ~1 ms pass (85 % of the window thread's time)](152b-event-pump-every-loop-pass.md) | needed | plethron `PumpFrame` pumps unconditionally; see also `157-...` |
 | [Event pump's 4 ms floor still cost twice the game's drawing; replaced by 33 ms floor + mid-frame pump](157-event-pump-4ms-floor.md) | needed | depends on `152b-...`, also missing |
-| [Each render-to-texture readback waited for the GPU on its own (up to 8 ms hitches at scene changes)](lus-003614f-rtt-readback-batch.md) | needed | libultraship bump; Zero's VS screen and portraits use off-screen targets |
-| [Texture cache key hashed every imported texture one byte at a time (FNV-1a, ~19 us per 4 KB)](lus-5a3431c-texture-hash-8-bytes.md) | needed | libultraship bump; pin 4148f93 has the byte loop |
+| [Each render-to-texture readback waited for the GPU on its own (up to 8 ms hitches at scene changes)](lus-003614f-rtt-readback-batch.md) | already ported | plethron 4db7329: libultraship pin 95a0f1f, the fork's main |
+| [Texture cache key hashed every imported texture one byte at a time (FNV-1a, ~19 us per 4 KB)](lus-5a3431c-texture-hash-8-bytes.md) | already ported | plethron 4db7329: libultraship pin 95a0f1f, the fork's main |
 
 <!-- END INDEX -->
 
