@@ -983,6 +983,15 @@ extern "C" void Port_PhaseLog(int mode, int phase, int step, int substep, int si
     fflush(f);
 }
 
+// PORT_SOUNDLOG=<file>: one line for each call of Audio_PlayCry and Audio_PlayCommand: "S <retrace> cry|cmd <a0> <a1>".
+// tools/ares_ref writes the same (ARES_REF_SOUNDLOG, with the caller), to check which sounds a scene asks for.
+extern "C" void Port_SoundLog(const char* what, int a0, int a1) {
+    static FILE* f = getenv("PORT_SOUNDLOG") ? fopen(getenv("PORT_SOUNDLOG"), "w") : nullptr;
+    if (f == nullptr) return;
+    fprintf(f, "S %llu %s %d %d\n", (unsigned long long)gTick.load(), what, a0, a1);
+    fflush(f);
+}
+
 // the route frame (PORT_SYNC): retraces less the ones spent waiting at sync points
 extern "C" uint64_t Port_RouteTick(void) {
     return gTick.load() - gSyncLag.load();
