@@ -16,7 +16,13 @@ every glyph the game font's white fill, one-pixel dark outline and two-cycle sha
     python3 tools/font/make_pop_font.py --mplus MPLUSRounded1c-ExtraBold.ttf --jua Jua-Regular.ttf
     python3 tools/font/make_pop_font.py --preview out.png      # also renders a specimen of the Latin design
 
-Both base fonts come from https://github.com/google/fonts (ofl/mplusrounded1c, ofl/jua). The character set is the one
+Both base fonts come from https://github.com/google/fonts (ofl/mplusrounded1c, ofl/jua).
+
+--full writes a complete version for a type designer to edit and for the other Stadium games' translations (not used
+by the port): Latin Extended-A too, every kana, kanji and CJK symbol M+ has, the kanji M+ lacks from Zen Maru Gothic
+Black (ofl/zenmarugothic) and all 11,172 Hangul syllables, the ones Jua lacks from Nanum Gothic ExtraBold
+(ofl/nanumgothic) with rounded corners. Both are SIL OFL 1.1 too; Nanum's Reserved Font Names (Nanum, NanumGothic, ...)
+are not used. The character set is the one
 make_unifont_subset.py collects from the translation tables. No ROM data goes into this file.
 The output is a Modified Version of both base fonts under the SIL OFL 1.1 (assets/font/LICENSE-pop.txt); neither
 declares a Reserved Font Name.
@@ -99,7 +105,7 @@ def stroke(parts, sw=SW):
         elif isinstance(p, tuple) and p[0] == "fill":
             geoms.append(Polygon(p[1]).buffer(sw / 4, quad_segs=8))
         elif isinstance(p, tuple) and p[0] == "thin":
-            geoms.append(unary_union([g.buffer(p[1] / 2, quad_segs=12) for g in p[2]]))
+            geoms.append(stroke(p[2], p[1]))
         else:
             geoms.append(p.buffer(sw / 2, quad_segs=12))
     return unary_union(geoms)
@@ -308,6 +314,26 @@ def define_latin():
     g["▼"] = (lambda: fill((L - 20, CAP), (R + 20, CAP), (MID, BASE + 20)), SW)
     g["♂"] = (lambda: thin(92, ring(MID - 45, BASE + 150, 125, 140) + seg((MID + 45, BASE + 260), (R + 20, CAP + 10)) + path((R - 130, CAP + 10), (R + 20, CAP + 10), (R + 20, CAP - 140))), SW)
     g["♀"] = (lambda: thin(92, ring(MID, CAP - 125, 135, 135) + seg((MID, CAP - 260), (MID, BASE - 70)) + seg((L - 10, BASE + 80), (R + 10, BASE + 80))), SW)
+    # Latin Extended-A letters that are not base + accent
+    g["ı"] = (lambda: seg((MID - 70, XH), (MID, XH), (MID, BASE)) + seg((MID - 90, BASE), (MID + 110, BASE)), SW)
+    g["ȷ"] = (lambda: path((MID - 40, XH), (MID + 40, XH), (MID + 40, DSC + 90), arc_pts(MID - 50, DSC + 90, 90, 90, 0, -150)), SW)
+    g["Œ"] = (lambda: thin(90, path((R + 15, CAP), (MID + 20, CAP), arc_pts(MID + 20, CMID, MID + 20 - L + 25, (CAP - BASE) / 2, 90, 270), (R + 15, BASE)) + seg((MID + 20, CAP), (MID + 20, BASE)) + seg((MID + 20, CMID + 10), (R, CMID + 10))), SW)
+    g["œ"] = (lambda: thin(88, ring(MID - 95, XMID, 100, xr) + path((MID + 5, XMID), (R + 25, XMID), arc_pts(MID + 120, XMID, R + 25 - MID - 120, xr, 0, 300))), SW)
+    g["Ł"] = (lambda: G["L"][0]() + seg((L - 40, CMID - 40), (L + 90, CMID + 60)), SW)
+    g["ł"] = (lambda: G["l"][0]() + seg((MID - 110, CMID - 60), (MID + 90, CMID + 60)), SW)
+    g["Đ"] = (lambda: G["Ð"][0](), SW)
+    g["đ"] = (lambda: G["d"][0]() + seg((MID, ASC - 60), (R + 50, ASC - 60)), SW)
+    g["Ħ"] = (lambda: G["H"][0]() + seg((L - 40, CAP - 110), (R + 40, CAP - 110)), SW)
+    g["ħ"] = (lambda: G["h"][0]() + seg((L - 50, ASC - 80), (MID + 20, ASC - 80)), SW)
+    g["Ŋ"] = (lambda: seg((L, BASE), (L, CAP)) + path(arc_pts(MID, CAP - 150, O_RX, 150, 180, 0), (R, BASE + 40), arc_pts(R - 100, BASE + 40, 100, 100, 0, -120)), SW)
+    g["ŋ"] = (lambda: seg((L, XH), (L, BASE)) + path(arc_pts(MID, XH - 150, O_RX, 150, 180, 0), (R, DSC + 70), arc_pts(R - 100, DSC + 70, 100, 100, 0, -140)), SW)
+    g["ĸ"] = (lambda: seg((L, XH), (L, BASE)) + seg((R, XH), (L + 20, BASE + 130)) + seg((L + 130, BASE + 190), (R + 10, BASE)), SW)
+    g["Ĳ"] = (lambda: thin(90, seg((L - 10, CAP), (L - 10, BASE)) + path((R + 10, CAP), (R + 10, BASE + 110), arc_pts(MID + 60, BASE + 110, R + 10 - MID - 60, 110, 0, -170))), SW)
+    g["ĳ"] = (lambda: thin(90, seg((L, XH), (L, BASE)) + dot(L, ASC + 5, H) + path((R, XH), (R, DSC + 80), arc_pts(MID + 70, DSC + 80, R - MID - 70, 80, 0, -170)) + dot(R, ASC + 5, H)), SW)
+    g["Ŀ"] = (lambda: G["L"][0]() + dot(MID + 60, CMID + 10), SW)
+    g["ŀ"] = (lambda: thin(96, path((L - 20, ASC), (L + 50, ASC), (L + 50, BASE))) + dot(R - 20, XMID + 30), SW)
+    g["ŉ"] = (lambda: thin(92, dot(L - 10, CAP + 20, H) + seg((L + 10, CAP + 20), (L - 40, CAP - 90)) + seg((MID - 30, XH), (MID - 30, BASE)) + hump(MID - 30, R + 20, XH, XH - 140)), SW)
+    g["ſ"] = (lambda: path((MID - 30, BASE), (MID - 30, ASC - 120), arc_pts(MID + 90, ASC - 120, 120, 120, 180, 60)), SW)
     g["€"] = (lambda: arc(MID + 40, CMID, O_RX, (CAP - BASE) / 2, 50, 310) + seg((L - 50, CMID + 60), (MID + 60, CMID + 60)) + seg((L - 50, CMID - 70), (MID + 40, CMID - 70)), SW)
 
 
@@ -366,11 +392,22 @@ def accent(kind, top):
         return seg((L + 10, y + 20), (R - 10, y + 20))
     if kind == "cedilla":
         return thin(84, path((MID + 10, BASE - 30), (MID + 10, -70), arc_pts(MID - 20, -120, 75, 55, 90, -150)))
+    if kind == "breve":
+        return thin(88, arc(MID, y + 75, 95, 85, 200, 340))
+    if kind == "dot":
+        return dot(MID, y + 25, H * 1.2)
+    if kind == "doubleacute":
+        return thin(84, seg((MID - 105, y - 15), (MID - 30, y + 85)) + seg((MID + 30, y - 15), (MID + 105, y + 85)))
+    if kind == "ogonek":
+        return thin(84, path((R - 20, BASE - 20), arc_pts(R - 20, -70, 70, 70, 150, 290), (R + 50, -120)))
+    if kind == "commabelow":
+        return dot(MID, -80, H * 1.05) + seg((MID + 25, -80), (MID - 40, -190))
     raise ValueError(kind)
 
 
 MARKS = {"̀": "grave", "́": "acute", "̂": "circumflex", "̃": "tilde", "̈": "diaeresis",
-         "̊": "ring", "̧": "cedilla", "̄": "macron", "̌": "caron"}
+         "̊": "ring", "̧": "cedilla", "̄": "macron", "̌": "caron",
+         "\u0306": "breve", "\u0307": "dot", "\u030B": "doubleacute", "\u0328": "ogonek", "\u0326": "commabelow"}
 
 
 def latin_parts(ch):
@@ -394,7 +431,7 @@ def latin_parts(ch):
             top = ASC + H
         for m in d[1:]:
             k = MARKS[m]
-            if k == "cedilla":
+            if k in ("cedilla", "ogonek", "commabelow"):
                 parts = parts + accent(k, 0)
             elif base.isupper():
                 parts = parts + cap_accent(k)
@@ -504,7 +541,7 @@ class FlattenPen(BasePen):
 
 
 class Base:
-    def __init__(self, path, scale, src_cy, xscale=1.0, embolden=0):
+    def __init__(self, path, scale, src_cy, xscale=1.0, embolden=0, round_corners=0):
         self.font = TTFont(path)
         self.cmap = self.font.getBestCmap()
         self.gs = self.font.getGlyphSet()
@@ -512,8 +549,9 @@ class Base:
         self.xscale = xscale
         self.src_cy = src_cy
         self.embolden = embolden  # units (of this font) to grow every outline by, for a heavier weight
+        self.round_corners = round_corners  # units: erode then grow back by this much, which rounds square corners
 
-    def glyph(self, cp):
+    def glyph(self, cp, adv=FULL):
         name = self.cmap.get(cp)
         if name is None:
             return None
@@ -531,11 +569,15 @@ class Base:
             src_cx = self.gs[name].width / 2  # keep the punctuation's own place in its cell
         dst_cy = (ASCENT - DESCENT) / 2
         sx = s * self.xscale
-        matrix = (sx, 0, 0, s, FULL / 2 - src_cx * sx, dst_cy - self.src_cy * s)
-        if self.embolden:
+        matrix = (sx, 0, 0, s, adv / 2 - src_cx * sx, dst_cy - self.src_cy * s)
+        if self.embolden or self.round_corners:
             flat = FlattenPen()
             rec.replay(TransformPen(flat, matrix))
-            draw_shape(flat.shape().buffer(self.embolden * s, quad_segs=6), pen)
+            shape = flat.shape()
+            if self.round_corners:
+                shape = shape.buffer(-self.round_corners * s, quad_segs=6)
+            shape = shape.buffer((self.embolden + self.round_corners) * s, quad_segs=6)
+            draw_shape(shape, pen)
         else:
             rec.replay(TransformPen(pen, matrix))
         return pen.glyph()
@@ -544,8 +586,22 @@ class Base:
 def build(args):
     define_latin()
     chars = wanted_chars() + list("–—‘’“”„‚…•←↑↓▲▼▶€")
-    chars = sorted(set(chars) | {" ", "?"})
     mplus = Base(args.mplus, 0.9, 360)  # em box -140..860
+    zen = nanum = None
+    if args.full:
+        # every block the Stadium games' languages could use: Latin-1 and Latin Extended-A (drawn here), the
+        # general punctuation drawn here, all of M+'s kana, kanji, CJK symbols and fullwidth/halfwidth forms, the
+        # kanji M+ lacks from Zen Maru Gothic (JIS levels 1 and 2 and more), and all 11,172 Hangul syllables
+        zen = Base(args.zen, 0.9, 380)  # em box ~ -90..850
+        # syllables Jua lacks (it has the 2,350 of KS X 1001): Nanum Gothic ExtraBold, corners rounded
+        nanum = Base(args.nanum, 0.8, 370, xscale=1.08, round_corners=28)
+        extra = set(chr(c) for c in range(0x100, 0x180))
+        extra |= set(chr(c) for c in mplus.cmap if 0x3000 <= c < 0x3100 or 0x31F0 <= c < 0x3200 or 0x3400 <= c < 0xA000
+                     or 0xF900 <= c < 0xFB00 or 0xFF00 <= c < 0xFFF0 or 0x2460 <= c < 0x2800)
+        extra |= set(chr(c) for c in zen.cmap if 0x3400 <= c < 0xA000 or 0xF900 <= c < 0xFB00)
+        extra |= set(chr(c) for c in range(0xAC00, 0xD7A4)) | set(chr(c) for c in range(0x3131, 0x318F))
+        chars = chars + sorted(extra)
+    chars = sorted(set(chars) | {" ", "?"})
     # Hangul ink -30..810; Jua's syllables are narrow and light next to the rest: widened to fill the monospaced
     # cell and grown a little to match M+ ExtraBold's weight
     jua = Base(args.jua, 0.9, 390, xscale=1.12, embolden=22)
@@ -562,13 +618,19 @@ def build(args):
             adv = FULL
             if 0xAC00 <= cp < 0xD7B0 or 0x3130 <= cp < 0x3190 or 0x1100 <= cp < 0x1200:
                 g = jua.glyph(cp)
+                if g is None and nanum is not None:
+                    g = nanum.glyph(cp)
             if g is None:
                 g = mplus.glyph(cp)
+            if g is None and zen is not None:
+                g = zen.glyph(cp)
             if cp == 0x3000:
                 g = TTGlyphPen(None).glyph()
         else:
             g = latin_glyph(ch)
-            if g is None:  # anything else the design lacks: M+ in a full-width cell
+            if g is None and 0xFF61 <= cp < 0xFFA0:  # halfwidth katakana stay half width
+                g = mplus.glyph(cp, HALF)
+            elif g is None:  # anything else the design lacks (symbols such as circled digits, ♪): M+, full width
                 g = mplus.glyph(cp)
                 if g is not None:
                     adv = FULL
@@ -590,7 +652,9 @@ def build(args):
         "familyName": "Plethron Pop",
         "styleName": "Regular",
         "copyright": "Latin: Copyright 2026 Team Hippodrome. Kana and kanji from M PLUS Rounded 1c, Copyright 2016 The "
-                     "Rounded M+ Project Authors. Hangul from Jua, Copyright 2018 The Jua Project Authors.",
+                     "Rounded M+ Project Authors. Hangul from Jua, Copyright 2018 The Jua Project Authors."
+                     + (" Further kanji from Zen Maru Gothic, Copyright 2021 The Zen Maru Gothic Project Authors. "
+                        "Further Hangul from Nanum Gothic, Copyright 2010 NHN Corporation." if args.full else ""),
         "licenseDescription": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
         "licenseInfoURL": "https://openfontlicense.org",
     })
@@ -622,6 +686,11 @@ def main():
     ap.add_argument("--mplus", required=True, help="MPLUSRounded1c-ExtraBold.ttf")
     ap.add_argument("--jua", required=True, help="Jua-Regular.ttf")
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--full", action="store_true",
+                    help="every kana, kanji (JIS 1+2 and more) and Hangul syllable, plus Latin Extended-A, not only "
+                         "what the tables use (for editing and other games; needs --zen and --nanum)")
+    ap.add_argument("--zen", help="ZenMaruGothic-Black.ttf (with --full)")
+    ap.add_argument("--nanum", help="NanumGothic-ExtraBold.ttf (with --full)")
     ap.add_argument("--preview", help="also write a specimen PNG of the result")
     args = ap.parse_args()
     build(args)
