@@ -33,7 +33,8 @@ void Font_EndTexturedTextRendering(void);
  */
 s32 BattleHud_DrawMovePpTextLTR(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     UNUSED s32 pad[2]; // FAKE: stack padding
-    s8 sp70[7];
+    s8 sp70[8]; // PORT: was [7]; "%3d/%3d" writes 8 bytes with its NUL. The N64 stack padding took the overflow,
+                // here it zeroed a byte of the caller's saved registers (a max PP drawn as "10/0")
     s32 i;
     u8** temp_s2;
     u8* var_v1;
@@ -85,7 +86,8 @@ s32 BattleHud_DrawMovePpTextLTR(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
  */
 s32 BattleHud_DrawMovePpTextRTL(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     UNUSED s32 pad[2]; // FAKE: stack padding
-    s8 sp70[7];
+    s8 sp70[8]; // PORT: was [7]; "%3d/%3d" writes 8 bytes with its NUL. The N64 stack padding took the overflow,
+                // here it zeroed a byte of the caller's saved registers (a max PP drawn as "10/0")
     s32 i;
     u8** temp_s2;
     u8* var_v1;
