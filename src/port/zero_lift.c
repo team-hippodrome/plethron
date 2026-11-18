@@ -663,11 +663,49 @@ static void liftRange(const uint8_t* img, size_t dataEnd, uint32_t rom, uint32_t
     }
 }
 
+// The renderer reads textures and palettes byte by byte, in the N64's big-endian order. Lifted data typed as an array
+// of 16- or 32-bit scalars holds each element in host byte order (liftElems swapped it), so a texture the C code
+// declares as u16[]/u32[] (e.g. the battle strip wipe's sawtooth edge, D_821942D8) reached TMEM with its texels
+// shuffled inside each word. Register those arrays with the renderer, as tools/gen_word_arrays.py does for the game's
+// own C arrays: a TMEM load from them swaps each word back (libultraship interpreter.cpp, Port_RegisterWordArray).
+// bss is left out: what the game writes there as words is host order too, but DMA'd bytes are not, and no texture
+// is loaded from a lifted bss word array. PORT_NO_LIFT_WORD_ARRAYS=1 turns this off (the old picture).
+extern void Port_RegisterWordArray(const void* start, unsigned long bytes, int wordSize);
+static void registerWordArrays(void) {
+    static int done = 0;
+    const char* off = getenv("PORT_NO_LIFT_WORD_ARRAYS");
+    uint32_t n = 0;
+    if (done) {
+        return;
+    }
+    done = 1;
+    if (off != NULL && off[0] != '\0' && off[0] != '0') {
+        return;
+    }
+    for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* s = &gZLiftSyms[i];
+        const ZLiftType* t = &gZLiftTypes[s->type];
+        if (s->bss || s->host == NULL || t->opCount != 1 || t->n64Size != t->hostSize) {
+            continue;
+        }
+        const ZLiftOp* o = &gZLiftOps[t->opStart];
+        if (o->kind != ZLIFT_SCALAR || (o->size != 2 && o->size != 4) || o->n64Stride != o->size) {
+            continue;
+        }
+        Port_RegisterWordArray(s->host, (unsigned long)t->hostSize * s->count, o->size);
+        n++;
+    }
+    if (TRACE) {
+        fprintf(stderr, "[lift] %u word arrays registered with the renderer\n", n);
+    }
+}
+
 void ZLift_LoadImage(int image) {
     size_t romSize;
     const uint8_t* rom = imageBytes(image, &romSize);
     uint32_t n = 0;
 
+    registerWordArrays();
     romSize = imageDataEnd(image, rom, romSize);
 
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {
