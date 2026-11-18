@@ -864,10 +864,10 @@ int Port_Text_SelfTest(void) {
     // Options > Names: a name row's localized form (localized.csv) or its romaji (ai.csv). Bound by address only in
     // game (fragment 009 isn't loaded here), so by id.
     sNameStyleTest = PORT_NAMES_LOCALIZED;
-    check("names localized FINALIST_ORESAMA", Port_Text_LookupId("FINALIST_ORESAMA"), "THE MAN");
+    check("names localized HANDLE_ORESAMA", Port_Text_LookupId("HANDLE_ORESAMA"), "THE MAN");
     check("names localized HAUNTER_NAME", Port_Text_LookupId("HAUNTER_NAME"), "Haunter");
     sNameStyleTest = PORT_NAMES_TRANSLITERATED;
-    check("names transliterated FINALIST_ORESAMA", Port_Text_LookupId("FINALIST_ORESAMA"), "Oresama");
+    check("names transliterated HANDLE_ORESAMA", Port_Text_LookupId("HANDLE_ORESAMA"), "Oresama");
     check("names transliterated BURGLAR_NIDOKING", Port_Text_LookupId("BURGLAR_NIDOKING"), "Dorokingu");
     check("names transliterated MIKA_DUGTRIO", Port_Text_LookupId("MIKA_DUGTRIO"), "Tagutorio");
     sNameStyleTest = -1;

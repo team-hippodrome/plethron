@@ -17,7 +17,7 @@ def fit(t,h,avail):
 for row in csv.DictReader(open(csvf,encoding='utf-8')):
     i=row['id']
     if i.endswith('_STATUS_NAME'): h,a=10,37
-    elif i.startswith('COM_'): h,a=12,66
+    elif i.startswith('HANDLE_'): h,a=12,66
     else: continue
     for L in ['en','es','de','pt','ko','fr','it']:
         wd,r=fit(row[L],h,a)
