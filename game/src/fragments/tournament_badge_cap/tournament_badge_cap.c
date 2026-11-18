@@ -20,7 +20,7 @@
 
 extern Gfx sBadgeMaterialDL[7]; // PORT: sized (open, the data after its G_ENDDL was lifted as commands)
 extern s32 sBadgeTextureScroll;
-extern u16 sGoldBadgeEdgeTex[];
+extern u8 sGoldBadgeEdgeTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 Gfx* BadgeCap_BuildBadgeTextureDL(Gfx* gfx, Gfx* mesh, void* texture, s32 shift_s, s32 shift_t, s32 scale_s,
                                   s32 scale_t);
 
@@ -58,7 +58,7 @@ Gfx* BadgeCap_BuildBadgeTextureDL(Gfx* gfx, Gfx* mesh, void* texture, s32 shift_
     return gfx;
 }
 
-extern u16 sRedBadgeRingTex[];
+extern u8 sRedBadgeRingTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 
 /**
  * Display-list callback for a red badge's faceted outer ring (sRedBadgeRingTex). The node's
@@ -74,7 +74,7 @@ void BadgeCap_DrawRedBadgeRing(s32 event, GeoDisplayListNode* node) {
     }
 }
 
-extern u16 sRedBadgeEdgeTex[];
+extern u8 sRedBadgeEdgeTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 
 /**
  * Display-list callback for the side band of a red badge's ring (sRedBadgeEdgeTex).
@@ -89,7 +89,7 @@ void BadgeCap_DrawRedBadgeEdge(s32 event, GeoDisplayListNode* node) {
     }
 }
 
-extern u16 sSilverBadgeRingTex[];
+extern u8 sSilverBadgeRingTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 
 /**
  * Display-list callback for a silver badge's ring (sSilverBadgeRingTex, a white marble texture).
@@ -104,7 +104,7 @@ void BadgeCap_DrawSilverBadgeRing(s32 event, GeoDisplayListNode* node) {
     }
 }
 
-extern u16 sSilverBadgeEdgeTex[];
+extern u8 sSilverBadgeEdgeTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 
 /**
  * Display-list callback for the side band of a silver badge's ring (sSilverBadgeEdgeTex, gray bands).
@@ -118,7 +118,7 @@ void BadgeCap_DrawSilverBadgeEdge(s32 event, GeoDisplayListNode* node) {
     }
 }
 
-extern u16 sGoldBadgeRingTex[];
+extern u8 sGoldBadgeRingTex[]; // PORT: was u16; RGBA16 texels the RDP reads, so the lifter keeps them in N64 byte order
 
 /**
  * Display-list callback for the gold badge's ring (sGoldBadgeRingTex, a gold marble texture). One

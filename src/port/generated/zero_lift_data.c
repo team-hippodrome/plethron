@@ -1711,13 +1711,7 @@ ZLIFT_STORAGE(D_8E923340, 64);
 ZLIFT_STORAGE(D_8E924770, 896);
 ZLIFT_STORAGE(D_8EA00000, 112768);
 ZLIFT_STORAGE(D_8EB00000, 32);
-ZLIFT_STORAGE(D_8EB300B0, 67264);
-ZLIFT_STORAGE(sRedBadgeRingTex, 2048);
-ZLIFT_STORAGE(sRedBadgeEdgeTex, 2048);
-ZLIFT_STORAGE(sSilverBadgeRingTex, 2048);
-ZLIFT_STORAGE(sSilverBadgeEdgeTex, 2048);
-ZLIFT_STORAGE(sGoldBadgeRingTex, 2048);
-ZLIFT_STORAGE(sGoldBadgeEdgeTex, 2048);
+ZLIFT_STORAGE(D_8EB300B0, 79552);
 ZLIFT_STORAGE(sBadgeTextureScroll, 8);
 ZLIFT_STORAGE(sBadgeMaterialDL, 112);
 ZLIFT_STORAGE(D_8EC00000, 84096);
@@ -7357,13 +7351,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8E924770, 0x380, 896, 6, 41, 0, 0x24770, D_8E924770 }, // D_8E924770
     { 0x8EA00000, 0x1B880, 112768, 6, 43, 0, 0x0, D_8EA00000 }, // D_8EA00000
     { 0x8EB00000, 0x20, 32, 6, 35, 0, 0x0, D_8EB00000 }, // D_8EB00000
-    { 0x8EB300B0, 0x106C0, 67264, 6, 35, 0, 0x300B0, D_8EB300B0 }, // D_8EB300B0
-    { 0x8EB40770, 0x800, 1024, 18, 35, 0, 0x40770, sRedBadgeRingTex }, // sRedBadgeRingTex
-    { 0x8EB40F70, 0x800, 1024, 18, 35, 0, 0x40F70, sRedBadgeEdgeTex }, // sRedBadgeEdgeTex
-    { 0x8EB41770, 0x800, 1024, 18, 35, 0, 0x41770, sSilverBadgeRingTex }, // sSilverBadgeRingTex
-    { 0x8EB41F70, 0x800, 1024, 18, 35, 0, 0x41F70, sSilverBadgeEdgeTex }, // sSilverBadgeEdgeTex
-    { 0x8EB42770, 0x800, 1024, 18, 35, 0, 0x42770, sGoldBadgeRingTex }, // sGoldBadgeRingTex
-    { 0x8EB42F70, 0x800, 1024, 18, 35, 0, 0x42F70, sGoldBadgeEdgeTex }, // sGoldBadgeEdgeTex
+    { 0x8EB300B0, 0x136C0, 79552, 6, 35, 0, 0x300B0, D_8EB300B0 }, // D_8EB300B0
     { 0x8EB43770, 0x8, 2, 0, 35, 0, 0x43770, sBadgeTextureScroll }, // sBadgeTextureScroll
     { 0x8EB43778, 0x38, 7, 10, 35, 0, 0x43778, sBadgeMaterialDL }, // sBadgeMaterialDL
     { 0x8EC00000, 0x14880, 84096, 6, 36, 0, 0x0, D_8EC00000 }, // D_8EC00000
@@ -7406,7 +7394,7 @@ const ZLiftSym gZLiftSyms[] = {
     { 0x8FB00000, 0x8F70, 36720, 6, 29, 0, 0x0, D_8FB00000 }, // D_8FB00000
     { 0x8FC00000, 0x1260, 4704, 6, 42, 0, 0x0, D_8FC00000 }, // D_8FC00000
 };
-const uint32_t gZLiftSymCount = 1755;
+const uint32_t gZLiftSymCount = 1749;
 
 const ZLiftImage gZLiftImages[] = {
     { "resident", 0x7FFFF400, 0x0 },
