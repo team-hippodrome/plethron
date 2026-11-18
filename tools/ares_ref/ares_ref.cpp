@@ -463,7 +463,8 @@ void place(u32 base) {
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
     if (gWeakCom) cpu.hostHooks.addresses.push_back(rt(kReadCommandButtons));
     if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));
-    if (!gSync.empty()) {
+    if (std::any_of(gSync.begin(), gSync.end(), [](const SyncPoint& sp) { return sp.event == "anim1"; })) {
+        // only for routes that sync on anim1 (tools/move_coverage): the Cup routes never reached round 2 with them on
         cpu.hostHooks.addresses.push_back(rt(kPlayMoveAnim));
         cpu.hostHooks.addresses.push_back(rt(kPlayChargeAnim));
     }
