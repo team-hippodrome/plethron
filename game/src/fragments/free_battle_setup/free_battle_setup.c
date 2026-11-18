@@ -470,6 +470,8 @@ void FreeBattle_DrawTypeName(s32 x, s32 y, BattleMon* mon, s32 type_slot) { // P
         Font_BeginTranslucentTextRendering();
         Font_SetActive(8, 0);
         Gfx_SetEnvColor(c.r, c.g, c.b, c.a);
+        // PORT: a translated type name (Italian Coleottero) stays left of the rental card's stat labels, 102 to the right
+        Port_Font_FitNext(x, x + 96, 0);
         Font_Printf(x, y, D_80066AD8[idx].str);
         Font_EndTexturedTextRendering();
     }

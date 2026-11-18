@@ -116,9 +116,9 @@ struct Md5 {
     }
 };
 
-const char* const kColumns[PORT_LANG_COUNT] = { "", "ja", "en", "es", "de", "pt", "ko" };
+const char* const kColumns[PORT_LANG_COUNT] = { "", "ja", "en", "es", "de", "pt", "ko", "fr", "it" };
 const char* const kNames[PORT_LANG_COUNT] = {
-    "にほんご", "日本語", "English", "Español", "Deutsch", "Português", "한국어",
+    "にほんご", "日本語", "English", "Español", "Deutsch", "Português", "한국어", "Français", "Italiano",
 };
 
 struct Row {
@@ -669,6 +669,10 @@ void Port_Text_SaveLanguage(int lang) {
 
 int Port_Subtitles_Enabled(void) {
     return CVarGetInteger("gPort.Subtitles", 1) != 0;
+}
+
+int Port_PokedexNameOrder_Enabled(void) {
+    return CVarGetInteger("gPort.PokedexNameOrder", 1) != 0;
 }
 
 void Port_Subtitles_SetEnabled(int on) {

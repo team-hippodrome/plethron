@@ -11,6 +11,9 @@
 #include "memory_main.h"
 #include "model_renderer.h"
 #include "pokemon_stats.h"
+#include "pokedex_name_order.h" // PORT: translated name order
+#include "text_lookup.h" // PORT: translated name order label
+#include "unicode_font.h" // PORT: translated name order label
 extern StageContext* sMenuStageContext;
 extern StageContext* sAreaMapStageContext;
 extern ModelLoadContext* sIconFramebuffers;
@@ -161,7 +164,15 @@ void Pokedex_DrawListWindow(PokedexListWindow* list_window, u32 flags) {
         Font_BeginTranslucentTextRendering();
         Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
         Font_SetActive(8, 0);
-        Font_Printf(list_window->window.frame.x + 36, list_window->window.frame.y + 336, list_window->sortByKana ? D_8A12FC48 : D_8A12FC5C);
+        if (list_window->sortByKana && PokedexNameOrder_Active()) {
+            // PORT: the order follows the translated names (game/src/pokedex_name_order.c), so the bar says so
+            const char* label = Port_Text_LookupId("PORT_POKEDEX_NAME_ORDER");
+
+            Port_Font_FitNext(list_window->window.frame.x + 36, list_window->window.frame.x + 212, 0);
+            Port_Font_PrintUtf8(list_window->window.frame.x + 36, list_window->window.frame.y + 336, (label != NULL) ? label : "A to Z");
+        } else {
+            Font_Printf(list_window->window.frame.x + 36, list_window->window.frame.y + 336, list_window->sortByKana ? D_8A12FC48 : D_8A12FC5C);
+        }
         Font_EndTexturedTextRendering();
         gSPDisplayList(gDisplayListHead++, D_80060290);
         Gfx_DrawTextureRgba16(list_window->window.frame.x + 216, list_window->window.frame.y + 336, 20, 20, D_04005890, 0x14, 0x200000);

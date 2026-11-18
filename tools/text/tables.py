@@ -14,7 +14,7 @@ import re
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TDIR = os.path.join(ROOT, "translations")
-LANGS = ["ja", "en", "es", "de", "pt", "ko"]
+LANGS = ["ja", "en", "es", "de", "pt", "ko", "fr", "it"]
 HEADER = ["id", "md5", "addr"] + LANGS + ["note"]
 # localized.csv (the localized form of the name rows, Options > Names) also shows each name's kana
 LOCALIZED_HEADER = ["id", "md5", "addr", "kana"] + LANGS + ["note"]

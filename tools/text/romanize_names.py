@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import romtext  # noqa: E402
 import tables  # noqa: E402
 
-LATIN = ["en", "es", "de", "pt", "ko"]
+LATIN = ["en", "es", "de", "pt", "ko", "fr", "it"]
 
 # Romaji of each kana (hiragana; katakana is folded to hiragana first).
 BASE = {
