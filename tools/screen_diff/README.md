@@ -86,6 +86,14 @@ put checkpoints where the screen has settled or right after the press that start
 | `organize` | せいとん: ポケモンをいどうする (party to 64 box 1, report), どうぐをいどうする (lists, count picker), ボックスをいどうする (GB box 1 to 64 box 2, report) |
 | `register` | とうろく: register the party (the Ditto transform), view it, the delete screen |
 
+## Which sounds a scene asks for
+
+`PORT_SOUNDLOG=<file>` (port, `--port-env`) and `ARES_REF_SOUNDLOG=<file>` (ares) log every call of `Audio_PlayCry`
+and `Audio_PlayCommand` as `S <frame> cry|cmd <a0> <a1>` (ares adds the caller, as a battle-engine link address).
+With an `@rng` route the two lists should hold the same calls in the same order, a few frames apart:
+`diff <(cut -d' ' -f3- port_sound.txt) <(cut -d' ' -f3-5 ares_sound.txt)`. This settled that Zero plays no cry when a
+Pokémon faints (only command 3, the collapse sound, and 6-8, the landing thud by size), on ares as in the port.
+
 ## Timing: why there is a window
 
 The port and ares do not run frame for frame alike: the port skips the N64 boot (~165 frames ahead at the first
