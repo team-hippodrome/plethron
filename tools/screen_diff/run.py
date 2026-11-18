@@ -28,7 +28,9 @@ and header lines:
   @rng <seed>          seed the battle's random numbers alike on both sides (PORT_XCHECK_RNG / ARES_REF_XCHECK_RNG:
                        Battle_Random, the COM's BattleAi_StirRandom and guRandom); without it battles differ, since
                        both games time their random numbers with the CPU counter. The values drawn go to
-                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them)
+                       <out>/port_rng.txt and <out>/ares_rng.txt (run.py compares them). Both sides also log each
+                       battle scene state change to <out>/port_phase.txt / ares_phase.txt, and run.py lists the
+                       states that last a different number of frames (phase_diff.py: where the pacing differs)
 # starts a comment.
 
 The port runs hidden at native resolution (PORT_RESOLUTION=native, 4:3) in the original text (PORT_LANGUAGE=kana: no
@@ -156,6 +158,7 @@ def run_port(r, out, extra_env):
     if r["rng"]:
         env["PORT_XCHECK_RNG"] = r["rng"]
         env["PORT_XCHECK"] = os.path.join(out, "port_rng.txt")
+        env["PORT_PHASELOG"] = os.path.join(out, "port_phase.txt")
     env.update(extra_env)
     binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
     with open(os.path.join(out, "port.log"), "w") as log:
@@ -213,6 +216,7 @@ def run_ares(r, out):
     if r["rng"]:
         env["ARES_REF_XCHECK_RNG"] = r["rng"]
         env["ARES_REF_XCHECK"] = os.path.join(out, "ares_rng.txt")
+        env["ARES_REF_PHASELOG"] = os.path.join(out, "ares_phase.txt")
     link = os.path.join(out, "rom.z64")  # nall rewrites path arguments with spaces
     if os.path.lexists(link):
         os.remove(link)
@@ -268,6 +272,9 @@ def main():
         check_sync(out, len(r["syncs"]))
     if r["rng"]:
         check_rng(out)
+        if os.path.exists(os.path.join(out, "port_phase.txt")) and os.path.exists(os.path.join(out, "ares_phase.txt")):
+            import phase_diff
+            phase_diff.report(os.path.join(out, "port_phase.txt"), os.path.join(out, "ares_phase.txt"))
     print("%s: %d checkpoints, %d frames -> %s" % (os.path.basename(route), len(r["shots"]), r["end"], out))
 
 

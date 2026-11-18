@@ -1,6 +1,7 @@
 /* Stadium Zero fragment012_17ED00. */
 /* C ported from the Stadium 1 decomp: src/fragments/battle_engine/battle_engine_315D50.c. */
 
+#include "anim_raw.h"
 #include "battle.h"
 #include "display_object_textures.h"
 #include "geo_node.h"
@@ -936,7 +937,7 @@ void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1) {
  */
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1) {
     ModelAnim_BindTransformCurve(arg0, 0, sBattleAnimAssetPointers[arg1], -0x10000);
-    ModelAnim_SetFrame(arg0, arg0->transformAnim.data->endFrame - 1);
+    ModelAnim_SetFrame(arg0, ANIM_END(arg0->transformAnim.data) - 1); // PORT: anim_raw.h
 }
 
 /**

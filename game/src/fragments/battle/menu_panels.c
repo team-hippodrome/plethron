@@ -1,4 +1,5 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
+#include "anim_raw.h"
 #include "text_lookup.h" // PORT: translated battle messages
 #include "unicode_font.h"
 #include "battle.h"
@@ -1325,7 +1326,7 @@ void BattleDebug_DrawMoveEffectViewer(s16 arg0, s16 arg1) {
     }
     sprintf(buf, D_82195EA0, D_8219A768);
     BattleHud_DrawSmallDigits(buf, arg0 + 110, arg1 + 66);
-    sprintf(buf, D_82195EA4, sActivePokemon[0]->displayObject.transformAnim.data->endFrame);
+    sprintf(buf, D_82195EA4, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 102);
 }
 
@@ -1381,7 +1382,7 @@ void BattleDebug_DrawMoveCameraViewer(s16 arg0, s16 arg1) {
     }
     sprintf(buf, D_82195F68, D_8219A74C);
     BattleHud_DrawSmallDigits(buf, arg0 + 105, arg1 + 30);
-    sprintf(buf, D_82195F6C, sActivePokemon[0]->displayObject.transformAnim.data->endFrame);
+    sprintf(buf, D_82195F6C, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 78);
 }
 
@@ -1421,7 +1422,7 @@ void BattleDebug_DrawEffectSoundTiming(s16 arg0, s16 arg1) {
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 6);
     sprintf(buf, D_82195FBC, D_8219A754);
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 18);
-    sprintf(buf, D_82195FC0, sActivePokemon[0]->displayObject.transformAnim.data->endFrame);
+    sprintf(buf, D_82195FC0, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 42);
 }
 
