@@ -26,13 +26,18 @@ void Gfx_GetDisplayListRange(Gfx** arg0, Gfx** arg1);
 void* Gfx_AllocDisplayList(s32 size);
 s32 Gfx_GetDisplayListRemaining(void);
 
+// PORT: how much bigger than the N64's the display list buffers are. A host Gfx command is 16 bytes (N64: 8), and a
+// translated glyph (font.c Port_Font_DrawCodepointScaled) loads its own texture: about 10 commands where the original
+// font draws 3. With only twice the size, a List table page in English plus its sort menu ran past the buffer and
+// overwrote the stage context the pool keeps after it (crash in GfxImage_SetRenderTarget). The pool is 96 MB.
+#define PORT_DL_BUFFER_SCALE 8
+
 /** Allocates the two display list buffers. */
 void Gfx_InitDisplayListBuffers(u32 buffer_size, s32 pool_side) {
     D_800AA158.current = 0;
     D_800AA158.bufferSize = buffer_size;
-    // PORT: twice the requested size, because a host Gfx command is 16 bytes (N64: 8); as in stadion
-    D_800AA158.buffers[0] = MainPool_AllocWithFunc(buffer_size * 2, pool_side, 'DYN0', NULL);
-    D_800AA158.buffers[1] = MainPool_AllocWithFunc(buffer_size * 2, pool_side, 'DYN1', NULL);
+    D_800AA158.buffers[0] = MainPool_AllocWithFunc(buffer_size * PORT_DL_BUFFER_SCALE, pool_side, 'DYN0', NULL);
+    D_800AA158.buffers[1] = MainPool_AllocWithFunc(buffer_size * PORT_DL_BUFFER_SCALE, pool_side, 'DYN1', NULL);
     Gfx_SwapDisplayListBuffer();
 }
 
@@ -49,7 +54,7 @@ void Gfx_SwapDisplayListBuffer(void) {
     D_800AA158.current ^= 1;
     buf = D_800AA158.buffers[D_800AA158.current];
 
-    D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize * 2; // PORT: see Gfx_InitDisplayListBuffers
+    D_800AA158.allocEnd = (uintptr_t)buf + D_800AA158.bufferSize * PORT_DL_BUFFER_SCALE; // PORT: see Gfx_InitDisplayListBuffers
     gDisplayListHead = (Gfx*)buf;
     Port_InterpBeginFrame(gDisplayListHead); // PORT: frame interpolation records this frame's matrices
 }
