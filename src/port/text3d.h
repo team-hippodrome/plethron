@@ -26,7 +26,11 @@ int Port_Text3D_Enabled(void);
 // Builds the translation of row `id` over `slots` (in reading order of the original word) and registers the
 // replacement display lists. `maxGrow` is how much wider than the original word the translation may be before it is
 // squeezed. Does nothing when the language is the original or the row has no text in it.
-void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, float maxGrow);
+// `followers` (may be NULL) are original parts drawn after the word that stay as they are (the round title's dash
+// and number): the word then takes their height, and they move right by as much as the word grew; `maxGrow` then
+// limits the whole line.
+void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, float maxGrow,
+                       const Port3DTextSlot* followers, int followerCount);
 
 // Port_GfxPrepareDL: the replacement list for the glyph display list at link address `dl`, or NULL.
 void* Port_Text3D_Replacement(uintptr_t dl);
