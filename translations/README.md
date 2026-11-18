@@ -2,12 +2,13 @@
 
 The PC port shows the original Japanese by default (にほんご, kana). On the language
 select screen, pressing C-Left unlocks the AI translations below. Text is looked up
-at runtime by key; nothing here contains the original game text.
+at runtime by key. Nothing here contains the original game text, except the kana of the short names in `localized.csv` (see below).
 
 | File | What it is |
 | --- | --- |
 | `ai.csv` | Machine-assisted translations. Every language column is filled here first. |
 | `human.csv` | Human translations and fixes. It has a row for every string with empty language cells; any cell you fill wins over `ai.csv`. |
+| `localized.csv` | The localized form of the name rows (see [Names](#names-localized-or-transliterated)). Edit it directly, by hand or by AI. |
 | `rom-text/` | **Gitignored.** Your own ROM's text, written by `tools/text/show_kana.py`. Never commit it. |
 
 ## Format
@@ -28,8 +29,8 @@ id,md5,addr,ja,en,es,de,pt,ko,note
   up by md5.
 - `addr` lists the N64 link addresses the string sits at, as 8 uppercase hex
   digits separated by spaces (`80079EE4 80079EF8`). The port binds ids by
-  address. It is empty for the 45 strings that only exist inside a compressed
-  archive (the COM party nicknames); those are found by md5.
+  address. It is empty for the strings that only exist inside a compressed
+  archive (Free Battle rentals and preset teams); those are found by md5.
 - A few strings have identical bytes but different meanings, such as ゴースト,
   which is both Haunter's name and the Ghost type. Each meaning gets its own row
   and id (`HAUNTER_NAME`, `GHOST_TYPE_NAME`) with the same md5 and its own
@@ -45,6 +46,25 @@ id,md5,addr,ja,en,es,de,pt,ko,note
 - A new language is a new column added before `note`. It's nice to keep `ai.csv`
   under 512 KB so GitHub renders it as a table, but not at the cost of content.
 
+### Names: localized or transliterated
+
+COM Pokémon nicknames (`<TRAINER>_<SPECIES>`), COM trainer names (`COM_*`) and the Nintendo Cup '97 finalists'
+names (`FINALIST_*` people and handles) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
+`PORT_NAME_STYLE=localized|transliterated`):
+
+- **Localized** (the default): the meaning translated, おれさま → THE MAN, テンサイ → Genius, どろキング →
+  Thiefking. These cells are in `localized.csv`, which wins over `human.csv` and `ai.csv` while names are localized.
+- **Transliterated**: the kana romanized, おれさま → Oresama, どろキング → Dorokingu. These are the rows' cells in
+  `ai.csv` (en, es, de, pt and ko alike), written by `tools/text/romanize_names.py <rom>` from your ROM's kana:
+  Hepburn without macrons, long vowels doubled (Yuusuke, Ruuruu), honorifics after a hyphen (Jura-sama). Fix one
+  in `human.csv`.
+
+`localized.csv` has a `kana` column after `addr` (`id,md5,addr,kana,ja,…,note`): the names are short, so their
+kana sit next to the translation to help discuss it. The script refreshes it. Every row's id, md5 and addr match
+its `ai.csv` row. The rows in `localized.csv` are the set of names the option switches; species names stored as
+nicknames (ダグトりオ, カイりュー …), trainer classes and regions are not in it and stay the same either way.
+Japanese with kanji keeps the kana names, so the option does nothing there.
+
 ### Where each id appears
 
 Notes that would repeat on every row of a group live here instead.
@@ -58,7 +78,8 @@ Notes that would repeat on every row of a group live here instead.
 | `BATTLE_MENU_*` | Battle menu |
 | `BATTLE_MODE_*` | Battle Mode menus and tournament rules |
 | `BATTLE_MSG_*` | Battle message; %s is a Pokémon or move name |
-| `COM_*` | COM trainer or nickname (puns are fine to keep loose) |
+| `COM_*` | COM trainer name (the OT of a COM team's Pokémon), trainer class word, or a species name stored as a nickname |
+| `<TRAINER>_<SPECIES>` | A COM Pokémon's nickname, named after its owner and species (puns are fine to keep loose): `MIKA_DUGTRIO` is Nintendo Cup '97 finalist Fujita Mika's Dugtrio (finalists by given name, Lv. 50–55 Tournament); `BUG_CATCHER_BEEDRILL` the Lv. 1–30 Tournament Bug Catcher's (one row for all four cups); `FREE_BATTLE_LASS_TAUROS` a Free Battle preset team's (Yay0 data, no addr). A nickname two finalists share (ぎゅうた, まさこ) has a row per owner, same md5, own addr |
 | `CONTINUE_*` | Tournament continue prompt |
 | `CONTROLLER_ERROR_*` | Controller / 64DD error screen |
 | `DEBUG_*` | Battle debug menu (unused in normal play) |
@@ -70,7 +91,7 @@ Notes that would repeat on every row of a group live here instead.
 | `MAIN_MENU_*` | GB Player / main menu |
 | `MODE_*` | Stadium mode or rule label |
 | `MODEL_TEXT_*` | Words the game draws as 3D models, not text: the round titles on the VS screen (バトル, セミファイナル, ファイナルバトル; the round number and dash stay the original models, moved right when the word is longer), チャンピオン! over the badge cap after a cup's final, and かち / まけ on the results panels. The port builds the meshes from `assets/font/text3d_subset.otf` (`src/port/text3d.cpp`); run `tools/font/make_text3d_subset.py` after adding characters. Not ROM text: `md5` is the md5 of the kana in EUC-JP, `addr` is empty, and the kana are in the note. Round titles and チャンピオン! stay katakana loanwords: Latin capitals (BATTLE, CHAMPION!), hangul for Korean (배틀, 챔피언!). An empty `ja` keeps the original models |
-| `NICKNAME_*` | COM party nickname (Yay0 data) |
+| `NICKNAME_*` | Free Battle rental data (Yay0): the rentals' OT ポケスタ and species names written with り |
 | `PIKACHU_SURF_*` | Pikachu Surf reward after a tournament |
 | `PLACE_*` | Pokédex habitat map label |
 | `REGISTER_*` | Pokémon registration |
