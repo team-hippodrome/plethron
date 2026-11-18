@@ -16,6 +16,7 @@ s32 PokeIcon_CaptureGeoNode(s32, GraphNode*);
 
 #include "m2c_macros.h"
 #include "port_endian.h" // PORT
+#include "StadionPort.h" // PORT: Port_GfxForgetRenderTargets
 
 s32 PokeIcon_CaptureGeoNode(s32 arg0, GraphNode* arg1);
 
@@ -183,6 +184,10 @@ void PokeIcon_AdjustImageColors(u8* arg0, arg1_func_80010CA8 arg1) {
         pixels++;
     }
     // clang-format on
+    // PORT: the CPU has recoloured the picture the GPU drew (the nickname colour variants of the order screen's
+    // icons), so the RDRAM pixels are the picture now. Its corners (the background, alpha 0) are left as they were,
+    // which kept the render target's stamp valid, and the screen sampled the GPU's unrecoloured picture instead.
+    Port_GfxForgetRenderTargets(M2C_FIELD(arg0, u16**, 8), count * 2);
 }
 
 extern SpeciesInfo D_80064C5C[];
