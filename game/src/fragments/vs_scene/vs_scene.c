@@ -31,6 +31,8 @@
 #include "geo_layout.h"
 #include "geo_render.h"
 #include "gfx_buffer.h"
+#include "anim_raw.h" // PORT: ANIM_FLAGS, ANIM_END (VsScene_PortHideParkedCap)
+#include "StadionPort.h" // PORT: Port_WideMarginN64
 #include "graphics_textures.h"
 #include "input.h"
 #include "main_pool.h"
@@ -270,8 +272,37 @@ s32 VsScene_DrawFrameToImage(s32 unused) {
  * Draws one frame of the scene over the background stage.
  * Seen in play: draws the VS scene's frames while the 「バトル」 title and VS panels play.
  */
+// PORT: after つづける the cap and its sparkles slide off to the left and stay parked at the end of their curves, just
+// past the 4:3 picture's left edge, until the scene ends: in widescreen that spot is on screen, so a piece of the cap
+// sat at the side through the next round's title and VS panels. Set once つづける is chosen (Tournament_PlayBadgeAward);
+// while it is set, a widescreen picture moves each of the two models far to the left once its curve has reached its
+// end. They are moved, not hidden, so their geo callbacks still run every frame as on the N64 (the cap's
+// FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Nothing changes at 4:3.
+#define PORT_PARKED_CAP_SHIFT_X -4000.0f
+static s32 sPortCapParkedOffscreen = 0;
+static s32 sPortCapShifted[2] = { 0, 0 };
+
+static void VsScene_PortHideParkedCap(void) {
+    DisplayObject* objs[2] = { &D_822033D0, &D_82203538 };
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        TransformAnimState* anim = &objs[i]->transformAnim;
+        s32 parked = sPortCapParkedOffscreen && Port_WideMarginN64() != 0 && anim->data != NULL &&
+                     (ANIM_FLAGS(anim->data) & 2) &&
+                     (anim->frameFixed >> 16) >= (s32)ANIM_END(anim->data) - 1; // clamped: holds at end - 1
+
+        if (parked != sPortCapShifted[i]) {
+            objs[i]->position.x += parked ? PORT_PARKED_CAP_SHIFT_X : -PORT_PARKED_CAP_SHIFT_X;
+            sPortCapShifted[i] = parked;
+        }
+    }
+}
+
 s32 VsScene_DrawFrame(s32 unused) {
     s32 sp24 = VsScene_BeginFrame();
+
+    VsScene_PortHideParkedCap(); // PORT: widescreen
 
     GeoRender_AdvanceFrameCounter();
     PokeIcon_ProcessNextSlot((PokeIconRenderer*)D_82203264, 0);
@@ -1023,6 +1054,8 @@ s32 Tournament_RunContinuePrompt(void);
 s32 Tournament_PlayBadgeAward(void) {
     s32 sp24 = 0;
 
+    sPortCapParkedOffscreen = 0; // PORT: see VsScene_PortHideParkedCap
+    VsScene_PortHideParkedCap();
     if (D_822036A4->battleSides[0].unk_1C == 1) {
         Model_InitDisplayObject(&D_822033D0, 1, 0, D_82203254);
         Model_InitDisplayObject(&D_82203538, 1, 0, D_82203258);
@@ -1046,6 +1079,7 @@ s32 Tournament_PlayBadgeAward(void) {
             Audio_PlayCommand(0x51, 0, 0);
             BgStage_RunUntilCondition(0xF, VsScene_DrawFrame);
             sp24 = Tournament_RunContinuePrompt();
+            sPortCapParkedOffscreen = (sp24 == 0); // PORT: つづける: the cap slides off (VsScene_PortHideParkedCap)
         }
     }
     return sp24;
