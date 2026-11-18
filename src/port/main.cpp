@@ -410,6 +410,18 @@ static int RunGame(int argc, char** argv) {
 #endif
     }
     InstallSignalHandlers();
+    // libultraship skips a texture rectangle that copies the shown frame buffer onto itself at the same pixels (fork
+    // 89d2976, for Stadium 1's Gallery, where that RDRAM holds stale data and the copy is a no-op on the N64). Zero's
+    // Pikachu cartridge copy screen draws this way from a frame buffer the CPU has just written in place, so the skip
+    // left that screen black (screen-diff route gb_pikachu; no other route reaches the path). Draw them, as libultraship
+    // does with PORT_DRAW_FB_SELF_COPIES set.
+    if (getenv("PORT_DRAW_FB_SELF_COPIES") == nullptr) {
+#ifdef _WIN32
+        _putenv_s("PORT_DRAW_FB_SELF_COPIES", "1");
+#else
+        setenv("PORT_DRAW_FB_SELF_COPIES", "1", 1);
+#endif
+    }
     Port::UseShipHomeDefaults();
     // With a ROM argument the game starts right away (scripts, replays); without one, the launcher (launcher.cpp)
     // asks for the ROM, the save and the Transfer Pak cartridges in the game window first.

@@ -65,6 +65,8 @@ put checkpoints where the screen has settled or right after the press that start
 | `tournament` | Battle → tournament menus |
 | `tournament_l30` | L1～30 tournament, Poké Ball Cup round 1: cup select, rentals (5 + the cart's Pikachu), VS scene (round title, trainer panels, teams), order screen, battle intro, surrender, results board, かち / まけ, back to the menu (`@rng`) |
 | `tournament_l50` | the same for the L50～55 tournament (no cup select, all six from rentals) |
+| `tournament_l30_cup` | the Poké Ball Cup through all eight rounds to チャンピオン! and the winning team's parade, one turn a round with `@weak_com`: results board, かち, round token, つづける, next round's title, VS panels and order screen (`@rng`, `sync:cmd`) |
+| `tournament_l50_cup` | the same for the L50～55 tournament (Venusaur leads), ending at the parade and トーナメント クリア!! |
 | `pokedex` | ずかん list and an entry |
 | `gb_player` | GB Player booting the Green cartridge |
 | `gb_red`, `gb_green`, `gb_blue`, `gb_pikachu` | each Japanese cart in the GB Player: boot, border, intro, title, new game, Prof. Oak's intro (A every 120 frames); Pikachu first shows the cartridge copy screen |
@@ -73,6 +75,7 @@ put checkpoints where the screen has settled or right after the press that start
 | `gb_frames_speed` | frames and speed unlocked (`zero_sram_options.py --gb-frames 2`): Z cycles Dodrio, green, Doduo, Dodrio; C-Right x2, x4, x1; a new game at x4 |
 | `gb_cart_check` | Green with an empty save: ????? on the cartridge select, GBのポケモンがいない main menu, GB Player |
 | `party`, `list`, `organize`, `register` | てもち, いちらん, せいとん, とうろく |
+| `rules_free_battle`, `rules_l30`, `rules_l50` | ルールを見る of Free Battle and both tournaments: the rules list, every rule page and the usable Pokémon grid (port checked; checkpoints not yet tuned against ares) |
 | `battle` | Free Battle vs COM to a two-turn battle (Pikachu vs Pikachu), random numbers seeded (`@rng`) |
 | `main_menu` | the main menu with a party cartridge: the cursor on every item, the バトル prompt, OFF > はい back to the cartridge check screen and in again |
 | `no_cart` | no Transfer Pak: the cartridge check screen, the main menu with the Game Boy items greyed out, the バトル and OFF prompts |

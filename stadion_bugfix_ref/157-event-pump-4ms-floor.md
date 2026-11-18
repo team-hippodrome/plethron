@@ -1,7 +1,7 @@
 # Event pump's 4 ms floor still cost twice the game's drawing; replaced by 33 ms floor + mid-frame pump
 
 - **Category:** performance
-- **Zero status:** needed (depends on `152b-...`, also missing)
+- **Zero status:** already ported (plethron PR #54: stadion 704db9d as is; real-time keyboard input still reaches the game)
 - **stadion:** [PR #157](https://github.com/team-hippodrome/stadion/pull/157), commit(s) `704db9d`
 - **stadion files:** `src/port/Engine.cpp`
 

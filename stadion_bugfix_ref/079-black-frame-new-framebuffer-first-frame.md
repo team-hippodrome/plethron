@@ -1,7 +1,7 @@
 # One black frame after the title: a new frame buffer's first frame was rendered as an off-screen picture
 
 - **Category:** rendering
-- **Zero status:** needed (the port half is inherited, but Zero's `DisplayTask_Submit` never calls `Port_NoteFrameBuffer`)
+- **Zero status:** already ported (plethron b1ea1c8: `DisplayTask_Submit` calls `Port_NoteFrameBuffer`)
 - **stadion:** [PR #79](https://github.com/team-hippodrome/stadion/pull/79), commit(s) `62a7433` (squashed into `2db362c` locally)
 - **stadion files:** `patches/game/02-core.patch` (src/dp_intro.c `DisplayTask_Submit`), `src/port/os_devices.cpp`, `PORTING_NOTES.md`
 
@@ -38,6 +38,9 @@ void DisplayTask_Submit(UnkStruct80001380* arg0, struct UnkArray4* arg1, s32 arg
   `if (arg1->framebuffer != NULL) Port_NoteFrameBuffer(arg1->framebuffer->img_p);` before submitting.
 - Any Zero scene that switches to newly allocated frame buffers (hi-res/lo-res changes) can show one black or stale
   frame on its first appearance.
+
+## Fixed in plethron (b1ea1c8)
+`game/src/dp_intro.c` `DisplayTask_Submit` calls `Port_NoteFrameBuffer(arg1->framebuffer->img_p)` before submitting. `PORT_TRACE_VI=1` on the free_battle route: before, `swap ... stamp 0` (CPU-presented, empty) frames at 55, 1249 and 1251 (the title's START at 1200); after, only frame 1 (the boot clear).
 
 ## How to detect
 `PORT_TRACE_VI=1` lists CPU-presented frames: a `swap ... stamp 0 ... CPU present nonzero 0` line at a scene change

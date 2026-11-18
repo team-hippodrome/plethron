@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "text_lookup.h" // PORT: translated battle messages
 #include "unicode_font.h"
+#include "type_symbols.h" // PORT: move type symbols
 #include "battle.h"
 #include "port_endian.h" // PORT: Port_ReadBE32
 // PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
@@ -235,29 +236,29 @@ void BattleMenu_DrawMovePanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3)
 
     if (runtime->uniqueStatusFlags & 8) {
         if (runtime->moves[0] && (runtime->moves[0] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[0] - 25, arg2 + 14, 32, 9, D_8218AF70[gMoveData[runtime->moves[0] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[0] - 25, arg2 + 14, gMoveData[runtime->moves[0] - 1].type, D_8218AF70[gMoveData[runtime->moves[0] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[1], arg2 + 27, 32, 9, D_8218AF70[gMoveData[runtime->moves[1] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[1], arg2 + 27, gMoveData[runtime->moves[1] - 1].type, D_8218AF70[gMoveData[runtime->moves[1] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[2], arg2 + 47, 32, 9, D_8218AF70[gMoveData[runtime->moves[2] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[2], arg2 + 47, gMoveData[runtime->moves[2] - 1].type, D_8218AF70[gMoveData[runtime->moves[2] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[3] - 24, arg2 + 34, 32, 9, D_8218AF70[gMoveData[runtime->moves[3] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[3] - 24, arg2 + 34, gMoveData[runtime->moves[3] - 1].type, D_8218AF70[gMoveData[runtime->moves[3] - 1].type]); // PORT: symbols in the translated languages
         }
     } else {
         if (runtime->moves[0] && (runtime->moves[0] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[0] - 25, arg2 + 14, 32, 9, D_8218AF70[gMoveData[runtime->moves[0] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[0] - 25, arg2 + 14, gMoveData[runtime->moves[0] - 1].type, D_8218AF70[gMoveData[runtime->moves[0] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[1], arg2 + 27, 32, 9, D_8218AF70[gMoveData[runtime->moves[1] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[1], arg2 + 27, gMoveData[runtime->moves[1] - 1].type, D_8218AF70[gMoveData[runtime->moves[1] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[2], arg2 + 47, 32, 9, D_8218AF70[gMoveData[runtime->moves[2] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[2], arg2 + 47, gMoveData[runtime->moves[2] - 1].type, D_8218AF70[gMoveData[runtime->moves[2] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[3] - 24, arg2 + 34, 32, 9, D_8218AF70[gMoveData[runtime->moves[3] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[3] - 24, arg2 + 34, gMoveData[runtime->moves[3] - 1].type, D_8218AF70[gMoveData[runtime->moves[3] - 1].type]); // PORT: symbols in the translated languages
         }
     }
 
@@ -266,41 +267,44 @@ void BattleMenu_DrawMovePanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3)
     Font_BeginTranslucentTextRendering();
     Font_SetActive(1, 0);
 
+    // PORT: the C-Up/C-Left names are right-aligned by byte count (BattleHud_DrawTextCentered), which places
+    // translated text by the Japanese width; each Port_Font_FitNext below anchors a name to its C icon by its drawn
+    // width and fits it inside the panel's border (8..192). No-op for the original text.
     if (runtime->uniqueStatusFlags & 8) {
-        if (runtime->moves[0] && (runtime->moves[0] < 166)) { BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
+        if (runtime->moves[0] && (runtime->moves[0] < 166)) { Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
+            Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
+            Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
+            Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
         }
     } else {
-        if (runtime->moves[0] && (runtime->moves[0] < 166)) { BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
+        if (runtime->moves[0] && (runtime->moves[0] < 166)) { Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_8006A9D4[runtime->moves[0] - 1].name); }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
+            Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_8006A9D4[runtime->moves[1] - 1].name);
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
+            Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_8006A9D4[runtime->moves[2] - 1].name);
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
+            Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_8006A9D4[runtime->moves[3] - 1].name);
         }
     }
 
     if (runtime->moves[0] >= 166) {
-        BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_82195A14);
+        Port_Font_FitNext(arg1 + 8, arg1 + 90, 2); BattleHud_DrawTextCentered(arg1 + 90, arg2 + 4, D_82195A14);
     }
     if (runtime->moves[1] >= 166) {
-        Font_Printf(arg1 + 124, arg2 + 17, D_82195A20);
+        Port_Font_FitNext(arg1 + 124, arg1 + 192, 0); Font_Printf(arg1 + 124, arg2 + 17, D_82195A20);
     }
     if (runtime->moves[2] >= 166) {
-        Font_Printf(arg1 + 110, arg2 + 37, D_82195A2C);
+        Port_Font_FitNext(arg1 + 110, arg1 + 192, 0); Font_Printf(arg1 + 110, arg2 + 37, D_82195A2C);
     }
     if (runtime->moves[3] >= 166) {
-        BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_82195A38);
+        Port_Font_FitNext(arg1 + 8, arg1 + 76, 2); BattleHud_DrawTextCentered(arg1 + 76, arg2 + 24, D_82195A38);
     }
 
     Font_EndTexturedTextRendering();
@@ -1326,7 +1330,7 @@ void BattleDebug_DrawMoveEffectViewer(s16 arg0, s16 arg1) {
     }
     sprintf(buf, D_82195EA0, D_8219A768);
     BattleHud_DrawSmallDigits(buf, arg0 + 110, arg1 + 66);
-    sprintf(buf, D_82195EA4, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data));
+    sprintf(buf, D_82195EA4, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 102);
 }
 
@@ -1382,7 +1386,7 @@ void BattleDebug_DrawMoveCameraViewer(s16 arg0, s16 arg1) {
     }
     sprintf(buf, D_82195F68, D_8219A74C);
     BattleHud_DrawSmallDigits(buf, arg0 + 105, arg1 + 30);
-    sprintf(buf, D_82195F6C, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data));
+    sprintf(buf, D_82195F6C, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 78);
 }
 
@@ -1422,7 +1426,7 @@ void BattleDebug_DrawEffectSoundTiming(s16 arg0, s16 arg1) {
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 6);
     sprintf(buf, D_82195FBC, D_8219A754);
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 18);
-    sprintf(buf, D_82195FC0, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data));
+    sprintf(buf, D_82195FC0, ANIM_END(sActivePokemon[0]->displayObject.transformAnim.data)); // PORT: anim_raw.h
     BattleHud_DrawSmallDigits(buf, arg0 + 100, arg1 + 42);
 }
 

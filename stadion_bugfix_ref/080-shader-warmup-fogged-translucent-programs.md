@@ -1,7 +1,7 @@
 # First Poke Ball throw stutter: fogged translucent shader programs were missing from the warm-up list
 
 - **Category:** performance
-- **Zero status:** check (the list is inherited byte-identical, but it holds Stadium 1's programs; Zero's own scenes need their own recorded list)
+- **Zero status:** already ported (plethron 8298280: the 14 programs Zero's 13 screen-diff routes built at first draw were appended to src/port/shader_warmup.txt)
 - **stadion:** [PR #80](https://github.com/team-hippodrome/stadion/pull/80), commit(s) `db9371b` (squashed into `2db362c` locally)
 - **stadion files:** `src/port/shader_warmup.txt`, `PORTING_NOTES.md`
 

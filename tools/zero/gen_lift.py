@@ -407,11 +407,16 @@ def main():
                 # The table keeps its declared size; pointers into the tail are lifted lazily as their pointee type.
                 count = declared
                 report['sized pointer table kept to its declared size'] += 1
-            if count > declared and en > 1 and not nb:
+            if count > declared and en > 1 and not nb and elem['k'] == 's':
                 # the gap rule grows a word/halfword symbol over the data after it; where that is text (a string the
                 # translations know, e.g. the CONTINUE prompts after main_menu's counter D_880022C4), stop before it:
-                # the tail is then lifted lazily as bytes instead of as words in host order
-                tx = [x for x in texts if a + declared * en <= x < a + count * en]
+                # the tail is then lifted lazily as bytes instead of as words in host order.
+                # Scalars only: record arrays hold their text inside the records (char[] fields, already bytes), and
+                # clipping one cut sTournamentOpponents (unsized, 47 records with inline nicknames) to zero records:
+                # every tournament round crashed at the VS screen (TournamentOpponent_LoadTemplate), and
+                # sEncounterLocations lost its 59 Pokédex habitat records. Text at the symbol's own start is the
+                # symbol itself (sNoControllerMessage, a halfword string), so the clip starts after the first element.
+                tx = [x for x in texts if a + max(declared, 1) * en <= x < a + count * en]
                 if tx:
                     count = max(declared, (min(tx) - a) // en)
                     report['extent clipped before text'] += 1

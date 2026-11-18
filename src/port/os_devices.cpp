@@ -1,4 +1,5 @@
 #include "launcher_reliability.h"
+extern "C" void Port_DumpMovesets(const char* path); // (src/port/move_coverage.c)
 #include "launcher_files.h"
 #include "zero_sram.h"
 #include <unordered_set>
@@ -79,6 +80,11 @@ bool Port::LoadRom(const char* path) {
         return false;
     }
     ZLift_LoadImage(0); // Stadium Zero's resident data, from this ROM (zero_lift.c)
+    ZLift_AuditAll();   // only with PORT_LIFT_AUDIT
+    if (const char* dump = getenv("PORT_DUMP_MOVESETS")) { // tools/move_coverage (src/port/move_coverage.c)
+        Port_DumpMovesets(dump);
+        exit(0);
+    }
     return true;
 }
 
@@ -691,11 +697,24 @@ static size_t Port_PictureLoopSize() {
 }
 
 extern "C" int port_ThreadsIdle(void);
+extern "C" void port_NotifyMaybeIdle(void);
 extern "C" void port_DumpThreads(void);
 
 extern "C" bool Port_Lockstep() {
     static bool on = getenv("PORT_REALTIME") == nullptr;
     return on;
+}
+
+// Steady-clock time of the last VI retrace (both clocks), for Port_NextRetraceNs.
+static std::atomic<int64_t> gLastRetraceNs{ 0 };
+
+// When the next VI retrace is expected (steady clock, ns), or 0 when retraces do not follow real time (PORT_SPEED=max,
+// none yet). The window thread polls input just before it (Engine.cpp, PumpFrame).
+extern "C" int64_t Port_NextRetraceNs() {
+    const double periodNs = 16666667.0 / Port_Speed();
+    const int64_t last = gLastRetraceNs.load(std::memory_order_relaxed);
+    if (last == 0 || periodNs < 1000000.0) return 0;
+    return last + (int64_t)periodNs;
 }
 
 extern "C" uint64_t Port_ViTick() {
@@ -795,6 +814,18 @@ extern "C" int Port_PacedLogoHold(void) {
     return on;
 }
 
+// Zero's N64 logo hold (n64_logo.c N64Logo_Main): the game busy-waits one second on osGetTime with the logo up. In
+// lockstep, time only moves at a retrace, which never comes while the game thread spins, so each osGetTime read
+// stepping the clock ended the second after ~0.1 s of host time and a single retrace: the logo was up for 0.2 s
+// instead of the N64's second. With this on, the hold draws the logo every retrace until the same second has passed.
+// stadion's "# paced logo hold" tag is in every recording Zero made before this switch existed (it was never called
+// from Zero's code), so the hold has its own tag; recordings without it keep the short hold. "# zero logo hold",
+// PORT_ZERO_LOGO_HOLD=0/1.
+extern "C" int Port_ZeroLogoHold(void) {
+    static const int on = Switch("PORT_ZERO_LOGO_HOLD", "# zero logo hold", "the N64 logo's one-second hold");
+    return on;
+}
+
 // The controllers plugged into the N64, as the game's controller bits (bit 0 = controller 1). libultraship's
 // ControlDeck::Init reports only controller 1, which greys out every multiplayer choice (Free Battle with 2-4
 // players, team battles, minigames for several players). Controller 1 is always plugged in; controllers 2-4 when the
@@ -833,6 +864,10 @@ extern "C" int Port_ControllerBits(void) {
     return bits;
 }
 
+static void Port_PlannerSyncEvent(const char* name); // (the battle planner, below)
+static bool Port_PlannerActive();
+static void Port_PlannerRetrace(uint64_t routeTick);
+
 // ---- Controller input: live, recorded, replayed -----------------------------------------------------
 // The window thread publishes the live pad state (PublishPads). In lockstep mode the clock latches one state per
 // frame (what the game reads during that frame), records it to PORT_RECORD (default last_input.rec) and, with
@@ -848,6 +883,7 @@ struct PadFrame {
     OSContPad pads[MAXCONTROLLERS];
 };
 std::vector<PadFrame> gReplay;
+std::mutex gReplayLock; // (the battle planner adds presses from the game thread)
 size_t gReplayIdx = 0;
 uint64_t gReplayEnd = 0;
 OSContPad gReplayCur[MAXCONTROLLERS];
@@ -883,6 +919,7 @@ void InputInit() {
             }
             fclose(f);
             if (!gReplay.empty()) gReplayEnd = std::max(gReplayEnd, gReplay.back().tick);
+            if (Port_PlannerActive()) gReplayEnd = UINT64_MAX / 2; // (presses are added as the battle goes)
             fprintf(stderr, "[input] replaying %zu input changes from %s (until frame %llu)\n", gReplay.size(), rp,
                     (unsigned long long)gReplayEnd);
         } else {
@@ -907,6 +944,9 @@ void InputInit() {
         if (Port_PacedLogoHold()) {
             fprintf(gRecord, "# paced logo hold\n");
         }
+        if (Port_ZeroLogoHold()) {
+            fprintf(gRecord, "# zero logo hold\n"); // (see Port_ZeroLogoHold)
+        }
         if (Port_TpakTiming()) {
             fprintf(gRecord, "# tpak timing\n"); // (see Port_TpakTiming)
         }
@@ -927,6 +967,20 @@ void InputInit() {
 // waiting for this event (one seen before the route clock gets there counts too: then it does not wait)
 extern "C" void Port_SyncEvent(const char* name) {
     if (gSyncNext < gSync.size() && gSync[gSyncNext].event == name) gSyncSeen = true;
+    Port_PlannerSyncEvent(name);
+}
+
+// PORT_PHASELOG=<file>: one line each time the battle scene's state changes (BattleScene_UpdatePhase): "P <retrace>
+// <mode> <phase> <step> <substep> <acting side> <move effect kind>". tools/ares_ref writes the same (ARES_REF_PHASELOG);
+// tools/screen_diff/phase_diff.py lists the states that last a different number of frames on the two sides.
+extern "C" void Port_PhaseLog(int mode, int phase, int step, int substep, int side, int kind) {
+    static FILE* f = getenv("PORT_PHASELOG") ? fopen(getenv("PORT_PHASELOG"), "w") : nullptr;
+    static int last[6] = { -9 };
+    int v[6] = { mode, phase, step, substep, side, kind };
+    if (f == nullptr || memcmp(v, last, sizeof v) == 0) return;
+    memcpy(last, v, sizeof v);
+    fprintf(f, "P %llu %d %d %d %d %d %d\n", (unsigned long long)gTick.load(), mode, phase, step, substep, side, kind);
+    fflush(f);
 }
 
 // the route frame (PORT_SYNC): retraces less the ones spent waiting at sync points
@@ -958,6 +1012,7 @@ void LatchPads(uint64_t tick) {
         if (ms > 8000 && (ms % period) < 150) p[0].button |= autoA ? (CONT_A | CONT_START) : CONT_START;
     }
     if (tick <= gReplayEnd && (!gReplay.empty() || gReplayEnd != 0)) {
+        std::lock_guard<std::mutex> rg(gReplayLock);
         while (gReplayIdx < gReplay.size() && gReplay[gReplayIdx].tick <= tick) {
             memcpy(gReplayCur, gReplay[gReplayIdx].pads, sizeof gReplayCur);
             gReplayIdx++;
@@ -1024,6 +1079,21 @@ OSTask* gLoaded = nullptr;
 std::deque<OSTask*> gCpuTasks;
 std::condition_variable gCpuTaskCv;
 #endif
+
+// The lockstep clock sleeps until the game may have gone idle (LockstepClock): woken when the last runnable game
+// thread blocks (os_thread.cpp, Reschedule) and when a task completes. It used to poll every 20 us, which cost a
+// wake-up and two context switches per poll (~28000 per second, more kernel time than the game itself used).
+std::mutex gIdleLock;
+std::condition_variable gIdleCv;
+uint64_t gIdleEpoch = 0; // (gIdleLock) bumped by every notification
+
+void NotifyMaybeIdle() {
+    {
+        std::lock_guard<std::mutex> g(gIdleLock);
+        gIdleEpoch++;
+    }
+    gIdleCv.notify_all();
+}
 
 bool TasksDrained() {
     std::lock_guard<std::mutex> g(gTaskLock);
@@ -1149,9 +1219,18 @@ void LockstepClock() {
         bool reported = false;
         // drained, idle, drained: the two are read under different locks; a completion posted after the first check
         // leaves a runnable thread, and a task submitted after the idle check shows in the second one
-        while (!(TasksDrained() && port_ThreadsIdle() && TasksDrained())) {
+        for (;;) {
+            uint64_t epoch;
+            {
+                std::lock_guard<std::mutex> g(gIdleLock);
+                epoch = gIdleEpoch; // read before the checks: a change after them ends the wait below at once
+            }
+            if (TasksDrained() && port_ThreadsIdle() && TasksDrained()) break;
             if (gStop) return;
-            std::this_thread::sleep_for(std::chrono::microseconds(20));
+            {   // (the timeout is only a safety net: every way into the idle state notifies)
+                std::unique_lock<std::mutex> g(gIdleLock);
+                gIdleCv.wait_for(g, std::chrono::milliseconds(1), [&] { return gIdleEpoch != epoch || gStop; });
+            }
             // (after 150 ms with PORT_TRACE_PACING=1, to see what a hitch waits for)
             static const auto reportAfter = getenv("PORT_TRACE_PACING") ? std::chrono::milliseconds(150)
                                                                          : std::chrono::milliseconds(3000);
@@ -1212,7 +1291,9 @@ void LockstepClock() {
             gCountBump = 0;
         }
         gTick = ++tick;
+        gLastRetraceNs = Port_SteadyNs();
         SyncStep(tick);
+        Port_PlannerRetrace(tick - gSyncLag.load());
         LatchPads(tick - gSyncLag.load());
         if (Port_FreezeCheckEnabled()) { // freeze report: the picture has not changed for PORT_FREEZE_FRAMES game frames
             static const uint64_t limit = getenv("PORT_FREEZE_FRAMES") ? strtoull(getenv("PORT_FREEZE_FRAMES"), nullptr, 10) : 300;
@@ -1259,6 +1340,10 @@ void LockstepClock() {
     }
 }
 } // namespace
+
+extern "C" void port_NotifyMaybeIdle(void) {
+    NotifyMaybeIdle();
+}
 
 // The battle's portrait cameras, anchored to the picture's edges like its HUD (port_compat.h): registered every frame
 // the battle draws its HUD; a registration older than 4 retraces is ignored, so a camera node that a later scene
@@ -1344,6 +1429,7 @@ void port_osCreateViManager(OSPri) {
                 every = gViEvery;
             }
             gTick = ++tick;
+            gLastRetraceNs = Port_SteadyNs();
             if (q && (tick % every) == 0) {
                 port_PostMesgFromIrq(q, m);
             }
@@ -1435,6 +1521,7 @@ static void Port_CpuTaskThread() {
             gTasksProcessed++;
         }
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
     }
 }
 #endif
@@ -1470,6 +1557,7 @@ void osSpTaskStartGo(OSTask* t) {
         gTasksProcessed++;
         g.unlock();
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
         return;
     }
 #endif
@@ -1503,6 +1591,130 @@ s32 osSpTaskYielded(OSTask*) { return 0; }
 void osSpTaskYield(void) {}
 
 } // extern "C"
+
+// ---- Battle planner (tools/move_coverage) ------------------------------------------------------------------------
+// PORT_PLANNER_OUT=<fifo> and PORT_PLANNER_IN=<fifo>: a script decides 1P's input in battle as it goes (the replay,
+// PORT_REPLAY, holds the menus before it). The port writes events to OUT, one per line, and at the ones marked (r)
+// waits for the script's reply on IN:
+//   cmd <frame> + state + "?"   (r) a command phase starts (Port_SyncEvent "cmd")
+//   poll <frame> + state + "?"  (r) the frame the script asked for (poll)
+//   idle <frame> + "?"          (r) no command phase for PORT_PLANNER_IDLE route frames (default 1500): e.g. the battle
+//                                   is over
+//   move <frame>                    a move's presentation starts (Port_SyncEvent "move")
+//   anim <frame> <side> <move>      a move animation starts (BattleAnim_PlayMoveEffectScript), side 0 = 1P
+//   charge <frame> <side> <move>    a charging animation starts (BattleAnim_PlayChargingMoveEffectScript)
+// The state is Port_MoveCoverageState's lines (src/port/move_coverage.c). Replies, ended by "ok":
+//   p <frame> <buttons> <hold>      press controller 1's buttons (the game's bits) at that route frame for hold frames
+//   poll <frame>                    report the state at that route frame
+//   stop <frame>                    end the run there (PORT_STOP_AT)
+// Frames are route frames (Port_RouteTick); the script writes what it pressed as a tools/screen_diff route, which
+// replays the same battle on the port and on ares. Debug only: off unless both variables are set.
+extern "C" int Port_MoveCoverageState(char* out, int size);
+namespace {
+FILE* gPlanOut = nullptr;
+FILE* gPlanIn = nullptr;
+std::mutex gPlanLock;
+uint64_t gPlanPollAt = 0;
+uint64_t gPlanLastContact = 0;
+uint64_t gPlanIdle = 1500;
+bool gPlanOpened = false;
+
+bool PlanOpen() {
+    if (gPlanOpened) return gPlanOut != nullptr;
+    gPlanOpened = true;
+    const char* o = getenv("PORT_PLANNER_OUT");
+    const char* i = getenv("PORT_PLANNER_IN");
+    if (!o || !i) return false;
+    gPlanOut = fopen(o, "w"); // (fifos: opened in this order by the script too)
+    gPlanIn = fopen(i, "r");
+    if (!gPlanOut || !gPlanIn) {
+        fprintf(stderr, "[planner] cannot open %s / %s\n", o, i);
+        gPlanOut = nullptr;
+        return false;
+    }
+    if (const char* e = getenv("PORT_PLANNER_IDLE")) gPlanIdle = strtoull(e, nullptr, 10);
+    fprintf(stderr, "[planner] on\n");
+    return true;
+}
+
+void PlanInsertPad(uint64_t frame, u16 button) {
+    PadFrame pf = {};
+    pf.tick = frame;
+    pf.pads[0].button = button;
+    auto it = std::upper_bound(gReplay.begin() + gReplayIdx, gReplay.end(), frame,
+                               [](uint64_t f, const PadFrame& p) { return f < p.tick; });
+    gReplay.insert(it, pf);
+}
+
+// sends a request and applies the reply (the caller holds gPlanLock)
+void PlanExchange(const char* head, uint64_t frame, bool withState) {
+    fprintf(gPlanOut, "%s %llu\n", head, (unsigned long long)frame);
+    if (withState) {
+        static char buf[4096];
+        int n = Port_MoveCoverageState(buf, sizeof buf);
+        fwrite(buf, 1, n, gPlanOut);
+    }
+    fputs("?\n", gPlanOut);
+    fflush(gPlanOut);
+    gPlanLastContact = frame;
+    char line[256];
+    while (fgets(line, sizeof line, gPlanIn)) {
+        unsigned long long f;
+        unsigned b, h;
+        if (strncmp(line, "ok", 2) == 0) return;
+        if (sscanf(line, "p %llu %u %u", &f, &b, &h) == 3) {
+            std::lock_guard<std::mutex> rg(gReplayLock);
+            if (f <= frame) fprintf(stderr, "[planner] press at %llu is not after frame %llu\n", f, (unsigned long long)frame);
+            PlanInsertPad(f, (u16)b);
+            PlanInsertPad(f + h, 0);
+        } else if (sscanf(line, "poll %llu", &f) == 1) {
+            gPlanPollAt = f;
+        } else if (sscanf(line, "stop %llu", &f) == 1) {
+            gStopAt = f;
+        } else {
+            fprintf(stderr, "[planner] unknown reply: %s", line);
+        }
+    }
+    fprintf(stderr, "[planner] the script closed its pipe\n");
+    gPlanOut = nullptr;
+}
+} // namespace
+
+static bool Port_PlannerActive() {
+    std::lock_guard<std::mutex> g(gPlanLock);
+    return PlanOpen();
+}
+
+static void Port_PlannerSyncEvent(const char* name) {
+    std::lock_guard<std::mutex> g(gPlanLock);
+    if (!PlanOpen()) return;
+    uint64_t frame = Port_RouteTick();
+    if (strcmp(name, "cmd") == 0) {
+        PlanExchange("cmd", frame, true);
+    } else if (strcmp(name, "move") == 0) {
+        fprintf(gPlanOut, "%s %llu\n", name, (unsigned long long)frame);
+        fflush(gPlanOut);
+    }
+}
+
+extern "C" void Port_PlannerEvent(const char* kind, int side, int move) {
+    std::lock_guard<std::mutex> g(gPlanLock);
+    if (!PlanOpen()) return;
+    fprintf(gPlanOut, "%s %llu %d %d\n", kind, (unsigned long long)Port_RouteTick(), side, move);
+    fflush(gPlanOut);
+}
+
+// each retrace (the clock thread; the game threads are idle): the frame the script asked for, or the idle report
+static void Port_PlannerRetrace(uint64_t routeTick) {
+    std::lock_guard<std::mutex> g(gPlanLock);
+    if (!gPlanOut) return;
+    if (gPlanPollAt != 0 && routeTick >= gPlanPollAt) {
+        gPlanPollAt = 0;
+        PlanExchange("poll", routeTick, true);
+    } else if (routeTick >= gPlanLastContact + gPlanIdle) {
+        PlanExchange("idle", routeTick, false);
+    }
+}
 
 extern "C" void Port_RequestCapture(uint64_t frame);
 
@@ -1807,6 +2019,7 @@ void Port::PumpRspTasks() {
             gTasksProcessed++;
         }
         gTaskDoneCv.notify_all();
+        NotifyMaybeIdle();
     }
     TryPresentCpuFrame(); // a frame buffer swapped while the tasks above ran
 }

@@ -224,14 +224,20 @@ void VsScene_DrawBackground(void) {
                 img = Memmap_GetFragmentVaddr(D_8FB08900);
                 break;
         }
+        // PORT: the sky comes before the stadium: without this mark its two full-screen rectangles make the frame a
+        // 2D screen, which widescreen keeps inside the 4:3 area (the tournament VS zoom in and out showed a 4:3
+        // stadium between bars). Same fix as Battle_DrawStageBackdrop.
+        gDPPort3DScene(gDisplayListHead++);
         gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
         gDPSetTexturePersp(gDisplayListHead++, G_TP_NONE);
         gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGB, G_CC_DECALRGB);
         gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER | G_LIGHTING);
         gDPLoadTextureBlock(gDisplayListHead++, img, G_IM_FMT_RGBA, G_IM_SIZ_32b, 4, 64, 0, G_TX_NOMIRROR | G_TX_CLAMP,
                             G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPPortWideRectsBegin(gDisplayListHead++); // PORT: the sky (one column, dsdx 0) covers a widescreen picture too
         gSPTextureRectangle(gDisplayListHead++, 0, 0, 0x500, 0x200, G_TX_RENDERTILE, 0, 0, 0, 0x200);
         gSPTextureRectangle(gDisplayListHead++, 0, 0x200, 0x500, 0x3C0, G_TX_RENDERTILE, 0, 0x7E0, 0, 0);
+        gDPPortWideRectsEnd(gDisplayListHead++);
         gSPDisplayList(gDisplayListHead++, D_80060398);
         return;
     }

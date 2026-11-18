@@ -937,7 +937,7 @@ void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1) {
  */
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1) {
     ModelAnim_BindTransformCurve(arg0, 0, sBattleAnimAssetPointers[arg1], -0x10000);
-    ModelAnim_SetFrame(arg0, ANIM_END(arg0->transformAnim.data) - 1);
+    ModelAnim_SetFrame(arg0, ANIM_END(arg0->transformAnim.data) - 1); // PORT: anim_raw.h
 }
 
 /**

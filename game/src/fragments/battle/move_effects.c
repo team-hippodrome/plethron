@@ -511,7 +511,7 @@ extern s8* D_8218C8D4; // PORT: was s32, holds a pointer
 void Battle_Effect_Disable(void) {
     s32 slot;
     s32 turns;
-    s32 name;
+    s8* name; // PORT: was s32, which cut the move name's 64-bit pointer passed to the %s below (a crash on every Disable that works)
 
     Battle_MoveHitTest();
     if (sBattleMoveFailed == 0) {
@@ -523,7 +523,7 @@ void Battle_Effect_Disable(void) {
             turns = Battle_Random() & 7;
             sBattleTarget->disabledMoveState = (slot << 4) + turns + 1;
             sBattleTarget->disabledMove = sBattleTarget->moves[slot];
-            name = (uintptr_t)D_8006A9D4[(sBattleTarget->disabledMove) - 1].name;
+            name = (s8*)D_8006A9D4[(sBattleTarget->disabledMove) - 1].name;
             BattleMessage_Format(gBattleMessageQueues->messageBuffers[0], -0x3B, D_8218C8D0, ActivePokemon_GetNickname(sActivePokemon[!sBattleScene.scene->actingSide]), name);
             return;
         }

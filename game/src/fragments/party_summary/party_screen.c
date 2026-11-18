@@ -1,5 +1,6 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "party_summary.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 #include "audio_commands.h"
 #include "font.h"
 #include "gb_save.h"
@@ -45,7 +46,7 @@ extern Gfx D_80060270[];
 extern s32 sPartyGbPort;
 extern s32 D_8A21DE08;
 extern M2C_UNK D_8A21DE10;
-extern M2C_UNK sPartyScreen;
+extern PartyScreen sPartyScreen; // PORT: typed (see party_summary.h)
 
 /**
  * Draws the status condition name in its color, or ひんし (fainted) when HP is 0.
@@ -513,6 +514,10 @@ void MonSummary_DrawMoveList(s32 base_x, s32 base_y, BattleMon* mon, s32 selecte
         x = D_8A203384[i].nameX + base_x;
         if (D_8A203384[i].center) {
             x = x - (strlen(str) >> 1) * 0x14 + 0x8C;
+            // PORT: right-aligned by byte count: anchor a translated name by its drawn width, inside its move box
+            Port_Font_FitNext(D_8A203384[i].boxX + base_x + 8, D_8A203384[i].nameX + base_x + 0x8C, 2);
+        } else {
+            Port_Font_FitNext(x, D_8A203384[i].boxX + base_x + 208 - 8, 0); // PORT: fits inside its move box
         }
         Font_Printf(x, D_8A203384[i].nameY + base_y, str);
         func_8001ABBC();

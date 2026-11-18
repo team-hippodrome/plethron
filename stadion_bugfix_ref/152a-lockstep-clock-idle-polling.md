@@ -1,7 +1,7 @@
 # Lockstep clock polled for "game idle" every 20 us (~28k wake-ups/s, more kernel than game time)
 
 - **Category:** performance
-- **Zero status:** needed (plethron's `LockstepClock` still sleeps 20 us in a polling loop)
+- **Zero status:** already ported (plethron PR #54: stadion 2037ff5 as is; screen-diff pictures byte-identical, context switches -63 to -76%)
 - **stadion:** [PR #152](https://github.com/team-hippodrome/stadion/pull/152), commit(s) `2037ff5`
 - **stadion files:** `src/port/os_devices.cpp`, `src/port/os_thread.cpp`
 

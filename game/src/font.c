@@ -293,7 +293,8 @@ static s32 sFitAlign;
 // PORT: makes the next translated Font_Printf / Port_Font_PrintUtf8 fit each line between x `left` and `right`.
 // A line that overflows by at most two average characters is squeezed horizontally to fit; a longer one is drawn
 // as is and logged to text_overflows.csv, to be shortened in the translation. `align` 1 centres a line that fits
-// between left and right (for labels the game centres by byte count); 0 keeps the x it is printed at.
+// between left and right (for labels the game centres by byte count); 2 ends a line that fits at right (for labels
+// the game right-aligns by byte count); 0 keeps the x it is printed at.
 void Port_Font_FitNext(s32 left, s32 right, s32 align) {
     if (Port_Text_GetLanguage() == PORT_LANG_ORIGINAL) {
         return;
@@ -329,7 +330,11 @@ void Port_Font_PrintUtf8(s32 x, s32 y, const char* utf8) {
             }
             scale = 1.0f;
             if (width <= avail) {
-                x4 = ((sFitAlign != 0) ? left + (avail - width) / 2 : start_x) << 2;
+                if (sFitAlign == 2) {
+                    x4 = (sFitRight - width) << 2;
+                } else {
+                    x4 = ((sFitAlign != 0) ? left + (avail - width) / 2 : start_x) << 2;
+                }
             } else {
                 x4 = left << 2;
                 if (count > 0 && (width - avail) * count <= 2 * width) {
@@ -658,6 +663,14 @@ static Gfx* Port_Font_PrintfToDisplayListV(s16 x, s16 y, s16 scale_x, s16 scale_
 
     if (strchr(fmt, '%') != NULL) {
         Port_Text_Vformat(utf8, sizeof(utf8), fmt, args);
+    } else if (strchr(fmt, '\n') != NULL && (src = Port_Text_Lookup(fmt)) != NULL) {
+        // A two-line string is one row as a whole (the VS panels' trainer classes, 「むしとり\nしょうねん」 =
+        // TRAINER_CLASS_BUG_CATCHER): looked up line by line, the first line can match a shorter row (COM_BUG_CATCHER,
+        // 「むしとり」) and the second stays kana, or neither line matches (「りかけいの」「おとこ」, Super Nerd).
+        for (; *src != 0 && n < (s32)sizeof(utf8) - 1; src++) {
+            utf8[n++] = *src;
+        }
+        utf8[n] = 0;
     } else {
         for (src = fmt; *src != 0;) {
             if (*src == '\n' || *src == '\t') {

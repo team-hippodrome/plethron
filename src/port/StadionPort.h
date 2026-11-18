@@ -43,6 +43,8 @@ int Port_TpakTiming(void);
 int Port_DebugWeakCom(void);
 // Whether the N64 logo's hold is paced by retraces (PORT_PACED_LOGO_HOLD, or a replayed recording; n64_logo.c).
 int Port_PacedLogoHold(void);
+// Zero's N64 logo: draw it every retrace through its one-second hold (os_devices.cpp, "# zero logo hold").
+int Port_ZeroLogoHold(void);
 // The N64's loading time where the game's timing counts on it (the boot diorama's model loads, which the music is
 // timed around), as waits; off when replaying an input recording made before them.
 int Port_LoadWaits(void);

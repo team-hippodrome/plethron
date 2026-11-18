@@ -573,7 +573,7 @@ OSTask* __amHandleFrame(OSTask* arg0) {
 
     info = __am.audioInfo[audFrameCt % 3];
     audio_ptr = (s16*)osVirtualToPhysical(info->data); // PORT: cast
-    samples_left = HW_REG(AI_LEN_REG, u32) >> 2;
+    samples_left = osAiGetLength() >> 2; // PORT: was HW_REG(AI_LEN_REG, u32), a scratch page that always reads 0 (stadion 3D140.c has the same fix)
 
     if ((D_80075E0C == 0) && (lastInfo != NULL)) {
         osAiSetNextBuffer(lastInfo->data, lastInfo->frameSamples << 2);

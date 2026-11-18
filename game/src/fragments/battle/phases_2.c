@@ -397,7 +397,11 @@ void BattleScene_PhaseSendOutAfterFaint(CameraNode* arg0) {
  * Seen in play (2026-11-12): in a turn where 1P's Poison Sting went first, it was running the
  * presentation from the frame after Battle_StartTurn (phase 0, then 2).
  */
+void Port_PhaseLog(s32 mode, s32 phase, s32 step, s32 substep, s32 side, s32 kind); // PORT: tools/screen_diff (os_devices.cpp)
 void BattleScene_UpdatePhase(CameraNode* arg0) {
+    // PORT: PORT_PHASELOG, compared with ares_ref's ARES_REF_PHASELOG by tools/screen_diff/phase_diff.py
+    Port_PhaseLog(sBattleScene.scene->mode, sBattleScene.scene->phase, sBattleScene.scene->phaseStep,
+                  sBattleScene.scene->phaseSubstep, sBattleScene.scene->actingSide, sBattleScene.scene->moveEffectKind);
     BattleScene_UpdateActiveOwnerPointers();
     switch (sBattleScene.scene->phase) {
     case 0:

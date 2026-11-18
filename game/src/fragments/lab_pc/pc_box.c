@@ -3,6 +3,7 @@
 #include "global.h"
 #include "m2c_macros.h"
 #include "lab_pc.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 #include "asset_archive.h"
 #include "memory_main.h"
 #include "pokemon_stats.h"
@@ -388,6 +389,12 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         Font_Printf(x + 348, y + 96, D_89018EE0, win->mon->speed);
         Font_Printf(x + 348, y + 124, D_89018EE4, win->mon->special);
         for (i = 0; i < count; i++) {
+            // PORT: right-aligned names anchored by their drawn width, not the byte count (as the rental window)
+            if (D_8900A884[i].centered != 0) {
+                Port_Font_FitNext(x + 8, D_8900A884[i].x + x + 0x8C, 2);
+            } else {
+                Port_Font_FitNext(D_8900A884[i].x + x, x + win->window.frame.width - 20, 0);
+            }
             PcBox_DrawMoveName(D_8900A884[i].x + x, D_8900A884[i].y + y, BattleMon_GetMoveIndex(win->mon, i), D_8900A884[i].centered);
         }
         func_8001ABBC();

@@ -82,9 +82,13 @@ void ParticleGfx_CopyPalettePairRgb(u8* arg0, u8* arg1, u16 arg2) {
  * @unverified Name guessed from the code.
  */
 void ParticleGfx_RecolorPrim(u8* arg0, u16 arg1) {
-    arg0[0xBA] = gParticlePalette[arg1][0];
-    arg0[0xBB] = gParticlePalette[arg1][1];
-    arg0[0xBC] = gParticlePalette[arg1][2];
+    // PORT: was arg0[0xBA..0xBC], the N64 offsets of prim_r/g/b. Particle holds six pointers before them, so on a
+    // 64-bit host those bytes are param0 (0xA2): the send-out tint ramp's start alpha 0xFF became -1, the ramp
+    // ended in a frame and the Pokémon popped in opaque instead of fading in from white.
+    Particle* particle = (Particle*)arg0;
+    particle->prim_r = gParticlePalette[arg1][0];
+    particle->prim_g = gParticlePalette[arg1][1];
+    particle->prim_b = gParticlePalette[arg1][2];
 }
 
 /**
@@ -92,9 +96,11 @@ void ParticleGfx_RecolorPrim(u8* arg0, u16 arg1) {
  * @unverified Name guessed from the code.
  */
 void ParticleGfx_RecolorEnv(u8* arg0, u16 arg1) {
-    arg0[0xBD] = gParticlePalette[arg1][0];
-    arg0[0xBE] = gParticlePalette[arg1][1];
-    arg0[0xBF] = gParticlePalette[arg1][2];
+    // PORT: was arg0[0xBD..0xBF], the N64 offsets of env_r/g/b (see ParticleGfx_RecolorPrim)
+    Particle* particle = (Particle*)arg0;
+    particle->env_r = gParticlePalette[arg1][0];
+    particle->env_g = gParticlePalette[arg1][1];
+    particle->env_b = gParticlePalette[arg1][2];
 }
 
 /**

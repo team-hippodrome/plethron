@@ -62,7 +62,7 @@ void TextBox_Draw(s8*);
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8910A88C;
-void LabPCList_DrawRowCursor(s8*, s32, s32);
+void LabPCList_DrawRowCursor(ScrollList*, s32, s32); // PORT: matches the definition
 void LabPCList_DrawPageHint(LabPCListScreen*);
 void LabPCList_DrawColumnCursor(s8*);
 void LabPCList_DrawHeaderCursor(LabPCListScreen*);
@@ -99,7 +99,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     if (screen->state == 0) {
         switch (screen->focus) {
             case 0:
-                LabPCList_DrawRowCursor((s8*)&screen->list, screen->listFrame.x, y);
+                LabPCList_DrawRowCursor(&screen->list, screen->listFrame.x, y);
                 break;
             case 1:
                 LabPCList_DrawColumnCursor(screen);
@@ -358,7 +358,9 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
     }
     ret = ScrollList_UpdateCursor(&screen->list.items) != 0;
     if ((ret == 0) && (D_800603C0->buttonPressed & 0x8000)) {
-        if ((screen->list.items->count > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] < 0x98)) {
+        // PORT: the species through LabPCEntry (was byte 8 of the entry, the N64 offset of mon.species.id: on a
+        // 64-bit host that is the low byte of `slot`, so A did nothing on each box's first row)
+        if ((screen->list.items->count > 0) && (((LabPCEntry**)((List89102344*)screen->list.items)->items)[screen->list.cursor]->mon.species.id > 0) && (((LabPCEntry**)((List89102344*)screen->list.items)->items)[screen->list.cursor]->mon.species.id < 0x98)) {
             Audio_PlaySystemSound(2);
             LabPCList_FormatGatherPrompt((s8*)screen);
             ret = 1;

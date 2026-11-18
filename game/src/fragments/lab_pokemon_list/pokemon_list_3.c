@@ -183,32 +183,19 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
   }
 }
 
-/**
- * Fields of the scrolling list menu used by LabPCList_DrawRowCursor (same layout as GridMenu80031004
- * in src/2E480.c; offsets not listed are unknown/unused here).
- */
-typedef struct ListMenu8910179C {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ s32 cellHeight;
-    /* 0x14 */ char unk14[0x16];
-    /* 0x2A */ u16 flags;
-    /* 0x2C */ s32 scroll;
-    /* 0x30 */ char unk30[0x4];
-    /* 0x34 */ s32 scrollTarget;
-} ListMenu8910179C;
 
 /**
  * Draws a fixed-size (0x50 x 0x14) cursor rectangle via Ui_DrawRoundedFrame for a scrolling list
- * menu: x = left + 0x26, y = scrollTarget + top - scroll, minus (cellHeight - 1) when flag
- * 0x400 is set; color read from D_80073520. Compare ScrollGrid_DrawCursor and ScrollList_DrawCursor.
+ * menu: x = left + 0x26, y = cursorY + top - scrollY, minus (cellHeight - 1) when scrollFlags
+ * 0x400 is set; color read from D_80073520 (list is the ScrollList). Compare ScrollGrid_DrawCursor and ScrollList_DrawCursor.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): drew the cursor on the フシギダネ
  * row.
  */
-void LabPCList_DrawRowCursor(ListMenu8910179C* list, s32 left, s32 top) {
+void LabPCList_DrawRowCursor(ScrollList* list, s32 left, s32 top) { // PORT: typed (was a local struct with N64 offsets)
     s32 y;
 
-    y = list->scrollTarget + top - list->scroll;
-    if (list->flags & 0x400) {
+    y = list->cursorY + top - list->scrollY;
+    if (list->scrollFlags & 0x400) {
         y = y - list->cellHeight + 1;
     }
     Ui_DrawRoundedFrame(left + 38, y, 80, 20, *(Color_RGBA8*)D_80073520);

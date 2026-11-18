@@ -97,18 +97,16 @@ extern f32 D_FLT_81136178[];
  * Audio_GetPortamentoFreqScale. The name is MM's.
  * @unverified Name follows the counterpart; not checked in play.
  */
-f32 AudioEffects_UpdatePortamento(arg0)
-    s8* arg0;
-{
+f32 AudioEffects_UpdatePortamento(Portamento* arg0) { // PORT: typed (was s8*; same offsets on both ABIs)
     u32 idx;
     f32 ret;
 
-    M2C_FIELD(arg0, f32*, 4) += M2C_FIELD(arg0, f32*, 8);
-    idx = M2C_FIELD(arg0, f32*, 4);
+    arg0->cur += arg0->speed;
+    idx = arg0->cur;
     if (idx >= 0x80) {
         idx = 0x7F;
     }
-    ret = (M2C_FIELD(arg0, f32*, 0xC) * (D_FLT_81136178[idx] - 1.0f)) + 1.0f;
+    ret = (arg0->extent * (D_FLT_81136178[idx] - 1.0f)) + 1.0f;
     return ret;
 }
 
@@ -191,8 +189,8 @@ f32 AudioEffects_UpdateVibrato(vib)
     return result;
 }
 
-f32 AudioEffects_UpdatePortamento(); // The caller passes a second argument the callee ignores.
-f32 AudioEffects_UpdateVibrato(); // The caller passes a second argument the callee ignores.
+f32 AudioEffects_UpdatePortamento(Portamento*); // PORT: N64 caller passed a second argument the callee ignores
+f32 AudioEffects_UpdateVibrato(VibratoState*); // PORT: N64 caller passed a second argument the callee ignores
 
 /**
  * Updates a note's portamento and vibrato frequency scales.
@@ -200,12 +198,12 @@ f32 AudioEffects_UpdateVibrato(); // The caller passes a second argument the cal
  * Audio_NoteVibratoUpdate. The name is MM's.
  * @unverified Name follows the counterpart; not checked in play.
  */
-void AudioEffects_UpdatePortamentoAndVibrato(s8 *arg0) {
-    if (M2C_FIELD(arg0, u8 *, 0x80) != 0) {
-        M2C_FIELD(arg0, f32 *, 0x38) = AudioEffects_UpdatePortamento(arg0 + 0x80) /* PORT: dropped the ignored second argument */;
+void AudioEffects_UpdatePortamentoAndVibrato(Note* note) { // PORT: typed (was s8* with N64 offsets 0x38/0x3C/0x44/0x80/0x90/0xA4)
+    if (note->playbackState.portamento.mode != 0) {
+        note->playbackState.portamentoFreqScale = AudioEffects_UpdatePortamento(&note->playbackState.portamento) /* PORT: dropped the ignored second argument */;
     }
-    if ((M2C_FIELD(arg0, u8 *, 0xA4) != 0) && (M2C_FIELD(arg0, s32 *, 0x44) != -1)) {
-        M2C_FIELD(arg0, f32 *, 0x3C) = AudioEffects_UpdateVibrato(arg0 + 0x90) /* PORT: dropped the ignored second argument */;
+    if ((note->playbackState.vibratoState.active != 0) && (note->playbackState.parentLayer != (struct SequenceLayer*)-1)) {
+        note->playbackState.vibratoFreqScale = AudioEffects_UpdateVibrato(&note->playbackState.vibratoState) /* PORT: dropped the ignored second argument */;
     }
 }
 

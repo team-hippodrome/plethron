@@ -1,7 +1,7 @@
 # Windows: settings and save files under non-ASCII paths (narrow fopen/ifstream on UTF-8 paths)
 
 - **Category:** saves
-- **Zero status:** needed (save/config paths are fixed, but plethron's own `gb_save_convert.cpp` still opens its store with plain `fopen`)
+- **Zero status:** already ported (plethron PR #55, e2ca7b2: `LoadStore` and `EnsureControllerDb` open through `Port::OpenFileUtf8`; Wine test with a non-ASCII save folder and the manifest removed: the store was lost before, kept after)
 - **stadion:** [PR #103](https://github.com/team-hippodrome/stadion/pull/103), commit(s) `48c0515`, `6a0b802`, `1e07fc6` (merge `42a43df`)
 - **stadion files:** `src/port/os_devices.cpp` (FlashLoad/FlashSave), `patches/libultraship.patch` (Config.cpp `fs::u8path`, Context.cpp app directory), `src/port/Engine.cpp` (SaveScreen size)
 

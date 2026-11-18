@@ -1,7 +1,7 @@
 # Code that indexes past one global into the next (N64 link order) reads or writes unrelated host memory
 
 - **Category:** abi-64bit
-- **Zero status:** check (Zero's data is lifted per symbol, sized to the gap to the next N64 symbol; reads before a symbol, e.g. `gMoveData[-1]`, are not covered)
+- **Zero status:** already ported (plethron 915a208 lays byte-layout neighbours out as one N64-shaped block; an ASan build over all 13 screen-diff routes found one overrun, `ModelScrollStrip.textures[frame & 7]` read past the 6-entry host copy in the intro, fixed in 66ed03b by keeping 8 entries; the rerun is clean. `gMoveData[usedMove - 1]` never fired on these routes)
 - **stadion:** no PR (Stage 3c ASan, "Fixed in this round", third ares round ASan passes; before PR #1, history squashed into `be110fe`)
 - **stadion files:** `tools/merge_vtx_arrays.py`, `game/src/gb_data.c`, `game/include/variables.h`, `game/src/fragments/battle_prep/battle_prep_394120.c`, battle scene tick slots, `widget_toolkit_2.c`, `clefairy_game.c`, `sushi_game_144300.c`, `gb_tower_emulator_7F9A0.c`
 
