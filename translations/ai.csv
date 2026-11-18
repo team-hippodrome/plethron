@@ -4198,11 +4198,11 @@ MAX_ELIXIR_ITEM_NAME,4e7199cba64b498d342da59f736e0c4a,8007B640,ピーピーマ�
 TERM_TRAINER,f1ff65e38354c6d85bdf917c92d446dc,8007B660 8007B7C4 88403178 82009D40 82400590 82400690 82400970 82400A20 82400B10 82400BB0 824011E0 82401BE0 82402100 82406180 824061AC 824061D4 824061F8 8240621C 82406248 82406270 82406294 824062BC 824062E8 82406310 82406334 82406358 82406384 824063AC 824063D0 824063F8 82406424 8240644C 82406470 82406494 824064C0 824064E8 8240650C 82406534 82406560 82406588 824065AC 824065D0 824065FC 82406624 82406648,,Trainer,Entrenador,Trainer,Treinador,트레이너,
 TM_HM_LABEL_HM,c680249ad694ff63249c101847c3928f,8007B66C,秘伝マシン%02d,HM%02d,MO%02d,VM%02d,MO%02d,비전머신%02d,
 TM_HM_LABEL_TM,46a609e862843ed743dbe633ed080551,8007B680,技マシン%02d,TM%02d,MT%02d,TM%02d,MT%02d,기술머신%02d,
-SAVE_ERROR_TURN_OFF_THE_N64,5d923b6abab514f9cd74588127b8c459,8007B7D0 81701F20,64本体の,"Turn off the N64,","Apaga la N64,","Schalte den N64 aus,","Desligue o N64,",N64의 전원을 끄고,
+SAVE_ERROR_TURN_OFF_THE_N64,5d923b6abab514f9cd74588127b8c459,8007B7D0 81701F20,64本体の,"On the N64,","En la N64,",Ohne den N64,"No N64,",N64 본체의,
 SAVE_ERROR_TAKE_OUT_THE_GAME_BOY,2e17810aeb35f2ae289a3dc355876c83,8007B7E0 81701F30,ゲームボーイのカートリッジを抜き,"take out the Game Boy Game Pak,","saca el cartucho de Game Boy,","nimm das Game-Boy-Modul heraus,","retire o cartucho de Game Boy,",게임보이 팩을 뽑아,
 SAVE_ERROR_CLEAN_ITS_CONNECTOR,6c9b105daa3d5aaa06ff2f1762400ecc,8007B804 81701F54, コネクタ部をきれいにしてから," clean its connector,", limpia su conector, reinige den Anschluss, limpe o conector, 단자를 닦은 뒤,
 SAVE_ERROR_AND_INSERT_IT_AGAIN,afb764b0d32edeeec16e31f5a4965a88,8007B824 81701F74, もう一度セットしてください, and insert it again., y vuelve a insertarlo., und stecke es wieder ein., e insira-o de novo., 다시 꽂아 주세요.,
-SAVE_ERROR_DO_NOT_TURN_THE_POWER,445d141cfa1cb4d0094d5163a96c8f1f,8007B844 8007B9BC 81701F94,電源を切らずに,Do not turn the power off.,No apagues la consola.,Schalte das Gerät nicht aus.,Não desligue o aparelho.,전원을 끄지 마세요.,
+SAVE_ERROR_DO_NOT_TURN_THE_POWER,445d141cfa1cb4d0094d5163a96c8f1f,8007B844 8007B9BC 81701F94,電源を切らずに,"do not turn the power off,",no apagues la consola;,"auszuschalten,","sem desligar o aparelho,",전원을 끄지 말고,
 SAVE_ERROR_COULD_NOT_SAVE,9431b40eb92ff2fc348abd0a9d27e23c,8007B858 8007B960 81701FA8,レポートできませんでした,Could not save.,No se pudo guardar.,Speichern fehlgeschlagen.,Não foi possível salvar.,저장할 수 없었습니다.,
 SAVE_ERROR_WRONG_GAME_PAK_OR,67f6cd6c236a95b18148c9aad449088c,8007B874 81701FC4,カートリッジが違います または,"Wrong Game Pak, or","Cartucho erróneo, o","Falsches Modul, oder","Cartucho errado, ou",팩이 다르거나,
 SAVE_ERROR_THE_DATA_HAS_CHANGED,fd646c96aa15099a65181bd41ac25158,8007B894 81701FE4,データが変わってしまいました,the data has changed.,los datos han cambiado.,die Daten haben sich geändert.,os dados mudaram.,데이터가 바뀌었습니다.,
@@ -4228,19 +4228,19 @@ os dados mudaram.","팩이 다르거나
 SAVE_ERROR_TURN_OFF_THE_N64_TAKE,04f0254eeb17e25f4aa627a8497591f3,8007B9D0,"64本体の
 ゲームボーイのカートリッジを抜き
  コネクタ部をきれいにしてから
- もう一度セットしてください","Turn off the N64, take out the
-Game Boy Game Pak,
+ もう一度セットしてください","On the N64,
+take out the Game Boy Game Pak,
  clean its connector,
- and insert it again.","Apaga la N64, saca el cartucho
-de Game Boy,
+ and insert it again.","En la N64,
+saca el cartucho de Game Boy,
  limpia su conector
- y vuelve a insertarlo.","Schalte den N64 aus, nimm das
-Game-Boy-Modul heraus,
+ y vuelve a insertarlo.","Ohne den N64
+nimm das Game-Boy-Modul heraus,
  reinige den Anschluss
- und stecke es wieder ein.","Desligue o N64, retire o
-cartucho de Game Boy,
+ und stecke es wieder ein.","No N64,
+retire o cartucho de Game Boy,
  limpe o conector
- e insira-o de novo.","N64의 전원을 끄고
+ e insira-o de novo.","N64 본체의
 게임보이 팩을 뽑아
  단자를 닦은 뒤
  다시 꽂아 주세요.",
@@ -7122,6 +7122,7 @@ HABITAT_BUTTON_HIDE_GB_MAP,d7892e450b487237be50616b2193f0c1,8A12F1B0,ボタン�
 HABITAT_HABITAT_UNKNOWN,be4beb56f5214fd9efb96ace666f2ae2,8A12F1C8,生息地不明,Habitat unknown,Hábitat desconocido,Lebensraum unbekannt,Habitat desconhecido,서식지 불명,
 HABITAT_OLD_ROD_CATCHES_IT_ANYWHERE,7f3fae0ca33d15f313a2a794603ab55d,8A12F1DC,ボロの釣竿でどこでも釣れる,Old Rod catches it anywhere,Caña Vieja: en cualquier sitio,Mit Angel überall zu fangen,Old Rod o pesca em qualquer lugar,낡은낚싯대로 어디서나 낚임,
 HABITAT_RATE,df8d7df125d29241f1602c3b34b23289,8A12F208,確率,Rate,Frecuencia,Rate,Taxa,출현율,
+HABITAT_LEVEL_RANGE,0fe9fa50e7437d30c01dc2ce57b8746e,8A12F204,〜,–,–,–,–,~,Pokédex habitat line: between the lowest and highest level (Level 3–5)
 HABITAT_MIGHT_BE_HERE,e8fbe6fa747d3fc17407219166e33489,8A12F214,いるかもしんない,Might be here,Puede que esté,Vielleicht hier,Pode estar aqui,있을지도 모름,
 HABITAT_RARELY_SEEN,131a9c03d96e81d91767a4ae90da937e,8A12F226,あまり見かけない,Rarely seen,Se ve poco,Selten gesehen,Raramente visto,드물게 보임,
 HABITAT_SEEN_AT_TIMES,162956760156929ac1c4e1d7023b4736,8A12F238,たまに見かける　,Seen at times ,Se ve a ratos ,Ab und zu gesehen ,Visto às vezes ,가끔 보임 ,
@@ -7182,7 +7183,7 @@ HABITAT_5F,25c402d63043aefc3fd76064728958da,8A12F6DC, 5F, 5F, P5, 5F, 5º andar,
 HABITAT_6F,0129e031b4cbc09be51cb44126abca7d,8A12F6E8, 6F, 6F, P6, 6F, 6º andar, 6F,
 HABITAT_7F,bdb81938c4ce919402548dd7f75c908d,8A12F6F4, 7F, 7F, P7, 7F, 7º andar, 7F,
 HABITAT_POKEDEX_INDEX,5e3331a2c392a0b11609e0bf30c7c999,8A12FC38,図鑑目次,Pokédex Index,Índice de la Pokédex,Pokédex-Index,Índice da Pokédex,포켓몬 도감 색인,
-HABITAT_A_TO_Z,0ef4cf6713caa4d8766cdb27e9568609,8A12FC48,アイウエオ順,A to Z,A–Z,A–Z,A a Z,가나다순,
+HABITAT_A_TO_Z,0ef4cf6713caa4d8766cdb27e9568609,8A12FC48,アイウエオ順,Kana order,Orden kana,Kana-Folge,Ordem kana,50음순,
 HABITAT_BY_NUMBER,2f0f0738f39569ec07aa2c8f90ff99fc,8A12FC5C,番号順,By number,Por número,Nach Nummer,Por número,번호순,
 HABITAT_SEEN,7f34b3da1a556eb5f9093506f29fa5f9,8A12FC6C,見つけた数,Seen,Vistos,Gesehen,Vistos,본 포켓몬,
 HABITAT_CAUGHT,0c815e0b2d212e63afc9c11bb893abde,8A12FC7C,捕まえた数,Caught,Atrapados,Gefangen,Capturados,잡은 포켓몬,
@@ -7420,3 +7421,62 @@ MODEL_TEXT_SEMIFINAL,c8aea74750e7e6c83768770389047d9a,,,SEMIFINAL,SEMIFINAL,SEMI
 MODEL_TEXT_FINAL_BATTLE,4cb7767939e10db37dc5212fbadd9340,,,FINAL BATTLE,FINAL BATTLE,FINAL BATTLE,FINAL BATTLE,파이널 배틀,3D round title of round 8 (fragment 037): the loanword in Latin capitals; Korean in hangul
 MODEL_TEXT_WIN,7886cd5ce75990e5d1d090a1b0662a57,,勝ち,WIN,VICTORIA,SIEG,VITÓRIA,승리,3D word on the winner's panel after a battle (fragment 033)
 MODEL_TEXT_LOSE,505697309633bd8a949ad8a70573b077,,負け,LOSE,DERROTA,NIEDERLAGE,DERROTA,패배,3D word on the loser's panel after a battle (fragment 033)
+GB_PLAYER_MENU,0f0c4ecf12645825831c85786c21b99d,,,Menu,Menú,Menü,Menu,메뉴,"GB Player C-Up menu (glyph commands, gb_player_text.c): title"
+GB_PLAYER_CONTINUE_GAME,91dd52ea9ea8903f58eef0f4a91975cb,,ゲームを続ける,Continue game,Continuar el juego,Spiel fortsetzen,Continuar o jogo,게임을 계속한다,"GB Player C-Up menu (glyph commands, gb_player_text.c): item"
+GB_PLAYER_CONTINUE_GAME_HELP,6f4f028c4395f05fdc0ed4d91f761e0d,,"このメニューを抜けて
+ゲームボーイの
+ポケモンを続けます",Leave this menu and keep playing Pokémon on the Game Boy.,Sal de este menú y sigue jugando a Pokémon en la Game Boy.,Verlasse dieses Menü und spiele Pokémon auf dem Game Boy weiter.,Saia deste menu e continue jogando Pokémon no Game Boy.,이 메뉴를 닫고 게임보이의 포켓몬을 계속합니다.,"GB Player C-Up menu (glyph commands, gb_player_text.c): help text, wrapped at run time into up to 3 lines"
+GB_PLAYER_QUIT_GAME,26a99ad1b04bd9f46ed4a4a47b480b13,,,Quit game,Salir del juego,Spiel beenden,Sair do jogo,게임을 그만둔다,"GB Player C-Up menu (glyph commands, gb_player_text.c): item"
+GB_PLAYER_QUIT_GAME_HELP,91eebfb44ed12222508d38591a4e9ecb,,"ゲームボーイのポケモンを
+終わって ポケモンスタジアム
+に戻ります",Stop playing Pokémon on the Game Boy and return to Pokémon Stadium.,Deja de jugar a Pokémon en la Game Boy y vuelve a Pokémon Stadium.,Beende Pokémon auf dem Game Boy und kehre zu Pokémon Stadium zurück.,Pare de jogar Pokémon no Game Boy e volte ao Pokémon Stadium.,게임보이의 포켓몬을 끝내고 포켓몬 스타디움으로 돌아갑니다.,"GB Player C-Up menu (glyph commands, gb_player_text.c): help text, up to 3 lines"
+GB_PLAYER_QUIT_CONFIRM,ab4bfa8ec09743638d066e2cbc57c3b1,,"「レポート」した?
+本当に 終わってもいい?","Did you save?
+Really quit now?","¿Has guardado?
+¿Seguro que sales?","Gespeichert?
+Wirklich aufhören?","Você salvou?
+Quer mesmo sair?","레포트는 썼어?
+정말 끝내도 돼?","GB Player C-Up menu (glyph commands, gb_player_text.c): question shown above Yes/No after Quit game, 2 lines"
+GB_PLAYER_HELP_CONFIG,68df331dc688b4bcada431066737355d,,説明・コンフィグ,Help & config,Ayuda y ajustes,Hilfe & Optionen,Ajuda e ajustes,설명・설정,"GB Player C-Up menu (glyph commands, gb_player_text.c): item"
+GB_PLAYER_HELP_CONFIG_HELP,5264a65ecad6cfd71c61172354635c31,,"スタートと セレクトボタンの
+設定を 変更できます",You can change what the START and SELECT Buttons do.,Puedes cambiar la función de los botones START y SELECT.,Hier kannst du START und SELECT neu belegen.,Você pode mudar a função dos botões START e SELECT.,START와 SELECT 버튼의 설정을 바꿀 수 있습니다.,"GB Player C-Up menu (glyph commands, gb_player_text.c): help text, up to 3 lines"
+GB_PLAYER_YES,ef5fc8ce77e31e3f44cecaedd93b3935,,,Yes,Sí,Ja,Sim,예,"GB Player C-Up menu (glyph commands, gb_player_text.c): answer to the quit question"
+GB_PLAYER_NO,a65818d641e6ca0535bc6d4fe231bbd6,,,No,No,Nein,Não,아니요,"GB Player C-Up menu (glyph commands, gb_player_text.c): answer to the quit question"
+GB_PLAYER_SPEED_BUTTON,c90bc58c24bfee6d283bc227736ef551,,ボタンで 倍速,Button: Speed up,Botón: acelerar,Taste: Schneller,Botão: acelerar,버튼: 배속,"GB Player Help & config screen, after the C-Right Button icon (only once the speed-up is unlocked)"
+GB_PLAYER_SPEED_HELP_DOUBLE,14d6e5411e398f4cb42a9fa68cc638fc,,"1回押すと ポケモンの
+スピードが 2倍になる",Press it once to make the Pokémon game run twice as fast.,Púlsalo una vez y el juego de Pokémon irá el doble de rápido.,"Einmal drücken, und das Pokémon-Spiel läuft doppelt so schnell.",Pressione uma vez e o jogo Pokémon fica duas vezes mais rápido.,한 번 누르면 포켓몬의 스피드가 2배가 된다.,"GB Player Help & config screen, speed-up level 1 (Doduo Game Boy reward), up to 3 lines"
+GB_PLAYER_SPEED_HELP_CYCLE,ab47f8f258f97dbcb0306471700f45cf,,"押すたびに ポケモンの
+ゲームスピードが 変わる",Each press changes the speed of the Pokémon game.,Cada pulsación cambia la velocidad del juego de Pokémon.,Jeder Druck ändert das Tempo des Pokémon-Spiels.,Cada toque muda a velocidade do jogo Pokémon.,누를 때마다 포켓몬의 게임 스피드가 바뀐다.,"GB Player Help & config screen, speed-up level 2 (Dodrio Game Boy reward), up to 3 lines"
+GB_PLAYER_CONFIG,7414afd7370dea0257cf604f5aacb866,,,Config,Ajustes,Optionen,Ajustes,설정,GB Player Help & config screen: label set into a 56 pixel gap of the frame's top edge
+GB_PLAYER_BUTTON_BACK,83cef9904a65b9c5fc4afcc87c7fcff9,,ボタンで戻る,Button: Back,Botón: Volver,Taste: Zurück,Botão: Voltar,버튼: 돌아가기,"GB Player Help & config screen, after the B Button icon"
+GB_PLAYER_COULD_NOT_SAVE,9431b40eb92ff2fc348abd0a9d27e23c,,,The game could not be saved.,No se ha podido guardar la partida.,Das Spiel konnte nicht gespeichert werden.,Não foi possível salvar o jogo.,레포트를 쓸 수 없었습니다.,"GB Player: the Game Boy save failed while the GB Player was running (full screen, above GB_PLAYER_CLEAN_CONNECTOR)"
+GB_PLAYER_CLEAN_CONNECTOR,3ddbcb0cfba216a4cd0c5cbd20f6cd91,,"64本体の{電源を切らずに}
+ゲームボーイのカートリッジを抜き
+コネクタ部をきれいにしてから
+もう一度セットしてください","{Without turning off the N64,}
+take out the Game Boy Game Pak,
+clean its connector,
+and insert it again.","{Sin apagar la N64,}
+saca el cartucho de Game Boy,
+limpia su conector
+y vuelve a insertarlo.","{Ohne den N64 auszuschalten,}
+nimm das Game-Boy-Modul heraus,
+reinige den Anschluss
+und stecke es wieder ein.","{Sem desligar o N64,}
+retire o cartucho de Game Boy,
+limpe o conector
+e insira-o de novo.","64 본체의 {전원을 끄지 말고}
+게임보이 팩을 뽑아
+단자를 닦은 뒤
+다시 꽂아 주세요.",GB Player Game Pak trouble (full screen). Text in {braces} is drawn in the highlight colour: keep the braces around the words for not turning the power off
+GB_PLAYER_WRONG_GAME_PAK,3bb88d5b7699167d2b2f7388a7647344,,"カートリッジが違います または
+データが 変わってしまいました","This is a different Game Pak, or
+its data has changed.","Este cartucho es otro, o
+sus datos han cambiado.","Das ist ein anderes Modul, oder
+seine Daten haben sich geändert.","Este cartucho é outro, ou
+os dados dele mudaram.","팩이 다르거나
+데이터가 바뀌었습니다.",GB Player Game Pak trouble after re-inserting the cartridge (full screen)
+GB_PLAYER_LOADING_TICKER,ab9315fe786746e5c7f157a9a95a7a31,,ただいま 読み込み中です しばらくお待ちください,Now loading. Please wait a moment.,Cargando. Espera un momento.,Wird geladen. Bitte einen Moment warten.,Carregando. Aguarde um momento.,지금 읽어 들이는 중입니다. 잠시 기다려 주세요.,"GB Player cartridge copy screen: scrolling line, loops every 320 pixels"
+GB_PLAYER_STATUS_LOADING,d30b0d32b662b1eca82e9a9f0899976b,,ロード中,Loading,Cargando,Lädt,Carregando,로드 중,GB Player status strip under the Game Boy screen while it reads the Game Pak (about 57 pixels)
+GB_PLAYER_STATUS_SAVING,99024252d37a78ebe264569e61849851,,セーブ中,Saving,Guardando,Speichert,Salvando,세이브 중,GB Player status strip while it writes the Game Pak's save (about 57 pixels)
+GB_PLAYER_STATUS_MENU,9f9123961d6689a186c6e114c1009a5d,,,: Menu,: Menú,: Menü,: Menu,: 메뉴,"GB Player status strip, after the C-Up Button icon (about 60 pixels)"

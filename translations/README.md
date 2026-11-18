@@ -65,6 +65,7 @@ Notes that would repeat on every row of a group live here instead.
 | `FATAL_ERROR_*` | Fatal error screen |
 | `FINALIST_*` | Nintendo Cup '97 finalist region or name (locked romanization, glossary) |
 | `GB_PAK_*` | GB Player / Game Pak messages |
+| `GB_PLAYER_*` | The GB Player's own screens: the C-Up menu and its help, Help & config, the speed-up help, the Game Pak trouble screens, the cartridge copy screen's scrolling line and the status strip under the Game Boy screen. The GB Player draws these with its own font from glyph lists, not ROM strings, so `game/src/gb_player_text.c` lays the cells out again: `md5` is the md5 of the kana in EUC-JP, `addr` is empty. Cells are wrapped at run time to the original box (a `\n` forces a break); words in `{braces}` take the screen's highlight colour. English, Spanish, German, Portuguese and Japanese draw with the GB Player's font (accents are added to its letters), Korean and kanji with Unifont |
 | `HABITAT_*` | Pokédex habitat map and index |
 | `LAB_*` | Lab: PC boxes, items and Pokémon list |
 | `MAIN_MENU_*` | GB Player / main menu |

@@ -13,6 +13,8 @@
 #include "gfx_buffer.h"
 #include "graphics_textures.h"
 #include "matrix.h"
+#include "stdarg.h"
+#include "text_lookup.h" // PORT: translated area lines
 #include "memory_main.h"
 #include "pokemon_stats.h"
 #include "vector_math.h"
@@ -719,6 +721,17 @@ extern s16 sLastLabelWidth;
 extern char sAreaMapSpeciesName[];
 extern s16 sShowEncounterPercent;
 void BgStage_DrawFrame(void);
+// PORT: the area lines are sprintf'd into sAreaLabels and printed with "%s"; noting each one lets the text lookup
+// translate it as its format with translated arguments (レベル, the encounter wording, the floor name).
+static void Pokedex_NoteFormatted(const char* dst, const char* fmt, ...) {
+    va_list ap;
+
+    va_start(ap, fmt);
+    Port_Text_NoteFormatted(dst, fmt, ap);
+    va_end(ap);
+}
+#define PORT_SPRINTF_NOTED(dst, fmt, ...) (sprintf(dst, fmt, __VA_ARGS__), Pokedex_NoteFormatted(dst, fmt, __VA_ARGS__))
+
 /**
  * Draws one frame of the area map (also its BgStage_RunUntilCondition fade callback): updates the camera,
  * renders the 3D map, and prints %sのすみか (habitat), the area name, ボタンでGBマップ / ボタンでGBマップを
@@ -786,21 +799,21 @@ s32 Pokedex_DrawAreaMapScreen(UNUSED u8 unused)
                 {
                   if (tmp >= 2)
                   {
-                    sprintf(sAreaLabels[i].text, D_8A12FD74, str, D_8A12F1FC, temp_s1, D_8A12F208, temp_s2->rate);
+                    PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FD74, str, D_8A12F1FC, temp_s1, D_8A12F208, temp_s2->rate);
                   }
                   else
                   {
-                    sprintf(sAreaLabels[i].text, D_8A12FD8C, str, D_8A12F1FC, temp_s1, D_8A12F208, temp_s2->rate);
+                    PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FD8C, str, D_8A12F1FC, temp_s1, D_8A12F208, temp_s2->rate);
                   }
                 }
                 else
                   if (tmp >= 2)
                 {
-                  sprintf(sAreaLabels[i].text, D_8A12FDA0, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, D_8A12F208, temp_s2->rate);
+                  PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FDA0, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, D_8A12F208, temp_s2->rate);
                 }
                 else
                 {
-                  sprintf(sAreaLabels[i].text, D_8A12FDBC, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, D_8A12F208, temp_s2->rate);
+                  PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FDBC, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, D_8A12F208, temp_s2->rate);
                 }
               }
               else
@@ -808,21 +821,21 @@ s32 Pokedex_DrawAreaMapScreen(UNUSED u8 unused)
               {
                 if (tmp >= 2)
                 {
-                  sprintf(sAreaLabels[i].text, D_8A12FDD4, str, D_8A12F1FC, temp_s1, sEncounterRateTierText[tier]);
+                  PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FDD4, str, D_8A12F1FC, temp_s1, sEncounterRateTierText[tier]);
                 }
                 else
                 {
-                  sprintf(sAreaLabels[i].text, D_8A12FDE4, str, D_8A12F1FC, temp_s1, sEncounterRateTierText[tier]);
+                  PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FDE4, str, D_8A12F1FC, temp_s1, sEncounterRateTierText[tier]);
                 }
               }
               else
                 if (tmp >= 2)
               {
-                sprintf(sAreaLabels[i].text, D_8A12FDF0, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, sEncounterRateTierText[tier]);
+                PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FDF0, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, sEncounterRateTierText[tier]);
               }
               else
               {
-                sprintf(sAreaLabels[i].text, D_8A12FE04, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, sEncounterRateTierText[tier]);
+                PORT_SPRINTF_NOTED(sAreaLabels[i].text, D_8A12FE04, str, D_8A12F1FC, temp_s1, D_8A12F204, temp_s4, sEncounterRateTierText[tier]);
               }
               sLabelWidth = ((strlen(sAreaLabels[i].text) * 5) + 0x32) & 0xFFF8;
               sAreaLabels[i].width = sLabelWidth;
