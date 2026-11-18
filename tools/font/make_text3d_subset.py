@@ -20,7 +20,7 @@ from fontTools.ttLib import TTCollection, TTFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(ROOT, "assets", "font", "text3d_subset.otf")
-TABLES = [os.path.join(ROOT, "translations", n) for n in ("ai.csv", "human.csv")]
+TABLES = [os.path.join(ROOT, "translations", n) for n in ("ai.csv", "human.csv", "localized.csv")]
 TEXT_COLUMNS = ("ja", "en", "es", "de", "pt", "ko")
 PREFIX = "MODEL_TEXT_"
 FAMILY = "Noto Sans CJK JP"  # the Japanese glyph shapes for kanji; Latin and hangul are the same in every member

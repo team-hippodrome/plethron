@@ -111,7 +111,8 @@ else()
   add_custom_command(TARGET pokestadium POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/translations
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
-            ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv $<TARGET_FILE_DIR:pokestadium>/translations/
+            ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv ${CMAKE_CURRENT_SOURCE_DIR}/translations/localized.csv
+            $<TARGET_FILE_DIR:pokestadium>/translations/
     # the Unicode glyphs for translated text (src/port/unicode_font.cpp)
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/assets/font
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/unifont_subset.hex

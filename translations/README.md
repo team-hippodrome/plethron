@@ -2,12 +2,13 @@
 
 The PC port shows the original Japanese by default (にほんご, kana). On the language
 select screen, pressing C-Left unlocks the AI translations below. Text is looked up
-at runtime by key; nothing here contains the original game text.
+at runtime by key. Nothing here contains the original game text, except the kana of the short names in `localized.csv` (see below).
 
 | File | What it is |
 | --- | --- |
 | `ai.csv` | Machine-assisted translations. Every language column is filled here first. |
 | `human.csv` | Human translations and fixes. It has a row for every string with empty language cells; any cell you fill wins over `ai.csv`. |
+| `localized.csv` | The localized form of the name rows (see [Names](#names-localized-or-transliterated)). Edit it directly, by hand or by AI. |
 | `rom-text/` | **Gitignored.** Your own ROM's text, written by `tools/text/show_kana.py`. Never commit it. |
 
 ## Format
@@ -44,6 +45,25 @@ id,md5,addr,ja,en,es,de,pt,ko,note
 - An empty cell falls through: `human.csv`, then `ai.csv`, then the original.
 - A new language is a new column added before `note`. It's nice to keep `ai.csv`
   under 512 KB so GitHub renders it as a table, but not at the cost of content.
+
+### Names: localized or transliterated
+
+COM Pokémon nicknames (`COM_*`, `NICKNAME_*`) and the Nintendo Cup '97 finalists' names (`FINALIST_*` people
+and handles) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
+`PORT_NAME_STYLE=localized|transliterated`):
+
+- **Localized** (the default): the meaning translated, おれさま → THE MAN, テンサイ → Genius, どろキング →
+  Thiefking. These cells are in `localized.csv`, which wins over `human.csv` and `ai.csv` while names are localized.
+- **Transliterated**: the kana romanized, おれさま → Oresama, どろキング → Dorokingu. These are the rows' cells in
+  `ai.csv` (en, es, de, pt and ko alike), written by `tools/text/romanize_names.py <rom>` from your ROM's kana:
+  Hepburn without macrons, long vowels doubled (Yuusuke, Ruuruu), honorifics after a hyphen (Jura-sama). Fix one
+  in `human.csv`.
+
+`localized.csv` has a `kana` column after `addr` (`id,md5,addr,kana,ja,…,note`): the names are short, so their
+kana sit next to the translation to help discuss it. The script refreshes it. Every row's id, md5 and addr match
+its `ai.csv` row. The rows in `localized.csv` are the set of names the option switches; species names stored as
+nicknames (ダグトりオ, カイりュー …), trainer classes and regions are not in it and stay the same either way.
+Japanese with kanji keeps the kana names, so the option does nothing there.
 
 ### Where each id appears
 

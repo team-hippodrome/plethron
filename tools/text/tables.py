@@ -1,4 +1,4 @@
-"""Read and write translations/ai.csv and translations/human.csv.
+"""Read and write translations/ai.csv, translations/human.csv and translations/localized.csv.
 
 Each row is one string the game prints, keyed by a unique `id`. `md5` is the
 md5 of the original bytes and is the fallback key: when the port can't tell
@@ -16,6 +16,12 @@ ROOT = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 TDIR = os.path.join(ROOT, "translations")
 LANGS = ["ja", "en", "es", "de", "pt", "ko"]
 HEADER = ["id", "md5", "addr"] + LANGS + ["note"]
+# localized.csv (the localized form of the name rows, Options > Names) also shows each name's kana
+LOCALIZED_HEADER = ["id", "md5", "addr", "kana"] + LANGS + ["note"]
+
+
+def header(name):
+    return LOCALIZED_HEADER if name == "localized" else HEADER
 ID_RE = re.compile(r"^[A-Z][A-Z0-9_]*$")
 MD5_RE = re.compile(r"^[0-9a-f]{32}$")
 ADDR_RE = re.compile(r"^(?:[0-9A-F]{8}(?: [0-9A-F]{8})*)?$")
@@ -35,15 +41,16 @@ def read(name):
         return rows, problems
     with open(p, newline="", encoding="utf-8") as f:
         r = csv.reader(f)
-        header = next(r, None)
-        if header != HEADER:
-            problems.append("%s.csv: header must be %s" % (name, ",".join(HEADER)))
+        first = next(r, None)
+        want = header(name)
+        if first != want:
+            problems.append("%s.csv: header must be %s" % (name, ",".join(want)))
             return rows, problems
         for n, rec in enumerate(r, start=2):
-            if len(rec) != len(HEADER):
-                problems.append("%s.csv row %d: %d columns, want %d" % (name, n, len(rec), len(HEADER)))
+            if len(rec) != len(want):
+                problems.append("%s.csv row %d: %d columns, want %d" % (name, n, len(rec), len(want)))
                 continue
-            row = dict(zip(HEADER, rec))
+            row = dict(zip(want, rec))
             if not ID_RE.match(row["id"]):
                 problems.append("%s.csv row %d: bad id %r" % (name, n, row["id"]))
                 continue
@@ -71,9 +78,9 @@ def by_md5(rows):
 def write(name, rows):
     with open(path(name), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
-        w.writerow(HEADER)
+        w.writerow(header(name))
         for row in rows:
-            w.writerow([row.get(k, "") for k in HEADER])
+            w.writerow([row.get(k, "") for k in header(name)])
 
 
 def specs(s):
