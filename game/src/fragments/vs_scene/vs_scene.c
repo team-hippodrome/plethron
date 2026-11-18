@@ -31,6 +31,8 @@
 #include "geo_layout.h"
 #include "geo_render.h"
 #include "gfx_buffer.h"
+#include "anim_raw.h" // PORT: ANIM_FLAGS, ANIM_END (VsScene_PortHideParkedCap)
+#include "StadionPort.h" // PORT: Port_WideMarginN64
 #include "graphics_textures.h"
 #include "input.h"
 #include "main_pool.h"
@@ -270,8 +272,37 @@ s32 VsScene_DrawFrameToImage(s32 unused) {
  * Draws one frame of the scene over the background stage.
  * Seen in play: draws the VS scene's frames while the 「バトル」 title and VS panels play.
  */
+// PORT: after つづける the cap and its sparkles slide off to the left and stay parked at the end of their curves, just
+// past the 4:3 picture's left edge, until the scene ends: in widescreen that spot is on screen, so a piece of the cap
+// sat at the side through the next round's title and VS panels. Set once つづける is chosen (Tournament_PlayBadgeAward);
+// while it is set, a widescreen picture moves each of the two models far to the left once its curve has reached its
+// end. They are moved, not hidden, so their geo callbacks still run every frame as on the N64 (the cap's
+// FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Nothing changes at 4:3.
+#define PORT_PARKED_CAP_SHIFT_X -4000.0f
+static s32 sPortCapParkedOffscreen = 0;
+static s32 sPortCapShifted[2] = { 0, 0 };
+
+static void VsScene_PortHideParkedCap(void) {
+    DisplayObject* objs[2] = { &D_822033D0, &D_82203538 };
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        TransformAnimState* anim = &objs[i]->transformAnim;
+        s32 parked = sPortCapParkedOffscreen && Port_WideMarginN64() != 0 && anim->data != NULL &&
+                     (ANIM_FLAGS(anim->data) & 2) &&
+                     (anim->frameFixed >> 16) >= (s32)ANIM_END(anim->data) - 1; // clamped: holds at end - 1
+
+        if (parked != sPortCapShifted[i]) {
+            objs[i]->position.x += parked ? PORT_PARKED_CAP_SHIFT_X : -PORT_PARKED_CAP_SHIFT_X;
+            sPortCapShifted[i] = parked;
+        }
+    }
+}
+
 s32 VsScene_DrawFrame(s32 unused) {
     s32 sp24 = VsScene_BeginFrame();
+
+    VsScene_PortHideParkedCap(); // PORT: widescreen
 
     GeoRender_AdvanceFrameCounter();
     PokeIcon_ProcessNextSlot((PokeIconRenderer*)D_82203264, 0);
@@ -1023,6 +1054,8 @@ s32 Tournament_RunContinuePrompt(void);
 s32 Tournament_PlayBadgeAward(void) {
     s32 sp24 = 0;
 
+    sPortCapParkedOffscreen = 0; // PORT: see VsScene_PortHideParkedCap
+    VsScene_PortHideParkedCap();
     if (D_822036A4->battleSides[0].unk_1C == 1) {
         Model_InitDisplayObject(&D_822033D0, 1, 0, D_82203254);
         Model_InitDisplayObject(&D_82203538, 1, 0, D_82203258);
@@ -1046,6 +1079,7 @@ s32 Tournament_PlayBadgeAward(void) {
             Audio_PlayCommand(0x51, 0, 0);
             BgStage_RunUntilCondition(0xF, VsScene_DrawFrame);
             sp24 = Tournament_RunContinuePrompt();
+            sPortCapParkedOffscreen = (sp24 == 0); // PORT: つづける: the cap slides off (VsScene_PortHideParkedCap)
         }
     }
     return sp24;
@@ -1210,6 +1244,12 @@ static const u32 sPortTitleSemifinal[] = { 0x8ED0D968, 0x8ED0D460, 0x8ED0D1E0, 0
                                            0x8ED0CB08, 0x8ED0C7A0, 0x8ED0C360 };            // イ ナ ル
 static const u32 sPortTitleFinalBattle[] = { 0x8EE0E1E0, 0x8EE0D2F0, 0x8EE0ED88, 0x8EE0E460, // フ ァ イ ナ
                                              0x8EE0DB08, 0x8EE0E7C8, 0x8EE0DF48, 0x8EE0D6C8 }; // ル バ ト ル
+// The dash and the six round numbers after バトル, moved right when the translation is longer.
+static const u32 sPortTitleNumber[] = { 0x8EC12F20, 0x8EC12D38, 0x8EC128B8, 0x8EC12290,
+                                        0x8EC11F88, 0x8EC11A68, 0x8EC11500 }; // - 1 2 3 4 5 6
+// チャンピオン! over the badge cap after the final (fragment 034).
+static const u32 sPortChampion[] = { 0x8EB2D4E8, 0x8EB2D118, 0x8EB2CDB0, 0x8EB2C740, // チ ャ ン ピ
+                                     0x8EB2C2F0, 0x8EB2BF88, 0x8EB2BDE0 };            // オ ン !
 static const u32 sPortWin[] = { 0x8F6176D0, 0x8F6170B0 };  // か ち
 static const u32 sPortLose[] = { 0x8F616820, 0x8F6162A8 }; // ま け
 
@@ -1263,8 +1303,7 @@ static void VsScene_PortFindGlyphs(GraphNode* node, f32 x, f32 y, f32 z, f32 sx,
     } while (node != NULL && node != first);
 }
 
-static void VsScene_PortTranslateWord(GraphNode* root, const char* id, const u32* dls, s32 count, f32 maxGrow) {
-    Port3DTextSlot slots[8];
+static s32 VsScene_PortFindSlots(GraphNode* root, const u32* dls, s32 count, Port3DTextSlot* slots) {
     PortSlotSearch search;
 
     search.dls = dls;
@@ -1272,18 +1311,30 @@ static void VsScene_PortTranslateWord(GraphNode* root, const char* id, const u32
     search.found = 0;
     search.slots = slots;
     VsScene_PortFindGlyphs(root, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, &search);
-    if (search.found == count) {
-        Port_Text3D_Build(id, slots, count, maxGrow);
+    return search.found == count;
+}
+
+static void VsScene_PortTranslateWord(GraphNode* root, const char* id, const u32* dls, s32 count, f32 maxGrow) {
+    Port3DTextSlot slots[8];
+
+    if (VsScene_PortFindSlots(root, dls, count, slots)) {
+        Port_Text3D_Build(id, slots, count, maxGrow, NULL, 0);
     }
 }
 
-// The round title of `round` and かち / まけ, built once the scene's models are set up.
+// The round title of `round`, チャンピオン! and かち / まけ, built once the scene's models are set up.
 static void VsScene_PortTranslateWords(s32 round) {
     if (!Port_Text3D_Enabled()) {
         return;
     }
     if ((round > 0) && (round < 7)) {
-        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_BATTLE", sPortTitleBattle, ARRAY_COUNT(sPortTitleBattle), 1.0f);
+        Port3DTextSlot slots[ARRAY_COUNT(sPortTitleBattle)];
+        Port3DTextSlot number[ARRAY_COUNT(sPortTitleNumber)];
+
+        if (VsScene_PortFindSlots(D_82203248, sPortTitleBattle, ARRAY_COUNT(sPortTitleBattle), slots) &&
+            VsScene_PortFindSlots(D_82203248, sPortTitleNumber, ARRAY_COUNT(sPortTitleNumber), number)) {
+            Port_Text3D_Build("MODEL_TEXT_BATTLE", slots, ARRAY_COUNT(slots), 1.15f, number, ARRAY_COUNT(number));
+        }
     } else if (round == 7) {
         VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_SEMIFINAL", sPortTitleSemifinal,
                                   ARRAY_COUNT(sPortTitleSemifinal), 1.1f);
@@ -1291,6 +1342,8 @@ static void VsScene_PortTranslateWords(s32 round) {
         VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_FINAL_BATTLE", sPortTitleFinalBattle,
                                   ARRAY_COUNT(sPortTitleFinalBattle), 1.1f);
     }
+    VsScene_PortTranslateWord((GraphNode*)D_82203254, "MODEL_TEXT_CHAMPION", sPortChampion, ARRAY_COUNT(sPortChampion),
+                              1.0f);
     VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_WIN", sPortWin, ARRAY_COUNT(sPortWin), 1.4f);
     VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_LOSE", sPortLose, ARRAY_COUNT(sPortLose), 1.4f);
 }

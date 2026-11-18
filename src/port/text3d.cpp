@@ -365,6 +365,15 @@ std::unique_ptr<Built> Emit(const std::vector<MeshTri>& tris) {
 }
 
 std::unordered_map<uint32_t, Gfx*> gReplacements;
+
+// An original part moved sideways (the round number after a longer word): its list drawn under a translation.
+struct Follower {
+    Mtx mtx;
+    Gfx gfx[4];
+    uint32_t link;
+};
+std::unordered_map<uint32_t, Follower*> gFollowerOf;
+std::vector<std::unique_ptr<Follower>> gFollowers, gRetiredFollowers;
 std::vector<std::unique_ptr<Built>> gLive, gRetired;
 bool gAny = false;
 
@@ -381,13 +390,17 @@ int Port_Text3D_Enabled(void) {
     return Port_Text_GetLanguage() != PORT_LANG_ORIGINAL;
 }
 
-void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, float maxGrow) {
+void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, float maxGrow,
+                       const Port3DTextSlot* followers, int followerCount) {
     if (!Port_Text3D_Enabled() || count <= 0) return;
     const char* text = Port_Text_LookupId(id);
     if (text == nullptr || *text == '\0') return; // empty cell: the original models
     Font& font = GetFont();
     if (!font.ok) return;
-    if (!gRetired.empty() && gReplacements.empty()) gRetired.clear(); // frames that used them are long drawn
+    if (gReplacements.empty()) { // frames that used the retired ones are long drawn
+        gRetired.clear();
+        gRetiredFollowers.clear();
+    }
 
     // the original word: each glyph's extent in model space, its profile in its own part's units
     std::vector<Profile> prof(count);
@@ -411,9 +424,10 @@ void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, f
     struct Placed {
         std::vector<Shape> shapes;
         float x0, x1; // ink extent, font units, after placement
+        float y0, y1;
     };
     std::vector<Placed> glyphs;
-    float pen = 0, inkL = 1e9f, inkR = -1e9f;
+    float pen = 0, inkL = 1e9f, inkR = -1e9f, inkB = 1e9f, inkT = -1e9f;
     const float track = 0.06f * font.unitsPerEm; // Latin letters a little apart, as the kana are
     for (uint32_t cp : cps) {
         int gi = stbtt_FindGlyphIndex(&font.info, (int)cp);
@@ -422,38 +436,85 @@ void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, f
         std::vector<Contour> cs = gi ? GlyphContours(font, gi) : std::vector<Contour>();
         if (gi == 0 && cp != ' ') fprintf(stderr, "[text3d] %s: U+%04X is not in text3d_subset.otf\n", id, cp);
         if (!cs.empty()) {
-            Placed p = { {}, 1e9f, -1e9f };
+            Placed p = { {}, 1e9f, -1e9f, 1e9f, -1e9f };
             for (Contour& c : cs)
                 for (Vec2& v : c) {
                     v.x += pen;
                     p.x0 = std::min(p.x0, v.x);
                     p.x1 = std::max(p.x1, v.x);
+                    p.y0 = std::min(p.y0, v.y);
+                    p.y1 = std::max(p.y1, v.y);
                 }
             p.shapes = ToShapes(cs);
             inkL = std::min(inkL, p.x0);
             inkR = std::max(inkR, p.x1);
+            inkB = std::min(inkB, p.y0);
+            inkT = std::max(inkT, p.y1);
             glyphs.push_back(std::move(p));
         }
         pen += adv + (cp < 0x2E80 ? track : 0); // CJK and hangul are set solid, like the kana
     }
     if (glyphs.empty()) return;
 
-    // size: kana fill about 0.88 em, so the em box gets the original glyphs' height over that; then fit the width
     const float em = font.unitsPerEm;
-    float unit = (height / 0.88f) / em; // model units per font unit
-    float sx = 1, uniform = 1;
-    float width = (inkR - inkL) * unit, avail = (right - left) * maxGrow;
-    if (width > avail) {
-        sx = avail / width;
-        if (sx < 0.75f) {
-            uniform = sx / 0.75f;
-            sx = 0.75f;
+    float sx = 1, uniform = 1, width, avail;
+    float ux, uy, baseline, originX;
+    float followerShift = 0;
+    std::vector<Profile> fprof(followerCount > 0 ? followerCount : 0);
+    if (followerCount > 0) {
+        // The word is followed by parts that stay (the round title's dash and number): the word takes the number's
+        // height, and the dash and number move right by what the word grew, the whole line staying centred.
+        float fl = 1e9f, fr = -1e9f, fb = 1e9f, ft = -1e9f, fh = 0;
+        for (int i = 0; i < followerCount; i++) {
+            fprof[i] = ReadProfile(followers[i].dl);
+            if (!fprof[i].ok) {
+                fprintf(stderr, "[text3d] %s: list 0x%08X not readable, keeping the original\n", id, followers[i].dl);
+                return;
+            }
+            const Port3DTextSlot& f = followers[i];
+            fl = std::min(fl, f.x + f.scaleX * fprof[i].x0);
+            fr = std::max(fr, f.x + f.scaleX * fprof[i].x1);
+            fb = std::min(fb, f.y + f.scaleY * fprof[i].y0);
+            ft = std::max(ft, f.y + f.scaleY * fprof[i].y1);
+            fh = std::max(fh, f.scaleY * (fprof[i].y1 - fprof[i].y0));
         }
+        float unit = fh / (inkT - inkB);
+        width = (inkR - inkL) * unit;
+        float gap = fl - right, fw = fr - fl;
+        avail = (fr - left) * maxGrow - gap - fw; // room for the word
+        if (width > avail) { // narrow the letters a little first, then scale the word down
+            sx = avail / width;
+            if (sx < 0.75f) {
+                uniform = sx / 0.75f;
+                sx = 0.75f;
+            }
+            width = avail;
+        }
+        ux = unit * uniform * sx;
+        uy = unit * uniform;
+        float total = width + gap + fw;
+        float lineLeft = (left + fr) / 2 - total / 2;
+        originX = lineLeft - inkL * ux;
+        followerShift = (lineLeft + width + gap) - fl;
+        baseline = (fb + ft) / 2 - (inkB + inkT) / 2 * uy; // ink centred on the number
+    } else {
+        // size: kana fill about 0.88 em, so the em box gets the original glyphs' height over that; then fit the width
+        float unit = (height / 0.88f) / em; // model units per font unit
+        width = (inkR - inkL) * unit;
+        avail = (right - left) * maxGrow;
+        if (width > avail) {
+            sx = avail / width;
+            if (sx < 0.75f) {
+                uniform = sx / 0.75f;
+                sx = 0.75f;
+            }
+        }
+        ux = unit * uniform * sx;
+        uy = unit * uniform;
+        float cx = (left + right) / 2, cy = (bottom + top) / 2;
+        baseline = cy - 0.38f * em * uy; // the em box (descender -0.12 em, ascender 0.88 em) centred on the word
+        originX = cx - (inkL + inkR) / 2 * ux;
     }
-    float ux = unit * uniform * sx, uy = unit * uniform;
-    float cx = (left + right) / 2, cy = (bottom + top) / 2;
-    float baseline = cy - 0.38f * em * uy; // the em box (descender -0.12 em, ascender 0.88 em) centred on the word
-    float originX = cx - (inkL + inkR) / 2 * ux;
 
     // each glyph goes to the part nearest to its centre
     std::vector<std::vector<int>> owned(count);
@@ -491,7 +552,7 @@ void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, f
                 Shape ls = { local(sh.outer), {} };
                 for (const Contour& h : sh.holes) ls.holes.push_back(local(h));
                 // the chamfer shrinks with the letters when the word had to be scaled down
-                float b = bevel * uniform;
+                float b = bevel * std::min(uniform, 1.0f);
                 Extrude(ls, p.zWall + b, p.zWall, b, tris);
             }
         }
@@ -504,20 +565,45 @@ void Port_Text3D_Build(const char* id, const Port3DTextSlot* slots, int count, f
             fprintf(stderr, "[text3d] %s part %d (0x%08X at %.0f,%.0f): %zu glyphs, %zu triangles\n", id, i, s.dl, s.x,
                     s.y, owned[i].size(), tris.size());
     }
+    for (int i = 0; i < followerCount && followerShift != 0; i++) {
+        auto w = std::make_unique<Follower>();
+        w->link = followers[i].dl;
+        guTranslate(&w->mtx, followerShift / followers[i].scaleX, 0, 0);
+        Gfx* g = w->gfx;
+        gSPMatrix(g++, &w->mtx, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+        __gSPDisplayList(g++, nullptr); // the original list, refreshed in Port_Text3D_Replacement
+        gSPPopMatrix(g++, G_MTX_MODELVIEW);
+        gSPEndDisplayList(g++);
+        gFollowerOf[w->link] = w.get();
+        gReplacements[w->link] = w->gfx;
+        gFollowers.push_back(std::move(w));
+        gAny = true;
+    }
     if (LogOn())
-        fprintf(stderr, "[text3d] %s \"%s\": %d triangles, width %.0f of %.0f, narrowed %.2f, scaled %.2f\n", id, text,
-                built, width, avail, sx, uniform);
+        fprintf(stderr, "[text3d] %s \"%s\": %d triangles, width %.0f of %.0f, narrowed %.2f, scaled %.2f, shift %.0f\n",
+                id, text, built, width, avail, sx, uniform, followerShift);
 }
 
 void* Port_Text3D_Replacement(uintptr_t dl) {
     if (!gAny || dl >= 0x100000000ull) return nullptr;
     auto it = gReplacements.find((uint32_t)dl);
-    return it == gReplacements.end() ? nullptr : it->second;
+    if (it == gReplacements.end()) return nullptr;
+    auto f = gFollowerOf.find((uint32_t)dl);
+    if (f != gFollowerOf.end()) {
+        // the translated original list can be retired with the translation cache: take the current one each time
+        void* orig = Port_GfxPrepareDL(dl);
+        if (orig == nullptr || (uintptr_t)orig == dl) return nullptr;
+        __gSPDisplayList(&f->second->gfx[1], orig);
+    }
+    return it->second;
 }
 
 void Port_Text3D_Clear(void) {
     gReplacements.clear();
+    gFollowerOf.clear();
     gAny = false;
+    for (auto& f : gFollowers) gRetiredFollowers.push_back(std::move(f));
+    gFollowers.clear();
     for (auto& b : gLive) gRetired.push_back(std::move(b));
     gLive.clear();
 }
