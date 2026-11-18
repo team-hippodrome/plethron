@@ -8,6 +8,7 @@
 #include "graphics_textures.h"
 #include "memory_main.h"
 #include "pokemon_stats.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 extern u8 D_8910D7D0[];
 
 #include "m2c_macros.h"
@@ -494,6 +495,13 @@ void PcSort_DrawMonStats(s32 x, s32 y, u8* mon) {
     Font_Printf(x + 348, y + 84, D_89018B10, *(u16*)(mon + 0x2C));
     Font_Printf(x + 487, y + 84, D_89018B14, *(u16*)(mon + 0x2E));
     for (i = 0; i < count; i++) {
+        // PORT: right-aligned names (type 1) anchored by their drawn width, not the byte count, right of the name
+        // and HP column; the others fit inside the 552-wide footer
+        if (D_8900A79C[i].type != 0) {
+            Port_Font_FitNext(x + 130, D_8900A79C[i].x + x + 0x8C, 2);
+        } else {
+            Port_Font_FitNext(D_8900A79C[i].x + x, x + 544, 0);
+        }
         PcBox_DrawMoveName(D_8900A79C[i].x + x, D_8900A79C[i].y + y, BattleMon_GetMoveIndex(mon, i), D_8900A79C[i].type);
     }
     Font_EndTexturedTextRendering();
@@ -558,7 +566,7 @@ void PcSort_DrawHelpText(PcSortOrganizeWindow* win) { // PORT: typed (was s32* a
             } else {
                 list = &win->leftList.list;
             }
-            PcSort_DrawMonStats(win->footerFrame.x, win->footerFrame.y, list->cursor * 0x50 + list->items->rows);
+                PcSort_DrawMonStats(win->footerFrame.x, win->footerFrame.y, list->cursor * 0x50 + list->items->rows);
             break;
     }
 }

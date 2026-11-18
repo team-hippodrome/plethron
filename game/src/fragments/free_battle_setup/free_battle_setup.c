@@ -3,6 +3,7 @@
 #include "global.h"
 #include "m2c_macros.h"
 #include "free_battle_setup.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 
 /* Unprototyped on purpose: different callers in this file pass one or two arguments. */
 s32 Menu_UpdateCursor(Menu* arg0); // PORT: matches the definition
@@ -567,6 +568,13 @@ void FreeBattle_DrawMonStatusWindow(FreeBattleMonStatusWindow* window) {
         Font_Printf(x + 348, y + 96, D_82009C00, window->mon->speed);
         Font_Printf(x + 348, y + 124, D_82009C04, window->mon->special);
         for (i = 0; i < count; i++) {
+            // PORT: the game right-aligns the C-Up/C-Left names by byte count (x + 140), which places translated text
+            // by the Japanese width; anchor them by their drawn width instead, and fit all four inside the panel
+            if (D_82009040[i].centered != 0) {
+                Port_Font_FitNext(x + 8, D_82009040[i].x + x + 140, 2);
+            } else {
+                Port_Font_FitNext(D_82009040[i].x + x, x + window->window.frame.width - 20, 0);
+            }
             FreeBattle_DrawMoveName(D_82009040[i].x + x, D_82009040[i].y + y, BattleMon_GetMoveIndex((u8*)window->mon, i), D_82009040[i].centered);
         }
         Font_EndTexturedTextRendering();
