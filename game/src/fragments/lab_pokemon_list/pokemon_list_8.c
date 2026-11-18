@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "global.h"
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated PP Up title
 #include "asset_archive.h"
 #include "memory_main.h"
 #include "m2c_macros.h"
@@ -403,6 +404,8 @@ void LabPCList_ApplyPpUpItem(LabPCEntry* entry, TmEntry8910A21C* item, s32 slot,
     ptr = (u8*)&entry->mon + slot; // PORT: was entry + slot + 8; ptr[9] is mon.moves[slot], ptr[0x20] is mon.pp[slot]
     end = D_8910E3B8 + strlen(D_8910E3B8);
     *(Str891041D8*)end = *(Str891041D8*)D_8910DE3C;
+    Port_Text_NoteJoined((const char*)D_8910E3B8, (const char*)D_8006A9D4[(entry->mon.moves[slot]) - 1].name,
+                         D_8910DE3C); // PORT: 「<move>のＰＰ」, translated as its pieces
     if (1) {} // karodo
     msg->title = D_8910E3B8;
     msg->kind = 0;

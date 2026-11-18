@@ -20,6 +20,7 @@
 #include <libultraship/libultraship.h>
 
 extern "C" void* ZLift_Resolve(uint32_t addr);
+extern "C" const char* Port_GbWesternDisplayName(const char* euc); // gb_save_convert.cpp
 
 namespace {
 
@@ -336,6 +337,9 @@ const std::string* IdOf(Tables& t, const char* s, const std::string& md5) {
 // is turned into UTF-8 for the Unicode font. Kana and the symbols names use are mapped; full-width Latin letters and
 // digits become ASCII, so a Western cartridge's names read as typed (gb_save_convert.h).
 std::string EucToUtf8(const char* s) {
+    if (const char* full = Port_GbWesternDisplayName(s)) {
+        return full; // a Western cartridge's name that Zero cut to 5 letters, in full (gb_save_convert.h)
+    }
     std::string out;
     auto put = [&](uint32_t cp) {
         if (cp < 0x80) {
@@ -746,6 +750,19 @@ void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap) {
     Tables& t = T();
     std::lock_guard<std::mutex> lock(t.mutex);
     t.formatted[dst] = { std::string(dst), std::string(out) };
+}
+
+void Port_Text_NoteJoined(const char* dst, const char* head, const char* tail) {
+    if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || head == nullptr || tail == nullptr) {
+        return;
+    }
+    const char* h = Port_Text_Utf8Of(head);
+    std::string first = h ? h : "";
+    const char* tl = Port_Text_Utf8Of(tail);
+    std::string second = tl ? tl : "";
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    t.formatted[dst] = { std::string(dst), first + second };
 }
 
 void Port_Text_NoteSame(const char* dst, const char* src) {

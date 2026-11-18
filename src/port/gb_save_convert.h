@@ -50,3 +50,6 @@ bool JpToWest(Context& ctx, const std::vector<uint8_t>& jp, std::vector<uint8_t>
 
 extern "C" int Port_GbMonIsWestern(unsigned otId, unsigned dvs); // OT ID and DVs as numbers, as BattleMon holds them
 extern "C" void Port_GbCharsetExtend(uint16_t* table); // the full-width Latin letters, into Zero's GB->EUC table
+// The full Western nickname, OT, player or rival name (UTF-8) for one Zero cut to 5 letters, as Zero draws it
+// (EUC-JP), or NULL. The pointer stays valid for the run.
+extern "C" const char* Port_GbWesternDisplayName(const char* euc);

@@ -225,6 +225,7 @@ void PcSort_DrawMonRow(s32 x, s32 y, u8* row, s32 index, s32 flags) {
         } else {
             Font_SetColorForFlags(flags);
         }
+        Port_Font_FitNext(x + 10, x + 128, 0); // PORT: a full Western nickname stays left of the level
         Font_Printf(x + 10, y + 4, (char*)mon->nickname);
         Font_SetActive(4, 0);
         Font_Printf(x + 131, y + 8, D_890189B0, mon->level);

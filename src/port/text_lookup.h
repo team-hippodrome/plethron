@@ -55,6 +55,9 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap);
 // The game formatted `fmt` with `ap` into the buffer at `dst` by itself (BattleMessage_Format): `dst` translates as
 // the translated format with translated arguments while it holds the same bytes. No-op in the original language.
 void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap);
+// The game built `dst` from `head` followed by `tail` (a name and a fragment such as 「をあつめる」): `dst` translates
+// as head's translation followed by tail's while it holds the same bytes. No-op in the original language.
+void Port_Text_NoteJoined(const char* dst, const char* head, const char* tail);
 // `dst` now holds a copy of `src`'s bytes and translates as `src` does (a noted format, an id or the md5).
 void Port_Text_NoteSame(const char* dst, const char* src);
 // `s` as UTF-8 in the current language: its noted format, its translation, or the EUC-JP bytes converted. The
