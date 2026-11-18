@@ -663,6 +663,14 @@ static Gfx* Port_Font_PrintfToDisplayListV(s16 x, s16 y, s16 scale_x, s16 scale_
 
     if (strchr(fmt, '%') != NULL) {
         Port_Text_Vformat(utf8, sizeof(utf8), fmt, args);
+    } else if (strchr(fmt, '\n') != NULL && (src = Port_Text_Lookup(fmt)) != NULL) {
+        // A two-line string is one row as a whole (the VS panels' trainer classes, 「むしとり\nしょうねん」 =
+        // TRAINER_CLASS_BUG_CATCHER): looked up line by line, the first line can match a shorter row (COM_BUG_CATCHER,
+        // 「むしとり」) and the second stays kana, or neither line matches (「りかけいの」「おとこ」, Super Nerd).
+        for (; *src != 0 && n < (s32)sizeof(utf8) - 1; src++) {
+            utf8[n++] = *src;
+        }
+        utf8[n] = 0;
     } else {
         for (src = fmt; *src != 0;) {
             if (*src == '\n' || *src == '\t') {
