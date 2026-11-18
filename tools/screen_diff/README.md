@@ -85,6 +85,8 @@ put checkpoints where the screen has settled or right after the press that start
 | `list` | いちらん: source dialog with the Game Boy box, the table's three pages, L/R mode, a row's menu, どうぐをつかう (Protein's stat pop-up), あつめる |
 | `organize` | せいとん: ポケモンをいどうする (party to 64 box 1, report), どうぐをいどうする (lists, count picker), ボックスをいどうする (GB box 1 to 64 box 2, report) |
 | `register` | とうろく: register the party (the Ditto transform), view it, the delete screen |
+| `rental_cards` | the idle pose of all 40 battle species: every rental card of the L50～55 rental list, two shots each |
+| `flame_battle_charizard`, `flame_battle_moltres` | Charizard's tail flame and Moltres's head flame (separate skinned models) on the send-out and the field, each species leading once (`@rng`) |
 
 ## Which sounds a scene asks for
 
