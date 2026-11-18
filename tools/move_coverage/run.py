@@ -127,15 +127,18 @@ def build_teams(wanted, legal, moves, species):
             need = max(legal[dex][m] for m in g)
             level = 100 if any(moves[m][0] == planner.OHKO for m in g) else max(50, need)
             groups.append(dict(dex=dex, moves=g, wanted=[m for m in g if m in wanted[dex]], level=level))
-    n = max(1, math.ceil(len(groups) / TEAM_SIZE), max((sum(1 for g in groups if g["dex"] == d) for d in wanted), default=1))
+    # one Rage user per battle at most: Rage never ends, so the battle stops at the first one
+    rages = sum(1 for g in groups if any(moves[m][0] == planner.RAGE for m in g["moves"]))
+    n = max(1, math.ceil(len(groups) / TEAM_SIZE), rages,
+            max((sum(1 for g in groups if g["dex"] == d) for d in wanted), default=1))
     battles = [[] for _ in range(n)]
     status = (planner.SLEEP, planner.POISON, planner.PARALYZE, planner.CONFUSE, planner.LEECH_SEED)
 
     def cost(b, g):
         rage = any(moves[m][0] == planner.RAGE for m in g["moves"])
         st = sum(1 for m in g["moves"] if moves[m][0] in status)
-        return (len(b),
-                rage and any(moves[m][0] == planner.RAGE for x in b for m in x["moves"]),
+        return (rage and any(moves[m][0] == planner.RAGE for x in b for m in x["moves"]),
+                len(b),
                 st + sum(1 for x in b for m in x["moves"] if moves[m][0] in status))
     # the species with the most groups first, each group into the emptiest battle without that species
     for g in sorted(groups, key=lambda g: -sum(1 for x in groups if x["dex"] == g["dex"])):
@@ -144,7 +147,21 @@ def build_teams(wanted, legal, moves, species):
             battles.append([])
             free = [battles[-1]]
         min(free, key=lambda b: cost(b, g)).append(g)
-    return [b for b in battles if b]
+    battles = [b for b in battles if b]
+    # a battle with fewer than six (a later pass) is filled up with helpers: Free Battle's order screen takes six,
+    # and a helper's strong moves knock the COM's Pokémon out when nothing else is left to do
+    def strength(d):
+        return sorted((m for m in legal[d] if moves[m][1] > 1 and moves[m][0] not in (planner.EXPLODE, planner.RAGE,
+                       planner.OHKO)), key=lambda m: -moves[m][1])[:4]
+    helpers = sorted(legal, key=lambda d: -sum(moves[m][1] for m in strength(d)))
+    for b in battles:
+        for d in helpers:
+            if len(b) >= TEAM_SIZE:
+                break
+            if all(x["dex"] != d for x in b) and strength(d):
+                ms = strength(d)
+                b.append(dict(dex=d, moves=ms, wanted=[], level=max(50, max(legal[d][m] for m in ms))))
+    return battles
 
 
 def mon_record(sp, g, moves, ot_id, nick, com=False):
