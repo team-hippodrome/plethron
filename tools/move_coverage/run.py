@@ -252,7 +252,7 @@ def cmd_route(work, npass, spec):
 
 def play_one(work, b, moves):
     bdir = os.path.join(work, b["dir"])
-    team = [dict(dex=g["dex"], moves=g["moves"], wanted=g["wanted"]) for g in b["team"]]
+    team = [dict(dex=g["dex"], moves=g["moves"], wanted=g["wanted"], level=g.get("level", 50)) for g in b["team"]]
     pend = {(i, m) for i, g in enumerate(b["team"]) for m in g["wanted"]}
     out = os.path.join(bdir, "plan_run")
     battle = planner.play(os.path.join(bdir, "menus.route"), team, moves, out, seed=SEED, log=lambda s: None,
