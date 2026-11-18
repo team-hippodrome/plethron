@@ -7088,6 +7088,7 @@ LAB_BOX_6,7f3063e4e0173e71548e87b47c484df9,8910DDD8,ボックス6,Box 6,Caja 6,B
 LAB_BOX_7,8079e2137b8b4590de9561e751caabe7,8910DDE4,ボックス7,Box 7,Caja 7,Box 7,Caixa 7,박스 7,
 LAB_BOX_8,4fded2aec2900f18f685325fda073daf,8910DDF0,ボックス8,Box 8,Caja 8,Box 8,Caixa 8,박스 8,
 LAB_HP,783bc8f702f85d30af5fcd0caf32da72,8910DDFC,,HP,PS,KP,PS,HP,
+LAB_S_PP,14667b28b91b326fc099dc29283dc56b,8910DE3C,のPP, PP, PP, AP, PP, PP,"Follows the move name: the PP Up result's title (Tackle PP, then the old and new PP)"
 LAB_OK,00e00f8354c232b1e9da756f869fef05,8910E024,,OK,OK,OK,OK,결정,
 LAB_CHOOSE_WHICH_POKEMON_TO_LIST,1887fbdd87cb53b144c5e5527a8bd073,8910E02C,"どこのポケモンを一覧
 するか選んでください。","Choose which Pokémon

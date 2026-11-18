@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/fragments/lab_pc_list/lab_pc_list_1D7B40.c. */
 
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated item window title
 #include "font.h"
 #include "graphics_textures.h"
 extern u8 D_8910D7D0[];
@@ -1671,6 +1672,8 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, PointerList* 
     window->window.frame.style = 0x801;
     func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon->mon.species.id - 1].name);
     *(Str891084B4*)(strlen(D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
+    Port_Text_NoteJoined((const char*)D_89119BD0, (const char*)D_80064C5C[mon->mon.species.id - 1].name,
+                         (const char*)D_8910E120); // PORT: 「<species>がつかえるどうぐ」, translated as its pieces
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;

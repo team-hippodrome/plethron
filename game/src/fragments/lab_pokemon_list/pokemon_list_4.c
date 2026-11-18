@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated gather prompts
 #include "m2c_macros.h"
 
 extern u8 D_80073520[];
@@ -315,6 +316,12 @@ void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
     func_8000A460(D_8910E2D0 + strlen(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
     *(Str891020F8*)D_8910E312 = *(Str891020F8*)D_8910DC50;
     func_8000A460(D_8910E2D0 + (strlen(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
+    // PORT: the two rows are built from a name and 「をあつめる」/「をかいじょする」: translate them as those pieces
+    Port_Text_NoteJoined((const char*)D_8910E2D0,
+                         (const char*)D_80064C5C[((LabPCEntry*)((PointerList*)screen->list.items)->items[screen->list.cursor])->mon.species.id - 1].name,
+                         (const char*)D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
+    Port_Text_NoteJoined((const char*)D_8910E312, (const char*)D_8910DC50,
+                         (const char*)D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
     LabPCList_InitPopupMenu(&screen->popup, D_8910A898, (u16*)screen->popupItemFlags, 4, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38,
                   screen->listFrame.y + screen->list.cursorY - screen->list.scrollY + 22, 0, 20);
@@ -388,6 +395,8 @@ extern s8 D_8910E358[];
 void LabPCList_InitSortMenu(LabPCListScreen *screen) {
     func_8000A460(D_8910E358, D_8910A8B0);
     func_8000A460(D_8910E358 + strlen(D_8910E358), D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]);
+    Port_Text_NoteJoined((const char*)D_8910E358, (const char*)D_8910A8B0,
+                         (const char*)D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]); // PORT: translated as its pieces
     LabPCList_InitPopupMenu(&screen->popup, D_8910A8C8, (u16*)&screen->popupItemFlags, 5, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38, screen->listFrame.y, 0, 22);
     screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;

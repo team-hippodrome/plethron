@@ -9,6 +9,7 @@
 #include "string.h"
 #include "text_lookup.h" // PORT: translations
 #include "pokedex_name_order.h" // PORT: translated name order
+#include <stdarg.h> // PORT: Text_NoteFormattedTmHm
 extern const char sStatusNames[7][4];
 extern const char sTypeNames[17][4];
 extern const char sMoveNames[166][8];
@@ -213,6 +214,15 @@ char* Text_CopySpeciesName(char* arg0, s32 arg1) {
  * Writes the name of item `arg0` into `arg1`: items 1-83 from the name table D_8006B570, 196-200 as
  * HM01-HM05, 201-254 as TM01-TM54, anything else as table entry 6.
  */
+// PORT: lets the text lookup translate the buffer the game sprintf'd (TM_HM_LABEL_* rows, text_lookup.h).
+static void Text_NoteFormattedTmHm(const char* dst, const char* fmt, ...) {
+    va_list ap;
+
+    va_start(ap, fmt);
+    Port_Text_NoteFormatted(dst, fmt, ap);
+    va_end(ap);
+}
+
 char* Text_GetTmHmName(s32 arg0, char* arg1) {
     // ひでんマシン%02d: "HM%02d"
     static const char D_0007CCA0[] = { 164, 210, 164, 199, 164, 243, 165, 222, 165, 183,
@@ -225,8 +235,10 @@ char* Text_GetTmHmName(s32 arg0, char* arg1) {
         HAL_Strcpy(arg1, D_8006B570[arg0 - 1]);
     } else if ((arg0 >= 196) && (arg0 < 201)) {
         sprintf(arg1, D_0007CCA0, arg0 - 195, arg0);
+        Text_NoteFormattedTmHm(arg1, D_0007CCA0, arg0 - 195); // PORT: HM01 in the translated languages
     } else if ((arg0 >= 201) && (arg0 < 0xFF)) {
         sprintf(arg1, D_0007CCB4, arg0 - 200, arg0);
+        Text_NoteFormattedTmHm(arg1, D_0007CCB4, arg0 - 200); // PORT: TM06
     } else {
         HAL_Strcpy(arg1, D_8006B570[6]);
     }

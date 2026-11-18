@@ -367,6 +367,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         func_8001A384(8, 0);
         func_8001ABE8();
         func_8001AAE4(0x7F, 0xA8, 0xFF, 0xFF);
+        Port_Font_FitNext(x + 10, x + 128, 0); // PORT: a full Western nickname stays left of the level label
         Font_Printf(x + 10, y + 5, (char*)win->mon->nickname);
         func_8001AC3C();
         func_8001A384(4, -1);
@@ -503,6 +504,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, Poke
         func_8001AB6C();
         Font_SetColorForFlags(flags);
         func_8001A384(4, 0);
+        Port_Font_FitNext(x + 4, x + 87, 0); // PORT: a full Western nickname fits its cell
         Font_Printf(x + 5, y + 48, (char*)mon->nickname);
         func_8001ABBC();
         gSPDisplayList(gDisplayListHead++, D_80073408);
