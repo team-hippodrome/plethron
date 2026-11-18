@@ -29,8 +29,8 @@ id,md5,addr,ja,en,es,de,pt,ko,note
   up by md5.
 - `addr` lists the N64 link addresses the string sits at, as 8 uppercase hex
   digits separated by spaces (`80079EE4 80079EF8`). The port binds ids by
-  address. It is empty for the 45 strings that only exist inside a compressed
-  archive (the COM party nicknames); those are found by md5.
+  address. It is empty for the strings that only exist inside a compressed
+  archive (Free Battle rentals and preset teams); those are found by md5.
 - A few strings have identical bytes but different meanings, such as ゴースト,
   which is both Haunter's name and the Ghost type. Each meaning gets its own row
   and id (`HAUNTER_NAME`, `GHOST_TYPE_NAME`) with the same md5 and its own
@@ -48,8 +48,8 @@ id,md5,addr,ja,en,es,de,pt,ko,note
 
 ### Names: localized or transliterated
 
-COM Pokémon nicknames (`COM_*`, `NICKNAME_*`) and the Nintendo Cup '97 finalists' names (`FINALIST_*` people
-and handles) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
+COM Pokémon nicknames (`<TRAINER>_<SPECIES>`), COM trainer names (`COM_*`) and the Nintendo Cup '97 finalists'
+names (`FINALIST_*` people and handles) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
 `PORT_NAME_STYLE=localized|transliterated`):
 
 - **Localized** (the default): the meaning translated, おれさま → THE MAN, テンサイ → Genius, どろキング →
@@ -78,7 +78,8 @@ Notes that would repeat on every row of a group live here instead.
 | `BATTLE_MENU_*` | Battle menu |
 | `BATTLE_MODE_*` | Battle Mode menus and tournament rules |
 | `BATTLE_MSG_*` | Battle message; %s is a Pokémon or move name |
-| `COM_*` | COM trainer or nickname (puns are fine to keep loose) |
+| `COM_*` | COM trainer name (the OT of a COM team's Pokémon), trainer class word, or a species name stored as a nickname |
+| `<TRAINER>_<SPECIES>` | A COM Pokémon's nickname, named after its owner and species (puns are fine to keep loose): `MIKA_DUGTRIO` is Nintendo Cup '97 finalist Fujita Mika's Dugtrio (finalists by given name, Lv. 50–55 Tournament); `BUG_CATCHER_BEEDRILL` the Lv. 1–30 Tournament Bug Catcher's (one row for all four cups); `FREE_BATTLE_LASS_TAUROS` a Free Battle preset team's (Yay0 data, no addr). A nickname two finalists share (ぎゅうた, まさこ) has a row per owner, same md5, own addr |
 | `CONTINUE_*` | Tournament continue prompt |
 | `CONTROLLER_ERROR_*` | Controller / 64DD error screen |
 | `DEBUG_*` | Battle debug menu (unused in normal play) |
@@ -90,7 +91,7 @@ Notes that would repeat on every row of a group live here instead.
 | `MAIN_MENU_*` | GB Player / main menu |
 | `MODE_*` | Stadium mode or rule label |
 | `MODEL_TEXT_*` | Words the game draws as 3D models, not text: the round titles on the VS screen (バトル, セミファイナル, ファイナルバトル; the round number and dash stay the original models, moved right when the word is longer), チャンピオン! over the badge cap after a cup's final, and かち / まけ on the results panels. The port builds the meshes from `assets/font/text3d_subset.otf` (`src/port/text3d.cpp`); run `tools/font/make_text3d_subset.py` after adding characters. Not ROM text: `md5` is the md5 of the kana in EUC-JP, `addr` is empty, and the kana are in the note. Round titles and チャンピオン! stay katakana loanwords: Latin capitals (BATTLE, CHAMPION!), hangul for Korean (배틀, 챔피언!). An empty `ja` keeps the original models |
-| `NICKNAME_*` | COM party nickname (Yay0 data) |
+| `NICKNAME_*` | Free Battle rental data (Yay0): the rentals' OT ポケスタ and species names written with り |
 | `PIKACHU_SURF_*` | Pikachu Surf reward after a tournament |
 | `PLACE_*` | Pokédex habitat map label |
 | `REGISTER_*` | Pokémon registration |

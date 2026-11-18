@@ -847,7 +847,8 @@ int Port_Text_SelfTest(void) {
     check("names localized HAUNTER_NAME", Port_Text_LookupId("HAUNTER_NAME"), "Haunter");
     sNameStyleTest = PORT_NAMES_TRANSLITERATED;
     check("names transliterated FINALIST_ORESAMA", Port_Text_LookupId("FINALIST_ORESAMA"), "Oresama");
-    check("names transliterated COM_THIEFKING", Port_Text_LookupId("COM_THIEFKING"), "Dorokingu");
+    check("names transliterated BURGLAR_NIDOKING", Port_Text_LookupId("BURGLAR_NIDOKING"), "Dorokingu");
+    check("names transliterated MIKA_DUGTRIO", Port_Text_LookupId("MIKA_DUGTRIO"), "Tagutorio");
     sNameStyleTest = -1;
     // a unique string by md5
     const char* bulbasaurEntry = (const char*)ZLift_Resolve(0x80060A30);
