@@ -8,6 +8,7 @@
 #include "util.h"
 #include "string.h"
 #include "text_lookup.h" // PORT: translations
+#include "pokedex_name_order.h" // PORT: translated name order
 extern const char sStatusNames[7][4];
 extern const char sTypeNames[17][4];
 extern const char sMoveNames[166][8];
@@ -534,6 +535,11 @@ extern s8 D_8006BA53;
  * Checked against the ROM table.
  */
 u8 Species_GetKanaOrderEntry(s32 pos) {
+    s32 dex = PokedexNameOrder_Entry(pos); // PORT: the translated names' order (game/src/pokedex_name_order.c)
+
+    if (dex != 0) {
+        return dex;
+    }
     return *(&D_8006BA53 + pos);
 }
 

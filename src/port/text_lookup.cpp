@@ -659,6 +659,10 @@ int Port_Subtitles_Enabled(void) {
     return CVarGetInteger("gPort.Subtitles", 1) != 0;
 }
 
+int Port_PokedexNameOrder_Enabled(void) {
+    return CVarGetInteger("gPort.PokedexNameOrder", 1) != 0;
+}
+
 void Port_Subtitles_SetEnabled(int on) {
     CVarSetInteger("gPort.Subtitles", on ? 1 : 0);
     CVarSave();
