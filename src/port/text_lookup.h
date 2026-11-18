@@ -32,6 +32,9 @@ void Port_Text_SaveLanguage(int lang);
 // default; Options > Subtitles), and saving a new choice.
 int Port_Subtitles_Enabled(void);
 void Port_Subtitles_SetEnabled(int on);
+// Whether the Pokédex index's kana order follows the translated names (port setting gPort.PokedexNameOrder, on by
+// default; game/src/pokedex_name_order.c).
+int Port_PokedexNameOrder_Enabled(void);
 // The language's name in that language (UTF-8), for the language select screen.
 const char* Port_Text_LanguageName(int lang);
 

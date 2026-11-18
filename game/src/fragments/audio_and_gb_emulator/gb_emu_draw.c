@@ -6,6 +6,7 @@
 #include "audio_and_gb_emulator.h"
 #include "gb_player_launch.h"
 #include "variables.h"
+#include "gb_player_text.h" // PORT: translated GB Player text
 typedef struct unk_func_812009D0 {
   /* 0x00 */ u8 unk00[0x34];
   /* 0x34 */ u8 data[0x10];  
@@ -583,6 +584,9 @@ void GbEmu_DrawTextCommands(u16* fb, u8* cmd) {
     s32 col;
     s32 n;
 
+    if (GbPlayerText_DrawCommands(fb, cmd)) { // PORT: the list translated (gb_player_text.c)
+        return;
+    }
     flags = *cmd;
     ptr = cmd;
     while (flags) {
@@ -973,12 +977,15 @@ void GbEmu_DrawAccessOverlay(s32 direction) {
         direction = 6;
     }
     p = &D_811541F0[direction];
+    // PORT: ロードちゅう / セーブちゅう translated (gb_player_text.c), in the six glyphs' 57 pixels
+    if (!GbPlayerText_BlendStatusWord((u16*)dst, direction ? 1 : 0, 57, 10, 0xFFFE)) {
     do {
         GbEmu_BlendColorWithAlphaMap((u16*)dst, D_81156598 + *p * 0xA0, 0xFFFE, 12, 10, 16); // #FFFFFF
         i += 0x12;
         dst += 0x12;
         p++;
     } while (i != 0x6C);
+    }
     func_81103C40(pos + 0x7FE, D_81120A18, 0, 0x10, 0xA);
     func_81103C40(pos + 0x5C2, (u8*)&D_81120B58[D_81156594 * 12 * 12], 0, 0xC, 0xC);
     GbEmu_DrawAccessIcon((u16*)pos, direction, 0);
@@ -1033,9 +1040,12 @@ void GbEmu_DrawStatusBar(void) {
     func_81103C40(pos + 0x280, D_811208F8, 0, 0xC, 0xC);
     dst = pos + 0x29C;
     /* The comma expression is what gives the ROM's register allocation. */
+    // PORT: でメニュー translated (gb_player_text.c), in the five glyphs' 60 pixels
+    if (!GbPlayerText_BlendStatusWord((u16*)dst, 2, 60, 12, 0xFFFE)) {
     for (p = D_811541FC; (0, p) != &D_811541FC[5]; p++) { // FAKE: comma expression
         GbEmu_BlendColorWithAlphaMap((u16*)dst, D_8115659C + *p * 0xC0, 0xFFFE, 12, 12, 16); // #FFFFFF
         dst += 0x18;
+    }
     }
     D_81154C00 = D_81156540.framebuffer;
 }

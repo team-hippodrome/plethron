@@ -89,6 +89,7 @@ set(PORT_MAIN_SOURCES
   src/port/zero_lift.c
   src/port/zero_asm.c
   src/port/text_lookup.cpp
+  src/port/collate.cpp
   src/port/unicode_font.cpp
   src/port/text3d.cpp
   src/port/generated/zero_lift_data.c
