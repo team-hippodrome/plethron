@@ -2072,6 +2072,13 @@ class LauncherWindow : public Ship::GuiWindow {
             mChanged = true;
         }
         y += bh + 14;
+        // the glyphs of translated text (src/port/unicode_font.cpp): Unifont by default, or the prototype Pop font
+        const bool pop = CVarGetInteger("gPort.TextFont", 0) == 1;
+        if (Button(pop ? "Text font · Pop (test)" : "Text font · Unifont", rx, y, bw, bh, gFonts.game)) {
+            CVarSetInteger("gPort.TextFont", pop ? 0 : 1);
+            CVarSave();
+        }
+        y += bh + 14;
         Text(rx + 4, y + 8, s.aspect == 1 ? "16:9: 3D scenes show more at the sides." : "4:3: the N64's picture shape.",
              gFonts.small, Theme::dim);
         Text(rx + 4, y + 28, "Smooth motion draws in-between frames (one frame of extra delay).", gFonts.small, Theme::dim);

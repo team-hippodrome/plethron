@@ -19,6 +19,6 @@ for row in csv.DictReader(open(csvf,encoding='utf-8')):
     if i.endswith('_STATUS_NAME'): h,a=10,37
     elif i.startswith('COM_'): h,a=12,66
     else: continue
-    for L in ['en','es','de','pt','ko']:
+    for L in ['en','es','de','pt','ko','fr','it']:
         wd,r=fit(row[L],h,a)
         if r!='fits': print(r,i,L,row[L],wd,a)

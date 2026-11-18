@@ -8,8 +8,8 @@
 #include "util.h"
 #include "string.h"
 #include "text_lookup.h" // PORT: translations
-#include "pokedex_name_order.h" // PORT: translated name order
 #include <stdarg.h> // PORT: Text_NoteFormattedTmHm
+#include "pokedex_name_order.h" // PORT: translated name order
 extern const char sStatusNames[7][4];
 extern const char sTypeNames[17][4];
 extern const char sMoveNames[166][8];

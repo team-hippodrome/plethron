@@ -149,6 +149,17 @@ def scan(data):
                 if lead and 0x4E00 <= ord(lead) <= 0x9FFF and not (0x4E00 <= ord(raw[2:4].decode("euc-jp", "replace")[:1] or "a") <= 0x9FFF):
                     raw = raw[2:]
                     off += 2
+            # A stat byte >= 0x80 just before a word-aligned name pairs up with the name's first byte and shifts the
+            # whole string out of step (00 94 00 A6 | ギガシイド in fragment 009's party table): read it from the
+            # word boundary instead.
+            if judge(raw) is None:
+                k = (4 - pos % 4) % 4
+                while k < n:
+                    if k > 0 and seg[k - 1] >= 0x80 and judge(seg[k:]) is not None:
+                        raw = seg[k:]
+                        off = pos + k
+                        break
+                    k += 4
             if judge(raw) is not None:
                 yield off, raw
         pos += n + 1

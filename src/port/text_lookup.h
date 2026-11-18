@@ -17,6 +17,8 @@ enum PortLanguage {
     PORT_LANG_DE,
     PORT_LANG_PT,
     PORT_LANG_KO, // the Unicode test case (Russian, Arabic and Hindi were dropped)
+    PORT_LANG_FR, // French and Italian come after Korean so a saved gPort.Language keeps its meaning
+    PORT_LANG_IT,
     PORT_LANG_COUNT
 };
 
@@ -35,6 +37,12 @@ void Port_Subtitles_SetEnabled(int on);
 // Whether the Pokédex index's kana order follows the translated names (port setting gPort.PokedexNameOrder, on by
 // default; game/src/pokedex_name_order.c).
 int Port_PokedexNameOrder_Enabled(void);
+// How COM Pokémon nicknames and the Nintendo Cup '97 finalists' names are drawn in the translated languages (port
+// setting gPort.NameStyle; Options > Names): localized (the meaning, おれさま -> THE MAN, translations/localized.csv,
+// the default) or transliterated (the kana romanized, おれさま -> Oresama, translations/ai.csv).
+enum PortNameStyle { PORT_NAMES_LOCALIZED = 0, PORT_NAMES_TRANSLITERATED = 1 };
+int Port_Names_GetStyle(void);
+void Port_Names_SetStyle(int style);
 // The language's name in that language (UTF-8), for the language select screen.
 const char* Port_Text_LanguageName(int lang);
 

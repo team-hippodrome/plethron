@@ -47,12 +47,19 @@ def parse_state(lines):
     return st
 
 
+MAX_TURNS = 150  # a battle that has not finished by then is stuck (the rest is left for the next pass)
+
+
 class Battle:
     """team: [{'dex', 'moves': [ids], 'nick'}] in party order; moves: {id: (effect, power, type, acc, pp)}."""
 
     def __init__(self, team, moves, log):
         self.team, self.moves, self.log = team, moves, log
         self.pending = {(i, m) for i, mon in enumerate(team) for m in mon["moves"]}
+        self.max_hp = {}  # slot -> max HP when it was last out (pick_switch)
+        self.last_pp = {}  # slot -> PP when it was last out (decide)
+        self.left = None  # (slot, moves done) of the last switch away from a Pokémon (pick_switch)
+        self.idle_switches = (None, 0)  # ((moves done, COM species), switches since) (decide)
         self.tries = {}
         self.done = {}  # (slot, move) -> list of (kind, move) animations seen
         self.presses = []  # (frame, spec, hold)
@@ -157,15 +164,20 @@ class Battle:
                 return None
             self.log("  send out slot %d" % choice)
             return ("switch", choice)
-        if not any(k[0] in alive for k in self.pending):
+        if not any(k[0] in alive for k in self.pending) or self.turn >= MAX_TURNS:
             return ("surrender", None)
         cand = self.slot_moves(active, me, foe)
         if cand:
             _, idx, m = cand[0]
             return ("move", idx, m)
-        # another Pokémon with something usable now (its own pending moves, judged against the same target)
-        target = self.pick_switch(roster, alive, active, st)
+        # another Pokémon with something usable now (its own pending moves, judged against the same target), unless
+        # two switches in a row got nothing done: what the roster tells was not enough (a Substitute kept up, say)
+        progress = (len(self.done), foe["sp"])  # (a new COM Pokémon is a new chance too)
+        if self.idle_switches[0] != progress:
+            self.idle_switches = (progress, 0)
+        target = self.pick_switch(roster, alive, active, st) if self.idle_switches[1] < 2 else None
         if target is not None:
+            self.idle_switches = (progress, self.idle_switches[1] + 1)
             return ("switch", target)
         # nothing usable: attack with a done damaging move to get a fresh target, or Rage at the very end
         if all(k[1] in self.rage_moves() for k in self.pending if k[0] in alive):
@@ -174,14 +186,24 @@ class Battle:
             if slot != active:
                 return ("switch", slot)
             return ("move", self.team[slot]["moves"].index(move), move)
+        # the strongest damaging move of any Pokémon still standing (a weak one would take 100 turns to knock out an
+        # L100 COM Pokémon, as battle 28's Onix did with Slam); switch to its user first
         best = None
-        for i, m in enumerate(self.team[active]["moves"]):
-            eff, power, mtype = self.moves[m][:3]
-            if power > 0 and me["pp"][i] & 0x3F and eff not in (EXPLODE, RAGE) and not (IMMUNE.get(mtype, set()) & set(foe["t"])):
-                if best is None or power > best[0]:
-                    best = (power, i, m)
+        self.last_pp[active] = me["pp"]
+        for slot in alive:
+            for i, m in enumerate(self.team[slot]["moves"]):
+                eff, power, mtype = self.moves[m][:3]
+                if slot in self.last_pp and not self.last_pp[slot][i] & 0x3F:
+                    continue
+                if power > 0 and eff not in (EXPLODE, RAGE) and not (IMMUNE.get(mtype, set()) & set(foe["t"])):
+                    power *= self.team[slot].get("level", 50) / 50.0
+                    if best is None or power > best[0] + (10 if slot != active else 0):
+                        best = (power, slot, i, m)
+        if best and best[1] != active:
+            self.left = (active, len(self.done))
+            return ("switch", best[1])
         if best:
-            return ("move", best[1], best[2])
+            return ("move", best[2], best[3])
         for i in alive:
             if i != active and any(self.moves[m][1] > 0 and self.moves[m][0] not in (EXPLODE, RAGE)
                                    for m in self.team[i]["moves"]):
@@ -192,8 +214,28 @@ class Battle:
         return {m for m, v in self.moves.items() if v[0] == RAGE}
 
     def pick_switch(self, roster, alive, active, st, need=False):
+        """The Pokémon to switch to: the one with the most pending moves usable against the current target now (as
+        far as the roster tells: its HP, its max HP when it was last out). A switch to one whose pending moves cannot
+        work here either would only switch back next turn (battle 28 did that for 230 turns). After a faint (need),
+        failing that, the one with the most pending moves, or any."""
+        me, foe = st[0], st[1]
+        self.max_hp[active] = me["mhp"]
         best = None
         for i in alive:
+            # not straight back to the Pokémon just left when nothing got done since: its moves did not work there
+            # (the roster cannot tell everything: a Substitute still up, a move given up on)
+            if i == active or (not need and self.left == (i, len(self.done))):
+                continue
+            hp = roster[i][1]
+            mon = dict(me, hp=hp, mhp=self.max_hp.get(i, hp), sub=0)
+            n = sum(1 for k in self.pending if k[0] == i and self.usable(i, k[1], mon, foe))
+            if n and (best is None or n > best[0]):
+                best = (n, i)
+        if best:
+            if not need:
+                self.left = (active, len(self.done))
+            return best[1]
+        for i in alive if need else ():
             if i == active:
                 continue
             n = sum(1 for k in self.pending if k[0] == i and self.moves[k[1]][0] != RAGE)

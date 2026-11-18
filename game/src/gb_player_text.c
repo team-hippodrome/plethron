@@ -115,7 +115,7 @@ static s32 GbText_UsesOwnFont(void) {
     s32 lang = Port_Text_GetLanguage();
 
     return (lang == PORT_LANG_EN) || (lang == PORT_LANG_ES) || (lang == PORT_LANG_DE) || (lang == PORT_LANG_PT) ||
-           (lang == PORT_LANG_JA);
+           (lang == PORT_LANG_FR) || (lang == PORT_LANG_IT) || (lang == PORT_LANG_JA);
 }
 
 // The GB Player font's glyph for `cp`, or -1. The fonts hold kana, digits, A-Z, a-z and a few symbols.

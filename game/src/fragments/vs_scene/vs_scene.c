@@ -280,6 +280,7 @@ s32 VsScene_DrawFrameToImage(s32 unused) {
 // FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Nothing changes at 4:3.
 #define PORT_PARKED_CAP_SHIFT_X -4000.0f
 static s32 sPortCapParkedOffscreen = 0;
+extern s32 gPortCullOutside43; // PORT: geo_render.c
 static s32 sPortCapShifted[2] = { 0, 0 };
 
 static void VsScene_PortHideParkedCap(void) {
@@ -308,7 +309,9 @@ s32 VsScene_DrawFrame(s32 unused) {
     PokeIcon_ProcessNextSlot((PokeIconRenderer*)D_82203264, 0);
     BgStage_DrawFrame();
     GfxImage_ClearDepthRectangle(&gDisplayListHead, 0, 0, 320, 240);
+    gPortCullOutside43 = Port_WideMarginN64() != 0; // PORT: widescreen (geo_render.c gPortCullOutside43)
     Geo_RenderRootNode(D_82203244);
+    gPortCullOutside43 = 0;
     return sp24;
 }
 
