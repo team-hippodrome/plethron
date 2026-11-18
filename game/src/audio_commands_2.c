@@ -32,10 +32,13 @@ void Announcer_Reset(s32, s32);
  * D_80077064[].unk_04), a pan angle (-90 to 90) for command 1 and the announcer mode for command 60 (with `arg2`
  * the team size, see Announcer_Reset). Commands 30-35 play the special move sound 166 with kinds 0-5.
  */
+void Port_SoundLog(const char* what, int a0, int a1); // PORT: PORT_SOUNDLOG (os_devices.cpp)
 s32 Audio_PlayCommand(u32 arg0, s32 arg1, s32 arg2) {
     s32 pad[3]; // FAKE
     s32 ret;
     s32 pan;
+
+    Port_SoundLog("cmd", arg0, arg1); // PORT: PORT_SOUNDLOG
 
     if (D_80077528 != 0) {
         return 0;

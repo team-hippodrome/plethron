@@ -741,7 +741,9 @@ void func_80037DF4(s32, s32);
  * in battle, running from battle and a Pound turn.
  * @unverified Name and comment guessed from the code.
  */
+void Port_SoundLog(const char* what, int a0, int a1); // PORT: PORT_SOUNDLOG (os_devices.cpp)
 s32 Audio_PlayCry(u32 arg0, u32 arg1) {
+    Port_SoundLog("cry", arg0, arg1); // PORT: PORT_SOUNDLOG
     if (!gAudioPortReady) { // PORT: the sound data is not loaded (PORT_NO_AUDIO, or not yet)
         return 0;
     }
