@@ -5498,102 +5498,112 @@ wieder seine Gestalt an.","O Ditto transformado voltou
 REGISTER_REGISTER,85bf63ff6b9d61507bf91962662fa4aa,88103000 8810300C 88103018 880023B4,登録,Register,Registrar,Registrieren,Registrar,등록,
 COM_MASAHARU,8c91d3b6e8000c61f5671afef235c49c,82400450 824004A0 824004F0 824005E0 82405F40,,Masaharu,Masaharu,Masaharu,Masaharu,Masaharu,
 COM_FUMIYA,f10e5b49a0ba3619b21ed27532436071,82400540,,Fumiya,Fumiya,Fumiya,Fumiya,Fumiya,
-COM_GYUUTA,6c705d0ef6217b1428e7e556d177ee75,82400580 82400AB0 824011D0 82401BD0,,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Gyuuta,
+KAZUHITO_TAUROS,6c705d0ef6217b1428e7e556d177ee75,82400580,,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Nintendo Cup '97 finalist Katou Kazuhito's Tauros (nickname)
+TOORU_TAUROS,6c705d0ef6217b1428e7e556d177ee75,82400AB0,,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Nintendo Cup '97 finalist Tooru's Tauros (nickname)
+TAKAHISA_TAUROS,6c705d0ef6217b1428e7e556d177ee75,824011D0,,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Nintendo Cup '97 finalist Yamada Takahisa's Tauros (nickname)
+HIROKI_TAUROS,6c705d0ef6217b1428e7e556d177ee75,82401BD0,,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Gyuuta,Nintendo Cup '97 finalist Yoshii Hiroki's Tauros (nickname)
 COM_DUGTRIO,057aac7ed20711fc51befc03e997e787,824005D0 824017A0,ダグトリオ,Dugtrio,Dugtrio,Digdri,Dugtrio,닥트리오,
-COM_GREEN,c92c173e0299ad0665b88f2ff06b56c4,82400640 82400AC0 82400C60 82400DA0,,Green,Green,Green,Green,Green,COM trainer name
-COM_MASAKO,09849abc189745255c6af2e3b420b490,82400680 82400960 82400A10 824020F0,,Masako,Masako,Masako,Masako,Masako,
+COM_GREEN,c92c173e0299ad0665b88f2ff06b56c4,82400640 82400AC0 82400C60 82400DA0,,Guriin,Guriin,Guriin,Guriin,Guriin,COM trainer name
+YOUJIROU_JYNX,09849abc189745255c6af2e3b420b490,82400680,,Masako,Masako,Masako,Masako,Masako,Nintendo Cup '97 finalist Yuuki Youjirou's Jynx (nickname)
+JUN_JYNX,09849abc189745255c6af2e3b420b490,82400960,,Masako,Masako,Masako,Masako,Masako,Nintendo Cup '97 finalist Takahashi Jun's Jynx (nickname)
+TOORU_JYNX,09849abc189745255c6af2e3b420b490,82400A10,,Masako,Masako,Masako,Masako,Masako,Nintendo Cup '97 finalist Tooru's Jynx (nickname)
+AKIHIRO_JYNX,09849abc189745255c6af2e3b420b490,824020F0,,Masako,Masako,Masako,Masako,Masako,Nintendo Cup '97 finalist Fuchiwaki Akihiro's Jynx (nickname)
 COM_DAIJIROU,feb3a37565d55c92967966267a5f78e7,824006E0 82400730 82400780 824007D0,,Daijirou,Daijirou,Daijirou,Daijirou,Daijirou,
+JUN_ARTICUNO,0a9aefd2a1d63daf455400960f0ad3fc,82400820,,Hanimaru,Hanimaru,Hanimaru,Hanimaru,Hanimaru,Nintendo Cup '97 finalist Takahashi Jun's Articuno (nickname)
 COM_JUN,63469b8528434f40482dbd9449855f28,82400830 82400920 824009C0 82405F94,,Jun,Jun,Jun,Jun,Jun,
 COM_SATOSHI,575920ee27be8d537fb24523ec90f48a,82400880 824008D0 82400C10 82400D50 82400E50 82400F90 82401280 824012D0 82401370 824019F0 82401A40 82401AE0 824060F8,,Satoshi,Satoshi,Satoshi,Satoshi,Satoshi,
-COM_KIMA,e4b6c4d0e4a1352fe4d952c403494466,824008C0,,Kima,Kima,Kima,Kima,Kima,
-COM_NISHIKINO,a628ef9b390b17d141b7fc9328dfacf6,82400910,,Nishikino,Nishikino,Nishikino,Nishikino,Nishikino,
+JUN_TAUROS,e4b6c4d0e4a1352fe4d952c403494466,824008C0,,Kima,Kima,Kima,Kima,Kima,Nintendo Cup '97 finalist Takahashi Jun's Tauros (nickname)
+JUN_STARMIE,a628ef9b390b17d141b7fc9328dfacf6,82400910,,Nishikino,Nishikino,Nishikino,Nishikino,Nishikino,Nintendo Cup '97 finalist Takahashi Jun's Starmie (nickname)
+JUN_ALAKAZAM,187468e9a5f971cb9ec8b674b6e5b13f,824009B0,,Tamai,Tamai,Tamai,Tamai,Tamai,Nintendo Cup '97 finalist Takahashi Jun's Alakazam (nickname)
 COM_ARTICUNO,b10ab7a17835aeb4fa4f5eed033c443f,82400A60,フリーザー,Articuno,Articuno,Arktos,Articuno,프리져,
-COM_BLUE,f49c87eec217ee9d31fb3556570c62c9,82400A70 82401230 82401320 82401C30 82406050,,Blue,Blue,Blue,Blue,Blue,
-COM_OMARU,67b1cb5b6aefed37317e370187a6d608,82400B00,,Omaru,Omaru,Omaru,Omaru,Omaru,
+COM_BLUE,f49c87eec217ee9d31fb3556570c62c9,82400A70 82401230 82401320 82401C30 82406050,,Buruu,Buruu,Buruu,Buruu,Buruu,
+TOORU_ELECTRODE,67b1cb5b6aefed37317e370187a6d608,82400B00,,Omaru,Omaru,Omaru,Omaru,Omaru,Nintendo Cup '97 finalist Tooru's Electrode (nickname)
 COM_HAYATO,f66743e9f3a81b59ea0017fbd96f8500,82400B60,,Hayato,Hayato,Hayato,Hayato,Hayato,
-COM_RODAN,8fe10220401c5d7a5e441b344f3253ba,82400BA0,,Rodan,Rodan,Rodan,Rodan,Rodan,
+TOORU_KANGASKHAN,8fe10220401c5d7a5e441b344f3253ba,82400BA0,,Rodan,Rodan,Rodan,Rodan,Rodan,Nintendo Cup '97 finalist Tooru's Kangaskhan (nickname)
 COM_YUUSUKE,4fb0a84b0741f5475ff1d54f31fa6f5c,82400CB0 82405FDC,,Yuusuke,Yuusuke,Yuusuke,Yuusuke,Yuusuke,
 COM_YUUSUKE_2,b129356da886a15f26de0fac6e83e0bf,82400D00,,Yuusuke ,Yuusuke ,Yuusuke ,Yuusuke ,Yuusuke ,
-COM_CLAIR,8980c827f3ef564f9b0534119f262b29,82400E00 82400EA0 82400EF0 82400F40 82406004,,Clair,Clair,Clair,Clair,Clair,
-COM_TAGTRIO,64fea56d09856005d01059b9379a9e66,82400F80,,Tagtrio,Tagtrio,Tagtrio,Tagtrio,Tagtrio,
+COM_CLAIR,8980c827f3ef564f9b0534119f262b29,82400E00 82400EA0 82400EF0 82400F40 82406004,,Kurea,Kurea,Kurea,Kurea,Kurea,
+MIKA_DUGTRIO,64fea56d09856005d01059b9379a9e66,82400F80,,Tagutorio,Tagutorio,Tagutorio,Tagutorio,Tagutorio,Nintendo Cup '97 finalist Fujita Mika's Dugtrio (nickname)
 COM_YASUHIRO,3f7a7bec9d42cc4af4a4fc7699a4d439,82400FF0 82401040 82401090 824010E0 82401130 82401180 82406028,,Yasuhiro,Yasuhiro,Yasuhiro,Yasuhiro,Yasuhiro,
-COM_GIGAFRED,bb312ace35c5876ae2f47c41e8b5c5d6,824013C0,,Gigafred,Gigafred,Gigafred,Gigafred,Gigafred,
+YASUNORI_ARTICUNO,bb312ace35c5876ae2f47c41e8b5c5d6,824013C0,,Gigafuredo,Gigafuredo,Gigafuredo,Gigafuredo,Gigafuredo,Nintendo Cup '97 finalist Kitagawa Yasunori's Articuno (nickname)
 COM_TENSAI,bc06d51a63fe2cae214f21f2f225ef8a,824013D0 82401420 82401470 824014C0 82401510 82401560 82406078,,Tensai,Tensai,Tensai,Tensai,Tensai,
-COM_GIGANTAS,8f3b6fec8ad608bb0de47c93b226b78e,82401460,,Gigantas,Gigantas,Gigantas,Gigantas,Gigantas,
-COM_GIGAANTE,4b58b21c5118f75f9cad81178a211f2c,824014B0,,Gigaante,Gigaante,Gigaante,Gigaante,Gigaante,
-COM_GIGATAUROS,d43f6fb5bdf07bff651ddc5d39381438,82401500,,Gigatauros,Gigatauros,Gigatauros,Gigatauros,Gigatauros,
+YASUNORI_GENGAR,effa3e0bcc2b641669bc3e446f0292e6,82401410,,Gigashiido,Gigashiido,Gigashiido,Gigashiido,Gigashiido,Nintendo Cup '97 finalist Kitagawa Yasunori's Gengar (nickname)
+YASUNORI_JOLTEON,8f3b6fec8ad608bb0de47c93b226b78e,82401460,,Gigantasu,Gigantasu,Gigantasu,Gigantasu,Gigantasu,Nintendo Cup '97 finalist Kitagawa Yasunori's Jolteon (nickname)
+YASUNORI_STARMIE,4b58b21c5118f75f9cad81178a211f2c,824014B0,,Gigaante,Gigaante,Gigaante,Gigaante,Gigaante,Nintendo Cup '97 finalist Kitagawa Yasunori's Starmie (nickname)
+YASUNORI_TAUROS,d43f6fb5bdf07bff651ddc5d39381438,82401500,,Gigatarosu,Gigatarosu,Gigatarosu,Gigatarosu,Gigatarosu,Nintendo Cup '97 finalist Kitagawa Yasunori's Tauros (nickname)
+YASUNORI_ALAKAZAM,f4eb8168759ccd4e0e62e9b062796e2b,82401550,,Gigafurea,Gigafurea,Gigafurea,Gigafurea,Gigafurea,Nintendo Cup '97 finalist Kitagawa Yasunori's Alakazam (nickname)
 COM_NISSHIN,f771328b2b9303aeff3f0b1bfb423c6c,824015C0 82401610 82401660 82401700 82401750 824060A0,,Nisshin,Nisshin,Nisshin,Nisshin,Nisshin,
 COM_GENTAROU,217740629fc0eb4b5d603c801c1831d6,824016B0,,Gentarou,Gentarou,Gentarou,Gentarou,Gentarou,
 COM_DAISUKE,01d882fac36238a015665a59c8b2950f,824017B0 82401800 824018A0 824018F0 82401940 824060CC,,Daisuke,Daisuke,Daisuke,Daisuke,Daisuke,
-COM_RIGEL,f931dc0b3f995b0f82a0639483c561c2,82401850,,Rigel,Rigel,Rigel,Rigel,Rigel,
+COM_RIGEL,f931dc0b3f995b0f82a0639483c561c2,82401850,,Rigeru,Rigeru,Rigeru,Rigeru,Rigeru,
 COM_DRAGONITE,e7a5f4a50309b0f8e47d5a627b7bd191,82401930,カイリュー,Dragonite,Dragonite,Dragoran,Dragonite,망나뇽,
-COM_GLOBE,047cab50445fa75346bbb6896d549ad4,824019A0 82401B30,,Globe,Globe,Globe,Globe,Globe,
+COM_GLOBE,047cab50445fa75346bbb6896d549ad4,824019A0 82401B30,,Guroobu,Guroobu,Guroobu,Guroobu,Guroobu,
 COM_NAOKI,3b0dba78603fe49c75b4dcc99e2ae1b0,82401A90,,Naoki,Naoki,Naoki,Naoki,Naoki,
 COM_TOMOHIRO,bfb0f3fd50eeaeaab20f9e8aea759fc2,82401B90,,Tomohiro,Tomohiro,Tomohiro,Tomohiro,Tomohiro,
 COM_HIRO,4db9f4084ccc6aae816d6cc95de5f461,82401C80 82401CD0 82401D20 82406118,,Hiro,Hiro,Hiro,Hiro,Hiro,
-COM_COPY,2b78fa352a553770d08c678537bb06fc,82401CC0,,Copy,Copy,Copy,Copy,Copy,
+HIROKI_DITTO,2b78fa352a553770d08c678537bb06fc,82401CC0,,Kopii,Kopii,Kopii,Kopii,Kopii,Nintendo Cup '97 finalist Yoshii Hiroki's Ditto (nickname)
 COM_HYPNO,ac434c6a810720338e6f073aec2a12b2,82401D10 82401EB0,スリーパー,Hypno,Hypno,Hypno,Hypno,슬리퍼,
 COM_TAISEI,7cfd77338bd2f0b9d4a603dde7993b71,82401D80 82401DD0 82401E20 82401E70 82401EC0 82401F10 82406144,,Taisei,Taisei,Taisei,Taisei,Taisei,
 COM_DORAEMON,2c1ccb5aceb80d191998a575c6e88891,82401F70,,Doraemon,Doraemon,Doraemon,Doraemon,Doraemon,
 COM_SATASHI,635ee66584389b787882f0cc1318ffca,82401FC0,,Satashi,Satashi,Satashi,Satashi,Satashi,
 COM_AKIHIRO,6f3c41071526064da7ab2dcb81ff93a6,82402010 82402060 824020B0 82406174,,Akihiro,Akihiro,Akihiro,Akihiro,Akihiro,
-COM_LUCKY,19ecd60a9094186f9a8a57c12599c18e,824020A0,,Lucky,Lucky,Lucky,Lucky,Lucky,
-COM_BEETAROU,65a3c6f4ef2937154dc8e58162f2ade4,82402150 824030D0 82404050 82404FD0,,Beetarou,Beetarou,Beetarou,Beetarou,Beetarou,
+AKIHIRO_CHANSEY,19ecd60a9094186f9a8a57c12599c18e,824020A0,,Rakkii,Rakkii,Rakkii,Rakkii,Rakkii,Nintendo Cup '97 finalist Fuchiwaki Akihiro's Chansey (nickname)
+BUG_CATCHER_BEEDRILL,65a3c6f4ef2937154dc8e58162f2ade4,82402150 824030D0 82404050 82404FD0,,Supitarou,Supitarou,Supitarou,Supitarou,Supitarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Beedrill"
 COM_BUG_CATCHER,8a77484e2ce2daf365a30d72f9ac42a3,82402160 824021B0 82402200 82402250 824022A0 824022F0 824030E0 82403130 82403180 824031D0 82403220 82403270 82404060 824040B0 82404100 82404150 824041A0 824041F0 82404FE0 82405030 82405080 824050D0 82405120 82405170 824061A0 824062DC 82406418 82406554,虫取り,Bug Catcher,Cazabichos,Käfersammler,Caçador de Insetos,벌레잡이소년,
-COM_STARTAROU,bcbbdf6e5638e0683b060563da24007a,824021A0 82403120 824040A0 82405020,,Startarou,Startarou,Startarou,Startarou,Startarou,
-COM_MACHTAROU,5eed0a0aefa894d0a522fc61f880e6e3,824021F0 82403170 824040F0 82405070,,Machtarou,Machtarou,Machtarou,Machtarou,Machtarou,
-COM_PIKATAROU,3a584217f832fa6e16e3e44cdfa4c58b,82402240 824031C0 82404140 824050C0,,Pikatarou,Pikatarou,Pikatarou,Pikatarou,Pikatarou,
-COM_DITTAROU,7bb2d945c09a8071f854050ca461673d,82402290 82403210 82404190 82405110,,Dittarou,Dittarou,Dittarou,Dittarou,Dittarou,
-COM_EGGYTAROU,fa3c1a6d448193009a1129542ff8377f,824022E0 82403260 824041E0 82405160,,Eggytarou,Eggytarou,Eggytarou,Eggytarou,Eggytarou,
-COM_THIEF_STAR,441ba4864bb76b07b782a4ec29c4e6aa,82402340 824032C0 82404240 824051C0,,Thief Star,Thief Star,Thief Star,Thief Star,Thief Star,
+BUG_CATCHER_SCYTHER,bcbbdf6e5638e0683b060563da24007a,824021A0 82403120 824040A0 82405020,,Sutotarou,Sutotarou,Sutotarou,Sutotarou,Sutotarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Scyther"
+BUG_CATCHER_PINSIR,5eed0a0aefa894d0a522fc61f880e6e3,824021F0 82403170 824040F0 82405070,,Kaitarou,Kaitarou,Kaitarou,Kaitarou,Kaitarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Pinsir"
+BUG_CATCHER_PIKACHU,3a584217f832fa6e16e3e44cdfa4c58b,82402240 824031C0 82404140 824050C0,,Pikatarou,Pikatarou,Pikatarou,Pikatarou,Pikatarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Pikachu"
+BUG_CATCHER_DITTO,7bb2d945c09a8071f854050ca461673d,82402290 82403210 82404190 82405110,,Metatarou,Metatarou,Metatarou,Metatarou,Metatarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Ditto"
+BUG_CATCHER_EXEGGUTOR,fa3c1a6d448193009a1129542ff8377f,824022E0 82403260 824041E0 82405160,,Nashitarou,Nashitarou,Nashitarou,Nashitarou,Nashitarou,"Lv. 1-30 Tournament, every cup: the Bug Catcher's Exeggutor"
+BURGLAR_FLAREON,441ba4864bb76b07b782a4ec29c4e6aa,82402340 824032C0 82404240 824051C0,,Dorosutaa,Dorosutaa,Dorosutaa,Dorosutaa,Dorosutaa,"Lv. 1-30 Tournament, every cup: the Burglar's Flareon"
 COM_BURGLAR,13d3a15dddc2ce60f528c968062759a4,82402350 824023A0 824023F0 82402440 82402490 824024E0 824032D0 82403320 82403370 824033C0 82403410 82403460 82404250 824042A0 824042F0 82404340 82404390 824043E0 824051D0 82405220 82405270 824052C0 82405310 82405360 824061C8 82406304 82406440 8240657C,泥棒,Burglar,Ladrón,Einbrecher,Assaltante,도둑,
-COM_THIEFCANINE,e163a4b50e6e2f74c8ba807434ee2cf3,82402390 82403310 82404290 82405210,,Thiefcanine,Thiefcanine,Thiefcanine,Thiefcanine,Thiefcanine,
-COM_THIEFQUEEN,61fe29137bfcdc28fb043d96c2d59919,824023E0 82403360 824042E0 82405260,,Thiefqueen,Thiefqueen,Thiefqueen,Thiefqueen,Thiefqueen,
-COM_THIEFKING,7302758e5192d97d3263f1a0279f4f2e,82402430 824033B0 82404330 824052B0,,Thiefking,Thiefking,Thiefking,Thiefking,Thiefking,
-COM_THIEFGON,5834f5a709f7e10c08a1ecf4390da293,82402480 82403400 82404380 82405300,,Thiefgon,Thiefgon,Thiefgon,Thiefgon,Thiefgon,
-COM_THIEFORA,bf53ef00eddd5ce4dc939787505a0ac6,824024D0 82403450 824043D0 82405350,,Thiefora,Thiefora,Thiefora,Thiefora,Thiefora,
-COM_FEAROWCHI,a1221c4a381a9510210fc1f26c63a9bf,82402530 824034B0 82404430 824053B0,,Fearowchi,Fearowchi,Fearowchi,Fearowchi,Fearowchi,
+BURGLAR_ARCANINE,e163a4b50e6e2f74c8ba807434ee2cf3,82402390 82403310 82404290 82405210,,Dorondi,Dorondi,Dorondi,Dorondi,Dorondi,"Lv. 1-30 Tournament, every cup: the Burglar's Arcanine"
+BURGLAR_NIDOQUEEN,61fe29137bfcdc28fb043d96c2d59919,824023E0 82403360 824042E0 82405260,,Dorokuin,Dorokuin,Dorokuin,Dorokuin,Dorokuin,"Lv. 1-30 Tournament, every cup: the Burglar's Nidoqueen"
+BURGLAR_NIDOKING,7302758e5192d97d3263f1a0279f4f2e,82402430 824033B0 82404330 824052B0,,Dorokingu,Dorokingu,Dorokingu,Dorokingu,Dorokingu,"Lv. 1-30 Tournament, every cup: the Burglar's Nidoking"
+BURGLAR_SNORLAX,5834f5a709f7e10c08a1ecf4390da293,82402480 82403400 82404380 82405300,,Dorogon,Dorogon,Dorogon,Dorogon,Dorogon,"Lv. 1-30 Tournament, every cup: the Burglar's Snorlax"
+BURGLAR_KANGASKHAN,bf53ef00eddd5ce4dc939787505a0ac6,824024D0 82403450 824043D0 82405350,,Doroora,Doroora,Doroora,Doroora,Doroora,"Lv. 1-30 Tournament, every cup: the Burglar's Kangaskhan"
+BIRD_KEEPER_FEAROW,a1221c4a381a9510210fc1f26c63a9bf,82402530 824034B0 82404430 824053B0,,Onidotchi,Onidotchi,Onidotchi,Onidotchi,Onidotchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Fearow"
 TRAINER_CLASS_BIRD_KEEPER,582b797710b7a8a0dccf3f6aad291868,82402540 82402590 824025E0 82402630 82402680 824026D0 824034C0 82403510 82403560 824035B0 82403600 82403650 82404440 82404490 824044E0 82404530 82404580 824045D0 824053C0 82405410 82405460 824054B0 82405500 82405550 824061E0 824061EC 8240631C 82406328 82406458 82406464 82406594 824065A0,鳥使い,Bird Keeper,Ornitólogo,Vogelfänger,Criador de Aves,새조련사,
-COM_PTERACHI,39f355867ddea05d45b81bbc1b18dc55,82402580 82403500 82404480 82405400,,Pterachi,Pterachi,Pterachi,Pterachi,Pterachi,
-COM_VAPOCHI,dcbc841acb4d6e74a672057447cab3cf,824025D0 82403550 824044D0 82405450,,Vapochi,Vapochi,Vapochi,Vapochi,Vapochi,
-COM_GOLEMCHI,714f3eedbd93847299147ff313014ef0,82402620 824035A0 82404520 824054A0,,Golemchi,Golemchi,Golemchi,Golemchi,Golemchi,
-COM_DUGTRICHI,f17109562a99c1a1653537647999f201,82402670 824035F0 82404570 824054F0,,Dugtrichi,Dugtrichi,Dugtrichi,Dugtrichi,Dugtrichi,
-COM_PRIMECHI,212390aac088defc5d30401f6a85131b,824026C0 82403640 824045C0 82405540,,Primechi,Primechi,Primechi,Primechi,Primechi,
-COM_RURU,c35c9a9aa869b9832e745fea77b3c8d4,82402720 824036A0 82404620 824055A0,,Ruru,Ruru,Ruru,Ruru,Ruru,
+BIRD_KEEPER_AERODACTYL,39f355867ddea05d45b81bbc1b18dc55,82402580 82403500 82404480 82405400,,Puteratchi,Puteratchi,Puteratchi,Puteratchi,Puteratchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Aerodactyl"
+BIRD_KEEPER_VAPOREON,dcbc841acb4d6e74a672057447cab3cf,824025D0 82403550 824044D0 82405450,,Shawatchi,Shawatchi,Shawatchi,Shawatchi,Shawatchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Vaporeon"
+BIRD_KEEPER_GOLEM,714f3eedbd93847299147ff313014ef0,82402620 824035A0 82404520 824054A0,,Gorotchi,Gorotchi,Gorotchi,Gorotchi,Gorotchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Golem"
+BIRD_KEEPER_DUGTRIO,f17109562a99c1a1653537647999f201,82402670 824035F0 82404570 824054F0,,Dagutotchi,Dagutotchi,Dagutotchi,Dagutotchi,Dagutotchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Dugtrio"
+BIRD_KEEPER_PRIMEAPE,212390aac088defc5d30401f6a85131b,824026C0 82403640 824045C0 82405540,,Okoritchi,Okoritchi,Okoritchi,Okoritchi,Okoritchi,"Lv. 1-30 Tournament, every cup: the Bird Keeper's Primeape"
+JR_TRAINER_F_JYNX,c35c9a9aa869b9832e745fea77b3c8d4,82402720 824036A0 82404620 824055A0,,Ruuruu,Ruuruu,Ruuruu,Ruuruu,Ruuruu,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Jynx"
 COM_JR_TRAINER_F,33f566647df5310e8af1c2adf9f0046d,82402730 82402780 824027D0 82402820 82402870 824028C0 824036B0 82403700 82403750 824037A0 824037F0 82403840 82404630 82404680 824046D0 82404720 82404770 824047C0 824055B0 82405600 82405650 824056A0 824056F0 82405740 82406214 82406350 8240648C 824065C8,,Jr. Trainer♀,Entrenadora Jr.,Juniortrainerin,Treinadora Jr.♀,꼬마 트레이너♀,
-COM_CHOPCHOP,82d2b0e28ddf1c5052355b915268c899,82402770 824036F0 82404670 824055F0,,Chopchop,Chopchop,Chopchop,Chopchop,Chopchop,
-COM_THUNTHUN,c7b09659b395e2adb2c126f327d9fc79,824027C0 82403740 824046C0 82405640,,Thunthun,Thunthun,Thunthun,Thunthun,Thunthun,
-COM_GLAREGLARE,29dfb4e5b6de0539c4df681fb260d4b8,82402810 82403790 82404710 82405690,,Glareglare,Glareglare,Glareglare,Glareglare,Glareglare,
-COM_LAPRALAP,724f8054925df42cec7388c2a5d9c9f7,82402860 824037E0 82404760 824056E0,,Lapralap,Lapralap,Lapralap,Lapralap,Lapralap,
-COM_CHANCECHANCE,c195661af22c7ed6ef710d81fe99ef4c,824028B0 82403830 824047B0 82405730,,Chancechance,Chancechance,Chancechance,Chancechance,Chancechance,
-COM_MILE_MAN,18b12e665361f3e608c242818992cceb,82402910 82403890 82404810 82405790,,Mile Man,Mile Man,Mile Man,Mile Man,Mile Man,
+JR_TRAINER_F_MACHAMP,82d2b0e28ddf1c5052355b915268c899,82402770 824036F0 82404670 824055F0,,Kaikai,Kaikai,Kaikai,Kaikai,Kaikai,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Machamp"
+JR_TRAINER_F_JOLTEON,c7b09659b395e2adb2c126f327d9fc79,824027C0 82403740 824046C0 82405640,,Sansan,Sansan,Sansan,Sansan,Sansan,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Jolteon"
+JR_TRAINER_F_GYARADOS,29dfb4e5b6de0539c4df681fb260d4b8,82402810 82403790 82404710 82405690,,Giragira,Giragira,Giragira,Giragira,Giragira,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Gyarados"
+JR_TRAINER_F_LAPRAS,724f8054925df42cec7388c2a5d9c9f7,82402860 824037E0 82404760 824056E0,,Rapurapu,Rapurapu,Rapurapu,Rapurapu,Rapurapu,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Lapras"
+JR_TRAINER_F_CHANSEY,c195661af22c7ed6ef710d81fe99ef4c,824028B0 82403830 824047B0 82405730,,Rakiraki,Rakiraki,Rakiraki,Rakiraki,Rakiraki,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♀'s Chansey"
+SUPER_NERD_ELECTRODE,18b12e665361f3e608c242818992cceb,82402910 82403890 82404810 82405790,,Mairuman,Mairuman,Mairuman,Mairuman,Mairuman,"Lv. 1-30 Tournament, every cup: the Super Nerd's Electrode"
 COM_SUPER_NERD,b2b87d6798bada98089978c2eb6518bd,82402920 82402970 824029C0 82402A10 82402A60 82402AB0 824038A0 824038F0 82403940 82403990 824039E0 82403A30 82404820 82404870 824048C0 82404910 82404960 824049B0 824057A0 824057F0 82405840 82405890 824058E0 82405930 8240623C 82406378 824064B4 824065F0,理科系,Super Nerd,Supernecio,Streber,Supernerd,괴짜,
-COM_MAGNECOIL,50989972f6c6c47c6ff5ccf8cd46b5c0,82402960 824038E0 82404860 824057E0,,Magnecoil,Magnecoil,Magnecoil,Magnecoil,Magnecoil,
-COM_WAIRK,fee4dc14634a6a4a36e66a45e877f098,824029B0 82403930 824048B0 82405830,,Wairk,Wairk,Wairk,Wairk,Wairk,
-COM_MEOWGORO,dc6648a5c49a38d8e9c3888a848cc6ba,82402A00 82403980 82404900 82405880,,Meowgoro,Meowgoro,Meowgoro,Meowgoro,Meowgoro,
-COM_SNORLINGO,b28c8458d16326dec7029ab8034246d9,82402A50 824039D0 82404950 824058D0,,Snorlingo,Snorlingo,Snorlingo,Snorlingo,Snorlingo,
-COM_SHELLPAN,108ea7e80bbf7d60df9360ea864af4f0,82402AA0 82403A20 824049A0 82405920,,Shellpan,Shellpan,Shellpan,Shellpan,Shellpan,
-COM_GENGORO,196b65c9abb5947529ab26cd40d29a95,82402B00 82403A80 82404A00 82405980,,Gengoro,Gengoro,Gengoro,Gengoro,Gengoro,
+SUPER_NERD_MAGNETON,50989972f6c6c47c6ff5ccf8cd46b5c0,82402960 824038E0 82404860 824057E0,,Akoreiru,Akoreiru,Akoreiru,Akoreiru,Akoreiru,"Lv. 1-30 Tournament, every cup: the Super Nerd's Magneton; the same bytes are the Free Battle preset Super Nerd's Magneton, which this row covers"
+SUPER_NERD_ONIX,fee4dc14634a6a4a36e66a45e877f098,824029B0 82403930 824048B0 82405830,,Waaiku,Waaiku,Waaiku,Waaiku,Waaiku,"Lv. 1-30 Tournament, every cup: the Super Nerd's Onix"
+SUPER_NERD_GOLEM,dc6648a5c49a38d8e9c3888a848cc6ba,82402A00 82403980 82404900 82405880,,Nyagoroo,Nyagoroo,Nyagoroo,Nyagoroo,Nyagoroo,"Lv. 1-30 Tournament, every cup: the Super Nerd's Golem"
+SUPER_NERD_SNORLAX,b28c8458d16326dec7029ab8034246d9,82402A50 824039D0 82404950 824058D0,,Kabingo,Kabingo,Kabingo,Kabingo,Kabingo,"Lv. 1-30 Tournament, every cup: the Super Nerd's Snorlax"
+SUPER_NERD_CLOYSTER,108ea7e80bbf7d60df9360ea864af4f0,82402AA0 82403A20 824049A0 82405920,,Sherupan,Sherupan,Sherupan,Sherupan,Sherupan,"Lv. 1-30 Tournament, every cup: the Super Nerd's Cloyster"
+YOUNGSTER_GENGAR,196b65c9abb5947529ab26cd40d29a95,82402B00 82403A80 82404A00 82405980,,Gengorou,Gengorou,Gengorou,Gengorou,Gengorou,"Lv. 1-30 Tournament, every cup: the Youngster's Gengar"
 COM_YOUNGSTER,b631416eafacab2cc2931b3550257909,82402B10 82402B60 82402BB0 82402C00 82402C50 82402CA0 82403A90 82403AE0 82403B30 82403B80 82403BD0 82403C20 82404A10 82404A60 82404AB0 82404B00 82404B50 82404BA0 82405990 824059E0 82405A30 82405A80 82405AD0 82405B20,短パン,Youngster,Joven,Knirps,Jovem,반바지꼬마,
-COM_KANGORO,fe26d68c6a3b72a6964f296faf86e9b3,82402B50 82403AD0 82404A50 824059D0,,Kangoro,Kangoro,Kangoro,Kangoro,Kangoro,
-COM_LAPGORO,cc38a258a902824de3673d3403a3fea4,82402BA0 82403B20 82404AA0 82405A20,,Lapgoro,Lapgoro,Lapgoro,Lapgoro,Lapgoro,
-COM_NIDOGORO,a8abda0fe9a4aca4367f58f973a057a9,82402BF0 82403B70 82404AF0 82405A70,,Nidogoro,Nidogoro,Nidogoro,Nidogoro,Nidogoro,
-COM_CHANSGORO,1ca17c549ff986880f9de2fde078ff12,82402C40 82403BC0 82404B40 82405AC0,,Chansgoro,Chansgoro,Chansgoro,Chansgoro,Chansgoro,
-COM_FARFGORO,7cdb87107c747b307ea0f6b1df1cacca,82402C90 82403C10 82404B90 82405B10,,Farfgoro,Farfgoro,Farfgoro,Farfgoro,Farfgoro,
-COM_MR_HYPNO,41343d66c867d60a152ceb7a16a614ee,82402CF0 82403C70 82404BF0 82405B70,,Mr. Hypno,Mr. Hypno,Mr. Hypno,Mr. Hypno,Mr. Hypno,
+YOUNGSTER_KANGASKHAN,fe26d68c6a3b72a6964f296faf86e9b3,82402B50 82403AD0 82404A50 824059D0,,Garugorou,Garugorou,Garugorou,Garugorou,Garugorou,"Lv. 1-30 Tournament, every cup: the Youngster's Kangaskhan"
+YOUNGSTER_LAPRAS,cc38a258a902824de3673d3403a3fea4,82402BA0 82403B20 82404AA0 82405A20,,Rapugorou,Rapugorou,Rapugorou,Rapugorou,Rapugorou,"Lv. 1-30 Tournament, every cup: the Youngster's Lapras"
+YOUNGSTER_NIDOQUEEN,a8abda0fe9a4aca4367f58f973a057a9,82402BF0 82403B70 82404AF0 82405A70,,Nidogorou,Nidogorou,Nidogorou,Nidogorou,Nidogorou,"Lv. 1-30 Tournament, every cup: the Youngster's Nidoqueen"
+YOUNGSTER_CHANSEY,1ca17c549ff986880f9de2fde078ff12,82402C40 82403BC0 82404B40 82405AC0,,Rakigorou,Rakigorou,Rakigorou,Rakigorou,Rakigorou,"Lv. 1-30 Tournament, every cup: the Youngster's Chansey"
+YOUNGSTER_ALAKAZAM,7cdb87107c747b307ea0f6b1df1cacca,82402C90 82403C10 82404B90 82405B10,,Fudegorou,Fudegorou,Fudegorou,Fudegorou,Fudegorou,"Lv. 1-30 Tournament, every cup: the Youngster's Alakazam"
+JR_TRAINER_M_HYPNO,41343d66c867d60a152ceb7a16a614ee,82402CF0 82403C70 82404BF0 82405B70,,Suripa-san,Suripa-san,Suripa-san,Suripa-san,Suripa-san,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Hypno"
 COM_JR_TRAINER_M,f0f73bfb10331c8f363d0b4f80e4caad,82402D00 82402D50 82402DA0 82402DF0 82402E40 82402E90 82403C80 82403CD0 82403D20 82403D70 82403DC0 82403E10 82404C00 82404C50 82404CA0 82404CF0 82404D40 82404D90 82405B80 82405BD0 82405C20 82405C70 82405CC0 82405D10 8240628C 824063C8 82406504 82406640,,Jr. Trainer♂,Entrenador Jr.,Juniortrainer,Treinador Jr.♂,꼬마 트레이너♂,
-COM_ELECTRO_KUN,e502b22f036b849d9029395ed5cf9240,82402D40 82403CC0 82404C40 82405BC0,,Electro-kun,Electro-kun,Electro-kun,Electro-kun,Electro-kun,
-COM_MR_CLOYS,cd4a3a0ffacc83626a4af631d6a1aaef,82402D90 82403D10 82404C90 82405C10,,Mr. Cloys,Mr. Cloys,Mr. Cloys,Mr. Cloys,Mr. Cloys,
-COM_KOFFIN_KUN,89a1bdc6934d25a63d0b5ba6a08de13a,82402DE0 82403D60 82404CE0 82405C60,,Koffin-kun,Koffin-kun,Koffin-kun,Koffin-kun,Koffin-kun,
-COM_MR_EXEGGS,eed485e20119e321c1f911e5e67d8200,82402E30 82403DB0 82404D30 82405CB0,,Mr. Exeggs,Mr. Exeggs,Mr. Exeggs,Mr. Exeggs,Mr. Exeggs,
-COM_LADY_JYNX,95ffd698b3d241f9ddb051a10d0e0c9b,82402E80 82403E00 82404D80 82405D00,,Lady Jynx,Lady Jynx,Lady Jynx,Lady Jynx,Lady Jynx,
-COM_DUGSIE,8338276655cd2d15a92e882313d5d919,82402EE0 82403E60 82404DE0 82405D60,,Dugsie,Dugsie,Dugsie,Dugsie,Dugsie,
+JR_TRAINER_M_ELECTRODE,e502b22f036b849d9029395ed5cf9240,82402D40 82403CC0 82404C40 82405BC0,,Main-kun,Main-kun,Main-kun,Main-kun,Main-kun,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Electrode"
+JR_TRAINER_M_CLOYSTER,cd4a3a0ffacc83626a4af631d6a1aaef,82402D90 82403D10 82404C90 82405C10,,Parushi-san,Parushi-san,Parushi-san,Parushi-san,Parushi-san,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Cloyster"
+JR_TRAINER_M_NIDOKING,89a1bdc6934d25a63d0b5ba6a08de13a,82402DE0 82403D60 82404CE0 82405C60,,Dokin-kun,Dokin-kun,Dokin-kun,Dokin-kun,Dokin-kun,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Nidoking"
+JR_TRAINER_M_EXEGGUTOR,eed485e20119e321c1f911e5e67d8200,82402E30 82403DB0 82404D30 82405CB0,,Nashida-san,Nashida-san,Nashida-san,Nashida-san,Nashida-san,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Exeggutor"
+JR_TRAINER_M_JYNX,95ffd698b3d241f9ddb051a10d0e0c9b,82402E80 82403E00 82404D80 82405D00,,Jura-sama,Jura-sama,Jura-sama,Jura-sama,Jura-sama,"Lv. 1-30 Tournament, every cup: the Jr. Trainer♂'s Jynx"
+LASS_DUGTRIO,8338276655cd2d15a92e882313d5d919,82402EE0 82403E60 82404DE0 82405D60,,Dagu-chan,Dagu-chan,Dagu-chan,Dagu-chan,Dagu-chan,"Lv. 1-30 Tournament, every cup: the Lass's Dugtrio"
 COM_LASS,1649fb4b575865619ceb151b60389c6b,82402EF0 82402F40 82402F90 82402FE0 82403030 82403080 82403E70 82403EC0 82403F10 82403F60 82403FB0 82404000 82404DF0 82404E40 82404E90 82404EE0 82404F30 82404F80 82405D70 82405DC0 82405E10 82405E60 82405EB0 82405F00 824062B0 824063EC 82406528 82406664,,Lass,Chica,Göre,Moça,짧은치마,
-COM_SAN_CHAN,e187c5f21ae555b5fa81fb46aa3df78f,82402F30 82403EB0 82404E30 82405DB0,,San-chan,San-chan,San-chan,San-chan,San-chan,
-COM_TAMI_CHAN,85c7ca3918388aae33e28e6b97ae5b84,82402F80 82403F00 82404E80 82405E00,,Tami-chan,Tami-chan,Tami-chan,Tami-chan,Tami-chan,
-COM_GENGAAAH,68fd2985b4156ea3cf7118983474fc05,82402FD0 82403F50 82404ED0 82405E50,,Gengaaah,Gengaaah,Gengaaah,Gengaaah,Gengaaah,
-COM_GYARARIN,873727ee35bdb8738f7a0db5d6388354,82403020 82403FA0 82404F20 82405EA0,,Gyararin,Gyararin,Gyararin,Gyararin,Gyararin,
-COM_TARO_CHAN,2ef647707b3730f00a5d1a8a8550b8bc,82403070 82403FF0 82404F70 82405EF0,,Taro-chan,Taro-chan,Taro-chan,Taro-chan,Taro-chan,
+LASS_JOLTEON,e187c5f21ae555b5fa81fb46aa3df78f,82402F30 82403EB0 82404E30 82405DB0,,San-chan,San-chan,San-chan,San-chan,San-chan,"Lv. 1-30 Tournament, every cup: the Lass's Jolteon"
+LASS_STARMIE,85c7ca3918388aae33e28e6b97ae5b84,82402F80 82403F00 82404E80 82405E00,,Tami-chan,Tami-chan,Tami-chan,Tami-chan,Tami-chan,"Lv. 1-30 Tournament, every cup: the Lass's Starmie; the same bytes are the Free Battle preset Lass's Starmie, which this row covers"
+LASS_GENGAR,68fd2985b4156ea3cf7118983474fc05,82402FD0 82403F50 82404ED0 82405E50,,Geengaa,Geengaa,Geengaa,Geengaa,Geengaa,"Lv. 1-30 Tournament, every cup: the Lass's Gengar"
+LASS_GYARADOS,873727ee35bdb8738f7a0db5d6388354,82403020 82403FA0 82404F20 82405EA0,,Gyararin,Gyararin,Gyararin,Gyararin,Gyararin,"Lv. 1-30 Tournament, every cup: the Lass's Gyarados"
+LASS_TAUROS,2ef647707b3730f00a5d1a8a8550b8bc,82403070 82403FF0 82404F70 82405EF0,,Taro-chan,Taro-chan,Taro-chan,Taro-chan,Taro-chan,"Lv. 1-30 Tournament, every cup: the Lass's Tauros"
 FINALIST_HOKKAIDO,541a22585fd89db212265573cdee968d,82405F20,北海道,Hokkaido,Hokkaido,Hokkaido,Hokkaido,Hokkaido,
 FINALIST_KATOU_KAZUHITO,6351726c48003f02d39a0829b70c25b9,82405F30,,"Katou
 Kazuhito","Katou
@@ -7269,52 +7279,55 @@ então não dá para continuar.
 Reinicie e escolha ""Novo Jogo"".","저장 데이터가 올바르지 않아
 이어서 할 수 없습니다.
 리셋하고 ""처음부터""를 고르세요.",
-NICKNAME_POKESTA,f45290f04fe104321cf486d7d4f0c5f0,,,PokéSta,PokéSta,PokéSta,PokéSta,PokéSta,
+NICKNAME_POKESTA,f45290f04fe104321cf486d7d4f0c5f0,,,Pokesuta,Pokesuta,Pokesuta,Pokesuta,Pokesuta,
 NICKNAME_CHARIZARD,21c1530bfa531ae43d58a6df2b1a6d03,,リザードン,Charizard,Charizard,Glurak,Charizard,리자몽,
 NICKNAME_FEAROW,82fcf81678301cbcf314acf4a30a0c7c,,オニドリル,Fearow,Fearow,Ibitak,Fearow,깨비드릴조,
 NICKNAME_PRIMEAPE,6b6dbd17bd4905b1b81b078c39a8656c,,オコリザル,Primeape,Primeape,Rasaff,Primeape,성원숭,
 NICKNAME_MACHAMP,838273c7ba279ccf7f0e42cd99f5a9a0,,カイリキー,Machamp,Machamp,Machomei,Machamp,괴력몬,
-NICKNAME_ROCKROCK,1de8255a20c18ceeec4345628e227242,,,Rockrock,Rockrock,Rockrock,Rockrock,Rockrock,
-NICKNAME_PALLPALL,8d5b24bbf98c28b42e0adaf074f9a6ba,,,Pallpall,Pallpall,Pallpall,Pallpall,Pallpall,
-NICKNAME_BEEBEE,6d3d84d3becf4fa3832572c19c81b7b2,,,Beebee,Beebee,Beebee,Beebee,Beebee,
-NICKNAME_NIDONIDO,ba4f91f689b175dfd7a8a7e519c884b1,,,Nidonido,Nidonido,Nidonido,Nidonido,Nidonido,
-NICKNAME_MAGMAG,b5e5c2d9a50a01bb5627b65ed403398c,,,Magmag,Magmag,Magmag,Magmag,Magmag,
-NICKNAME_FARFARF,e8e99414bb1c5cd3af626c25ed0300ef,,,Farfarf,Farfarf,Farfarf,Farfarf,Farfarf,
-NICKNAME_PIKANOSUKE,9eabd8761ec0572f962572004984694c,,,Pikanosuke,Pikanosuke,Pikanosuke,Pikanosuke,Pikanosuke,
-NICKNAME_MACHNOSUKE,496428cd172ce4388399dbf3b502b61f,,,Machnosuke,Machnosuke,Machnosuke,Machnosuke,Machnosuke,
-NICKNAME_DITTONOSUKE,274d4297d3694f5d708f56722d81ff3e,,,Dittonosuke,Dittonosuke,Dittonosuke,Dittonosuke,Dittonosuke,
-NICKNAME_GENGNOSUKE,ee8d0941d70fc6fdd3128724acd2c11e,,,Gengnosuke,Gengnosuke,Gengnosuke,Gengnosuke,Gengnosuke,
-NICKNAME_NIDONOSUKE,7e5f6ee1bab6f4c8790eef9f746cdb12,,,Nidonosuke,Nidonosuke,Nidonosuke,Nidonosuke,Nidonosuke,
-NICKNAME_MANKYNOSUKE,dbfcf2715e4f20d0a27a1480922529e1,,,Mankynosuke,Mankynosuke,Mankynosuke,Mankynosuke,Mankynosuke,
-NICKNAME_DOGYARAS,11cb4fdec9cd54be81e00992bd615a0e,,,Dogyaras,Dogyaras,Dogyaras,Dogyaras,Dogyaras,
-NICKNAME_IDENWI,598c62681ae1eda8a7f1b2e07cc416d0,,,Idenwi,Idenwi,Idenwi,Idenwi,Idenwi,
-NICKNAME_PURASURA,6e9bcc1a76a6b492373631f7f32b0ed8,,,Purasura,Purasura,Purasura,Purasura,Purasura,
-NICKNAME_SEENUTS,babce155c78a7f1950a3ff84d2e17a48,,,Seenuts,Seenuts,Seenuts,Seenuts,Seenuts,
-NICKNAME_JURARL,5f48bb42a739f79e400e68480f917eb3,,,Jurarl,Jurarl,Jurarl,Jurarl,Jurarl,
-NICKNAME_VAPO_DON,7b97df61964a3dd9d0780841c0d9212d,,,Vapo-don,Vapo-don,Vapo-don,Vapo-don,Vapo-don,
-NICKNAME_FLARE_DON,ac6cac28fbc63e19630b13e92de2c06a,,,Flare-don,Flare-don,Flare-don,Flare-don,Flare-don,
-NICKNAME_THUNDER_DON,b82c610e168a7c0334f7310a74457c0e,,,Thunder-don,Thunder-don,Thunder-don,Thunder-don,Thunder-don,
-NICKNAME_HYPNO_DON,38fb68b579a0c1cd37b84d2ee43169e3,,,Hypno-don,Hypno-don,Hypno-don,Hypno-don,Hypno-don,
-NICKNAME_CHAMP_DON,0a983bb69132b165615c73c290731832,,,Champ-don,Champ-don,Champ-don,Champ-don,Champ-don,
-NICKNAME_GOLEM_DON,33446ab6c67877cf4c45f6a103314121,,,Golem-don,Golem-don,Golem-don,Golem-don,Golem-don,
-NICKNAME_ELECTROJIROU,d0d8007755eb34347f61d828113dbe99,,,Electrojirou,Electrojirou,Electrojirou,Electrojirou,Electrojirou,
-NICKNAME_TIROJIROU,5b70196c35027981ee3751572fd11c45,,,Tirojirou,Tirojirou,Tirojirou,Tirojirou,Tirojirou,
-NICKNAME_FEARJIROU,7f57409c40481c4f2bf13d2e888e8526,,,Fearjirou,Fearjirou,Fearjirou,Fearjirou,Fearjirou,
-NICKNAME_MAROJIROU,9cb8f59917d5c3c90d738bc342b17846,,,Marojirou,Marojirou,Marojirou,Marojirou,Marojirou,
-NICKNAME_TAUROJIROU,3bb7b7b802768a91b68aa104b04ab7ac,,,Taurojirou,Taurojirou,Taurojirou,Taurojirou,Taurojirou,
-NICKNAME_MR_TRIO,93e392a0d6f327ab8c03c10bb4e25e82,,,Mr. Trio,Mr. Trio,Mr. Trio,Mr. Trio,Mr. Trio,
-NICKNAME_VENU_YAN,e60706b4d5aadf65eaa60889f1f08ece,,,Venu-yan,Venu-yan,Venu-yan,Venu-yan,Venu-yan,
-NICKNAME_CHARI_DON,ce29ac123f89813adb58b14ba1b3e17f,,,Chari-don,Chari-don,Chari-don,Chari-don,Chari-don,
-NICKNAME_MR_TURTLE,1640cea02474725545462a8082e67a04,,,Mr. Turtle,Mr. Turtle,Mr. Turtle,Mr. Turtle,Mr. Turtle,
-NICKNAME_PIKACHU_KUN,f5202db79ddb1844aa4115878f3a2544,,,Pikachu-kun,Pikachu-kun,Pikachu-kun,Pikachu-kun,Pikachu-kun,
-NICKNAME_LAPRAS_HAN,73827ba023da264fda7004d03ff6f5d4,,,Lapras-han,Lapras-han,Lapras-han,Lapras-han,Lapras-han,
-NICKNAME_MR_GON,14f8285a97559eec45200ce2ade08ba1,,,Mr. Gon,Mr. Gon,Mr. Gon,Mr. Gon,Mr. Gon,
-NICKNAME_GENGAAH,44cdb8ee6d48acb50535687ba795723b,,,Gengaah,Gengaah,Gengaah,Gengaah,Gengaah,
-NICKNAME_MARU_CHAN,9ed15444831249f6454eb593a2e29266,,,Maru-chan,Maru-chan,Maru-chan,Maru-chan,Maru-chan,
-NICKNAME_LUCKY_RIN,5eeb0f5c448842ae37b9d09790c6ceea,,,Lucky-rin,Lucky-rin,Lucky-rin,Lucky-rin,Lucky-rin,
-NICKNAME_FUU_CHAN,60b5bedd7f35abadd641929e43a8d666,,,Fuu-chan,Fuu-chan,Fuu-chan,Fuu-chan,Fuu-chan,
-NICKNAME_KENTAPII,9e8b85ff06f26faff5b046e132d62e1b,,,Kentapii,Kentapii,Kentapii,Kentapii,Kentapii,
+FREE_BATTLE_JR_TRAINER_F_ONIX,1de8255a20c18ceeec4345628e227242,,,Iwaiwa,Iwaiwa,Iwaiwa,Iwaiwa,Iwaiwa,Free Battle preset team: the Jr. Trainer♀'s Onix
+FREE_BATTLE_JR_TRAINER_F_CLOYSTER,8d5b24bbf98c28b42e0adaf074f9a6ba,,,Paruparu,Paruparu,Paruparu,Paruparu,Paruparu,Free Battle preset team: the Jr. Trainer♀'s Cloyster
+FREE_BATTLE_JR_TRAINER_F_BEEDRILL,6d3d84d3becf4fa3832572c19c81b7b2,,,Supisupi,Supisupi,Supisupi,Supisupi,Supisupi,Free Battle preset team: the Jr. Trainer♀'s Beedrill
+FREE_BATTLE_JR_TRAINER_F_NIDOQUEEN,ba4f91f689b175dfd7a8a7e519c884b1,,,Nidonido,Nidonido,Nidonido,Nidonido,Nidonido,Free Battle preset team: the Jr. Trainer♀'s Nidoqueen
+FREE_BATTLE_JR_TRAINER_F_MAGNETON,b5e5c2d9a50a01bb5627b65ed403398c,,,Rearea,Rearea,Rearea,Rearea,Rearea,Free Battle preset team: the Jr. Trainer♀'s Magneton
+FREE_BATTLE_JR_TRAINER_F_ALAKAZAM,e8e99414bb1c5cd3af626c25ed0300ef,,,Fudefude,Fudefude,Fudefude,Fudefude,Fudefude,Free Battle preset team: the Jr. Trainer♀'s Alakazam
+FREE_BATTLE_BUG_CATCHER_PIKACHU,9eabd8761ec0572f962572004984694c,,,Pikanosuke,Pikanosuke,Pikanosuke,Pikanosuke,Pikanosuke,Free Battle preset team: the Bug Catcher's Pikachu
+FREE_BATTLE_BUG_CATCHER_PINSIR,496428cd172ce4388399dbf3b502b61f,,,Kainosuke,Kainosuke,Kainosuke,Kainosuke,Kainosuke,Free Battle preset team: the Bug Catcher's Pinsir
+FREE_BATTLE_BUG_CATCHER_DITTO,274d4297d3694f5d708f56722d81ff3e,,,Metanosuke,Metanosuke,Metanosuke,Metanosuke,Metanosuke,Free Battle preset team: the Bug Catcher's Ditto
+FREE_BATTLE_BUG_CATCHER_GENGAR,ee8d0941d70fc6fdd3128724acd2c11e,,,Gennosuke,Gennosuke,Gennosuke,Gennosuke,Gennosuke,Free Battle preset team: the Bug Catcher's Gengar
+FREE_BATTLE_BUG_CATCHER_NIDOKING,7e5f6ee1bab6f4c8790eef9f746cdb12,,,Nidonosuke,Nidonosuke,Nidonosuke,Nidonosuke,Nidonosuke,Free Battle preset team: the Bug Catcher's Nidoking
+FREE_BATTLE_BUG_CATCHER_PRIMEAPE,dbfcf2715e4f20d0a27a1480922529e1,,,Sarunosuke,Sarunosuke,Sarunosuke,Sarunosuke,Sarunosuke,Free Battle preset team: the Bug Catcher's Primeape
+FREE_BATTLE_SUPER_NERD_GYARADOS,11cb4fdec9cd54be81e00992bd615a0e,,,Dogyarasu,Dogyarasu,Dogyarasu,Dogyarasu,Dogyarasu,Free Battle preset team: the Super Nerd's Gyarados
+FREE_BATTLE_SUPER_NERD_ARCANINE,598c62681ae1eda8a7f1b2e07cc416d0,,,Idenwi,Idenwi,Idenwi,Idenwi,Idenwi,Free Battle preset team: the Super Nerd's Arcanine
+FREE_BATTLE_SUPER_NERD_LAPRAS,6e9bcc1a76a6b492373631f7f32b0ed8,,,Purasura,Purasura,Purasura,Purasura,Purasura,Free Battle preset team: the Super Nerd's Lapras
+FREE_BATTLE_SUPER_NERD_EXEGGUTOR,babce155c78a7f1950a3ff84d2e17a48,,,Shiinatsu,Shiinatsu,Shiinatsu,Shiinatsu,Shiinatsu,Free Battle preset team: the Super Nerd's Exeggutor
+FREE_BATTLE_SUPER_NERD_JYNX,5f48bb42a739f79e400e68480f917eb3,,,Juraaru,Juraaru,Juraaru,Juraaru,Juraaru,Free Battle preset team: the Super Nerd's Jynx
+FREE_BATTLE_BURGLAR_VAPOREON,7b97df61964a3dd9d0780841c0d9212d,,,Shawa-don,Shawa-don,Shawa-don,Shawa-don,Shawa-don,Free Battle preset team: the Burglar's Vaporeon
+FREE_BATTLE_BURGLAR_FLAREON,ac6cac28fbc63e19630b13e92de2c06a,,,Busuta-don,Busuta-don,Busuta-don,Busuta-don,Busuta-don,Free Battle preset team: the Burglar's Flareon
+FREE_BATTLE_BURGLAR_JOLTEON,b82c610e168a7c0334f7310a74457c0e,,,Sanda-don,Sanda-don,Sanda-don,Sanda-don,Sanda-don,Free Battle preset team: the Burglar's Jolteon
+FREE_BATTLE_BURGLAR_HYPNO,38fb68b579a0c1cd37b84d2ee43169e3,,,Suripa-don,Suripa-don,Suripa-don,Suripa-don,Suripa-don,Free Battle preset team: the Burglar's Hypno
+FREE_BATTLE_BURGLAR_MACHAMP,0a983bb69132b165615c73c290731832,,,Rikii-don,Rikii-don,Rikii-don,Rikii-don,Rikii-don,Free Battle preset team: the Burglar's Machamp
+FREE_BATTLE_BURGLAR_GOLEM,33446ab6c67877cf4c45f6a103314121,,,Goroni-don,Goroni-don,Goroni-don,Goroni-don,Goroni-don,Free Battle preset team: the Burglar's Golem
+FREE_BATTLE_YOUNGSTER_ELECTRODE,d0d8007755eb34347f61d828113dbe99,,,Marujirou,Marujirou,Marujirou,Marujirou,Marujirou,Free Battle preset team: the Youngster's Electrode
+FREE_BATTLE_YOUNGSTER_SCYTHER,5b70196c35027981ee3751572fd11c45,,,Torajirou,Torajirou,Torajirou,Torajirou,Torajirou,Free Battle preset team: the Youngster's Scyther
+FREE_BATTLE_YOUNGSTER_FEAROW,7f57409c40481c4f2bf13d2e888e8526,,,Onijirou,Onijirou,Onijirou,Onijirou,Onijirou,Free Battle preset team: the Youngster's Fearow
+FREE_BATTLE_YOUNGSTER_KANGASKHAN,9cb8f59917d5c3c90d738bc342b17846,,,Garajirou,Garajirou,Garajirou,Garajirou,Garajirou,Free Battle preset team: the Youngster's Kangaskhan
+FREE_BATTLE_YOUNGSTER_TAUROS,3bb7b7b802768a91b68aa104b04ab7ac,,,Tarojirou,Tarojirou,Tarojirou,Tarojirou,Tarojirou,Free Battle preset team: the Youngster's Tauros
+FREE_BATTLE_YOUNGSTER_DUGTRIO,93e392a0d6f327ab8c03c10bb4e25e82,,,Torio-san,Torio-san,Torio-san,Torio-san,Torio-san,Free Battle preset team: the Youngster's Dugtrio
+FREE_BATTLE_JR_TRAINER_M_VENUSAUR,e60706b4d5aadf65eaa60889f1f08ece,,,Giba-yan,Giba-yan,Giba-yan,Giba-yan,Giba-yan,Free Battle preset team: the Jr. Trainer♂'s Venusaur
+FREE_BATTLE_JR_TRAINER_M_CHARIZARD,ce29ac123f89813adb58b14ba1b3e17f,,,Rizaa-don,Rizaa-don,Rizaa-don,Rizaa-don,Rizaa-don,Free Battle preset team: the Jr. Trainer♂'s Charizard
+FREE_BATTLE_JR_TRAINER_M_BLASTOISE,1640cea02474725545462a8082e67a04,,,Kame-san,Kame-san,Kame-san,Kame-san,Kame-san,Free Battle preset team: the Jr. Trainer♂'s Blastoise
+FREE_BATTLE_JR_TRAINER_M_PIKACHU,f5202db79ddb1844aa4115878f3a2544,,,Pikachi-kun,Pikachi-kun,Pikachi-kun,Pikachi-kun,Pikachi-kun,Free Battle preset team: the Jr. Trainer♂'s Pikachu
+FREE_BATTLE_JR_TRAINER_M_LAPRAS,73827ba023da264fda7004d03ff6f5d4,,,Rapura-han,Rapura-han,Rapura-han,Rapura-han,Rapura-han,Free Battle preset team: the Jr. Trainer♂'s Lapras
+FREE_BATTLE_JR_TRAINER_M_SNORLAX,14f8285a97559eec45200ce2ade08ba1,,,Gon-san,Gon-san,Gon-san,Gon-san,Gon-san,Free Battle preset team: the Jr. Trainer♂'s Snorlax
+FREE_BATTLE_LASS_GENGAR,44cdb8ee6d48acb50535687ba795723b,,,Geengaa,Geengaa,Geengaa,Geengaa,Geengaa,Free Battle preset team: the Lass's Gengar
+FREE_BATTLE_LASS_ELECTRODE,9ed15444831249f6454eb593a2e29266,,,Maru-chan,Maru-chan,Maru-chan,Maru-chan,Maru-chan,Free Battle preset team: the Lass's Electrode
+FREE_BATTLE_LASS_CHANSEY,5eeb0f5c448842ae37b9d09790c6ceea,,,Rakirin,Rakirin,Rakirin,Rakirin,Rakirin,Free Battle preset team: the Lass's Chansey
+FREE_BATTLE_LASS_ALAKAZAM,60b5bedd7f35abadd641929e43a8d666,,,Fuu-chan,Fuu-chan,Fuu-chan,Fuu-chan,Fuu-chan,Free Battle preset team: the Lass's Alakazam
+FREE_BATTLE_LASS_TAUROS,9e8b85ff06f26faff5b046e132d62e1b,,,Kentapii,Kentapii,Kentapii,Kentapii,Kentapii,Free Battle preset team: the Lass's Tauros
 PORT_OPTIONS_SUBTITLES,fb8efb59d59d636708ace5cf85ac2089,,字幕　　　　　　%s,Subtitles       %s,Subtítulos      %s,Untertitel      %s,Legendas        %s,자막            %s,Port text (not in the ROM): Options row that turns the announcer's subtitles on and off; %s is On/Off (OPTIONS_ON/OPTIONS_OFF)
+PORT_OPTIONS_NAMES,c76b0b3f56af3f97c53ccf6d00a5c679,,名前　　　　　　%s,Names           %s,Nombres         %s,Namen           %s,Nomes           %s,이름            %s,Port text (not in the ROM): Options row that picks how COM Pokémon nicknames and the Nintendo Cup '97 finalists' names are shown; %s is PORT_OPTIONS_NAMES_LOCALIZED or _TRANSLITERATED
+PORT_OPTIONS_NAMES_LOCALIZED,b77c2fe799c58c4cdedd4d28d3537961,,ローカライズ,Localized,Localizados,Lokalisiert,Localizados,현지화,"Port text (not in the ROM): Names option value: the names translated by meaning (translations/localized.csv), e.g. おれさま -> THE MAN"
+PORT_OPTIONS_NAMES_TRANSLITERATED,0557c38d581762b8462ca979292db90f,,ローマ字,Romanized,Romanizados,Romanisiert,Romanizados,로마자,"Port text (not in the ROM): Names option value: the kana romanized (translations/ai.csv), e.g. おれさま -> Oresama"
 PORT_POKEDEX_NAME_ORDER,deff25dbe9011091c8682fd6f93f3a90,,,A to Z,De la A a la Z,A bis Z,De A a Z,가나다순,"Port text (not in the ROM): Pokédex index sort bar (C-Right) when the kana order is replaced by the order of the translated names (game/src/pokedex_name_order.c). Japanese keeps the original kana order, so ja stays empty"
 SUBTITLE_ANNOUNCER_09,27f80914f034b379abd85b805e4084a2,,大観衆の見守る中、ついに開幕しました。第一回ポケモントーナメント。果たしてどのようなバトルを見せてくれるのでありましょうか。,"With a huge crowd looking on, it has finally begun: the 1st Pokémon Tournament! What kind of battles will we get to see?","Ante la mirada de una enorme multitud, por fin ha comenzado el 1.er Torneo Pokémon. ¿Qué combates nos depararán?",Vor einer riesigen Zuschauermenge ist es endlich so weit: Das 1. Pokémon-Turnier ist eröffnet! Welche Kämpfe werden wir wohl zu sehen bekommen?,"Diante de uma enorme multidão, finalmente começou o 1º Torneio Pokémon! Que batalhas será que vamos ver?",수많은 관중이 지켜보는 가운데 드디어 제1회 포켓몬 토너먼트가 막을 올렸습니다. 과연 어떤 배틀을 보여 줄까요?,Announcer voice line (subtitle)
 SUBTITLE_ANNOUNCER_0A,6de2b9b43a4f80ef48fb0c7045d6fede,,さあ、今度のバトルも楽しみなところ。第三回戦です。,"Now then, this battle should be fun too. It's Round 3!","Bueno, este combate también promete. ¡Tercera ronda!","So, auch dieser Kampf verspricht spannend zu werden. Runde 3!","Muito bem, esta batalha também promete. Terceira rodada!","자, 이번 배틀도 기대되는군요. 제3회전입니다.",Announcer voice line (subtitle)

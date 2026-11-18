@@ -348,9 +348,14 @@ extern u8 D_8F4B2EB0[];
 
 // PORT: in the translated languages the menu has a Subtitles row after Commentary (the announcer's subtitles,
 // game/src/subtitles.c). Its value is the port setting gPort.Subtitles, held here while the menu is open.
+// In the translated languages that romanize names (all but Japanese with kanji, which keeps the kana names) a Names
+// row follows: COM nicknames and the finalists' names localized or transliterated (port setting gPort.NameStyle).
 #define OPTIONS_HAS_SUBTITLES() (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL)
-#define OPTIONS_ROW_COUNT() (OPTIONS_HAS_SUBTITLES() ? 5 : 4)
+#define OPTIONS_HAS_NAMES() (OPTIONS_HAS_SUBTITLES() && (Port_Text_GetLanguage() != PORT_LANG_JA))
+#define OPTIONS_PORT_ROWS() (OPTIONS_HAS_SUBTITLES() + OPTIONS_HAS_NAMES())
+#define OPTIONS_ROW_COUNT() (4 + OPTIONS_PORT_ROWS())
 static s32 sOptionsSubtitles;
+static s32 sOptionsNameStyle;
 
 /**
  * Draws the options: ステレオ/モノラル (Stereo/Mono), あり/なし (On/Off), バックアップ (Backup), おわり (End).
@@ -364,7 +369,13 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
     s32 row;
 
     row = sel_row;
-    Ui_DrawGradientPanel(50, 60, 220, OPTIONS_HAS_SUBTITLES() ? 145 : 125, &sp44, &sp40); // PORT: + Subtitles row
+    // PORT: taller for the Subtitles and Names rows, and 20 px wider on each side with the Names row, whose values
+    // (Localized / Romanized) are longer than the others'
+    if (OPTIONS_HAS_NAMES()) {
+        Ui_DrawGradientPanel(30, 60, 260, 125 + (20 * OPTIONS_PORT_ROWS()), &sp44, &sp40);
+    } else {
+        Ui_DrawGradientPanel(50, 60, 220, 125 + (20 * OPTIONS_PORT_ROWS()), &sp44, &sp40);
+    }
     gSPDisplayList(gDisplayListHead++, D_80060290);
     Gfx_DrawTextureRgba16(58, (row * 20) + 99, 24, 14, (u8 *) Util_ConvertAddrToVirtAddr((uintptr_t) D_8F4B2EB0), 24, 0x200000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
@@ -380,18 +391,31 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x77) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
     Font_Printf(82, 118, D_8840327C, D_88402FAC[(flags & 2) != 0]);
     if (OPTIONS_HAS_SUBTITLES()) {
-        // PORT: Subtitles <On/Off>, then Backup and Exit one row lower
+        // PORT: Subtitles <On/Off> and Names <Localized/Transliterated>, then Backup and Exit lower down
         char line[0x100];
         const char* fmt = Port_Text_LookupId("PORT_OPTIONS_SUBTITLES");
         const char* value = Port_Text_Utf8Of(D_88402FAC[sOptionsSubtitles == 0]);
+        s32 next = 2;
 
         snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Subtitles       %s", (value != NULL) ? value : "");
-        Gfx_SetEnvColor(255, 255, (row == 2) ? 0 : 255, 255);
-        Port_Font_PrintUtf8(82, 138, line);
-        Gfx_SetEnvColor(255, 255, (row == 3) ? 0 : 255, 255);
-        Font_Printf(82, 158, D_88403290);
-        Gfx_SetEnvColor(255, 255, (row == 4) ? 0 : 255, 255);
-        Font_Printf(82, 178, D_884032A0);
+        Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
+        Port_Font_PrintUtf8(82, 98 + (20 * next), line);
+        next++;
+        if (OPTIONS_HAS_NAMES()) {
+            fmt = Port_Text_LookupId("PORT_OPTIONS_NAMES");
+            value = Port_Text_LookupId((sOptionsNameStyle == PORT_NAMES_TRANSLITERATED) ? "PORT_OPTIONS_NAMES_TRANSLITERATED"
+                                                                                        : "PORT_OPTIONS_NAMES_LOCALIZED");
+            snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Names           %s", (value != NULL) ? value : "");
+            Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
+            Port_Font_FitNext(82, 282, 0);
+            Port_Font_PrintUtf8(82, 98 + (20 * next), line);
+            next++;
+        }
+        Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
+        Font_Printf(82, 98 + (20 * next), D_88403290);
+        next++;
+        Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
+        Font_Printf(82, 98 + (20 * next), D_884032A0);
         Font_EndTexturedTextRendering();
         return;
     }
@@ -536,10 +560,12 @@ void Options_RunMenu(void) {
     s32 sel = 0;
     u8 flags = Save_GetOptionFlags();
     u8 diff;
-    s32 rows = OPTIONS_ROW_COUNT(); // PORT: 5 with the Subtitles row
+    s32 rows = OPTIONS_ROW_COUNT(); // PORT: 5 with the Subtitles row, 6 with the Names row as well
+    s32 extra = rows - 4;           // PORT: the port's rows, after Commentary
     s32 action;
 
     sOptionsSubtitles = Port_Subtitles_Enabled();
+    sOptionsNameStyle = Port_Names_GetStyle();
     do {
         if (gPlayer1Controller->buttonPressed & 0x800) {
             sel--;
@@ -554,15 +580,20 @@ void Options_RunMenu(void) {
             }
             Audio_PlaySystemSound(1);
         } else if (gPlayer1Controller->buttonPressed & 0x8000) {
-            // PORT: the rows after Commentary move down one when the Subtitles row (action 4) is there
+            // PORT: the rows after Commentary move down when the Subtitles row (action 4) and the Names row (action 5)
+            // are there
             action = sel;
-            if (rows == 5) {
-                action = (sel == 2) ? 4 : (sel > 2) ? sel - 1 : sel;
+            if (sel >= 2) {
+                action = (sel < 2 + extra) ? (4 + sel - 2) : (sel - extra);
             }
             switch (action) {
                 case 4:
                     Audio_PlaySystemSound(2);
                     sOptionsSubtitles ^= 1;
+                    break;
+                case 5:
+                    Audio_PlaySystemSound(2);
+                    sOptionsNameStyle ^= 1;
                     break;
                 case 0:
                     Audio_PlaySystemSound(2);
@@ -592,8 +623,11 @@ void Options_RunMenu(void) {
         Options_DrawMenu(sel, flags);
         BgStage_AdvanceFrame();
     } while (done == 0);
-    if ((done == 1) && (rows == 5) && (sOptionsSubtitles != Port_Subtitles_Enabled())) {
+    if ((done == 1) && (extra >= 1) && (sOptionsSubtitles != Port_Subtitles_Enabled())) {
         Port_Subtitles_SetEnabled(sOptionsSubtitles); // PORT: kept by the port, not in the N64 save
+    }
+    if ((done == 1) && (extra >= 2) && (sOptionsNameStyle != Port_Names_GetStyle())) {
+        Port_Names_SetStyle(sOptionsNameStyle); // PORT: kept by the port, not in the N64 save
     }
     if (done == 1) {
         diff = Save_GetOptionFlags() ^ flags;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check translations/ai.csv and translations/human.csv.
+"""Check translations/ai.csv, translations/human.csv and translations/localized.csv.
 
   python3 tools/text/check_tables.py              format checks only (CI-safe, no ROM)
   python3 tools/text/check_tables.py --rom X.z64  also check keys and printf
@@ -9,6 +9,7 @@ Format checks: exact header, one row per id, ids are [A-Z][A-Z0-9_]*, md5s
 are lowercase 32-hex, addr is space-separated 8-hex-digit addresses, every
 language cell in a row uses the same printf conversions in the same order
 (positional %1$s forms excepted, as long as the same set is used).
+localized.csv: every id is in ai.csv with the same md5 and addr.
 ROM checks: every md5 exists in the ROM, every human.csv id is in ai.csv with
 the same md5, and each translation's conversions match the original string's.
 """
@@ -34,7 +35,7 @@ def main():
     a = ap.parse_args()
     problems = []
     data = {}
-    for name in ("ai", "human"):
+    for name in ("ai", "human", "localized"):
         rows, p = tables.read(name)
         problems += p
         data[name] = rows
@@ -46,6 +47,12 @@ def main():
             for l, text in filled:
                 if "\r" in text:
                     problems.append("%s.csv %s %s: carriage return in cell" % (name, md5, l))
+    for key, row in data["localized"].items():
+        base = data["ai"].get(key)
+        if base is None:
+            problems.append("localized.csv %s: id not in ai.csv" % key)
+        elif (base["md5"], base["addr"]) != (row["md5"], row["addr"]):
+            problems.append("localized.csv %s: md5 or addr differs from ai.csv" % key)
     if a.rom:
         import romtext
         rom, sha1, ok = romtext.load_rom(a.rom)
