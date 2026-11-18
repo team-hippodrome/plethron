@@ -17,6 +17,8 @@ enum PortLanguage {
     PORT_LANG_DE,
     PORT_LANG_PT,
     PORT_LANG_KO, // the Unicode test case (Russian, Arabic and Hindi were dropped)
+    PORT_LANG_FR, // French and Italian come after Korean so a saved gPort.Language keeps its meaning
+    PORT_LANG_IT,
     PORT_LANG_COUNT
 };
 

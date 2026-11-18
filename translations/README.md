@@ -16,7 +16,7 @@ at runtime by key. Nothing here contains the original game text, except the kana
 UTF-8, RFC 4180 quoting, one header row, identical columns in both files:
 
 ```
-id,md5,addr,ja,en,es,de,pt,ko,note
+id,md5,addr,ja,en,es,de,pt,ko,fr,it,note
 ```
 
 - `id` names the string (`[A-Z][A-Z0-9_]*`, unique within a file), for example
@@ -38,7 +38,7 @@ id,md5,addr,ja,en,es,de,pt,ko,note
 - `ja` is Japanese with kanji. The kana original needs no column: it's the ROM. Strings with
   nothing to convert (katakana names, people's names, nicknames, debug text) are left
   empty on purpose and fall through to the original.
-- `en` … `ko` are the translations. A line break is a real newline inside a quoted
+- `en` … `it` are the translations. A line break is a real newline inside a quoted
   cell. A non-printing byte is written `\xNN`.
 - `note` is context for translators that the id and the table below don't
   already give. It never holds the original text.
@@ -55,7 +55,7 @@ names (`FINALIST_*` people and handles) can be shown two ways, picked in Options
 - **Localized** (the default): the meaning translated, おれさま → THE MAN, テンサイ → Genius, どろキング →
   Thiefking. These cells are in `localized.csv`, which wins over `human.csv` and `ai.csv` while names are localized.
 - **Transliterated**: the kana romanized, おれさま → Oresama, どろキング → Dorokingu. These are the rows' cells in
-  `ai.csv` (en, es, de, pt and ko alike), written by `tools/text/romanize_names.py <rom>` from your ROM's kana:
+  `ai.csv` (en, es, de, pt, ko, fr and it alike), written by `tools/text/romanize_names.py <rom>` from your ROM's kana:
   Hepburn without macrons, long vowels doubled (Yuusuke, Ruuruu), honorifics after a hyphen (Jura-sama). Fix one
   in `human.csv`.
 
@@ -86,7 +86,7 @@ Notes that would repeat on every row of a group live here instead.
 | `FATAL_ERROR_*` | Fatal error screen |
 | `FINALIST_*` | Nintendo Cup '97 finalist region or name (locked romanization, glossary) |
 | `GB_PAK_*` | GB Player / Game Pak messages |
-| `GB_PLAYER_*` | The GB Player's own screens: the C-Up menu and its help, Help & config, the speed-up help, the Game Pak trouble screens, the cartridge copy screen's scrolling line and the status strip under the Game Boy screen. The GB Player draws these with its own font from glyph lists, not ROM strings, so `game/src/gb_player_text.c` lays the cells out again: `md5` is the md5 of the kana in EUC-JP, `addr` is empty. Cells are wrapped at run time to the original box (a `\n` forces a break); words in `{braces}` take the screen's highlight colour. English, Spanish, German, Portuguese and Japanese draw with the GB Player's font (accents are added to its letters), Korean and kanji with Unifont |
+| `GB_PLAYER_*` | The GB Player's own screens: the C-Up menu and its help, Help & config, the speed-up help, the Game Pak trouble screens, the cartridge copy screen's scrolling line and the status strip under the Game Boy screen. The GB Player draws these with its own font from glyph lists, not ROM strings, so `game/src/gb_player_text.c` lays the cells out again: `md5` is the md5 of the kana in EUC-JP, `addr` is empty. Cells are wrapped at run time to the original box (a `\n` forces a break); words in `{braces}` take the screen's highlight colour. English, Spanish, German, Portuguese, French, Italian and Japanese draw with the GB Player's font (accents are added to its letters), Korean and kanji with Unifont |
 | `HABITAT_*` | Pokédex habitat map and index |
 | `LAB_*` | Lab: PC boxes, items and Pokémon list |
 | `MAIN_MENU_*` | GB Player / main menu |

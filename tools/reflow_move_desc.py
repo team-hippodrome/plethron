@@ -26,7 +26,7 @@ src=open(csvf,encoding='utf-8',newline='').read()
 out=src
 for row in csv.DictReader(io.StringIO(src)):
     if not row['id'].endswith('_MOVE_DESC'): continue
-    for L in ['en','es','de','pt','ko']:
+    for L in ['en','es','de','pt','ko','fr','it']:
         old=row[L]
         if all(squish(x) for x in old.split('\n')): continue  # over by 2 characters or less: Port_Font_FitNext squishes it
         new=wrap(old,fits)

@@ -20,9 +20,9 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(ROOT, "assets", "font", "unifont_subset.hex")
 TABLES = [os.path.join(ROOT, "translations", n) for n in ("ai.csv", "human.csv", "localized.csv")]
-TEXT_COLUMNS = ("ja", "en", "es", "de", "pt", "ko")
+TEXT_COLUMNS = ("ja", "en", "es", "de", "pt", "ko", "fr", "it")
 # Text the port draws itself, besides the tables: the language select screen (text_lookup.cpp kNames and prompt).
-EXTRA = "にほんご 日本語 English Español Deutsch Português 한국어 Press C◀ for AI translations ?"
+EXTRA = "にほんご 日本語 English Español Deutsch Português 한국어 Français Italiano Press C◀ for AI translations ?"
 
 
 def wanted_chars():

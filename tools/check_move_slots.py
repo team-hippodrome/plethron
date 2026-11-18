@@ -38,7 +38,7 @@ SCREENS = {
     'party moves': (20, {'up': 225 - 91, 'left': 192 - 58, 'right': 494 - 332, 'down': 461 - 299}),
     'battle panel': (10, {'up': 90 - 8, 'left': 76 - 8, 'right': 192 - 124, 'down': 192 - 110}),
 }
-LANGS = ['ja', 'en', 'es', 'de', 'pt', 'ko']
+LANGS = ['ja', 'en', 'es', 'de', 'pt', 'ko', 'fr', 'it']
 
 rows = {}
 for row in csv.DictReader(open(aif, encoding='utf-8')):
