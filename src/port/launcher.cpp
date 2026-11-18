@@ -1491,8 +1491,8 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
 
-        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 37;
-        float ry = y + 58;
+        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 32;
+        float ry = y + 56;
         auto label = [&](const char* name, const std::string& hint) {
             Text(lx, ry + 5, name, gFonts.body);
             Text(tx, ry + 1, hint, gFonts.small, Theme::dim);
@@ -1580,6 +1580,13 @@ class LauncherWindow : public Ship::GuiWindow {
             label("Keep full speed", "Skips frames rather than\nslowing the game down.");
             int c = onOff("skip", skip);
             if (c >= 0) CVarSetInteger("gPort.FrameSkip", c == 0 ? 1 : 0);
+        }
+        ry += pitch;
+        // the glyphs of translated text (src/port/unicode_font.cpp): Unifont by default, or the prototype Pop font
+        {
+            label("Text font", "Letters of the translations.\nPop is a prototype.");
+            int c = Choice("textfont", { "Unifont", "Pop" }, CVarGetInteger("gPort.TextFont", 0) == 1 ? 1 : 0, cx, ry, 84);
+            if (c >= 0) CVarSetInteger("gPort.TextFont", c);
         }
 
         // presets: lit when the settings match one (Display is not part of them)
