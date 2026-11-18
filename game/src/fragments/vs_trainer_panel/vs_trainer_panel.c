@@ -100,34 +100,34 @@ void VsPanel_PortraitCallback(s32 event, DemoGeoNode* node) {
  * Free Battle).
  * Seen in play (2026-11-14): stubbing it removed the 「トレーナー」 lines from both panels.
  */
-void VsPanel_TitleTextCallback(s32 event, DemoGeoNode* node) {
+void VsPanel_TitleTextCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
+        node->text = (const char*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->title;
     }
 }
 
 /**
  * Name text node callback: shows the side's name (rosterInfo[0]->fullName) and moves the text by
- * the roster's flags: bit 0 sets unk_20 to 210, bit 1 sets unk_22 to -240, otherwise unk_22 is
+ * the roster's flags: bit 0 sets w to 210, bit 1 sets h to -240, otherwise h is
  * -300.
  * Seen in play (2026-11-14): stubbing it removed the names (1P, ＣＯＭ) from both panels.
  * @unverified: the offsets; Free Battle rosters have unk_000 = 0, so only the -300 case ran.
  */
-void VsPanel_NameTextCallback(s32 event, DemoGeoNode* node) {
+void VsPanel_NameTextCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
 
     if (event == 2) {
         teams = D_80060490->node.callbackArg;
-        node->unk_24 = (u8*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
+        node->text = (const char*)teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->fullName;
         if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 1) {
-            node->unk_20 = 210;
+            node->w = 210;
         } else if (*(s16*)&teams[(uintptr_t)node->node.callbackArg].rosterInfo[0]->unk_000 & 2) {
-            node->unk_22 = -240;
+            node->h = -240;
         } else {
-            node->unk_22 = -300;
+            node->h = -300;
         }
     }
 }
@@ -180,7 +180,7 @@ void VsPanel_IconCallback(s32 event, DemoGeoNode *node)
  * the team size.
  * Seen in play (2026-11-14): stubbing it removed the nicknames (ピカのすけ ...); the icons stayed.
  */
-void VsPanel_NicknameCallback(s32 event, DemoGeoNode* node) {
+void VsPanel_NicknameCallback(s32 event, GeoTextNode* node) { // PORT: was DemoGeoNode* (global.h)
     VsSceneSide* teams;
     s32 team;
     s32 slot;
@@ -192,9 +192,9 @@ void VsPanel_NicknameCallback(s32 event, DemoGeoNode* node) {
         if (slot < teams[team].rosterInfo[0]->numberOfPokemonCanBePicked) {
             sVsPanelNicknameText[0] = 9;
             _bcopy(teams[team].rosterInfo[0]->battleMon[slot].nickname, &sVsPanelNicknameText[1], 12);
-            node->unk_24 = sVsPanelNicknameText;
+            node->text = (const char*)sVsPanelNicknameText;
         } else {
-            node->unk_24 = NULL;
+            node->text = NULL;
         }
     }
 }

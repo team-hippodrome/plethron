@@ -3,6 +3,7 @@
 
 #include "battle.h"
 #include "m2c_macros.h"
+#include "zero_lift.h" // PORT: DemoBattle_ReadCue
 
 /**
  * Copies the Pokemon's battle HP (0x7D2) into the first team member's HP.
@@ -177,6 +178,27 @@ extern s32 D_82199F18[2];
 extern s32 D_82199F10[2];
 extern u16 D_82199ED0[][0x12];
 
+// PORT: D_8218B42C is two [99] tables of cue-list pointers (side 0, then side 1 at +0x18C), but the decomp
+// declares it [][99] and the lifter sized it from the symbol extent (0x18C), so side 1's row ([1][index])
+// read past the host storage (null) and the Cup-clear parade crashed. The cues (6 bytes: duration, value,
+// pad) also sit in data lifted as other types. Read both straight from the battle image instead.
+static u16 DemoBattle_ReadCue(s32 side, s32 index, s32 n, u16* value) {
+    const u8* slot = ZLift_ImageData(0x8218B42C + (side * 99 + index) * 4, 4);
+    const u8* cue;
+
+    *value = 0;
+    if (slot == NULL) {
+        return 0;
+    }
+    cue = ZLift_ImageData(((u32)slot[0] << 24) | (slot[1] << 16) | (slot[2] << 8) | slot[3], (n + 1) * 6);
+    if (cue == NULL) {
+        return 0;
+    }
+    cue += n * 6;
+    *value = (cue[2] << 8) | cue[3];
+    return (cue[0] << 8) | cue[1];
+}
+
 /**
  * Steps side 0's scripted demo input: when its timer runs out, takes the next (duration,
  * value) entry of the script for demo D_8219A4F0.index and outputs the value for one frame.
@@ -187,8 +209,9 @@ void DemoBattle_StepScriptedInputSide0(void) {
 
     D_82199ED0[i][0] = 0;
     if (D_82199F18[i] == 0) {
-        if ((D_82199F18[i] = D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].duration) != 0) {
-            D_82199ED0[i][0] = D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].value;
+        u16 value; // PORT: was D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].duration / .value
+        if ((D_82199F18[i] = DemoBattle_ReadCue(i, D_8219A4F0.index, D_82199F10[i], &value)) != 0) {
+            D_82199ED0[i][0] = value;
             D_82199F10[i]++;
             D_8219A4F0.unk_1E = 0;
         }
@@ -207,8 +230,9 @@ void DemoBattle_StepScriptedInputSide1(void) {
 
     D_82199ED0[i][0] = 0;
     if (D_82199F18[i] == 0) {
-        if ((D_82199F18[i] = D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].duration) != 0) {
-            D_82199ED0[i][0] = D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].value;
+        u16 value; // PORT: was D_8218B42C[i][D_8219A4F0.index][D_82199F10[i]].duration / .value
+        if ((D_82199F18[i] = DemoBattle_ReadCue(i, D_8219A4F0.index, D_82199F10[i], &value)) != 0) {
+            D_82199ED0[i][0] = value;
             D_82199F10[i]++;
             D_8219A4F0.unk_20 = 0;
         }

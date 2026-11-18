@@ -702,6 +702,11 @@ static void Port_Debug_WeakenCom(ActivePokemon* active_pokemon) {
     if (!(foe->teamRoster->isHuman & 2) || foe->side->displayMon == NULL) {
         return;
     }
+    // the battle's own HP is the active Pokémon's state.runtime.hp (damage.c subtracts from it); the roster entries
+    // only follow it for the HUD, so setting those alone showed 1 HP while a hit still left the foe standing
+    if (foe->state.runtime.hp > 1) {
+        foe->state.runtime.hp = 1;
+    }
     for (i = 0; i < 6; i++) {
         BattleMon* mon = &foe->teamRoster->pokemonPicked[i];
         if (mon == foe->side->displayMon) {

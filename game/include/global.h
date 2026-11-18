@@ -438,17 +438,24 @@ typedef struct GeoAnchorNode {
 } GeoAnchorNode; // size = 0x1C
 
 // Graph node type 0x1C.
-typedef struct GeoGroupNode {
+// The type-0x1C node (GeoNode_CreateGroup, drawn by Geo_NodeText): a line of text with its font, position, scale and
+// colour (the colour becomes the text's env colour, so its alpha is the text's opacity). Its callbacks (the VS
+// scene's trainer panels and results board) set `text` (and w / h) every frame.
+// PORT: one type for the creator, the renderer and the callbacks. They used three structs (this one with an s32 at
+// 0x24, geo_render.c's with a pointer, the callbacks' DemoGeoNode with a Gfx* at 0x18) that agree on the N64 but not
+// on a 64-bit host, where the text pointer landed on the colour: the panel text was drawn at a garbage alpha (0x12).
+typedef struct GeoTextNode {
     /* 0x00 */ GraphNode node;
-    /* 0x18 */ s16 unk_18;
-    /* 0x1A */ s16 unk_1A;
-    /* 0x1C */ s16 unk_1C;
-    /* 0x1E */ s16 unk_1E;
-    /* 0x20 */ s16 unk_20;
-    /* 0x22 */ s16 unk_22;
-    /* 0x24 */ s32 unk_24;
-    /* 0x28 */ Color_RGBA8_u32 unk_28;
-} GeoGroupNode; // size = 0x2C
+    /* 0x18 */ s16 font;
+    /* 0x1A */ s16 fontArg;
+    /* 0x1C */ s16 x;
+    /* 0x1E */ s16 y;
+    /* 0x20 */ s16 w;
+    /* 0x22 */ s16 h;
+    /* 0x24 */ const char* text;
+    /* 0x28 */ Color_RGBA8_u32 color;
+} GeoTextNode; // size = 0x2C
+typedef GeoTextNode GeoGroupNode;
 
 typedef void* (*func_unk_D_800ABE10)(s32, s32);
 

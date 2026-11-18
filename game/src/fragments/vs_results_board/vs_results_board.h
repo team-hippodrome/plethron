@@ -20,9 +20,9 @@ typedef struct DemoGeoNode {
 intptr_t VsResults_CheckBootCode(intptr_t display_list); // PORT: was s32
 Gfx* VsResults_WritePortraitGfx(Gfx* gfx, void* trainer_file);
 void VsResults_PortraitCallback(s32 event, DemoGeoNode* node);
-void VsResults_TitleTextCallback(s32 event, DemoGeoNode* node);
-void VsResults_NameTextCallback(s32 event, DemoGeoNode* node);
-void VsResults_NicknameCallback(s32 event, DemoGeoNode* node);
+void VsResults_TitleTextCallback(s32 event, GeoTextNode* node); // PORT: was DemoGeoNode* (the text node's own type)
+void VsResults_NameTextCallback(s32 event, GeoTextNode* node); // PORT: was DemoGeoNode* (the text node's own type)
+void VsResults_NicknameCallback(s32 event, GeoTextNode* node); // PORT: was DemoGeoNode* (the text node's own type)
 void VsResults_SelectLayout(s32 event, GeoModelRootNode* node);
 Gfx* VsResults_WriteRowIconGfx(Gfx* gfx, void* icon_image);
 void VsResults_RowIconCallback(s32 event, DemoGeoNode* node);

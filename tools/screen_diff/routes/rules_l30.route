@@ -1,0 +1,5 @@
+# Battle -> トーナメント -> L1～30 -> ルールを見る: the five rules, each opened and closed; the fifth is the grid of the
+# 33 Pokémon allowed. (The page that crashed on Windows and Linux: see rules_free_battle.route.)
+@gb green
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:battle_mode RIGHT 40 A 300 shot:tour_select A 300 shot:l30_menu DOWN 60 A 200 shot:rules_list A 200 shot:rule1 B 100 DOWN 40 A 200 shot:rule2 B 100 DOWN 40 A 200 shot:rule3 B 100 DOWN 40 A 200 shot:rule4 B 100 DOWN 40 A 200 shot:rule5_grid B 100 shot:back B 100 B 100 shot:out

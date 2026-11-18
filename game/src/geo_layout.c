@@ -486,7 +486,7 @@ void GeoLayout_CmdSetNodeFlag4(void) {
 void GeoLayout_CmdCreateGroup(void) {
 
     GeoLayout_RegisterGraphNode(GeoNode_CreateGroup(gGraphNodePool, NULL, GL_U8(0x1), GL_S16(0x4), GL_S16(0x6), GL_S16(0x8), GL_S16(0xA),
-                                GL_U8(0x2), ((s8)GL_U8(0x3)), ((s32)GL_U32(0xC)), GL_U8(0x10), GL_U8(0x11), GL_U8(0x12), GL_U8(0x13)));
+                                GL_U8(0x2), ((s8)GL_U8(0x3)), (GL_PTR(0xC) != NULL ? (const char*)Util_ConvertAddrToVirtAddr((uintptr_t)GL_PTR(0xC)) : NULL) /* PORT: was (s32)GL_U32(0xC) */, GL_U8(0x10), GL_U8(0x11), GL_U8(0x12), GL_U8(0x13)));
 
     gGeoLayoutCommand += GL_CMDSIZE(0x14);
 }
