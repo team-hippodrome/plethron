@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "text_lookup.h" // PORT: translated battle messages
 #include "unicode_font.h"
+#include "type_symbols.h" // PORT: move type symbols
 #include "battle.h"
 #include "port_endian.h" // PORT: Port_ReadBE32
 // PORT: D_300B870 (segment 3) is a ROM table of big-endian 32-bit segment addresses, one per digit glyph; reading
@@ -237,29 +238,29 @@ void BattleMenu_DrawMovePanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3)
 
     if (runtime->uniqueStatusFlags & 8) {
         if (runtime->moves[0] && (runtime->moves[0] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[0] - 25, arg2 + 14, 32, 9, D_8218AF70[gMoveData[runtime->moves[0] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[0] - 25, arg2 + 14, gMoveData[runtime->moves[0] - 1].type, D_8218AF70[gMoveData[runtime->moves[0] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[1], arg2 + 27, 32, 9, D_8218AF70[gMoveData[runtime->moves[1] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[1], arg2 + 27, gMoveData[runtime->moves[1] - 1].type, D_8218AF70[gMoveData[runtime->moves[1] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[2], arg2 + 47, 32, 9, D_8218AF70[gMoveData[runtime->moves[2] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[2], arg2 + 47, gMoveData[runtime->moves[2] - 1].type, D_8218AF70[gMoveData[runtime->moves[2] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[3] - 24, arg2 + 34, 32, 9, D_8218AF70[gMoveData[runtime->moves[3] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[3] - 24, arg2 + 34, gMoveData[runtime->moves[3] - 1].type, D_8218AF70[gMoveData[runtime->moves[3] - 1].type]); // PORT: symbols in the translated languages
         }
     } else {
         if (runtime->moves[0] && (runtime->moves[0] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[0] - 25, arg2 + 14, 32, 9, D_8218AF70[gMoveData[runtime->moves[0] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[0] - 25, arg2 + 14, gMoveData[runtime->moves[0] - 1].type, D_8218AF70[gMoveData[runtime->moves[0] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[1] && (runtime->moves[1] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[1], arg2 + 27, 32, 9, D_8218AF70[gMoveData[runtime->moves[1] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[1], arg2 + 27, gMoveData[runtime->moves[1] - 1].type, D_8218AF70[gMoveData[runtime->moves[1] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[2] && (runtime->moves[2] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[2], arg2 + 47, 32, 9, D_8218AF70[gMoveData[runtime->moves[2] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[2], arg2 + 47, gMoveData[runtime->moves[2] - 1].type, D_8218AF70[gMoveData[runtime->moves[2] - 1].type]); // PORT: symbols in the translated languages
         }
         if (runtime->moves[3] && (runtime->moves[3] < 166)) {
-            Gfx_DrawTextureRgba16(move_pp.pp[3] - 24, arg2 + 34, 32, 9, D_8218AF70[gMoveData[runtime->moves[3] - 1].type], 32, 0);
+            TypeSymbols_DrawMoveTypeLabel(move_pp.pp[3] - 24, arg2 + 34, gMoveData[runtime->moves[3] - 1].type, D_8218AF70[gMoveData[runtime->moves[3] - 1].type]); // PORT: symbols in the translated languages
         }
     }
 
