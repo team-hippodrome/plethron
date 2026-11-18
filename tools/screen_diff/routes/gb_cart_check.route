@@ -1,0 +1,6 @@
+# Cart check: a Japanese Green cartridge with an empty save. The cartridge select shows ?????, the main menu
+# says GBのポケモンがいない and offers only バトル, GB and OFF; then the GB Player with it.
+@gb green_empty
+@window 60 120
+1200 START 273 shot:cart_select_empty 27 A 400 shot:main_menu_no_gb_pokemon DOWN 40 LEFT 40 A 150
+shot:gb_prompt A 228 shot:after_1 300 shot:after_2 500 shot:after_3

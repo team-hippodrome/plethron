@@ -1,0 +1,18 @@
+# The two Pokémon whose flames are separate skinned models (ModelRenderer_DrawSlotModel): Charizard's tail and
+# Moltres's head. L50～55 tournament: rent Charizard (row 0) and Moltres (row 9, nine rows down), then the next four,
+# and send out Moltres first (Charizard second), up to the command menu and its idle pose on the field (`@rng`).
+@gb green
+@rng 1
+@window 12 200
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 RIGHT 40
+A 300 DOWN 40 A 300 A 300 100 A 200 100 A 150 shot:rental_list
+RIGHT 40 A 120 shot:card_charizard A 150 shot:taken1
+DOWN 40 DOWN 40 DOWN 40 DOWN 40 DOWN 40 DOWN 40 DOWN 40 DOWN 40 DOWN 40 shot:at_moltres
+A 120 shot:card_moltres A 150 shot:taken2
+A 150 A 150 shot:taken3 UP 40 A 150 A 150 shot:taken4 UP 40 A 150 A 150 shot:taken5 UP 40 A 150 A 150 shot:taken6 A 300 shot:team_confirm
+A 60 150 200 130 160 120 120 250 shot:order_screen 90 100 200
+CL 60 B 60 CU 60 shot:p1_confirm 40
+A 150 120 160 90 shot:p1_out 100 shot:p1_out2 90 shot:com_out
+150 shot:field 60 shot:command_menu 100
+100 shot:idle1 60 shot:idle2

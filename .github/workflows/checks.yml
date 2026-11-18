@@ -16,3 +16,46 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 tools/check_port_decls.py
+
+  return-values:
+    # Callers that use the value of a function with no return statement (or a void one declared non-void elsewhere):
+    # on the N64 they read whatever the callee left in v0, on the PC garbage (tools/check_return_values.py)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true  # libultraship's headers
+      - run: python3 -I tools/check_return_values.py --report return-values.txt
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: return-values
+          path: return-values.txt
+
+  windows-abi-calls:
+    # Direct calls whose arguments arrive under the SysV ABI (Linux, macOS) but not under Win64, usually through a func_X
+    # alias declared with other parameter types than the definition: Win64 passes a 3-byte struct by reference, so
+    # Trade_DrawSolidFillRect read every caller's 4-byte color as a pointer and the main menu crashed on Windows only
+    # (tools/abi_audit/README.md)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true  # libultraship's headers
+      # a venv: python3 -I ignores the user site-packages that a plain pip install writes to
+      - run: python3 -m venv "$RUNNER_TEMP/venv" && "$RUNNER_TEMP/venv/bin/pip" install -q libclang==18.1.1
+      - run: |
+          PY="$RUNNER_TEMP/venv/bin/python3 -I"
+          $PY tools/abi_audit/ci_compdb.py "$RUNNER_TEMP/cdb.json"
+          $PY tools/abi_audit/abi_calls.py collect "$RUNNER_TEMP/cdb.json" "$RUNNER_TEMP/abi.json"
+          $PY tools/abi_audit/abi_calls.py report src/port/generated/zero_aliases.ld "$RUNNER_TEMP/abi.json" \
+            | tee abi-calls.txt
+          if grep -q '^WIN64-ONLY' abi-calls.txt; then
+            echo "::error::calls that only break on Windows (WIN64-ONLY above): make the prototype match the definition"
+            exit 1
+          fi
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-abi-calls
+          path: abi-calls.txt

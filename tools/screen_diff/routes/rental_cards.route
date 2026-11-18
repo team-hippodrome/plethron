@@ -1,0 +1,90 @@
+# The idle pose of every battle species: the L50～55 rental list holds all 40 (4 a row, 10 rows, in the order the
+# list shows them), and each rental card turns the species' 3D model in its idle animation. The route snakes through
+# the list (row 0 left to right, row 1 right to left, ...), opens each card (A), takes two shots 50 frames apart (the
+# idle animation is long, so compare.py picks the closest ares frame in the window) and closes it (B). Labels are
+# c<nn>_r<row>c<column>: c02 is Charizard (its tail flame), c38 Moltres (its head flame), c40 Articuno.
+@gb green
+@window 12 100
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 RIGHT 40
+A 300 DOWN 40 A 300 A 300 100 A 200 100 A 150 shot:rental_list
+
+A 120 shot:c01_r0c0_a 50 shot:c01_r0c0_b B 100
+RIGHT 40
+A 120 shot:c02_r0c1_a 50 shot:c02_r0c1_b B 100
+RIGHT 40
+A 120 shot:c03_r0c2_a 50 shot:c03_r0c2_b B 100
+RIGHT 40
+A 120 shot:c04_r0c3_a 50 shot:c04_r0c3_b B 100
+DOWN 40
+A 120 shot:c05_r1c3_a 50 shot:c05_r1c3_b B 100
+LEFT 40
+A 120 shot:c06_r1c2_a 50 shot:c06_r1c2_b B 100
+LEFT 40
+A 120 shot:c07_r1c1_a 50 shot:c07_r1c1_b B 100
+LEFT 40
+A 120 shot:c08_r1c0_a 50 shot:c08_r1c0_b B 100
+DOWN 40
+A 120 shot:c09_r2c0_a 50 shot:c09_r2c0_b B 100
+RIGHT 40
+A 120 shot:c10_r2c1_a 50 shot:c10_r2c1_b B 100
+RIGHT 40
+A 120 shot:c11_r2c2_a 50 shot:c11_r2c2_b B 100
+RIGHT 40
+A 120 shot:c12_r2c3_a 50 shot:c12_r2c3_b B 100
+DOWN 40
+A 120 shot:c13_r3c3_a 50 shot:c13_r3c3_b B 100
+LEFT 40
+A 120 shot:c14_r3c2_a 50 shot:c14_r3c2_b B 100
+LEFT 40
+A 120 shot:c15_r3c1_a 50 shot:c15_r3c1_b B 100
+LEFT 40
+A 120 shot:c16_r3c0_a 50 shot:c16_r3c0_b B 100
+DOWN 40
+A 120 shot:c17_r4c0_a 50 shot:c17_r4c0_b B 100
+RIGHT 40
+A 120 shot:c18_r4c1_a 50 shot:c18_r4c1_b B 100
+RIGHT 40
+A 120 shot:c19_r4c2_a 50 shot:c19_r4c2_b B 100
+RIGHT 40
+A 120 shot:c20_r4c3_a 50 shot:c20_r4c3_b B 100
+DOWN 40
+A 120 shot:c21_r5c3_a 50 shot:c21_r5c3_b B 100
+LEFT 40
+A 120 shot:c22_r5c2_a 50 shot:c22_r5c2_b B 100
+LEFT 40
+A 120 shot:c23_r5c1_a 50 shot:c23_r5c1_b B 100
+LEFT 40
+A 120 shot:c24_r5c0_a 50 shot:c24_r5c0_b B 100
+DOWN 40
+A 120 shot:c25_r6c0_a 50 shot:c25_r6c0_b B 100
+RIGHT 40
+A 120 shot:c26_r6c1_a 50 shot:c26_r6c1_b B 100
+RIGHT 40
+A 120 shot:c27_r6c2_a 50 shot:c27_r6c2_b B 100
+RIGHT 40
+A 120 shot:c28_r6c3_a 50 shot:c28_r6c3_b B 100
+DOWN 40
+A 120 shot:c29_r7c3_a 50 shot:c29_r7c3_b B 100
+LEFT 40
+A 120 shot:c30_r7c2_a 50 shot:c30_r7c2_b B 100
+LEFT 40
+A 120 shot:c31_r7c1_a 50 shot:c31_r7c1_b B 100
+LEFT 40
+A 120 shot:c32_r7c0_a 50 shot:c32_r7c0_b B 100
+DOWN 40
+A 120 shot:c33_r8c0_a 50 shot:c33_r8c0_b B 100
+RIGHT 40
+A 120 shot:c34_r8c1_a 50 shot:c34_r8c1_b B 100
+RIGHT 40
+A 120 shot:c35_r8c2_a 50 shot:c35_r8c2_b B 100
+RIGHT 40
+A 120 shot:c36_r8c3_a 50 shot:c36_r8c3_b B 100
+DOWN 40
+A 120 shot:c37_r9c3_a 50 shot:c37_r9c3_b B 100
+LEFT 40
+A 120 shot:c38_r9c2_a 50 shot:c38_r9c2_b B 100
+LEFT 40
+A 120 shot:c39_r9c1_a 50 shot:c39_r9c1_b B 100
+LEFT 40
+A 120 shot:c40_r9c0_a 50 shot:c40_r9c0_b B 100

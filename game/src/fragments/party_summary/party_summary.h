@@ -135,7 +135,7 @@ extern Color_RGBA8 D_8A203300;
 
 extern s32 sPartyGbPort;
 
-extern M2C_UNK sPartyScreen;
+extern PartyScreen sPartyScreen; // PORT: typed (M2C_UNK got the N64 size, 0x388 bytes: the host struct is larger and ran over D_8A21DE08, the GB port number of the top bar)
 
 extern u8 D_0015B1A0[];
 
@@ -182,7 +182,7 @@ void PartyScreen_Draw(void* screen);
 void PartyScreen_WriteParty(PointerList* monList, PartyScreen* screen);
 void PartyScreen_CloseWindow(PartyScreen* screen, s32 nextState, Window* nextWindow);
 M2C_UNK PartyScreen_Update(PartyScreen* screen);
-void PartyScreen_RunFrame(s32 unused);
+s32 PartyScreen_RunFrame(s32 unused); // PORT: was void (see mon_summary.c)
 s32 PartyScreen_FadeFrame(u8 unused);
 s32 PartyScreen_Init(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2);
 

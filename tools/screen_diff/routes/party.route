@@ -1,0 +1,15 @@
+# Main menu -> てもち (party), deep: list, cursor, つよさをみる (stats page, moves page with each move's description),
+# ならびかえ (move the 2nd Pokémon down two), then quit with レポートしてやめる (writes the cartridge save).
+# Needs the Lab save: tools/screen_diff/jp_gen1_save.py <file> --lab, in $GB_SAV_GREEN_LAB.
+@gb green lab
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 A 150 shot:party_prompt A 300 shot:party_list
+DOWN 30 shot:party_cursor2 UP 30
+A 40 shot:party_submenu
+A 150 shot:stats_page 60 shot:stats_page_idle
+A 100 shot:moves_page
+CD 40 shot:move_bottom CR 40 shot:move_right CL 40 shot:move_left
+A 100 shot:party_list_back
+DOWN 30 A 40 DOWN 30 shot:submenu_reorder A 50 shot:reorder_pick
+DOWN 30 DOWN 30 shot:reorder_target A 80 shot:reordered
+B 80 shot:report_dialog A 40 shot:report_saving 150 shot:main_menu_after

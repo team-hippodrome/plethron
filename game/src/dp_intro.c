@@ -9,6 +9,7 @@
 #include "game_state.h"
 #include "profiler.h"
 #include "stage_loader.h"
+#include "StadionPort.h" // PORT: Port_NoteFrameBuffer
 extern u64 F3DEX2_data_bin[];
 extern s32 sImageGridDisplayList;
 extern u64 D_80087B88[0x100 / sizeof(u64)];
@@ -68,6 +69,11 @@ void DisplayTask_Initialize(SchedTask* arg0) {
 
 /** Fills in a graphics task from a display list buffer and submits it. */
 void DisplayTask_Submit(SchedTask* arg0, DisplayFrame* arg1, s32 arg2) {
+    // PORT: name the task's frame buffer before it is drawn, so its first frame (a newly allocated buffer the VI has
+    // not shown yet) is not taken for an off-screen picture (one black frame after the title)
+    if (arg1->framebuffer != NULL) {
+        Port_NoteFrameBuffer(arg1->framebuffer->img_p);
+    }
     arg0->task.t.data_ptr = (void*)(uintptr_t)arg1->dlist;
     arg0->task.t.data_size = (uintptr_t)arg1->dlistSize;
     Sched_SubmitTask(arg0, arg2);
@@ -272,14 +278,14 @@ void Display_ClearFramebufferLine(u16 color) {
     u16* buf = (u16*)D_800870D0.lineImage->img_p;
 
     while (width-- > 0) {
-        *(buf)++ = color;
+        *(buf)++ = Port_Swap16(color); // PORT: CPU frame buffers hold RGBA5551 in N64 byte order (PresentCpuFrame), else black 0x0001 shows as dark green
     }
 }
 
 /** Returns the color the framebuffer is cleared to. */
 u16 Display_GetFramebufferClearColor(void) {
     u16* ptr = (u16*)D_800870D0.lineImage->img_p;
-    return *ptr;
+    return Port_Swap16(*ptr); // PORT: stored in N64 byte order (Display_ClearFramebufferLine)
 }
 
 /** Blocks until the queued frame has finished. */

@@ -32,6 +32,12 @@ void Port_Text_SaveLanguage(int lang);
 // default; Options > Subtitles), and saving a new choice.
 int Port_Subtitles_Enabled(void);
 void Port_Subtitles_SetEnabled(int on);
+// How COM Pokémon nicknames and the Nintendo Cup '97 finalists' names are drawn in the translated languages (port
+// setting gPort.NameStyle; Options > Names): localized (the meaning, おれさま -> THE MAN, translations/localized.csv,
+// the default) or transliterated (the kana romanized, おれさま -> Oresama, translations/ai.csv).
+enum PortNameStyle { PORT_NAMES_LOCALIZED = 0, PORT_NAMES_TRANSLITERATED = 1 };
+int Port_Names_GetStyle(void);
+void Port_Names_SetStyle(int style);
 // The language's name in that language (UTF-8), for the language select screen.
 const char* Port_Text_LanguageName(int lang);
 
@@ -55,6 +61,9 @@ int Port_Text_Vformat(char* out, size_t cap, const char* fmt, va_list ap);
 // The game formatted `fmt` with `ap` into the buffer at `dst` by itself (BattleMessage_Format): `dst` translates as
 // the translated format with translated arguments while it holds the same bytes. No-op in the original language.
 void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap);
+// The game built `dst` from `head` followed by `tail` (a name and a fragment such as 「をあつめる」): `dst` translates
+// as head's translation followed by tail's while it holds the same bytes. No-op in the original language.
+void Port_Text_NoteJoined(const char* dst, const char* head, const char* tail);
 // `dst` now holds a copy of `src`'s bytes and translates as `src` does (a noted format, an id or the md5).
 void Port_Text_NoteSame(const char* dst, const char* src);
 // `s` as UTF-8 in the current language: its noted format, its translation, or the EUC-JP bytes converted. The

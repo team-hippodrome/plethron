@@ -1,0 +1,80 @@
+# Move coverage: every battle Pokémon using every move, port against ares
+
+Stadium Zero has 40 Pokémon that can battle, and any number of move animations of its own. Rather than guess which
+ones matter, this plays all of them: each of the 40 species uses each move Zero lets it have, on the port and on
+[ares](https://ares-emu.net), and `tools/screen_diff` compares the pictures.
+
+```bash
+# once: the port, ares_ref and Xvfb as in tools/screen_diff/README.md (no Game Boy cartridge or save is needed)
+export ROM=<Pocket Monsters Stadium (Japan) .z64> DISPLAY=:99
+python3 tools/move_coverage/run.py all out/moves --jobs 3     # everything: two passes, then out/moves/coverage.md
+# or step by step
+python3 tools/move_coverage/run.py plan out/moves               # moveset dump, teams, saves, menu routes
+python3 tools/move_coverage/run.py play out/moves --battles 0-3 # the port plays battles 0-3, writes their routes
+python3 tools/move_coverage/run.py route out/moves --battles 0-3 # (only after a route format change) rewrite routes from play.json
+python3 tools/move_coverage/run.py diff out/moves --battles 0-3 # those routes on the port and on ares, compared
+python3 tools/move_coverage/run.py report out/moves             # out/moves/coverage.md
+```
+
+## What it covers
+
+The move list is Zero's own: `PORT_DUMP_MOVESETS=<file>` makes the port run `Battle_CheckMovesetLegality` (start
+moves, the Red/Green and Yellow level-up tables, TM/HM, and the pre-evolutions' moves) for every species of the
+Free Battle table and every move, from your ROM, and exit. That is 1,117 species-move pairs (140 different moves).
+Nothing from the ROM is stored in the repository; the dump, the saves and the pictures stay in the work directory.
+
+## How a battle is played
+
+* **Teams.** The pairs are grouped four to a test Pokémon (292 of them), six to a team (49 battles), each team with
+  distinct species, at most one Rage user and the status moves spread out. Moves that need another move go together
+  with it (a healing move with Substitute or a recoil move to lose HP first; Dream Eater with a sleep move). Level
+  50, or the lowest level the moves allow; 100 for one-hit-KO moves (they fail against a faster target).
+* **No cartridge.** The teams are written into a crafted Zero save as とうろく registered teams
+  (`zero_teams.py`), which Free Battle's entry screen lists: 1P enters a test team, the COM the passive team in
+  registration slot 0: Chansey, Snorlax, Vaporeon, Blastoise, Lapras and Cloyster at L100, knowing only moves that
+  do nothing to 1P (Reflect, Light Screen, Harden, Withdraw, Amnesia, Acid Armor, Defense Curl, Focus Energy,
+  Soft-Boiled), Normal and Water types so that almost nothing of 1P's is immune.
+* **The planner** (`planner.py`) runs the port with `PORT_PLANNER_OUT` / `PORT_PLANNER_IN` (src/port/os_devices.cpp):
+  at each command phase the port sends both sides' battle state (src/port/move_coverage.c) and waits for the
+  script's presses; it also reports every move animation that starts. A test move counts as done when its own
+  animation started in the turn it was picked. Moves wait until they can work (a status move needs a target without
+  that status, Dream Eater a sleeping one, healing missing HP, Leech Seed a non-Grass target, no Ghost moves on
+  Normal types, ...); when the active Pokémon has nothing usable 1P switches, and when nothing at all is usable it
+  attacks with a move already done, to knock the COM's Pokémon out (the next one is fresh). A move that does not
+  animate in four tries (ten for one-hit-KO moves) is reported as not animated. Rage never ends, so it comes last,
+  and the route ends there, mid-battle (a surrender does not work while 1P is locked).
+* **The route.** Everything the planner pressed becomes `battle.route`, a `tools/screen_diff` route with seeded
+  random numbers (`@rng`), a sync point at every command phase (`sync:cmd`) and at every 1P move animation
+  (`sync:anim1`: `BattleAnim_PlayMoveEffectScript` / `BattleAnim_PlayChargingMoveEffectScript` with 1P's active
+  Pokémon, hooked in the port and in `tools/ares_ref`), and checkpoints 2, 30, 60, 90 and 120 frames after the first
+  1P animation of each turn. The checkpoints are anchored on the animation itself, so the "X used Y" message, which
+  the two sides show for slightly different times, does not shift them. `diff` plays the route on the port and on
+  ares and runs `compare.py`; ares's frames are deleted afterwards (`--keep-frames` keeps them).
+* **Second pass.** `all` plans the moves that were not done again, in new teams and battles.
+
+`coverage.md` lists every pair: done (with its worst checkpoint and a link to the port | ares | difference
+picture), not animated, or not reached. Each done pair shows two numbers:
+
+* **lit**, which ranks the list: the score once a smooth lighting difference is taken out
+  (`tools/screen_diff/compare.py` `lit_score()`). The colosseum floor is lit a little differently from ares, and many
+  screens are a few levels brighter, so the raw score of a move that otherwise matches is 7-9; its lit score is 2-4.
+  Missing or extra things, other shapes, cameras and timing keep their score.
+* **raw**: the plain score of that checkpoint. A raw score far above lit means the difference is mostly smooth: the
+  floor, the overall brightness, or a wash over the screen (Light Screen, Reflect), so look at the picture.
+
+`python3 tools/screen_diff/compare.py --rescore <work>/pass1/bNN/report` recomputes a report's numbers from its
+pictures, for reports made before a scoring change (ares's frames are not needed).
+
+## Running time
+
+The planner plays a battle on the port in about 6 minutes (it runs at ~100 fps). ares on a software Vulkan renderer
+(lavapipe) replays the same battle, 35,000-60,000 frames, at about 30 fps: 20-35 minutes per battle with one job,
+slower when jobs share cores. All 49 battles of the first pass are a night's run on 4 cores; `--battles` splits it.
+The planner talks to the port through named pipes (`os.mkfifo`), so `play` runs on Linux and macOS; `route`, `diff`
+and `report` run anywhere `tools/screen_diff` does.
+
+## Limits
+
+Counter and Bide need damage taken, which the passive COM never deals, so they are expected among the not
+animated moves; Teleport, Roar and Whirlwind fail in trainer battles by design. Only 1P's side of each animation is
+covered (the COM uses its own few moves): the mirrored camera of a move used by the far side is not.

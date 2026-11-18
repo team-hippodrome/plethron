@@ -3,6 +3,7 @@
 #include "global.h"
 #include "m2c_macros.h"
 #include "lab_pc.h"
+#include "unicode_font.h" // PORT: Port_Font_FitNext
 #include "asset_archive.h"
 #include "memory_main.h"
 #include "pokemon_stats.h"
@@ -366,6 +367,7 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         func_8001A384(8, 0);
         func_8001ABE8();
         func_8001AAE4(0x7F, 0xA8, 0xFF, 0xFF);
+        Port_Font_FitNext(x + 10, x + 128, 0); // PORT: a full Western nickname stays left of the level label
         Font_Printf(x + 10, y + 5, (char*)win->mon->nickname);
         func_8001AC3C();
         func_8001A384(4, -1);
@@ -388,6 +390,12 @@ void PcBox_DrawMonStatusWindow(PcBoxConfirmWindow* win) {
         Font_Printf(x + 348, y + 96, D_89018EE0, win->mon->speed);
         Font_Printf(x + 348, y + 124, D_89018EE4, win->mon->special);
         for (i = 0; i < count; i++) {
+            // PORT: right-aligned names anchored by their drawn width, not the byte count (as the rental window)
+            if (D_8900A884[i].centered != 0) {
+                Port_Font_FitNext(x + 8, D_8900A884[i].x + x + 0x8C, 2);
+            } else {
+                Port_Font_FitNext(D_8900A884[i].x + x, x + win->window.frame.width - 20, 0);
+            }
             PcBox_DrawMoveName(D_8900A884[i].x + x, D_8900A884[i].y + y, BattleMon_GetMoveIndex(win->mon, i), D_8900A884[i].centered);
         }
         func_8001ABBC();
@@ -496,6 +504,7 @@ void PcBox_DrawListCell(s32 x, s32 y, BattleMon* mon, s32 index, s32 flags, Poke
         func_8001AB6C();
         Font_SetColorForFlags(flags);
         func_8001A384(4, 0);
+        Port_Font_FitNext(x + 4, x + 87, 0); // PORT: a full Western nickname fits its cell
         Font_Printf(x + 5, y + 48, (char*)mon->nickname);
         func_8001ABBC();
         gSPDisplayList(gDisplayListHead++, D_80073408);

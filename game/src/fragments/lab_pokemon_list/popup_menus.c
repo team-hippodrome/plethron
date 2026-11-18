@@ -2,6 +2,7 @@
 /* C ported from the Stadium 1 decomp: src/fragments/lab_pc_list/lab_pc_list_1D7B40.c. */
 
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated item window title
 #include "font.h"
 #include "graphics_textures.h"
 extern u8 D_8910D7D0[];
@@ -357,11 +358,10 @@ void LabBoxList_SetAllChecked(LabBoxListWindow* widget, s32 enabled) { // PORT: 
  */
 void LabBoxList_ApplyChecks(LabBoxListWindow* box_list) {
     s32 i;
-    s32* entry = (s32*)box_list->menu.items->rows;
+    LabPCBox* entry = (LabPCBox*)box_list->menu.items->rows; // PORT: typed (was s32* with entry[3] and a stride of 8 words, the N64 layout)
 
-    for (i = 0; i < box_list->menu.items->count; i++) {
-        entry[3] = (box_list->menu.itemFlags[i] & 8) != 0;
-        entry += 8;
+    for (i = 0; i < box_list->menu.items->count; i++, entry++) {
+        entry->checked = (box_list->menu.itemFlags[i] & 8) != 0;
     }
 }
 
@@ -1625,40 +1625,23 @@ void LabPCList_DrawItemRow(s32 x, s32 y, u8** item, UNUSED s32 index, s32 flags)
     }
 }
 
-/* Layouts below are partial and local to this function: only the fields the
- * function touches are named, and the names say where they are, not what
- * they mean. */
-typedef struct {
-    s32 pad0[4];
-    s32 word10;
-} FlagScanEntry;
-
-typedef struct {
-    FlagScanEntry** entries; /* 0x00 */
-    s32 unk4;
-    s32 count;               /* 0x08 */
-} FlagScanTable;
-
-typedef struct {
-    u8 pad0[0x4C];
-    FlagScanTable* table;    /* 0x4C */
-    u16* flags;              /* 0x50 */
-} FlagScanOwner;
-
 /**
  * Grays out the items whose usability flags (LabPCList_UpdateItemUsability) say they can't be used on the Pokémon.
  * Seen in play (2026-11-14) in いちらん: ran when どうぐをつかう opened 「フシギダネがつかえるどうぐ」.
  * Matching note: the entries pointer is held in a local and indexed; advancing a pointer through
  * window->table->entries directly gives a different register assignment.
  */
-void LabPCList_DisableUnusableItems(FlagScanOwner* window) {
+void LabPCList_DisableUnusableItems(LabItemWindow* window) { // PORT: typed (local structs read the item list at 0x4C,
+    // its flags at 0x50 and each entry's reason at 0x10, the N64 offsets: on the host every item came out disabled,
+    // drawn in the disabled colour, and the use prompt's はい used nothing)
     s32 i;
-    FlagScanEntry** entries;
+    TmEntry8910A21C** entries;
+    PointerList* table = (PointerList*)window->list.items;
 
-    entries = window->table->entries;
-    for (i = 0; i < window->table->count; i++) {
-        if (entries[i]->word10 & 0x1F) {
-            window->flags[i] |= 1;
+    entries = (TmEntry8910A21C**)table->items;
+    for (i = 0; i < table->count; i++) {
+        if (entries[i]->unk_10 & 0x1F) {
+            window->list.itemFlags[i] |= 1;
         }
     }
 }
@@ -1689,6 +1672,8 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, PointerList* 
     window->window.frame.style = 0x801;
     func_8000A460(D_89119BD0, (s8*)D_80064C5C[mon->mon.species.id - 1].name);
     *(Str891084B4*)(strlen(D_89119BD0) + D_89119BD0) = *(Str891084B4*)D_8910E120;
+    Port_Text_NoteJoined((const char*)D_89119BD0, (const char*)D_80064C5C[mon->mon.species.id - 1].name,
+                         (const char*)D_8910E120); // PORT: 「<species>がつかえるどうぐ」, translated as its pieces
     window->window.title = (char*)D_89119BD0;
     Window_SetRect(&window->textFrame, x + 6, y + 268, 376, 92);
     window->textFrame.style = 6;
@@ -1696,7 +1681,7 @@ void LabPCList_InitItemWindow(LabItemWindow* window, s32 x, s32 y, PointerList* 
     *(Rgba891084B4*)&window->textFrame.color2 = *(Rgba891084B4*)D_8910AAE4;
     ScrollList_Init(&window->list, (ByteMatrix*)items, item_flags, 8, LabPCList_DrawItemRow, 376, 28);
     window->list.options |= 0x10000;
-    LabPCList_DisableUnusableItems((FlagScanOwner*)window);
+    LabPCList_DisableUnusableItems(window);
     window->mon = mon;
     window->mode = 0;
 }

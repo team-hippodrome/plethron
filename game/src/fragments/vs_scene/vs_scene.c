@@ -31,6 +31,8 @@
 #include "geo_layout.h"
 #include "geo_render.h"
 #include "gfx_buffer.h"
+#include "anim_raw.h" // PORT: ANIM_FLAGS, ANIM_END (VsScene_PortHideParkedCap)
+#include "StadionPort.h" // PORT: Port_WideMarginN64
 #include "graphics_textures.h"
 #include "input.h"
 #include "main_pool.h"
@@ -41,6 +43,7 @@
 #include "ui_graphics.h"
 #include "global.h"
 #include "m2c_macros.h"
+#include "text3d.h" // PORT: translated 3D words
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void MainPool_FinalizeAllocation(struct MemoryBlock* block);
@@ -223,14 +226,20 @@ void VsScene_DrawBackground(void) {
                 img = Memmap_GetFragmentVaddr(D_8FB08900);
                 break;
         }
+        // PORT: the sky comes before the stadium: without this mark its two full-screen rectangles make the frame a
+        // 2D screen, which widescreen keeps inside the 4:3 area (the tournament VS zoom in and out showed a 4:3
+        // stadium between bars). Same fix as Battle_DrawStageBackdrop.
+        gDPPort3DScene(gDisplayListHead++);
         gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
         gDPSetTexturePersp(gDisplayListHead++, G_TP_NONE);
         gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGB, G_CC_DECALRGB);
         gSPClearGeometryMode(gDisplayListHead++, G_ZBUFFER | G_LIGHTING);
         gDPLoadTextureBlock(gDisplayListHead++, img, G_IM_FMT_RGBA, G_IM_SIZ_32b, 4, 64, 0, G_TX_NOMIRROR | G_TX_CLAMP,
                             G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPPortWideRectsBegin(gDisplayListHead++); // PORT: the sky (one column, dsdx 0) covers a widescreen picture too
         gSPTextureRectangle(gDisplayListHead++, 0, 0, 0x500, 0x200, G_TX_RENDERTILE, 0, 0, 0, 0x200);
         gSPTextureRectangle(gDisplayListHead++, 0, 0x200, 0x500, 0x3C0, G_TX_RENDERTILE, 0, 0x7E0, 0, 0);
+        gDPPortWideRectsEnd(gDisplayListHead++);
         gSPDisplayList(gDisplayListHead++, D_80060398);
         return;
     }
@@ -263,14 +272,46 @@ s32 VsScene_DrawFrameToImage(s32 unused) {
  * Draws one frame of the scene over the background stage.
  * Seen in play: draws the VS scene's frames while the 「バトル」 title and VS panels play.
  */
+// PORT: after つづける the cap and its sparkles slide off to the left and stay parked at the end of their curves, just
+// past the 4:3 picture's left edge, until the scene ends: in widescreen that spot is on screen, so a piece of the cap
+// sat at the side through the next round's title and VS panels. Set once つづける is chosen (Tournament_PlayBadgeAward);
+// while it is set, a widescreen picture moves each of the two models far to the left once its curve has reached its
+// end. They are moved, not hidden, so their geo callbacks still run every frame as on the N64 (the cap's
+// FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Nothing changes at 4:3.
+#define PORT_PARKED_CAP_SHIFT_X -4000.0f
+static s32 sPortCapParkedOffscreen = 0;
+extern s32 gPortCullOutside43; // PORT: geo_render.c
+static s32 sPortCapShifted[2] = { 0, 0 };
+
+static void VsScene_PortHideParkedCap(void) {
+    DisplayObject* objs[2] = { &D_822033D0, &D_82203538 };
+    s32 i;
+
+    for (i = 0; i < 2; i++) {
+        TransformAnimState* anim = &objs[i]->transformAnim;
+        s32 parked = sPortCapParkedOffscreen && Port_WideMarginN64() != 0 && anim->data != NULL &&
+                     (ANIM_FLAGS(anim->data) & 2) &&
+                     (anim->frameFixed >> 16) >= (s32)ANIM_END(anim->data) - 1; // clamped: holds at end - 1
+
+        if (parked != sPortCapShifted[i]) {
+            objs[i]->position.x += parked ? PORT_PARKED_CAP_SHIFT_X : -PORT_PARKED_CAP_SHIFT_X;
+            sPortCapShifted[i] = parked;
+        }
+    }
+}
+
 s32 VsScene_DrawFrame(s32 unused) {
     s32 sp24 = VsScene_BeginFrame();
+
+    VsScene_PortHideParkedCap(); // PORT: widescreen
 
     GeoRender_AdvanceFrameCounter();
     PokeIcon_ProcessNextSlot((PokeIconRenderer*)D_82203264, 0);
     BgStage_DrawFrame();
     GfxImage_ClearDepthRectangle(&gDisplayListHead, 0, 0, 320, 240);
+    gPortCullOutside43 = Port_WideMarginN64() != 0; // PORT: widescreen (geo_render.c gPortCullOutside43)
     Geo_RenderRootNode(D_82203244);
+    gPortCullOutside43 = 0;
     return sp24;
 }
 
@@ -1016,6 +1057,8 @@ s32 Tournament_RunContinuePrompt(void);
 s32 Tournament_PlayBadgeAward(void) {
     s32 sp24 = 0;
 
+    sPortCapParkedOffscreen = 0; // PORT: see VsScene_PortHideParkedCap
+    VsScene_PortHideParkedCap();
     if (D_822036A4->battleSides[0].unk_1C == 1) {
         Model_InitDisplayObject(&D_822033D0, 1, 0, D_82203254);
         Model_InitDisplayObject(&D_82203538, 1, 0, D_82203258);
@@ -1039,6 +1082,7 @@ s32 Tournament_PlayBadgeAward(void) {
             Audio_PlayCommand(0x51, 0, 0);
             BgStage_RunUntilCondition(0xF, VsScene_DrawFrame);
             sp24 = Tournament_RunContinuePrompt();
+            sPortCapParkedOffscreen = (sp24 == 0); // PORT: つづける: the cap slides off (VsScene_PortHideParkedCap)
         }
     }
     return sp24;
@@ -1194,6 +1238,118 @@ extern u8 D_8EB300B0[];
 extern u8 D_8EB37440[];
 extern u8 D_8F20A788[];
 Gfx* ImageGrid_Create(s16 x, s16 y, s16 z, void* tex, s16 width, s16 height); // PORT: signature from the definition (game_state.c)
+
+// PORT: translated 3D words (src/port/text3d.cpp). The glyph display lists of each word the VS scene draws as
+// models, in reading order, by their link addresses in the round title fragments (035 rounds 1-6, 036 round 7, 037
+// round 8) and the results board (033). The round number and its dash stay the original models.
+static const u32 sPortTitleBattle[] = { 0x8EC136D0, 0x8EC13438, 0x8EC12FF8 };                // バ ト ル
+static const u32 sPortTitleSemifinal[] = { 0x8ED0D968, 0x8ED0D460, 0x8ED0D1E0, 0x8ED0CE08, // セ ミ フ ァ
+                                           0x8ED0CB08, 0x8ED0C7A0, 0x8ED0C360 };            // イ ナ ル
+static const u32 sPortTitleFinalBattle[] = { 0x8EE0E1E0, 0x8EE0D2F0, 0x8EE0ED88, 0x8EE0E460, // フ ァ イ ナ
+                                             0x8EE0DB08, 0x8EE0E7C8, 0x8EE0DF48, 0x8EE0D6C8 }; // ル バ ト ル
+// The dash and the six round numbers after バトル, moved right when the translation is longer.
+static const u32 sPortTitleNumber[] = { 0x8EC12F20, 0x8EC12D38, 0x8EC128B8, 0x8EC12290,
+                                        0x8EC11F88, 0x8EC11A68, 0x8EC11500 }; // - 1 2 3 4 5 6
+// チャンピオン! over the badge cap after the final (fragment 034).
+static const u32 sPortChampion[] = { 0x8EB2D4E8, 0x8EB2D118, 0x8EB2CDB0, 0x8EB2C740, // チ ャ ン ピ
+                                     0x8EB2C2F0, 0x8EB2BF88, 0x8EB2BDE0 };            // オ ン !
+static const u32 sPortWin[] = { 0x8F6176D0, 0x8F6170B0 };  // か ち
+static const u32 sPortLose[] = { 0x8F616820, 0x8F6162A8 }; // ま け
+
+typedef struct PortSlotSearch {
+    const u32* dls;
+    s32 count;
+    s32 found;
+    Port3DTextSlot* slots;
+} PortSlotSearch;
+
+// Walks the graph below `node` with the rest pose of the animated parts (their default translation and scale) and
+// records where each wanted glyph list's part sits.
+static void VsScene_PortFindGlyphs(GraphNode* node, f32 x, f32 y, f32 z, f32 sx, f32 sy, f32 sz,
+                                   PortSlotSearch* search) {
+    GraphNode* first = node;
+    s32 i;
+
+    if (node == NULL) {
+        return;
+    }
+    do {
+        f32 nx = x, ny = y, nz = z, nsx = sx, nsy = sy, nsz = sz;
+
+        if (node->type == 0x14) {
+            GeoAnimatedPartNode* part = (GeoAnimatedPartNode*)node;
+            nx = x + sx * part->translation.x;
+            ny = y + sy * part->translation.y;
+            nz = z + sz * part->translation.z;
+            // a part whose default scale is 0 is grown by its curve (round 8's title root): take it at full size
+            nsx = sx * ((part->scale.x != 0.0f) ? part->scale.x : 1.0f);
+            nsy = sy * ((part->scale.y != 0.0f) ? part->scale.y : 1.0f);
+            nsz = sz * ((part->scale.z != 0.0f) ? part->scale.z : 1.0f);
+        } else if (node->type == 0x19) {
+            u32 dl = (u32)(uintptr_t)((GeoDisplayListNode*)node)->displayList;
+            for (i = 0; i < search->count; i++) {
+                if (search->dls[i] == dl) {
+                    Port3DTextSlot* slot = &search->slots[i];
+                    slot->dl = dl;
+                    slot->x = x;
+                    slot->y = y;
+                    slot->z = z;
+                    slot->scaleX = sx;
+                    slot->scaleY = sy;
+                    slot->scaleZ = sz;
+                    search->found++;
+                }
+            }
+        }
+        VsScene_PortFindGlyphs((GraphNode*)node->children, nx, ny, nz, nsx, nsy, nsz, search);
+        node = node->nextSibling;
+    } while (node != NULL && node != first);
+}
+
+static s32 VsScene_PortFindSlots(GraphNode* root, const u32* dls, s32 count, Port3DTextSlot* slots) {
+    PortSlotSearch search;
+
+    search.dls = dls;
+    search.count = count;
+    search.found = 0;
+    search.slots = slots;
+    VsScene_PortFindGlyphs(root, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, &search);
+    return search.found == count;
+}
+
+static void VsScene_PortTranslateWord(GraphNode* root, const char* id, const u32* dls, s32 count, f32 maxGrow) {
+    Port3DTextSlot slots[8];
+
+    if (VsScene_PortFindSlots(root, dls, count, slots)) {
+        Port_Text3D_Build(id, slots, count, maxGrow, NULL, 0);
+    }
+}
+
+// The round title of `round`, チャンピオン! and かち / まけ, built once the scene's models are set up.
+static void VsScene_PortTranslateWords(s32 round) {
+    if (!Port_Text3D_Enabled()) {
+        return;
+    }
+    if ((round > 0) && (round < 7)) {
+        Port3DTextSlot slots[ARRAY_COUNT(sPortTitleBattle)];
+        Port3DTextSlot number[ARRAY_COUNT(sPortTitleNumber)];
+
+        if (VsScene_PortFindSlots(D_82203248, sPortTitleBattle, ARRAY_COUNT(sPortTitleBattle), slots) &&
+            VsScene_PortFindSlots(D_82203248, sPortTitleNumber, ARRAY_COUNT(sPortTitleNumber), number)) {
+            Port_Text3D_Build("MODEL_TEXT_BATTLE", slots, ARRAY_COUNT(slots), 1.15f, number, ARRAY_COUNT(number));
+        }
+    } else if (round == 7) {
+        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_SEMIFINAL", sPortTitleSemifinal,
+                                  ARRAY_COUNT(sPortTitleSemifinal), 1.1f);
+    } else if (round == 8) {
+        VsScene_PortTranslateWord(D_82203248, "MODEL_TEXT_FINAL_BATTLE", sPortTitleFinalBattle,
+                                  ARRAY_COUNT(sPortTitleFinalBattle), 1.1f);
+    }
+    VsScene_PortTranslateWord((GraphNode*)D_82203254, "MODEL_TEXT_CHAMPION", sPortChampion, ARRAY_COUNT(sPortChampion),
+                              1.0f);
+    VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_WIN", sPortWin, ARRAY_COUNT(sPortWin), 1.4f);
+    VsScene_PortTranslateWord((GraphNode*)D_82203250, "MODEL_TEXT_LOSE", sPortLose, ARRAY_COUNT(sPortLose), 1.4f);
+}
 
 /**
  * Builds the scene's geo layouts: the stadium for the current stage kind (D_822036A8: Free Battle,
@@ -1371,6 +1527,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     D_8220325C = BinArchive_Open(D_002F5940, D_003139C0, 1, 1);
     PokeIcon_OpenModelArchives();
     VsScene_LoadGeoLayout(sp24);
+    VsScene_PortTranslateWords(sp24); // PORT
     StageContext_Activate(D_82203204);
 
     switch (kind) {
@@ -1390,6 +1547,7 @@ s32 VsScene_Run(s32 kind, SessionContext* session) {
     StageContext_Deactivate();
     ImageGrid_Clear();
     Gfx_FreeDisplayListBuffers();
+    Port_Text3D_Clear(); // PORT
     MainPool_PopState('BTLS');
     return 0;
 }

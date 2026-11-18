@@ -5,6 +5,7 @@
 #include "fragments/battle/battle.h"
 #include "gfx_buffer.h"
 #include "memory_main.h"
+#include "StadionPort.h" // PORT: Port_ZeroLogoHold
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 GbSave_ScanAllPorts(void);
@@ -75,6 +76,13 @@ void N64Logo_HoldForOneSecond(u64 start_time) {
     u32 elapsed_usec = 15;
 
     while (elapsed_usec < 1000000) {
+        // PORT: on the N64 the VI keeps showing the logo while this spins. The port's lockstep clock only moves time
+        // at a retrace, which never comes while the game thread spins, so the second ran out after one retrace (logo
+        // up 0.2 s). Draw the logo and wait for the next retrace on each pass instead: the same second, in frames.
+        if (Port_ZeroLogoHold()) {
+            N64Logo_DrawFrame(0);
+            BgStage_AdvanceFrame();
+        }
         elapsed_usec = __ull_div(__ll_mul(osGetTime() - start_time, 64), 3000);
     }
 }

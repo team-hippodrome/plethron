@@ -2,6 +2,7 @@
 #include "battle.h"
 #include "audio_commands.h"
 #include "geo_node.h"
+#include "StadionPort.h" // PORT: Port_XcheckMoveStart, Port_SyncEvent
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void BattleScene_MoveIntroCameraBelow(CameraNode* camera);
@@ -57,6 +58,11 @@ s32 BattleScene_PrepareResidualStatusPresentation(void);
 void BattleScene_ActionStepIntro(CameraNode* arg0, s32 arg1) {
     s8* sp1C = ((s8*)&sActingPokemon->state.unk00[0]);
 
+    // PORT: an action's intro starts (its first frame): guRandom restarts when comparing against ares, since the
+    // random intro camera (BattleScene_MoveIntroCameraRandom) draws from it before the move's own restart below
+    if (sBattleScene.scene->phaseSubstep == 0) {
+        Port_XcheckMoveStart();
+    }
     BattleScene_SetCameraClipMaskBothSides(0x1FFE);
     BattleScene_CleanupParticipantEffectMode((uintptr_t)sActivePokemon[0]);
     BattleScene_CleanupParticipantEffectMode((uintptr_t)sActivePokemon[1]);
@@ -140,6 +146,10 @@ void BattleScene_ActionStepSetHitCount(CameraNode* arg0, s32 arg1) {
         scene->hitCountWaitFrames = temp_v1 + 1;
         return;
     }
+    // PORT: a move's presentation starts (its message is done): guRandom restarts when comparing against ares, and
+    // tools/screen_diff's sync:move (ares_ref hooks the call below from here)
+    Port_XcheckMoveStart();
+    Port_SyncEvent("move");
     BattleScene_ResetAnimationStep();
     if (1) {  // karodo
     }

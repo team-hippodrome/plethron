@@ -1,6 +1,7 @@
 /* Stadium Zero fragment016_252E10. */
 
 #include "unicode_font.h" // PORT: Port_Font_FitNext
+#include "text_lookup.h" // PORT: the translated hint's width
 #include "global.h"
 #include "lab_pokemon_list.h"
 #include "m2c_macros.h"
@@ -111,6 +112,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
         Font_SetColorForFlags(flags);
       }
       Font_SetActive(4, -1);
+      Port_Font_FitNext(x + 40, x + 118, 0); // PORT: a translated species name fits its column ("Aerodactyl")
       Font_Printf(x + 40, y + 2, (M2C_UNK *) D_80064C5C[entry->species - 1].name);
       Font_EndTexturedTextRendering();
     }
@@ -120,6 +122,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
       switch (col)
       {
         case 0:
+          Port_Font_FitNext(cx + 6, cx + c->columnWidths[col] - 2, 0); // PORT: a full Western nickname fits its column
           LabPCList_DrawPlainText(cx + 6, y + 2, entry->nickname, 0, 0);
           break;
 
@@ -128,6 +131,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
           break;
 
         case 2:
+          Port_Font_FitNext(cx + 4, cx + c->columnWidths[col] - 2, 0); // PORT: and a full Western OT name
           LabPCList_DrawPlainText(cx + 4, y + 2, entry->trainer, 0, 0);
           break;
 
@@ -148,6 +152,7 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
         case 8:
 
         case 9:
+          Port_Font_FitNext(cx + 1, cx + c->columnWidths[col] - 1, 0); // PORT: a translated move name fits its column
           LabPCList_DrawMoveName(cx + 1, y + 2, &entry->species, col - 6);
           break;
 
@@ -183,32 +188,19 @@ void LabPCList_DrawMonRow(s32 x, s32 y, Entry891012A8 *entry, s32 row, s32 flags
   }
 }
 
-/**
- * Fields of the scrolling list menu used by LabPCList_DrawRowCursor (same layout as GridMenu80031004
- * in src/2E480.c; offsets not listed are unknown/unused here).
- */
-typedef struct ListMenu8910179C {
-    /* 0x00 */ char unk00[0x10];
-    /* 0x10 */ s32 cellHeight;
-    /* 0x14 */ char unk14[0x16];
-    /* 0x2A */ u16 flags;
-    /* 0x2C */ s32 scroll;
-    /* 0x30 */ char unk30[0x4];
-    /* 0x34 */ s32 scrollTarget;
-} ListMenu8910179C;
 
 /**
  * Draws a fixed-size (0x50 x 0x14) cursor rectangle via Ui_DrawRoundedFrame for a scrolling list
- * menu: x = left + 0x26, y = scrollTarget + top - scroll, minus (cellHeight - 1) when flag
- * 0x400 is set; color read from D_80073520. Compare ScrollGrid_DrawCursor and ScrollList_DrawCursor.
+ * menu: x = left + 0x26, y = cursorY + top - scrollY, minus (cellHeight - 1) when scrollFlags
+ * 0x400 is set; color read from D_80073520 (list is the ScrollList). Compare ScrollGrid_DrawCursor and ScrollList_DrawCursor.
  * Seen in play (2026-11-12) in いちらん (party list: フシギダネ, ヒトカゲ, ゼニガメ): drew the cursor on the フシギダネ
  * row.
  */
-void LabPCList_DrawRowCursor(ListMenu8910179C* list, s32 left, s32 top) {
+void LabPCList_DrawRowCursor(ScrollList* list, s32 left, s32 top) { // PORT: typed (was a local struct with N64 offsets)
     s32 y;
 
-    y = list->scrollTarget + top - list->scroll;
-    if (list->flags & 0x400) {
+    y = list->cursorY + top - list->scrollY;
+    if (list->scrollFlags & 0x400) {
         y = y - list->cellHeight + 1;
     }
     Ui_DrawRoundedFrame(left + 38, y, 80, 20, *(Color_RGBA8*)D_80073520);
@@ -230,18 +222,38 @@ void Gfx_DrawTextureRgba16(s32, s32, s32, s32, u8*, s32, s32);
  * Seen in play (2026-11-12): Lタテ／ヨコきりかえR and ページおくり1／3.
  */
 void LabPCList_DrawPageHint(LabPCListScreen* screen) {
+    s32 r_x = 218;   // PORT: the R icon's x, after a translated hint too long to squeeze
+    s32 page_dx = 0; // PORT: and how far the page hint and its left arrow move to make room for it
+
     Font_BeginTranslucentTextRendering();
     Gfx_SetEnvColor(D_800734A8[0], D_800734A8[1], D_800734A8[2], D_800734A8[3]);
     Font_SetActive(8, 0);
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) {
+        // PORT: Port_Font_FitNext squeezes a line over by up to two average characters into 32..216 and draws a
+        // longer one from 32 as is ("Toggle vertical/horizontal"), which ran under the R icon: move the icon (and
+        // the page hint, if needed) right of the text instead.
+        const char* hint = Port_Text_Utf8Of(D_8910DBF0);
+        s32 width = (hint != NULL) ? Port_Font_MeasureUtf8(hint) : 0;
+        s32 count = 0;
+        const char* q = hint;
+
+        while (q != NULL && Port_Utf8Next(&q) != 0) {
+            count++;
+        }
+        if (width > 184 && (width - 184) * count > 2 * width) {
+            r_x = 32 + width + 2;
+            page_dx = (r_x + 26 + 4 > 308) ? r_x + 26 + 4 - 308 : 0;
+        }
+    }
     Port_Font_FitNext(screen->headerFrame.x + 32, screen->headerFrame.x + 216, 1); // PORT: fits between the L and R icons
     Font_Printf(screen->headerFrame.x + 34, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DBF0);
-    Font_Printf(screen->headerFrame.x + 338, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DC04,
+    Font_Printf(screen->headerFrame.x + 338 + page_dx, screen->headerFrame.y + 5, (M2C_UNK*)D_8910DC04,
                   screen->page + 1);
     Font_EndTexturedTextRendering();
     gSPDisplayList(gDisplayListHead++, D_80060290);
     Gfx_DrawTextureRgba16(screen->headerFrame.x + 4, screen->headerFrame.y + 3, 26, 24, D_8910C370, 0x20, 0x200000);
-    Gfx_DrawTextureRgba16(screen->headerFrame.x + 218, screen->headerFrame.y + 3, 26, 24, D_8910C978, 0x20, 0x200000);
-    Gfx_DrawTextureRgba16(screen->headerFrame.x + 308, screen->headerFrame.y + 2, 26, 26, D_04006170, 0x1C, 0x200000);
+    Gfx_DrawTextureRgba16(screen->headerFrame.x + r_x, screen->headerFrame.y + 3, 26, 24, D_8910C978, 0x20, 0x200000);
+    Gfx_DrawTextureRgba16(screen->headerFrame.x + 308 + page_dx, screen->headerFrame.y + 2, 26, 26, D_04006170, 0x1C, 0x200000);
     Gfx_DrawTextureRgba16(screen->headerFrame.x + 522, screen->headerFrame.y + 2, 26, 26, D_04006CE0, 0x1C, 0x200000);
     gSPDisplayList(gDisplayListHead++, D_80060398);
 }

@@ -1,0 +1,14 @@
+# Main menu -> いちらん (list), deep: the source dialog (party + Game Boy box), the table's three pages (Pokémon,
+# moves, stats), the L/R cursor mode, a row's menu, どうぐをつかう (Protein on Pikachu: the stat pop-up),
+# あつめる (filter to the same species), then B out to the main menu.
+# Needs the Lab save: tools/screen_diff/jp_gen1_save.py <file> --lab, in $GB_SAV_GREEN_LAB.
+@gb green lab
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 UP 40 A 150 shot:list_prompt A 200 shot:list_dialog
+UP 20 UP 20 A 30 shot:list_dialog_gb_box DOWN 20 DOWN 20 A 200 shot:list_table
+CR 60 shot:list_moves CR 60 shot:list_stats CL 60 CL 60 shot:list_table_back
+R 80 shot:list_column_mode L 80 DOWN 30 shot:list_row2 UP 30
+A 60 shot:list_row_menu DOWN 25 DOWN 25 DOWN 25 A 120 shot:item_window DOWN 25 shot:item_cursor2
+A 100 shot:item_confirm A 60 shot:item_used 100 shot:item_used_idle 100
+A 60 shot:list_row_menu2 A 120 shot:list_gathered
+B 150 shot:list_exit 100 shot:main_menu_after

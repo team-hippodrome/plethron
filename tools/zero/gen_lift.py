@@ -35,6 +35,19 @@ DECLARED_ONLY = {
 }
 
 
+def text_addrs():
+    """N64 addresses of the game's strings (the addr column of translations/ai.csv: link addresses only, no ROM data)."""
+    import csv, os
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'translations', 'ai.csv')
+    out = set()
+    if os.path.exists(path):
+        with open(path, encoding='utf-8', newline='') as f:
+            for row in csv.DictReader(f):
+                for x in (row.get('addr') or '').split():
+                    out.add(int(x, 16))
+    return out
+
+
 def align_up(x, a):
     return (x + a - 1) // a * a
 
@@ -290,6 +303,8 @@ def main():
         return (sc, g.n64(t)[0])
 
     report = collections.Counter()
+    texts = text_addrs()
+    textuse = set(n for x in decls['ext'].get('__text_args__', []) for n in x['names'])
     syms = []          # dict per lifted symbol
     aliases = []       # (name, target, host offset)
     absyms = []        # (name, value)
@@ -369,9 +384,17 @@ def main():
             if elem['k'] in ('opaque', 'void'):
                 elem = {'k': 's', 'size': 1, 'sg': False}
                 report['opaque (bytes)'] += 1
+            declared = (t['n'] or 0) if t['k'] == 'array' else 1
+            if (a in texts or name in textuse) and elem['k'] == 's' and elem['size'] == 4:
+                # a string the C code declares as a word (M2C_UNK, s32[]): lifted as words it comes out in host order,
+                # every 4 characters reversed (いちらん's location column, D_8910DBB4). Text keeps its N64 bytes.
+                # Halfword arrays stay: the code reads their 2-byte character codes as s16 (sNoControllerMessage).
+                declared *= elem['size']
+                elem = {'k': 's', 'size': 1, 'sg': False}
+                report['text or byte buffer declared as words, lifted as bytes'] += 1
+                if __import__('os').environ.get('GEN_LIFT_VERBOSE'): print('text as bytes:', name, '0x%08X' % a)
             ti = g.tid(elem)
             en = g.tab[ti][1] or 1
-            declared = (t['n'] or 0) if t['k'] == 'array' else 1
             count = max(declared, gap // en, 1)
             if declared and g.tab[ti][0].startswith('r:union Gfx'):
                 count = declared  # a sized display list ends where declared; data after it (text) is not commands
@@ -384,6 +407,19 @@ def main():
                 # The table keeps its declared size; pointers into the tail are lifted lazily as their pointee type.
                 count = declared
                 report['sized pointer table kept to its declared size'] += 1
+            if count > declared and en > 1 and not nb and elem['k'] == 's':
+                # the gap rule grows a word/halfword symbol over the data after it; where that is text (a string the
+                # translations know, e.g. the CONTINUE prompts after main_menu's counter D_880022C4), stop before it:
+                # the tail is then lifted lazily as bytes instead of as words in host order.
+                # Scalars only: record arrays hold their text inside the records (char[] fields, already bytes), and
+                # clipping one cut sTournamentOpponents (unsized, 47 records with inline nicknames) to zero records:
+                # every tournament round crashed at the VS screen (TournamentOpponent_LoadTemplate), and
+                # sEncounterLocations lost its 59 Pokédex habitat records. Text at the symbol's own start is the
+                # symbol itself (sNoControllerMessage, a halfword string), so the clip starts after the first element.
+                tx = [x for x in texts if a + max(declared, 1) * en <= x < a + count * en]
+                if tx:
+                    count = max(declared, (min(tx) - a) // en)
+                    report['extent clipped before text'] += 1
             if name in DECLARED_ONLY:
                 count = declared
                 report['kept to its declaration (DECLARED_ONLY)'] += 1
@@ -423,6 +459,43 @@ def main():
         kept.append(sy)
     syms = kept
 
+    # Neighbours whose host layout is their N64 bytes (byte arrays, records of bytes such as Color_RGBA8) share one
+    # storage block laid out as on the N64, the later ones as aliases into it. The code indexes past a symbol into the
+    # next one (the Lab PC's tool button colours read D_8900A580[0..7], a 4-byte symbol followed by D_8900A584): with
+    # separate storage that read whatever the host linker put next; in one block it reads what the N64 does.
+    def same_bytes(ti, seen=()):
+        if ti < 0 or ti in seen: return False
+        _, n64s, hs, _, ops = g.tab[ti]
+        if n64s != hs: return False
+        for o in ops:
+            if o[0] == K_SCALAR:
+                if o[3] != 1 or o[1] != o[2] or o[5] != o[6]: return False
+            elif o[0] == K_REC:
+                if o[1] != o[2] or o[5] != o[6] or not same_bytes(o[7], seen + (ti,)): return False
+            else:
+                return False
+        return True
+    byte_tid = g.tid({'k': 's', 'size': 1, 'sg': False})
+    merged = []
+    for sy in syms:
+        p = merged[-1] if merged else None
+        if (p is not None and p.get('run_ok') and same_bytes(sy['tid']) and sy['image'] == p['image']
+                and sy['bss'] == p['bss'] and sy['addr'] == p['addr'] + p['n64ext'] and sy['name'] not in DECLARED_ONLY
+                and (sy['bss'] or sy['rom'] == p['rom'] + (sy['addr'] - p['addr']))
+                and p['hostsize'] == p['n64ext']):
+            off = sy['addr'] - p['addr']
+            aliases.append((sy['name'], p['name'], off)); report['byte-layout neighbour merged into one block'] += 1
+            if p['tid'] != byte_tid:
+                p['tid'] = byte_tid; p['en'] = 1
+            # bss keeps its own gap-sized room (hostsize can exceed n64ext), so the block grows to cover it
+            p['hostsize'] = max(p['hostsize'], off + sy['hostsize'])
+            p['n64ext'] = off + sy['n64ext']; p['count'] = p['n64ext']
+            p['declared'] = p['count']
+            continue
+        sy['run_ok'] = same_bytes(sy['tid']) and sy['name'] not in DECLARED_ONLY
+        merged.append(sy)
+    syms = merged
+
     # host functions with an N64 address (function pointers in data)
     funcs = []
     for im in image_names:
@@ -442,7 +515,9 @@ def main():
         for key, n64s, hs, n64a, ops in g.tab:
             w('    { %d, %d, %d, %d }, // %s\n' % (n64s, hs, opi, len(ops), key[:100]))
             opi += len(ops); allops += ops
-        w('};\nconst uint32_t gZLiftTypeCount = %d;\n\n' % len(g.tab))
+        w('};\nconst uint32_t gZLiftTypeCount = %d;\n' % len(g.tab))
+        gfx = [i for i, t in enumerate(g.tab) if t[0].startswith('r:union Gfx@')]
+        w('const int32_t gZLiftGfxType = %d; // display-list commands (zero_lift.c liftElems)\n\n' % (gfx[0] if gfx else -1))
         w('const ZLiftOp gZLiftOps[] = {\n')
         for o in allops:
             w('    { %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d },\n' % tuple(o))
@@ -492,6 +567,14 @@ def main():
     with open(out_s.replace('abs_syms.S', 'zero_aliases.ld'), 'w') as f:
         f.write('/* Generated by tools/zero/gen_lift.py: names of the decomp that alias another symbol (same address, or\n')
         f.write('   inside a lifted symbol at the given host offset). Passed to the linker as an implicit script. */\n')
+        # flatten chains (a name aliasing a symbol that became an alias itself, e.g. by the byte-layout merge): the linker
+        # evaluates assignments in order, and one that names a later assignment came out as a bad absolute address
+        amap = {n: (t, off) for n, t, off in aliases}
+        def root(t, off, depth=0):
+            while t in amap and depth < 64:
+                t, o2 = amap[t]; off += o2; depth += 1
+            return t, off
+        aliases = [(n,) + root(t, off) for n, t, off in aliases]
         for n, t, off in aliases:
             f.write('%s = %s + %d;\n' % (n, t, off) if off else '%s = %s;\n' % (n, t))
     for k, n in sorted(report.items()): print('%6d %s' % (n, k))

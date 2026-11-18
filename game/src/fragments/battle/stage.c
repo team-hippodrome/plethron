@@ -180,6 +180,11 @@ void Battle_DrawStageBackdrop(void) {
         bottom = sStageCamera.viewport.height + top;
         texture_step_y = 0x10000 / (sStageCamera.viewport.height / 2);
 
+        // PORT: the sky comes before the arena: without this mark its two full-screen rectangles make the frame a 2D
+        // screen, which widescreen keeps inside the 4:3 area (the Tournament stadiums' arena boxed in 4:3 between
+        // stretched sky). Same fix as stadion's Battle_DrawStageBackdrop.
+        gDPPort3DScene(gDisplayListHead++);
+
         switch (D_82198D1C) {
             case 1: tex = (void*)Memmap_GetFragmentVaddr(D_8F908980); break;
             case 2: tex = (void*)Memmap_GetFragmentVaddr(D_8FA08900); break;
@@ -297,6 +302,15 @@ void Battle_FillActivePokemonThumbnail(GraphNode* thumbnail_root, GfxImage* thum
     camera_node++;
 
     gDPPipeSync(gDisplayListHead++);
+    // PORT: in a widescreen picture the portrait sits at its screen edge, with its side's HUD (Battle_RenderHud)
+    {
+        const int anchor = Port_HudAnchorSide(thumbnail_root->children);
+        if (anchor < 0) {
+            gDPPortAnchorLeft(gDisplayListHead++);
+        } else if (anchor > 0) {
+            gDPPortAnchorRight(gDisplayListHead++);
+        }
+    }
 
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
     gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
@@ -314,6 +328,7 @@ void Battle_FillActivePokemonThumbnail(GraphNode* thumbnail_root, GfxImage* thum
     Battle_DrawTexturedRectSegment(x, y + 30, 37, 7, image_address, 76);
 
     gDPPipeSync(gDisplayListHead++);
+    gDPPortAnchorEnd(gDisplayListHead++);
 
     gDPSetTexturePersp(gDisplayListHead++, G_TP_PERSP);
     gDPSetTextureFilter(gDisplayListHead++, G_TF_BILERP);

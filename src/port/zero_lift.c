@@ -260,16 +260,117 @@ static void applyOp(const ZLiftOp* o, const uint8_t* src, uint8_t* dst) {
     }
 }
 
+// Display-list commands whose second word is an address (F3DEX2: G_VTX, G_MTX, G_MOVEWORD, G_MOVEMEM, G_DL,
+// G_RDPHALF_1, G_SETTIMG, G_SETZIMG, G_SETCIMG). Every other command's second word is a value, and some values look
+// like resident addresses: G_TEXTURE's scale 0x80008000 (0.5, 0.5) was relocated to a host pointer, so the habitat
+// map's signpost pins sampled their frame texture at a garbage scale and came out cut into strips.
+static int gfxWordIsAddress(uint8_t op) {
+    switch (op) {
+        case 0x01: case 0xDA: case 0xDB: case 0xDC: case 0xDE: case 0xE1: case 0xFD: case 0xFE: case 0xFF:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 static void liftElems(const uint8_t* src, uint8_t* dst, int type, uint32_t count) {
     const ZLiftType* t = &gZLiftTypes[type];
     for (uint32_t i = 0; i < count; i++) {
+        const uint8_t* s = src + (size_t)i * t->n64Size;
+        uint8_t* d = dst + (size_t)i * t->hostSize;
         for (uint32_t k = 0; k < t->opCount; k++) {
-            applyOp(&gZLiftOps[t->opStart + k], src + (size_t)i * t->n64Size, dst + (size_t)i * t->hostSize);
+            applyOp(&gZLiftOps[t->opStart + k], s, d);
+        }
+        if (type == gZLiftGfxType && !gfxWordIsAddress(s[0])) {
+            uintptr_t w1 = be32(s + 4); // the host Gfx: two pointer-sized words
+            memcpy(d + sizeof(uintptr_t), &w1, sizeof(w1));
         }
     }
 }
 
 static int sWarnedUnknown;
+static int typeIsBytes(int type);
+
+// Whether a type's lifted form holds host pointers (pointer, function pointer or maybe-pointer words, at any depth).
+static int typeHasPtr(int type) {
+    const ZLiftType* t = &gZLiftTypes[type];
+    for (uint32_t i = 0; i < t->opCount; i++) {
+        const ZLiftOp* o = &gZLiftOps[t->opStart + i];
+        if (o->kind == ZLIFT_PTR || o->kind == ZLIFT_FNPTR || o->kind == ZLIFT_MAYBEPTR) {
+            return 1;
+        }
+        if (o->kind == ZLIFT_REC && typeHasPtr(o->sub)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int sAudit = -1;
+#define AUDIT (sAudit < 0 ? (sAudit = getenv("PORT_LIFT_AUDIT") != NULL) : sAudit)
+static uint32_t sPointerTails;
+
+// A pointer into a symbol's storage that cannot be read through the pointer's type. gen_lift.py sizes a symbol up to
+// the next named one, so a symbol declared as one small object (D_8200923C, one Color_RGBA8) also owns the unnamed data
+// after it, laid out as more elements of its own type. When that type holds no pointers and the pointee type does
+// (the 14 rule-row string tables of the Battle Mode rules lists, char*[] at 0x82009240..0x82009278), the storage
+// there is the N64's 32-bit words, and reading them as host pointers crashes (ルールを見る, every mode). Such data is
+// lifted on its own as the pointee type, as unnamed data is. Only for initialized data: bss is written by host code
+// in the symbol's host layout.
+static int pointsIntoForeignTail(const ZLiftSym* s, uint32_t v, int pointee) {
+    if (pointee < 0 || v == s->addr || s->bss || v >= s->addr + s->n64Ext) {
+        return 0;
+    }
+    if (pointee == s->type) {
+        // the symbol's own type, but not at an element boundary: another table of that type after it
+        uint32_t n = gZLiftTypes[pointee].n64Size;
+        if (n == 0 || (v - s->addr) % n == 0 || findPart(v) == NULL) {
+            return 0;
+        }
+        if (TRACE || AUDIT) {
+            fprintf(stderr, "[lift] pointer 0x%08X into the symbol at 0x%08X (type %d x%u) between two elements: "
+                    "lifted on its own\n", v, s->addr, s->type, s->count);
+        }
+        sPointerTails++;
+        return 1;
+    }
+    if (AUDIT && typeIsBytes(pointee) && !typeIsBytes(s->type) && findPart(v) != NULL) {
+        // not redirected (code reads lifted words through byte pointers on purpose, ZLift_ScalarSize), only listed
+        fprintf(stderr, "[lift] audit: byte pointer 0x%08X into the converted data of the symbol at 0x%08X (type %d)\n",
+                v, s->addr, s->type);
+    }
+    if (typeHasPtr(s->type) || !typeHasPtr(pointee)) {
+        return 0;
+    }
+    if (findPart(v) == NULL) {
+        return 0;
+    }
+    if (TRACE || AUDIT) {
+        fprintf(stderr, "[lift] pointer 0x%08X into the pointer-free data of the symbol at 0x%08X (type %d x%u), "
+                "read as type %d: lifted on its own\n", v, s->addr, s->type, s->count, pointee);
+    }
+    sPointerTails++;
+    return 1;
+}
+
+// Whether data pointed at as `pointee` can be read in a lazy block lifted as another type. An unnamed block runs to
+// the next named symbol, so it can cover tables of other types after the one it was lifted for (after the Battle Mode
+// rules' records at 0x820092C8 come the string tables their rows point at): a pointer into those gets its own block.
+static int lazyFits(const LazyBlock* b, uint32_t v, int pointee) {
+    if (pointee < 0) {
+        return 1;
+    }
+    if (b->type == pointee) {
+        // an element of the block's own type must start on an element boundary: the mode 2 rule records
+        // (0x820093A4) are 0xDC bytes, not a whole number of records, after the mode 0 ones (0x820092C8)
+        uint32_t n = gZLiftTypes[pointee].n64Size;
+        return n == 0 || (v - b->addr) % n == 0;
+    }
+    if (b->type < 0 || typeIsBytes(b->type)) {
+        return !typeHasPtr(pointee) && typeIsBytes(pointee);
+    }
+    return 0;
+}
 
 static void* resolve(uint32_t v, int pointee) {
     if (v == 0) {
@@ -283,6 +384,9 @@ static void* resolve(uint32_t v, int pointee) {
         nextBound(v) > v) {
         // One past a symbol, where unnamed data of another type starts (the Pokédex text after D_80060A00's display
         // list): a pointer to that data, not an end pointer of the symbol.
+        s = NULL;
+    }
+    if (s != NULL && pointsIntoForeignTail(s, v, pointee)) {
         s = NULL;
     }
     if (s != NULL) {
@@ -305,6 +409,13 @@ static void* resolve(uint32_t v, int pointee) {
     for (uint32_t i = 0; i < sLazyCount; i++) {
         LazyBlock* b = &sLazy[i];
         if (v >= b->addr && v < b->addr + b->n64Ext) {
+            if (v != b->addr && !lazyFits(b, v, pointee)) {
+                if (AUDIT) {
+                    fprintf(stderr, "[lift] pointer 0x%08X into the unnamed block at 0x%08X (type %d), read as type %d: "
+                            "lifted on its own\n", v, b->addr, b->type, pointee);
+                }
+                continue; // another table that only follows this block's start (the rules' row and record tables)
+            }
             long off = b->type >= 0 ? translate(b->type, v - b->addr) : (long)(v - b->addr);
             return b->host + (off < 0 ? 0 : off);
         }
@@ -492,6 +603,22 @@ uint32_t ZLift_N64Addr(const void* host) {
     return 0;
 }
 
+// The bytes at N64 link address addr as the image holds them (big-endian, relocated pointers as link
+// addresses), with at least len bytes available; NULL otherwise. For data the lifter typed too small.
+const uint8_t* ZLift_ImageData(uint32_t addr, uint32_t len) {
+    int image = ZLift_ImageOfAddr(addr);
+    if (image < 0 || addr < gZLiftImages[image].vram) {
+        return NULL;
+    }
+    size_t size;
+    const uint8_t* img = imageBytes(image, &size);
+    uint32_t off = addr - gZLiftImages[image].vram;
+    if (img == NULL || (size_t)off + len > imageDataEnd(image, img, size)) {
+        return NULL;
+    }
+    return img + off;
+}
+
 int ZLift_ImageOfAddr(uint32_t addr) {
     for (uint32_t i = 1; i < gZLiftImageCount; i++) {
         if ((addr & 0xFFF00000u) == (gZLiftImages[i].vram & 0xFFF00000u)) {
@@ -536,11 +663,49 @@ static void liftRange(const uint8_t* img, size_t dataEnd, uint32_t rom, uint32_t
     }
 }
 
+// The renderer reads textures and palettes byte by byte, in the N64's big-endian order. Lifted data typed as an array
+// of 16- or 32-bit scalars holds each element in host byte order (liftElems swapped it), so a texture the C code
+// declares as u16[]/u32[] (e.g. the battle strip wipe's sawtooth edge, D_821942D8) reached TMEM with its texels
+// shuffled inside each word. Register those arrays with the renderer, as tools/gen_word_arrays.py does for the game's
+// own C arrays: a TMEM load from them swaps each word back (libultraship interpreter.cpp, Port_RegisterWordArray).
+// bss is left out: what the game writes there as words is host order too, but DMA'd bytes are not, and no texture
+// is loaded from a lifted bss word array. PORT_NO_LIFT_WORD_ARRAYS=1 turns this off (the old picture).
+extern void Port_RegisterWordArray(const void* start, unsigned long bytes, int wordSize);
+static void registerWordArrays(void) {
+    static int done = 0;
+    const char* off = getenv("PORT_NO_LIFT_WORD_ARRAYS");
+    uint32_t n = 0;
+    if (done) {
+        return;
+    }
+    done = 1;
+    if (off != NULL && off[0] != '\0' && off[0] != '0') {
+        return;
+    }
+    for (uint32_t i = 0; i < gZLiftSymCount; i++) {
+        const ZLiftSym* s = &gZLiftSyms[i];
+        const ZLiftType* t = &gZLiftTypes[s->type];
+        if (s->bss || s->host == NULL || t->opCount != 1 || t->n64Size != t->hostSize) {
+            continue;
+        }
+        const ZLiftOp* o = &gZLiftOps[t->opStart];
+        if (o->kind != ZLIFT_SCALAR || (o->size != 2 && o->size != 4) || o->n64Stride != o->size) {
+            continue;
+        }
+        Port_RegisterWordArray(s->host, (unsigned long)t->hostSize * s->count, o->size);
+        n++;
+    }
+    if (TRACE) {
+        fprintf(stderr, "[lift] %u word arrays registered with the renderer\n", n);
+    }
+}
+
 void ZLift_LoadImage(int image) {
     size_t romSize;
     const uint8_t* rom = imageBytes(image, &romSize);
     uint32_t n = 0;
 
+    registerWordArrays();
     romSize = imageDataEnd(image, rom, romSize);
 
     for (uint32_t i = 0; i < gZLiftSymCount; i++) {
@@ -566,4 +731,18 @@ void ZLift_LoadImage(int image) {
         fprintf(stderr, "[lift] image %d (%s): %u symbols\n", image,
                 image >= 0 && (uint32_t)image < gZLiftImageCount ? gZLiftImages[image].name : "?", n);
     }
+}
+
+// PORT_LIFT_AUDIT=1: lifts every image once and lists the pointers that pointsIntoForeignTail() redirected (stderr),
+// then exits. Run after regenerating the lifter tables or changing an extern data declaration.
+void ZLift_AuditAll(void) {
+    if (!AUDIT) {
+        return;
+    }
+    for (uint32_t i = 0; i < gZLiftImageCount; i++) {
+        ZLift_LoadImage((int)i);
+    }
+    fprintf(stderr, "[lift] audit: %u images, %u pointers into pointer-free symbol tails, %u unnamed blocks\n",
+            gZLiftImageCount, sPointerTails, sLazyCount);
+    exit(0);
 }

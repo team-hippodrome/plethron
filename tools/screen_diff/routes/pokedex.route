@@ -1,0 +1,28 @@
+# Main menu -> ずかん (Pokédex), with a save that has owned, held, seen-only and unseen species (GB_SAV_GREENDEX:
+# tools/screen_diff/jp_gen1_save.py <out> --owned 1-8,12-130 --seen 9-10,131-150, party Pikachu, Bulbasaur, Charmander).
+# Covers the ずかんもくじ list (number and kana order, scrolling), the action menu, データをみる pages (the rotating
+# 3D model preview) of a held and a seen-only species, ぶんぷをみる habitat maps (habitat unknown; a known one with
+# the GB map, zoom and area change) and やめる back to the main menu.
+# Menu presses get ~100+ frames: a press while a window is still opening is dropped.
+@gb greendex
+1200 START 300 A 400 shot:main_menu
+LEFT 40 A 150 shot:dex_prompt A 400 shot:dex_list 100
+# list: down to 011 (009/010 seen only, 011 unseen), held scrolls (to the end: 131-150 seen only, 151 unseen), then
+# kana order and back (resets to 001)
+DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 60 shot:list_011
+hold:DOWN:120 80 shot:list_scrolled hold:DOWN:900 80 shot:list_end
+CR 80 shot:list_kana CR 80 shot:list_number 40
+# 001 フシギダネ (held): データをみる, the model turning
+A 120 shot:menu_001 A 50 shot:entry_001_open 70 shot:entry_001 150 shot:entry_001_turned 150 shot:entry_001_late
+B 150 shot:list_after_entry
+# 001's ぶんぷをみる: Green has no wild フシギダネ (habitat unknown)
+A 120 DOWN 30 DOWN 40 A 150 shot:map_unknown 100 B 150 shot:list_after_map_unknown
+# 009 カメックス (seen only): データをみる without the description
+DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 60 A 120 A 120 shot:entry_009 B 150
+# 016 ポッポ: ぶんぷをみる, R the GB map and back, A zoom, UP next area, B zoom out, B leave
+DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 20 DOWN 60 shot:list_016
+A 120 DOWN 30 DOWN 40 A 150 shot:map_016 100 shot:map_016_idle
+R 90 shot:map_016_gb R 90 A 120 shot:map_016_zoom UP 120 shot:map_016_next_area B 120 shot:map_016_zoomed_out
+B 150 shot:list_after_map
+# やめる: back to the main menu
+A 120 DOWN 30 DOWN 30 DOWN 40 A 300 shot:main_menu_after

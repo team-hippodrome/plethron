@@ -64,7 +64,7 @@ ModelScrollStrip* ModelCallback_HostScrollStrip(ModelScrollStrip* strip) {
     }
     sStrip.scrollSpeed = (s16)Anim_ReadU16(src, raw);
     sStrip.unk_02 = (s16)Anim_ReadU16(src + 2, raw);
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < 8; i++) { // PORT: 8, as ModelCallback_BuildScrollStripList reads them (the N64 reads past the table)
         sStrip.textures[i] = (s32)Anim_ReadU32(src + 4 + i * 4, raw);
     }
     return &sStrip;

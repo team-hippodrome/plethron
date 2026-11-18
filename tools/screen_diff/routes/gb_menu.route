@@ -1,0 +1,8 @@
+# GB Player: the C-Up menu (continue / quit / help and config), the START/SELECT config screen, then quit
+# back to Stadium.
+@gb green
+@window 60 120
+1200 START 300 A 400 shot:main_menu LEFT 40 DOWN 40 A 150 shot:gb_prompt A 2018 shot:gb_title 10 CU 53
+shot:menu_continue 60 DOWN 53 shot:menu_quit 60 DOWN 53 shot:menu_config 60 A 53 shot:config 180 DOWN 53
+shot:config_select 60 A 53 shot:config_select_choices 120 B 53 shot:config_back 60 B 53 shot:menu_back 60 UP
+53 shot:menu_quit2 60 A 53 shot:quit_confirm 60 A 113 shot:quit_1 200 shot:quit_2 300 shot:after_quit

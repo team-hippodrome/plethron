@@ -31,8 +31,8 @@ static u8 D_800B40C0[8];
 static u8 D_800B40C8[8];
 static u8 D_800B40D0[8];
 static u8* D_800B40D8[8];
-static s32 D_800B40F8[8];
-static s32 D_800B4118[8];
+static u8* D_800B40F8[8]; // PORT: stream pointers (were s32)
+static u8* D_800B4118[8]; // PORT: stream pointers (were s32)
 static u8 D_800B4138[8];
 static u16 D_800B4140;
 static u16 D_800B4142;
@@ -40,7 +40,7 @@ static u8 D_800B4144;
 static u8 D_800B4146[2];
 static u8* D_800B4148[2];
 static u8 D_800B4150[8];
-static u32 D_800B4158;
+static u8* D_800B4158; // PORT: points into the bank (was u32)
 static u8 D_800B415C;
 static u8 D_800B415D;
 extern u8 D_80075FA8[];
@@ -128,7 +128,7 @@ void GbMusic_StartSequenceById(u8 arg0) {
 /** Starts a sequence looked up from the sequence table by index. */
 s32 GbMusic_StartTableSequence(u16 arg0) {
     s32 a;
-    s32 offset;
+    u8* offset; // PORT: a pointer into the bank (was s32)
 
     if (GbMusic_CountActiveHighChannels() != 0) {
         return 0;
@@ -140,7 +140,7 @@ s32 GbMusic_StartTableSequence(u16 arg0) {
         return 0;
     }
 
-    offset = D_800FD688->offset;
+    offset = (u8*)D_800FD688->offset;
     GbMusic_ResetApu();
 
     arg0--;
@@ -1033,7 +1033,7 @@ void GbMusic_BindSequenceTracks(u8 arg0) {
             D_800B3FE8[x] |= 4;
         }
 
-        D_800B40D8[x] = ((GbMusicTrackHeader*)D_800B4158 + i)->data;
+        D_800B40D8[x] = (u8*)D_800FD688 + ((GbMusicTrackHeader*)D_800B4158 + i)->data; // PORT: data is an offset into the bank (GbMusic_RelocateBank)
         D_800B4118[x] = D_800B40D8[x];
         i++;
         
@@ -1075,20 +1075,28 @@ s32 GbMusic_CountActiveHighChannels(void) {
  * marks it relocated. Does nothing if already relocated.
  */
 void GbMusic_RelocateBank(GbMusicBank* bank) {
+    // PORT: the bank is DMA'd from ROM as big-endian bytes, and a u32 cannot hold a host pointer. Swap the header,
+    // the song entries and the track headers to host order once; `offset` becomes a host pointer (the 8-byte field
+    // also covers unk_0C) and each track's `data` stays an offset from the bank, which GbMusic_BindSequenceTracks
+    // adds to the bank's address. (The N64 relocated both to absolute addresses in place.)
     s32 i, end;
-    u32 base;
-    u8* temp_v1;
-    GbMusicTrackHeader* temp_v0;
+    u8* raw = (u8*)bank;
+    GbMusicTrackHeader* tracks;
+
     if (bank->flags != 0) return;
+    bank->num_entries = (raw[2] << 8) | raw[3];
+    bank->numSequences = (raw[4] << 8) | raw[5];
+    bank->unk_06 = (raw[6] << 8) | raw[7];
+    tracks = (GbMusicTrackHeader*)(raw + (((u32)raw[8] << 24) | (raw[9] << 16) | (raw[10] << 8) | raw[11]));
+    bank->offset = tracks;
+    for (i = 0; i < bank->num_entries; i++) {
+        u8* e = (u8*)&bank->entries[i];
+        bank->entries[i].seqId = (e[0] << 8) | e[1];
+    }
     end = bank->numSequences;
-    base = (uintptr_t)bank;
-    temp_v1 = bank->offset;
-    temp_v1 += base;
-    bank->offset = (uintptr_t)temp_v1;
     for (i = 0; i != (end * 3); i++) {
-        temp_v0 = (GbMusicTrackHeader*)((u32)i * 8 + (uintptr_t)temp_v1);
-        temp_v0 += 0; // FAKE: + 0
-        temp_v0->data += base;
+        u8* t = (u8*)&tracks[i];
+        tracks[i].data = ((u32)t[0] << 24) | (t[1] << 16) | (t[2] << 8) | t[3];
     }
     bank->flags = 1;
 }

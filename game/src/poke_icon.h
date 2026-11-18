@@ -12,10 +12,12 @@ typedef struct PokeModelPreview {
     /* 0x06 */ s16 height; // @unverified: image height in pixels
     /* 0x08 */ s16 backgroundWidth; // @unverified: background image width
     /* 0x0A */ s16 backgroundHeight; // @unverified: background image height
-    /* 0x0C */ s32 backgroundImage; // @unverified: RGBA16 background drawn before the model, 0 for a fill
+    /* 0x0C */ u8* backgroundImage; // @unverified: RGBA16 background drawn before the model, 0 for a fill. PORT: was s32,
+                                   // which cut the host pointer: the background was never loaded and the model's
+                                   // backdrop showed noise (Pokédex entry, てもち summary)
     /* 0x10 */ s16 idleTimer; // @unverified: 0x78 frames after input before the model spins again
     /* 0x12 */ s16 spinSpeed; // @unverified: y rotation per frame, ramps by 0x10 to 0x100
-    /* 0x14 */ s32 source; // @unverified: BattleMon* or species id
+    /* 0x14 */ uintptr_t source; // @unverified: BattleMon* or species id. PORT: was s32 (holds a pointer)
     /* 0x18 */ f32 scale; // @unverified: species scale / 100
     /* 0x1C */ ModelLoadContext* loadContext; // @unverified: model loader
     /* 0x20 */ GraphNode* rootNode; // @unverified: preview geo root

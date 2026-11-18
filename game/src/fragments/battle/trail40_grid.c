@@ -44,7 +44,7 @@ void Trail40GridAlt_Init(s16 arg0) {
             tmp3 = tmp1 * 0x10;
             tmp2 = j * 0x20;
 
-            var_v0->position.x = (i * 9.0f) - 72.0f;
+            var_v0->position.x = Port_WidenEffectGridX((i * 9.0f) - 72.0f); // PORT: covers a widescreen picture
             var_v0->position.y = 1.0f;
             var_v0->position.z = (j * 7.0f) - 56.0f;
 

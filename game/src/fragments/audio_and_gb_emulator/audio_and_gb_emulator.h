@@ -331,7 +331,7 @@ typedef struct GbApuChannelState {
   /* 0x01 */ char unk01[0x3];
   /* 0x04 */ s32 retriggerTimer; // @unverified: from the code: wave channel only; set to 0x140 on trigger, the old note fades out while it counts down
   /* 0x08 */ union {
-      u16 index; // @unverified: top half of the accumulator, passed to GbApu_GetWaveformSample
+      u16 index; // @unverified: top half of the accumulator, passed to GbApu_GetWaveformSample. PORT: the low half on a little-endian host: use GBAPU_PHASE / GBAPU_SET_PHASE
       s32 acc; // @unverified: the accumulator, advanced by step and masked to 21 bits
   } phase; // @unverified: from the code: waveform phase, a 21-bit accumulator whose top bits index the waveform
   /* 0x0C */ u32 step; // @unverified: from the code: phase increment per sample, from the frequency (GbApu_FreqToStep*) or the NR43 noise table
@@ -364,6 +364,11 @@ typedef struct GbApuChannelState {
   /* 0x4C */ u8 outOfRange; // @unverified: from the code: 1 while the frequency is outside 1-0x7FE, the channel then fades out
   /* 0x4D */ char unk4D[0x3];
 } GbApuChannelState;
+
+// PORT: phase.index is the top 16 bits of phase.acc on the N64 (big-endian union); on a little-endian host the member
+// overlays the low half, so the square/wave/noise channels read the wrong waveform position. Same accessors as stadion.
+#define GBAPU_PHASE(ch) ((u16)((u32)(ch).phase.acc >> 16))
+#define GBAPU_SET_PHASE(ch, v) ((ch).phase.acc = (s32)(((u32)(ch).phase.acc & 0xFFFF) | ((u32)(u16)(v) << 16)))
 
 typedef struct GbApuStatusOverride {
   /* 0x00 */ u8 square1; // @unverified: from the code (GbApu_QueueRegisterWrite, GbMem_ReadIoRegister): pending NR52 status of square 1: 0 none, 1 off, 2 triggered, until the queued write is rendered

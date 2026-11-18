@@ -249,7 +249,11 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
         case 2:
         case 3:
             vtx = Gfx_AllocDisplayList(0xA0);
-            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDA380002;    _gfx->words.w1 = (uintptr_t) D_80074410;    }
+            // PORT: D_80074410 starts with an identity Mtx, but the lifter places it as Gfx (a display list follows it
+            // in the same symbol), so on the host its words are spread over 16-byte Gfx entries and Fast3D read a
+            // garbage matrix: the flame models (Charizard's tail, Moltres's crest) were drawn nowhere. gIdentityMtx
+            // holds the same 64 bytes, lifted as an Mtx.
+            {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDA380002;    _gfx->words.w1 = (uintptr_t) &gIdentityMtx;    }
             gfx = ModelRenderer_SetSlotModelColor(gfx);
             gfx = Model_Draw(gfx, &D_800B0338[mode][D_800AFB28].model, vtx);
             {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xD8380002;    _gfx->words.w1 = 0x40;    }

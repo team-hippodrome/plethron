@@ -1,0 +1,6 @@
+# Battle -> フリーバトル (the cursor starts there) -> ルールを見る: the four rules, each opened (A) and closed (B), the
+# fourth being the grid of the 40 Pokémon that can battle. The rules list and its pages crashed the port before the
+# lifter lifted the tables behind D_8200923C / D_82009278 as their own types (zero_lift.c, pointsIntoForeignTail).
+@gb green
+1200 START 300 A 400 shot:main_menu
+A 200 A 200 shot:battle_mode A 250 shot:choose_rules A 250 shot:fb_menu DOWN 60 A 200 shot:rules_list A 200 shot:rule1 B 100 DOWN 40 A 200 shot:rule2 B 100 DOWN 40 A 200 shot:rule3 B 100 DOWN 40 A 200 shot:rule4_grid B 100 shot:back B 100 B 100 shot:out

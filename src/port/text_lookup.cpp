@@ -20,6 +20,7 @@
 #include <libultraship/libultraship.h>
 
 extern "C" void* ZLift_Resolve(uint32_t addr);
+extern "C" const char* Port_GbWesternDisplayName(const char* euc); // gb_save_convert.cpp
 
 namespace {
 
@@ -129,8 +130,9 @@ struct CopyNote {
     std::string bytes; // what the copy held when noted: a later write to the buffer drops the note
 };
 struct Tables {
-    // id -> row, per file. human.csv wins over ai.csv for a non-empty cell.
-    std::unordered_map<std::string, Row> human, ai;
+    // id -> row, per file. human.csv wins over ai.csv for a non-empty cell. localized.csv holds the localized form
+    // of the name rows (COM nicknames, Nintendo Cup '97 finalists) and wins over both while names are localized.
+    std::unordered_map<std::string, Row> human, ai, localized;
     // md5 of the original bytes -> ids with those bytes, in file order (ai.csv first). The first is the fallback.
     std::unordered_map<std::string, std::vector<std::string>> md5Ids;
     // host address of a string -> id, for strings bound through their addr column or noted copies
@@ -216,7 +218,18 @@ void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
     }
     std::stringstream ss;
     ss << f.rdbuf();
-    auto rows = ParseCsv(ss.str());
+    // Line breaks inside quoted fields are part of the text. A checkout with CRLF line endings (git's core.autocrlf on
+    // Windows) turns each into CR LF, and the CR was kept in the string and drawn as "?" at the end of every line.
+    std::string text = ss.str();
+    std::string lf;
+    lf.reserve(text.size());
+    for (size_t i = 0; i < text.size(); i++) {
+        if (text[i] == '\r' && i + 1 < text.size() && text[i + 1] == '\n') {
+            continue;
+        }
+        lf += text[i];
+    }
+    auto rows = ParseCsv(lf);
     if (rows.empty()) {
         return;
     }
@@ -271,9 +284,13 @@ void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
     fprintf(stderr, "[text] %s: %zu strings\n", name, count);
 }
 
-// The row's text in the current language: human.csv first, then ai.csv. NULL when both cells are empty.
+// The row's text in the current language: localized.csv first while names are localized (a name row's localized
+// form), then human.csv, then ai.csv. NULL when every cell is empty.
 const char* TextOf(Tables& t, const std::string& id) {
-    for (auto* table : { &t.human, &t.ai }) {
+    for (auto* table : { &t.localized, &t.human, &t.ai }) {
+        if (table == &t.localized && Port_Names_GetStyle() != PORT_NAMES_LOCALIZED) {
+            continue;
+        }
         auto it = table->find(id);
         if (it != table->end() && !it->second.text[sLanguage].empty()) {
             return it->second.text[sLanguage].c_str(); // stable: the tables are never modified after loading
@@ -325,6 +342,9 @@ const std::string* IdOf(Tables& t, const char* s, const std::string& md5) {
 // is turned into UTF-8 for the Unicode font. Kana and the symbols names use are mapped; full-width Latin letters and
 // digits become ASCII, so a Western cartridge's names read as typed (gb_save_convert.h).
 std::string EucToUtf8(const char* s) {
+    if (const char* full = Port_GbWesternDisplayName(s)) {
+        return full; // a Western cartridge's name that Zero cut to 5 letters, in full (gb_save_convert.h)
+    }
     std::string out;
     auto put = [&](uint32_t cp) {
         if (cp < 0x80) {
@@ -596,6 +616,9 @@ void Port_Text_Init(void) {
     t.loaded = true;
     LoadTable("ai.csv", t.ai, t.md5Ids);
     LoadTable("human.csv", t.human, t.md5Ids);
+    // Its ids are ai.csv's (tools/text/check_tables.py), so the md5 index above already has them.
+    std::unordered_map<std::string, std::vector<std::string>> unused;
+    LoadTable("localized.csv", t.localized, unused);
 }
 
 void Port_Text_SetLanguage(int lang) {
@@ -608,11 +631,15 @@ void Port_Text_SetLanguage(int lang) {
 }
 
 int Port_Text_GetLanguage(void) {
-    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen.
+    // Debug aid: PORT_LANGUAGE=<column> (en, ja, ...) starts in that language without the language select screen;
+    // PORT_LANGUAGE=kana starts in the original text (as on the N64: tools/screen_diff compares with ares).
     static bool sEnvChecked = false;
     if (!sEnvChecked) {
         sEnvChecked = true;
         if (const char* env = getenv("PORT_LANGUAGE")) {
+            if (strcmp(env, "kana") == 0) {
+                Port_Text_SetLanguage(PORT_LANG_ORIGINAL);
+            }
             for (int l = 1; l < PORT_LANG_COUNT; l++) {
                 if (strcmp(env, kColumns[l]) == 0) {
                     Port_Text_SetLanguage(l);
@@ -646,6 +673,40 @@ int Port_Subtitles_Enabled(void) {
 
 void Port_Subtitles_SetEnabled(int on) {
     CVarSetInteger("gPort.Subtitles", on ? 1 : 0);
+    CVarSave();
+}
+
+// How COM nicknames and the finalists' names are drawn (Options > Names): port setting gPort.NameStyle, or the debug
+// override PORT_NAME_STYLE=localized|transliterated.
+static int sNameStyleTest = -1; // Port_Text_SelfTest only
+
+static int NameStyleNow() {
+    static int sForced = -2;
+    if (sNameStyleTest >= 0) {
+        return sNameStyleTest;
+    }
+    if (sForced == -2) {
+        const char* env = getenv("PORT_NAME_STYLE");
+        sForced = (env == nullptr)                       ? -1
+                  : (strncmp(env, "translit", 8) == 0)   ? PORT_NAMES_TRANSLITERATED
+                  : (strncmp(env, "local", 5) == 0)      ? PORT_NAMES_LOCALIZED
+                                                         : -1;
+    }
+    if (sForced >= 0) {
+        return sForced;
+    }
+    return CVarGetInteger("gPort.NameStyle", PORT_NAMES_LOCALIZED) == PORT_NAMES_TRANSLITERATED
+               ? PORT_NAMES_TRANSLITERATED
+               : PORT_NAMES_LOCALIZED;
+}
+
+int Port_Names_GetStyle(void) {
+    return NameStyleNow();
+}
+
+void Port_Names_SetStyle(int style) {
+    CVarSetInteger("gPort.NameStyle", style == PORT_NAMES_TRANSLITERATED ? PORT_NAMES_TRANSLITERATED
+                                                                         : PORT_NAMES_LOCALIZED);
     CVarSave();
 }
 
@@ -733,6 +794,19 @@ void Port_Text_NoteFormatted(const char* dst, const char* fmt, va_list ap) {
     t.formatted[dst] = { std::string(dst), std::string(out) };
 }
 
+void Port_Text_NoteJoined(const char* dst, const char* head, const char* tail) {
+    if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || head == nullptr || tail == nullptr) {
+        return;
+    }
+    const char* h = Port_Text_Utf8Of(head);
+    std::string first = h ? h : "";
+    const char* tl = Port_Text_Utf8Of(tail);
+    std::string second = tl ? tl : "";
+    Tables& t = T();
+    std::lock_guard<std::mutex> lock(t.mutex);
+    t.formatted[dst] = { std::string(dst), first + second };
+}
+
 void Port_Text_NoteSame(const char* dst, const char* src) {
     if (sLanguage == PORT_LANG_ORIGINAL || dst == nullptr || src == nullptr) {
         return;
@@ -783,6 +857,16 @@ int Port_Text_SelfTest(void) {
     strcpy(other, ghost);
     check("copy of 8007A810", Port_Text_Lookup(copy), "Ghost");
     check("md5 fallback", Port_Text_Lookup(other), "Haunter");
+    // Options > Names: a name row's localized form (localized.csv) or its romaji (ai.csv). Bound by address only in
+    // game (fragment 009 isn't loaded here), so by id.
+    sNameStyleTest = PORT_NAMES_LOCALIZED;
+    check("names localized FINALIST_ORESAMA", Port_Text_LookupId("FINALIST_ORESAMA"), "THE MAN");
+    check("names localized HAUNTER_NAME", Port_Text_LookupId("HAUNTER_NAME"), "Haunter");
+    sNameStyleTest = PORT_NAMES_TRANSLITERATED;
+    check("names transliterated FINALIST_ORESAMA", Port_Text_LookupId("FINALIST_ORESAMA"), "Oresama");
+    check("names transliterated BURGLAR_NIDOKING", Port_Text_LookupId("BURGLAR_NIDOKING"), "Dorokingu");
+    check("names transliterated MIKA_DUGTRIO", Port_Text_LookupId("MIKA_DUGTRIO"), "Tagutorio");
+    sNameStyleTest = -1;
     // a unique string by md5
     const char* bulbasaurEntry = (const char*)ZLift_Resolve(0x80060A30);
     const char* got = Port_Text_Lookup(bulbasaurEntry);

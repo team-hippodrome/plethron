@@ -44,6 +44,7 @@ extern s16 sEliteFourTransition;
 #include "math.h"
 
 #include "m2c_macros.h"
+#include "StadionPort.h" // PORT: Port_Xcheck*
 
 void ComAi_UnusedNopA(void);
 void ComAi_UnusedNopB(void);
@@ -85,7 +86,12 @@ s32 BattleAi_RandomPercent(void) {
 void BattleAi_StirRandom(void) {
     u32 var_s0;
 
-    var_s0 = (u32) (osGetCount() & 0x1F0) >> 4;
+    u32 count = osGetCount();
+    int forced;
+
+    // PORT: comparison against ares (src/port/xcheck.cpp, PORT_XCHECK_RNG), as Battle_Random
+    if (Port_XcheckRandom(1, 0, &forced, __builtin_return_address(0))) count = (u32)forced;
+    var_s0 = (u32) (count & 0x1F0) >> 4;
     if (var_s0 != 0) {
         do {
             BattleAi_RandomPercent();

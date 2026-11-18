@@ -104,7 +104,7 @@ void Pokedex_DrawListRow(s32 x, s32 y, char* item, s32 row, s32 flags, s32* sort
     Font_Printf(x + 0x10, y + 8, D_8A12FC30, idx + 1);
     if (progress != 0) {
         Font_SetActive(0x10, 0);
-        Font_Printf(x + 124, y + 6, D_80064C60[idx].unk_00);
+        Font_Printf(x + 124, y + 6, D_80064C5C[idx].name); // PORT: was D_80064C60[idx].unk_00 (0x1C-byte rows on the N64; the host's SpeciesInfo is wider, so that alias strode into the wrong species)
     }
     Font_EndTexturedTextRendering();
 }
@@ -124,7 +124,7 @@ void Pokedex_InitListWindow(PokedexListWindow* list_window, s32 x, s32 y) {
     list_window->window.animTimer = 0;
     list_window->window.state = 0;
     list_window->window.frame.style = 0x801;
-    list_window->window.title = (char*)&D_8A12FC38;
+    list_window->window.title = (char*)&D_8A12FC38; // PORT: the lifter keeps this text as bytes (tools/zero/gen_lift.py)
     func_80027410((s8*)&list_window->entries, D_80064C5C, sizeof(SpeciesInfo), 0x97, 0x97); // PORT: host stride
     ScrollList_Init((s8*)&list_window->list, (s8*)&list_window->entries, (s8*)list_window->itemFlags, 8, &Pokedex_DrawListRow, 260, 36);
     list_window->sortByKana = 0;

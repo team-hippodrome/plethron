@@ -56,7 +56,7 @@ GeoBillboardNode* GeoNode_CreateBillboard(MainPoolState* arg0, GeoBillboardNode*
 GeoDisplayListNode* GeoNode_CreateDisplayList(MainPoolState* arg0, GeoDisplayListNode* arg1, s32 arg2, Gfx* arg3);
 GeoMaterialNode* GeoNode_CreateMaterial(MainPoolState* arg0, GeoMaterialNode* arg1, s16 arg2, s16 arg3, Gfx* arg4, s16 arg5, s16 arg6, u8 r, u8 g, u8 b, u8 a);
 GeoAnchorNode* GeoNode_CreateAnchor(MainPoolState* arg0, GeoAnchorNode* arg1, s16 arg2);
-GeoGroupNode* GeoNode_CreateGroup(MainPoolState* arg0, GeoGroupNode* arg1, s32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9,
+GeoGroupNode* GeoNode_CreateGroup(MainPoolState* arg0, GeoGroupNode* arg1, s32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, const char* arg9,
                                     u8 r, u8 g, u8 b, u8 a);
 void GeoCamera_SetViewport(CameraNode* arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4);
 void GeoCamera_SetPerspective(CameraNode* arg0, f32 arg1, f32 arg2, f32 arg3);

@@ -1,6 +1,7 @@
 // Western Gen 1 saves in the Japanese layout for Zero: see gb_save_convert.h.
 #include "gb_save_convert.h"
 
+#include "file_io.h"
 #include "launcher_reliability.h"
 
 #include <algorithm>
@@ -130,13 +131,110 @@ bool IsEuropean(const Context& ctx) {
     return !(n.size() == 6 && memcmp(n.data(), kRhydon, 6) == 0);
 }
 
-std::vector<uint8_t> NameWestToJp(const Context& ctx, const std::vector<uint8_t>& w) {
+std::vector<uint8_t> NameWestToJp(const std::vector<uint8_t>& w, bool european) {
     std::vector<uint8_t> j;
     for (uint8_t b : w) {
         if (j.size() == J_NAME_LEN - 1) break;
-        j.push_back(WestCharToJp(b, IsEuropean(ctx)));
+        j.push_back(WestCharToJp(b, european));
     }
     return j;
+}
+
+std::vector<uint8_t> NameWestToJp(const Context& ctx, const std::vector<uint8_t>& w) {
+    return NameWestToJp(w, IsEuropean(ctx));
+}
+
+// ---- full Western names on screen ----
+// Zero holds every name in 5 Japanese letters, so a Western name is cut short ("winner" -> "winne"). In the
+// translated languages the text lookup shows the full name instead (Port_GbWesternDisplayName): the cut name as Zero
+// draws it (EUC-JP) -> the Western name (UTF-8), for the nicknames and OT names of every Western Pokémon seen (the
+// name store) and the player and rival names of the Western cartridge in the Transfer Pak. Two different full names
+// that are cut to the same letters keep the cut name.
+std::map<std::string, std::string> gDisplay; // "" = ambiguous
+
+// A Western character as UTF-8 (pokered's charmap; 0xBA-0xC7 are accented letters in the European games).
+std::string WestCharToUtf8(uint8_t b, bool european) {
+    if (b >= 0x80 && b <= 0x99) return std::string(1, (char)('A' + (b - 0x80)));
+    if (b >= 0xA0 && b <= 0xB9) return std::string(1, (char)('a' + (b - 0xA0)));
+    if (b >= 0xF6) return std::string(1, (char)('0' + (b - 0xF6)));
+    if (european && b >= 0xBA && b <= 0xC7) {
+        static const char* const kEuro[] = { "à", "è", "é", "ù", "ß", "ç", "Ä", "Ö", "Ü", "ä", "ö", "ü", "ë", "ï" };
+        return kEuro[b - 0xBA];
+    }
+    switch (b) {
+        case 0x7F: return " ";
+        case 0xBA: return "é";
+        case 0xBB: return "'d";
+        case 0xBC: return "'l";
+        case 0xBD: return "'s";
+        case 0xBE: return "'t";
+        case 0xBF: return "'v";
+        case 0x9A: return "(";
+        case 0x9B: return ")";
+        case 0x9C: return ":";
+        case 0x9D: return ";";
+        case 0x9E: return "[";
+        case 0x9F: return "]";
+        case 0xE0: return "'";
+        case 0xE1: return "PK";
+        case 0xE2: return "MN";
+        case 0xE3: return "-";
+        case 0xE4: return "'r";
+        case 0xE5: return "'m";
+        case 0xE6: return "?";
+        case 0xE7: return "!";
+        case 0xE8: return ".";
+        case 0xEF: return "\u2642"; // ♂
+        case 0xF0: return "\u00a5"; // ¥ (pokered: the Pokédollar)
+        case 0xF1: return "\u00d7"; // ×
+        case 0xF2: return ".";
+        case 0xF3: return "/";
+        case 0xF4: return ",";
+        case 0xF5: return "\u2640"; // ♀
+        case 0x54: return "POK\u00e9";
+    }
+    return "?";
+}
+
+std::string WestNameToUtf8(const std::vector<uint8_t>& w, bool european) {
+    std::string u;
+    for (uint8_t b : w) u += WestCharToUtf8(b, european);
+    return u;
+}
+
+// A Japanese name as Zero draws it: Text_UntranscodeName with the Latin letters Port_GbCharsetExtend adds.
+std::string JpNameToEuc(const std::vector<uint8_t>& j) {
+    std::string e;
+    for (uint8_t c : j) {
+        uint8_t w = JpCharToWest(c);
+        uint16_t code = w >= 0x80 && w <= 0x99 ? 0xA3C1 + (w - 0x80)
+                        : w >= 0xA0 && w <= 0xB9 ? 0xA3E1 + (w - 0xA0)
+                                                 : D_80076FD4_jp[c];
+        e.push_back((char)(code >> 8));
+        e.push_back((char)code);
+    }
+    return e;
+}
+
+// Only names that are all Latin letters, digits and symbols: a kana name (a Japanese cartridge's, or a nickname that
+// is the species name) is Zero's own and is translated or shown as is.
+void AddDisplayName(const std::vector<uint8_t>& jp, const std::vector<uint8_t>& west, bool european) {
+    if (jp.empty()) return;
+    std::vector<uint8_t> shown;
+    for (uint8_t c : jp) {
+        uint8_t w = JpCharToWest(c);
+        if (w == 0) return;
+        shown.push_back(w);
+    }
+    std::string full = WestNameToUtf8(west, european);
+    if (full == WestNameToUtf8(shown, european)) return; // nothing cut or lost: Zero already shows all of it
+    std::string key = JpNameToEuc(jp);
+    auto it = gDisplay.find(key);
+    if (it == gDisplay.end()) {
+        gDisplay[key] = full;
+    } else if (it->second != full) {
+        it->second.clear();
+    }
 }
 
 std::vector<uint8_t> JpSpeciesName(int internal) {
@@ -241,14 +339,25 @@ bool Unhex(const std::string& h, std::string& out) {
 void LoadStore() {
     if (gStoreLoaded) return;
     gStoreLoaded = true;
-    FILE* f = fopen(StorePath().c_str(), "rb");
+    FILE* f = Port::OpenFileUtf8(StorePath().c_str(), "rb"); // UTF-8 path: a non-ASCII save folder on Windows
     if (f == nullptr) return;
     char line[512], a[160], b[160], c[160];
     while (fgets(line, sizeof(line), f) != nullptr) {
         std::string k, n, o;
         if (line[0] == '#' || sscanf(line, "%159s %159s %159s", a, b, c) != 3) continue;
         if (!Unhex(a, k) || !Unhex(b, n) || !Unhex(c, o) || k.size() < KEY_ID_LEN) continue;
-        gStore.insert({ k, { std::vector<uint8_t>(n.begin(), n.end()), std::vector<uint8_t>(o.begin(), o.end()) } });
+        std::vector<uint8_t> nick(n.begin(), n.end()), ot(o.begin(), o.end());
+        gStore.insert({ k, { nick, ot } });
+        // the key's Japanese names are what the Western ones became with one of the two character sets
+        for (bool european : { false, true }) {
+            std::vector<uint8_t> jn = NameWestToJp(nick, european), jo = NameWestToJp(ot, european);
+            std::string tail = "|" + std::string(jn.begin(), jn.end()) + "|" + std::string(jo.begin(), jo.end());
+            if (k.compare(KEY_ID_LEN, std::string::npos, tail) == 0) {
+                AddDisplayName(jn, nick, european);
+                AddDisplayName(jo, ot, european);
+                break;
+            }
+        }
     }
     fclose(f);
 }
@@ -289,6 +398,8 @@ void FillJpNames(Context& ctx, Mon& m) {
     std::lock_guard<std::mutex> g(gStoreLock);
     LoadStore();
     gStoreDirty |= AddNames(gStore, key, m.nick, m.ot);
+    AddDisplayName(m.jnick, m.nick, IsEuropean(ctx));
+    AddDisplayName(m.jot, m.ot, IsEuropean(ctx));
 }
 
 std::vector<Mon> ReadWestBoxes(Context& ctx, const std::vector<uint8_t>& w) {
@@ -438,6 +549,14 @@ void WestToJp(Context& ctx, const std::vector<uint8_t>& w, std::vector<uint8_t>&
     Port_GbCharsetExtend(D_80076FD4_jp);
     ctx.names.clear();
     j.assign(w.size(), 0xFF);
+    {
+        std::lock_guard<std::mutex> g(gStoreLock);
+        LoadStore();
+        for (int at : { W_NAME, W_RIVAL }) {
+            std::vector<uint8_t> name = Name(&w[at], W_NAME_LEN);
+            AddDisplayName(NameWestToJp(ctx, name), name, IsEuropean(ctx));
+        }
+    }
     memcpy(&j[0], &w[0], J_NAME); // bank 0 and the start of bank 1 share the layout
     PutName(&j[J_NAME], NameWestToJp(ctx, Name(&w[W_NAME], W_NAME_LEN)), J_NAME_LEN);
     memcpy(&j[J_MAIN], &w[W_MAIN], J_RIVAL - J_MAIN); // Pokédex, bag, money
@@ -590,4 +709,13 @@ extern "C" void Port_GbCharsetExtend(uint16_t* table) {
         if (code < 0x60 || code > 0x79) table[code] = 0xA3C1 + (c - 'A'); // Ｏ Ｐ Ｗ Ｘ Ｙ
     }
     for (char c = 'a'; c <= 'z'; c++) table[LatinToJp(c)] = 0xA3E1 + (c - 'a'); // ａ-ｚ
+}
+
+// The full Western name for a cut one as Zero draws it (EUC-JP), or NULL (text_lookup.cpp, translated languages).
+extern "C" const char* Port_GbWesternDisplayName(const char* euc) {
+    using namespace GbSaveConvert;
+    std::lock_guard<std::mutex> g(gStoreLock);
+    LoadStore();
+    auto it = gDisplay.find(euc);
+    return it == gDisplay.end() || it->second.empty() ? nullptr : it->second.c_str();
 }

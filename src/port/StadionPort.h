@@ -35,10 +35,16 @@ uint64_t Port_ViTick(void);
 // lockstep mode it waits for the next retrace, since a spinning thread keeps the virtual clock (and so the audio
 // thread's frames) from advancing.
 void Port_SpinWait(void);
+// The GB Player's busy waits for its Transfer Pak thread (gb_pak.c, gb_emu_frame.c, gb_emu_draw.c): with the Transfer
+// Pak at the console's speed (Port_TpakTiming) each spin waits a little in virtual time so that thread can run.
+void Port_GbIoSpin(void);
+int Port_TpakTiming(void);
 // The launcher's battle debug aid (Debug on): the COM side at 1 HP. Also PORT_DEBUG_WEAK_COM=1.
 int Port_DebugWeakCom(void);
 // Whether the N64 logo's hold is paced by retraces (PORT_PACED_LOGO_HOLD, or a replayed recording; n64_logo.c).
 int Port_PacedLogoHold(void);
+// Zero's N64 logo: draw it every retrace through its one-second hold (os_devices.cpp, "# zero logo hold").
+int Port_ZeroLogoHold(void);
 // The N64's loading time where the game's timing counts on it (the boot diorama's model loads, which the music is
 // timed around), as waits; off when replaying an input recording made before them.
 int Port_LoadWaits(void);
@@ -80,6 +86,8 @@ int Port_ControllerBits(void);
 // Bracket a multi-page flash write (save_data.c): the save file is written once, at the end, if anything changed.
 void Port_BeginFlashBankWrite(void);
 void Port_EndFlashBankWrite(void);
+void Port_BeginSramWrite(void); // brackets one chunked SRAM transfer: the save file is written once, at the end
+void Port_EndSramWrite(void);
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Graphics and data translation (src/port/gfx_translate.cpp, interp.cpp, gb_core.c, libultraship fork)
@@ -183,6 +191,11 @@ unsigned long long Port_CamlogAnimFrame(void);
         sPortEnvValue_;                                                         \
     })
 
+// Draw the frame the game is building now even when frames are being skipped (running fast, or catching up after a
+// slow frame). For screens that draw part of the picture only on some frames and keep it from the frame buffer on the
+// N64 afterwards (the main menu's top bar): skipping the frames that draw it leaves an old picture there for good.
+void Port_MustDrawThisFrame(void);
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Battle cross-check against the original game in ares, and scripted battle boot (src/port/xcheck.cpp,
 // tools/battle_xcheck.py); all off unless PORT_XCHECK* / PORT_BATTLE* is set
@@ -192,6 +205,9 @@ int Port_XcheckEnabled(void);
 int Port_XcheckForcingRandom(void);
 int Port_XcheckCom(void);
 int Port_XcheckRandom(int fn, int arg, int* out, void* caller);
+void Port_XcheckMoveStart(void);
+int Port_XcheckBattleStart(void);
+void Port_SyncEvent(const char* name); // tools/screen_diff sync points (os_devices.cpp, PORT_SYNC)
 int Port_XcheckHasCase(void);
 void Port_XcheckPatchMon(int side, int slot, void* battleMon);
 int Port_XcheckWantDraw(void);

@@ -1,0 +1,6 @@
+# GB Player: つづきからはじめる with the crafted save (it has no real map): Zero stops it with its
+# レポートがただしくないので screen.
+@gb green
+@window 60 120
+1200 START 300 A 400 shot:main_menu LEFT 40 DOWN 40 A 150 shot:gb_prompt A 2018 shot:gb_title 10 START 213
+shot:gb_menu 80 A 93 shot:gb_continue_pick A 193 shot:report_error 400 shot:report_error_idle

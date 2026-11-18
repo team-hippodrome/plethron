@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated gather prompts
 #include "m2c_macros.h"
 
 extern u8 D_80073520[];
@@ -49,7 +50,7 @@ void Ui_DrawNumberZeroPadded(s32, s32, s32, s32);
 void Font_SetColorForFlags(s32);
 void LabPCList_DrawPlainText(s32, s32, s8*, s32, s32);
 
-s32 Window_DrawAnimatedFrame(void);
+s32 Window_DrawAnimatedFrame(Window* arg0); // PORT: the definition's prototype (was (void))
 void Window_DrawHeaderStripe(s32, s32, s32);
 void Window_DrawFrame(s8*);
 void Ui_DrawTexturedDivider(s32, s32, s32, u8*);
@@ -62,7 +63,7 @@ void TextBox_Draw(s8*);
 extern struct FrameTextures D_8007356C; // PORT: typed so the lifter widens its texture pointers (was raw bytes)
 extern Gfx D_80060270[];
 extern Color_RGBA8 D_8910A88C;
-void LabPCList_DrawRowCursor(s8*, s32, s32);
+void LabPCList_DrawRowCursor(ScrollList*, s32, s32); // PORT: matches the definition
 void LabPCList_DrawPageHint(LabPCListScreen*);
 void LabPCList_DrawColumnCursor(s8*);
 void LabPCList_DrawHeaderCursor(LabPCListScreen*);
@@ -75,7 +76,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     s32 y;
     s32 flags[2]; // FAKE (only [0] is used; has to live on the stack)
 
-    if (Window_DrawAnimatedFrame() != 0) {
+    if (Window_DrawAnimatedFrame(&screen->window) != 0) { // PORT: the decomp relied on a0 still holding screen
         return;
     }
     Window_DrawHeaderStripe(screen->window.frame.x, screen->window.frame.y - 10, 500);
@@ -99,7 +100,7 @@ void LabPCList_DrawListScreen(LabPCListScreen* screen) {
     if (screen->state == 0) {
         switch (screen->focus) {
             case 0:
-                LabPCList_DrawRowCursor((s8*)&screen->list, screen->listFrame.x, y);
+                LabPCList_DrawRowCursor(&screen->list, screen->listFrame.x, y);
                 break;
             case 1:
                 LabPCList_DrawColumnCursor(screen);
@@ -315,6 +316,12 @@ void LabPCList_FormatGatherPrompt(LabPCListScreen* screen) {
     func_8000A460(D_8910E2D0 + strlen(D_8910E2D0), D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
     *(Str891020F8*)D_8910E312 = *(Str891020F8*)D_8910DC50;
     func_8000A460(D_8910E2D0 + (strlen(D_8910E312) + 0x42), D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
+    // PORT: the two rows are built from a name and 「をあつめる」/「をかいじょする」: translate them as those pieces
+    Port_Text_NoteJoined((const char*)D_8910E2D0,
+                         (const char*)D_80064C5C[((LabPCEntry*)((PointerList*)screen->list.items)->items[screen->list.cursor])->mon.species.id - 1].name,
+                         (const char*)D_8910A890[(screen->activeFilters & 8) ? 1 : 0]);
+    Port_Text_NoteJoined((const char*)D_8910E312, (const char*)D_8910DC50,
+                         (const char*)D_8910A890[(screen->activeFilters & 0x10) ? 1 : 0]);
     LabPCList_InitPopupMenu(&screen->popup, D_8910A898, (u16*)screen->popupItemFlags, 4, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38,
                   screen->listFrame.y + screen->list.cursorY - screen->list.scrollY + 22, 0, 20);
@@ -358,7 +365,9 @@ s32 LabPCList_UpdateListCursor(LabPCListScreen* screen) {
     }
     ret = ScrollList_UpdateCursor(&screen->list.items) != 0;
     if ((ret == 0) && (D_800603C0->buttonPressed & 0x8000)) {
-        if ((screen->list.items->count > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] > 0) && (((List89102344*)screen->list.items)->items[screen->list.cursor][8] < 0x98)) {
+        // PORT: the species through LabPCEntry (was byte 8 of the entry, the N64 offset of mon.species.id: on a
+        // 64-bit host that is the low byte of `slot`, so A did nothing on each box's first row)
+        if ((screen->list.items->count > 0) && (((LabPCEntry**)((List89102344*)screen->list.items)->items)[screen->list.cursor]->mon.species.id > 0) && (((LabPCEntry**)((List89102344*)screen->list.items)->items)[screen->list.cursor]->mon.species.id < 0x98)) {
             Audio_PlaySystemSound(2);
             LabPCList_FormatGatherPrompt((s8*)screen);
             ret = 1;
@@ -386,6 +395,8 @@ extern s8 D_8910E358[];
 void LabPCList_InitSortMenu(LabPCListScreen *screen) {
     func_8000A460(D_8910E358, D_8910A8B0);
     func_8000A460(D_8910E358 + strlen(D_8910E358), D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]);
+    Port_Text_NoteJoined((const char*)D_8910E358, (const char*)D_8910A8B0,
+                         (const char*)D_8910A8A8[(screen->activeFilters & 0x20) ? 1 : 0]); // PORT: translated as its pieces
     LabPCList_InitPopupMenu(&screen->popup, D_8910A8C8, (u16*)&screen->popupItemFlags, 5, 0);
     Window_SetRect((s8*)&screen->popup.anchorX, screen->listFrame.x + 38, screen->listFrame.y, 0, 22);
     screen->popup.limitX = screen->listFrame.x + screen->listFrame.width;

@@ -573,7 +573,7 @@ OSTask* __amHandleFrame(OSTask* arg0) {
 
     info = __am.audioInfo[audFrameCt % 3];
     audio_ptr = (s16*)osVirtualToPhysical(info->data); // PORT: cast
-    samples_left = HW_REG(AI_LEN_REG, u32) >> 2;
+    samples_left = osAiGetLength() >> 2; // PORT: was HW_REG(AI_LEN_REG, u32), a scratch page that always reads 0 (stadion 3D140.c has the same fix)
 
     if ((D_80075E0C == 0) && (lastInfo != NULL)) {
         osAiSetNextBuffer(lastInfo->data, lastInfo->frameSamples << 2);
@@ -794,7 +794,6 @@ s32 Cry_IsPlaying(void) {
  */
 s32 Audio_GetActivityScore();                                /* extern */
 extern u8 D_80075E0C;
-extern s32 D_80075E30;
 extern s8 D_800B3F78;
 extern s32 D_800B3F94;
 
@@ -815,7 +814,7 @@ s32 Audio_SetEnabled(s32 arg0) {
         goto block_5; // FAKE: goto
     }
     osAiSetFrequency(D_800B3F94);
-    D_80075E30 = 0;
+    lastInfo = NULL; // PORT: was D_80075E30 = 0, an s32 alias of the pointer (zeroed only its low half on 64-bit)
     D_800B3F78 = 0;
     D_80075E0C = 0;
 block_5:

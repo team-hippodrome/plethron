@@ -109,7 +109,9 @@ moves `latest` and creates the GitHub release, after asking. `--only macos,windo
 
 ## The libultraship submodule
 
-`libultraship/` is pinned to a committed revision of Team Hippodrome's fork. Make renderer and runtime dependency
+`libultraship/` is pinned to a committed revision of Team Hippodrome's fork and follows the fork's `main`
+(`.gitmodules` names `branch = main`): `git submodule update --remote libultraship` moves it to the fork's latest
+commit, which is then committed here as the new pin. Make renderer and runtime dependency
 changes in that repository, then update the submodule pointer here after the fork commit is available remotely.
 Setup and CI use the pinned source directly; do not export or apply a libultraship patch.
 

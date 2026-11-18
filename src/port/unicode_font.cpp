@@ -1,6 +1,9 @@
 // Unicode glyphs for translated text: GNU Unifont 16-pixel bitmaps (assets/font/unifont_subset.hex, made by
 // tools/font/make_unifont_subset.py) turned into IA8 textures in the style of the game's own font: white fill with a
 // one-pixel dark outline, resampled to the height of the active font set. font.c draws them (Font_Printf).
+// The "Text font" setting (gPort.TextFont, PORT_TEXT_FONT=pop|unifont) can pick the prototype Plethron Pop outlines
+// instead (assets/font/pop_subset.ttf, tools/font/make_pop_font.py), drawn the same way; Unifont stays the default
+// and covers any character Pop lacks.
 #include "unicode_font.h"
 
 #include <algorithm>
@@ -8,6 +11,8 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iterator>
+#include <cstdlib>
 #include <map>
 #include <memory>
 #include <string>
@@ -15,6 +20,11 @@
 #include <vector>
 
 #include <libultraship/libultraship.h>
+
+// a private copy, as in text3d.cpp (STBTT_STATIC)
+#define STB_TRUETYPE_IMPLEMENTATION
+#define STBTT_STATIC
+#include "third_party/stb_truetype.h"
 
 namespace {
 
@@ -137,15 +147,135 @@ std::unique_ptr<Glyph> Build(const Bitmap& b, int height) {
     return g;
 }
 
+
+// ---- Plethron Pop (prototype) ----
+
+struct PopFont {
+    bool loaded = false, ok = false;
+    std::vector<unsigned char> data;
+    stbtt_fontinfo info;
+    std::map<std::pair<uint32_t, int>, std::unique_ptr<Glyph>> glyphs; // (codepoint, height); never freed
+};
+
+PopFont& GetPopFont() {
+    static PopFont font;
+    if (!font.loaded) {
+        font.loaded = true;
+        std::string path = Ship::Context::LocateFileAcrossAppDirs("assets/font/pop_subset.ttf");
+        std::ifstream f(path, std::ios::binary);
+        font.data.assign(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
+        font.ok = !font.data.empty() &&
+                  stbtt_InitFont(&font.info, font.data.data(), stbtt_GetFontOffsetForIndex(font.data.data(), 0));
+        if (!font.ok) {
+            fprintf(stderr, "[font] %s not loaded: translated text uses Unifont\n", path.c_str());
+        }
+    }
+    return font;
+}
+
+bool UsePop() {
+    static int env = -1;
+    if (env < 0) {
+        const char* e = getenv("PORT_TEXT_FONT");
+        env = (e == nullptr) ? 2 : (strcmp(e, "pop") == 0 ? 1 : 0);
+    }
+    int choice = (env != 2) ? env : (CVarGetInteger("gPort.TextFont", 0) == 1 ? 1 : 0);
+    return choice == 1 && GetPopFont().ok;
+}
+
+// The em of pop_subset.ttf is the whole cell (ascent 850, descent 150), so the glyph is drawn `height` pixels tall:
+// rendered 4x supersampled, given an outline by dilating the fill with a disc (1 pixel per 16 of height, at least
+// one), then box-filtered down; alpha and intensity as in Build above.
+std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height) {
+    constexpr int SS = 4;
+    const float scale = stbtt_ScaleForMappingEmToPixels(&font.info, (float)(height * SS));
+    int advUnits, lsb;
+    stbtt_GetGlyphHMetrics(&font.info, index, &advUnits, &lsb);
+    const float r = std::max(1.0f, height / 16.0f);
+    const int pad = (int)std::ceil(r);
+    const int adv = std::max(1, (int)std::lround(advUnits * scale / SS));
+    auto g = std::make_unique<Glyph>();
+    g->drawWidth = adv + 2 * pad;
+    g->texWidth = (g->drawWidth + 7) & ~7;
+    g->advance = adv;
+    const int cw = g->drawWidth * SS, ch = height * SS;
+    std::vector<unsigned char> fillSS(cw * ch, 0);
+    int x0, y0, x1, y1;
+    stbtt_GetGlyphBitmapBox(&font.info, index, scale, scale, &x0, &y0, &x1, &y1);
+    const int ox = pad * SS, base = (int)std::lround(height * SS * 0.85f);
+    if (x1 > x0 && y1 > y0) {
+        std::vector<unsigned char> bmp((x1 - x0) * (y1 - y0));
+        stbtt_MakeGlyphBitmap(&font.info, bmp.data(), x1 - x0, y1 - y0, x1 - x0, scale, scale, index);
+        for (int y = 0; y < y1 - y0; y++) {
+            int dy = base + y0 + y;
+            if (dy < 0 || dy >= ch) continue;
+            for (int x = 0; x < x1 - x0; x++) {
+                int dx = ox + x0 + x;
+                if (dx >= 0 && dx < cw) fillSS[dy * cw + dx] = bmp[y * (x1 - x0) + x];
+            }
+        }
+    }
+    // outline: grey dilation by a disc of radius r (supersampled)
+    const int rs = (int)std::lround(r * SS);
+    std::vector<std::pair<int, int>> disc;
+    for (int dy = -rs; dy <= rs; dy++)
+        for (int dx = -rs; dx <= rs; dx++)
+            if (dx * dx + dy * dy <= rs * rs + rs) disc.emplace_back(dx, dy);
+    std::vector<unsigned char> lineSS(cw * ch, 0);
+    for (int y = 0; y < ch; y++) {
+        for (int x = 0; x < cw; x++) {
+            unsigned char m = 0;
+            for (auto [dx, dy] : disc) {
+                int sx = x + dx, sy = y + dy;
+                if (sx >= 0 && sy >= 0 && sx < cw && sy < ch) m = std::max(m, fillSS[sy * cw + sx]);
+            }
+            lineSS[y * cw + x] = m;
+        }
+    }
+    g->tex.assign(g->texWidth * height, 0);
+    for (int ty = 0; ty < height; ty++) {
+        for (int tx = 0; tx < g->drawWidth; tx++) {
+            int f = 0, o = 0;
+            for (int sy = 0; sy < SS; sy++) {
+                for (int sx = 0; sx < SS; sx++) {
+                    int i = (ty * SS + sy) * cw + tx * SS + sx;
+                    f += fillSS[i];
+                    o += lineSS[i];
+                }
+            }
+            double fill = f / (255.0 * SS * SS), all = std::max(fill, o / (255.0 * SS * SS));
+            if (all <= 0) continue;
+            int alpha = std::min(15, (int)std::lround(all * 15));
+            int intensity = std::min(15, (int)std::lround(fill / all * 15));
+            g->tex[ty * g->texWidth + tx] = (unsigned char)((intensity << 4) | alpha);
+        }
+    }
+    return g;
+}
+
 } // namespace
 
 extern "C" {
 
 int Port_Font_HasGlyph(uint32_t cp) {
-    return GetFont().bitmaps.count(cp) != 0;
+    return GetFont().bitmaps.count(cp) != 0 || (UsePop() && stbtt_FindGlyphIndex(&GetPopFont().info, (int)cp) != 0);
 }
 
 const unsigned char* Port_Font_Glyph(uint32_t cp, int height, int* tex_width, int* draw_width, int* advance) {
+    if (UsePop() && height > 0 && height <= 64) {
+        PopFont& pop = GetPopFont();
+        int index = stbtt_FindGlyphIndex(&pop.info, (int)cp);
+        if (index != 0) {
+            auto& slot = pop.glyphs[{ cp, height }];
+            if (!slot) {
+                slot = BuildPop(pop, index, height);
+            }
+            *tex_width = slot->texWidth;
+            *draw_width = slot->drawWidth;
+            *advance = slot->advance;
+            return slot->tex.data();
+        }
+    }
     Font& font = GetFont();
     auto bit = font.bitmaps.find(cp);
     if (bit == font.bitmaps.end() || height <= 0 || height > 64) {

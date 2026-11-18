@@ -40,12 +40,16 @@ extern unk_D_800AB970 D_800AC508;
 
 typedef union AnimFixedFrame {
     struct {
-        s16 whole;
+        // PORT: halves of the 16.16 value in host (little-endian) order, as in stadion. In N64 order "whole" read the
+        // fraction on the host, so curves never clamped or looped at their end: the cartridge check screen's console
+        // ran past its rise-in and raised its monitor, where the N64 holds the last frame
         s16 fraction; // low 16 bits; signed declaration retained for matching
+        s16 whole;
     };
     s32 raw;
 } AnimFixedFrame;
 #include "m2c_macros.h"
+#include "text3d.h" // PORT: translated 3D words
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 struct MainPoolState;
@@ -847,7 +851,9 @@ void GeoRender_DrawEntryDisplayList(uintptr_t* last_matrix, GeoLayerEntry* entry
         gSPMatrix(gDisplayListHead++, entry->mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     }
     // PORT: fragment display lists are already host pointers, Memmap_GetFragmentVaddr only applies to N64 addresses
-    if ((entry->dl >= 0x81000000U) && (entry->dl < 0x90000000U)) {
+    if (Port_Text3D_Replacement(entry->dl) != NULL) { // PORT: a translated 3D word's glyph (src/port/text3d.cpp)
+        gSPDisplayList(gDisplayListHead++, Port_Text3D_Replacement(entry->dl));
+    } else if ((entry->dl >= 0x81000000U) && (entry->dl < 0x90000000U)) {
         gSPDisplayList(gDisplayListHead++, Memmap_GetFragmentVaddr((void*)entry->dl));
     } else {
         gSPDisplayList(gDisplayListHead++, entry->dl);
@@ -928,6 +934,200 @@ extern uintptr_t D_800AB45C; // PORT: pointer
  * a Pound turn.
  * @unverified Name and comment guessed from the code.
  */
+// PORT: widescreen. While gPortCullOutside43 is set (the VS scene's frames on the screen, VsScene_DrawFrame), a
+// perspective model piece that lies wholly beside the 4:3 picture, every vertex left of it or every vertex right of it,
+// is not drawn: on the N64 it was off screen, and in a widescreen picture the trainer panels, the round title, the
+// results board and the badge cap sat in the side margins before sliding in (or after sliding out). A piece is what
+// one child of a model's root part holds (one trainer panel with its portrait, texts and icons; the cap; the round
+// title), so a piece that reaches into the 4:3 picture is drawn whole and appears as it enters the N64's screen.
+// Lists queued outside such a piece are judged one by one. Only the drawing is skipped: geo callbacks and animation
+// run as before, and the skipped entries are taken out of the layer lists just before they are drawn
+// (Geo_NodeModelPartRoot). Nothing changes at 4:3.
+s32 gPortCullOutside43 = 0;
+static s32 sPortInPerspective = 0; // inside Geo_NodePerspective's drawing
+static s32 sPortPartDepth = 0;     // nesting of Geo_NodeAnimatedPart
+#define PORT_CULL_MAX 1024
+static GeoLayerEntry* sPortCullSkip[PORT_CULL_MAX]; // entries of the model being built that are not drawn
+static s32 sPortCullSkipCount = 0;
+static GeoLayerEntry* sPortCullPieceEntries[PORT_CULL_MAX];
+static s32 sPortCullPieceCount = 0;
+static s32 sPortCullPieceSides = 0; // bit 0/1: some list wholly left/right of the 4:3 view, bit 2: some list in it
+
+// The host Mtx (MtxF_ToFixed's packed s15.16 words) back to floats.
+static void Port_FixedMtxToF(MtxF* dest, const void* fixed) {
+    const u32* words = (const u32*)fixed;
+    f32* out = (f32*)dest;
+    s32 i;
+
+    for (i = 0; i < 16; i += 2) {
+        u32 hi = words[i / 2];
+        u32 lo = words[8 + i / 2];
+
+        out[i] = (s32)((hi & 0xFFFF0000) | (lo >> 16)) / 65536.0f;
+        out[i + 1] = (s32)((hi << 16) | (lo & 0xFFFF)) / 65536.0f;
+    }
+}
+
+void* Port_GfxPrepareDL(uintptr_t dl);       // src/port/gfx_translate.cpp
+void* Port_GfxPrepareVtx(void* v, int n);   // src/port/gfx_translate.cpp
+
+// A display list as the renderer will draw it: raw N64 lists (ROM assets) translated to host Gfx, lifted lists fixed
+// up. NULL when it is not a host list yet (an address in a segment only this frame's gSPSegment sets).
+static const Gfx* Port_HostDl(uintptr_t addr) {
+    const Gfx* dl = (const Gfx*)Port_GfxPrepareDL(addr);
+
+    if ((uintptr_t)dl < 0x100000000ull) {
+        return NULL;
+    }
+    return dl;
+}
+
+// Which side of the 4:3 picture's view the vertices of `dl` (and the lists it calls) lie on under `mvp`: bit 0 some
+// vertex left of it, bit 1 some vertex right of it, bit 2 some vertex inside it or behind the eye (so not wholly
+// outside), 8 a list this walk cannot follow (treated as inside), 32 a list without vertices.
+static s32 Port_DlSides43(const Gfx* dl, const MtxF* mvp, s32 depth) {
+    s32 sides = 0;
+    s32 n;
+
+    for (n = 0; n < 4096; n++, dl++) {
+        u32 op = (u32)(dl->words.w0 >> 24) & 0xFF;
+
+        if (op == G_VTX) {
+            s32 count = (s32)((dl->words.w0 >> 12) & 0xFF);
+            const Vtx* v = (const Vtx*)Port_GfxPrepareVtx((void*)dl->words.w1, count);
+            s32 i;
+
+            if ((uintptr_t)v < 0x100000000ull) {
+                return 8; // a segment only this frame's gSPSegment sets
+            }
+            for (i = 0; i < count; i++) {
+                f32 x = v[i].v.ob[0], y = v[i].v.ob[1], z = v[i].v.ob[2];
+                f32 cx = x * mvp->mf[0][0] + y * mvp->mf[1][0] + z * mvp->mf[2][0] + mvp->mf[3][0];
+                f32 cw = x * mvp->mf[0][3] + y * mvp->mf[1][3] + z * mvp->mf[2][3] + mvp->mf[3][3];
+
+                if (cw <= 0.0f) {
+                    sides |= 4;
+                } else if (cx < -cw) {
+                    sides |= 1;
+                } else if (cx > cw) {
+                    sides |= 2;
+                } else {
+                    sides |= 4;
+                }
+            }
+        } else if (op == G_DL) {
+            const Gfx* sub = Port_HostDl(dl->words.w1);
+
+            if (depth >= 8 || sub == NULL) {
+                return 8;
+            }
+            sides |= Port_DlSides43(sub, mvp, depth + 1);
+            if (((dl->words.w0 >> 16) & 0xFF) == G_DL_NOPUSH) {
+                break;
+            }
+        } else if (op == G_ENDDL) {
+            break;
+        }
+        if (sides & ~3) {
+            return sides;
+        }
+    }
+    return (n >= 4096) ? 8 : (sides == 0) ? 32 : sides;
+}
+
+// Port_DlSides43 of list `dl` drawn with matrix `mtx` in the current perspective camera, 0 when no culling applies.
+static s32 Port_ListSides43(uintptr_t dl, uintptr_t mtx) {
+    CameraNode* camera = D_80060488;
+    MtxF model;
+    MtxF proj;
+    MtxF vp;
+    MtxF mvp;
+    u16 norm;
+    const Gfx* hostDl;
+
+    if (!gPortCullOutside43 || !sPortInPerspective || camera == NULL || dl == 0 || mtx == 0) {
+        return 0; // only perspective drawing (Geo_NodePerspective) of the VS scene's frames on the screen
+    }
+    hostDl = Port_HostDl(dl);
+    if (hostDl == NULL) {
+        return 4;
+    }
+    guPerspectiveF(proj.mf, &norm, camera->perspective.verticalFieldOfView, camera->perspective.unk_0C,
+                   camera->perspective.nearPlane, camera->perspective.farPlane, camera->perspective.unk_18);
+    guMtxCatF(camera->view.floatMatrix.mf, proj.mf, vp.mf);
+    Port_FixedMtxToF(&model, (const void*)mtx);
+    guMtxCatF(model.mf, vp.mf, mvp.mf);
+    return Port_DlSides43(hostDl, &mvp, 0);
+}
+
+static void Port_CullSkip(GeoLayerEntry* entry) {
+    if (sPortCullSkipCount < PORT_CULL_MAX) {
+        sPortCullSkip[sPortCullSkipCount++] = entry;
+    }
+}
+
+// A queued entry and its list's sides: judged alone outside a piece, else with the open piece.
+static void Port_CullNoteEntry(GeoLayerEntry* entry, s32 sides) {
+    if (sides == 0) {
+        return;
+    }
+    if (sPortPartDepth >= 2) {
+        if (sPortCullPieceCount < PORT_CULL_MAX) {
+            sPortCullPieceEntries[sPortCullPieceCount++] = entry;
+        }
+        if (sides != 32) { // a list without vertices draws nothing on its own
+            sPortCullPieceSides |= (sides == 1 || sides == 2) ? sides : 4;
+        }
+    } else if (sides == 1 || sides == 2) {
+        Port_CullSkip(entry);
+    }
+}
+
+// End of a piece (a child of a model's root part): skip all its entries if none reaches into the 4:3 view.
+static void Port_CullClosePiece(void) {
+    s32 i;
+
+    if (sPortCullPieceSides != 0 && !(sPortCullPieceSides & 4)) {
+        for (i = 0; i < sPortCullPieceCount; i++) {
+            Port_CullSkip(sPortCullPieceEntries[i]);
+        }
+    }
+    sPortCullPieceCount = 0;
+    sPortCullPieceSides = 0;
+}
+
+// Takes the skipped entries out of `root`'s layer lists before they are drawn.
+static void Port_CullApply(GeoLayerListNode* root) {
+    s32 layer;
+    s32 i;
+
+    if (sPortCullSkipCount == 0) {
+        return;
+    }
+    for (layer = 0; layer < 9; layer++) {
+        GeoLayerEntry** link = &root->layerHead[layer];
+        GeoLayerEntry* last = NULL;
+
+        while (*link != NULL) {
+            GeoLayerEntry* entry = *link;
+
+            for (i = 0; i < sPortCullSkipCount; i++) {
+                if (sPortCullSkip[i] == entry) {
+                    break;
+                }
+            }
+            if (i < sPortCullSkipCount) {
+                *link = entry->next;
+            } else {
+                last = entry;
+                link = &entry->next;
+            }
+        }
+        root->layerTail[layer] = last;
+    }
+    sPortCullSkipCount = 0;
+}
+
 void GeoRender_SubmitLayerDisplayList(s16 layer, uintptr_t arg1, uintptr_t arg2, s32 arg3) {
     s16 flag;
     GeoLayerEntry* entry;
@@ -974,6 +1174,9 @@ void GeoRender_SubmitLayerDisplayList(s16 layer, uintptr_t arg1, uintptr_t arg2,
             D_80060494->layerTail[layer]->next = entry;
         }
         D_80060494->layerTail[layer] = entry;
+        if (gPortCullOutside43) {
+            Port_CullNoteEntry(entry, Port_ListSides43(entry->dl, entry->mtx)); // PORT: widescreen (gPortCullOutside43)
+        }
     }
 }
 
@@ -1141,6 +1344,7 @@ void Geo_NodeModelPartRoot(GeoLayerListNode* arg0) {
         D_800AB240 = func_80002B10(MainPool_GetAvailable(), 0);
         D_80060494 = arg0;
         func_8001380C(arg0);
+        Port_CullApply(arg0); // PORT: widescreen (gPortCullOutside43)
         GeoRender_DrawModelLayers(arg0);
         D_80060494 = NULL;
         MainPool_TryFree(D_800AB240);
@@ -1176,7 +1380,9 @@ void Geo_NodePerspective(GraphNode* arg0) {
         gSPMatrix(gDisplayListHead++, (uintptr_t)D_80060488->view.fixedMatrix,
                   G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
 
+        sPortInPerspective = 1; // PORT: gPortCullOutside43
         Geo_NodeModelPartRoot((GeoLayerListNode*)arg0);
+        sPortInPerspective = 0;
     }
 }
 
@@ -1455,7 +1661,12 @@ void Geo_NodeAnimatedPart(GraphNode* arg0) {
     }
 
     D_800AB248[arg->matrixSlot] = (uintptr_t)D_800AB460.unk_1000[D_800AB460.unk_10A0];
+    sPortPartDepth++; // PORT: widescreen (gPortCullOutside43)
     Geo_ProcessNodeChildren(arg0);
+    sPortPartDepth--;
+    if (sPortPartDepth == 1) {
+        Port_CullClosePiece(); // PORT: widescreen (gPortCullOutside43)
+    }
     D_800AB248[arg->matrixSlot] = 0;
     D_800AB460.unk_10A0--;
 
@@ -1715,17 +1926,7 @@ void Geo_NodeAnchor(GraphNode* arg0) {
     Geo_ProcessNodeChildren(arg0);
 }
 
-typedef struct GeoTextNode {
-    /* 0x00 */ GraphNode node;
-    /* 0x18 */ s16 font;
-    /* 0x1A */ s16 fontArg;
-    /* 0x1C */ s16 x;
-    /* 0x1E */ s16 y;
-    /* 0x20 */ s16 w;
-    /* 0x22 */ s16 h;
-    /* 0x24 */ const char* text;
-    /* 0x28 */ Color_RGBA8_u32 arg;
-} GeoTextNode;
+// GeoTextNode: global.h
 Gfx* Font_PrintfToDisplayList(s16 x, s16 y, s16 arg2, s16 arg3, Color_RGBA8_u32 color, const char* fmt, ...);
 /**
  * Geo callback for a text node: prints the node's formatted string with its
@@ -1740,7 +1941,7 @@ void Geo_NodeText(GraphNode* arg0) {
 
     if (arg->text != NULL) {
         Font_SetActive(arg->font, arg->fontArg);
-        dl = Font_PrintfToDisplayList(arg->x, arg->y, arg->w, arg->h, arg->arg, arg->text);
+        dl = Font_PrintfToDisplayList(arg->x, arg->y, arg->w, arg->h, arg->color, arg->text);
         if (dl != NULL) {
             GeoRender_SubmitLayerDisplayList(arg->node.renderLayer, (uintptr_t)dl, 0, arg->node.renderFlags & 4);
         }

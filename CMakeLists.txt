@@ -32,6 +32,7 @@ if(CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
   set(PORT_ALL_WARNINGS /W4) # clang-cl: /W4 is -Wall -Wextra (its -Wall means -Weverything)
   set(PORT_UNSIGNED_CHAR /J)
   set(PORT_NO_BUILTIN /clang:-fno-builtin)
+  set(PORT_GNU_BITFIELDS /clang:-mno-ms-bitfields)
 else()
   set(PORT_FORCE_INCLUDE "-include")
   set(PORT_DEBUG_INFO -g)
@@ -39,6 +40,13 @@ else()
   set(PORT_ALL_WARNINGS -Wall -Wextra)
   set(PORT_UNSIGNED_CHAR -funsigned-char)
   set(PORT_NO_BUILTIN -fno-builtin)
+  set(PORT_GNU_BITFIELDS -mno-ms-bitfields)
+endif()
+# Windows targets lay bitfields out the Microsoft way (a field of another type starts a new storage unit), so the
+# game's records would differ from the host layouts the data lifter computed (SequencePlayer's u32 flag bits moved its
+# u8 fields). The game code uses the GCC layout on every host; tools/abi_audit/layouts.py compares Linux and MinGW.
+if(NOT WIN32)
+  set(PORT_GNU_BITFIELDS "")
 endif()
 
 # libultraship is built as a subproject; it is the N64 SDK reimplementation
@@ -82,6 +90,7 @@ set(PORT_MAIN_SOURCES
   src/port/zero_asm.c
   src/port/text_lookup.cpp
   src/port/unicode_font.cpp
+  src/port/text3d.cpp
   src/port/generated/zero_lift_data.c
 )
 if(NOT EMSCRIPTEN)  # web: an object file written by tools/gen_wasm_abs_syms.py instead (below)
@@ -102,11 +111,18 @@ else()
   add_custom_command(TARGET pokestadium POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/translations
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
-            ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv $<TARGET_FILE_DIR:pokestadium>/translations/
+            ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv ${CMAKE_CURRENT_SOURCE_DIR}/translations/localized.csv
+            $<TARGET_FILE_DIR:pokestadium>/translations/
     # the Unicode glyphs for translated text (src/port/unicode_font.cpp)
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/assets/font
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/unifont_subset.hex
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-unifont.txt $<TARGET_FILE_DIR:pokestadium>/assets/font/
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-unifont.txt
+            # the prototype Plethron Pop outlines, the "Text font" option (tools/font/make_pop_font.py)
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/pop_subset.ttf
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-pop.txt
+            # the outlines for translated 3D words (src/port/text3d.cpp)
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/text3d_subset.otf
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-noto-cjk.txt $<TARGET_FILE_DIR:pokestadium>/assets/font/
     COMMENT "Copying the translation tables and font")
 endif()
 target_include_directories(pokestadium PRIVATE
@@ -180,7 +196,8 @@ list(APPEND STADIUM_GAME_SOURCES ${PORT_ULTRALIB_SOURCES})
 # tables generated from the decomp's link map (tools/gen_func_table.py, tools/gen_fragment_entries.py); they are compiled
 # with the game code but kept in the port, so game/ holds only decomp code
 list(APPEND STADIUM_GAME_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_func_table.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c)
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c) # (tools/move_coverage: reads the battle structs)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ultralib_sources.txt)
 # C arrays of 16/32-bit words in the game sources (textures among them need N64 byte order): their files are compiled
 # through generated wrappers that register the arrays with the renderer (see tools/gen_word_arrays.py)
@@ -257,6 +274,7 @@ endif()
 # are still off while those are fixed subsystem by subsystem; remove an entry here once its count reaches zero.
 set(STADION_GAME_WARNINGS
   ${PORT_ALL_WARNINGS} -Wno-error
+  -Wno-error=format-security    # the Android NDK adds -Werror=format-security, which -Wno-error does not undo (stadion #153)
   -Wno-unused-parameter         # decomp signatures keep parameters the body never reads
   -Wno-unused-function
   -Wno-unused-variable          # stack pads (s32 pad[2]) that keep the original frame layout
@@ -312,7 +330,8 @@ if(_n GREATER 0)
 endif()
 target_sources(pokestadium PRIVATE ${CMAKE_BINARY_DIR}/generated/frag_sections.c)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_frag_sections.py
-             ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c)
+             ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c) # (tools/move_coverage: reads the battle structs)
 set_target_properties(stadium_game PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
 target_include_directories(stadium_game PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port # StadionPort.h: the game/port boundary
@@ -333,7 +352,7 @@ target_compile_definitions(stadium_game PRIVATE
   BUILD_VERSION=VERSION_I_P VERSION_JP=1
   PORT_STATIC_FRAGMENTS)
 target_compile_options(stadium_game PRIVATE
-  ${PORT_DEBUG_INFO} ${PORT_NO_BUILTIN} ${PORT_UNSIGNED_CHAR} ${STADION_GAME_WARNINGS}
+  ${PORT_DEBUG_INFO} ${PORT_NO_BUILTIN} ${PORT_UNSIGNED_CHAR} ${PORT_GNU_BITFIELDS} ${STADION_GAME_WARNINGS}
   # keep a symbol per static array: arm64 global merging folds them into _MergedGlobals, and the renderer finds the
   # 16/32-bit word arrays it must byte-swap (textures, palettes; gen_word_arrays.py) by symbol name
   $<$<AND:$<C_COMPILER_ID:Clang,AppleClang>,$<STREQUAL:${CMAKE_SYSTEM_PROCESSOR},arm64>>:-mno-global-merge>

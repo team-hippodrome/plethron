@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "file_io.h"
 #include "launcher_reliability.h"
 #include "touch_controls.h"
 #include "pacing.h"
@@ -51,6 +52,7 @@ extern "C" void Port_FragmentLoadRanges(const char* text);
 extern "C" void* Port_ResolveN64Address(uintptr_t addr);
 
 extern "C" double Port_Speed();
+extern "C" int64_t Port_NextRetraceNs(void);
 extern "C" bool Port_DisplayPaced();
 extern "C" bool Port_Lockstep();
 extern "C" bool Port_FreezeCheckEnabled();
@@ -68,6 +70,7 @@ using Fast::gPortScreenW;
 using Fast::gPortScreenH;
 extern bool gPortDrawLog;
 extern "C" void Port_RequestCapture(uint64_t frame) { sCaptureFrame = frame; }
+extern "C" uint64_t Port_RouteTick(void); // os_devices.cpp
 namespace {
 std::shared_ptr<Ship::Context> sContext;
 std::shared_ptr<Fast::Fast3dWindow> sWindow;
@@ -158,7 +161,7 @@ static void EnsureControllerDb() {
         return;
     }
     const std::string path = Ship::Context::GetPathRelativeToAppDirectory("gamecontrollerdb.txt");
-    if (FILE* f = fopen(path.c_str(), "w")) {
+    if (FILE* f = Port::OpenFileUtf8(path.c_str(), "w")) { // UTF-8 path: the app folder can be non-ASCII on Windows
         fputs("# SDL game controller mappings, one per line (https://github.com/mdqinc/SDL_GameControllerDB).\n"
               "# SDL knows the common controllers already: add a line here only for a controller it does not.\n",
               f);
@@ -540,7 +543,8 @@ static void MaybeScreenshot() {
     static uint64_t lastHash = 0;
     static bool all = getenv("PORT_SCREENSHOT_ALL") != nullptr;
     // Files are named by game frame (VI retrace count) in lockstep mode, so they line up with PORT_STOP_AT and replays.
-    int name = Port_Lockstep() ? (int)Port_ViTick() : frame;
+    // (with PORT_SYNC the route frame: retraces less those spent waiting at sync points)
+    int name = Port_Lockstep() ? (int)Port_RouteTick() : frame;
     if (sCaptureFrame != 0) {
         char path[1024];
         snprintf(path, sizeof path, "%s/stop_%05d.ppm", dir, name);
@@ -781,6 +785,33 @@ bool PumpFrame() {
     }
     if (!WindowIsRunning()) {
         return false;
+    }
+    // The window loop (main.cpp) comes here about once per millisecond while it waits for the game. Pumping the
+    // window's events and polling the controllers that often cost several times what drawing the game does (Cocoa's
+    // event pump: ~85% of the window thread's busy time). They are needed before the game's next retrace, when the
+    // clock takes the pads (LatchPads), and now and then for the window: so they run shortly before each retrace,
+    // in the middle of a frame that has had none since the last retrace (the one before the retrace can be missed
+    // while a picture is drawn: the pads would then be a frame old), and at least every 33 ms (two frames: the window
+    // stays responsive while the game loads or when retraces do not follow real time, PORT_SPEED=max). A 4 ms floor
+    // pumped ~250 times a second, still twice the cost of drawing the game.
+    {
+        static int64_t sLastPumpNs = 0;
+        const int64_t now = Port_SteadyNs();
+        bool due = now - sLastPumpNs >= 33000000;
+        const int64_t retrace = Port_NextRetraceNs();
+        if (!due && retrace != 0) {
+            const int64_t period = (int64_t)(16666667.0 / Port_Speed());
+            const int64_t last = retrace - period;
+            if (retrace - now <= 1500000 && sLastPumpNs < retrace - 2000000) {
+                due = true; // shortly before the retrace
+            } else if (sLastPumpNs < last && now - last >= period / 2) {
+                due = true; // none since the last retrace
+            }
+        }
+        if (!due) {
+            return true;
+        }
+        sLastPumpNs = now;
     }
     Port_ProcessControllerInitRequests();
     sWindow->HandleEvents();

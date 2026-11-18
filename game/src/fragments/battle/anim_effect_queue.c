@@ -6,6 +6,7 @@
 #include "geo_node.h"
 #include "model_renderer.h"
 #include "prevent_bss_reordering.h"
+#include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
 extern s32 gBattleAnimFrameCounter;
 extern s32 gBattleAnimSpawnDelay;
 extern s32 sBattleAnimQueuedMoveId;
@@ -936,7 +937,7 @@ void BattleAnim_BindModelAnim(DisplayObject* arg0, s16 arg1) {
  */
 void BattleAnim_BindModelAnimReversed(DisplayObject* arg0, s16 arg1) {
     ModelAnim_BindTransformCurve(arg0, 0, sBattleAnimAssetPointers[arg1], -0x10000);
-    ModelAnim_SetFrame(arg0, arg0->transformAnim.data->endFrame - 1);
+    ModelAnim_SetFrame(arg0, ANIM_END(arg0->transformAnim.data) - 1); // PORT: anim_raw.h
 }
 
 /**

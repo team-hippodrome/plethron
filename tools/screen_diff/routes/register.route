@@ -1,0 +1,13 @@
+# Main menu -> とうろく (registration), deep: register the party (the Ditto transform animation and its message),
+# とうろくしたポケモンをみる (the registered team), とうろくしたポケモンをけす (delete it again), then B out.
+# Registration writes Stadium Zero's own save (SRAM); every run starts from a blank one on both sides.
+# Needs the Lab save: tools/screen_diff/jp_gen1_save.py <file> --lab, in $GB_SAV_GREEN_LAB.
+@gb green lab
+1200 START 300 A 400 shot:main_menu
+RIGHT 40 DOWN 40 A 150 shot:register_prompt A 300 shot:register_menu
+50 A 150 shot:register_team A 100 shot:register_confirm
+A 30 shot:register_transform_start 100 shot:register_transform 100 shot:register_done_message
+A 100 shot:register_menu_after
+DOWN 25 A 200 shot:view_registered B 80 shot:register_menu_view_back
+DOWN 25 DOWN 25 A 200 shot:delete_list A 100 shot:delete_confirm A 100 shot:delete_after A 100 shot:delete_after2
+B 80 B 80 shot:register_exit B 150 shot:main_menu_after

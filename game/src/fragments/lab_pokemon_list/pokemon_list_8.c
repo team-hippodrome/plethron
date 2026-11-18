@@ -1,6 +1,7 @@
 /* Fixed-layout split; original translation-unit boundaries remain unconfirmed. */
 #include "global.h"
 #include "lab_pokemon_list.h"
+#include "text_lookup.h" // PORT: translated PP Up title
 #include "asset_archive.h"
 #include "memory_main.h"
 #include "m2c_macros.h"
@@ -403,6 +404,8 @@ void LabPCList_ApplyPpUpItem(LabPCEntry* entry, TmEntry8910A21C* item, s32 slot,
     ptr = (u8*)&entry->mon + slot; // PORT: was entry + slot + 8; ptr[9] is mon.moves[slot], ptr[0x20] is mon.pp[slot]
     end = D_8910E3B8 + strlen(D_8910E3B8);
     *(Str891041D8*)end = *(Str891041D8*)D_8910DE3C;
+    Port_Text_NoteJoined((const char*)D_8910E3B8, (const char*)D_8006A9D4[(entry->mon.moves[slot]) - 1].name,
+                         D_8910DE3C); // PORT: 「<move>のＰＰ」, translated as its pieces
     if (1) {} // karodo
     msg->title = D_8910E3B8;
     msg->kind = 0;
@@ -625,7 +628,7 @@ extern M2C_UNK D_8910A7F0;
  * Seen in play (2026-11-12): the いちらん background.
  */
 void LabPCList_DrawBackground(void) {
-    Ui_DrawTintedScreenBackground(56, 480, M2C_FIELD(&D_8910A7F0, u8 *, 0), M2C_FIELD(&D_8910A7F0, u8 *, 1), (s32) M2C_FIELD(&D_8910A7F0, u8 *, 2));
+    Ui_DrawTintedScreenBackground(56, 480, Port_WordByte(D_8910A7F0, 0), Port_WordByte(D_8910A7F0, 1), (s32) Port_WordByte(D_8910A7F0, 2)); // PORT: was M2C_FIELD(&D_8910A7F0, u8*, 0..2): the lifted word is in host order
 }
 
 void BgStage_DrawFrame(void);
@@ -728,7 +731,7 @@ s32 LabPCList_UpdateFade(UNUSED u8 unused) { // PORT: u8 to match BgStage_RunUnt
     }
     GbSave_DrawSummaryBar(0, var_a1, D_8910DE44, D_8910E37C);
     n = D_8910A908;
-    *(Color_RGBA8*)&sp2C = func_8002C8D8(*(Color_RGBA8*)&D_8910A7F0, n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
+    *(Color_RGBA8*)&sp2C = func_8002C8D8(Port_WordColor(D_8910A7F0), n / (f64)8.0f); // PORT: the color is the return value (the N64 ABI passed &sp2C)
     Ui_DrawTintedScreenBackground(56, 480, sp2C.r, sp2C.g, sp2C.b);
     if (D_8910A90C == 0) {
         n = D_8910A908;
