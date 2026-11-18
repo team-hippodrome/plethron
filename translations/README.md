@@ -69,6 +69,7 @@ Notes that would repeat on every row of a group live here instead.
 | `LAB_*` | Lab: PC boxes, items and Pokémon list |
 | `MAIN_MENU_*` | GB Player / main menu |
 | `MODE_*` | Stadium mode or rule label |
+| `MODEL_TEXT_*` | Words the game draws as 3D models, not text: the round titles on the VS screen (バトル, セミファイナル, ファイナルバトル; the round number and dash stay the original models) and かち / まけ on the results panels. The port builds the meshes from `assets/font/text3d_subset.otf` (`src/port/text3d.cpp`); run `tools/font/make_text3d_subset.py` after adding characters. Not ROM text: `md5` is the md5 of the kana in EUC-JP, `addr` is empty, and the kana are in the note. Round titles stay katakana loanwords: Latin capitals (BATTLE), hangul for Korean (배틀). An empty `ja` keeps the original models |
 | `NICKNAME_*` | COM party nickname (Yay0 data) |
 | `PIKACHU_SURF_*` | Pikachu Surf reward after a tournament |
 | `PLACE_*` | Pokédex habitat map label |

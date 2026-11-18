@@ -49,6 +49,7 @@ typedef union AnimFixedFrame {
     s32 raw;
 } AnimFixedFrame;
 #include "m2c_macros.h"
+#include "text3d.h" // PORT: translated 3D words
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 struct MainPoolState;
@@ -850,7 +851,9 @@ void GeoRender_DrawEntryDisplayList(uintptr_t* last_matrix, GeoLayerEntry* entry
         gSPMatrix(gDisplayListHead++, entry->mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     }
     // PORT: fragment display lists are already host pointers, Memmap_GetFragmentVaddr only applies to N64 addresses
-    if ((entry->dl >= 0x81000000U) && (entry->dl < 0x90000000U)) {
+    if (Port_Text3D_Replacement(entry->dl) != NULL) { // PORT: a translated 3D word's glyph (src/port/text3d.cpp)
+        gSPDisplayList(gDisplayListHead++, Port_Text3D_Replacement(entry->dl));
+    } else if ((entry->dl >= 0x81000000U) && (entry->dl < 0x90000000U)) {
         gSPDisplayList(gDisplayListHead++, Memmap_GetFragmentVaddr((void*)entry->dl));
     } else {
         gSPDisplayList(gDisplayListHead++, entry->dl);
