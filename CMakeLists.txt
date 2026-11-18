@@ -118,6 +118,9 @@ else()
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:pokestadium>/assets/font
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/unifont_subset.hex
             ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-unifont.txt
+            # the prototype Plethron Pop outlines, the "Text font" option (tools/font/make_pop_font.py)
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/pop_subset.ttf
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-pop.txt
             # the outlines for translated 3D words (src/port/text3d.cpp)
             ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/text3d_subset.otf
             ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-noto-cjk.txt $<TARGET_FILE_DIR:pokestadium>/assets/font/
