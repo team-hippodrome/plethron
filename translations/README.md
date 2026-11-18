@@ -48,8 +48,8 @@ id,md5,addr,ja,en,es,de,pt,ko,fr,it,note
 
 ### Names: localized or transliterated
 
-COM Pokémon nicknames (`<TRAINER>_<SPECIES>`), COM trainer names (`COM_*`) and the Nintendo Cup '97 finalists'
-names (`FINALIST_*` people and handles) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
+COM Pokémon nicknames (`<TRAINER>_<SPECIES>`), COM trainer names and handles (`HANDLE_*`) and the Nintendo Cup '97 finalists'
+names (`FINALIST_*`) can be shown two ways, picked in Options > Names (port setting `gPort.NameStyle`, debug override
 `PORT_NAME_STYLE=localized|transliterated`):
 
 - **Localized** (the default): the meaning translated, おれさま → THE MAN, テンサイ → Genius, どろキング →
@@ -78,8 +78,7 @@ Notes that would repeat on every row of a group live here instead.
 | `BATTLE_MENU_*` | Battle menu |
 | `BATTLE_MODE_*` | Battle Mode menus and tournament rules |
 | `BATTLE_MSG_*` | Battle message; %s is a Pokémon or move name |
-| `COM_*` | COM trainer name (the OT of a COM team's Pokémon), trainer class word, or a species name stored as a nickname |
-| `<TRAINER>_<SPECIES>` | A COM Pokémon's nickname, named after its owner and species (puns are fine to keep loose): `MIKA_DUGTRIO` is Nintendo Cup '97 finalist Fujita Mika's Dugtrio (finalists by given name, Lv. 50–55 Tournament); `BUG_CATCHER_BEEDRILL` the Lv. 1–30 Tournament Bug Catcher's (one row for all four cups); `FREE_BATTLE_LASS_TAUROS` a Free Battle preset team's (Yay0 data, no addr). A nickname two finalists share (ぎゅうた, まさこ) has a row per owner, same md5, own addr |
+| `<TRAINER>_<SPECIES>` | A COM Pokémon's nickname, named after its owner and species (puns are fine to keep loose): `MIKA_DUGTRIO` is Nintendo Cup '97 finalist Fujita Mika's Dugtrio (finalists by given name, Lv. 50–55 Tournament); `BUG_CATCHER_BEEDRILL` the Lv. 1–30 Tournament Bug Catcher's (one row for all four cups); `FREE_BATTLE_LASS_TAUROS` a Free Battle preset team's (Yay0 data, no addr). A nickname two owners share (ぎゅうた, まさこ, a species name used as a nickname such as ディグダ) has a row per owner, same md5, own addr |
 | `CONTINUE_*` | Tournament continue prompt |
 | `CONTROLLER_ERROR_*` | Controller / 64DD error screen |
 | `DEBUG_*` | Battle debug menu (unused in normal play) |
@@ -87,6 +86,7 @@ Notes that would repeat on every row of a group live here instead.
 | `FINALIST_*` | Nintendo Cup '97 finalist region or name (locked romanization, glossary) |
 | `GB_PAK_*` | GB Player / Game Pak messages |
 | `GB_PLAYER_*` | The GB Player's own screens: the C-Up menu and its help, Help & config, the speed-up help, the Game Pak trouble screens, the cartridge copy screen's scrolling line and the status strip under the Game Boy screen. The GB Player draws these with its own font from glyph lists, not ROM strings, so `game/src/gb_player_text.c` lays the cells out again: `md5` is the md5 of the kana in EUC-JP, `addr` is empty. Cells are wrapped at run time to the original box (a `\n` forces a break); words in `{braces}` take the screen's highlight colour. English, Spanish, German, Portuguese, French, Italian and Japanese draw with the GB Player's font (accents are added to its letters), Korean and kanji with Unifont |
+| `HANDLE_*` | COM trainer handle or name (the OT of a COM team's Pokémon, e.g. `HANDLE_ORESAMA` おれさま) or trainer class word |
 | `HABITAT_*` | Pokédex habitat map and index |
 | `LAB_*` | Lab: PC boxes, items and Pokémon list |
 | `MAIN_MENU_*` | GB Player / main menu |
