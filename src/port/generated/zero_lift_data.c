@@ -1916,7 +1916,7 @@ const ZLiftType gZLiftTypes[] = {
     { 392, 392, 719, 4 }, // r:struct unk_D_800AB970@geo_render.h:10
     { 24, 48, 723, 7 }, // r:struct ModelAnimCurveContext@geo_render.h:67
     { 10, 10, 730, 2 }, // r:struct ModelAnimChannel@geo_render.h:57
-    { 16, 32, 732, 5 }, // r:struct EventTrackRender@geo_render.c:347
+    { 16, 32, 732, 5 }, // r:struct EventTrackRender@geo_render.c:348
     { 4, 8, 737, 1 }, // p:r:struct MemoryBlock@memory.h:40
     { 4, 8, 738, 1 }, // p:r:struct GraphNode@global.h:178
     { 2584, 2696, 739, 25 }, // r:struct ModelLoaderThread@display_object_textures.h:28
@@ -2101,7 +2101,7 @@ const ZLiftType gZLiftTypes[] = {
     { 32, 32, 1997, 3 }, // r:struct SpeciesModelTransform@battle.h:414
     { 16, 16, 2000, 1 }, // r:struct unk_D_84390028@battle.h:423
     { 24, 24, 2001, 3 }, // r:struct unk_D_843847BC@battle.h:435
-    { 8, 16, 2004, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:897
+    { 8, 16, 2004, 3 }, // r:struct TextLine8211CC8C@menu_panels.c:900
     { 44, 80, 2007, 3 }, // r:struct BattleSceneStateRow@battle.h:400
     { 6, 6, 2010, 1 }, // r:struct DemoInput8210E3C0@command_menu.c:1164
     { 3, 3, 2011, 1 }, // r:struct TypeMatchupZ@damage_estimate.c:140
