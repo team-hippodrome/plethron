@@ -70,6 +70,8 @@ jobs:
             (cd "$dir" && zip -r "../../dist/${out}-v${VERSION}.zip" .)
           done
           ls -l dist
+          # macOS may be missing (build.yml lets it fail); Windows x64 and Linux may not
+          ls dist/plethron-windows-x64-v"$VERSION".zip dist/plethron-linux-x86_64-v"$VERSION".AppImage
       - name: No game data in the release
         # never ship a ROM, a save or anything carrying an N64/Game Boy header (the AppImage is a squashfs, checked
         # by extracting it)
@@ -116,6 +118,6 @@ jobs:
           NOTES="docs/release-notes/v$VERSION.md"
           if [ ! -f "$NOTES" ]; then
             NOTES="$RUNNER_TEMP/notes.md"
-            echo "Builds for Linux (x86_64 AppImage), macOS (Apple Silicon) and Windows (x64 and arm64). No game data included: you need your own Pocket Monsters Stadium (Japan) ROM. See README.md." > "$NOTES"
+            echo "Builds for Windows (x64 and arm64) and Linux (x86_64 AppImage). No game data included: you need your own Pocket Monsters Stadium (Japan) ROM. See README.md." > "$NOTES"
           fi
           gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" --notes-file "$NOTES"
