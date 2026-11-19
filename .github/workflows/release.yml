@@ -110,8 +110,24 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION" -m "plethron v$VERSION" "$GITHUB_SHA"
-          git push origin "v$VERSION"
+          # A run whose publish failed leaves the tag pushed without a release. A later run reuses that tag when it names
+          # this commit, and moves it here when it names an older commit of this branch (a fix landed in between);
+          # a tag that already has a release, or names a commit this one does not build on, is never moved.
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null; then
+            git fetch -q origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
+            TAGGED=$(git rev-parse "v$VERSION^{commit}")
+            if [ "$TAGGED" != "$GITHUB_SHA" ]; then
+              STATUS=$(gh api "repos/$GITHUB_REPOSITORY/compare/$TAGGED...$GITHUB_SHA" --jq .status)
+              if gh release view "v$VERSION" >/dev/null 2>&1 || [ "$STATUS" != "ahead" ]; then
+                echo "::error::tag v$VERSION already exists on $TAGGED (compare: $STATUS)"; exit 1
+              fi
+              git tag -fa "v$VERSION" -m "plethron v$VERSION" "$GITHUB_SHA"
+              git push -f origin "v$VERSION"
+            fi
+          else
+            git tag -a "v$VERSION" -m "plethron v$VERSION" "$GITHUB_SHA"
+            git push origin "v$VERSION"
+          fi
           git tag -f latest "$GITHUB_SHA"
           git push -f origin latest
           # the notes come from docs/release-notes/v<version>.md when there is one
@@ -120,4 +136,14 @@ jobs:
             NOTES="$RUNNER_TEMP/notes.md"
             echo "Builds for Windows (x64 and arm64) and Linux (x86_64 AppImage). No game data included: you need your own Pocket Monsters Stadium (Japan) ROM. See README.md." > "$NOTES"
           fi
-          gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" --notes-file "$NOTES"
+          # the releases API sometimes answers HTTP 500 (v0.0.1's first run): try a few times; a release left behind by a
+          # failed attempt gets its files (re)uploaded instead
+          for attempt in 1 2 3 4; do
+            if gh release view "v$VERSION" >/dev/null 2>&1; then
+              gh release upload "v$VERSION" dist/* --clobber && exit 0
+            elif gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" --notes-file "$NOTES"; then
+              exit 0
+            fi
+            sleep $((attempt * 20))
+          done
+          exit 1
