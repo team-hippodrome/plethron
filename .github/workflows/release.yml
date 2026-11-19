@@ -53,22 +53,54 @@ jobs:
           mkdir -p dist
           for dir in artifacts/*/; do
             name=$(basename "$dir")
+            out=${name/pokestadium/plethron} # pokestadium-windows-x64 -> plethron-windows-x64-v<version>.zip
             if [ -n "$(find "$dir" -maxdepth 1 -name '*.AppImage')" ]; then
               # Linux: the AppImage on its own (made executable after download: chmod +x)
-              cp "$dir"/*.AppImage "dist/${name%-x64}-x86_64-v${VERSION}.AppImage"
+              cp "$dir"/*.AppImage "dist/${out%-x64}-x86_64-v${VERSION}.AppImage"
               continue
             fi
             if [ -f "$dir/$name.app.zip" ]; then
               # macOS: the app bundle, already zipped with ditto by build.yml
-              cp "$dir/$name.app.zip" "dist/${name}-v${VERSION}.zip"
+              cp "$dir/$name.app.zip" "dist/${out}-v${VERSION}.zip"
               continue
             fi
-            cp README.md PORTING_NOTES.md "$dir/"
-            mkdir -p "$dir/docs"
-            cp docs/BUILDING.md "$dir/docs/BUILDING.md"
-            (cd "$dir" && zip -r "../../dist/${name}-v${VERSION}.zip" .)
+            cp README.md LICENSE "$dir/"
+            mkdir -p "$dir/licenses"
+            cp assets/font/LICENSE-*.txt "$dir/licenses/"
+            (cd "$dir" && zip -r "../../dist/${out}-v${VERSION}.zip" .)
           done
           ls -l dist
+      - name: No game data in the release
+        # never ship a ROM, a save or anything carrying an N64/Game Boy header (the AppImage is a squashfs, checked
+        # by extracting it)
+        run: |
+          set -e
+          mkdir -p scan
+          for f in dist/*; do
+            case "$f" in
+              *.zip) unzip -q -o "$f" -d "scan/$(basename "$f")" ;;
+              *.AppImage) chmod +x "$f"; (cd scan && "../$f" --appimage-extract >/dev/null && mv squashfs-root "$(basename "$f")") ;;
+            esac
+          done
+          bad=$(find scan -type f \( -iname '*.z64' -o -iname '*.n64' -o -iname '*.v64' -o -iname '*.gb' -o -iname '*.gbc' \
+            -o -iname '*.sra' -o -iname '*.sav' -o -iname '*.fla' -o -iname '*.eep' \) -print)
+          if [ -n "$bad" ]; then echo "::error::ROM or save files in the release: $bad"; exit 1; fi
+          python3 -I - <<'PY'
+          import pathlib, sys
+          # a ROM's header where a ROM has it: N64 at 0 (any byte order), the Game Boy logo at 0x104 (libultra's
+          # gbpakreadid.c carries the logo too, so it is in every build and only counts at the cart header's place)
+          n64 = (b"\x80\x37\x12\x40", b"\x37\x80\x40\x12", b"\x40\x12\x37\x80")
+          gb = b"\xce\xed\x66\x66\xcc\x0d\x00\x0b"
+          bad = []
+          for p in pathlib.Path("scan").rglob("*"):
+              if p.is_file() and not p.is_symlink():
+                  d = p.read_bytes()
+                  if d[:4] in n64: bad.append(f"{p}: N64 ROM header")
+                  if d[0x104:0x10C] == gb: bad.append(f"{p}: Game Boy ROM header")
+          if bad:
+              print("::error::game data in the release:", *bad, sep="\n")
+              sys.exit(1)
+          PY
       - name: Tag and publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,9 +108,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v$VERSION" -m "Pokémon Stadium port v$VERSION" "$GITHUB_SHA"
+          git tag -a "v$VERSION" -m "plethron v$VERSION" "$GITHUB_SHA"
           git push origin "v$VERSION"
           git tag -f latest "$GITHUB_SHA"
           git push -f origin latest
-          gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" \
-            --notes "Builds for Linux (x86_64 AppImage), macOS (Apple Silicon, Pokemon Stadium.app) and Windows (x64 and arm64). No game data included: you need your own Pokémon Stadium (USA) ROM. See README.md."
+          # the notes come from docs/release-notes/v<version>.md when there is one
+          NOTES="docs/release-notes/v$VERSION.md"
+          if [ ! -f "$NOTES" ]; then
+            NOTES="$RUNNER_TEMP/notes.md"
+            echo "Builds for Linux (x86_64 AppImage), macOS (Apple Silicon) and Windows (x64 and arm64). No game data included: you need your own Pocket Monsters Stadium (Japan) ROM. See README.md." > "$NOTES"
+          fi
+          gh release create "v$VERSION" dist/* --title "v$VERSION" --target "$GITHUB_SHA" --notes-file "$NOTES"
