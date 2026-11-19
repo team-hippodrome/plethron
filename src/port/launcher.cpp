@@ -979,9 +979,9 @@ class LauncherWindow : public Ship::GuiWindow {
         ImDrawList* dl = ImGui::GetWindowDrawList();
 
         // header: title | subtitle, line
-        Text(16, 10, "Pocket Monsters Stadium", gFonts.title);
-        Text(278, 11, "|", gFonts.title, Theme::cardBorder);
-        Text(294, 14, "PC port · Transfer Pak", gFonts.body, Theme::dim);
+        Text(16, 10, "Plethron", gFonts.title);
+        Text(114, 11, "|", gFonts.title, Theme::cardBorder);
+        Text(130, 14, "Pocket Monsters Stadium PC port · Transfer Pak", gFonts.body, Theme::dim);
         dl->AddRectFilled(P(0, 44), P(kW, 45), Hex(Theme::cardBorder));
         Tools();
         if (getenv("PORT_LAUNCHER_OPEN_GRAPHICS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
@@ -2077,7 +2077,7 @@ class LauncherWindow : public Ship::GuiWindow {
             mFocusReset = true;
         }
         ImDrawList* dl = ImGui::GetWindowDrawList();
-        Text(24, 14, "Pocket Monsters Stadium", gFonts.title);
+        Text(24, 14, "Plethron", gFonts.title);
         const char* pageName = mPage == kPageTransferPak ? "Transfer Pak" : mPage == kPageControls ? "Controls"
                                : mPage == kPageTools ? "Files & help" : mPage == kPageSaveEditor ? "Save editor" : "";
         Text(296, 17, pageName, gFonts.body, Theme::dim);
@@ -2435,7 +2435,7 @@ std::string RunLauncher(const std::shared_ptr<Fast::Fast3dWindow>& window, bool&
             }
             SDL_SetWindowSize(sdl, gameW, gameH);
             SDL_SetWindowPosition(sdl, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-            SDL_SetWindowTitle(sdl, "Pocket Monsters Stadium");
+            SDL_SetWindowTitle(sdl, "Plethron");
         }
         // Graphics > Display: the game window windowed or fullscreen (the launcher kept its own window)
         if (auto config = window->GetContext()->GetChildren().GetFirst<Ship::Config>()) {

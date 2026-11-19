@@ -313,7 +313,17 @@ static bool CheckAbsSymbols() {
 }
 #endif
 
+// The port was called pokestadium before v0.0.1: keep the settings of an existing install (its launcher choices,
+// controls and graphics) by renaming pokestadium.cfg.json to plethron.cfg.json once, before anything reads it.
+static void MigrateOldConfig() {
+    std::error_code ec;
+    const auto now = std::filesystem::u8path(Port::AppPath("plethron.cfg.json"));
+    const auto old = std::filesystem::u8path(Port::AppPath("pokestadium.cfg.json"));
+    if (!std::filesystem::exists(now, ec) && std::filesystem::is_regular_file(old, ec)) std::filesystem::rename(old, now, ec);
+}
+
 static int RunGame(int argc, char** argv) {
+    MigrateOldConfig();
 #if defined(__EMSCRIPTEN__)
     if (!CheckAbsSymbols()) {
         return 1;
