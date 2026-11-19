@@ -12,6 +12,7 @@
 // position is nearest to it, so the word still arrives in pieces from the same directions.
 #include "text3d.h"
 #include "text_lookup.h"
+#include "app_file.h"
 
 #include <algorithm>
 #include <array>
@@ -52,13 +53,12 @@ Font& GetFont() {
     static Font f;
     if (f.tried) return f;
     f.tried = true;
-    std::string path = Ship::Context::LocateFileAcrossAppDirs("assets/font/text3d_subset.otf");
-    std::ifstream in(path, std::ios::binary);
-    if (!in) {
+    std::string bytes, path;
+    if (!Port::ReadAppFile("assets/font/text3d_subset.otf", bytes, &path)) {
         fprintf(stderr, "[text3d] %s not found: 3D words stay in the original\n", path.c_str());
         return f;
     }
-    f.data.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    f.data.assign(bytes.begin(), bytes.end());
     if (!stbtt_InitFont(&f.info, f.data.data(), stbtt_GetFontOffsetForIndex(f.data.data(), 0))) {
         fprintf(stderr, "[text3d] %s: not a font\n", path.c_str());
         return f;

@@ -89,6 +89,7 @@ set(PORT_MAIN_SOURCES
   # (tools/zero/gen_lift.py, src/port/zero_lift.c). Compiled without the game's headers: the storage is plain bytes.
   src/port/zero_lift.c
   src/port/zero_asm.c
+  src/port/app_file.cpp
   src/port/text_lookup.cpp
   src/port/collate.cpp
   src/port/unicode_font.cpp
@@ -109,7 +110,8 @@ if(ANDROID)
   target_link_options(plethron PRIVATE -Wl,-Bsymbolic)
 else()
   add_executable(plethron ${PORT_MAIN_SOURCES})
-  # the translation tables (translations/README.md), looked up next to the executable (src/port/text_lookup.cpp)
+  # the translation tables (translations/README.md) and fonts, copied next to the executable: those copies win over
+  # the ones built into plethron.o2r (src/port/app_file.cpp), so the tables can be edited without rebuilding
   add_custom_command(TARGET plethron POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:plethron>/translations
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
@@ -496,7 +498,9 @@ if(EMSCRIPTEN)
     --profiling-funcs) # function names in the browser's stack traces
   file(GLOB_RECURSE PORT_WEB_RESOURCE_INPUTS CONFIGURE_DEPENDS
        ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/fast/shaders/*
-       ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png)
+       ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png
+       ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.csv
+       ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*)
   set_property(TARGET plethron APPEND PROPERTY LINK_DEPENDS
                ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_o2r.py
                ${CMAKE_CURRENT_SOURCE_DIR}/src/port/vulkan_pipeline_warmup.txt
@@ -506,12 +510,14 @@ if(EMSCRIPTEN)
             $<TARGET_FILE_DIR:plethron>/plethron.o2r ${PORT_O2R_EXTRA}
     COMMENT "Packing web resources")
 else()
-# Runtime resources (shaders, the shader warm-up list, launcher pictures) packed into plethron.o2r and built
+# Runtime resources (shaders, the shader warm-up list, launcher pictures, translation tables, fonts) packed into plethron.o2r and built
 # into the executable as a C array (tools/make_o2r.py --c): no separate file to lose or damage. The archive itself is
 # left in generated/ for inspection.
 file(GLOB_RECURSE PORT_O2R_INPUTS CONFIGURE_DEPENDS
      ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/fast/shaders/*
-     ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png)
+     ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png
+     ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.csv
+     ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*)
 add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/generated/plethron_o2r.c
   COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_o2r.py

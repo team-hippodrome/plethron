@@ -5,6 +5,7 @@
 // instead (assets/font/pop_subset.ttf, tools/font/make_pop_font.py), drawn the same way; Unifont stays the default
 // and covers any character Pop lacks.
 #include "unicode_font.h"
+#include "app_file.h"
 
 #include <algorithm>
 #include <cmath>
@@ -14,6 +15,7 @@
 #include <iterator>
 #include <cstdlib>
 #include <map>
+#include <sstream>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -50,11 +52,11 @@ Font& GetFont() {
     static Font font;
     if (!font.loaded) {
         font.loaded = true;
-        std::string path = Ship::Context::LocateFileAcrossAppDirs("assets/font/unifont_subset.hex");
-        std::ifstream f(path);
-        if (!f) {
+        std::string hex, path;
+        if (!Port::ReadAppFile("assets/font/unifont_subset.hex", hex, &path)) {
             fprintf(stderr, "[font] %s not found: translated text will not draw\n", path.c_str());
         }
+        std::istringstream f(hex);
         std::string line;
         while (std::getline(f, line)) {
             size_t colon = line.find(':');
@@ -161,9 +163,9 @@ PopFont& GetPopFont() {
     static PopFont font;
     if (!font.loaded) {
         font.loaded = true;
-        std::string path = Ship::Context::LocateFileAcrossAppDirs("assets/font/pop_subset.ttf");
-        std::ifstream f(path, std::ios::binary);
-        font.data.assign(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
+        std::string bytes, path;
+        Port::ReadAppFile("assets/font/pop_subset.ttf", bytes, &path);
+        font.data.assign(bytes.begin(), bytes.end());
         font.ok = !font.data.empty() &&
                   stbtt_InitFont(&font.info, font.data.data(), stbtt_GetFontOffsetForIndex(font.data.data(), 0));
         if (!font.ok) {

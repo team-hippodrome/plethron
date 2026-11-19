@@ -1,6 +1,6 @@
 #!/usr/bin/env python3 -I
 """Packs the port's runtime resources into build/plethron.o2r (a zip libultraship opens as an archive):
-the Fast3D shader sources, the shader warm-up list, the launcher pictures and a port version marker. Game data is not in here; it is read from the ROM."""
+the Fast3D shader sources, the shader warm-up list, the launcher pictures, the translation tables, the fonts and a port version marker. Game data is not in here; it is read from the ROM."""
 import zipfile, pathlib, sys
 root = pathlib.Path(__file__).resolve().parent.parent
 args = sys.argv[1:]
@@ -12,6 +12,9 @@ if "--c" in args:
     del args[i:i + 2]
 # --add <archive name>=<file>: include generated web fragment ranges.
 extra = [value.split("=", 1) for flag, value in zip(args[1:], args[2:]) if flag == "--add"]
+# the port's data files, at the same paths as beside the executable (CMakeLists.txt copies them there too)
+DATA_FILES = ["translations/ai.csv", "translations/human.csv", "translations/localized.csv",
+              "assets/font/unifont_subset.hex", "assets/font/pop_subset.ttf", "assets/font/text3d_subset.otf"]
 out = pathlib.Path(args[0]) if args else root / "build/plethron.o2r"
 out.parent.mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
@@ -37,6 +40,10 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     # launcher pictures (cartridges, N64), shown by src/port/launcher.cpp
     for p in sorted((root / "tools/launcher/assets").glob("*.png")):
         z.write(p, "textures/launcher/" + p.name)
+    # the translation tables and the fonts for translated text (src/port/app_file.cpp: a copy next to the executable
+    # wins, so translators can edit the tables without rebuilding; a release ships only the executable)
+    for rel in DATA_FILES:
+        z.write(root / rel, rel)
     for name, path in extra:
         z.write(path, name)
 print("wrote", out)

@@ -10,6 +10,11 @@ on:
       version:
         description: Version to release, e.g. 0.0.4 (a leading v is fine too; the tag is v<version>)
         required: true
+      replace:
+        description: Replace the files of this version's existing release (moves its tag here; only to a newer commit)
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -107,18 +112,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.version.outputs.version }}
+          REPLACE: ${{ inputs.replace }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # A run whose publish failed leaves the tag pushed without a release. A later run reuses that tag when it names
           # this commit, and moves it here when it names an older commit of this branch (a fix landed in between);
-          # a tag that already has a release, or names a commit this one does not build on, is never moved.
+          # a tag that already has a release, or names a commit this one does not build on, is never moved, unless the
+          # run was asked to replace that release (v0.0.1 shipped without its fonts and translations).
           if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null; then
             git fetch -q origin "refs/tags/v$VERSION:refs/tags/v$VERSION"
             TAGGED=$(git rev-parse "v$VERSION^{commit}")
             if [ "$TAGGED" != "$GITHUB_SHA" ]; then
               STATUS=$(gh api "repos/$GITHUB_REPOSITORY/compare/$TAGGED...$GITHUB_SHA" --jq .status)
-              if gh release view "v$VERSION" >/dev/null 2>&1 || [ "$STATUS" != "ahead" ]; then
+              if { gh release view "v$VERSION" >/dev/null 2>&1 && [ "$REPLACE" != "true" ]; } || [ "$STATUS" != "ahead" ]; then
                 echo "::error::tag v$VERSION already exists on $TAGGED (compare: $STATUS)"; exit 1
               fi
               git tag -fa "v$VERSION" -m "plethron v$VERSION" "$GITHUB_SHA"
