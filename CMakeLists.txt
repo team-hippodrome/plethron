@@ -74,6 +74,7 @@ set(PORT_MAIN_SOURCES
   src/port/interp.cpp
   src/port/launcher.cpp
   src/port/launcher_files.cpp
+  src/port/gb_cart_art.cpp
   src/port/launcher_reliability.cpp
   src/port/rom_check.cpp
   src/port/shader_warmup.cpp
