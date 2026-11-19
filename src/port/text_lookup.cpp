@@ -2,6 +2,7 @@
 #include "text_lookup.h"
 #include "zero_lift.h"
 #include "unicode_font.h"
+#include "app_file.h"
 
 #include <algorithm>
 #include <cctype>
@@ -210,17 +211,14 @@ std::vector<std::vector<std::string>> ParseCsv(const std::string& text) {
 
 void LoadTable(const char* name, std::unordered_map<std::string, Row>& into,
                std::unordered_map<std::string, std::vector<std::string>>& md5Ids) {
-    std::string path = Ship::Context::LocateFileAcrossAppDirs(std::string("translations/") + name);
-    std::ifstream f(path, std::ios::binary);
-    if (!f) {
-        fprintf(stderr, "[text] %s not found (%s)\n", name, path.c_str());
+    // next to the executable, else the copy built into the executable (app_file.h)
+    std::string text, where;
+    if (!Port::ReadAppFile(std::string("translations/") + name, text, &where)) {
+        fprintf(stderr, "[text] %s not found (%s)\n", name, where.c_str());
         return;
     }
-    std::stringstream ss;
-    ss << f.rdbuf();
     // Line breaks inside quoted fields are part of the text. A checkout with CRLF line endings (git's core.autocrlf on
     // Windows) turns each into CR LF, and the CR was kept in the string and drawn as "?" at the end of every line.
-    std::string text = ss.str();
     std::string lf;
     lf.reserve(text.size());
     for (size_t i = 0; i < text.size(); i++) {

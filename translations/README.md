@@ -11,6 +11,10 @@ at runtime by key. Nothing here contains the original game text, except the kana
 | `localized.csv` | The localized form of the name rows (see [Names](#names-localized-or-transliterated)). Edit it directly, by hand or by AI. |
 | `rom-text/` | **Gitignored.** Your own ROM's text, written by `tools/text/show_kana.py`. Never commit it. |
 
+The three tables (and the fonts in `assets/font/`) are built into the executable, so a release needs no extra
+files. A copy in a `translations/` folder next to the executable wins over the built-in one: edit that copy and
+restart the game to try a change without rebuilding.
+
 ## Format
 
 UTF-8, RFC 4180 quoting, one header row, identical columns in both files:
