@@ -43,7 +43,7 @@ menus and text in 640x480, and at native 320x240 every other texel row and colum
 font look wrong) in the original text (PORT_LANGUAGE=kana: no language select screen), lockstep at full speed, from a recording with every current behaviour switch on. ares runs
 tools/ares_ref (build it with tools/ares_ref/build.sh). Pictures go to <out>/port/<label>.ppm and
 <out>/ares/<label>/f_<frame>.png; nothing goes into the repository (the pictures are the game's own: keep them out of
-git). Environment: ROM (the Pocket Monsters Stadium .z64), PORT_BIN (default build/pokestadium), ARES_REF_BUILD and
+git). Environment: ROM (the Pocket Monsters Stadium .z64), PORT_BIN (default build/plethron), ARES_REF_BUILD and
 ARES_REF_SRC (default build/ares/{build,ares}).
 """
 import os, shutil, subprocess, sys
@@ -172,7 +172,7 @@ def run_port(r, out, extra_env):
     if r["weak_com"]:
         env["PORT_DEBUG_WEAK_COM"] = "1"
     env.update(extra_env)
-    binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
+    binary = os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "plethron")))
     with open(os.path.join(out, "port.log"), "w") as log:
         subprocess.run([binary, os.environ["ROM"]], cwd=os.path.dirname(binary), env=env, stdout=log,
                        stderr=subprocess.STDOUT, timeout=int(os.environ.get("SCREEN_DIFF_TIMEOUT", "3600")))

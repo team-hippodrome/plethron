@@ -1,0 +1,97 @@
+name: Bug report
+description: Report a crash, a rendering or sound problem, a translation mistake, or a difference from the N64
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve plethron. If you can, reproduce the problem once, then start the game again, open
+        **Files & help** in the launcher and click **Export diagnostics**. Paste the report it writes (in the
+        `diagnostics` folder next to your save) below.
+
+        plethron is a preservation port: if something looks or sounds different from the N64 (or an emulator such as
+        ares), that is a bug too, unless it is one of the options (widescreen, translations, fonts, subtitles).
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Windows x64 release
+        - Windows arm64 release
+        - Windows local build
+        - Linux AppImage
+        - Linux local build
+        - Other (say which below)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "For example: 0.0.1 or a Git commit SHA"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: renderer
+    attributes:
+      label: Renderer
+      options:
+        - DirectX 11
+        - OpenGL
+        - Vulkan
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - にほんご (kana, as on the cartridge)
+        - Japanese with kanji
+        - English
+        - Spanish
+        - German
+        - Portuguese
+        - Korean
+        - French
+        - Italian
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: What you expected and what happened instead. For a translation, quote the text on screen and what it should say.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Which mode and screen (Free Battle, a Cup, GB Player, Lab, Pokédex...), and the Pokémon or move if it is in a battle.
+      placeholder: |
+        1. Start Free Battle with ...
+        2. Use ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostic_report
+    attributes:
+      label: Diagnostic report
+      description: The text from Files & help → Export diagnostics. It holds no ROM contents and its paths are redacted, but skim it before posting.
+      render: text
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots, video or other context
+      description: Drag files here if they help. Never upload a ROM, N64 or Game Boy. A save (.sra, .sav) can help reproduce a bug, but it carries your trainer and Pokémon names.

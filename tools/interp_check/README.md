@@ -1,7 +1,7 @@
 # Smooth motion checks
 
 Scripts used for the frame interpolator's design review (PORTING_NOTES.md, "Frame interpolation" > "Design review
-(2026-11)"). They run the game headless (hidden window) from `build/pokestadium` (or `PORT_BIN`) with the ROM in
+(2026-11)"). They run the game headless (hidden window) from `build/plethron` (or `PORT_BIN`) with the ROM in
 `PORT_ROM`, and need bash, a C compiler and ffmpeg.
 
 | script | what it does |

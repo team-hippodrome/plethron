@@ -1,5 +1,6 @@
-// Draws the macOS app icon (tools/macos/AppIcon.png): "Pokémon" in yellow with a blue outline over a red, black-outlined
-// "STADIUM" (both Superclarendon Black), on a blue sky with clouds. Lettering only, no game art.
+// Draws the macOS app icon (tools/macos/AppIcon.png): "Plethron" in yellow with a blue outline (Superclarendon Black),
+// on a blue sky with clouds. Lettering only, no game art. The committed icons are drawn by tools/make_plethron_icons.py
+// (Plethron Pop lettering, runs anywhere); this script is the macOS-only original.
 // Usage: swift tools/macos_icon.swift <output .png>
 //        swift tools/macos_icon.swift --android-background|--android-foreground <output .png>
 // The Android modes draw the two layers of the adaptive launcher icon (android/app/src/main/res, see
@@ -111,10 +112,8 @@ func word(_ text: String, font: String, cx: CGFloat, baseline: CGFloat, maxW: CG
 
 if drawLetters {
 ctx.setShadow(offset: CGSize(width: 0, height: -8), blur: 10, color: rgb(0x0A1A3A, 0.45))
-word("Pokémon", font: "Superclarendon-Black", cx: 512, baseline: 530, maxW: 600, targetH: 175, fill: rgb(0xFFCB05),
+word("Plethron", font: "Superclarendon-Black", cx: 512, baseline: 430, maxW: 720, targetH: 175, fill: rgb(0xFFCB05),
      strokes: [(rgb(0x1B2A55), 44), (rgb(0x2E5EB8), 28)])
-word("STADIUM", font: "Superclarendon-Black", cx: 512, baseline: 340, maxW: 620, targetH: 150, fill: rgb(0xE3350D),
-     strokes: [(rgb(0x0E0E10), 34)])
 }
 
 let rep = NSBitmapImageRep(cgImage: ctx.makeImage()!)
