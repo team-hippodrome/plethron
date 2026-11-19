@@ -27,7 +27,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPLAYS = os.path.join(ROOT, "replays")
 BUILD = os.path.join(ROOT, "build")
 OUT = os.path.join(BUILD, "replays")
-PORT_BIN = os.path.join(BUILD, "pokestadium.exe" if os.name == "nt" else "pokestadium")
+PORT_BIN = os.path.join(BUILD, "plethron.exe" if os.name == "nt" else "plethron")
 BACKEND = None
 REFERENCE_DIR = None
 SHADER_CAPTURE = False

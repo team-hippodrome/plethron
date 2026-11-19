@@ -26,7 +26,7 @@ HERE = os.path.abspath(_opt("--out", os.path.join(WT, "build", "widescreen_revie
 ROM = _opt("--rom", os.environ.get("PORT_ROM", os.path.expanduser("~/Downloads/romis/Pokemon Stadium (USA).z64")))
 GBROM = _opt("--gb-rom", os.path.join(WT, "gb", "yellow_de.gb"))
 FIX = _opt("--fixtures", "")
-BIN = os.path.join(WT, "build", "pokestadium.exe" if os.name == "nt" else "pokestadium")
+BIN = os.path.join(WT, "build", "plethron.exe" if os.name == "nt" else "plethron")
 
 CASES = [
     dict(id="battle_hud_slide_in", title="Battle HUD slides in",

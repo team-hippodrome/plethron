@@ -34,7 +34,7 @@ Environment for the runs (the ROMs are yours and stay out of the repository):
 | `ZERO_SAVES` | directory with `gb_unlocked.sra` (`gb_frames_speed`) |
 | `GB_ROM_GREENDEX`, `GB_SAV_GREENDEX` | the same Green `.gb` and `saves/green_dex.sav` (route `pokedex`) |
 | `GB_SAV_GREEN_LAB` | `saves/green_lab.sav` (routes `party`, `list`, `organize`, `register`: `@gb green lab`) |
-| `PORT_BIN` | default `build/pokestadium` |
+| `PORT_BIN` | default `build/plethron` |
 
 On Linux without a display, start `Xvfb :99` and set `DISPLAY=:99` (the port's window is hidden but still needs one).
 

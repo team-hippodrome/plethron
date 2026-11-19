@@ -53,7 +53,7 @@ jobs:
           mkdir -p dist
           for dir in artifacts/*/; do
             name=$(basename "$dir")
-            out=${name/pokestadium/plethron} # pokestadium-windows-x64 -> plethron-windows-x64-v<version>.zip
+            out=$name # e.g. plethron-windows-x64 -> plethron-windows-x64-v<version>.zip
             if [ -n "$(find "$dir" -maxdepth 1 -name '*.AppImage')" ]; then
               # Linux: the AppImage on its own (made executable after download: chmod +x)
               cp "$dir"/*.AppImage "dist/${out%-x64}-x86_64-v${VERSION}.AppImage"

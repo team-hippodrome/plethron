@@ -72,7 +72,7 @@ int main() {
     def test_sandboxed_launcher_uses_its_writable_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            files = root / 'Android/data/com.teamhippodrome.pokestadium/files'
+            files = root / 'Android/data/com.teamhippodrome.plethron/files'
             result = self.resolve(base=root / 'readonly/apk/lib/arm64', sandbox=files)
             self.assertEqual(Path(result.stdout), files)
             result = self.resolve(sandbox=root / 'iOS/Documents')

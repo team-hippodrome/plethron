@@ -55,7 +55,7 @@ WINDOW = (6, 40)  # ares frames kept around each checkpoint (compare.py picks th
 
 
 def port_bin():
-    return os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "pokestadium")))
+    return os.path.abspath(os.environ.get("PORT_BIN", os.path.join(ROOT, "build", "plethron")))
 
 
 # ---- data ----------------------------------------------------------------------------------------------------------

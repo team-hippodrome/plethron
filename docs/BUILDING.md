@@ -1,4 +1,4 @@
-# Building stadion
+# Building plethron
 
 [Back to the README](../README.md)
 
@@ -7,8 +7,8 @@ Use Clang (AppleClang on macOS, llvm-mingw for the Windows cross-build below), C
 Clone the repository and prepare its submodules before following the instructions for your platform:
 
 ```bash
-git clone https://github.com/team-hippodrome/stadion.git
-cd stadion
+git clone https://github.com/team-hippodrome/plethron.git
+cd plethron
 ```
 
 ```bash
@@ -21,7 +21,7 @@ tools/setup.sh                      # submodule (libultraship); the game is vend
 brew install cmake ninja sdl3 glew libzip nlohmann-json tinyxml2 spdlog
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
 cmake --build build
-python3 tools/make_macos_bundle.py build stadion.app "<version>"   # optional: self-contained app
+python3 tools/make_macos_bundle.py build Plethron.app "<version>"   # optional: self-contained app
 ```
 
 `tools/make_macos_bundle.py` bundles the executable and its Homebrew libraries into a double-clickable app.
@@ -41,7 +41,7 @@ AppImage is built differently, so that it runs on other distributions too (see t
 `.github/workflows/build.yml`): on Ubuntu 24.04, with SDL3 built from source and libzip, spdlog, tinyxml2 and
 nlohmann-json from vcpkg (`x64-linux`), linked statically along with the C++ runtime
 (`-DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc"`), then packed by
-`python3 tools/make_appimage.py build pokestadium.AppImage <version> <path to appimagetool>`. See the packaging script for its shared-library allowlist.
+`python3 tools/make_appimage.py build plethron.AppImage <version> <path to appimagetool>`. See the packaging script for its shared-library allowlist.
 
 **Windows** (cross-compiled from Linux with [llvm-mingw](https://github.com/mstorsjo/llvm-mingw), as the CI does; its
 `bin` directory on `PATH`, vcpkg in `$VCPKG_ROOT`):
@@ -58,9 +58,9 @@ For Windows on ARM: export `MINGW_TRIPLE=aarch64-w64-mingw32` and the `arm64-min
 `bin` on `PATH` for the vcpkg install too, or vcpkg may build glslang with a GCC mingw that does not link). SDL3 needs
 its `vulkan` feature (vcpkg leaves it out by default) for the Vulkan renderer. Keep the build type: without one,
 vcpkg's debug libraries are linked, and the debug SDL3 stops DirectX 11 at startup with an assertion dialog
-(`SDL_IsMainThread` in `SDL_PumpEventsInternal`). `pokestadium.exe` is a
+(`SDL_IsMainThread` in `SDL_PumpEventsInternal`). `plethron.exe` is a
 window-only program (no console window; set `PORT_CONSOLE=1` to open one) with the icon and version information of
-`src/port/pokestadium.rc.in`.
+`src/port/plethron.rc.in`.
 
 **Android** (64-bit ARM, Android 10 or newer; tested target: AYN Thor). Needs JDK 17 or 21, the Android SDK with NDK
 29.0.14206865, platform 36 and build-tools 36 (`sdkmanager "platforms;android-36" "build-tools;36.0.0"
@@ -74,7 +74,7 @@ adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
 The app is `android/` (SDL's Java activity, from the SDL version libultraship fetches) around the game built from
 `CMakeLists.txt` as `libmain.so`, with the OpenGL ES 3 renderer. Config, logs and saves live in the app's folder,
-`/sdcard/Android/data/com.teamhippodrome.pokestadium/files`; files picked in the launcher (ROMs, saves) are copied into
+`/sdcard/Android/data/com.teamhippodrome.plethron/files`; files picked in the launcher (ROMs, saves) are copied into
 its `imported/` folder, since Android's file picker hands out content links rather than paths.
 
 The version (Windows file version, AppImage, `Info.plist`) is the `project()` version in `CMakeLists.txt` unless

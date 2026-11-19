@@ -1,7 +1,7 @@
 // Launcher shown inside the game window when the port is started without a ROM argument (macOS, Linux, Windows). Same
 // design as the macOS app's launcher (tools/launcher/Launcher.swift): four player cards with the Game Boy cartridge
 // of each Transfer Pak (picture, game, trainer from the save, save file) and a bar with the Stadium ROM, its save and
-// PLAY. The choices are remembered in pokestadium.cfg.json and passed to the game the way the command line does
+// PLAY. The choices are remembered in plethron.cfg.json and passed to the game the way the command line does
 // (PORT_SRAM_FILE, PORT_GB_ROM*, PORT_GB_SAVE*). Auto-play skips it next time (hold Shift while starting to see it
 // again); Debug adds a button that opens the save editor (save_editor/save_editor_ui.cpp, built in: it takes the
 // launcher's place until it is closed; on the handheld layout it is under Files & help). Controls
@@ -9,7 +9,7 @@
 // Renderer picks libultraship's window backend (Window.Backend.Id); it applies the next time the game starts.
 // Graphics swaps the player cards for the drawing settings (resolution scale, anti-aliasing, VSync, Smooth motion,
 // frame skipping when the graphics chip falls behind), with a preset for slow ones such as an Intel HD 520; they apply
-// at once and are kept in pokestadium.cfg.json.
+// at once and are kept in plethron.cfg.json.
 // Android (or PORT_LAUNCHER_HANDHELD=1) shows a handheld layout instead: the Stadium cartridge and a big PLAY, the
 // Transfer Pak cards and the controls on pages of their own, everything reachable with the gamepad (D-pad or stick
 // moves the focus, A presses, B goes back) as well as by touch.
@@ -692,7 +692,7 @@ void LoadFonts() {
 }
 
 
-// the N64 and app pictures (tools/launcher/assets, packed into pokestadium.o2r); Game Boy cartridges are drawn by
+// the N64 and app pictures (tools/launcher/assets, packed into plethron.o2r); Game Boy cartridges are drawn by
 // Cartridge() from the ROM
 ImTextureID Picture(Fast::Fast3dGui* gui, const char* name) {
     if (gui == nullptr) {
@@ -709,7 +709,7 @@ ImTextureID Picture(Fast::Fast3dGui* gui, const char* name) {
     return gui->GetTextureByName(key);
 }
 
-// ---- controls: libultraship's ControlDeck mappings (gControllers.* in pokestadium.cfg.json) --------------------------
+// ---- controls: libultraship's ControlDeck mappings (gControllers.* in plethron.cfg.json) --------------------------
 
 // one N64 input: a button, or a direction of the stick (button == 0)
 struct Input {
@@ -2121,7 +2121,7 @@ class LauncherWindow : public Ship::GuiWindow {
         const float cx = 24, cy = 66, cw = 440, ch = 426;
         dl->AddRectFilled(P(cx, cy), P(cx + cw, cy + ch), Hex(Theme::card), 10 * mScale);
         dl->AddRect(P(cx, cy), P(cx + cw, cy + ch), Hex(Theme::cardBorder), 10 * mScale);
-        Image("pokestadium", cx + (cw - 190) / 2, cy + 20, 190, 190);
+        Image("plethron", cx + (cw - 190) / 2, cy + 20, 190, 190);
         std::string romError = CheckRom(s.rom);
         Text(cx + 24, cy + 228, romError.empty() ? "Pocket Monsters Stadium (Japan)" : (s.rom.empty() ? "No Stadium ROM" : FileName(s.rom)),
              gFonts.title);

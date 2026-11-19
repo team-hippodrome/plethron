@@ -1,13 +1,13 @@
 #!/bin/bash
-# Builds "Pokemon Stadium.app" (a double-clickable macOS launcher for the port) in the project folder.
+# Builds "Plethron.app" (a double-clickable macOS launcher for the port) in the project folder.
 # Usage: tools/make_app.sh [title screenshot .png for the icon]
 # The app opens a launcher (styled after PokemonStadiumRecomp's): the Stadium ROM + save and a Game Boy cartridge + save
 # per player's Transfer Pak, remembered in the shared JSON config; PLAY starts
-# build/pokestadium. Auto-play skips the launcher next time (hold Option while opening the app to see it again).
+# build/plethron. Auto-play skips the launcher next time (hold Option while opening the app to see it again).
 # Config and saves live beside the .app (or in SHIP_HOME); the last run's log is saves/last_run.log.
 set -e
 HERE="$(cd "$(dirname "$0")/.." && pwd)"
-APP="$HERE/Pokemon Stadium.app"
+APP="$HERE/Plethron.app"
 ICON_SRC="${1:-$HERE/build/tour/r3_menus/00_title.png}"
 
 rm -rf "$APP"
@@ -18,8 +18,8 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleName</key><string>Pokemon Stadium</string>
-    <key>CFBundleDisplayName</key><string>Pokémon Stadium</string>
+    <key>CFBundleName</key><string>Plethron</string>
+    <key>CFBundleDisplayName</key><string>Plethron</string>
     <key>CFBundleIdentifier</key><string>local.pokestadium-port.launcher</string>
     <key>CFBundleVersion</key><string>1.0</string>
     <key>CFBundleShortVersionString</key><string>1.0</string>

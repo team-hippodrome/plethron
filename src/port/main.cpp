@@ -73,8 +73,8 @@ static bool RestartWindowsLauncher() {
     return true;
 }
 
-// pokestadium.exe is a window-only program (no console window of its own); stdout/stderr (logs, crash reports) still
-// reach a console when there is one. Output redirected to a file or pipe (pokestadium.exe 2> log.txt) is kept as is;
+// plethron.exe is a window-only program (no console window of its own); stdout/stderr (logs, crash reports) still
+// reach a console when there is one. Output redirected to a file or pipe (plethron.exe 2> log.txt) is kept as is;
 // otherwise the program writes to the console of the shell it was started from, or to a console of its own with
 // PORT_CONSOLE=1.
 static void AttachToConsole() {
@@ -194,7 +194,7 @@ static void InstallSignalHandlers() {
 }
 
 #if defined(__ANDROID__)
-// Android drops stdout/stderr: forward them, line by line, to the system log (adb logcat -s pokestadium), so the port's
+// Android drops stdout/stderr: forward them, line by line, to the system log (adb logcat -s plethron), so the port's
 // messages and the crash handler's stack (written straight to fd 2) can be read
 static void ForwardStdioToLogcat() {
     static int pipeFds[2];
@@ -212,7 +212,7 @@ static void ForwardStdioToLogcat() {
         while ((n = read(pipeFds[0], buf, sizeof buf)) > 0) {
             for (ssize_t i = 0; i < n; i++) {
                 if (buf[i] == '\n') {
-                    __android_log_write(ANDROID_LOG_INFO, "pokestadium", line.c_str());
+                    __android_log_write(ANDROID_LOG_INFO, "plethron", line.c_str());
                     line.clear();
                 } else {
                     line += buf[i];
@@ -224,7 +224,7 @@ static void ForwardStdioToLogcat() {
 
 // Android apps get no environment from a shell: the debug switches (PORT_TRACE_PACING and the like) come from
 // port_env.txt in the app's folder instead, one NAME=VALUE per line (adb push it to
-// /sdcard/Android/data/com.teamhippodrome.pokestadium/files/). Read before anything checks them.
+// /sdcard/Android/data/com.teamhippodrome.plethron/files/). Read before anything checks them.
 static void LoadEnvFile() {
     const char* dir = SDL_GetAndroidExternalStoragePath();
     if (dir == nullptr) {
@@ -358,7 +358,7 @@ static int RunGame(int argc, char** argv) {
         std::string requested = "Unknown";
         if (diagnostics) {
             try {
-                std::ifstream config(directory / "pokestadium.cfg.json");
+                std::ifstream config(directory / "plethron.cfg.json");
                 const auto json = nlohmann::json::parse(config);
                 const auto windowId = json.value("Window", nlohmann::json::object()).value("Backend", nlohmann::json::object()).value("Id", 0);
                 const auto id = json.value("CVars", nlohmann::json::object()).value("gLauncher", nlohmann::json::object()).value("Renderer", windowId);
@@ -372,13 +372,13 @@ static int RunGame(int argc, char** argv) {
         printf("%s\n", path.c_str()); return 0;
     }
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
-        printf("Pokemon Stadium [ROM.z64]\n--launcher: bypass Auto-play\n--safe-mode: bypass Auto-play and select OpenGL (Metal on macOS)\nLauncher Files & help: check setup, open folders, export saves and diagnostics.\n");
+        printf("plethron [ROM.z64]\n--launcher: bypass Auto-play\n--safe-mode: bypass Auto-play and select OpenGL (Metal on macOS)\nLauncher Files & help: check setup, open folders, export saves and diagnostics.\n");
         return 0;
     }
     // The legacy macOS frontend shares the native cartridge-save importer instead of maintaining another format reader.
     if (argc > 1 && strcmp(argv[1], "--import-stadium-save") == 0) {
         if (argc != 3) {
-            fprintf(stderr, "Usage: pokestadium --import-stadium-save <raw 32 KiB SRAM save (.sra)>\n");
+            fprintf(stderr, "Usage: plethron --import-stadium-save <raw 32 KiB SRAM save (.sra)>\n");
             return 1;
         }
         std::string imported, error;
@@ -393,7 +393,7 @@ static int RunGame(int argc, char** argv) {
     // The port tells N64 addresses (below 4 GB) from host pointers; keep host allocations above 4 GB (Windows).
     Port_ReserveLowAddressSpace();
     Port_AltSignalStack();
-    // Battle boot (src/port/xcheck.cpp): `pokestadium <rom> --battle <case file> [--frames <dir>] [--every <n>]
+    // Battle boot (src/port/xcheck.cpp): `plethron <rom> --battle <case file> [--frames <dir>] [--every <n>]
     // [--res <WxH>] [--max-frames <n>]` starts the battle engine directly; the options set the PORT_BATTLE_* variables.
     for (int i = 2; i + 1 < argc; i += 2) {
         const char* key = nullptr;
@@ -433,7 +433,7 @@ static int RunGame(int argc, char** argv) {
     if (!romPath.empty() && !RomIsOriginal(romPath)) {
         return 1;
     }
-    // `pokestadium <rom> --text-selftest`: checks the translation tables' id, address and md5 lookups, then exits.
+    // `plethron <rom> --text-selftest`: checks the translation tables' id, address and md5 lookups, then exits.
     if (argc > 2 && strcmp(argv[2], "--text-selftest") == 0) {
         return Port_Text_SelfTest();
     }
@@ -451,7 +451,7 @@ static int RunGame(int argc, char** argv) {
         }
         std::ofstream marker(recovery); marker << "graphics\n";
     }
-    const auto configPath = std::filesystem::u8path(Port::AppPath("pokestadium.cfg.json"));
+    const auto configPath = std::filesystem::u8path(Port::AppPath("plethron.cfg.json"));
     if (std::filesystem::is_regular_file(configPath)) {
         if (getenv("PORT_SAFE_MODE") != nullptr) {
             // Recovery changes only graphics/Auto-play, and keeps an untouched copy of the original JSON.
@@ -488,7 +488,7 @@ static int RunGame(int argc, char** argv) {
                     fflush(nullptr);
                     _exit(0);
                 }
-                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Could not restart Pokémon Stadium", SDL_GetError(), nullptr);
+                SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Could not restart Plethron", SDL_GetError(), nullptr);
             }
 #endif
         } while (restart);
