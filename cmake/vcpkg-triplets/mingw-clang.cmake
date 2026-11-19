@@ -1,0 +1,33 @@
+# Chainload toolchain of the overlay *-mingw-static triplets: pins the compilers to llvm-mingw's clang wrappers
+# (clang + lld + libc++), then hands over to vcpkg's own MinGW toolchain, whose find_program() calls keep them.
+if(VCPKG_TARGET_ARCHITECTURE STREQUAL "arm64")
+  set(_plethron_triple aarch64-w64-mingw32)
+else()
+  set(_plethron_triple x86_64-w64-mingw32)
+endif()
+find_program(CMAKE_C_COMPILER ${_plethron_triple}-clang)
+find_program(CMAKE_CXX_COMPILER ${_plethron_triple}-clang++)
+if(NOT CMAKE_C_COMPILER OR NOT CMAKE_CXX_COMPILER)
+  message(FATAL_ERROR "${_plethron_triple}-clang not found on PATH. Put llvm-mingw's bin folder on PATH "
+    "(https://github.com/mstorsjo/llvm-mingw) before running vcpkg; see docs/BUILDING.md.")
+endif()
+find_program(CMAKE_RC_COMPILER ${_plethron_triple}-windres)
+
+# vcpkg runs this file through its buildsystems/vcpkg.cmake, so its MinGW toolchain is next to that.
+set(_plethron_vcpkg_mingw "")
+foreach(_root IN ITEMS "${_VCPKG_ROOT_DIR}" "${Z_VCPKG_ROOT_DIR}" "$ENV{VCPKG_ROOT}")
+  if(_root AND EXISTS "${_root}/scripts/toolchains/mingw.cmake")
+    set(_plethron_vcpkg_mingw "${_root}/scripts/toolchains/mingw.cmake")
+    break()
+  endif()
+endforeach()
+if(NOT _plethron_vcpkg_mingw AND CMAKE_TOOLCHAIN_FILE)
+  get_filename_component(_tc_dir "${CMAKE_TOOLCHAIN_FILE}" DIRECTORY)
+  if(EXISTS "${_tc_dir}/../toolchains/mingw.cmake")
+    set(_plethron_vcpkg_mingw "${_tc_dir}/../toolchains/mingw.cmake")
+  endif()
+endif()
+if(NOT _plethron_vcpkg_mingw)
+  message(FATAL_ERROR "vcpkg's scripts/toolchains/mingw.cmake not found (set VCPKG_ROOT).")
+endif()
+include("${_plethron_vcpkg_mingw}")

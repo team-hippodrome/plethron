@@ -141,7 +141,7 @@ jobs:
       - name: Dependencies (vcpkg)
         run: |
           "$VCPKG_INSTALLATION_ROOT/vcpkg" install "sdl3[core,vulkan]" glew libzip nlohmann-json tinyxml2 spdlog zlib bzip2 glslang \
-            --triplet ${{ matrix.vcpkg }} --host-triplet x64-linux
+            --triplet ${{ matrix.vcpkg }} --host-triplet x64-linux --overlay-triplets="$PWD/cmake/vcpkg-triplets"
       - name: Build
         run: |
           VERSION=${INPUT_VERSION#v}; VERSION=${VERSION:-$(grep -oE 'project\([A-Za-z]+ VERSION [0-9.]+' CMakeLists.txt | grep -oE '[0-9.]+$')}
