@@ -912,6 +912,34 @@ extern char D_82195A94[];
 extern char D_82195A9C[];
 size_t HAL_Strcmp(char* dest, char* src); // PORT: signature from the definition (hal_libc.c)
 
+// PORT: the staff roll splits each name at its space (family | given) and prints the halves on either side of a gap
+// at x - 12 .. x - 6, so neither half is a row of the tables and the kana stayed. In a translated language a name
+// line's whole row is looked up instead (CREDITS_*: given name first in the Latin languages, family name first in
+// Korean; tools/text/credits_names.py) and split at its first space the same way: the first part ends at the gap,
+// the rest starts after it. Returns 0 to let the original code draw the line (headings, the original language,
+// Japanese with kanji, which keeps the kana names).
+static s32 Port_BattleText_DrawTranslatedName(s8* str, u8 color, s16 x, s32 ty) {
+    char head[0x80];
+    const char* utf8;
+    const char* sp;
+    size_t n;
+
+    if (color == 1 || Port_Text_GetLanguage() == PORT_LANG_ORIGINAL || strchr((const char*)str, ' ') == NULL) {
+        return 0;
+    }
+    utf8 = Port_Text_Lookup((const char*)str);
+    if (utf8 == NULL || (sp = strchr(utf8, ' ')) == NULL || (n = (size_t)(sp - utf8)) >= sizeof(head)) {
+        return 0;
+    }
+    memcpy(head, utf8, n);
+    head[n] = 0;
+    Font_SetActive(2, -1);
+    Port_Font_PrintUtf8(x - 12 - Port_Font_MeasureUtf8(head), ty, head);
+    Font_SetActive(2, -1);
+    Port_Font_PrintUtf8(x - 6, ty, sp + 1);
+    return 1;
+}
+
 /**
  * Draws the battle text box at its stored position, fading it in (or out) by 10 a frame and
  * drawing its lines.
@@ -981,7 +1009,9 @@ void BattleText_DrawTextBox(void) {
         c = (Rgb8211CC8C*)D_8218B124;
         c += (D_82189D8C[i].color << 1) + 1;
         Gfx_SetPrimColor(c->r, c->g, c->b, D_8219A4F0[2]);
-        if ((BattleText_SplitAtFirstSpace(D_82189D8C[i].str) == 0) || (D_82189D8C[i].color == 1)) {
+        if (Port_BattleText_DrawTranslatedName(D_82189D8C[i].str, D_82189D8C[i].color, x, ty)) {
+            // PORT: drawn translated (a staff name in the translated languages)
+        } else if ((BattleText_SplitAtFirstSpace(D_82189D8C[i].str) == 0) || (D_82189D8C[i].color == 1)) {
             len = strlen(D_82189D8C[i].str) >> 1;
             Font_SetActive(2, -1);
             Font_Printf(x - len * 6 - 6, ty, D_82189D8C[i].str);
