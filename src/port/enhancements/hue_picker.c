@@ -2,8 +2,9 @@
 // <save>.hue beside the N64 save (hippodrome/hue_choice.h). Zero normally derives a nicknamed Pokémon's hue from the
 // bytes of its nickname (Model_ComputeNicknameColorVariant); with the enhancement on, a stored choice replaces that
 // wherever the game builds the Pokémon's model or icon (party screens, menus, battle, the summary bars' cards). The
-// picker is on the てもち summary pages, under the turning model: the D-pad's Left / Right step the hue round the
-// colour wheel (the original colours included), Z goes back to the game's own hue. Compiled with the game code.
+// picker is on the entry screen (エントリーポケモンのせんたく), where Zero's player picks a party or rentals: on any
+// Pokémon card there (a rental's, or the card Z opens for a party row), L / R step the hue round the colour wheel (the
+// original colours included) and Z goes back to the game's own hue. Compiled with the game code.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,13 +21,8 @@
 #include <hippodrome/hue_choice.h>
 #include <hippodrome/trainer_memory.h> // enum hu_game
 
-extern struct Controller* D_800603C0; // gPlayer1Controller
 void Audio_PlaySystemSound(s32 id);
 arg1_func_80010CA8* Model_ComputeNicknameColorVariant(arg1_func_80010CA8* arg0, BattleMon* arg1); // model_renderer.c
-
-#define HP_BTN_Z 0x2000
-#define HP_BTN_DLEFT 0x0200
-#define HP_BTN_DRIGHT 0x0100
 
 // The fields that make a Pokémon itself, in this order: the game, its species, its original trainer (id and name),
 // its nickname and its DVs. Experience, level, moves and HP change as it grows, so they stay out.
@@ -81,30 +77,28 @@ static s16 GameShift(BattleMon* mon) {
     return v.hueShift;
 }
 
-s32 PortEnh_HuePickerUpdate(BattleMon* mon) {
-    u16 pressed;
+s32 PortEnh_HuePickerInput(BattleMon* mon, u16 pressed, u16 back, u16 forward, u16 reset) {
     hu_hue_store* store;
     hu_hue_id id;
     s16 now;
     s16 next;
 
-    if (mon == NULL || mon->species.id == 0 || !Port_Enh_HueChoiceEnabled() || D_800603C0 == NULL) {
+    if (mon == NULL || mon->species.id == 0 || !Port_Enh_HueChoiceEnabled()) {
         return 0;
     }
-    pressed = D_800603C0->buttonPressed;
-    if (!(pressed & (HP_BTN_DLEFT | HP_BTN_DRIGHT | HP_BTN_Z))) {
+    if (!(pressed & (back | forward | reset))) {
         return 0;
     }
     store = Port_Enh_Hues();
     id = HueId(mon);
     now = hu_hue_resolve(store, id, GameShift(mon));
-    if (pressed & HP_BTN_Z) {
+    if (pressed & reset) {
         if (!hu_hue_get(store, id, NULL)) {
             return 0; // already the game's own
         }
         hu_hue_unset(store, id);
     } else {
-        next = hu_hue_step(now, (pressed & HP_BTN_DRIGHT) ? 1 : -1);
+        next = hu_hue_step(now, (pressed & forward) ? 1 : -1);
         hu_hue_set(store, id, next);
     }
     Audio_PlaySystemSound(2);
@@ -119,26 +113,15 @@ static const char* Str(const char* id, const char* kana, const char* en) {
     return (Port_Text_GetLanguage() == PORT_LANG_ORIGINAL) ? kana : en;
 }
 
-// A small solid triangle pointing left (dir -1) or right (+1), `h` pixels tall, from rectangles.
-static void Arrow(f32 x, f32 y, f32 h, s32 dir, u8 a) {
-    s32 rows = (s32)(h * 2.0f);
-    s32 i;
-    for (i = 0; i < rows; i++) {
-        f32 t = (f32)i / (f32)(rows - 1);       // 0 top .. 1 bottom
-        f32 w = (h * 0.5f) * (1.0f - (t > 0.5f ? (t - 0.5f) * 2.0f : (0.5f - t) * 2.0f));
-        f32 rx = (dir < 0) ? x + (h * 0.5f) - w : x;
-        Enh_Rect(rx, y + i * 0.5f, w, 0.5f, 0xFF, 0xFF, 0xFF, a);
-    }
-}
-
 void PortEnh_HuePickerDraw(s32 x, s32 y, s32 w, BattleMon* mon) {
     char buf[96];
+    char line[160];
     const char* value;
     hu_hue_store* store;
     hu_hue_id id;
     s16 shift;
     s32 chosen;
-    f32 bx, by, bw, bh, tw;
+    f32 bx, by, bw, bh, tw, size, keyw;
 
     if (mon == NULL || mon->species.id == 0 || !Port_Enh_HueChoiceEnabled()) {
         return;
@@ -161,27 +144,45 @@ void PortEnh_HuePickerDraw(s32 x, s32 y, s32 w, BattleMon* mon) {
                  Str("PORT_HUE_NICKNAME", "ニックネーム", "Nickname"));
     }
 
-    bh = 26.0f;
-    bw = (f32)w - 16.0f;
-    bx = (f32)x + 8.0f;
-    by = (f32)y - bh - 6.0f;
+    // the bar sits on the bottom edge of the model's panel: L and R at its ends step the hue
+    size = (w < 200) ? 11.0f : 16.0f;
+    bh = size + 8.0f;
+    bw = (f32)w - 4.0f;
+    bx = (f32)x + 2.0f;
+    by = (f32)y - bh - 2.0f;
+    keyw = size + 4.0f;
     Enh_Begin();
-    Enh_Rect(bx, by, bw, bh, 0x00, 0x00, 0x00, 0x90);
-    Arrow(bx + 6.0f, by + 6.0f, 14.0f, -1, 0xFF);
-    Arrow(bx + bw - 13.0f, by + 6.0f, 14.0f, 1, 0xFF);
-    {
-        const char* label = Str("PORT_HUE_LABEL", "いろ", "Color");
-        char line[160];
-        snprintf(line, sizeof line, "%s: %s", label, buf);
-        tw = Enh_TextWidth(16.0f, line);
-        if (tw > bw - 40.0f) tw = bw - 40.0f;
-        Enh_Text(bx + (bw - tw) * 0.5f, by + 5.0f, 16.0f, bw - 40.0f, line, 0xFF, 0xFF, 0xFF, 0xFF);
-    }
+    Enh_Rect(bx, by, bw, bh, 0x00, 0x00, 0x00, 0xA0);
+    Enh_Rect(bx + 2.0f, by + 2.0f, keyw, bh - 4.0f, 0xFF, 0xFF, 0xFF, 0x40);
+    Enh_Rect(bx + bw - keyw - 2.0f, by + 2.0f, keyw, bh - 4.0f, 0xFF, 0xFF, 0xFF, 0x40);
+    Enh_Text(bx + 2.0f + (keyw - Enh_TextWidth(size, "L")) * 0.5f, by + 4.0f, size, 0.0f, "L", 0xFF, 0xFF, 0xFF, 0xFF);
+    Enh_Text(bx + bw - keyw - 2.0f + (keyw - Enh_TextWidth(size, "R")) * 0.5f, by + 4.0f, size, 0.0f, "R", 0xFF, 0xFF,
+             0xFF, 0xFF);
+    snprintf(line, sizeof line, "%s: %s", Str("PORT_HUE_LABEL", "いろ", "Color"), buf);
+    tw = Enh_TextWidth(size, line);
+    if (tw > bw - 2.0f * keyw - 8.0f) tw = bw - 2.0f * keyw - 8.0f;
+    Enh_Text(bx + (bw - tw) * 0.5f, by + 4.0f, size, bw - 2.0f * keyw - 8.0f, line, 0xFF, 0xFF, 0xFF, 0xFF);
     if (chosen) {
         const char* reset = Str("PORT_HUE_RESET", "Z：もとにもどす", "Z: Reset");
-        tw = Enh_TextWidth(14.0f, reset);
-        Enh_Rect(bx + bw - tw - 10.0f, by - 21.0f, tw + 10.0f, 19.0f, 0x00, 0x00, 0x00, 0x90);
-        Enh_Text(bx + bw - tw - 5.0f, by - 19.0f, 14.0f, 0.0f, reset, 0xFF, 0xFF, 0xFF, 0xFF);
+        f32 rs = size - 1.0f;
+        tw = Enh_TextWidth(rs, reset);
+        if (tw > bw - 8.0f) tw = bw - 8.0f;
+        Enh_Rect(bx + bw - tw - 8.0f, by - rs - 6.0f, tw + 8.0f, rs + 5.0f, 0x00, 0x00, 0x00, 0xA0);
+        Enh_Text(bx + bw - tw - 4.0f, by - rs - 4.0f, rs, bw - 8.0f, reset, 0xFF, 0xFF, 0xFF, 0xFF);
     }
+    Enh_End();
+}
+
+// The bottom strip of the colour card the entry screen opens with Z: what the buttons do there.
+void PortEnh_HueCardHint(s32 x, s32 y, s32 w, s32 h, s32 party) {
+    const char* hint = party ? Str("PORT_HUE_CARD_PARTY", "じゅうじキー：ポケモン　L・R：いろ　B：もどる",
+                                   "D-Pad: Pokémon  L/R: Color  B: Back")
+                             : Str("PORT_HUE_CARD", "L・R：いろ　B：もどる", "L/R: Color  B: Back");
+    f32 size = 16.0f;
+    f32 tw = Enh_TextWidth(size, hint);
+    if (tw > (f32)w - 16.0f) tw = (f32)w - 16.0f;
+    Enh_Begin();
+    Enh_Rect((f32)x, (f32)y, (f32)w, (f32)h, 0x10, 0x18, 0x40, 0xFF);
+    Enh_Text((f32)x + 8.0f, (f32)y + ((f32)h - size) * 0.5f, size, (f32)w - 16.0f, hint, 0xFF, 0xFF, 0xFF, 0xFF);
     Enh_End();
 }

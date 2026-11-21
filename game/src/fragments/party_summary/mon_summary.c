@@ -13,7 +13,6 @@
 #include "pokemon_stats.h"
 #include "ui_graphics.h"
 #include "unicode_font.h" // PORT: Port_Font_FitNext
-#include "battle_enhancements.h" // PORT: hue choice enhancement
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void Window_SetRect(s32* arg0, s32 x, s32 y, s32 w, s32 h);
@@ -194,7 +193,6 @@ void MonSummary_DrawModelPreview(s32 x, s32 y, BattleMon* mon) { // PORT: mon ty
         tex += n << 9;
     }
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
-    PortEnh_HuePickerDraw(x, y + 210, 244, mon); // PORT: hue choice enhancement: the hue under the model
 }
 
 
@@ -506,16 +504,6 @@ void Save_DrawReportingWindow(s8*);
 s32 PartyScreen_UpdateActionMenu(PartyActionMenuWindow*);
 void PartyScreen_InitActionMenu(PartyActionMenuWindow* window, s32 x, s32 y, u8* mon);
 void PartyScreen_WriteParty(PointerList* mon_list, PartyScreen* screen); // PORT: matches the definition
-// PORT: the hue choice enhancement's picker on the summary pages: a new hue reloads the turning model and the list's icon
-static s32 PortEnh_HuePickerSummary(PartyScreen* screen) {
-    if (!PortEnh_HuePickerUpdate(screen->summaryWindow.mon)) {
-        return 0;
-    }
-    screen->summaryWindow.modelLoaded = 0;
-    PokeIcon_SetMonSlot((PokeIconRenderer*)sPartyIconList, screen->listWindow.menu.cursor, screen->summaryWindow.mon, 0);
-    return 1;
-}
-
 /**
  * Runs the てもち screen's state machine for one frame. Returns 1 when the screen is done.
  * Seen in play (2026-11-14): list, action menu, stats page, moves page, ならびかえ and the save prompt
@@ -624,9 +612,6 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             }
             break;
         case 4:
-            if (PortEnh_HuePickerSummary(arg0)) { // PORT: hue choice enhancement (D-pad Left / Right, Z)
-                break;
-            }
             res = func_8002BC14(D_800603C0);
             if (res == -1) {
                 Audio_PlaySystemSound(3);
@@ -639,9 +624,6 @@ M2C_UNK PartyScreen_Update(PartyScreen* ctx) {
             }
             break;
         case 5:
-            if (PortEnh_HuePickerSummary(arg0)) { // PORT: hue choice enhancement (D-pad Left / Right, Z)
-                break;
-            }
             if (MonSummary_UpdateMoveCursor(&arg0->summaryWindow) == 0) {
                 res = func_8002BC14(D_800603C0);
                 if (res == -1) {

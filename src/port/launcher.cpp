@@ -1774,9 +1774,9 @@ class LauncherWindow : public Ship::GuiWindow {
                 Port_Enh_TrainerMemoryEnabled() != 0);
         if (c >= 0) Port_Enh_SetTrainerMemoryEnabled(c == 0);
         c = row("Hue choice", "hue",
-                "Pick each Pokémon's colours: Left / Right on the Control Pad on the party screen's\n"
-                "summary (under the model), Z for the game's own (from the nickname). Kept in a\n"
-                "file beside the save and used everywhere the Pokémon is shown.",
+                "Pick each Pokémon's colours on the entry screen (party and rental select): L / R on\n"
+                "a Pokémon's card (Z opens one on a party row or a rental), Z for the game's own.\n"
+                "Kept in a file beside the save and used everywhere the Pokémon is shown.",
                 Port_Enh_HueChoiceEnabled() != 0);
         if (c >= 0) Port_Enh_SetHueChoiceEnabled(c == 0);
         c = row("Move descriptions", "movedesc",
