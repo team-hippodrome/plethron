@@ -28,6 +28,7 @@ extern u16 D_82302800[];
 extern void* D_84803784;
 extern char** D_84803790;
 void Gfx_DrawPatternRows(s32, s32, s32, s32, s32);
+void Gfx_PortDrawPatternRowsBeside43(s32, s32, s32, s32, s32);
 extern char D_82302A08[];
 extern char D_82302A0C[];
 extern char D_82302A10[];
@@ -1049,6 +1050,9 @@ s32 BattleMenu_UpdateOrderSelect(s32 fade_mode) {
 
     if (D_82302B40 != 0) {
         BattleMenu_DrawBottomActionButtons();
+    } else {
+        // PORT: widescreen: the pattern beside the 4:3 frame, which the port clears every frame (input.c)
+        Gfx_PortDrawPatternRowsBeside43(0, 480, 0xAB, 0x49, 0x66); // #AB4966
     }
 
     for (i = 0; i < D_82302B44; i++) {

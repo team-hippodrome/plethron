@@ -918,6 +918,10 @@ extern "C" float Port_WidenEffectGridX(float x) {
 extern "C" int Port_WideMarginN64(void) {
     return Port::AspectSetting() == 1 ? 54 : 0;
 }
+// Port_WideMarginN64Exact (port_compat.h): the same, not rounded (16:9: 320 x (16/9 / (4/3) - 1) / 2 = 53.33)
+extern "C" float Port_WideMarginN64Exact(void) {
+    return Port::AspectSetting() == 1 ? 160.0f / 3.0f : 0.0f;
+}
 
 namespace Port {
 

@@ -127,6 +127,7 @@ int16_t Port_WidenViewAngle(int16_t angle);
 float Port_WidenViewSpan(float span);
 // N64 pixels beside the 4:3 frame on each side of a widescreen picture (0 at 4:3).
 int Port_WideMarginN64(void);
+float Port_WideMarginN64Exact(void); // the same, not rounded up
 // The x of a node of the battle's camera-facing effect grids (Hypnosis' swirl: Trail40, Trail40Variant,
 // Trail40GridAlt) for the picture's shape: unchanged at 4:3, wider in widescreen so the grid covers the whole picture.
 float Port_WidenEffectGridX(float x);
