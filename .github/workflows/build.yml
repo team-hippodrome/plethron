@@ -85,9 +85,8 @@ jobs:
 
   macos:
     runs-on: macos-15
-    # Zero's lifted data is reached through GNU ld aliases (src/port/generated/zero_aliases.ld), which Apple's ld does
-    # not read yet, so the macOS link fails; a release goes ahead without the macOS app until that is ported
-    continue-on-error: true
+    # Apple's linker reads no GNU linker scripts: the lifted data's aliases (src/port/generated/zero_aliases.ld) reach it
+    # as an -alias_list file and .set lines from tools/gen_macho_aliases.py (CMakeLists.txt)
     steps:
       - name: Install dependencies
         run: brew install ninja sdl3 glew libzip nlohmann-json tinyxml2 spdlog
@@ -99,13 +98,6 @@ jobs:
           VERSION=${INPUT_VERSION#v}; VERSION=${VERSION:-$(grep -oE 'project\([A-Za-z]+ VERSION [0-9.]+' CMakeLists.txt | grep -oE '[0-9.]+$')}
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPORT_VERSION="$VERSION"
           cmake --build build
-      - name: Debug alias objects
-        if: failure()
-        run: |
-          ld -v || true
-          O=$(find build -name 'zero_lift_data_macho.c.o' | head -1); echo "$O"
-          nm -m "$O" | grep -E '_gCosineTable|_gSineTable$|_dayupper|_ymdupper$' || true
-          grep -n 'zero_lift_data' build/build.ninja | head -5
       - name: Check aliases
         # every name of src/port/generated/zero_aliases.ld at the address the GNU script gives it (ld64 gets them from
         # tools/gen_macho_aliases.py), and the executable starts
