@@ -210,6 +210,9 @@ if(APPLE)
   get_target_property(PORT_MAIN_TARGET_SOURCES plethron SOURCES)
   list(REMOVE_ITEM PORT_MAIN_TARGET_SOURCES src/port/generated/zero_lift_data.c)
   set_property(TARGET plethron PROPERTY SOURCES ${PORT_MAIN_TARGET_SOURCES} ${PORT_MACHO_LIFT_DATA})
+  # Apple's clang makes the storage common symbols by default, and an assembler .set cannot point into a common
+  # symbol (the aliases would stay undefined): give the storage a real zero-fill section
+  set_source_files_properties(${PORT_MACHO_LIFT_DATA} PROPERTIES COMPILE_OPTIONS -fno-common)
   target_link_options(plethron PRIVATE "LINKER:-alias_list,${PORT_MACHO_ALIAS_LIST}"
       # libultraship's optional hooks (weak references, null when undefined); Apple's linker wants them named
       "LINKER:-U,_Port_DlBufferBase" "LINKER:-U,_Port_DlBufferWhere" "LINKER:-U,_Port_DlBufferActive")
