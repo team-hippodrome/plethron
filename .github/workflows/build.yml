@@ -99,6 +99,13 @@ jobs:
           VERSION=${INPUT_VERSION#v}; VERSION=${VERSION:-$(grep -oE 'project\([A-Za-z]+ VERSION [0-9.]+' CMakeLists.txt | grep -oE '[0-9.]+$')}
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPORT_VERSION="$VERSION"
           cmake --build build
+      - name: Debug alias objects
+        if: failure()
+        run: |
+          ld -v || true
+          O=$(find build -name 'zero_lift_data_macho.c.o' | head -1); echo "$O"
+          nm -m "$O" | grep -E '_gCosineTable|_gSineTable$|_dayupper|_ymdupper$' || true
+          grep -n 'zero_lift_data' build/build.ninja | head -5
       - name: Check aliases
         # every name of src/port/generated/zero_aliases.ld at the address the GNU script gives it (ld64 gets them from
         # tools/gen_macho_aliases.py), and the executable starts

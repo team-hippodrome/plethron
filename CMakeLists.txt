@@ -210,7 +210,9 @@ if(APPLE)
   get_target_property(PORT_MAIN_TARGET_SOURCES plethron SOURCES)
   list(REMOVE_ITEM PORT_MAIN_TARGET_SOURCES src/port/generated/zero_lift_data.c)
   set_property(TARGET plethron PROPERTY SOURCES ${PORT_MAIN_TARGET_SOURCES} ${PORT_MACHO_LIFT_DATA})
-  target_link_options(plethron PRIVATE "LINKER:-alias_list,${PORT_MACHO_ALIAS_LIST}")
+  target_link_options(plethron PRIVATE "LINKER:-alias_list,${PORT_MACHO_ALIAS_LIST}"
+      # libultraship's optional hooks (weak references, null when undefined); Apple's linker wants them named
+      "LINKER:-U,_Port_DlBufferBase" "LINKER:-U,_Port_DlBufferWhere" "LINKER:-U,_Port_DlBufferActive")
   set_property(TARGET plethron APPEND PROPERTY LINK_DEPENDS ${PORT_MACHO_ALIAS_LIST})
 endif()
 if(NOT ANDROID AND NOT EMSCRIPTEN)
