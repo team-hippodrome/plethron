@@ -776,6 +776,8 @@ extern QueuedEntry80043CE8 D_800FD6C0[];
  * Queues announcer line `line_id` with `delay` and volume `volume` + 112 (clamped to 255) in a ring of 10, at
  * most 2 pending. Does nothing while the announcer is off. Seen in play (2026-11-14, COM battle, breakpoint): called with line 65, 0.0, 128.
  */
+void Port_SoundLog(const char* what, int a0, int a1); // PORT: PORT_SOUNDLOG (os_devices.cpp)
+
 void Announcer_QueueLine(s32 line_id, f32 delay, s32 volume) {
     s32 prev_mask;
     QueuedEntry80043CE8* entry;
@@ -783,6 +785,7 @@ void Announcer_QueueLine(s32 line_id, f32 delay, s32 volume) {
     u32 idx;
     u32 count;
 
+    Port_SoundLog("ann", line_id, volume); // PORT: PORT_SOUNDLOG
     if ((D_80077528 == 0) && (D_80077538 != 0) && (D_8007753C == 0)) {
         prev_mask = osSetIntMask(1);
         count = D_80077558;

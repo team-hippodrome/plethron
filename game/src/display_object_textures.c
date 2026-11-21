@@ -513,14 +513,25 @@ ModelLoadContext* PokeIcon_AllocFramebuffers(s32 arg0) { // PORT: typed (was raw
     return ctx;
 }
 
+#ifdef SHIFTABLE
+/* ROM offsets of two archives; the linker moves them with the ROM. */
+extern u8 D_00500000[];
+extern u8 D_004A8000[];
+#define ARCHIVE_500000 ((s32) D_00500000)
+#define ARCHIVE_4A8000 ((s32) D_004A8000)
+#else
+#define ARCHIVE_500000 0x500000
+#define ARCHIVE_4A8000 0x4A8000
+#endif
+
 /**
  * Seen in play (2026-11-13) (tour of menus and a COM battle): ran in the Pokédex, the party screen,
  * Lab sort, registration, the Lab PC and Free Battle setup.
  * @unverified Name was previously used only by callers of this address; the definition was still func_.
  */
 void PokeIcon_OpenModelArchives(void) {
-    D_800AC7A0.archives.modelArchive = BinArchive_Open((u8*)0x500000, NULL, 1, 1); // PORT: typed fields (were aliases D_800AD1A4..AC)
-    D_800AC7A0.archives.resourceArchive = BinArchive_Open((u8*)0x4A8000, NULL, 1, 1);
+    D_800AC7A0.archives.modelArchive = BinArchive_Open((u8*)ARCHIVE_500000, NULL, 1, 1); // PORT: typed fields (were aliases D_800AD1A4..AC)
+    D_800AC7A0.archives.resourceArchive = BinArchive_Open((u8*)ARCHIVE_4A8000, NULL, 1, 1);
     D_800AC7A0.archives.scratchBuffer = MainPool_Alloc(0x28000, 1);
 }
 

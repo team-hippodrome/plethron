@@ -59,10 +59,11 @@ typedef struct GbMusicBank {
     /* 0x02 */ u16 num_entries;
     /* 0x04 */ u16 numSequences; // @unverified: from the code: GbMusic_RelocateBank relocates numSequences * 3 track pointers
     /* 0x06 */ u16 unk_06;
-    /* 0x08 */ GbMusicTrackHeader* offset;
+    /* 0x08 */ u32 offset; // PORT: offset of the track headers from the bank (was a pointer: 8 bytes on the host, which pushed entries[] to 0x14 so every cry played the next species')
     /* 0x0C */ char unk_0C[0x4];
     /* 0x10 */ GbMusicSongEntry entries[ENTRY_SIZE];
 } GbMusicBank; // size = 0x10
+_Static_assert(__builtin_offsetof(GbMusicBank, entries) == 0x10, "GbMusicBank must keep the ROM layout"); // PORT
 
 typedef struct MoveSoundEntry { u8 unk0[0x6]; } MoveSoundEntry;
 

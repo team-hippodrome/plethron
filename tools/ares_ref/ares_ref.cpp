@@ -359,16 +359,18 @@ void place(u32 base);
 // port's PORT_PHASELOG: "P <frame> <mode> <phase> <step> <substep> <acting side> <move effect kind>". Fields of the
 // scene sBattleScene.scene points at: mode 0x1C, phaseStep 0x20, actingSide 0x2C (u16), phase 0x38, substep 0x3C, kind 0x48.
 FILE* gPhaseLog = nullptr;
-// ARES_REF_SOUNDLOG=<file>: each call of Audio_PlayCry and Audio_PlayCommand (resident), as the port's PORT_SOUNDLOG:
-// "S <frame> cry|cmd <a0> <a1> <caller>", the caller as a battle-engine link address when it is in the battle engine
-constexpr u32 kAudioPlayCry = 0x8003F96C, kAudioPlayCommand = 0x800407B0;
+// ARES_REF_SOUNDLOG=<file>: each call of Audio_PlayCry, Audio_PlayCommand and Announcer_QueueLine (resident), as the
+// port's PORT_SOUNDLOG: "S <frame> cry|cmd|ann <a0> <a1> <caller>", the caller as a battle-engine link address when it
+// is in the battle engine. Announcer_QueueLine(s32 line, f32 delay, s32 volume) has its volume in a2 (o32 passes the
+// float after an int in a1), so "ann" logs a0 and a2.
+constexpr u32 kAudioPlayCry = 0x8003F96C, kAudioPlayCommand = 0x800407B0, kAnnouncerQueueLine = 0x80043CE8;
 FILE* gSoundLog = nullptr;
-void soundLog(const char* what) {
+void soundLog(const char* what, int arg1Reg = 5) {
     auto& cpu = Nintendo64::cpu;
     u32 ra = (u32)cpu.ipu.r[31].u64;
     if (gBase && ra >= gBase && ra < gBase + 0x100000) ra = ra - gBase + kLinkBase;
     fprintf(gSoundLog, "S %llu %s %d %d %08x\n", (unsigned long long)gFrame, what, (s32)cpu.ipu.r[4].u32,
-            (s32)cpu.ipu.r[5].u32, ra);
+            (s32)cpu.ipu.r[arg1Reg].u32, ra);
     fflush(gSoundLog);
 }
 void phaseLog() {
@@ -391,6 +393,10 @@ bool hook(u32 address) {
     }
     if (gSoundLog && (address == kAudioPlayCry || address == kAudioPlayCommand)) {
         soundLog(address == kAudioPlayCry ? "cry" : "cmd");
+        return false;
+    }
+    if (gSoundLog && address == kAnnouncerQueueLine) {
+        soundLog("ann", 6);
         return false;
     }
     if (!gBase) return false;
@@ -474,7 +480,7 @@ void place(u32 base) {
     auto& cpu = Nintendo64::cpu;
     gBase = base;
     cpu.hostHooks.addresses = { kSetFragmentMap };
-    if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand }) cpu.hostHooks.addresses.push_back(a);
+    if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand, kAnnouncerQueueLine }) cpu.hostHooks.addresses.push_back(a);
     if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime), rt(kActionStepIntro) }) cpu.hostHooks.addresses.push_back(a);
     if (gForce || !gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kResetAnimStep));
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
@@ -504,7 +510,7 @@ void init() {
     auto& cpu = Nintendo64::cpu;
     cpu.hostHooks.callback = hook;
     cpu.hostHooks.addresses = { kSetFragmentMap };
-    if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand }) cpu.hostHooks.addresses.push_back(a);
+    if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand, kAnnouncerQueueLine }) cpu.hostHooks.addresses.push_back(a);
     std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
     cpu.recompiler.reset();
     if (gForce) fprintf(stderr, "[xcheck] seeded battle random numbers, seed %u\n", gSeed);
