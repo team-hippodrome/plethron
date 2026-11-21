@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
-project(Plethron VERSION 0.0.1 LANGUAGES C CXX ASM)
+project(Plethron VERSION 0.1.0 LANGUAGES C CXX ASM)
 # The release version (release.yml passes it as -DPORT_VERSION=<version>); defaults to the project version above.
 # Used for the Windows file version and the AppImage/app bundle metadata.
 set(PORT_VERSION "${PROJECT_VERSION}" CACHE STRING "Version of this build")
