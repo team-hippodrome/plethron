@@ -13,7 +13,8 @@ port draws the row's whole translation instead, split at its first space the sam
       Benimaru Itoh keeps the spelling he publishes under.
   Korean (ko)  Hangul in the Japanese order (family name first), per the Korean
       standard for Japanese (외래어 표기법): 미야모토 시게루, 이와타 사토루.
-  Japanese (ja)  stays empty: the original kana.
+  Japanese with kanji (ja)  the kanji where the staff-credits research sets them (JA below), else
+      empty: the original kana.
 
 The Latin spellings are a fixed table, checked against the kana (they must romanize to
 the same sounds); the Hangul is generated from the kana. No kana is written anywhere.
@@ -146,6 +147,84 @@ OFFICIAL = {
     "CREDITS_NARUHISA_KAWANO": "Naruhisa Kawano",
     "CREDITS_MICHIYO_OOSHIO": "Michiyo Oshio",
 }
+
+# Japanese with kanji (ja): the kanji of the names that Julius's staff-credits research (2026-11-21, "Plethron Staff
+# Credits.csv", columns release_name / release_script) sets to kanji: at least two independent sources agree on the
+# same spelling and no more than one disagrees. Everyone else keeps the ROM's kana (ja left empty). Family name and
+# given name are separated by a space, as the staff roll draws them on either side of its gap.
+JA = {
+    "CREDITS_HIROSHI_YAMAUCHI": "山内 溥",
+    "CREDITS_SHIGERU_MIYAMOTO": "宮本 茂",
+    "CREDITS_KENJI_MIKI": "三木 研次",
+    "CREDITS_TSUNEKAZU_ISHIHARA": "石原 恒和",
+    "CREDITS_SATORU_IWATA": "岩田 聡",
+    "CREDITS_TAKAO_SHIMIZU": "清水 隆雄",
+    "CREDITS_TATSUYA_HISHIDA": "菱田 達也",
+    "CREDITS_KENSUKE_TANABE": "田邊 賢輔",
+    "CREDITS_YASUNARI_NISHIDA": "西田 泰也",
+    "CREDITS_KENJI_YAMAMOTO": "山本 健二",
+    "CREDITS_YUZURU_OGAWA": "小川 譲",
+    "CREDITS_MASAFUMI_KAWAMURA": "川村 昌史",
+    "CREDITS_HIDEAKI_SHIMIZU": "清水 英明",
+    "CREDITS_KENTA_NAGATA": "永田 権太",
+    "CREDITS_TORU_MINEGISHI": "峰岸 透",
+    "CREDITS_MITSUHIRO_HIKINO": "疋野 光啓",
+    "CREDITS_SHINYA_TAKAHASHI": "高橋 伸也",
+    "CREDITS_MAKOTO_WADA": "和田 誠",
+    "CREDITS_TSUYOSHI_WATANABE": "渡辺 剛",
+    "CREDITS_TOKIHIKO_TOYODA": "豊田 十紀彦",
+    "CREDITS_HIROAKI_TAKENAKA": "竹中 宏昭",
+    "CREDITS_NORIKO_IKEGAWA": "池側 紀子",
+    "CREDITS_TOMOYOSHI_YAMANE": "山根 知美",
+    "CREDITS_SHINYA_SANO": "佐野 伸也",
+    "CREDITS_RYUUJI_KOBAYASHI": "小林 竜二",
+    "CREDITS_AKIO_SHIBUTANI": "渋谷 明夫",
+    "CREDITS_KENJI_MATSUURA": "松浦 謙二",
+    "CREDITS_JUNPEI_MIZUSAKI": "水﨑 淳平",
+    "CREDITS_TOMOAKI_IMAKUNI": "今国 智章",
+    "CREDITS_HITOSHI_KOBAYASHI": "小林 仁志",
+    "CREDITS_TOORU_KURASHIGE": "倉重 亨",
+    "CREDITS_HIROAKI_ITOU": "伊藤 裕章",
+    "CREDITS_SHINICHI_YOSHIKAWA": "芳川 真一",
+    "CREDITS_KAZUO_YAZAWA": "谷澤 和男",
+    "CREDITS_TAKEMI_ICHIKAWA": "市川 剛実",
+    "CREDITS_ATSUKO_UJIIE": "氏家 淳子",
+    "CREDITS_RYUUTA_KUSUMI": "久須美 龍太",
+    "CREDITS_NACHI_SUGIYAMA": "杉山 楠知",
+    "CREDITS_HIKARU_JINGUUJI": "神宮字 光",
+    "CREDITS_YOUICHI_KOTABE": "小田部 羊一",
+    "CREDITS_JUNJI_MORII": "森井 淳司",
+    "CREDITS_SHIGEFUMI_HINO": "日野 重文",
+    "CREDITS_MASANAO_ARIMOTO": "有本 正直",
+    "CREDITS_JUN_YAMAZAKI": "山崎 淳",
+    "CREDITS_HIROHITO_YOSHIMOTO": "吉本 裕仁",
+    "CREDITS_YOSHINORI_TANIMOTO": "谷本 義典",
+    "CREDITS_SATOSHI_TAJIRI": "田尻 智",
+    "CREDITS_KEN_SUGIMORI": "杉森 建",
+    "CREDITS_SHIGEKI_MORIMOTO": "森本 茂樹",
+    "CREDITS_MOTOFUMI_FUJIWARA": "藤原 基史",
+    "CREDITS_ATSUKO_NISHIDA": "西田 敦子",
+    "CREDITS_TAKENORI_OOTA": "太田 健程",
+    "CREDITS_JUNICHI_MASUDA": "増田 順一",
+    "CREDITS_KOUJI_NISHINO": "西野 弘二",
+    "CREDITS_HIROYUKI_JINNAI": "陣内 弘之",
+    "CREDITS_SHIGEZO_KAWASE": "川瀬 滋史",
+    "CREDITS_HIRONOBU_KAKUI": "角井 博信",
+    "CREDITS_SHIN_HASEGAWA": "長谷川 慎",
+    "CREDITS_KIMIYOSHI_FUKUI": "福井 公芳",
+    "CREDITS_KEIZOU_KATOU": "加藤 圭三",
+    "CREDITS_KOUICHI_HASEBE": "長谷部 浩一",
+    "CREDITS_KAZUO_KOUSHIMA": "幸嶋 一雄",
+    "CREDITS_KAZUNORI_KOSHIISHI": "輿石 和則",
+    "CREDITS_KATSUHITO_YAMAUCHI": "山内 克仁",
+    "CREDITS_YASUHIRO_SAKAI": "酒井 康裕",
+    "CREDITS_WATARU_YAMAGUCHI": "山口 亘",
+    "CREDITS_YUUSUKE_NAKANO": "中野 祐輔",
+    "CREDITS_MASANORI_SATOU": "佐藤 正徳",
+    "CREDITS_ATSUSHI_TEJIMA": "手嶋 敦史",
+    "CREDITS_NARUHISA_KAWANO": "川野 成央",
+}
+
 
 # A Chinese name (ほー うぃーほわ): written family name first in English too, and its Hangul follows the Chinese
 # syllables (Wee Hwa = 위화) rather than the kana's ほわ.
@@ -283,13 +362,14 @@ def main():
                 sys.exit("%s: %r does not match the kana (%s)" % (rid, latin, want_sounds))
         want = {lang: latin for lang in LATIN}
         want["ko"] = KO_OVERRIDE.get(rid) or hangul_name(kana)
+        want["ja"] = JA.get(rid, "")
         row = ai[rid]
         for lang, value in want.items():
             if row[lang] != value:
                 diffs += 1
                 print("%s %s: %r -> %r" % (rid, lang, row[lang], value))
                 row[lang] = value
-    missing = set(OFFICIAL) - seen
+    missing = (set(OFFICIAL) | set(JA)) - seen
     if missing:
         sys.exit("OFFICIAL names not in the staff roll: %s" % ", ".join(sorted(missing)))
     if args.check:
