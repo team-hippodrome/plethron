@@ -99,12 +99,19 @@ jobs:
           VERSION=${INPUT_VERSION#v}; VERSION=${VERSION:-$(grep -oE 'project\([A-Za-z]+ VERSION [0-9.]+' CMakeLists.txt | grep -oE '[0-9.]+$')}
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPORT_VERSION="$VERSION"
           cmake --build build
+      - name: Check aliases
+        # every name of src/port/generated/zero_aliases.ld at the address the GNU script gives it (ld64 gets them from
+        # tools/gen_macho_aliases.py), and the executable starts
+        run: |
+          python3 -I tools/check_macho_aliases.py src/port/generated/zero_aliases.ld build/plethron
+          build/plethron --help
       - name: App bundle
         # "Plethron.app" with the Homebrew libraries inside (tools/make_macos_bundle.py); ditto keeps the bundle's
         # permissions and signature in the zip
         run: |
           VERSION=${INPUT_VERSION#v}; VERSION=${VERSION:-$(grep -oE 'project\([A-Za-z]+ VERSION [0-9.]+' CMakeLists.txt | grep -oE '[0-9.]+$')}
           python3 -I tools/make_macos_bundle.py build "dist/Plethron.app" "$VERSION"
+          dist/Plethron.app/Contents/MacOS/plethron --help # starts with the bundled libraries
           ditto -c -k --keepParent "dist/Plethron.app" dist/plethron-macos-arm64.app.zip
       - uses: actions/upload-artifact@v4
         with:
