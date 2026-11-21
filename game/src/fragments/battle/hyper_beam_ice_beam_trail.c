@@ -9,6 +9,20 @@ extern s16 D_821CD9E0;
 extern BeamTrail D_821CD9E8[6];
 
 void HyperBeamIceBeamTrail_ResetPool(void);
+
+// PORT: HyperBeamIceBeamTrail_UpdateSlot reads its wobble phase spA8 before ever writing it, so on the N64 it is
+// whatever an earlier call left at that stack address: in ares, the 32-bit address of the animation owner's
+// ActivePokemon that the particle anchor update (BattleAnim_UpdateParticleAnchor -> BattleAnim_GetOwnerBonePosition)
+// spilled there, or 0 on the frames that start a new beam (the Spawn call's stack arguments). The port keeps that
+// value here, with the owner's N64 address as ares shows it in Free Battle: 1P's ActivePokemon at 0x8028FB20, the COM's
+// at 0x802905C0 (tools/ares_ref ARES_REF_PEEK; the title's attract battle has it at 0x8028AFB0, other modes may differ).
+// With it Hyper Beam's strands match ares. Ice Beam's mist particles overwrite the slot with their own spills on the
+// N64, which the port does not emulate (a known difference, Julius 2026-11-21).
+static s32 sPortN64StaleA8 = 0;
+
+void Port_N64StaleOwner(ActivePokemon* owner) {
+    sPortN64StaleA8 = owner == NULL ? 0 : owner == sSide1ActivePokemon ? (s32)0x8028FB20 : (s32)0x802905C0;
+}
 /**
  * Seen in play (2026-11-12): in the per-move sweep (each of the 165 moves used once) it ran only
  * for Hyper Beam and Ice Beam.
@@ -88,6 +102,7 @@ void HyperBeamIceBeamTrail_Spawn(s16 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg
     Vec3f spC;
     Vec3f sp0;
 
+    sPortN64StaleA8 = 0; // PORT: (see above)
     var_v0 = &D_821CD9E8[0];
     spC.x = arg1;
     spC.y = arg2;
@@ -229,6 +244,7 @@ void HyperBeamIceBeamTrail_UpdateSlot(BeamTrail* arg0) {
     s32 temp_s3;
     s32 temp_s4;
 
+    spA8 = sPortN64StaleA8; // PORT: what the N64 left in that stack slot (above)
     var_s0 = &arg0->segments[0];
     for (i = 0; i < 20; i++, var_s0++) {
         if (var_s0->startDelay > 0.0) {

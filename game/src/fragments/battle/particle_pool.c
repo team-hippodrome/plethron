@@ -499,11 +499,18 @@ void BattleAnim_InitializeParticleAnchor(Particle* arg0) {
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (157 of the moves).
  * @unverified Name from Stadium 1.
  */
+void Port_N64StaleOwner(ActivePokemon* owner); // PORT: fragments/battle/hyper_beam_ice_beam_trail.c
+
 void BattleAnim_UpdateParticleAnchor(Particle* arg0) {
     Vec3f sp3C;
     Vec3f sp30;
     Vec3s sp28;
 
+    switch (arg0->anchorMode) { // PORT: the owner it passes on is left on the N64 stack (Port_N64StaleOwner)
+        case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 16: case 18:
+            Port_N64StaleOwner(arg0->pokemon);
+            break;
+    }
     switch (arg0->anchorMode) {
         case 2:
             BattleAnim_GetOwnerBonePosition(arg0->pokemon, 0x64, &arg0->origin);

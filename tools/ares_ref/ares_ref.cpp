@@ -241,6 +241,7 @@ constexpr u32 kSetFragmentMap = 0x80001EB0;  // Memmap_SetFragmentMap(id, vaddr,
 constexpr u32 kOsGetCount = 0x80053A80;      // osGetCount: main code
 constexpr u32 kGuRandomSeed = 0x80079100;    // guRandom's xseed (lui 0x8008 / lw -0x6F00 in the ROM's guRandom)
 constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port_GuRandomSeed
+constexpr u32 kParticleFrameCounter = 0x8219A780; // gParticleFrameCounter: restarts with guRandom (as Port_XcheckMoveStart)
 constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
 constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
 constexpr u32 kTickCommandTimer = 0x8210C6B0;  // BattleMenu_TickCommandTimer: sync event "cmd" when its timer is 0
@@ -273,7 +274,7 @@ FILE* gSyncLog = nullptr;
 
 bool gForce = false;
 bool gWeakCom = false; // ARES_REF_WEAK_COM=1: the port's PORT_DEBUG_WEAK_COM (Port_Debug_WeakenCom, command_menu.c)
-u32 gSeed = 0, gBase = 0;
+u32 gSeed = 0, gBase = 0, gBaseSize = 0;
 FILE* gOut = nullptr;
 u64 gFrame = 0;
 std::map<u32, u32> gCalls; // per function: calls since the battle engine was mapped
@@ -353,7 +354,8 @@ void syncEvent(const char* name) {
     if (gSyncNext < gSync.size() && gSync[gSyncNext].event == name) gSyncSeen = true;
 }
 
-void place(u32 base);
+void place(u32 base, u32 size);
+void unplace();
 
 // ARES_REF_PHASELOG=<file>: the battle scene's state each time it changes (BattleScene_UpdatePhase's entry), as the
 // port's PORT_PHASELOG: "P <frame> <mode> <phase> <step> <substep> <acting side> <move effect kind>". Fields of the
@@ -365,6 +367,23 @@ FILE* gPhaseLog = nullptr;
 // float after an int in a1), so "ann" logs a0 and a2.
 constexpr u32 kAudioPlayCry = 0x8003F96C, kAudioPlayCommand = 0x800407B0, kAnnouncerQueueLine = 0x80043CE8;
 FILE* gSoundLog = nullptr;
+// ARES_REF_PEEK=<file> with ARES_REF_PEEK_AT="<link addr>[@<sp offset>...],...": each time the CPU reaches one of
+// those battle-engine link addresses, one line "K <frame> <addr> ra=<ra> sp=<sp> a0..a3 [<off>=<word at sp+off>...]"
+// (to read uninitialised locals or other state the port has to reproduce). ARES_REF_PEEK_AT=@<file>: the list from a
+// file (one per line); with ARES_REF_PEEK_CHANGED=1 a line is written only when the words differ from the last line's
+// (all peeks reading the same absolute word at many function entries: which function changed it). Besides sp offsets,
+// an item can be an absolute address (0x8xxxxxxx) or "a<off>": the word at a0 + off (a particle's or struct's field
+// at function entry, e.g. "82165730@a0x28@a0x2c")
+FILE* gPeekLog = nullptr;
+struct Peek { u32 link; std::vector<long long> offs; }; // offsets from sp, (>= 0x80000000) absolute addresses, or (>= kPeekA0) a0 + offset
+const long long kPeekA0 = 1LL << 40; // ("a<off>" in ARES_REF_PEEK_AT: a word at a0 + off, e.g. a particle's field)
+std::vector<Peek> gPeeks;
+bool gPeekChanged = false; // ARES_REF_PEEK_CHANGED=1: a line only when the words read differ from the last line's
+std::vector<u32> gPeekLast;
+u32 peekWord(long long o, u32 sp) {
+    if (o >= kPeekA0) return rd32((u32)Nintendo64::cpu.ipu.r[4].u64 + (s32)(o - kPeekA0));
+    return o >= 0x80000000LL ? rd32((u32)o) : rd32(sp + (s32)o);
+}
 void soundLog(const char* what, int arg1Reg = 5) {
     auto& cpu = Nintendo64::cpu;
     u32 ra = (u32)cpu.ipu.r[31].u64;
@@ -388,7 +407,9 @@ void phaseLog() {
 bool hook(u32 address) {
     auto& cpu = Nintendo64::cpu;
     if (address == kSetFragmentMap) {
-        if (cpu.ipu.r[4].u32 == kBattleId) place(cpu.ipu.r[5].u32);
+        u32 id = cpu.ipu.r[4].u32, vaddr = cpu.ipu.r[5].u32, size = cpu.ipu.r[6].u32;
+        if (id == kBattleId) place(vaddr, size);
+        else if (gBase && vaddr < gBase + gBaseSize && gBase < vaddr + size) unplace(); // other code over the old place
         return false;
     }
     if (gSoundLog && (address == kAudioPlayCry || address == kAudioPlayCommand)) {
@@ -400,6 +421,30 @@ bool hook(u32 address) {
         return false;
     }
     if (!gBase) return false;
+    if (gPeekLog) {
+        for (auto& pk : gPeeks) {
+            if (address != (pk.link >= kLinkBase ? rt(pk.link) : pk.link)) continue;
+            u32 sp = (u32)cpu.ipu.r[29].u64;
+            u32 ra = (u32)cpu.ipu.r[31].u64;
+            if (gPeekChanged) {
+                std::vector<u32> now;
+                for (long long o : pk.offs) now.push_back(peekWord(o, sp));
+                if (now == gPeekLast) continue;
+                gPeekLast = now;
+            }
+            if (ra >= gBase && ra < gBase + 0x100000) ra = ra - gBase + kLinkBase; // (battle engine: its link address)
+            fprintf(gPeekLog, "K %llu %08x ra=%08x sp=%08x a0=%08x a1=%08x a2=%08x a3=%08x", (unsigned long long)gFrame,
+                    pk.link, ra, sp, (u32)cpu.ipu.r[4].u64, (u32)cpu.ipu.r[5].u64,
+                    (u32)cpu.ipu.r[6].u64, (u32)cpu.ipu.r[7].u64);
+            for (long long o : pk.offs) {
+                if (o >= kPeekA0) fprintf(gPeekLog, " a%lld=%08x", o - kPeekA0, peekWord(o, sp));
+                else if (o >= 0x80000000LL) fprintf(gPeekLog, " %08llx=%08x", o, rd32((u32)o));
+                else fprintf(gPeekLog, " %lld=%08x", o, rd32(sp + (s32)o));
+            }
+            fputc('\n', gPeekLog);
+            fflush(gPeekLog);
+        }
+    }
     if (address == rt(kUpdatePhase)) {
         phaseLog();
         return false;
@@ -409,7 +454,7 @@ bool hook(u32 address) {
         return false;
     }
     if (address == rt(kActionStepIntro)) { // (as the port's Port_XcheckMoveStart there; substep 0x3C of the scene)
-        if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart);
+        if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart), wr32(rt(kParticleFrameCounter), 0);
         return false;
     }
     if (gWeakCom && address == rt(kReadCommandButtons)) {
@@ -443,7 +488,7 @@ bool hook(u32 address) {
     if (address == rt(kResetAnimStep)) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
-            if (gForce) wr32(kGuRandomSeed, kGuRandomStart); // (as the port's Port_XcheckMoveStart)
+            if (gForce) wr32(kGuRandomSeed, kGuRandomStart), wr32(rt(kParticleFrameCounter), 0); // (as the port's Port_XcheckMoveStart)
             syncEvent("move");
         }
         return false;
@@ -476,9 +521,22 @@ bool hook(u32 address) {
 
 // the battle engine was just mapped (Memmap_SetFragmentMap, before its relocation and the clearing of its bss, so
 // nothing is written into it here): hooks at its new address
-void place(u32 base) {
+// another fragment was mapped over the battle engine (the title's attract battles run it too, then the menus reuse its
+// memory): drop its hooks, which would otherwise end recompiler blocks inside that code (a hook in a branch delay
+// slot broke the menus once there were hooks at arbitrary battle addresses, ARES_REF_PEEK)
+void unplace() {
+    auto& cpu = Nintendo64::cpu;
+    gBase = 0;
+    cpu.hostHooks.addresses = { kSetFragmentMap };
+    if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand, kAnnouncerQueueLine }) cpu.hostHooks.addresses.push_back(a);
+    std::sort(cpu.hostHooks.addresses.begin(), cpu.hostHooks.addresses.end());
+    cpu.recompiler.reset();
+}
+
+void place(u32 base, u32 size) {
     auto& cpu = Nintendo64::cpu;
     gBase = base;
+    gBaseSize = size;
     cpu.hostHooks.addresses = { kSetFragmentMap };
     if (gSoundLog) for (u32 a : { kAudioPlayCry, kAudioPlayCommand, kAnnouncerQueueLine }) cpu.hostHooks.addresses.push_back(a);
     if (gForce) for (u32 a : { kOsGetCount, rt(kInitRuntime), rt(kActionStepIntro) }) cpu.hostHooks.addresses.push_back(a);
@@ -486,6 +544,7 @@ void place(u32 base) {
     if (!gSync.empty()) cpu.hostHooks.addresses.push_back(rt(kTickCommandTimer));
     if (gWeakCom) cpu.hostHooks.addresses.push_back(rt(kReadCommandButtons));
     if (gPhaseLog) cpu.hostHooks.addresses.push_back(rt(kUpdatePhase));
+    for (auto& pk : gPeeks) cpu.hostHooks.addresses.push_back(pk.link >= kLinkBase ? rt(pk.link) : pk.link);
     if (std::any_of(gSync.begin(), gSync.end(), [](const SyncPoint& sp) { return sp.event == "anim1"; })) {
         // only for routes that sync on anim1 (tools/move_coverage): the Cup routes never reached round 2 with them on
         cpu.hostHooks.addresses.push_back(rt(kPlayMoveAnim));
@@ -503,7 +562,32 @@ void init() {
     gWeakCom = getenv("ARES_REF_WEAK_COM") != nullptr;
     if (const char* l = getenv("ARES_REF_PHASELOG")) gPhaseLog = fopen(l, "w");
     if (const char* l = getenv("ARES_REF_SOUNDLOG")) gSoundLog = fopen(l, "w");
-    if (!rng && gSync.empty() && !gWeakCom && !gPhaseLog && !gSoundLog) return;
+    if (const char* l = getenv("ARES_REF_PEEK")) {
+        gPeekLog = fopen(l, "w");
+        std::string at = getenv("ARES_REF_PEEK_AT") ? getenv("ARES_REF_PEEK_AT") : "";
+        if (!at.empty() && at[0] == '@') { // (a file with the list, for long ones)
+            std::ifstream f(at.substr(1));
+            std::stringstream text;
+            text << f.rdbuf();
+            at = text.str();
+            for (char& c : at) if (c == '\n' || c == ' ') c = ',';
+        }
+        gPeekChanged = getenv("ARES_REF_PEEK_CHANGED") != nullptr;
+        std::stringstream all(at);
+        std::string item;
+        while (std::getline(all, item, ',')) {
+            if (item.empty()) continue;
+            std::stringstream one(item);
+            std::string part;
+            Peek pk{};
+            std::getline(one, part, '@');
+            pk.link = (u32)std::stoul(part, nullptr, 16);
+            while (std::getline(one, part, '@'))
+                pk.offs.push_back(part[0] == 'a' ? kPeekA0 + std::stoll(part.substr(1), nullptr, 0) : std::stoll(part, nullptr, 0));
+            gPeeks.push_back(pk);
+        }
+    }
+    if (!rng && gSync.empty() && !gWeakCom && !gPhaseLog && !gSoundLog && !gPeekLog) return;
     gForce = rng != nullptr;
     if (rng) gSeed = (u32)strtoul(rng, nullptr, 0);
     if (const char* out = getenv("ARES_REF_XCHECK")) gOut = fopen(out, "w");
