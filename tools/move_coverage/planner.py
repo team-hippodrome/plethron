@@ -128,7 +128,9 @@ class Battle:
             return False
         if eff == HEAL and me["hp"] >= me["mhp"]:
             return False
-        if eff == SUBSTITUTE and (me["sub"] or me["hp"] * 4 <= me["mhp"]):
+        # (volatile flag 0x10 is the Substitute, as Battle_Effect_Substitute tests: substituteHp is never cleared, so a
+        # Pokémon switched in after one used Substitute still shows its HP, and pass 2's Magneton never tried it)
+        if eff == SUBSTITUTE and (me["vol"] & 0x10 or me["hp"] * 4 <= me["mhp"]):
             return False
         if eff == RAGE:
             return False  # (only at the very end: rage_pick)
@@ -227,7 +229,7 @@ class Battle:
             if i == active or (not need and self.left == (i, len(self.done))):
                 continue
             hp = roster[i][1]
-            mon = dict(me, hp=hp, mhp=self.max_hp.get(i, hp), sub=0)
+            mon = dict(me, hp=hp, mhp=self.max_hp.get(i, hp), sub=0, vol=0)
             n = sum(1 for k in self.pending if k[0] == i and self.usable(i, k[1], mon, foe))
             if n and (best is None or n > best[0]):
                 best = (n, i)

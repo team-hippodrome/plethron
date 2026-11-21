@@ -983,7 +983,8 @@ extern "C" void Port_PhaseLog(int mode, int phase, int step, int substep, int si
     fflush(f);
 }
 
-// PORT_SOUNDLOG=<file>: one line for each call of Audio_PlayCry and Audio_PlayCommand: "S <retrace> cry|cmd <a0> <a1>".
+// PORT_SOUNDLOG=<file>: one line for each call of Audio_PlayCry and Audio_PlayCommand, and each announcer line asked
+// for (Announcer_QueueLine: the JIKKYOU.WBK effect id and the volume): "S <retrace> cry|cmd|ann <a0> <a1>".
 // tools/ares_ref writes the same (ARES_REF_SOUNDLOG, with the caller), to check which sounds a scene asks for.
 extern "C" void Port_SoundLog(const char* what, int a0, int a1) {
     static FILE* f = getenv("PORT_SOUNDLOG") ? fopen(getenv("PORT_SOUNDLOG"), "w") : nullptr;

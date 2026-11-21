@@ -235,7 +235,10 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
             {
                 ModelSegment* segment = &D_800B0338[mode][D_800AFB28].model.segment;
                 {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDB060038;    _gfx->words.w1 = (uintptr_t) segment->vertexSegment; /* PORT: was (s32) */    }
-                {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) segment->displayList;    }
+                // PORT: the flame's display list is kept in N64 form (D_80075998/D_80075B40): it must go through the
+                // translation, as Model_Draw's gSPDisplayList does for the live flame. Called raw, its N64 words were
+                // read as host commands and the fixed flame of the thumbnails and afterimages was drawn nowhere.
+                gSPDisplayList(gfx++, segment->displayList);
                 {    Gfx *_gfx = (Gfx *)(gfx++);    _gfx->words.w0 = 0xDE000000;    _gfx->words.w1 = (uintptr_t) D_800744C0;    }
             }
             D_800AFB28++;
