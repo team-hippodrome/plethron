@@ -163,6 +163,7 @@ void BattleScene_InitializeSwitchActions(void) {
     BattleScene_SetCameraSubstate(1, 1);
 
     sp2C = sBattleScene.scene->actingSide;
+    PortEnh_TurnOrder(-1); // PORT: a switch turn (Battle_StartTurn is not called): the other side's move (enhancements)
 
     if ((sp28->faintState == 0xF) || (sp28->faintState == 0x10)) {
         if (sActivePokemon[0]->teamRoster->isHuman & 2) {

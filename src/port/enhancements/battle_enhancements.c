@@ -311,6 +311,7 @@ void PortEnh_TurnOrder(s32 first_side) {
         const ActivePokemonState* st = &sActivePokemon[s]->state;
         s32 slot = st->selectedMoveIndex;
         sPendingSlot[s] = -1;
+        if (st->faintState == 0xF || st->faintState == 0x10) continue; // this side switches (or sends one out)
         if (slot >= 0 && slot < 4 && st->runtime.usedMove != 0 && st->runtime.usedMove != 0xFF &&
             st->runtime.moves[slot] == st->runtime.usedMove && !(st->runtime.uniqueStatusFlags & 8)) {
             sPendingSlot[s] = slot;
@@ -319,8 +320,8 @@ void PortEnh_TurnOrder(s32 first_side) {
     EnhLog("turn: side %d first (moves %u / %u, speed %u / %u)", (int)first_side,
            sActivePokemon[0]->state.runtime.usedMove, sActivePokemon[1]->state.runtime.usedMove,
            sActivePokemon[0]->state.runtime.speed, sActivePokemon[1]->state.runtime.speed);
-    // the speed estimate: only against the COM, when Speed decided the order
-    if (sViewer >= 0) {
+    // the speed estimate: only against the COM, when Speed decided the order (not on a switch turn, first_side -1)
+    if (sViewer >= 0 && first_side >= 0) {
         s32 h = !sViewer;
         const BattleMonRuntime* mine = &sActivePokemon[sViewer]->state.runtime;
         const BattleMonRuntime* theirs = &sActivePokemon[h]->state.runtime;
