@@ -203,6 +203,8 @@ void ReadCase(const char* path) {
     }
 }
 
+FILE* sGuLog = nullptr; // PORT_GURANDOM_LOG (Port_XcheckGuRandomCalled)
+
 void Init() {
     if (g.read) return;
     g.read = true;
@@ -230,6 +232,12 @@ void Init() {
     }
     g.com = getenv("PORT_XCHECK_COM") != nullptr;
     gPortXcheckTraceGuRandom = getenv("PORT_XCHECK_GURANDOM") != nullptr;
+    if (const char* p = getenv("PORT_GURANDOM_LOG")) {
+        sGuLog = fopen(p, "w");
+        gPortXcheckTraceGuRandom = 1;
+        // the load address of a known function, to symbolize the raw return addresses (addr2line/nm after the slide)
+        if (sGuLog) fprintf(sGuLog, "B %p Port_XcheckGuRandomCalled\n", (void*)&Port_XcheckGuRandomCalled);
+    }
     g.traceSfx = getenv("PORT_XCHECK_SFX") != nullptr;
     if (const char* a = getenv("PORT_XCHECK_ANIM")) g.animDir = a;
     if (const char* n = getenv("PORT_XCHECK_ANIM_FRAMES")) g.animFrames = atoi(n);
@@ -623,8 +631,18 @@ unsigned long long Port_CamlogAnimFrame(void) { return g.gameFrame - g.animStart
 // number of calls before them changes the effect): PORT_XCHECK_GURANDOM=1
 int gPortXcheckTraceGuRandom = 0;
 
+// PORT_GURANDOM_LOG=<file>: every guRandom call in battle, "G <seed before> <caller>", and "F" at each battle frame
+// (BattleScene_UpdateFrame). The ares driver writes the same with ARES_REF_PEEK on guRandom (0x80055640, @0x80079100)
+// and BattleScene_UpdateFrame, so the two call sequences can be lined up to find a call one side makes and the other not.
+extern "C" unsigned int Port_GuRandomPeekSeed(void);
+
 void Port_XcheckGuRandomCalled(void* caller) {
     if (g.animOn && g.out) fprintf(g.out, "G %llu %s\n", g.gameFrame - g.animStart, CallerName(caller));
+    if (sGuLog) fprintf(sGuLog, "G %08x %p\n", Port_GuRandomPeekSeed(), caller); // (raw return address: see the "B" line)
+}
+
+void Port_GuRandomLogFrame(void) {
+    if (sGuLog) fputs("F\n", sGuLog);
 }
 
 // os_devices.cpp: draw this frame even when running fast (an animation is being captured)

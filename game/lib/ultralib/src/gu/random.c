@@ -29,6 +29,12 @@ void Port_GuRandomSeed(unsigned int seed)
 
 extern int gPortXcheckTraceGuRandom;              // PORT: battle cross-check (src/port/xcheck.cpp)
 
+// PORT: the current seed, for PORT_GURANDOM_LOG (src/port/xcheck.cpp)
+unsigned int Port_GuRandomPeekSeed(void)
+{
+    return xseed;
+}
+
 int guRandom(void)
 {
     unsigned int x;
