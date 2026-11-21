@@ -1718,7 +1718,7 @@ class LauncherWindow : public Ship::GuiWindow {
         {
             label("Small text", "Translated text under 16 px.\nThe game's small kana have no outline.");
             static const int kStyles[] = { 1, 0, 2 }; // shown order: Outline, Plain, Bold
-            const int cur = CVarGetInteger("gPort.SmallTextOutline", 1);
+            const int cur = CVarGetInteger("gPort.SmallTextOutline", 2);
             int c = Choice("smalltext", { "Outline", "Plain", "Bold" }, cur == 0 ? 1 : (cur == 2 ? 2 : 0), cx, ry, 84);
             if (c >= 0) CVarSetInteger("gPort.SmallTextOutline", kStyles[c]);
         }
