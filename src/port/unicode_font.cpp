@@ -6,8 +6,8 @@
 // and covers any character Pop lacks.
 // The game's own font sets 16x10 and 16x12 have no outline (plain white glyphs); only 16x16 and up are outlined. The
 // "Small text" setting (gPort.SmallTextOutline, PORT_SMALL_TEXT_OUTLINE=1|0|2) picks how translated text below 16
-// pixels is drawn: 1 = outlined (the default so far), 0 = plain white like the game's small kana, 2 = plain white and
-// one source pixel bolder (the game's small kana have two-pixel strokes).
+// pixels is drawn: 1 = outlined, 0 = plain white like the game's small kana, 2 = plain white and
+// one source pixel bolder (the game's small kana have two-pixel strokes; the default, Julius 2026-11-21).
 #include "unicode_font.h"
 #include "app_file.h"
 
@@ -112,7 +112,7 @@ int StyleFor(int height) {
         const char* e = getenv("PORT_SMALL_TEXT_OUTLINE");
         env = (e == nullptr) ? -1 : std::clamp(atoi(e), 0, 2);
     }
-    return (env >= 0) ? env : std::clamp(CVarGetInteger("gPort.SmallTextOutline", kStyleOutline), 0, 2);
+    return (env >= 0) ? env : std::clamp(CVarGetInteger("gPort.SmallTextOutline", kStyleBold), 0, 2);
 }
 
 // The outlined glyph at Unifont scale: (width + 2) x 18 cells, 2 = fill, 1 = outline, 0 = clear. Then an area
