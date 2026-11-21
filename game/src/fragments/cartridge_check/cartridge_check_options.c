@@ -346,16 +346,32 @@ extern char D_88403290[];
 extern char D_884032A0[];
 extern u8 D_8F4B2EB0[];
 
-// PORT: in the translated languages the menu has a Subtitles row after Commentary (the announcer's subtitles,
-// game/src/subtitles.c). Its value is the port setting gPort.Subtitles, held here while the menu is open.
-// In the translated languages that romanize names (all but Japanese with kanji, which keeps the kana names) a Names
-// row follows: COM nicknames and the finalists' names localized or transliterated (port setting gPort.NameStyle).
+// PORT: after Commentary come the port's localization rows. Language (every language, the original kana too) picks
+// the text's language, port setting gPort.Language: the one the first launch's language select saved. Only にほんご
+// is offered until C-Left unlocks the AI translations, as on that screen (a saved AI language has unlocked them).
+// In the translated languages a Subtitles row follows (the announcer's subtitles, game/src/subtitles.c; port
+// setting gPort.Subtitles), and in those that romanize names (all but Japanese with kanji, which keeps the kana
+// names) a Names row: COM nicknames and the finalists' names localized or transliterated (gPort.NameStyle). The
+// values are held here while the menu is open and kept when it is left with おわり (Exit); the new language takes
+// over then.
 #define OPTIONS_HAS_SUBTITLES() (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL)
 #define OPTIONS_HAS_NAMES() (OPTIONS_HAS_SUBTITLES() && (Port_Text_GetLanguage() != PORT_LANG_JA))
-#define OPTIONS_PORT_ROWS() (OPTIONS_HAS_SUBTITLES() + OPTIONS_HAS_NAMES())
+#define OPTIONS_PORT_ROWS() (1 + OPTIONS_HAS_SUBTITLES() + OPTIONS_HAS_NAMES())
 #define OPTIONS_ROW_COUNT() (4 + OPTIONS_PORT_ROWS())
+#define OPTIONS_ACTION_SUBTITLES 4
+#define OPTIONS_ACTION_NAMES 5
+#define OPTIONS_ACTION_LANGUAGE 6
 static s32 sOptionsSubtitles;
 static s32 sOptionsNameStyle;
+static s32 sOptionsLanguage;
+static s32 sOptionsLanguageUnlocked;
+// The Language row in the original kana, in the ROM's EUC-JP (the tables are not used there): ことば and its value
+// にほんご. PORT_OPTIONS_LANGUAGE in the other languages.
+static const char sOptionsLanguageKana[] = "\xA4\xB3\xA4\xC8\xA4\xD0";
+static const char sOptionsLanguageKanaValue[] = "\xA4\xCB\xA4\xDB\xA4\xF3\xA4\xB4";
+static const char sOptionsLanguagePrompt[] = "Press C◀ for AI translations";
+#define OPTIONS_KANA_VALUE_X 112 // where the ROM rows' values start in the original kana, from the label's x
+#define OPTIONS_PROMPT_HEIGHT 12
 
 /**
  * Draws the options: ステレオ/モノラル (Stereo/Mono), あり/なし (On/Off), バックアップ (Backup), おわり (End).
@@ -369,38 +385,65 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
     s32 row;
 
     row = sel_row;
-    // PORT: taller for the Subtitles and Names rows, and 20 px wider on each side with the Names row, whose values
-    // (Localized / Romanized) are longer than the others'
-    if (OPTIONS_HAS_NAMES()) {
-        Ui_DrawGradientPanel(30, 60, 260, 125 + (20 * OPTIONS_PORT_ROWS()), &sp44, &sp40);
-    } else {
-        Ui_DrawGradientPanel(50, 60, 220, 125 + (20 * OPTIONS_PORT_ROWS()), &sp44, &sp40);
-    }
+    // PORT: with all three port rows the menu would end below the screen: it starts 20 px higher
+    s32 sy = (OPTIONS_PORT_ROWS() >= 3) ? -20 : 0;
+    // PORT: taller for the port's rows (Language, Subtitles, Names), and 20 px wider on each side for their values
+    // (language names, Localized / Romanized), which are longer than the others'
+    Ui_DrawGradientPanel(30, 60 + sy, 260, 125 + (20 * OPTIONS_PORT_ROWS()), &sp44, &sp40);
     gSPDisplayList(gDisplayListHead++, D_80060290);
-    Gfx_DrawTextureRgba16(58, (row * 20) + 99, 24, 14, (u8 *) Util_ConvertAddrToVirtAddr((uintptr_t) D_8F4B2EB0), 24, 0x200000);
+    Gfx_DrawTextureRgba16(58, (row * 20) + 99 + sy, 24, 14, (u8 *) Util_ConvertAddrToVirtAddr((uintptr_t) D_8F4B2EB0), 24, 0x200000);
     gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
     Font_BeginTranslucentTextRendering();
     Font_EnableTwoCycleTexturing();
     Font_SetActive(8, -2);
     Gfx_SetPrimColor(100, 255, 150, 255); // #64FF96
-    Font_Printf(110, 68, D_8840325C);
+    Font_Printf(110, 68 + sy, D_8840325C);
     Font_DisableTwoCycleTexturing();
     Font_SetActive(4, -2);
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x63) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
-    Font_Printf(82, 98, D_88403268, D_88402FA4[(flags & 1) != 0]);
+    Font_Printf(82, 98 + sy, D_88403268, D_88402FA4[(flags & 1) != 0]);
     Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x77) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
-    Font_Printf(82, 118, D_8840327C, D_88402FAC[(flags & 2) != 0]);
-    if (OPTIONS_HAS_SUBTITLES()) {
-        // PORT: Subtitles <On/Off> and Names <Localized/Transliterated>, then Backup and Exit lower down
+    Font_Printf(82, 118 + sy, D_8840327C, D_88402FAC[(flags & 2) != 0]);
+    {
+        // PORT: Language <name>, Subtitles <On/Off> and Names <Localized/Romanized>, then Backup and Exit lower down
         char line[0x100];
-        const char* fmt = Port_Text_LookupId("PORT_OPTIONS_SUBTITLES");
-        const char* value = Port_Text_Utf8Of(D_88402FAC[sOptionsSubtitles == 0]);
+        const char* fmt;
+        const char* value;
         s32 next = 2;
 
-        snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Subtitles       %s", (value != NULL) ? value : "");
         Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
-        Port_Font_PrintUtf8(82, 98 + (20 * next), line);
+        if (Port_Text_GetLanguage() == PORT_LANG_ORIGINAL) {
+            // in the ROM's font, as the rows around it; the value at the column of their values (サウンド　　　　ステレオ).
+            // Only にほんご is in that font: the other languages' names are drawn in the Unicode glyphs.
+            Font_Printf(82, 98 + sy + (20 * next), sOptionsLanguageKana);
+            if (sOptionsLanguage == PORT_LANG_ORIGINAL) {
+                Font_Printf(82 + OPTIONS_KANA_VALUE_X, 98 + sy + (20 * next), sOptionsLanguageKanaValue);
+            } else {
+                Port_Font_PrintUtf8(82 + OPTIONS_KANA_VALUE_X, 98 + sy + (20 * next), Port_Text_LanguageName(sOptionsLanguage));
+            }
+        } else {
+            fmt = Port_Text_LookupId("PORT_OPTIONS_LANGUAGE");
+            snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Language        %s", Port_Text_LanguageName(sOptionsLanguage));
+            Port_Font_FitNext(82, 282, 0);
+            Port_Font_PrintUtf8(82, 98 + sy + (20 * next), line);
+        }
+        if ((row == next) && !sOptionsLanguageUnlocked) {
+            // under the window, as on the language select screen
+            Port_Font_SetHeight(OPTIONS_PROMPT_HEIGHT);
+            Gfx_SetEnvColor(0xB0, 0xC8, 0xFF, 255);
+            Port_Font_PrintUtf8(160 - Port_Font_MeasureUtf8(sOptionsLanguagePrompt) / 2,
+                                60 + sy + 125 + (20 * OPTIONS_PORT_ROWS()) + 4, sOptionsLanguagePrompt);
+            Port_Font_SetHeight(0);
+        }
         next++;
+        if (OPTIONS_HAS_SUBTITLES()) {
+            fmt = Port_Text_LookupId("PORT_OPTIONS_SUBTITLES");
+            value = Port_Text_Utf8Of(D_88402FAC[sOptionsSubtitles == 0]);
+            snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Subtitles       %s", (value != NULL) ? value : "");
+            Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
+            Port_Font_PrintUtf8(82, 98 + sy + (20 * next), line);
+            next++;
+        }
         if (OPTIONS_HAS_NAMES()) {
             fmt = Port_Text_LookupId("PORT_OPTIONS_NAMES");
             value = Port_Text_LookupId((sOptionsNameStyle == PORT_NAMES_TRANSLITERATED) ? "PORT_OPTIONS_NAMES_TRANSLITERATED"
@@ -408,22 +451,16 @@ void Options_DrawMenu(s32 sel_row, u8 flags) {
             snprintf(line, sizeof(line), (fmt != NULL) ? fmt : "Names           %s", (value != NULL) ? value : "");
             Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
             Port_Font_FitNext(82, 282, 0);
-            Port_Font_PrintUtf8(82, 98 + (20 * next), line);
+            Port_Font_PrintUtf8(82, 98 + sy + (20 * next), line);
             next++;
         }
         Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
-        Font_Printf(82, 98 + (20 * next), D_88403290);
+        Font_Printf(82, 98 + sy + (20 * next), D_88403290);
         next++;
         Gfx_SetEnvColor(255, 255, (row == next) ? 0 : 255, 255);
-        Font_Printf(82, 98 + (20 * next), D_884032A0);
+        Font_Printf(82, 98 + sy + (20 * next), D_884032A0);
         Font_EndTexturedTextRendering();
-        return;
     }
-    Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x8B) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
-    Font_Printf(82, 138, D_88403290);
-    Gfx_SetEnvColor(255, 255, ((row * 20) + 0x63 == 0x9F) ? 0 : 255, 255); // #FFFF00 when selected, else #FFFFFF
-    Font_Printf(82, 158, D_884032A0);
-    Font_EndTexturedTextRendering();
 }
 
 /**
@@ -560,38 +597,60 @@ void Options_RunMenu(void) {
     s32 sel = 0;
     u8 flags = Save_GetOptionFlags();
     u8 diff;
-    s32 rows = OPTIONS_ROW_COUNT(); // PORT: 5 with the Subtitles row, 6 with the Names row as well
+    s32 rows = OPTIONS_ROW_COUNT(); // PORT: 5 with the Language row, 6 with Subtitles too, 7 with Names as well
     s32 extra = rows - 4;           // PORT: the port's rows, after Commentary
     s32 action;
+    u16 pressed;
 
     sOptionsSubtitles = Port_Subtitles_Enabled();
     sOptionsNameStyle = Port_Names_GetStyle();
+    sOptionsLanguage = Port_Text_GetLanguage();
+    sOptionsLanguageUnlocked = (sOptionsLanguage != PORT_LANG_ORIGINAL) || (Port_Text_SavedLanguage() != PORT_LANG_ORIGINAL);
     do {
-        if (gPlayer1Controller->buttonPressed & 0x800) {
+        pressed = gPlayer1Controller->buttonPressed;
+        // PORT: the row's action: the port's rows after Commentary (Language, then Subtitles and Names when they
+        // are there) move Backup and Exit down
+        action = sel;
+        if (sel >= 2) {
+            action = (sel < 2 + extra) ? ((sel == 2) ? OPTIONS_ACTION_LANGUAGE : (OPTIONS_ACTION_SUBTITLES + sel - 3))
+                                       : (sel - extra);
+        }
+        if (action == OPTIONS_ACTION_LANGUAGE) {
+            // PORT: Left/Right (and A) step through the languages; C-Left unlocks the AI ones
+            s32 count = sOptionsLanguageUnlocked ? PORT_LANG_COUNT : 1;
+            if ((pressed & 0x0002) && !sOptionsLanguageUnlocked) {
+                sOptionsLanguageUnlocked = 1;
+                Audio_PlaySystemSound(2);
+                pressed = 0;
+            } else if (pressed & 0x0200) {
+                sOptionsLanguage = (sOptionsLanguage + count - 1) % count;
+                Audio_PlaySystemSound((count > 1) ? 1 : 3);
+                pressed = 0;
+            } else if (pressed & (0x0100 | 0x8000)) {
+                sOptionsLanguage = (sOptionsLanguage + 1) % count;
+                Audio_PlaySystemSound((count > 1) ? 2 : 3);
+                pressed = 0;
+            }
+        }
+        if (pressed & 0x800) {
             sel--;
             if (sel < 0) {
                 sel = rows - 1;
             }
             Audio_PlaySystemSound(1);
-        } else if (gPlayer1Controller->buttonPressed & 0x400) {
+        } else if (pressed & 0x400) {
             sel++;
             if (sel >= rows) {
                 sel = 0;
             }
             Audio_PlaySystemSound(1);
-        } else if (gPlayer1Controller->buttonPressed & 0x8000) {
-            // PORT: the rows after Commentary move down when the Subtitles row (action 4) and the Names row (action 5)
-            // are there
-            action = sel;
-            if (sel >= 2) {
-                action = (sel < 2 + extra) ? (4 + sel - 2) : (sel - extra);
-            }
+        } else if (pressed & 0x8000) {
             switch (action) {
-                case 4:
+                case OPTIONS_ACTION_SUBTITLES:
                     Audio_PlaySystemSound(2);
                     sOptionsSubtitles ^= 1;
                     break;
-                case 5:
+                case OPTIONS_ACTION_NAMES:
                     Audio_PlaySystemSound(2);
                     sOptionsNameStyle ^= 1;
                     break;
@@ -615,7 +674,7 @@ void Options_RunMenu(void) {
                     Audio_PlaySystemSound(0x1D);
                     break;
             }
-        } else if (gPlayer1Controller->buttonPressed & 0x4000) {
+        } else if (pressed & 0x4000) {
             done = 2;
             Audio_PlaySystemSound(3);
         }
@@ -623,11 +682,16 @@ void Options_RunMenu(void) {
         Options_DrawMenu(sel, flags);
         BgStage_AdvanceFrame();
     } while (done == 0);
-    if ((done == 1) && (extra >= 1) && (sOptionsSubtitles != Port_Subtitles_Enabled())) {
+    if ((done == 1) && OPTIONS_HAS_SUBTITLES() && (sOptionsSubtitles != Port_Subtitles_Enabled())) {
         Port_Subtitles_SetEnabled(sOptionsSubtitles); // PORT: kept by the port, not in the N64 save
     }
-    if ((done == 1) && (extra >= 2) && (sOptionsNameStyle != Port_Names_GetStyle())) {
+    if ((done == 1) && OPTIONS_HAS_NAMES() && (sOptionsNameStyle != Port_Names_GetStyle())) {
         Port_Names_SetStyle(sOptionsNameStyle); // PORT: kept by the port, not in the N64 save
+    }
+    if ((done == 1) && (sOptionsLanguage != Port_Text_GetLanguage())) {
+        // PORT: the new language, from the next frame on (the Game Pak check screen behind is redrawn in it)
+        Port_Text_SetLanguage(sOptionsLanguage);
+        Port_Text_SaveLanguage(sOptionsLanguage);
     }
     if (done == 1) {
         diff = Save_GetOptionFlags() ^ flags;

@@ -621,6 +621,13 @@ void Port_Text_Init(void) {
 
 void Port_Text_SetLanguage(int lang) {
     if (lang >= 0 && lang < PORT_LANG_COUNT) {
+        if (lang != sLanguage) {
+            // a change in Options: what the game's own buffers held was translated into the old language (they
+            // fall back to their bytes' md5 until the game formats them again)
+            Tables& t = T();
+            std::lock_guard<std::mutex> lock(t.mutex);
+            t.formatted.clear();
+        }
         sLanguage = lang;
         if (lang != PORT_LANG_ORIGINAL) {
             Port_Text_Init();
@@ -653,8 +660,12 @@ int Port_Text_LanguageForced(void) {
     return getenv("PORT_LANGUAGE") != nullptr;
 }
 
-// The language select screen remembers the last choice (and whether the AI languages were unlocked) in the port's
-// settings, so the cursor starts there on the next boot.
+// The language chosen on the language select screen (first launch) or in Options, kept in the port's settings. A
+// saved language other than the original also means the AI languages were unlocked.
+int Port_Text_LanguageChosen(void) {
+    return CVarGetInteger("gPort.Language", -1) >= 0;
+}
+
 int Port_Text_SavedLanguage(void) {
     int lang = CVarGetInteger("gPort.Language", PORT_LANG_ORIGINAL);
     return (lang >= 0 && lang < PORT_LANG_COUNT) ? lang : PORT_LANG_ORIGINAL;

@@ -21,6 +21,7 @@
 #include "Engine.h"
 #include "rom_check.h"
 #include "save_editor/save_editor_ui.h"
+#include "cheats.h"
 
 #include <chrono>
 #include <libultraship/libultraship.h>
@@ -995,6 +996,9 @@ class LauncherWindow : public Ship::GuiWindow {
         if (getenv("PORT_LAUNCHER_OPEN_SOUND") != nullptr && !mSoundTestOpened) { // test hook (as OPEN_TOOLS)
             mSoundTestOpened = mSound = true;
         }
+        if (getenv("PORT_LAUNCHER_OPEN_CHEATS") != nullptr && !mCheatsTestOpened) { // test hook (as OPEN_TOOLS)
+            mCheatsTestOpened = mCheats = true;
+        }
 
         if (gSaveEditor.IsOpen()) {
             EditorPanel(16, 58, kW - 32, kH - 58 - 16);
@@ -1013,6 +1017,8 @@ class LauncherWindow : public Ship::GuiWindow {
             GraphicsPanel(16, 58, kW - 32, 366);
         } else if (mSound) {
             SoundPanel(16, 58, kW - 32, 366);
+        } else if (mCheats) {
+            CheatsPanel(16, 58, kW - 32, 366);
         } else {
             for (int i = 0; i < 4; i++) {
                 PlayerCard(i, 16 + i * (222 + 14), 58, 222, 366);
@@ -1082,6 +1088,11 @@ class LauncherWindow : public Ship::GuiWindow {
                 } else {
                     mToolsStatus = gEditorStatus;
                 }
+            }
+            if (Handheld() && ToolAction(Port::AnyCheatSet() ? "Cheats (on)" : "Cheats")) { // (desktop: under Save editor)
+                mTools = false;
+                GoToPage(kPageCheats);
+                mFocusReset = true;
             }
             if (ToolAction("Open settings folder")) OpenFolder(directory);
             if (ToolAction("Open saves folder")) OpenFolder(fs::u8path(mState->save).parent_path());
@@ -1605,7 +1616,7 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
 
-        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 32;
+        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 28; // (28: room for the Small text row above the presets)
         float ry = y + 56;
         auto label = [&](const char* name, const std::string& hint) {
             Text(lx, ry + 5, name, gFonts.body);
@@ -1701,6 +1712,15 @@ class LauncherWindow : public Ship::GuiWindow {
             label("Text font", "Letters of the translations.\nPop is a prototype.");
             int c = Choice("textfont", { "Unifont", "Pop" }, CVarGetInteger("gPort.TextFont", 0) == 1 ? 1 : 0, cx, ry, 84);
             if (c >= 0) CVarSetInteger("gPort.TextFont", c);
+        }
+        ry += pitch;
+        // outline on translated text under 16 pixels (unicode_font.cpp, Outlined); the game's 10/12 sets have none
+        {
+            label("Small text", "Translated text under 16 px.\nThe game's small kana have no outline.");
+            static const int kStyles[] = { 1, 0, 2 }; // shown order: Outline, Plain, Bold
+            const int cur = CVarGetInteger("gPort.SmallTextOutline", 2);
+            int c = Choice("smalltext", { "Outline", "Plain", "Bold" }, cur == 0 ? 1 : (cur == 2 ? 2 : 0), cx, ry, 84);
+            if (c >= 0) CVarSetInteger("gPort.SmallTextOutline", kStyles[c]);
         }
 
         // presets: lit when the settings match one (Display is not part of them)
@@ -1887,6 +1907,107 @@ class LauncherWindow : public Ship::GuiWindow {
         }
     }
 
+    // Cheats (cheats.h, GitHub issue #97): battle cheats ticked per player, GameShark codes per Transfer Pak. All off
+    // by default; kept as port settings (gCheats.*), never in the N64 save. Shown in place of the player cards.
+    void CheatsPanel(float x, float y, float w, float h) {
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
+        dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
+        Text(x + 14, y + 14, "CHEATS", gFonts.body, Theme::text);
+        Text(x + 90, y + 15, "All off unless ticked. Kept for the next start; never written to the N64 save.",
+             gFonts.small, Theme::dim);
+        if (!mCheatsLoaded) {
+            for (int p = 0; p < 4; p++) {
+                const char* codes = CVarGetString(Port::GbCheatKey(p).c_str(), "");
+                snprintf(mGbCodes[p].data(), mGbCodes[p].size(), "%s", codes != nullptr ? codes : "");
+            }
+            mCheatsLoaded = true;
+        }
+        bool changed = false;
+        if (Button("All off", x + w - 208, y + 9, 94, 26)) {
+            Port::ClearCheats();
+            for (auto& codes : mGbCodes) codes[0] = '\0';
+            changed = true;
+        }
+        if (Button("Done", x + w - 108, y + 9, 94, 26)) {
+            mCheats = false;
+            mCheatsLoaded = false;
+        }
+        dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
+
+        // battle cheats (left): one row per cheat, a box per player
+        const float lx = x + 14, cx = x + 268;
+        Text(lx, y + 56, "Stadium battles", gFonts.body);
+        for (int p = 0; p < 4; p++) {
+            Text(cx + p * 44 + 2, y + 58, std::to_string(p + 1) + "P", gFonts.small, Theme::dim);
+        }
+        float ry = y + 80;
+        for (int c = 0; c < PORT_CHEAT_COUNT; c++) {
+            const Port::CheatInfo& info = Port::Cheat(c);
+            const std::string key = std::string("gCheats.") + info.key;
+            Text(lx, ry + 4, info.label, gFonts.body);
+            ImGui::SetCursorScreenPos(P(lx, ry));
+            ImGui::InvisibleButton((key + "##tip").c_str(), ImVec2(240 * mScale, 26 * mScale));
+            if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", info.hint);
+            int mask = CVarGetInteger(key.c_str(), 0);
+            for (int p = 0; p < 4; p++) {
+                bool on = (mask >> p) & 1;
+                const std::string id = "##" + key + std::to_string(p);
+                if (Check(id.c_str(), &on, cx + p * 44, ry)) {
+                    mask = on ? (mask | (1 << p)) : (mask & ~(1 << p));
+                    if (mask != 0) CVarSetInteger(key.c_str(), mask);
+                    else CVarClear(key.c_str());
+                    changed = true;
+                }
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s for player %d", info.label, p + 1);
+            }
+            ry += 30;
+        }
+        Text(lx, ry + 6, "Players by controller port. The COM never gets them.", gFonts.small,
+             Theme::dim);
+
+        // Game Boy cheats (right): GameShark codes per Transfer Pak
+        const float gx = x + 470, gw = w - 470 - 14;
+        dl->AddRectFilled(P(gx - 14, y + 52), P(gx - 13, y + h - 12), Hex(Theme::cardBorder));
+        Text(gx, y + 56, "Game Boy (GameShark codes)", gFonts.body);
+        float gy = y + 82;
+        for (int p = 0; p < 4; p++) {
+            std::vector<std::string> errors;
+            const auto codes = Port::ParseGbCheats(mGbCodes[p].data(), &errors);
+            Text(gx, gy + 4, "Pak " + std::to_string(p + 1), gFonts.body);
+            ImGui::SetCursorScreenPos(P(gx + 56, gy));
+            ImGui::SetNextItemWidth((gw - 56) * mScale);
+            if (gFonts.body != nullptr) ImGui::PushFont(gFonts.body);
+            ImGui::SetWindowFontScale(mScale);
+            const std::string id = "##gbcodes" + std::to_string(p);
+            if (ImGui::InputTextWithHint(id.c_str(), "01VVLLHH codes, separated by spaces", mGbCodes[p].data(), mGbCodes[p].size(),
+                                         ImGuiInputTextFlags_CharsUppercase)) {
+                if (mGbCodes[p][0] != '\0') CVarSetString(Port::GbCheatKey(p).c_str(), mGbCodes[p].data());
+                else CVarClear(Port::GbCheatKey(p).c_str());
+                changed = true;
+            }
+            ImGui::SetWindowFontScale(1.0f);
+            if (gFonts.body != nullptr) ImGui::PopFont();
+            NavItem();
+            std::string status;
+            uint32_t color = Theme::dim;
+            if (!errors.empty()) {
+                status = "Not used: " + errors[0] + (errors.size() > 1 ? " (+" + std::to_string(errors.size() - 1) + ")" : "") +
+                         ". Codes are 01VVLLHH, address C000-DFFF.";
+                color = Theme::red;
+            } else if (!codes.empty()) {
+                status = std::to_string(codes.size()) + (codes.size() == 1 ? " code" : " codes") +
+                         " for the cartridge in Transfer Pak " + std::to_string(p + 1);
+            }
+            if (!status.empty()) Text(gx + 56, gy + 30, status, gFonts.small, color);
+            gy += 52;
+        }
+        Text(gx, gy + 2, "Written to the Game Boy's work RAM every frame while the GB Player", gFonts.small, Theme::red);
+        Text(gx, gy + 18, "runs that cartridge. If you save in the Game Boy game, what they", gFonts.small, Theme::red);
+        Text(gx, gy + 34, "changed (money, items, badges...) is kept in its cartridge save.", gFonts.small, Theme::red);
+        if (changed) CVarSave();
+    }
+
     void BottomBar(float x, float y, float w, float h) {
         State& s = *mState;
         ImDrawList* dl = ImGui::GetWindowDrawList();
@@ -1930,7 +2051,7 @@ class LauncherWindow : public Ship::GuiWindow {
         Check("Debug", &s.debug, x + 164, y + 88);
         if (Button(mSound ? "Players" : "Sound", x + 234, y + 86, 96, 26)) {
             mSound = !mSound;
-            mGraphics = mControls = mTools = false;
+            mGraphics = mControls = mTools = mCheats = false;
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Volume of music, sound effects, voices and the Game Boy; mute in the background");
@@ -1938,20 +2059,34 @@ class LauncherWindow : public Ship::GuiWindow {
         if (Button(mGraphics ? "Players" : "Graphics", x + 340, y + 86, 100, 26)) {
             mGraphics = !mGraphics;
             mEnhancements = false;
-            mControls = mTools = mSound = false;
+            mControls = mTools = mSound = mCheats = false;
         }
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Resolution, anti-aliasing, VSync, Smooth motion; a preset for slow graphics chips");
         }
         if (Button(mControls ? "Players" : "Controls", x + 450, y + 86, 100, 26)) {
             mControls = !mControls;
-            mGraphics = mTools = mSound = false;
+            mGraphics = mTools = mSound = mCheats = false;
+        }
+        // cheats (Debug, under Save editor; also whenever one is set, so a cheat is never on unseen): the cheats panel
+        const bool cheatsSet = Port::AnyCheatSet();
+        if (s.debug || cheatsSet) {
+            const uint32_t on = cheatsSet ? 0x8A5A12 : Theme::button; // amber while a cheat is set
+            if (ColorButton(mCheats ? "Players" : "Cheats", x + 556, y + 86, 62, 26, mCheats ? Theme::button : on,
+                            mCheats || !cheatsSet ? Theme::buttonHover : 0xA06A1A)) {
+                mCheats = !mCheats;
+                mGraphics = mControls = mTools = mSound = false;
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip(cheatsSet ? "Cheats are on (they are kept for the next start). Click to see or turn them off."
+                                            : "Battle cheats for each player and Game Boy GameShark codes (all off)");
+            }
         }
         // the game picture's shape (the rest of the window gets black bars)
-        Text(x + 566, y + 91, "Screen", gFonts.small, Theme::dim);
+        Text(x + 624, y + 91, "Screen", gFonts.small, Theme::dim);
         for (int a = 0; a < 2; a++) {
             const bool on = s.aspect == a;
-            if (ColorButton(a == 0 ? "4:3" : "16:9", x + 616 + a * 56, y + 86, 52, 26, on ? 0x23406B : Theme::button,
+            if (ColorButton(a == 0 ? "4:3" : "16:9", x + 664 + a * 44, y + 86, 42, 26, on ? 0x23406B : Theme::button,
                             on ? 0x23406B : Theme::buttonHover)) {
                 s.aspect = a;
                 mChanged = true;
@@ -2017,7 +2152,8 @@ class LauncherWindow : public Ship::GuiWindow {
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("Start the game directly next time (hold Shift while starting to see this launcher)");
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && romError.empty() && !mControls && !mTools && !mGraphics && !mSound) {
+        if (ImGui::IsKeyPressed(ImGuiKey_Enter) && romError.empty() && !mControls && !mTools && !mGraphics && !mSound &&
+            !mCheats) {
             *mPlay = ReadyToPlay(s);
         }
         (void)mQuit;
@@ -2122,6 +2258,10 @@ class LauncherWindow : public Ship::GuiWindow {
     void DrawHandheld() {
         NavBeginFrame();
         Tools();
+        if (getenv("PORT_LAUNCHER_OPEN_CHEATS") != nullptr && !mCheatsTestOpened) { // test hook (as on the desktop)
+            mCheatsTestOpened = true;
+            GoToPage(kPageCheats);
+        }
         if (mNavBack && mPage != kPageHome) {
             mTools = false;
             GoToPage(kPageHome);
@@ -2145,7 +2285,8 @@ class LauncherWindow : public Ship::GuiWindow {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         Text(24, 14, "Plethron", gFonts.title);
         const char* pageName = mPage == kPageTransferPak ? "Transfer Pak" : mPage == kPageControls ? "Controls"
-                               : mPage == kPageTools ? "Files & help" : mPage == kPageSaveEditor ? "Save editor" : "";
+                               : mPage == kPageTools ? "Files & help" : mPage == kPageSaveEditor ? "Save editor"
+                               : mPage == kPageCheats ? "Cheats" : "";
         Text(296, 17, pageName, gFonts.body, Theme::dim);
         dl->AddRectFilled(P(0, 50), P(kW, 51), Hex(Theme::cardBorder));
 
@@ -2155,6 +2296,11 @@ class LauncherWindow : public Ship::GuiWindow {
         } else if (mPage == kPageTools) {
             ToolsPanel(16, 62, kW - 32, 430);
             mDefaultFocus = 0;
+        } else if (mPage == kPageCheats) {
+            mCheats = true;
+            CheatsPanel(16, 62, kW - 32, 430);
+            mDefaultFocus = 0;
+            if (!mCheats) GoToPage(kPageHome); // the panel's Done button
         } else if (mPage == kPageTransferPak) {
             for (int i = 0; i < 4; i++) {
                 PlayerCard(i, 16 + i * (222 + 14), 62, 222, 366);
@@ -2264,7 +2410,8 @@ class LauncherWindow : public Ship::GuiWindow {
     struct NavRect {
         ImVec2 min, max;
     };
-    static constexpr int kPageHome = 0, kPageTransferPak = 1, kPageControls = 2, kPageTools = 3, kPageSaveEditor = 4;
+    static constexpr int kPageHome = 0, kPageTransferPak = 1, kPageControls = 2, kPageTools = 3, kPageSaveEditor = 4,
+                         kPageCheats = 5;
     int mPage = kPageHome;
     std::vector<NavRect> mNavItems, mNavPrev; // this frame's and last frame's focus targets, in drawing order
     int mFocus = -1, mDefaultFocus = 0;
@@ -2284,6 +2431,10 @@ class LauncherWindow : public Ship::GuiWindow {
     bool mSound = false;    // the sound panel instead of the player cards
     bool mEnhancements = false; // in the graphics panel: the enhancements page
     bool mSoundTestOpened = false;
+    bool mCheats = false;   // the cheats panel instead of the player cards
+    bool mCheatsTestOpened = false;
+    bool mCheatsLoaded = false; // the code fields hold the settings (read when the panel opens)
+    std::array<std::array<char, 512>, 4> mGbCodes {};
     bool mGraphicsTestOpened = false;
     int mPort = 0;          // whose controls it shows
     int mCapture = -1;      // the input (kInputs) waiting for a key or controller input, -1: none
