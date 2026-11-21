@@ -5138,7 +5138,8 @@ TWINEEDLE_MOVE_NAME,ee421edc4b7201cbe6b592cc90e60d45,8007AA70,ダブルニード
 PIN_MISSILE_MOVE_NAME,64a7ce5f064b08de6587dde946b8de5f,8007AA80,ミサイルばり,Pin Missile,Pin Misil,Nadelrakete,Pin Missile,바늘미사일,Dard-Nuée,Missilspillo,
 LEER_MOVE_NAME,7b1ab2bb058296b09ee60796197296b6,8007AA90,にらみつける,Leer,Malicioso,Silberblick,Leer,째려보기,Groz’Yeux,Fulmisguardo,
 BITE_MOVE_NAME,e973be3af33f5a5bab0629de9192100b,8007AAA0,かみつく,Bite,Mordisco,Biss,Bite,물기,Morsure,Morso,
-GROWL_MOVE_NAME,8435686ac71aeaf0820cde105fc81c0c,8007AAAC 8A12FCB8,なきごえ,Growl,Gruñido,Heuler,Growl,울음소리,Rugissement,Ruggito,
+GROWL_MOVE_NAME,8435686ac71aeaf0820cde105fc81c0c,8007AAAC,なきごえ,Growl,Gruñido,Heuler,Growl,울음소리,Rugissement,Ruggito,
+POKEDEX_MENU_CRY,8435686ac71aeaf0820cde105fc81c0c,8A12FCB8,鳴き声,Cry,Grito,Ruf,Grito,울음소리,Cri,Verso,Pokédex action menu: plays the species' cry. Same bytes as the move Growl.
 ROAR_MOVE_NAME,237a76b4c14915beea3f4540bbdabdbc,8007AAB8,ほえる,Roar,Rugido,Brüller,Roar,울부짖기,Hurlement,Boato,
 SING_MOVE_NAME,9d95e9ec256a084ee1ecc7a1f38f69f6,8007AAC0,うたう,Sing,Canto,Gesang,Sing,노래하기,Berceuse,Canto,
 SUPERSONIC_MOVE_NAME,8dec14bfae7d43965f07d0d8968a85c3,8007AAC8,ちょうおんぱ,Supersonic,Supersónico,Superschall,Supersonic,초음파,Ultrason,Supersuono,
@@ -6476,7 +6477,7 @@ OPTIONS_ON,e6fbb7691cf66c8d10742f1e3d8758f5,8840324C,,On,Sí,An,Lig.,켜기,Oui,
 OPTIONS_OFF,a61894ba277068de1b694a7c68fff082,88403254,,Off,No,Aus,Desl.,끄기,Non,No,
 OPTIONS_SOUND,133e4e8269e822066a71991f104f7137,88403268,,Sound           %s,Sonido          %s,Sound           %s,Som             %s,사운드          %s,Son             %s,Suono           %s,
 OPTIONS_COMMENTARY,81174d945f0855e5adf66ec001bf98bc,8840327C,実況　　　　　　%s,Commentary      %s,Comentarios     %s,Kommentar       %s,Narração        %s,실황            %s,Commentaires    %s,Commento        %s,
-OPTIONS_BACKUP,9dde0c7e16e0a326e4f85016369afc54,88403290,,Backup,Copia de datos,Datensicherung,Backup,백업,Sauvegarde,Dati di salvataggio,
+OPTIONS_BACKUP,9dde0c7e16e0a326e4f85016369afc54,88403290,セーブデータ消去,Clear Save Data,Borrar partida,Spielstand löschen,Apagar dados salvos,세이브 데이터 삭제,Effacer la sauvegarde,Cancella salvataggio,"Options row that opens the prompt clearing the N64 save, so it names that action (the literal word, backup, misleads)."
 OPTIONS_EXIT,f51246b27ec5c0a1bc9739e14230e2b2,884032A0 82194A10 82194A68 82194A90 82194ACC 82194AF8 82194B68 82194BEC 82194C4C 82194CDC 82194D6C 82194DA8 82194E3C 82194EC4 82194F50 82194FF0 8219507C 821950E8 82195188 821951E8 82195254 82195298 821952BC 82195338 82195400 82195A8C 82195A94 82195A9C,終わり,Exit,Salir,Ende,Sair,끝내기,Quitter,Esci,
 OPTIONS_THIS_CLEARS_THE_N64_SAVE,51ea26d23e36c4f6bed73c03825394f8,884032A8,64のセーブデータをクリアします,This clears the N64 save data.,Se borrarán los datos de la N64.,Die N64-Spieldaten werden gelöscht.,Isto apaga os dados salvos do N64.,N64의 저장 데이터를 지웁니다.,Les données N64 seront effacées.,I dati della N64 saranno cancellati.,
 OPTIONS_ARE_YOU_SURE,1af9ebae7c9a412bf6f22bf117c50d17,884032CC,,Are you sure?,¿Seguro?,Bist du sicher?,Tem certeza?,괜찮습니까?,Êtes-vous sûr ?,Sei sicuro?,

@@ -140,7 +140,7 @@ s32 GbMusic_StartTableSequence(u16 arg0) {
         return 0;
     }
 
-    offset = (u8*)D_800FD688->offset;
+    offset = (u8*)D_800FD688 + D_800FD688->offset; // PORT: offset is relative to the bank (GbMusic_RelocateBank)
     GbMusic_ResetApu();
 
     arg0--;
@@ -1076,9 +1076,10 @@ s32 GbMusic_CountActiveHighChannels(void) {
  */
 void GbMusic_RelocateBank(GbMusicBank* bank) {
     // PORT: the bank is DMA'd from ROM as big-endian bytes, and a u32 cannot hold a host pointer. Swap the header,
-    // the song entries and the track headers to host order once; `offset` becomes a host pointer (the 8-byte field
-    // also covers unk_0C) and each track's `data` stays an offset from the bank, which GbMusic_BindSequenceTracks
-    // adds to the bank's address. (The N64 relocated both to absolute addresses in place.)
+    // the song entries and the track headers to host order once; `offset` and each track's `data` stay offsets from
+    // the bank, which GbMusic_StartTableSequence and GbMusic_BindSequenceTracks add to the bank's address. (The N64
+    // relocated both to absolute addresses in place.) `offset` must stay a u32: a host pointer there moved entries[]
+    // 4 bytes on, so the Pokédex played the cry of the next species (Charizard sounded like Squirtle).
     s32 i, end;
     u8* raw = (u8*)bank;
     GbMusicTrackHeader* tracks;
@@ -1087,8 +1088,8 @@ void GbMusic_RelocateBank(GbMusicBank* bank) {
     bank->num_entries = (raw[2] << 8) | raw[3];
     bank->numSequences = (raw[4] << 8) | raw[5];
     bank->unk_06 = (raw[6] << 8) | raw[7];
-    tracks = (GbMusicTrackHeader*)(raw + (((u32)raw[8] << 24) | (raw[9] << 16) | (raw[10] << 8) | raw[11]));
-    bank->offset = tracks;
+    bank->offset = ((u32)raw[8] << 24) | (raw[9] << 16) | (raw[10] << 8) | raw[11];
+    tracks = (GbMusicTrackHeader*)(raw + bank->offset);
     for (i = 0; i < bank->num_entries; i++) {
         u8* e = (u8*)&bank->entries[i];
         bank->entries[i].seqId = (e[0] << 8) | e[1];
