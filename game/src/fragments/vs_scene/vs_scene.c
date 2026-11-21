@@ -275,13 +275,15 @@ s32 VsScene_DrawFrameToImage(s32 unused) {
 // PORT: after つづける the cap and its sparkles slide off to the left and stay parked at the end of their curves, just
 // past the 4:3 picture's left edge, until the scene ends: in widescreen that spot is on screen, so a piece of the cap
 // sat at the side through the next round's title and VS panels. Set once つづける is chosen (Tournament_PlayBadgeAward);
-// while it is set, a widescreen picture moves each of the two models far to the left once its curve has reached its
-// end. They are moved, not hidden, so their geo callbacks still run every frame as on the N64 (the cap's
-// FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Nothing changes at 4:3.
-#define PORT_PARKED_CAP_SHIFT_X -4000.0f
+// while it is set, a widescreen picture shrinks each of the two models to nothing once its curve has reached its end
+// (and gives it its scale back when that ends). They are kept, not hidden, so their geo callbacks still run every frame
+// as on the N64 (the cap's FireFx_ScrollMaterialGeoCallback steps the fire scroll the round title shares). Shrunk, not
+// moved: moving it x -4000 (the first fix) put the cap in the middle of the picture, behind the VS panels, in the
+// semifinal's VS scene. Nothing changes at 4:3.
 static s32 sPortCapParkedOffscreen = 0;
 extern s32 gPortCullOutside43; // PORT: geo_render.c
-static s32 sPortCapShifted[2] = { 0, 0 };
+static s32 sPortCapShrunk[2] = { 0, 0 };
+static Vec3f sPortCapScale[2];
 
 static void VsScene_PortHideParkedCap(void) {
     DisplayObject* objs[2] = { &D_822033D0, &D_82203538 };
@@ -293,9 +295,14 @@ static void VsScene_PortHideParkedCap(void) {
                      (ANIM_FLAGS(anim->data) & 2) &&
                      (anim->frameFixed >> 16) >= (s32)ANIM_END(anim->data) - 1; // clamped: holds at end - 1
 
-        if (parked != sPortCapShifted[i]) {
-            objs[i]->position.x += parked ? PORT_PARKED_CAP_SHIFT_X : -PORT_PARKED_CAP_SHIFT_X;
-            sPortCapShifted[i] = parked;
+        if (parked != sPortCapShrunk[i]) {
+            if (parked) {
+                sPortCapScale[i] = objs[i]->scale;
+                objs[i]->scale.x = objs[i]->scale.y = objs[i]->scale.z = 0.0f;
+            } else {
+                objs[i]->scale = sPortCapScale[i];
+            }
+            sPortCapShrunk[i] = parked;
         }
     }
 }
