@@ -12,6 +12,13 @@ void PortEnh_CardModelsLoadFrom(s32 side, s32 card, s32 from_side, s32 from_card
 void PortEnh_CardModelsRestore(s32 side, s32 card);
 // Whether the card's model is loaded and the picture exists.
 s32 PortEnh_CardModelReady(s32 side, s32 card);
+s32 PortEnh_CardModelSpecies(s32 side, s32 card); // whose model the card shows (0 none)
 // Draws the copies into the port's card picture (after the battle's HUD), animated as the cards' states say.
-// active[s]: the card in battle on side s (-1 none); battle[s]: that side's battle model
-void PortEnh_CardModelsDraw(const hu_side sides[2], const s32 active[2], DisplayObject* const battle[2]);
+// What a side's battle shows of the Pokémon in battle, for its card.
+typedef struct PortEnhCardBattle {
+    s32 active;               // its card (-1 none)
+    const DisplayObject* obj; // its battle model
+    s32 faintAnim;            // its fainting animation (its battle cues), -1 unknown
+    s32 sleepAnim;            // its sleeping idle, -1 none
+} PortEnhCardBattle;
+void PortEnh_CardModelsDraw(const hu_side sides[2], const PortEnhCardBattle battle[2]);

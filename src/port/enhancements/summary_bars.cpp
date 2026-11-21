@@ -36,20 +36,26 @@ namespace {
 constexpr float kMinSide = 0.18f;
 
 // the cards' model picture (card_models.c draws into it): created on the render thread, read by the game thread
-std::atomic<int> gCardFb{ 0 };
-ImTextureID gCardTexture = 0;
+// One picture per side (a row of cells each): a single two-row picture came out with its rows swapped on one
+// renderer and not the other (Linux GL vs Windows DirectX 11), as the cells' heights are placed per renderer.
+std::atomic<int> gCardFb[2] = { 0, 0 };
+ImTextureID gCardTexture[2] = { 0, 0 };
 
 void EnsureCardPicture() {
-    if (gCardFb.load() > 0) {
-        auto window = Port::GetWindow();
-        auto interp = window ? window->GetInterpreterWeak().lock() : nullptr;
-        if (interp) gCardTexture = (ImTextureID)interp->GetCurrentRenderingAPI()->GetFramebufferTextureId(gCardFb.load());
-        return;
+    for (int s = 0; s < 2; s++) {
+        if (gCardFb[s].load() > 0) {
+            auto window = Port::GetWindow();
+            auto interp = window ? window->GetInterpreterWeak().lock() : nullptr;
+            if (interp) {
+                gCardTexture[s] = (ImTextureID)interp->GetCurrentRenderingAPI()->GetFramebufferTextureId(gCardFb[s].load());
+            }
+            continue;
+        }
+        // fixed size, no widescreen adjustment: the game's coordinates are the picture's pixels
+        int fb = gfx_create_framebuffer(PORT_ENH_CARD_ATLAS_W, PORT_ENH_CARD_CELL, PORT_ENH_CARD_ATLAS_W,
+                                        PORT_ENH_CARD_CELL, 0, false);
+        if (fb > 0) gCardFb[s].store(fb);
     }
-    // fixed size, no widescreen adjustment: the game's coordinates are the picture's pixels
-    int fb = gfx_create_framebuffer(PORT_ENH_CARD_ATLAS_W, PORT_ENH_CARD_ATLAS_H, PORT_ENH_CARD_ATLAS_W,
-                                    PORT_ENH_CARD_ATLAS_H, 0, false);
-    if (fb > 0) gCardFb.store(fb);
 }
 
 ImU32 Rgba(int r, int g, int b, int a) {
@@ -72,6 +78,28 @@ void Text(ImDrawList* dl, ImFont* f, float x, float y, float size, float maxw, c
     dl->PopClipRect();
 }
 
+// Where the face is in a large Pokémon's cell (as a fraction of the cell) and how far to zoom in on it. Zero's
+// model framing (its preview scene) shows them whole, their faces small.
+void FaceFrame(int species, float* zoom, float* cx, float* cy) {
+    struct Frame {
+        int species;
+        float zoom, cx, cy;
+    };
+    static const Frame kFrames[] = {
+        { 95, 1.9f, 0.62f, 0.36f },  // Onix
+        { 103, 1.6f, 0.50f, 0.36f }, // Exeggutor
+        { 131, 1.5f, 0.48f, 0.34f }, // Lapras
+    };
+    for (const Frame& f : kFrames) {
+        if (f.species == species) {
+            *zoom = f.zoom;
+            *cx = f.cx;
+            *cy = f.cy;
+            return;
+        }
+    }
+}
+
 void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int i, ImVec2 p0, ImVec2 p1) {
     const hu_card& c = v.sides[s].cards[i];
     const hu_card_state state = hu_card_get_state(&c);
@@ -84,16 +112,22 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
     dl->AddRectFilled(p0, p1, active ? Rgba(0x28, 0x34, 0x58, 0xF0) : Rgba(0x14, 0x18, 0x28, 0xE8), h * 0.12f);
     if (active) dl->AddRect(p0, p1, Rgba(0xF8, 0xD8, 0x30, 0xFF), h * 0.12f, 0, std::max(1.0f, h * 0.025f));
 
-    // the model: its cell of the card picture (card_models.c), tinted as hu_card_model_look says
+    // the model: its cell of the card picture (card_models.c), on the card's outer side (the left trainer's on the
+    // left, the right trainer's on the right), the text column beside it
+    const bool right = (s == 1);
     const float m = std::min(h - 2 * pad, w * 0.34f);
-    const ImVec2 m0(p0.x + pad, p0.y + (h - m) / 2), m1(m0.x + m, m0.y + m);
+    const ImVec2 m0(right ? p1.x - pad - m : p0.x + pad, p0.y + (h - m) / 2), m1(m0.x + m, m0.y + m);
     dl->AddRectFilled(m0, m1, Rgba(0x30, 0x3C, 0x60, 0xFF), m * 0.18f);
-    if (v.modelReady[s][i] && gCardTexture) {
-        const float cu = 1.0f / HU_SIDE_MAX, cv = 0.5f;
-        // (the framebuffer's rows come out bottom-up: the game's row 0, side 0, is the texture's lower half)
-        const ImVec2 uv0(i * cu, (1 - s) * cv), uv1((i + 1) * cu, (2 - s) * cv);
+    if (v.modelReady[s][i] && gCardTexture[s]) {
+        // large Pokémon: the part of the cell with the face, while it has not fainted (the spec's "Model")
+        float zoom = 1.0f, cx = 0.5f, cy = 0.5f;
+        if (state != HU_CARD_FAINTED) FaceFrame(v.modelSpecies[s][i], &zoom, &cx, &cy);
+        const float half = 0.5f / zoom;
+        const float x0 = std::clamp(cx - half, 0.0f, 1.0f - 2 * half), y0 = std::clamp(cy - half, 0.0f, 1.0f - 2 * half);
+        const float cu = 1.0f / HU_SIDE_MAX;
+        const ImVec2 uv0((i + x0) * cu, y0), uv1((i + x0 + 2 * half) * cu, y0 + 2 * half);
         // (its tint is the model's own: card_models.c blends it in as the game blends a model toward a colour)
-        dl->AddImageRounded(gCardTexture, m0, m1, uv0, uv1, IM_COL32_WHITE, m * 0.18f);
+        dl->AddImageRounded(gCardTexture[s], m0, m1, uv0, uv1, IM_COL32_WHITE, m * 0.18f);
     } else {
         char dex[8];
         snprintf(dex, sizeof dex, "%u", c.model_species);
@@ -105,8 +139,8 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
         dl->AddRect(m0, m1, Rgba(0xFF, 0xFF, 0xFF, 0xC0), m * 0.18f, 0, std::max(1.0f, m * 0.05f));
     }
 
-    // the text column: name, HP, the moves two by two, speed
-    const float x = m1.x + pad, tw = p1.x - pad - x;
+    // the text column: name, HP, the moves two by two under it, speed under them
+    const float x = right ? p0.x + pad : m1.x + pad, tw = (right ? m0.x : p1.x) - pad - x;
     const float row = (h - 2 * pad) / 5.0f, ts = row * 0.86f;
     float y = p0.y + pad;
     const ImU32 white = Rgba(0xFF, 0xFF, 0xFF, alpha);
@@ -115,7 +149,7 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
         snprintf(lv, sizeof lv, "L%u", c.level);
         const float lw = f->CalcTextSizeA(ts * 0.8f, FLT_MAX, 0, lv).x;
         Text(dl, f, x, y, ts, tw - lw - pad, v.names[s][i], white);
-        dl->AddText(f, ts * 0.8f, ImVec2(p1.x - pad - lw, y + ts * 0.15f), Rgba(0xD0, 0xD0, 0xD0, alpha), lv);
+        dl->AddText(f, ts * 0.8f, ImVec2(x + tw - lw, y + ts * 0.15f), Rgba(0xD0, 0xD0, 0xD0, alpha), lv);
     }
     y += row;
     // HP: the Game Boy's bar colours; the numbers only for the side whose HP the player may know
@@ -141,7 +175,7 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
             dl->AddCircleFilled(ImVec2(b1.x + bh * 0.9f, (b0.y + b1.y) / 2), bh * 0.6f, Rgba(sc.r, sc.g, sc.b, 0xFF));
         }
         if (own) {
-            Text(dl, f, p1.x - pad - hw, y + (row - hs) / 2, hs, hw + 1, hp, white);
+            Text(dl, f, x + tw - hw, y + (row - hs) / 2, hs, hw + 1, hp, white);
         }
     }
     y += row;
@@ -208,8 +242,8 @@ class SummaryBarsWindow : public Ship::GuiWindow {
 
 } // namespace
 
-extern "C" int Port_Enh_CardModelFramebuffer(void) {
-    return gCardFb.load();
+extern "C" int Port_Enh_CardModelFramebuffer(int side) {
+    return (side == 0 || side == 1) ? gCardFb[side].load() : 0;
 }
 
 void Port_Enh_InstallOverlay(void* gui) {

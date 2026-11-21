@@ -33,8 +33,24 @@ extern struct Controller* D_800603C0; // gPlayer1Controller
 #define MS_BTN_CDOWN 0x0004
 #define MS_BTN_CANY 0x000F
 
-static s32 sOpen;
+static s32 sOpen;    // shown (also while it opens and closes)
+static s32 sClosing; // closing: the window empties, then contracts
+static s32 sAnim;    // 0 closed .. MS_EXPAND + MS_FILL fully open
 static s32 sCursor;
+
+// The window opens as the game's windows do: it expands from its middle, then fills with its contents; it closes the
+// other way round (hippodrome-utils AGENTS.md, design principle 2).
+#define MS_EXPAND 8
+#define MS_FILL 6
+static f32 sFade = 1.0f; // the contents' opacity while drawing
+
+static void MsRect(f32 x, f32 y, f32 w, f32 h, u8 r, u8 g, u8 b, u8 a) {
+    Enh_Rect(x, y, w, h, r, g, b, (u8)(a * sFade));
+}
+
+static void MsText(f32 x, f32 y, f32 height, f32 max_width, const char* utf8, u8 r, u8 g, u8 b, u8 a) {
+    Enh_Text(x, y, height, max_width, utf8, r, g, b, (u8)(a * sFade));
+}
 
 // A port string: its translation, else the original language's kana, else English.
 static const char* Str(const char* id, const char* kana, const char* en) {
@@ -63,7 +79,7 @@ s32 PortEnh_MemoryScreenUpdate(s32 state, s32 cup_cursor) {
     u16 pressed;
 
     if (!Port_Enh_TrainerMemoryEnabled() || cup == 0 || D_800603C0 == NULL) {
-        sOpen = 0;
+        sOpen = sClosing = sAnim = 0;
         return 0;
     }
     Port_Enh_SaveMemory(); // what the last battle learned (writes only when something changed)
@@ -71,13 +87,24 @@ s32 PortEnh_MemoryScreenUpdate(s32 state, s32 cup_cursor) {
     if (!sOpen) {
         if (pressed & MS_BTN_CANY) {
             sOpen = 1;
+            sClosing = 0;
+            sAnim = 0;
             sCursor = 0;
             return 1; // the press opened the screen; the menu does not see it
         }
         return 0;
     }
+    if (sClosing) {
+        if (--sAnim <= 0) {
+            sOpen = sClosing = sAnim = 0;
+        }
+        return 1; // (the menu waits until it has closed)
+    }
+    if (sAnim < MS_EXPAND + MS_FILL) {
+        sAnim++;
+    }
     if (pressed & (MS_BTN_B | (MS_BTN_CANY & ~(MS_BTN_CUP | MS_BTN_CDOWN)))) { // B, C-Left or C-Right closes it
-        sOpen = 0;
+        sClosing = 1;
     } else if (pressed & (MS_BTN_DUP | MS_BTN_CUP)) {
         sCursor = (sCursor + rows - 1) % rows;
     } else if (pressed & (MS_BTN_DDOWN | MS_BTN_CDOWN)) {
@@ -110,7 +137,7 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
     s32 i, k;
 
     if (v->teamCount == 0) {
-        Enh_Text(x, y, 14.0f, w, Str("PORT_MEMORY_TEAM_UNKNOWN", "てもちは まだ わからない", "Team not seen yet"), 0xA0,
+        MsText(x, y, 14.0f, w, Str("PORT_MEMORY_TEAM_UNKNOWN", "てもちは まだ わからない", "Team not seen yet"), 0xA0,
                  0xA0, 0xA0, 0xFF);
         return;
     }
@@ -119,11 +146,11 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
         const hu_tm_mon* own = (v->own != NULL) ? hu_tm_find_mon(v->own, team_mon->species) : NULL;
         f32 ry = y + i * row_h;
         f32 mx = x + 150.0f;
-        Enh_Rect(x - 4.0f, ry - 2.0f, w + 8.0f, row_h - 4.0f, 0x20, 0x28, 0x40, 0xC0);
-        Enh_Text(x, ry, 14.0f, 140.0f, SpeciesName(team_mon->species), 0xFF, 0xFF, 0xFF, 0xFF);
+        MsRect(x - 4.0f, ry - 2.0f, w + 8.0f, row_h - 4.0f, 0x20, 0x28, 0x40, 0xC0);
+        MsText(x, ry, 14.0f, 140.0f, SpeciesName(team_mon->species), 0xFF, 0xFF, 0xFF, 0xFF);
         if (own != NULL || v->team == v->own) {
             snprintf(buf, sizeof buf, "L%u", team_mon->level);
-            Enh_Text(x, ry + 17.0f, 12.0f, 140.0f, buf, 0xE0, 0xE0, 0xE0, 0xFF);
+            MsText(x, ry + 17.0f, 12.0f, 140.0f, buf, 0xE0, 0xE0, 0xE0, 0xFF);
         }
         if (own != NULL && (own->flags & HU_TM_MON_HAS_SPEED)) {
             snprintf(buf, sizeof buf, "%s %u-%u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), own->speed.min,
@@ -131,7 +158,7 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
             if (own->speed.min == own->speed.max) {
                 snprintf(buf, sizeof buf, "%s %u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), own->speed.min);
             }
-            Enh_Text(x, ry + 33.0f, 12.0f, 140.0f, buf, 0x90, 0xD8, 0xFF, 0xFF);
+            MsText(x, ry + 33.0f, 12.0f, 140.0f, buf, 0x90, 0xD8, 0xFF, 0xFF);
         }
         // the moves seen, two by two; the others as dashes (moves are per cup, so only this trainer's own record)
         for (k = 0; k < 4; k++) {
@@ -147,7 +174,7 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
             } else if (team_mon->moves[k] == 0 && v->team == v->own) {
                 continue; // an empty slot
             }
-            Enh_Text(kx, ky, 14.0f, (w - 150.0f) / 2 - 6.0f, name, col.r, col.g, col.b, a);
+            MsText(kx, ky, 14.0f, (w - 150.0f) / 2 - 6.0f, name, col.r, col.g, col.b, a);
         }
     }
 }
@@ -173,14 +200,25 @@ void PortEnh_MemoryScreenDraw(s32 state, s32 cup_cursor) {
         return;
     }
     tm = Port_Enh_Memory();
-    Enh_Rect(24.0f, 40.0f, 592.0f, 412.0f, 0x08, 0x0C, 0x18, 0xF0);
-    Enh_Rect(24.0f, 40.0f, 592.0f, 2.0f, 0xF8, 0xD8, 0x30, 0xFF);
-    Enh_Text(40.0f, 48.0f, 18.0f, 400.0f, Str("PORT_MEMORY_TITLE", "トレーナーの きおく", "Trainer memory"), 0xFF, 0xFF,
+    {
+        // the window: it expands from its middle, then its contents fade in
+        f32 e = (sAnim >= MS_EXPAND) ? 1.0f : (f32)sAnim / MS_EXPAND;
+        f32 w = 592.0f * e, h = 412.0f * e;
+        f32 x = 24.0f + (592.0f - w) / 2, y = 40.0f + (412.0f - h) / 2;
+        Enh_Rect(x, y, w, h, 0x08, 0x0C, 0x18, 0xF0);
+        Enh_Rect(x, y, w, 2.0f, 0xF8, 0xD8, 0x30, 0xFF);
+        sFade = (sAnim <= MS_EXPAND) ? 0.0f : (f32)(sAnim - MS_EXPAND) / MS_FILL;
+        if (sFade <= 0.0f) {
+            Enh_End();
+            return;
+        }
+    }
+    MsText(40.0f, 48.0f, 18.0f, 400.0f, Str("PORT_MEMORY_TITLE", "トレーナーの きおく", "Trainer memory"), 0xFF, 0xFF,
              0xFF, 0xFF);
     {
         const char* back = Str("PORT_MEMORY_BACK", "Ｂ：もどる", "B: Back");
         f32 w = Enh_TextWidth(14.0f, back);
-        Enh_Text(600.0f - w, 52.0f, 14.0f, 0, back, 0xC0, 0xC0, 0xC0, 0xFF);
+        MsText(600.0f - w, 52.0f, 14.0f, 0, back, 0xC0, 0xC0, 0xC0, 0xFF);
     }
     // the trainers
     for (i = 0; i < rows; i++) {
@@ -188,22 +226,23 @@ void PortEnh_MemoryScreenDraw(s32 state, s32 cup_cursor) {
         f32 ry = 78.0f + i * (rows > 8 ? 24.0f : 44.0f);
         u8 a = v.reached ? 0xFF : 0x90;
         if (i == sCursor) {
-            Enh_Rect(32.0f, ry - 3.0f, 196.0f, (rows > 8 ? 22.0f : 40.0f), 0x30, 0x50, 0x90, 0xFF);
+            MsRect(32.0f, ry - 3.0f, 196.0f, (rows > 8 ? 22.0f : 40.0f), 0x30, 0x50, 0x90, 0xFF);
         }
         snprintf(buf, sizeof buf, "%d", i + 1);
-        Enh_Text(38.0f, ry, 14.0f, 0, buf, 0xC0, 0xC0, 0xC0, a);
+        MsText(38.0f, ry, 14.0f, 0, buf, 0xC0, 0xC0, 0xC0, a);
         if (v.reached) {
             TrainerName(v.own, buf, sizeof buf);
         } else {
             snprintf(buf, sizeof buf, "%s", Str("PORT_MEMORY_NOT_MET", "まだ あっていない", "Not met yet"));
         }
-        Enh_Text(62.0f, ry, 14.0f, 160.0f, buf, 0xFF, 0xFF, 0xFF, a);
+        MsText(62.0f, ry, 14.0f, 160.0f, buf, 0xFF, 0xFF, 0xFF, a);
     }
     // the highlighted trainer's team
     {
         ZeroTmView v = ZeroTm_View(tm, cup, division, sCursor);
-        Enh_Rect(236.0f, 74.0f, 2.0f, 370.0f, 0x40, 0x48, 0x60, 0xFF);
+        MsRect(236.0f, 74.0f, 2.0f, 370.0f, 0x40, 0x48, 0x60, 0xFF);
         DrawDetail(&v, 252.0f, 80.0f, 352.0f);
     }
+    sFade = 1.0f;
     Enh_End();
 }

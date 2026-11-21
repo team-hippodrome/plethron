@@ -32,6 +32,34 @@ extern DisplayObject* D_800AD1C0; // the preview scene's model, captured while i
 s32 PokeIcon_CapturePreviewGeoNode(s32, GraphNode*);
 void* MainPool_InitState(struct MainPoolState* block, s32 size); // main_pool.c
 
+// The model renderer's per-frame slot counters (battle_hud.c): a card's model must leave them as the battle's own
+// models set them.
+extern s16 D_800AFB26;
+extern s16 D_800AFB28;
+extern s16 D_800AFB2C[2];
+extern s16 D_800AFB30[2];
+typedef struct SlotState {
+    s16 b26, b28, b2c[2], b30[2];
+} SlotState;
+
+static void SaveSlots(SlotState* st) {
+    st->b26 = D_800AFB26;
+    st->b28 = D_800AFB28;
+    st->b2c[0] = D_800AFB2C[0];
+    st->b2c[1] = D_800AFB2C[1];
+    st->b30[0] = D_800AFB30[0];
+    st->b30[1] = D_800AFB30[1];
+}
+
+static void RestoreSlots(const SlotState* st) {
+    D_800AFB26 = st->b26;
+    D_800AFB28 = st->b28;
+    D_800AFB2C[0] = st->b2c[0];
+    D_800AFB2C[1] = st->b2c[1];
+    D_800AFB30[0] = st->b30[0];
+    D_800AFB30[1] = st->b30[1];
+}
+
 // per model copy: its scene and model data (the copy's geo layout and the model's host tables)
 #define CARD_MODEL_POOL (2 * 1024 * 1024)
 
@@ -46,8 +74,10 @@ typedef struct CardModel {
     DisplayObject* obj;
     s32 anim;  // the animation playing (-1 none)
     s32 speed; // 16.16 step
-    s32 faintAnim; // the battle model's fainting animation once it starts (-1 not yet, -2 idling before it)
-    u8 faintHeld;  // that animation has ended: the card keeps its last frame
+    s32 faintAnim;  // the species' fainting animation (from its battle cues while it is in battle), -1 unknown
+    s32 sleepAnim;  // its sleeping idle (Primeape and Exeggutor have one), -1 none: it idles
+    u8 faintStarted; // the card is playing the fainting animation
+    u8 faintHeld;    // it has ended: the card keeps its last frame
 } CardModel;
 
 static CardModel sCards[2][HU_SIDE_MAX];
@@ -69,6 +99,7 @@ static void FreeCard(CardModel* c) {
     c->own = own;
     c->anim = -1;
     c->faintAnim = -1;
+    c->sleepAnim = -1;
 }
 
 void PortEnh_CardModelsFree(void) {
@@ -117,7 +148,15 @@ static s32 LoadCard(CardModel* c, BattleMon* mon) {
     c->obj->position.y = (s16)(info->unk_14 >> 5) >> 6;
     c->obj->position.z = (s16)(info->unk_14 << 5) >> 5;
     c->obj->rotation = D_8006045C;
-    Model_InitDisplayObject(c->obj, 0, species, model->unk_08->unk_00[0]);
+    // Not one of the battle's two effect slots (0xFF: none): Charizard's and Moltres's flames are slot models of the
+    // battle's own two Pokémon, and initialising a model resets its slot (it would reset the battle's)
+    c->obj->effectSlot = 0xFF;
+    {
+        SlotState saved;
+        SaveSlots(&saved);
+        Model_InitDisplayObject(c->obj, 0, species, model->unk_08->unk_00[0]);
+        RestoreSlots(&saved);
+    }
     Vec3f_SetComponentsDuplicate(&c->obj->scale, info->modelScale / 100.0f, info->modelScale / 100.0f,
                                  info->modelScale / 100.0f);
     c->obj->node.renderFlags &= ~0x40;
@@ -159,8 +198,12 @@ void PortEnh_CardModelsRestore(s32 side, s32 card) {
     }
 }
 
+s32 PortEnh_CardModelSpecies(s32 side, s32 card) {
+    return VALID(side, card) && sCards[side][card].loaded ? sCards[side][card].species : 0;
+}
+
 s32 PortEnh_CardModelReady(s32 side, s32 card) {
-    return VALID(side, card) && sCards[side][card].loaded && Port_Enh_CardModelFramebuffer() > 0;
+    return VALID(side, card) && sCards[side][card].loaded && Port_Enh_CardModelFramebuffer(side) > 0;
 }
 
 void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // model_renderer.c
@@ -176,62 +219,71 @@ static void SetSpeed(CardModel* c, s32 speed) {
     }
 }
 
-// Shows what the battle model shows: its animation, at its frame.
-static void Follow(CardModel* c, const DisplayObject* battle) {
-    if (c->anim != battle->transformAnim.animationId) {
-        ModelAnim_SetAnimation(c->obj, battle->transformAnim.animationId);
-        c->anim = battle->transformAnim.animationId;
+static void Play(CardModel* c, s32 anim, s32 speed) {
+    if (c->anim != anim) {
+        ModelAnim_SetAnimation(c->obj, anim);
+        c->anim = anim;
         c->speed = 0x10000; // (binding an animation sets its speed)
+        ModelAnim_SetFrame(c->obj, 0);
+    } else if (speed != 0 && c->obj->transformAnim.data != NULL && ModelAnim_IsFinished(c->obj)) {
+        ModelAnim_SetFrame(c->obj, 0); // a loop, as the battle restarts its idle (Battle_ReturnToIdleAnimIfFinished)
     }
-    SetSpeed(c, 0);
-    c->obj->transformAnim.frameFixed = battle->transformAnim.frameFixed;
+    SetSpeed(c, speed);
 }
 
-static void SetLook(CardModel* c, const hu_card* card, const DisplayObject* battle) {
+// The card's look (the spec's "Model"). The card plays its own animations, never what its battle model is doing
+// (hits, moves): idle (half speed when statused), its sleeping idle when asleep (Zero's sleepers idle, but for
+// Primeape's and Exeggutor's own one), held when frozen or not picked, and on fainting the species' fainting
+// animation, started with the battle model's, then held on its last frame, in grey. The tint is the model's
+// material colour (the game's blend toward a colour, as on Onix's red flash).
+static void SetLook(CardModel* c, const hu_card* card, const PortEnhCardBattle* battle) {
     hu_model_look look = hu_card_model_look(card, PORT_ENH_FAINT_FRAMES);
-    const s32 follows = battle != NULL && c->shown == c->own && battle->objectType == c->species &&
-                        battle->transformAnim.animationId >= 0;
+    const s32 in_battle = battle != NULL && battle->obj != NULL && c->shown == c->own &&
+                          battle->obj->objectType == c->species;
     hu_rgb tint = look.tint;
     f32 tint_amount = look.tint_amount;
     s32 speed = (s32)(look.anim_speed * 0x10000);
     u8 amount;
 
-    if (look.anim != HU_ANIM_FAINT) {
-        c->faintAnim = -1;
-        c->faintHeld = 0;
+    if (in_battle) {
+        // what the species' battle cues say (only loaded for the Pokémon in battle)
+        if (battle->faintAnim > 0) c->faintAnim = battle->faintAnim;
+        c->sleepAnim = battle->sleepAnim;
     }
-    if (look.anim == HU_ANIM_FAINT && !c->faintHeld) {
-        // The battle model idles a while (the HP bar, the message), plays its fainting animation, then turns away.
-        // The card follows it until that animation ends, then holds; grey from then on.
-        s32 id = follows ? battle->transformAnim.animationId : -1;
-        if (c->faintAnim == -1 && id == 0) {
-            c->faintAnim = -2; // idling after the blow (an animation before that is the blow's own)
-        } else if (c->faintAnim == -2 && id > 0) {
-            c->faintAnim = id;
-        }
-        if (id < 0 || (c->faintAnim >= 0 && id != c->faintAnim)) {
-            // it ended (or the battle model is gone): hold. Zero's fainting animation is a dizzy sway that ends
-            // standing again (the Pokémon then turns away), so the card keeps its middle, the dizziest pose.
-            c->faintHeld = 1;
-            if (c->faintAnim >= 0 && c->anim == c->faintAnim && c->obj->transformAnim.data != NULL) {
-                c->obj->transformAnim.frameFixed = (s32)(ANIM_END(c->obj->transformAnim.data) / 2) << 16;
+    if (look.anim != HU_ANIM_FAINT) {
+        c->faintStarted = c->faintHeld = 0;
+    }
+    switch (look.anim) {
+        case HU_ANIM_FAINT:
+            if (c->faintHeld) {
+                break;
             }
-        } else {
-            Follow(c, battle);
-        }
-    } else if ((look.anim == HU_ANIM_SLEEP || look.anim == HU_ANIM_FROZEN) && follows) {
-        Follow(c, battle); // in battle: its battle model (Zero's sleepers mostly idle, frozen ones stand still)
-    } else if (look.anim == HU_ANIM_FROZEN || look.anim == HU_ANIM_HOLD || look.anim == HU_ANIM_FAINT) {
-        SetSpeed(c, 0); // frozen on the bench, not picked, or fainted: the pose it has, held
-    } else {
-        // idle (status: half speed; a sleeper on the bench idles, as Zero's sleeping battle models do)
-        if (look.anim == HU_ANIM_SLEEP) speed = 0x10000;
-        if (c->anim != 0) {
-            ModelAnim_SetAnimation(c->obj, 0);
-            ModelAnim_SetFrame(c->obj, 0);
-            c->anim = 0;
-        }
-        SetSpeed(c, speed);
+            if (!c->faintStarted && c->faintAnim > 0 &&
+                (!in_battle || battle->obj->transformAnim.animationId == c->faintAnim)) {
+                c->faintStarted = 1; // with the battle model's (or now, if it has left the field)
+                c->anim = -1;
+                Play(c, c->faintAnim, 0x10000);
+            } else if (!c->faintStarted && c->faintAnim <= 0 && !in_battle) {
+                c->faintHeld = 1; // (its fainting animation is not known: it stops where it is)
+                SetSpeed(c, 0);
+            } else if (c->faintStarted && c->obj->transformAnim.data != NULL && ModelAnim_IsFinished(c->obj)) {
+                c->faintHeld = 1;
+                SetSpeed(c, 0);
+                c->obj->transformAnim.frameFixed = (s32)(ANIM_END(c->obj->transformAnim.data) - 1) << 16;
+            } else if (!c->faintStarted) {
+                Play(c, 0, 0x10000); // idling until the battle model faints
+            }
+            break;
+        case HU_ANIM_SLEEP:
+            Play(c, (c->sleepAnim > 0) ? c->sleepAnim : 0, 0x10000);
+            break;
+        case HU_ANIM_FROZEN:
+        case HU_ANIM_HOLD:
+            SetSpeed(c, 0); // the pose it has, held
+            break;
+        default:
+            Play(c, 0, speed);
+            break;
     }
     if (look.anim == HU_ANIM_FAINT) {
         const hu_rgb grey = { 0x80, 0x80, 0x80 };
@@ -242,42 +294,44 @@ static void SetLook(CardModel* c, const hu_card* card, const DisplayObject* batt
     Model_SetMaterialColor(c->obj, tint.r, tint.g, tint.b, amount);
 }
 
-void PortEnh_CardModelsDraw(const hu_side sides[2], const s32 active[2], DisplayObject* const battle[2]) {
-    s32 fb = Port_Enh_CardModelFramebuffer();
+static void SetFramebuffer(s32 fb) {
+    gDPPipeSync(gDisplayListHead++);
+    gDisplayListHead->words.w0 = (u32)((fb > 0) ? 0x21 : 0x22) << 24; // G_SETFB (libultraship) / G_RESETFB
+    gDisplayListHead->words.w1 = (uintptr_t)((fb > 0) ? fb : 0);
+    gDisplayListHead++;
+}
+
+void PortEnh_CardModelsDraw(const hu_side sides[2], const PortEnhCardBattle battle[2]) {
+    SlotState saved;
     s32 s, i;
 
-    if (fb <= 0) {
-        return;
-    }
-    // the port's off-screen picture: one cell per card (row = side), cleared to the cards' colour
-    gDPPipeSync(gDisplayListHead++);
-    gDisplayListHead->words.w0 = (u32)0x21 << 24; // G_SETFB (libultraship): draw into framebuffer `fb`
-    gDisplayListHead->words.w1 = (uintptr_t)fb;
-    gDisplayListHead++;
-    gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
-    gDPSetRenderMode(gDisplayListHead++, G_RM_NOOP, G_RM_NOOP2);
-    gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, PORT_ENH_CARD_ATLAS_W, PORT_ENH_CARD_ATLAS_H);
-    // the colour of the card's model square (summary_bars.cpp), as RGBA5551 twice
-    gDPSetFillColor(gDisplayListHead++, (GPACK_RGBA5551(0x30, 0x3C, 0x60, 1) << 16) | GPACK_RGBA5551(0x30, 0x3C, 0x60, 1));
-    gDPFillRectangle(gDisplayListHead++, 0, 0, PORT_ENH_CARD_ATLAS_W - 1, PORT_ENH_CARD_ATLAS_H - 1);
-    gDPPipeSync(gDisplayListHead++);
-    gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+    SaveSlots(&saved);
     for (s = 0; s < 2; s++) {
+        s32 fb = Port_Enh_CardModelFramebuffer(s);
+        if (fb <= 0) continue;
+        // the side's off-screen picture: one cell per card, cleared to the colour of the card's model square
+        SetFramebuffer(fb);
+        gDPSetCycleType(gDisplayListHead++, G_CYC_FILL);
+        gDPSetRenderMode(gDisplayListHead++, G_RM_NOOP, G_RM_NOOP2);
+        gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, 0, PORT_ENH_CARD_ATLAS_W, PORT_ENH_CARD_CELL);
+        gDPSetFillColor(gDisplayListHead++,
+                        (GPACK_RGBA5551(0x30, 0x3C, 0x60, 1) << 16) | GPACK_RGBA5551(0x30, 0x3C, 0x60, 1));
+        gDPFillRectangle(gDisplayListHead++, 0, 0, PORT_ENH_CARD_ATLAS_W - 1, PORT_ENH_CARD_CELL - 1);
+        gDPPipeSync(gDisplayListHead++);
+        gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
         for (i = 0; i < sides[s].count && i < HU_SIDE_MAX; i++) {
             CardModel* c = &sCards[s][i];
             if (!c->loaded) continue;
-            SetLook(c, &sides[s].cards[i], (i == active[s]) ? battle[s] : NULL);
-            GeoCamera_SetViewport((CameraNode*)c->root->children, i * PORT_ENH_CARD_CELL, s * PORT_ENH_CARD_CELL,
-                                  PORT_ENH_CARD_CELL, PORT_ENH_CARD_CELL);
+            SetLook(c, &sides[s].cards[i], (i == battle[s].active) ? &battle[s] : NULL);
+            GeoCamera_SetViewport((CameraNode*)c->root->children, i * PORT_ENH_CARD_CELL, 0, PORT_ENH_CARD_CELL,
+                                  PORT_ENH_CARD_CELL);
             GeoCamera_SetPerspective((CameraNode*)c->root->children, 30.0f, 100.0f, 12800.0f);
             Geo_RenderRootNode(c->root);
         }
+        SetFramebuffer(0);
     }
-    gDPPipeSync(gDisplayListHead++);
-    gDisplayListHead->words.w0 = (u32)0x22 << 24; // G_RESETFB: back to the game's picture
-    gDisplayListHead->words.w1 = 0;
-    gDisplayListHead++;
-    // the game's own scissor again: the portraits are drawn after this (the atlas's height clipped the COM's away)
+    RestoreSlots(&saved);
+    // the game's own scissor again: the portraits are drawn after this (the picture's height clipped the COM's away)
     if (D_8005F670 != NULL) {
         Gfx_ApplyScissorRect(&gDisplayListHead);
     }

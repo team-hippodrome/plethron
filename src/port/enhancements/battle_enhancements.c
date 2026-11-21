@@ -35,6 +35,7 @@ extern SpeciesInfo D_80064C5C[];
 
 static hu_side sSides[2];
 static s8 sCardOfPicked[2][6]; // pokemonPicked index -> card (party) index
+static const BattleMon* sCardMon[2][6]; // each card's Pokémon (its nickname)
 static TeamRoster* sRosters[2];
 static s32 sNeedInit;
 static s32 sReady;
@@ -114,6 +115,7 @@ static void InitSide(s32 s) {
         const BattleMon* m = &party[i];
         u16 moves[4];
         for (j = 0; j < 4; j++) moves[j] = m->moves[j];
+        sCardMon[s][i] = m;
         hu_side_set_mon(&sSides[s], i, m->species.id, m->level, m->hp, m->maxHp, moves, BaseSpeed(m->species.id),
                         s == sViewer ? m->speed : 0);
         if (Port_Enh_SummaryBarsEnabled()) {
@@ -210,6 +212,12 @@ static void Init(void) {
     sReady = 1;
 }
 
+// The card of the Pokémon the HUD shows (it changes when the new one comes out, not when the switch is chosen).
+static s32 ShownCard(s32 s) {
+    s32 p = sActivePokemon[s]->thumbnail.shownRosterIndex;
+    return (p >= 0 && p < 6) ? sCardOfPicked[s][p] : -1;
+}
+
 static s32 ActiveCard(s32 s) {
     s32 p = sActivePokemon[s]->state.rosterIndex;
     return (p >= 0 && p < 6) ? sCardOfPicked[s][p] : -1;
@@ -239,31 +247,29 @@ static void Poll(void) {
         TeamRoster* r = sRosters[s];
         hu_side* side = &sSides[s];
         s32 active = ActiveCard(s);
+        s32 shown = ShownCard(s);
         const BattleMonRuntime* rt = &sActivePokemon[s]->state.runtime;
 
-        if (active >= 0 && !(side->cards[active].flags & HU_CARD_F_ACTIVE)) {
-            hu_side_send_out(side, active);
+        // The cards change as the battle shows the change (the spec's "Card state"): the HUD boxes' Pokémon, HP and
+        // status are those of the party entries (pokemonPicked), which the battle updates as the HP bar drains and as
+        // the status appears; the battle's own values change first.
+        if (shown >= 0 && !(side->cards[shown].flags & HU_CARD_F_ACTIVE)) {
+            hu_side_send_out(side, shown);
             sTransformed[s] = 0;
             if (sHasKey && s != sViewer) {
-                hu_tm_record_sent_out(Port_Enh_Memory(), sKey, side->cards[active].species, side->cards[active].level);
+                hu_tm_record_sent_out(Port_Enh_Memory(), sKey, side->cards[shown].species, side->cards[shown].level);
             }
         }
         for (p = 0; p < r->numberOfPokemonBrought && p < 6; p++) {
             s32 c = sCardOfPicked[s][p];
             const BattleMon* bm = &r->pokemonPicked[p];
-            u16 hp;
             hu_status st;
             if (c < 0) continue;
-            if (c == active) {
-                hp = rt->hp;
-                st = StatusOf(rt->statusCondition, rt->toxicCounter != 0);
-            } else {
-                hp = bm->hp;
-                st = StatusOf(bm->statusCondition, 0);
-            }
-            hu_side_set_hp(side, c, hp);
+            // (Toxic is the active one's poison with its counter running; the party entry keeps plain poison)
+            st = StatusOf(bm->statusCondition, c == active && rt->toxicCounter != 0);
+            hu_side_set_hp(side, c, bm->hp);
             hu_side_set_status(side, c, st);
-            if (hp == 0) {
+            if (bm->hp == 0) {
                 hu_side_faint(side, c);
             }
         }
@@ -403,7 +409,9 @@ static void Publish(void) {
         for (i = 0; i < sSides[s].count; i++) {
             const hu_card* c = &sSides[s].cards[i];
             hu_speed_range sr = hu_card_shown_speed(c);
-            v.names[s][i] = SpeciesName(c->species); // the name stays while transformed (the model changes)
+            // its nickname (in Gen 1 an unnamed Pokémon's nickname is its species name); it stays while transformed
+            v.names[s][i] = (sCardMon[s][i] != NULL) ? Port_Text_Display((const char*)sCardMon[s][i]->nickname)
+                                                     : SpeciesName(c->species);
             for (k = 0; k < 4; k++) {
                 v.moves[s][i][k] = MoveName(c->moves[k]);
                 v.moveTypes[s][i][k] = PortEnh_MoveHuType(c->moves[k]);
@@ -418,6 +426,7 @@ static void Publish(void) {
             }
             v.speed[s][i] = sr;
             v.modelReady[s][i] = (u8)PortEnh_CardModelReady(s, i);
+            v.modelSpecies[s][i] = (u8)PortEnh_CardModelSpecies(s, i);
         }
     }
     Port_Enh_PublishBattle(&v);
@@ -434,11 +443,23 @@ void PortEnh_BattleFrame(void) {
         Init();
     }
     Poll();
-    if (bars) {
+    // the battle is decided: no cards over the winner's parade and what follows (Publish stops, the bars go)
+    if (bars && sBattleScene.scene->winner == 0) {
         Publish();
-        s32 active[2] = { ActiveCard(0), ActiveCard(1) };
-        DisplayObject* battle[2] = { &sActivePokemon[0]->displayObject, &sActivePokemon[1]->displayObject };
-        PortEnh_CardModelsDraw(sSides, active, battle);
+        PortEnhCardBattle battle[2];
+        s32 s;
+        for (s = 0; s < 2; s++) {
+            ActivePokemon* a = sActivePokemon[s];
+            const u8* cues = (const u8*)sSideBattleCues[BattleScene_GetParticipantSideIndex(a)];
+            u16 type = (u16)a->displayObject.objectType;
+            battle[s].active = ShownCard(s);
+            battle[s].obj = &a->displayObject;
+            // the cue rows' first byte is the animation: the faint row (BattleScene_TickFaintRowPlayLandingSound) and
+            // the sleeping idle (Battle_ReturnToIdleAnimIfFinished: Primeape and Exeggutor only)
+            battle[s].faintAnim = (cues != NULL) ? cues[0x72D] : -1;
+            battle[s].sleepAnim = (cues != NULL && (type == PRIMEAPE || type == EXEGGUTOR)) ? cues[0x785] : -1;
+        }
+        PortEnh_CardModelsDraw(sSides, battle);
     }
     if (sBattleScene.scene->winner != 0 && !sSaved) {
         Port_Enh_SaveMemory();

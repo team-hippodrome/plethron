@@ -33,6 +33,7 @@ typedef struct PortEnhBattleView {
     const char* moves[2][HU_SIDE_MAX][HU_CARD_MOVES];
     uint8_t moveTypes[2][HU_SIDE_MAX][HU_CARD_MOVES]; // hu_type, for the move names' colours
     uint8_t modelReady[2][HU_SIDE_MAX];               // the card's model is drawn in its cell of the card picture
+    uint8_t modelSpecies[2][HU_SIDE_MAX];             // whose model that is
     hu_speed_range speed[2][HU_SIDE_MAX]; // as shown: the active one's with its stage and paralysis
     int32_t viewer;                       // the side whose own Pokémon are known (0 against the COM), -1 if none
 } PortEnhBattleView;
@@ -40,15 +41,14 @@ void Port_Enh_PublishBattle(const PortEnhBattleView* view);
 // The last view if one was published in the last few frames (a battle is on screen); 0 otherwise.
 int Port_Enh_LatestBattle(PortEnhBattleView* out);
 
-// The cards' 3D models are drawn by the game into one off-screen picture (card_models.c), a cell of
-// PORT_ENH_CARD_CELL x PORT_ENH_CARD_CELL per card: column = card, row = side. summary_bars.cpp creates it (on the
+// The cards' 3D models are drawn by the game into an off-screen picture per side (card_models.c), a cell of
+// PORT_ENH_CARD_CELL x PORT_ENH_CARD_CELL per card. summary_bars.cpp creates it (on the
 // render thread, when the bars are first shown) and draws its cells on the cards.
 #define PORT_ENH_CARD_CELL 160
 #define PORT_ENH_CARD_ATLAS_W (PORT_ENH_CARD_CELL * HU_SIDE_MAX)
-#define PORT_ENH_CARD_ATLAS_H (PORT_ENH_CARD_CELL * 2)
 #define PORT_ENH_FAINT_FRAMES 40
-// The picture's framebuffer id, 0 while there is none yet.
-int Port_Enh_CardModelFramebuffer(void);
+// Side `side`'s picture's framebuffer id, 0 while there is none yet.
+int Port_Enh_CardModelFramebuffer(int side);
 
 // Adds the summary bars' font to ImGui (before its first frame builds the atlas: Engine.cpp, after the window's Init).
 void Port_Enh_LoadFonts(void);
