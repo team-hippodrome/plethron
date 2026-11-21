@@ -125,7 +125,10 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
         const float half = 0.5f / zoom;
         const float x0 = std::clamp(cx - half, 0.0f, 1.0f - 2 * half), y0 = std::clamp(cy - half, 0.0f, 1.0f - 2 * half);
         const float cu = 1.0f / HU_SIDE_MAX;
-        const ImVec2 uv0((i + x0) * cu, y0), uv1((i + x0 + 2 * half) * cu, y0 + 2 * half);
+        // the models face a little to the left; the right trainer's cards show theirs mirrored, so they face right (a
+        // mirror image of the same pose, as the card itself is a mirror image of the left trainer's)
+        const float u0 = (i + x0) * cu, u1 = (i + x0 + 2 * half) * cu;
+        const ImVec2 uv0(right ? u1 : u0, y0), uv1(right ? u0 : u1, y0 + 2 * half);
         // (its tint is the model's own: card_models.c blends it in as the game blends a model toward a colour)
         dl->AddImageRounded(gCardTexture[s], m0, m1, uv0, uv1, IM_COL32_WHITE, m * 0.18f);
     } else {
