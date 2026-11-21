@@ -145,10 +145,67 @@ void Ui_DrawNumberZeroPadded(s32 x, s32 y, s32 value, s32 digits);
  * Seen in play (2026-11-13) ran on the Pokédex, party and list screens, which all show the 1P サトシ
  * IDNo/12345 bar at the top.
  */
+// PORT: widescreen. The summary bar's row and left colour as last drawn (GbSave_PortDrawSummaryBarSides); y -1000: none
+static s32 sPortBarY = -1000;
+static Color_RGBA8 sPortBarColor;
+
+/**
+ * PORT: widescreen. The summary bar's parts beside the 4:3 frame, so the bar covers the whole width of a 16:9 picture:
+ * its left colour on to the left edge, the textured right part on to the right edge and the 2-pixel line below it
+ * across both. The text stays where it was. The left side is drawn at x 0 and moved left by the margin
+ * (gDPPortAnchorLeft), the right side past x 640 (gDPPortNoCut). Screens draw the bar on their first frames only and
+ * keep it from the frame buffer, while the port clears the margins every frame, so the screens' background drawn
+ * below the bar every frame (Ui_DrawTintedScreenBackground from row y + 56) draws these again. Nothing at 4:3.
+ * PORT_NO_WIDE_MENU_BG=1: off.
+ */
+static void GbSave_PortDrawSummaryBarSides(void) {
+    s32 y = sPortBarY;
+    s32 margin; // pixels of the 640-wide screen beside the 4:3 frame, rounded up
+    s32 color;
+
+    if (y == -1000 || PORT_GETENV_ONCE("PORT_NO_WIDE_MENU_BG") != NULL) {
+        return;
+    }
+    margin = (s32)(Port_WideMarginN64Exact() * 2.0f + 0.999f);
+    if (margin == 0) {
+        return;
+    }
+    gSPDisplayList(gDisplayListHead++, D_80060270);
+    gDPPipeSync(gDisplayListHead++);
+    gDPPortAnchorLeft(gDisplayListHead++);
+    color = RGBA5551(sPortBarColor.r, sPortBarColor.g, sPortBarColor.b, 1);
+    gDPSetFillColor(gDisplayListHead++, (color << 0x10) | color);
+    gDPFillRectangle(gDisplayListHead++, 0, y, margin - 1, y + 53);
+    gDPPipeSync(gDisplayListHead++);
+    color = RGBA5551(D_800734DC.r, D_800734DC.g, D_800734DC.b, 1);
+    gDPSetFillColor(gDisplayListHead++, (color << 0x10) | color);
+    gDPFillRectangle(gDisplayListHead++, 0, y + 54, margin - 1, y + 55);
+    gDPPortNoCut(gDisplayListHead++);
+    gDPFillRectangle(gDisplayListHead++, 640, y + 54, 640 + margin - 1, y + 55);
+
+    gDPPipeSync(gDisplayListHead++);
+    gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+    gDPSetTexturePersp(gDisplayListHead++, G_TP_NONE);
+    gDPSetTextureFilter(gDisplayListHead++, G_TF_POINT);
+    gDPSetCombineMode(gDisplayListHead++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gDPSetRenderMode(gDisplayListHead++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPLoadTextureBlock(gDisplayListHead++, D_0400DFB8, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 54, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMIRROR | G_TX_WRAP, 5, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    // (the bar's texture starts at x 391 and repeats every 32 pixels)
+    gSPTextureRectangle(gDisplayListHead++, 640 << 2, y << 2, (640 + margin) << 2, (y + 54) << 2, G_TX_RENDERTILE,
+                        ((640 - 391) % 32) << 5, 0, 1 << 10, 1 << 10);
+    gDPPortAnchorEnd(gDisplayListHead++);
+    gDPPipeSync(gDisplayListHead++);
+}
+
 void GbSave_DrawSummaryBar(s32 y, GbSaveSummary* summary, char* label, s32 arg3) {
     // PORT: screens draw this bar on their first frames only and keep it from the frame buffer afterwards (the main
     // menu repaints rows 56 down), so these frames must not be skipped when running fast or catching up
     Port_MustDrawThisFrame();
+    // PORT: widescreen: the bar on into the picture's sides
+    sPortBarY = y;
+    sPortBarColor = summary != NULL ? D_800734C8[GbSave_GameToCategoryIndex(summary->game)] : D_800734D8;
+    GbSave_PortDrawSummaryBarSides();
     if (summary != NULL) {
         gSPDisplayList(gDisplayListHead++, D_80060270);
         Ui_FillRectRgba5551(0, y, 392, 54, D_800734C8[GbSave_GameToCategoryIndex(summary->game)]);
@@ -1192,6 +1249,9 @@ void Ui_DrawScreenBackgroundRows(s32 start, s32 end) {
  * @unverified Name and comment guessed from the code.
  */
 void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b) {
+    if (start == sPortBarY + 56) { // PORT: widescreen: the summary bar above, beside the 4:3 frame
+        GbSave_PortDrawSummaryBarSides();
+    }
     gDPPipeSync(gDisplayListHead++);
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
     gDPSetRenderMode(gDisplayListHead++, 0x0F0A4000, 0);
