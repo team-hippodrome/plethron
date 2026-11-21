@@ -3,6 +3,7 @@
 // button opens a list of the cup's trainers with what the player has learned about each: its name once reached, its
 // team, the moves seen and the speed estimates. Compiled with the game code (battle setup screen, 640x480 stage).
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "global.h"
@@ -15,9 +16,11 @@
 #include "enhancements.h"
 #include "battle_enhancements.h"
 #include "enh_draw.h"
+#include "unicode_font.h"
 #include "zero_trainer_memory.h"
 
 #include <hippodrome/summary_card.h>
+#include <hippodrome/trainer_memory.h>
 
 extern SpeciesInfo D_80064C5C[];
 extern struct Controller* D_800603C0; // gPlayer1Controller
@@ -206,4 +209,72 @@ void PortEnh_MemoryScreenDraw(s32 state, s32 cup_cursor) {
         DrawDetail(&v, 252.0f, 80.0f, 352.0f);
     }
     Enh_End();
+}
+
+// ---- prewarm ----
+
+typedef struct {
+    char* text;
+    size_t len, cap;
+} PrewarmText;
+
+static void PrewarmAdd(PrewarmText* t, const char* s) {
+    size_t n = strlen(s);
+    if (t->len + n + 2 > t->cap) {
+        size_t cap = (t->cap == 0) ? 8192 : t->cap;
+        char* grown;
+        while (t->len + n + 2 > cap) cap *= 2;
+        grown = (char*)realloc(t->text, cap);
+        if (grown == NULL) return;
+        t->text = grown;
+        t->cap = cap;
+    }
+    memcpy(t->text + t->len, s, n);
+    t->len += n;
+    t->text[t->len++] = ' ';
+    t->text[t->len] = '\0';
+}
+
+void PortEnh_MemoryScreenPrewarm(void) {
+    static const f32 kHeights[] = { 12.0f, 14.0f, 18.0f }; // the sizes the screen draws text at (above)
+    PrewarmText t = { NULL, 0, 0 };
+    const hu_tm* tm;
+    char buf[64];
+    s32 i, j, px[3], n = 0;
+    size_t k;
+
+    if (!Port_Enh_TrainerMemoryEnabled()) {
+        return;
+    }
+    tm = Port_Enh_Memory(); // the file, read now rather than on the first open
+    // everything the screen can show, in the language chosen before the logo
+    PrewarmAdd(&t, Str("PORT_MEMORY_HINT", "Ｃ：トレーナーの きおく", "C: Trainer memory"));
+    PrewarmAdd(&t, Str("PORT_MEMORY_TITLE", "トレーナーの きおく", "Trainer memory"));
+    PrewarmAdd(&t, Str("PORT_MEMORY_BACK", "Ｂ：もどる", "B: Back"));
+    PrewarmAdd(&t, Str("PORT_MEMORY_NOT_MET", "まだ あっていない", "Not met yet"));
+    PrewarmAdd(&t, Str("PORT_MEMORY_TEAM_UNKNOWN", "てもちは まだ わからない", "Team not seen yet"));
+    PrewarmAdd(&t, Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"));
+    PrewarmAdd(&t, "0123456789 L - ?");
+    for (i = 1; i <= 151; i++) {
+        PrewarmAdd(&t, SpeciesName((u8)i));
+    }
+    for (i = 1; i <= 165; i++) {
+        PrewarmAdd(&t, MoveName((u16)i));
+    }
+    for (k = 0; k < hu_tm_count(tm); k++) {
+        TrainerName(hu_tm_at(tm, k), buf, sizeof buf);
+        PrewarmAdd(&t, buf);
+    }
+    if (t.text == NULL) {
+        return;
+    }
+    for (i = 0; i < 3; i++) { // one worker per glyph size (all three are the largest size today)
+        s32 p = Enh_GlyphPx(kHeights[i]);
+        for (j = 0; j < n && px[j] != p; j++) {}
+        if (j == n) {
+            px[n++] = p;
+            Port_Font_PrewarmAsync(t.text, p);
+        }
+    }
+    free(t.text);
 }

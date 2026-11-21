@@ -6,6 +6,7 @@
 #include "gfx_buffer.h"
 #include "memory_main.h"
 #include "StadionPort.h" // PORT: Port_ZeroLogoHold
+#include "battle_enhancements.h" // PORT: PortEnh_MemoryScreenPrewarm
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 GbSave_ScanAllPorts(void);
@@ -162,6 +163,7 @@ s32 N64Logo_Main(UNUSED s32 loader_arg0, UNUSED s32 loader_arg1) {
     Audio_PlaySoundEffectById(SFX_N64_LOGO);
     logo_start_time = osGetTime();
     N64Logo_ScanTransferPaks();
+    PortEnh_MemoryScreenPrewarm(); // PORT: trainer memory enhancement; its glyphs build in the background
     N64Logo_HoldForOneSecond(logo_start_time);
     StageFade_Start(0x10);
     BgStage_RunUntilCondition(0x10, N64Logo_DrawFrame);
