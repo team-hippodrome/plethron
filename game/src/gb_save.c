@@ -1161,6 +1161,7 @@ void GbSave_DrawCartridgeIcon(s32 x, s32 y, s32 label, s32 game) {
 }
 
 extern u8 D_04009FB0[];
+void Gfx_PortDrawPatternBeside43(s32 y, s32 h);
 /**
  * Tiles the 128-pixel I8 background texture across the 640-wide screen from row `start` to `end`.
  * Seen in play (2026-11-13) (menu tour from the main menu): called on the main menu and every menu
@@ -1179,6 +1180,7 @@ void Ui_DrawScreenBackgroundRows(s32 start, s32 end) {
         }
         gDPLoadTextureBlock(gDisplayListHead++, D_04009FB0 + row * 128, G_IM_FMT_I, G_IM_SIZ_8b, 128, n, 0, G_TX_WRAP, G_TX_WRAP, 7, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSPTextureRectangle(gDisplayListHead++, 0, start << 2, 640 << 2, (start + n) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        Gfx_PortDrawPatternBeside43(start, n); // PORT: widescreen: the pattern on into the picture's sides (input.c)
         start += n;
     }
 }

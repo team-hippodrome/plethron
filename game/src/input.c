@@ -4,6 +4,7 @@
 #include "global.h"
 #include "input.h"
 #include "controller.h"
+#include "StadionPort.h" // PORT: widescreen menu patterns (Gfx_PortDrawPatternBeside43)
 extern s32 pad_D_800AC880[0x2];
 extern s32 D_800AB02C;
 extern Controller* D_800AB030;
@@ -126,6 +127,53 @@ void Gfx_DrawTextureRgba16Ia8(s32 x1, s32 y1, s32 draw_width, s32 height, u8* te
 }
 
 extern u8 D_02000000[];
+
+// PORT: only the parts of the pattern beside the 4:3 frame (Gfx_PortDrawPatternRowsBeside43)
+static s32 sPortPatternBesideOnly = 0;
+
+/**
+ * PORT: widescreen. The menus' 128-pixel I8 patterns (Gfx_DrawPatternRows here, Ui_DrawScreenBackgroundRows in
+ * gb_save.c) are drawn over the 640-wide N64 screen only; in a 16:9 picture this continues the band at rows y..y+h
+ * into both sides, to the picture's edges, with the tile already loaded (128 texels a period, texel 0 at x 0, clamped
+ * or wrapping). Only plain texture rectangles: the left side is drawn at x 0 and moved left by the margin
+ * (gDPPortAnchorLeft), the right side past x 640 (gDPPortNoCut); both are drawn past the 2D screen's 4:3 lock while
+ * the menu on top stays in it. Nothing at 4:3. PORT_NO_WIDE_MENU_BG=1: off.
+ */
+void Gfx_PortDrawPatternBeside43(s32 y, s32 h) {
+    s32 margin; // quarter pixels of the 640-wide screen
+    s32 p;
+    s32 next;
+
+    if (PORT_GETENV_ONCE("PORT_NO_WIDE_MENU_BG") != NULL) {
+        return;
+    }
+    margin = (s32)(Port_WideMarginN64Exact() * 8.0f + 0.5f);
+    if (margin == 0) {
+        return;
+    }
+    // left: picture x p (quarter pixels, -margin..0) is drawn at x p + margin, split where the tile repeats
+    gDPPortAnchorLeft(gDisplayListHead++);
+    for (p = -margin; p < 0; p = next) {
+        next = (p - (((p % 512) + 512) % 512)) + 512; // the next multiple of 128 pixels
+        if (next > 0) {
+            next = 0;
+        }
+        gSPTextureRectangle(gDisplayListHead++, p + margin, y << 2, next + margin, (y + h) << 2, G_TX_RENDERTILE,
+                            (((p % 512) + 512) % 512) << 3, 0, 1 << 10, 1 << 10);
+    }
+    // right: x 640..640 + margin, where the N64 screen ended
+    gDPPortNoCut(gDisplayListHead++);
+    for (p = 640 << 2; p < (640 << 2) + margin; p = next) {
+        next = p - (p % 512) + 512;
+        if (next > (640 << 2) + margin) {
+            next = (640 << 2) + margin;
+        }
+        gSPTextureRectangle(gDisplayListHead++, p, y << 2, next, (y + h) << 2, G_TX_RENDERTILE, (p % 512) << 3, 0,
+                            1 << 10, 1 << 10);
+    }
+    gDPPortAnchorEnd(gDisplayListHead++);
+}
+
 /**
  * Draws one 16-pixel-high band of the 128x128 I8 pattern texture at segment 0x02 across the whole
  * 640-wide screen at row y, picking the texture rows by y mod 128.
@@ -136,10 +184,11 @@ void Gfx_DrawPatternBand(s32 y) {
     gDPLoadTextureBlock(gDisplayListHead++, D_02000000 + (y % 128) * 128, G_IM_FMT_I, G_IM_SIZ_8b, 128, 16, 0,
                         G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
-    for (x = 0; x < 640; x += 128) {
+    for (x = 0; x < 640 && !sPortPatternBesideOnly; x += 128) {
         gSPTextureRectangle(gDisplayListHead++, x << 2, y << 2, (x + 128) << 2, (y + 16) << 2, G_TX_RENDERTILE, 0, 0,
                             0x400, 0x400);
     }
+    Gfx_PortDrawPatternBeside43(y, 16); // PORT: widescreen
 }
 
 /**
@@ -165,6 +214,21 @@ void Gfx_DrawPatternRows(s32 start, s32 end, s32 r, s32 g, s32 b) {
     }
     gDPPipeSync(gDisplayListHead++);
     gDPSetTexturePersp(gDisplayListHead++, G_TP_PERSP);
+}
+
+/**
+ * PORT: widescreen. Only the parts of Gfx_DrawPatternRows' pattern beside the 4:3 frame, for a screen that draws the
+ * pattern on its first frames and then keeps it in the frame buffer (the order screen): the port clears the margins
+ * beside the 4:3 frame at the start of every frame (libultraship interpreter.cpp GfxDpSetColorImage), so they are drawn
+ * again each frame. Nothing at 4:3.
+ */
+void Gfx_PortDrawPatternRowsBeside43(s32 start, s32 end, s32 r, s32 g, s32 b) {
+    if (Port_WideMarginN64() == 0) {
+        return;
+    }
+    sPortPatternBesideOnly = 1;
+    Gfx_DrawPatternRows(start, end, r, g, b);
+    sPortPatternBesideOnly = 0;
 }
 
 /**
