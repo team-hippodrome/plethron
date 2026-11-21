@@ -470,9 +470,17 @@ int Port_XcheckBattleStart(void) {
 
 // PORT(zero): a move's presentation starts (BattleScene_ActionStepSetHitCount, once its message is done): guRandom
 // restarts, as the ares driver does at the same moment
+// The particle effects' frame counter (gParticleFrameCounter, texture scroll and flip-book phase) restarts with it:
+// it counts every battle frame, and the two sides spend different numbers of frames in the command menu (each waits
+// for the route's sync:cmd) and around N64 slow frames, so by mid-battle it was ~9 frames apart and scrolling effects
+// (Psychic, Whirlwind, Strength, the Reflect wall) were compared at a different scroll phase (b47 Psychic: lit 15 -> 3.5)
+extern "C" unsigned char D_8219A780[]; // gParticleFrameCounter (src/port/generated/zero_aliases.ld)
 void Port_XcheckMoveStart(void) {
     Init();
-    if (g.force) Port_GuRandomSeed(174823885);
+    if (g.force) {
+        Port_GuRandomSeed(174823885);
+        memset(D_8219A780, 0, 4);
+    }
 }
 
 int Port_XcheckAnimActive(void) {
@@ -642,7 +650,7 @@ void Port_XcheckGuRandomCalled(void* caller) {
 }
 
 void Port_GuRandomLogFrame(void) {
-    if (sGuLog) fputs("F\n", sGuLog);
+    if (sGuLog) fprintf(sGuLog, "F %u\n", *(unsigned int*)D_8219A780); // (with the particle frame counter)
 }
 
 // os_devices.cpp: draw this frame even when running fast (an animation is being captured)

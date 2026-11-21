@@ -3,6 +3,7 @@
 
 Usage: gurandom_diff.py <port log> <ares peek log> <port binary> <pokestadium0 symbol_addrs.txt>
 ares: ARES_REF_PEEK=<log> ARES_REF_PEEK_AT="80055640@0x80079100,82100CC8" (guRandom with its seed, BattleScene_UpdateFrame).
+The port's "F" lines also carry gParticleFrameCounter (restarted with guRandom; for ares peek it as 82100CC8@0x801AFB20).
 Segments start at each reseed (seed before == 0x0a6b99cd); prints per segment the first battle frame whose calls differ."""
 import sys, subprocess, bisect
 START = 0x0a6b99cd
@@ -10,11 +11,14 @@ def port(path, exe):
     frames, cur, base, ras = [], None, None, set()
     for l in open(path):
         p = l.split()
+        if not p or (p[0] == 'G' and len(p) < 3): continue  # (a line cut off when the port exited)
         if p[0] == 'B': base = int(p[1], 16)
         elif p[0] == 'F':
             cur = []; frames.append(cur)
         elif p[0] == 'G' and cur is not None:
-            cur.append((int(p[1], 16), int(p[2], 16))); ras.add(int(p[2], 16))
+            try: seed, ra = int(p[1], 16), int(p[2], 16)
+            except ValueError: continue  # (a line cut off, or two writers' lines run together)
+            cur.append((seed, ra)); ras.add(ra)
     # symbolize
     nm = subprocess.run(['nm', exe], capture_output=True, text=True).stdout.split('\n')
     syms = sorted((int(a, 16), n) for a, t, n in (x.split()[:3] for x in nm if len(x.split()) == 3) if t in 'tT')
@@ -35,6 +39,7 @@ def ares(path, symfile):
     frames, cur = [], None
     for l in open(path):
         p = l.split()
+        if len(p) < 3: continue
         if p[2] == '82100cc8':
             cur = []; frames.append(cur)
         elif p[2] == '80055640' and cur is not None:

@@ -241,6 +241,7 @@ constexpr u32 kSetFragmentMap = 0x80001EB0;  // Memmap_SetFragmentMap(id, vaddr,
 constexpr u32 kOsGetCount = 0x80053A80;      // osGetCount: main code
 constexpr u32 kGuRandomSeed = 0x80079100;    // guRandom's xseed (lui 0x8008 / lw -0x6F00 in the ROM's guRandom)
 constexpr u32 kGuRandomStart = 174823885;    // its initial value (ROM), as Port_GuRandomSeed
+constexpr u32 kParticleFrameCounter = 0x8219A780; // gParticleFrameCounter: restarts with guRandom (as Port_XcheckMoveStart)
 constexpr u32 kBattleRandomSum = 0x82199F7C; // Battle_Random's running sum (u8)
 constexpr u32 kInitRuntime = 0x82106FE0;     // BattleScene_InitializeRuntime: a battle starts
 constexpr u32 kTickCommandTimer = 0x8210C6B0;  // BattleMenu_TickCommandTimer: sync event "cmd" when its timer is 0
@@ -368,12 +369,19 @@ FILE* gSoundLog = nullptr;
 // those battle-engine link addresses, one line "K <frame> <addr> ra=<ra> sp=<sp> a0..a3 [<off>=<word at sp+off>...]"
 // (to read uninitialised locals or other state the port has to reproduce). ARES_REF_PEEK_AT=@<file>: the list from a
 // file (one per line); with ARES_REF_PEEK_CHANGED=1 a line is written only when the words differ from the last line's
-// (all peeks reading the same absolute word at many function entries: which function changed it)
+// (all peeks reading the same absolute word at many function entries: which function changed it). Besides sp offsets,
+// an item can be an absolute address (0x8xxxxxxx) or "a<off>": the word at a0 + off (a particle's or struct's field
+// at function entry, e.g. "82165730@a0x28@a0x2c")
 FILE* gPeekLog = nullptr;
-struct Peek { u32 link; std::vector<long long> offs; }; // offsets from sp, or (>= 0x80000000) absolute addresses
+struct Peek { u32 link; std::vector<long long> offs; }; // offsets from sp, (>= 0x80000000) absolute addresses, or (>= kPeekA0) a0 + offset
+const long long kPeekA0 = 1LL << 40; // ("a<off>" in ARES_REF_PEEK_AT: a word at a0 + off, e.g. a particle's field)
 std::vector<Peek> gPeeks;
 bool gPeekChanged = false; // ARES_REF_PEEK_CHANGED=1: a line only when the words read differ from the last line's
 std::vector<u32> gPeekLast;
+u32 peekWord(long long o, u32 sp) {
+    if (o >= kPeekA0) return rd32((u32)Nintendo64::cpu.ipu.r[4].u64 + (s32)(o - kPeekA0));
+    return o >= 0x80000000LL ? rd32((u32)o) : rd32(sp + (s32)o);
+}
 void soundLog(const char* what) {
     auto& cpu = Nintendo64::cpu;
     u32 ra = (u32)cpu.ipu.r[31].u64;
@@ -414,7 +422,7 @@ bool hook(u32 address) {
             u32 ra = (u32)cpu.ipu.r[31].u64;
             if (gPeekChanged) {
                 std::vector<u32> now;
-                for (long long o : pk.offs) now.push_back(o >= 0x80000000LL ? rd32((u32)o) : rd32(sp + (s32)o));
+                for (long long o : pk.offs) now.push_back(peekWord(o, sp));
                 if (now == gPeekLast) continue;
                 gPeekLast = now;
             }
@@ -423,7 +431,8 @@ bool hook(u32 address) {
                     pk.link, ra, sp, (u32)cpu.ipu.r[4].u64, (u32)cpu.ipu.r[5].u64,
                     (u32)cpu.ipu.r[6].u64, (u32)cpu.ipu.r[7].u64);
             for (long long o : pk.offs) {
-                if (o >= 0x80000000LL) fprintf(gPeekLog, " %08llx=%08x", o, rd32((u32)o));
+                if (o >= kPeekA0) fprintf(gPeekLog, " a%lld=%08x", o - kPeekA0, peekWord(o, sp));
+                else if (o >= 0x80000000LL) fprintf(gPeekLog, " %08llx=%08x", o, rd32((u32)o));
                 else fprintf(gPeekLog, " %lld=%08x", o, rd32(sp + (s32)o));
             }
             fputc('\n', gPeekLog);
@@ -439,7 +448,7 @@ bool hook(u32 address) {
         return false;
     }
     if (address == rt(kActionStepIntro)) { // (as the port's Port_XcheckMoveStart there; substep 0x3C of the scene)
-        if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart);
+        if (gForce && rd32(rd32(rt(kBattleScene)) + 0x3C) == 0) wr32(kGuRandomSeed, kGuRandomStart), wr32(rt(kParticleFrameCounter), 0);
         return false;
     }
     if (gWeakCom && address == rt(kReadCommandButtons)) {
@@ -473,7 +482,7 @@ bool hook(u32 address) {
     if (address == rt(kResetAnimStep)) {
         u32 ra = (u32)cpu.ipu.r[31].u64;
         if (ra >= rt(kSetHitCount) && ra < rt(kSetHitCountEnd)) {
-            if (gForce) wr32(kGuRandomSeed, kGuRandomStart); // (as the port's Port_XcheckMoveStart)
+            if (gForce) wr32(kGuRandomSeed, kGuRandomStart), wr32(rt(kParticleFrameCounter), 0); // (as the port's Port_XcheckMoveStart)
             syncEvent("move");
         }
         return false;
@@ -567,7 +576,8 @@ void init() {
             Peek pk{};
             std::getline(one, part, '@');
             pk.link = (u32)std::stoul(part, nullptr, 16);
-            while (std::getline(one, part, '@')) pk.offs.push_back(std::stoll(part, nullptr, 0));
+            while (std::getline(one, part, '@'))
+                pk.offs.push_back(part[0] == 'a' ? kPeekA0 + std::stoll(part.substr(1), nullptr, 0) : std::stoll(part, nullptr, 0));
             gPeeks.push_back(pk);
         }
     }
