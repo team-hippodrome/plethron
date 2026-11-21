@@ -4,6 +4,7 @@
 #include "text_lookup.h" // PORT: translated instruction banner
 #include "unicode_font.h"
 #include "battle_order_select.h"
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements (summary bars)
 #include "asset_archive.h"
 #include "audio_music.h"
 #include "font.h"
@@ -1063,6 +1064,8 @@ s32 BattleMenu_UpdateOrderSelect(s32 fade_mode) {
     BattleMenu_DrawTeamOrderSidebarTeam0();
     BattleMenu_DrawTeamOrderSidebarTeam1();
     BattleMenu_DrawScrollingInstructionPanel();
+    // PORT: the summary bars beside the picture (enhancement, off by default; battle_enhancements.h)
+    PortEnh_OrderFrame(D_82302B48, D_82302B44);
 
     if (fade_mode == 0) {
         if (var_s2 == D_82302B44) {
@@ -1302,6 +1305,7 @@ s32 BattleMenu_RunOrderSelectScreen(s32 arg0, intptr_t session) { // PORT: sessi
     BgStage_WaitForCondition((s32(*)(u8))BattleMenu_UpdateOrderSelect, 0x10, 0x10);
     StageContext_Deactivate();
     BattleMenu_CommitOrderSelection();
+    PortEnh_OrderEnd(); // PORT: summary bars (enhancement)
     Font_Free();
     Gfx_FreeDisplayListBuffers();
 

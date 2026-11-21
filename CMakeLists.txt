@@ -71,6 +71,7 @@ add_subdirectory(hippodrome-utils ${CMAKE_BINARY_DIR}/hippodrome-utils)
 set(PORT_ENH_GAME_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/battle_enhancements.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/memory_screen.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/order_preview.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/zero_trainer_memory.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/enh_draw.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/card_models.c)

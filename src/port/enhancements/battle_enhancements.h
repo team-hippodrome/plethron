@@ -10,6 +10,12 @@ void PortEnh_TurnOrder(s32 first_side);  // Battle_StartTurn, once Battle_Determ
 void PortEnh_MoveStart(void);            // a move's presentation starts (BattleScene_ActionStepSetHitCount)
 void PortEnh_MoveNotUsed(void);          // Battle_ProcessTurn: the acting side cannot act (sleep, paralysis, flinch...)
 
+// The summary bars on the order screen (order_preview.c): BattleMenu_UpdateOrderSelect calls OrderFrame every frame
+// after drawing its panels, BattleMenu_RunOrderSelectScreen calls OrderEnd when the screen closes.
+struct OrderSelectPanel;
+void PortEnh_OrderFrame(struct OrderSelectPanel* panels, s32 count);
+void PortEnh_OrderEnd(void);
+
 // The trainer memory screen on the tournament menus (memory_screen.c), from FreeBattle_UpdateScreen /
 // FreeBattle_DrawScreen. `state` is the battle setup screen's state (7 the Lv. 50-55 menu, 9 the Lv. 1-30 cup
 // select), `cup_cursor` the highlighted cup. Update returns 1 while the screen is open (it takes the controller).
