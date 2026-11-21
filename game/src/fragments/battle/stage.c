@@ -416,8 +416,12 @@ void BattleStage_UnusedNopB(void) {
  * Seen in play (2026-11-13): ran in the 165-move battle sweep (165 of the moves).
  * @unverified Name from Stadium 1.
  */
+void Port_GuRandomLogFrame(void); // PORT: PORT_GURANDOM_LOG (src/port/xcheck.cpp)
+
 s32 BattleScene_UpdateFrame(s32 fade_mode) {
     s32 battle_result;
+
+    Port_GuRandomLogFrame(); // PORT
 
     GeoRender_AdvanceFrameCounter();
     ModelAnim_UpdateFrameChangeState();
