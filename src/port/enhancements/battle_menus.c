@@ -87,7 +87,13 @@ static s32 BattleIsDemo(void) { // the attract demos and the showcase modes (as 
 }
 
 static s32 IsHumanSide(ActivePokemon* a) {
-    return !BattleIsDemo() && a != NULL && a->teamRoster != NULL && !(a->teamRoster->isHuman & 2) && a->side->tagTeamSize == 1U;
+    return !BattleIsDemo() && a != NULL && a->teamRoster != NULL && !(a->teamRoster->isHuman & 2) && a->side->tagTeamSize == 1U; // bit 1: a COM (2 Free Battle, 3 tournament)
+}
+
+// Order queueing is for battles against the COM only: with a human on both sides the queue window would show your next
+// order on the shared screen while the turn plays out.
+static s32 QueueAllowed(ActivePokemon* a, ActivePokemon* foe) {
+    return IsHumanSide(a) && foe != NULL && foe->teamRoster != NULL && (foe->teamRoster->isHuman & 2);
 }
 
 static s32 ColorIndex(ActivePokemon* a) { // the side's menu colour (its controller port), as the HUD picks it
@@ -341,7 +347,7 @@ void PortEnh_PlayerCommandBegin(ActivePokemon* a, ActivePokemon* foe) {
     Controller* c;
     hu_oq_action act;
 
-    if (!Port_Enh_OrderQueueEnabled() || !IsHumanSide(a) || a->state.controller == NULL) {
+    if (!Port_Enh_OrderQueueEnabled() || !QueueAllowed(a, foe) || a->state.controller == NULL) {
         return;
     }
     if (!sQueueInit) QueueInit();
@@ -523,11 +529,16 @@ static void DrawQueuedBar(ActivePokemon* a, s32 s, f32 x, f32 y, f32 fill) {
     Enh_End();
 }
 
+#define QUEUE_TOP_Y 16 // the top of the compact status boxes during the turn
+
 static void DrawQueue(ActivePokemon* a, s32 s) {
     hu_window_anim* w = &sQueueWin[s];
     f32 size = hu_window_anim_size(w), fill = hu_window_anim_fill(w);
-    // under the side's status box during the turn (side 0 top left, side 1 bottom right, as their menus)
-    f32 x = (s == 0) ? 96.0f : 25.0f, y = (s == 0) ? 56.0f : 120.0f;
+    // Widescreen: at the top, level with the status boxes and in the gap between them (Julius). At 4:3 the gap is too
+    // narrow for the game's 200-wide panels, so the window goes under the side's status box (side 0 top left, side 1
+    // bottom right, as their menus).
+    s32 top = Port_WideMarginN64() >= 40;
+    f32 x = (s == 0) ? 96.0f : 25.0f, y = top ? (f32)QUEUE_TOP_Y : ((s == 0) ? 56.0f : 120.0f);
     f32 H;
     s32 port = ColorIndex(a);
     u8 shown = sQueueShown[s];
@@ -538,7 +549,7 @@ static void DrawQueue(ActivePokemon* a, s32 s) {
         case HU_OQ_SWITCH_SELECT: H = (a->side->teamMember[0]->numberOfPokemonBrought == 3) ? 50.0f : 104.0f; break;
         default: H = 18.0f; break;
     }
-    if (s != 0) y = 200.0f - H;
+    if (s != 0 && !top) y = 200.0f - H;
     if (fill <= 0.0f) {
         // the window grows from its middle (then its contents fill in; closing the other way round)
         f32 w2 = 200.0f * size, h2 = H * size;
@@ -594,7 +605,7 @@ static void OrderQueueFrame(void) {
         ActivePokemon* foe = sActivePokemon[!s];
         hu_order_queue* q = &sQueue[s];
         s32 resolving;
-        if (a == NULL || foe == NULL || !IsHumanSide(a) || a->state.controller == NULL) {
+        if (a == NULL || foe == NULL || !QueueAllowed(a, foe) || a->state.controller == NULL) {
             continue;
         }
         if (sCommandFrame[s] != sFrame + 1 && sCommandFrame[s] != sFrame) {

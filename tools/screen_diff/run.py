@@ -162,14 +162,15 @@ def run_port(r, out, extra_env):
     home = os.path.join(out, "port_home")  # a fresh settings directory: nothing from earlier runs or the launcher
     clean_dir(home)
     # SCREEN_DIFF_PORT_WINDOW=1280x720: the window's size (the shots are the whole window: a 4:3 picture in a wide
-    # window shows what is drawn beside it, e.g. the summary bars with PORT_RESOLUTION=window)
+    # window shows what is drawn beside it, e.g. the summary bars with PORT_RESOLUTION=window); SCREEN_DIFF_PORT_ASPECT=16:9
+    # for a widescreen picture
     if os.environ.get("SCREEN_DIFF_PORT_WINDOW"):
         ww, wh = (int(v) for v in os.environ["SCREEN_DIFF_PORT_WINDOW"].split("x"))
         with open(os.path.join(home, "plethron.cfg.json"), "w") as f:
             f.write('{"Window": {"Width": %d, "Height": %d}}\n' % (ww, wh))
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_UPSCALE="exact",
+               PORT_LANGUAGE="kana", PORT_ASPECT=os.environ.get("SCREEN_DIFF_PORT_ASPECT", "4:3"), PORT_UPSCALE="exact",
                PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")
