@@ -2,6 +2,7 @@
 #include "file_io.h"
 #include "launcher_reliability.h"
 #include "touch_controls.h"
+#include "enhancements/summary_bars.h"
 #include "pacing.h"
 
 #include <libultraship/libultraship.h>
@@ -345,6 +346,7 @@ bool Init() {
     WindowSetWindowComponent(sWindow);
     GfxSetFast3dWindow(sWindow);
     sWindow->Init();
+    Port_Enh_InstallOverlay(sWindow->GetGui().get()); // the summary bars and their font (before the first frame)
     ApplyAspect(); // again: the renderer's Init read the scale from gInternalResolution (PORT_RESOLUTION=window:n)
     // PORT_WINDOW_ON_TOP=1: the window stays above other windows without taking the keyboard focus (measuring the
     // frame pacing with PORT_TRACE_PACING while working in another app: macOS stops presenting a covered window)

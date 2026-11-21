@@ -3,6 +3,7 @@
 #include "audio_commands.h"
 #include "geo_node.h"
 #include "StadionPort.h" // PORT: Port_XcheckMoveStart, Port_SyncEvent
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 void BattleScene_MoveIntroCameraBelow(CameraNode* camera);
@@ -150,6 +151,7 @@ void BattleScene_ActionStepSetHitCount(CameraNode* arg0, s32 arg1) {
     // tools/screen_diff's sync:move (ares_ref hooks the call below from here)
     Port_XcheckMoveStart();
     Port_SyncEvent("move");
+    PortEnh_MoveStart(); // PORT: the move is shown: reveal it on the summary bars (enhancements)
     BattleScene_ResetAnimationStep();
     if (1) {  // karodo
     }

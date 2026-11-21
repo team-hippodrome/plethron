@@ -3,6 +3,7 @@
 #include "audio_commands.h"
 #include "geo_node.h"
 #include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
@@ -82,6 +83,7 @@ void Battle_StartTurn(void) {
     if (ptr->usedMove == 0xFF) {
         sBattleScene.scene->actingSide = !sBattleScene.scene->actingSide;
     }
+    PortEnh_TurnOrder(sBattleScene.scene->actingSide); // PORT: speed estimate from the turn order (enhancements)
 
     if (sActivePokemon[0]->teamRoster->isHuman & 2) {
         if (sBattleScene.scene->actingSide == 0) {

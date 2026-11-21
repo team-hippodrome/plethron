@@ -2,3 +2,7 @@
 	path = libultraship
 	url = https://github.com/team-hippodrome/libultraship
 	branch = main
+[submodule "hippodrome-utils"]
+	path = hippodrome-utils
+	url = https://github.com/team-hippodrome/hippodrome-utils
+	branch = main
