@@ -31,6 +31,7 @@ typedef struct PortEnhBattleView {
     hu_side sides[2]; // 0 = 1P (left), 1 = the opponent (right)
     const char* names[2][HU_SIDE_MAX];
     const char* moves[2][HU_SIDE_MAX][HU_CARD_MOVES];
+    uint8_t moveTypes[2][HU_SIDE_MAX][HU_CARD_MOVES]; // hu_type, for the move names' colours
     hu_speed_range speed[2][HU_SIDE_MAX]; // as shown: the active one's with its stage and paralysis
     int32_t viewer;                       // the side whose own Pokémon are known (0 against the COM), -1 if none
 } PortEnhBattleView;

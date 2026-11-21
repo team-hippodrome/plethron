@@ -101,7 +101,12 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
     // HP: the Game Boy's bar colours; the numbers only for the side whose HP the player may know
     {
         const float bh = row * 0.42f;
-        const float bw = own ? tw * 0.55f : tw;
+        char hp[16];
+        snprintf(hp, sizeof hp, "%u/%u", c.hp, c.max_hp);
+        const float hs = ts * 0.75f;
+        const float hw = f->CalcTextSizeA(hs, FLT_MAX, 0, hp).x;
+        // the numbers keep their room; the bar takes the rest (less the status dot)
+        const float bw = own ? std::max(tw * 0.3f, tw - hw - bh * 2.2f) : tw - bh * 2.2f;
         const ImVec2 b0(x, y + (row - bh) / 2), b1(x + bw, b0.y + bh);
         dl->AddRectFilled(b0, b1, Rgba(0x30, 0x30, 0x30, alpha), bh / 2);
         const int fill = hu_hp_fill(c.hp, c.max_hp, 480);
@@ -116,11 +121,7 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
             dl->AddCircleFilled(ImVec2(b1.x + bh * 0.9f, (b0.y + b1.y) / 2), bh * 0.6f, Rgba(sc.r, sc.g, sc.b, 0xFF));
         }
         if (own) {
-            char hp[16];
-            snprintf(hp, sizeof hp, "%u/%u", c.hp, c.max_hp);
-            const float hs = ts * 0.75f;
-            const float hw = f->CalcTextSizeA(hs, FLT_MAX, 0, hp).x;
-            Text(dl, f, std::max(b1.x + bh * 1.8f, p1.x - pad - hw), y + (row - hs) / 2, hs, hw, hp, white);
+            Text(dl, f, p1.x - pad - hw, y + (row - hs) / 2, hs, hw + 1, hp, white);
         }
     }
     y += row;
@@ -128,7 +129,8 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
         const float kx = x + (k & 1) * (tw / 2), ky = y + (k >> 1) * row;
         if (hu_card_move_visible(&c, k)) {
             if (c.moves[k] == 0) continue; // an empty slot
-            Text(dl, f, kx, ky, ts * 0.9f, tw / 2 - pad, v.moves[s][i][k], white);
+            const hu_rgb tc = hu_type_text_color((hu_type)v.moveTypes[s][i][k]);
+            Text(dl, f, kx, ky, ts * 0.9f, tw / 2 - pad, v.moves[s][i][k], Rgba(tc.r, tc.g, tc.b, alpha));
         } else if (c.moves[k] != 0 || !own) {
             Text(dl, f, kx, ky, ts * 0.9f, tw / 2 - pad, "-", Rgba(0xFF, 0xFF, 0xFF, 0x70));
         }

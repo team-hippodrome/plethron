@@ -61,8 +61,13 @@ static s32 IsCom(const TeamRoster* r) {
     return (r->isHuman & 2) != 0; // the COM's roster has isHuman 2 or 3
 }
 
+// Zero's scripted battles, which play themselves (game_state.c, Session_InitTwoTrainers): 5 = the opening (Venusaur
+// vs Venusaur, State_Boot), 3 = the title screen's demo battle, 6 = the scene after the tournament (transitionFlags 4).
+// (Stadium 1's SESSION_MODE_* numbers in game_state.h do not apply: Zero's played modes are 0 free battle, 1 L50-55,
+// 2 L1-30, 4.) No bars, no memory for these.
 static s32 BattleIsDemo(void) {
-    return gSessionContext.mode >= SESSION_MODE_ATTRACT_DEMO_BATTLE;
+    u8 m = gSessionContext.mode;
+    return m == 3 || m == 5 || m == 6 || m >= 16;
 }
 
 void PortEnh_BattleBegin(void) {
@@ -190,8 +195,9 @@ static void Init(void) {
     if (sHasKey) {
         Port_Enh_SaveMemory(); // the team and name (writes only when something changed)
     }
-    EnhLog("battle: viewer %d, sides %d/%d (brought %d/%d), memory key %s", (int)sViewer, sSides[0].count,
-           sSides[1].count, sSides[0].brought, sSides[1].brought, sHasKey ? "yes" : "no");
+    EnhLog("battle: viewer %d, sides %d/%d (brought %d/%d), memory key %s, mode %d, isHuman %d/%d", (int)sViewer,
+           sSides[0].count, sSides[1].count, sSides[0].brought, sSides[1].brought, sHasKey ? "yes" : "no",
+           (int)gSessionContext.mode, sActivePokemon[0]->teamRoster->isHuman, sActivePokemon[1]->teamRoster->isHuman);
     if (sHasKey) {
         EnhLog("memory key: cup %d division %d round %d trainer %d", sKey.cup, sKey.division, sKey.round, sKey.trainer);
     }
@@ -350,6 +356,32 @@ static const char* MoveName(u16 move) {
     return Port_Text_Display(D_8006A9D4[move - 1].name);
 }
 
+// Zero's (Gen 1) type ids (pokemon_types.h) -> the library's
+static u8 HuType(u8 t) {
+    switch (t) {
+        case 0x00: return HU_TYPE_NORMAL;
+        case 0x01: return HU_TYPE_FIGHTING;
+        case 0x02: return HU_TYPE_FLYING;
+        case 0x03: return HU_TYPE_POISON;
+        case 0x04: return HU_TYPE_GROUND;
+        case 0x05: return HU_TYPE_ROCK;
+        case 0x07: return HU_TYPE_BUG;
+        case 0x08: return HU_TYPE_GHOST;
+        case 0x14: return HU_TYPE_FIRE;
+        case 0x15: return HU_TYPE_WATER;
+        case 0x16: return HU_TYPE_GRASS;
+        case 0x17: return HU_TYPE_ELECTRIC;
+        case 0x18: return HU_TYPE_PSYCHIC;
+        case 0x19: return HU_TYPE_ICE;
+        case 0x1A: return HU_TYPE_DRAGON;
+        default: return HU_TYPE_UNKNOWN; // (0x06, the unused "bird" type, included)
+    }
+}
+
+u8 PortEnh_MoveHuType(u16 move) {
+    return (move >= 1 && move <= 165) ? HuType(gMoveData[move - 1].type) : HU_TYPE_UNKNOWN;
+}
+
 static void Publish(void) {
     PortEnhBattleView v;
     s32 s, i, k;
@@ -364,6 +396,7 @@ static void Publish(void) {
             v.names[s][i] = SpeciesName(c->species); // the name stays while transformed (the model changes)
             for (k = 0; k < 4; k++) {
                 v.moves[s][i][k] = MoveName(c->moves[k]);
+                v.moveTypes[s][i][k] = PortEnh_MoveHuType(c->moves[k]);
             }
             // speed as the turn order compares it now: stage and paralysis applied to the active one
             if (c->flags & HU_CARD_F_ACTIVE) {

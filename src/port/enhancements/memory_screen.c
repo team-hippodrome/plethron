@@ -17,6 +17,8 @@
 #include "enh_draw.h"
 #include "zero_trainer_memory.h"
 
+#include <hippodrome/summary_card.h>
+
 extern SpeciesInfo D_80064C5C[];
 extern struct Controller* D_800603C0; // gPlayer1Controller
 
@@ -137,13 +139,15 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
             f32 ky = ry + (k >> 1) * 18.0f + 4.0f;
             const char* name = "-";
             u8 a = 0x80;
+            hu_rgb col = { 0xFF, 0xFF, 0xFF };
             if (own != NULL && own->moves[k] != 0 && (own->seen & (1 << k))) {
                 name = MoveName(own->moves[k]);
+                col = hu_type_text_color((hu_type)PortEnh_MoveHuType(own->moves[k]));
                 a = 0xFF;
             } else if (team_mon->moves[k] == 0 && v->team == v->own) {
                 continue; // an empty slot
             }
-            Enh_Text(kx, ky, 14.0f, (w - 150.0f) / 2 - 6.0f, name, 0xFF, 0xFF, 0xFF, a);
+            Enh_Text(kx, ky, 14.0f, (w - 150.0f) / 2 - 6.0f, name, col.r, col.g, col.b, a);
         }
     }
 }

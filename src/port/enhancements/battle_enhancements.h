@@ -13,3 +13,5 @@ void PortEnh_MoveStart(void);            // a move's presentation starts (Battle
 // select), `cup_cursor` the highlighted cup. Update returns 1 while the screen is open (it takes the controller).
 s32 PortEnh_MemoryScreenUpdate(s32 state, s32 cup_cursor);
 void PortEnh_MemoryScreenDraw(s32 state, s32 cup_cursor);
+// A move's type as hippodrome-utils numbers it (hu_type), for the move names' colours.
+u8 PortEnh_MoveHuType(u16 move);
