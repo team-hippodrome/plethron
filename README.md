@@ -26,6 +26,9 @@ To fix or add a translation, please see the [translation](https://github.com/tea
 - Optional enhancements from [hippodrome-utils](https://github.com/team-hippodrome/hippodrome-utils), all off by default (launcher > Graphics > Enhancements):
   - Summary bars: both parties beside the game's picture during battles (HP, status, the moves seen, the opponent's estimated Speed). They need room beside the picture: a 4:3 picture in a wide window, or 16:9 on an ultrawide screen.
   - Trainer memory: the tournament trainers' teams, moves and Speed you have seen, on a C button at the cup select.
+  - Hue choice: pick the colour of each of your Pokémon on the てもち summary (D-Left/D-Right in 15° steps, Z goes back to the nickname colour). Saved next to the save file as `.hue`.
+  - Move descriptions: hold a move's C button in the fight menu to see its type, power, accuracy and description.
+  - Order queueing: press Z while a turn plays out to choose your next move or switch ahead of time; it is entered for you when the command menu comes back.
 
 ---
 

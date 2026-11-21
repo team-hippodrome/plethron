@@ -73,6 +73,7 @@ static s32 BattleIsDemo(void) {
 }
 
 void PortEnh_BattleBegin(void) {
+    PortEnh_BattleMenusBegin();
     sNeedInit = 1;
     sReady = 0;
     sSaved = 0;
@@ -441,6 +442,7 @@ static void Publish(void) {
 
 void PortEnh_BattleFrame(void) {
     s32 bars = Port_Enh_SummaryBarsEnabled();
+    PortEnh_BattleMenusFrame(); // move descriptions, order queueing (they check their own settings)
     if (BattleIsDemo() || (!bars && !Port_Enh_TrainerMemoryEnabled())) {
         sReady = 0;
         return;

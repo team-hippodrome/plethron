@@ -11,6 +11,7 @@
 #include "matrix.h"
 #include "util.h"
 #include "StadionPort.h"
+#include "battle_enhancements.h" // PORT: PortEnh_HueShift (hue choice enhancement)
 extern struct DisplayNodeHeader D_800AD1D0;
 extern struct DisplayNodeHeader D_800AD1E8;
 
@@ -232,6 +233,9 @@ arg1_func_80010CA8* Model_ComputeNicknameColorVariant(arg1_func_80010CA8* arg0, 
         }
 
         sp34.hueShift = ((((sp30->nicknameHueMax - sp30->nicknameHueMin) << 6) * var_a0) / 255) + (sp30->nicknameHueMin << 6);
+    }
+    if (!PortEnh_HueBypassed()) {
+        sp34.hueShift = PortEnh_HueShift(arg1, sp34.hueShift); // PORT: the player's hue choice (enhancement, off by default)
     }
 
     *arg0 = sp34;

@@ -1758,7 +1758,7 @@ class LauncherWindow : public Ship::GuiWindow {
             Text(lx, ry + 5, name, gFonts.body);
             Text(tx, ry + 1, hint, gFonts.small, Theme::dim);
             int c = Choice(id, { "On", "Off" }, on ? 0 : 1, cx, ry);
-            ry += 62;
+            ry += 60;
             return c;
         };
         int c = row("Summary bars", "bars",
@@ -1773,6 +1773,23 @@ class LauncherWindow : public Ship::GuiWindow {
                 "It also shows what you learned about the opponent on the summary bars.",
                 Port_Enh_TrainerMemoryEnabled() != 0);
         if (c >= 0) Port_Enh_SetTrainerMemoryEnabled(c == 0);
+        c = row("Hue choice", "hue",
+                "Pick each Pokémon's colours: Left / Right on the Control Pad on the party screen's\n"
+                "summary (under the model), Z for the game's own (from the nickname). Kept in a\n"
+                "file beside the save and used everywhere the Pokémon is shown.",
+                Port_Enh_HueChoiceEnabled() != 0);
+        if (c >= 0) Port_Enh_SetHueChoiceEnabled(c == 0);
+        c = row("Move descriptions", "movedesc",
+                "In battle, hold a Control Pad direction in the move menu to read the move on the\n"
+                "C button of that direction: type, power, accuracy and what it does.",
+                Port_Enh_MoveDescriptionsEnabled() != 0);
+        if (c >= 0) Port_Enh_SetMoveDescriptionsEnabled(c == 0);
+        c = row("Order queueing", "queue",
+                "While the turn plays out, press Z to pick your next move or Pokémon (A / B, then\n"
+                "its button). It is entered when your menu comes up, on the COM's timing; Z\n"
+                "takes it back, L goes back a step.",
+                Port_Enh_OrderQueueEnabled() != 0);
+        if (c >= 0) Port_Enh_SetOrderQueueEnabled(c == 0);
     }
 
     // launcher > Sound: CVars gSound.*, handed to the audio paths at once (Port::ApplySoundSettings, sound_settings.h)

@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "battle.h"
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 #include "m2c_macros.h"
 #include "StadionPort.h" // PORT: Port_DebugWeakCom
 
@@ -313,6 +314,7 @@ void BattleMenu_UpdateMoveMenu(ActivePokemon* arg0) {
                 }
                 M2C_FIELD(temp_v0, s8 *, 0x1C) = 1;
             }
+            PortEnh_MoveMenuInput(arg0); // PORT: mid-battle move description (enhancement): the held D-pad direction
             BattleMenu_HandleMoveButtons(arg0);
         }
     }
@@ -806,6 +808,7 @@ void BattleScene_CollectPlayerAction(ActivePokemon* arg0, ActivePokemon* arg1) {
     BattleMonRuntime* sp20 = &arg0->state.runtime;
     BattleMonRuntime* sp1C = &arg1->state.runtime;
 
+    PortEnh_PlayerCommandBegin(arg0, arg1); // PORT: order queueing (enhancement): a queued order presses its buttons
     if (BattleScene_HandlePlayerFaintedSwitch(arg0, arg1) == 0) {
         if (!(sp20->volatileStatusFlags & 0x60)) {
             sp20->immobilizedReason &= ~8;
@@ -834,6 +837,7 @@ void BattleScene_CollectPlayerAction(ActivePokemon* arg0, ActivePokemon* arg1) {
             BattleScene_ConfirmForcedMoveRepeat(arg0);
         }
     }
+    PortEnh_PlayerCommandEnd(arg0); // PORT: order queueing: the pressed buttons are taken back
 }
 
 /**
