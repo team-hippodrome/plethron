@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cheats.h"
+
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
@@ -1180,6 +1182,9 @@ static void FrameEnd(void) {
     if (G.trnFrames && --G.trnFrames == 0) {
         SgbTransfer(G.trnCmd, G.trnArg);
     }
+    // PORT: the launcher's Game Boy cheats (GameShark codes into work RAM, cheats.h) for this Transfer Pak's cartridge,
+    // where a GameShark writes them: at VBlank
+    Port_GbCheatsApply(G.mem, D_811565A0 & 3);
 }
 
 // Debugging aid for test runs: PORT_GB_INPUT="frame:Button[+Button] ..." presses Game Boy buttons for 6 frames at the

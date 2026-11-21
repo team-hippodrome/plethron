@@ -26,6 +26,9 @@ To fix or add a translation, please see the [translation](https://github.com/tea
 - Optional enhancements from [hippodrome-utils](https://github.com/team-hippodrome/hippodrome-utils), all off by default (launcher > Graphics > Enhancements):
   - Summary bars: both parties beside the game's picture during battles (HP, status, the moves seen, the opponent's estimated Speed). They need room beside the picture: a 4:3 picture in a wide window, or 16:9 on an ultrawide screen.
   - Trainer memory: the tournament trainers' teams, moves and Speed you have seen, on a C button at the cup select.
+- Cheats, all off by default (launcher: tick Debug, then Cheats under Save editor):
+  - Stadium battles, ticked per player (1P-4P): Infinite HP, Infinite PP, Status always good, Your moves never miss, Opponent never hits, Always your turn first, Perfect stats, Opponent minimum stats. They change the running battle only, never the N64 save.
+  - Game Boy: GameShark codes (`01VVLLHH`) for the cartridge in each Transfer Pak, written to the Game Boy's work RAM while the GB Player runs it. What they change is kept in the cartridge save if you save in the Game Boy game.
 
 ---
 
