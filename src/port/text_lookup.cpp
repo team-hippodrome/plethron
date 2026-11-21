@@ -837,6 +837,23 @@ const char* Port_Text_Utf8Of(const char* s) {
     return slot.second.c_str();
 }
 
+// Text the port draws itself from game strings (src/port/enhancements): the translation, or in the original language
+// the EUC-JP bytes as UTF-8 for the Unicode font. Kept per source string, so the pointer stays valid.
+const char* Port_Text_Display(const char* s) {
+    if (s == nullptr) {
+        return "";
+    }
+    if (const char* tr = Port_Text_Utf8Of(s)) {
+        return tr;
+    }
+    std::string u = HasHighBytes(s) ? EucToUtf8(s) : std::string(s);
+    static std::mutex m;
+    static std::unordered_map<std::string, std::string> cache; // original bytes -> UTF-8; never freed
+    std::lock_guard<std::mutex> lock(m);
+    auto it = cache.emplace(std::string(s), std::move(u)).first;
+    return it->second.c_str();
+}
+
 int Port_Text_SelfTest(void) {
     int failed = 0;
     auto check = [&](const char* what, const char* got, const char* want) {

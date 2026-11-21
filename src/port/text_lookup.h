@@ -75,6 +75,10 @@ void Port_Text_NoteSame(const char* dst, const char* src);
 // pointer stays valid until `s` is noted again. NULL in the original language.
 const char* Port_Text_Utf8Of(const char* s);
 
+// `s` as UTF-8 for text the port draws: like Port_Text_Utf8Of, and in the original language its EUC-JP bytes
+// converted. Never NULL.
+const char* Port_Text_Display(const char* s);
+
 // Records a translated line (up to '\n') that is wider than its box, once per text and language, in
 // text_overflows.csv next to the app: language,width,available,text.
 void Port_Text_LogOverflow(const char* utf8, int width, int avail);

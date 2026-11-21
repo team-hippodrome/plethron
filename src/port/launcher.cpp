@@ -57,6 +57,8 @@
 #include <string>
 #include <vector>
 
+#include "enhancements/enhancements.h"
+
 namespace {
 
 namespace fs = std::filesystem;
@@ -987,6 +989,9 @@ class LauncherWindow : public Ship::GuiWindow {
         if (getenv("PORT_LAUNCHER_OPEN_GRAPHICS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
             mGraphicsTestOpened = mGraphics = true;
         }
+        if (getenv("PORT_LAUNCHER_OPEN_ENHANCEMENTS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
+            mGraphicsTestOpened = mGraphics = mEnhancements = true;
+        }
         if (getenv("PORT_LAUNCHER_OPEN_SOUND") != nullptr && !mSoundTestOpened) { // test hook (as OPEN_TOOLS)
             mSoundTestOpened = mSound = true;
         }
@@ -1002,6 +1007,8 @@ class LauncherWindow : public Ship::GuiWindow {
             ToolsPanel(16, 58, kW - 32, 366);
         } else if (mControls) {
             ControlsPanel(16, 58, kW - 32, 366);
+        } else if (mGraphics && mEnhancements) {
+            EnhancementsPanel(16, 58, kW - 32, 366);
         } else if (mGraphics) {
             GraphicsPanel(16, 58, kW - 32, 366);
         } else if (mSound) {
@@ -1590,6 +1597,12 @@ class LauncherWindow : public Ship::GuiWindow {
         if (Button("Done", x + w - 108, y + 9, 94, 26)) {
             mGraphics = false;
         }
+        if (Button("Enhancements", x + w - 248, y + 9, 130, 26)) {
+            mEnhancements = true;
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Optional additions to the game: summary bars, trainer memory (all off by default)");
+        }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
 
         const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 32;
@@ -1725,6 +1738,41 @@ class LauncherWindow : public Ship::GuiWindow {
         Text(x + w - 160, by + 7, std::string("Current: ") + (recommended ? "Recommended" : lowPower ? "Low-power" : "Custom"),
              gFonts.small, Theme::dim);
         CVarSave();
+    }
+
+    // launcher > Graphics > Enhancements: the hippodrome-utils options (enhancements.h), all off by default so the game
+    // plays and looks as on the N64
+    void EnhancementsPanel(float x, float y, float w, float h) {
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
+        dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
+        Text(x + 14, y + 14, "ENHANCEMENTS", gFonts.body, Theme::text);
+        Text(x + 140, y + 15, "Additions to the original game. All are off by default.", gFonts.small, Theme::dim);
+        if (Button("Back", x + w - 108, y + 9, 94, 26)) {
+            mEnhancements = false;
+        }
+        dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
+        const float lx = x + 14, cx = x + 190, tx = x + 340;
+        float ry = y + 60;
+        auto row = [&](const char* name, const char* id, const char* hint, bool on) {
+            Text(lx, ry + 5, name, gFonts.body);
+            Text(tx, ry + 1, hint, gFonts.small, Theme::dim);
+            int c = Choice(id, { "On", "Off" }, on ? 0 : 1, cx, ry);
+            ry += 62;
+            return c;
+        };
+        int c = row("Summary bars", "bars",
+                    "Both parties beside the game's picture during battles: HP, status, the moves seen\n"
+                    "and the opponent's estimated Speed. Shown only when the window is wider than the\n"
+                    "picture (4:3 in a wide window, or 16:9 on an ultrawide screen).",
+                    Port_Enh_SummaryBarsEnabled() != 0);
+        if (c >= 0) Port_Enh_SetSummaryBarsEnabled(c == 0);
+        c = row("Trainer memory", "memory",
+                "Remembers the tournament trainers' teams, moves and Speed (a file beside the save).\n"
+                "Press a C button on the cup select (Lv. 50: the tournament menu) to see it.\n"
+                "It also shows what you learned about the opponent on the summary bars.",
+                Port_Enh_TrainerMemoryEnabled() != 0);
+        if (c >= 0) Port_Enh_SetTrainerMemoryEnabled(c == 0);
     }
 
     // launcher > Sound: CVars gSound.*, handed to the audio paths at once (Port::ApplySoundSettings, sound_settings.h)
@@ -1872,6 +1920,7 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         if (Button(mGraphics ? "Players" : "Graphics", x + 340, y + 86, 100, 26)) {
             mGraphics = !mGraphics;
+            mEnhancements = false;
             mControls = mTools = mSound = false;
         }
         if (ImGui::IsItemHovered()) {
@@ -2216,6 +2265,7 @@ class LauncherWindow : public Ship::GuiWindow {
     bool mControls = false; // the controls panel instead of the player cards
     bool mGraphics = false; // the graphics panel instead of the player cards
     bool mSound = false;    // the sound panel instead of the player cards
+    bool mEnhancements = false; // in the graphics panel: the enhancements page
     bool mSoundTestOpened = false;
     bool mGraphicsTestOpened = false;
     int mPort = 0;          // whose controls it shows

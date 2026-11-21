@@ -66,6 +66,13 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_compile_definitions(FMT_CONSTEVAL=)
 endif()
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
+# hippodrome-utils (submodule): the team's enhancement library shared by the ports, specs in hippodrome-utils/docs/specs
+add_subdirectory(hippodrome-utils ${CMAKE_BINARY_DIR}/hippodrome-utils)
+set(PORT_ENH_GAME_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/battle_enhancements.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/memory_screen.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/zero_trainer_memory.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/enh_draw.c)
 
 # llvm-mingw (libc++) cannot link C++ libraries that vcpkg built with a GCC MinGW (libstdc++). vcpkg's stock
 # *-mingw-static triplets take whichever *-w64-mingw32-gcc comes first on PATH, so catch that here instead of at the
@@ -113,6 +120,8 @@ set(PORT_MAIN_SOURCES
   src/port/collate.cpp
   src/port/unicode_font.cpp
   src/port/text3d.cpp
+  src/port/enhancements/enhancements.cpp
+  src/port/enhancements/summary_bars.cpp
   src/port/generated/zero_lift_data.c
 )
 if(NOT EMSCRIPTEN)  # web: an object file written by tools/gen_wasm_abs_syms.py instead (below)
@@ -154,7 +163,7 @@ target_include_directories(plethron PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/include/libultraship
 )
 target_compile_definitions(plethron PRIVATE F3DEX_GBI_2)
-target_link_libraries(plethron PRIVATE libultraship)
+target_link_libraries(plethron PRIVATE libultraship hippodrome::utils)
 # Stadium Zero: names of the decomp that alias another symbol (tools/zero/gen_lift.py), as linker assignments
 if(NOT APPLE AND NOT WIN32 AND NOT EMSCRIPTEN)
   target_link_options(plethron PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld)
@@ -220,7 +229,9 @@ list(APPEND STADIUM_GAME_SOURCES ${PORT_ULTRALIB_SOURCES})
 # with the game code but kept in the port, so game/ holds only decomp code
 list(APPEND STADIUM_GAME_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_func_table.c
      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c) # (tools/move_coverage: reads the battle structs)
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c # (tools/move_coverage: reads the battle structs)
+     # the hippodrome-utils enhancements' game side (they read the battle and session structs)
+     ${PORT_ENH_GAME_SOURCES})
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ultralib_sources.txt)
 # C arrays of 16/32-bit words in the game sources (textures among them need N64 byte order): their files are compiled
 # through generated wrappers that register the arrays with the renderer (see tools/gen_word_arrays.py)
@@ -354,10 +365,15 @@ endif()
 target_sources(plethron PRIVATE ${CMAKE_BINARY_DIR}/generated/frag_sections.c)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_frag_sections.py
              ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/port_fragment_entries.c
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c) # (tools/move_coverage: reads the battle structs)
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/port/move_coverage.c # (tools/move_coverage: reads the battle structs)
+     # the hippodrome-utils enhancements' game side (they read the battle and session structs)
+     ${PORT_ENH_GAME_SOURCES})
 set_target_properties(stadium_game PROPERTIES C_STANDARD 11 C_EXTENSIONS ON)
+target_link_libraries(stadium_game PRIVATE hippodrome::utils)
 target_include_directories(stadium_game PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port # StadionPort.h: the game/port boundary
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements
+  ${CMAKE_CURRENT_SOURCE_DIR}/hippodrome-utils/include
   ${CMAKE_CURRENT_SOURCE_DIR}/game
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/sdk
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/sdk/PR
