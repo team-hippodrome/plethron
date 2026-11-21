@@ -27,8 +27,10 @@ void Port_Text_SetLanguage(int lang);
 int Port_Text_GetLanguage(void);
 // PORT_LANGUAGE set the language (a debug aid): the language select screen is skipped.
 int Port_Text_LanguageForced(void);
-// The language chosen on the last boot (settings key gPort.Language), and saving a new choice.
+// The language chosen on the first launch's language select or in Options (settings key gPort.Language), whether
+// one has been chosen (the language select is shown only until then), and saving a new choice.
 int Port_Text_SavedLanguage(void);
+int Port_Text_LanguageChosen(void);
 void Port_Text_SaveLanguage(int lang);
 // Whether the announcer's lines get subtitles in the translated languages (port setting gPort.Subtitles, on by
 // default; Options > Subtitles), and saving a new choice.
