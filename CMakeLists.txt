@@ -74,7 +74,8 @@ set(PORT_ENH_GAME_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/order_preview.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/zero_trainer_memory.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/enh_draw.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/card_models.c)
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/card_models.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/cheats_battle.c)
 
 # llvm-mingw (libc++) cannot link C++ libraries that vcpkg built with a GCC MinGW (libstdc++). vcpkg's stock
 # *-mingw-static triplets take whichever *-w64-mingw32-gcc comes first on PATH, so catch that here instead of at the
@@ -431,7 +432,7 @@ target_compile_options(stadium_game PRIVATE
 # libultra runtime for the game (threads, message queues, devices). This target sees the game's SDK shim
 # headers (src/port/sdk/ultra64.h etc.); the LUS-facing code in the executable must not, because libultraship
 # headers include <ultra64.h> themselves.
-add_library(port_os STATIC src/port/os_thread.cpp src/port/os_devices.cpp src/port/zero_sram.cpp src/port/transfer_pak.cpp src/port/gb_save_convert.cpp src/port/gb_audio_out.cpp src/port/audio_out.cpp src/port/sound_settings.cpp src/port/audio_hle.cpp src/port/gb_core.c
+add_library(port_os STATIC src/port/os_thread.cpp src/port/os_devices.cpp src/port/zero_sram.cpp src/port/transfer_pak.cpp src/port/gb_save_convert.cpp src/port/gb_audio_out.cpp src/port/audio_out.cpp src/port/sound_settings.cpp src/port/audio_hle.cpp src/port/gb_core.c src/port/cheats.cpp
   src/port/jpeg_task.cpp src/port/gfx_translate.cpp)
 if(EMSCRIPTEN)
   target_sources(port_os PRIVATE src/port/web_audio.cpp) # sound output through an AudioWorklet (web_audio.h)

@@ -4,6 +4,7 @@
 #include "geo_node.h"
 #include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
 #include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
+#include "cheats_battle.h" // PORT: cheats (src/port/enhancements)
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Model_SetMaterialColor(DisplayObject* display_object, u8 r, u8 g, u8 b, u8 alpha); // PORT: signature from the definition (model_renderer.c)
@@ -78,6 +79,7 @@ void Battle_StartTurn(void) {
 
     sp24 = sBattleScene.scene->actingSide;
     sBattleScene.scene->actingSide = Battle_DetermineMoveOrder(sActivePokemon[0], sActivePokemon[1]);
+    sBattleScene.scene->actingSide = PortCheat_MoveOrder(sBattleScene.scene->actingSide); // PORT: cheat (cheats_battle.c)
 
     ptr = &sActivePokemon[sBattleScene.scene->actingSide]->state.runtime;
     if (ptr->usedMove == 0xFF) {

@@ -4,6 +4,7 @@
 #include "battle.h"
 #include "gb_data.h"
 #include "moves.h"
+#include "cheats_battle.h" // PORT: cheats (src/port/enhancements)
 extern u8 sBattleMoveFailed;
 extern u8 sBattleCritFlag;
 extern u8 D_82199F4E;
@@ -191,6 +192,8 @@ void Battle_ApplyDamage(void) {
                 sBattleTarget->substituteHp -= sBattleDamage;
             }
         }
+    } else if (PortCheat_ShieldDamage(target)) {
+        // PORT: cheat Infinite HP (cheats_battle.c): the hit lands, the HP stays
     } else {
         if (sBattleDamage < target->hp) {
             target->hp -= sBattleDamage;
@@ -295,7 +298,8 @@ void Battle_DecrementPP(s32 arg0) {
     temp_a1 = &sActivePokemon[arg0]->state;
     temp_a2 = &sActivePokemon[arg0]->teamRoster->pokemonPicked[temp_a1->rosterIndex];
 
-    if ((temp_v0->usedMove != 0xA5) && !(temp_v0->immobilizedReason & 7) && !(temp_v0->volatileStatusFlags & 0x40)) {
+    if ((temp_v0->usedMove != 0xA5) && !(temp_v0->immobilizedReason & 7) && !(temp_v0->volatileStatusFlags & 0x40) &&
+        !PortCheat_KeepPp(arg0)) { // PORT: cheat Infinite PP (cheats_battle.c)
         temp_v0->pp[temp_a1->selectedMoveIndex]--;
         if (!(temp_v0->uniqueStatusFlags & 8)) {
             temp_a2->pp[temp_a1->selectedMoveIndex] -= 1;
@@ -368,6 +372,10 @@ void Battle_MoveHitTest(void) {
     s8* p = D_8219A3C0;
     u8 effect = M2C_FIELD(p, u8*, 0x45);
 
+    if (PortCheat_ForceMiss(sBattleUser, sBattleTarget)) { // PORT: cheat Opponent never hits (cheats_battle.c)
+        Battle_MoveMissed();
+        return;
+    }
     if ((effect == 8) && !(sBattleTarget->statusCondition & 7)) {
         Battle_MoveMissed();
         return;
@@ -390,6 +398,9 @@ void Battle_MoveHitTest(void) {
         return;
     }
     if (M2C_FIELD(p, u8*, 0x4D) & 1) {
+        return;
+    }
+    if (PortCheat_SureHit(sBattleUser)) { // PORT: cheat Your moves never miss (cheats_battle.c)
         return;
     }
     Battle_CalcHitChance();
@@ -525,6 +536,7 @@ void Battle_InitPokemonRuntimeState(ActivePokemon* arg0) {
     // clang-format off
     for (i = 0; i < 8; i++) { sp24->statStages[i] = 7; }
     // clang-format on
+    PortCheat_InitRuntime(arg0); // PORT: cheats Perfect stats / Opponent minimum stats (cheats_battle.c)
 
     Battle_CheckMovesetLegality(arg0);
     Announcer_SetHp(BattleScene_GetParticipantSideIndex(arg0), sp34->hp, sp34->maxHp);
