@@ -16,3 +16,5 @@ void Enh_Rect(f32 x, f32 y, f32 w, f32 h, u8 r, u8 g, u8 b, u8 a);
 f32 Enh_Text(f32 x, f32 y, f32 height, f32 max_width, const char* utf8, u8 r, u8 g, u8 b, u8 a);
 // The width `utf8` takes at `height`.
 f32 Enh_TextWidth(f32 height, const char* utf8);
+// The glyph size (unicode_font.h) that text `height` pixels tall is drawn with.
+int Enh_GlyphPx(f32 height);

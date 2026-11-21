@@ -11,6 +11,9 @@ extern "C" {
 // The texture stays valid for the rest of the run.
 const unsigned char* Port_Font_Glyph(uint32_t cp, int height, int* tex_width, int* draw_width, int* advance);
 int Port_Font_HasGlyph(uint32_t cp);
+// Builds the glyphs of the characters in `utf8` at `height` in the current text font on a background thread, so a
+// screen that later draws them does not wait for them (the trainer memory screen, from the N64 logo).
+void Port_Font_PrewarmAsync(const char* utf8, int height);
 
 // Decodes the UTF-8 character at *s and advances *s past it. Returns 0 at the end and U+FFFD for a bad sequence.
 uint32_t Port_Utf8Next(const char** s);

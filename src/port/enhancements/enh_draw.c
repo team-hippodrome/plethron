@@ -47,7 +47,7 @@ static const unsigned char* Enh_Glyph(u32* cp, int px, int* tex_width, int* draw
     return tex;
 }
 
-static int Enh_GlyphPx(f32 height) {
+int Enh_GlyphPx(f32 height) {
     int px = (int)(height * ENH_TEXT_SUPERSAMPLE + 0.5f);
     if (px > 64) px = 64; // unicode_font.cpp's largest size
     if (px < 1) px = 1;
