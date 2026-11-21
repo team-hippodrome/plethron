@@ -1,13 +1,21 @@
 // Cheat settings (cheats.h): what the launcher's Cheats panel sets and the game reads.
 #include "cheats.h"
 
-#include <libultraship/bridge/consolevariablebridge.h>
-
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <mutex>
+#include <string>
+
+// libultraship's console variables, declared here as os_devices.cpp does: this file is in port_os, whose include
+// paths have no nlohmann/json (the bridge header pulls it in through ship/config/ConsoleVariable.h; Linux finds it in
+// /usr/include, the Windows vcpkg build does not)
+extern "C" {
+int32_t CVarGetInteger(const char* name, int32_t defaultValue);
+const char* CVarGetString(const char* name, const char* defaultValue);
+void CVarClear(const char* name);
+}
 
 namespace {
 
