@@ -1605,7 +1605,7 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
 
-        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 32;
+        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 28; // (28: room for the Small text row above the presets)
         float ry = y + 56;
         auto label = [&](const char* name, const std::string& hint) {
             Text(lx, ry + 5, name, gFonts.body);
@@ -1701,6 +1701,15 @@ class LauncherWindow : public Ship::GuiWindow {
             label("Text font", "Letters of the translations.\nPop is a prototype.");
             int c = Choice("textfont", { "Unifont", "Pop" }, CVarGetInteger("gPort.TextFont", 0) == 1 ? 1 : 0, cx, ry, 84);
             if (c >= 0) CVarSetInteger("gPort.TextFont", c);
+        }
+        ry += pitch;
+        // outline on translated text under 16 pixels (unicode_font.cpp, Outlined); the game's 10/12 sets have none
+        {
+            label("Small text", "Translated text under 16 px.\nThe game's small kana have no outline.");
+            static const int kStyles[] = { 1, 0, 2 }; // shown order: Outline, Plain, Bold
+            const int cur = CVarGetInteger("gPort.SmallTextOutline", 1);
+            int c = Choice("smalltext", { "Outline", "Plain", "Bold" }, cur == 0 ? 1 : (cur == 2 ? 2 : 0), cx, ry, 84);
+            if (c >= 0) CVarSetInteger("gPort.SmallTextOutline", kStyles[c]);
         }
 
         // presets: lit when the settings match one (Display is not part of them)

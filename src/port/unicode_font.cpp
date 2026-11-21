@@ -4,6 +4,10 @@
 // The "Text font" setting (gPort.TextFont, PORT_TEXT_FONT=pop|unifont) can pick the prototype Plethron Pop outlines
 // instead (assets/font/pop_subset.ttf, tools/font/make_pop_font.py), drawn the same way; Unifont stays the default
 // and covers any character Pop lacks.
+// The game's own font sets 16x10 and 16x12 have no outline (plain white glyphs); only 16x16 and up are outlined. The
+// "Small text" setting (gPort.SmallTextOutline, PORT_SMALL_TEXT_OUTLINE=1|0|2) picks how translated text below 16
+// pixels is drawn: 1 = outlined (the default so far), 0 = plain white like the game's small kana, 2 = plain white and
+// one source pixel bolder (the game's small kana have two-pixel strokes).
 #include "unicode_font.h"
 #include "app_file.h"
 
@@ -94,16 +98,45 @@ bool Pixel(const Bitmap& b, int x, int y) {
     return (b.rows[y] >> (b.width - 1 - x)) & 1;
 }
 
+// Below this height the game's font sets have no outline (16x10, 16x12).
+constexpr int kOutlineMinHeight = 16;
+
+enum GlyphStyle { kStylePlain = 0, kStyleOutline = 1, kStyleBold = 2 };
+
+int StyleFor(int height) {
+    if (height >= kOutlineMinHeight) {
+        return kStyleOutline;
+    }
+    static int env = -2;
+    if (env == -2) {
+        const char* e = getenv("PORT_SMALL_TEXT_OUTLINE");
+        env = (e == nullptr) ? -1 : std::clamp(atoi(e), 0, 2);
+    }
+    return (env >= 0) ? env : std::clamp(CVarGetInteger("gPort.SmallTextOutline", kStyleOutline), 0, 2);
+}
+
 // The outlined glyph at Unifont scale: (width + 2) x 18 cells, 2 = fill, 1 = outline, 0 = clear. Then an area
 // resample to `height` rows: each output texel's alpha is its covered fraction and its intensity the fill's share of
-// that coverage, so the outline reads as dark like the game's glyphs.
-std::unique_ptr<Glyph> Build(const Bitmap& b, int height) {
+// that coverage, so the outline reads as dark like the game's glyphs. The plain styles keep the same size and advance
+// (the layout does not move) and are all white, like the game's small sets: kStylePlain is the bare bitmap with its
+// alpha raised (a one-pixel Unifont stroke covers only ~60% of a texel at 10 pixels and read as grey), kStyleBold
+// also fills the cell right of and below each pixel (two-pixel strokes, as in the game's 10 and 12 pixel kana).
+std::unique_ptr<Glyph> Build(const Bitmap& b, int height, int style) {
     const int sw = b.width + 2, sh = 18;
     std::vector<unsigned char> src(sw * sh, 0);
     for (int y = 0; y < sh; y++) {
         for (int x = 0; x < sw; x++) {
             if (Pixel(b, x - 1, y - 1)) {
                 src[y * sw + x] = 2;
+                continue;
+            }
+            if (style == kStyleBold) {
+                if (Pixel(b, x - 2, y - 1) || Pixel(b, x - 1, y - 2) || Pixel(b, x - 2, y - 2)) {
+                    src[y * sw + x] = 2;
+                }
+                continue;
+            }
+            if (style == kStylePlain) {
                 continue;
             }
             for (int dy = -1; dy <= 1 && !src[y * sw + x]; dy++) {
@@ -140,6 +173,9 @@ std::unique_ptr<Glyph> Build(const Bitmap& b, int height) {
                 }
             }
             double a = (fill + line) / area;
+            if (style == kStylePlain) {
+                a *= 1.6;
+            }
             if (a <= 0) {
                 continue;
             }
@@ -190,7 +226,7 @@ bool UsePop() {
 // The em of pop_subset.ttf is the whole cell (ascent 850, descent 150), so the glyph is drawn `height` pixels tall:
 // rendered 4x supersampled, given an outline by dilating the fill with a disc (1 pixel per 16 of height, at least
 // one), then box-filtered down; alpha and intensity as in Build above.
-std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height) {
+std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height, int style) {
     constexpr int SS = 4;
     const float scale = stbtt_ScaleForMappingEmToPixels(&font.info, (float)(height * SS));
     int advUnits, lsb;
@@ -224,7 +260,8 @@ std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height) {
     // dilation is the largest, over dy, of the fill row y + dy's running maximum over [x - reach, x + reach]. The
     // running maxima for each reach are built one step wider at a time (wider[k] = max(wider[k-1], x - k, x + k)).
     // Same pixels as testing the whole disc at each texel, which took 25-70 ms a glyph at 64 pixels.
-    const int rs = (int)std::lround(r * SS);
+    // Pop is already extra bold, so both plain styles just leave the outline out (rs 0: nothing is dilated)
+    const int rs = (style == kStyleOutline) ? (int)std::lround(r * SS) : 0;
     std::vector<int> reach(2 * rs + 1);
     for (int dy = -rs; dy <= rs; dy++) {
         int w = -1;
@@ -301,11 +338,13 @@ const Glyph* CachedGlyph(Cache& cache, uint32_t cp, int height, BuildFn build) {
 
 const unsigned char* FindGlyph(uint32_t cp, int height, bool pop, int* tex_width, int* draw_width, int* advance) {
     const Glyph* g = nullptr;
+    const int style = StyleFor(height);
+    const int key = height + 1000 * style; // the cache keeps every look, so the setting can change while running
     if (pop && height > 0 && height <= 64) {
         PopFont& font = GetPopFont();
         int index = stbtt_FindGlyphIndex(&font.info, (int)cp);
         if (index != 0) {
-            g = CachedGlyph(font.glyphs, cp, height, [&] { return BuildPop(font, index, height); });
+            g = CachedGlyph(font.glyphs, cp, key, [&] { return BuildPop(font, index, height, style); });
         }
     }
     if (g == nullptr) {
@@ -314,7 +353,7 @@ const unsigned char* FindGlyph(uint32_t cp, int height, bool pop, int* tex_width
         if (bit == font.bitmaps.end() || height <= 0 || height > 64) {
             return nullptr;
         }
-        g = CachedGlyph(font.glyphs, cp, height, [&] { return Build(bit->second, height); });
+        g = CachedGlyph(font.glyphs, cp, key, [&] { return Build(bit->second, height, style); });
     }
     *tex_width = g->texWidth;
     *draw_width = g->drawWidth;
