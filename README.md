@@ -23,6 +23,9 @@ To fix or add a translation, please see the [translation](https://github.com/tea
 - Widescreen support.
 - Anti-aliasing.
 - Frame interpolation to 60 FPS.
+- Optional enhancements from [hippodrome-utils](https://github.com/team-hippodrome/hippodrome-utils), all off by default (launcher > Graphics > Enhancements):
+  - Summary bars: both parties beside the game's picture during battles (HP, status, the moves seen, the opponent's estimated Speed). They need room beside the picture: a 4:3 picture in a wide window, or 16:9 on an ultrawide screen.
+  - Trainer memory: the tournament trainers' teams, moves and Speed you have seen, on a C button at the cup select.
 
 ---
 

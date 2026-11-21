@@ -60,6 +60,7 @@ extern char** sBattleControllerDisconnectedMessage;
 #include "m2c_macros.h"
 #include "StadionPort.h" // PORT: Port_Xcheck*
 #include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 
 void Audio_PlayMoveSound(u8, s32, s32);
 
@@ -2898,6 +2899,7 @@ s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams
     switch (lifecycle_stage) {
         case 0:
             BattleScene_AllocateParticipants(session_teams);
+            PortEnh_BattleBegin(); // PORT: a new battle for the summary bars / trainer memory (enhancements)
             break;
 
         case 1:
@@ -2911,6 +2913,7 @@ s32 BattleScene_DispatchLifecycle(s32 lifecycle_stage, BattleSide* session_teams
 
         case 5:
             Battle_RenderHud();
+            PortEnh_BattleFrame(); // PORT: the summary bars / trainer memory follow the battle (enhancements)
             break;
     }
 

@@ -17,6 +17,8 @@
 #include <map>
 #include <sstream>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -217,21 +219,41 @@ std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height) {
             }
         }
     }
-    // outline: grey dilation by a disc of radius r (supersampled)
+    // outline: grey dilation by a disc of radius r (supersampled): each texel takes the largest fill within the disc
+    // dx*dx + dy*dy <= rs*rs + rs. The disc is a stack of rows, row dy reaching `reach[dy]` either side, so the
+    // dilation is the largest, over dy, of the fill row y + dy's running maximum over [x - reach, x + reach]. The
+    // running maxima for each reach are built one step wider at a time (wider[k] = max(wider[k-1], x - k, x + k)).
+    // Same pixels as testing the whole disc at each texel, which took 25-70 ms a glyph at 64 pixels.
     const int rs = (int)std::lround(r * SS);
-    std::vector<std::pair<int, int>> disc;
-    for (int dy = -rs; dy <= rs; dy++)
-        for (int dx = -rs; dx <= rs; dx++)
-            if (dx * dx + dy * dy <= rs * rs + rs) disc.emplace_back(dx, dy);
+    std::vector<int> reach(2 * rs + 1);
+    for (int dy = -rs; dy <= rs; dy++) {
+        int w = -1;
+        while ((w + 1) * (w + 1) + dy * dy <= rs * rs + rs) w++;
+        reach[dy + rs] = w; // >= rs for dy = 0, so every row has at least its own texel
+    }
+    std::vector<unsigned char> wider((size_t)(rs + 1) * cw * ch);
+    std::copy(fillSS.begin(), fillSS.end(), wider.begin());
+    for (int k = 1; k <= rs; k++) {
+        const unsigned char* prev = &wider[(size_t)(k - 1) * cw * ch];
+        unsigned char* cur = &wider[(size_t)k * cw * ch];
+        for (int y = 0; y < ch; y++) {
+            const unsigned char* f = &fillSS[(size_t)y * cw];
+            for (int x = 0; x < cw; x++) {
+                unsigned char m = prev[(size_t)y * cw + x];
+                if (x - k >= 0) m = std::max(m, f[x - k]);
+                if (x + k < cw) m = std::max(m, f[x + k]);
+                cur[(size_t)y * cw + x] = m;
+            }
+        }
+    }
     std::vector<unsigned char> lineSS(cw * ch, 0);
     for (int y = 0; y < ch; y++) {
-        for (int x = 0; x < cw; x++) {
-            unsigned char m = 0;
-            for (auto [dx, dy] : disc) {
-                int sx = x + dx, sy = y + dy;
-                if (sx >= 0 && sy >= 0 && sx < cw && sy < ch) m = std::max(m, fillSS[sy * cw + sx]);
-            }
-            lineSS[y * cw + x] = m;
+        unsigned char* out = &lineSS[(size_t)y * cw];
+        for (int dy = -rs; dy <= rs; dy++) {
+            const int sy = y + dy;
+            if (sy < 0 || sy >= ch || reach[dy + rs] < 0) continue;
+            const unsigned char* row = &wider[((size_t)reach[dy + rs] * ch + sy) * cw];
+            for (int x = 0; x < cw; x++) out[x] = std::max(out[x], row[x]);
         }
     }
     g->tex.assign(g->texWidth * height, 0);
@@ -255,6 +277,51 @@ std::unique_ptr<Glyph> BuildPop(PopFont& font, int index, int height) {
     return g;
 }
 
+// The glyph cache is shared with Port_Font_PrewarmAsync's worker: lookups hold sGlyphLock, builds run outside it (a
+// glyph both build at once is built twice and the first one kept; the textures never move or go away).
+std::mutex sGlyphLock;
+
+template <typename Cache, typename BuildFn>
+const Glyph* CachedGlyph(Cache& cache, uint32_t cp, int height, BuildFn build) {
+    {
+        std::lock_guard<std::mutex> lock(sGlyphLock);
+        auto it = cache.find({ cp, height });
+        if (it != cache.end()) {
+            return it->second.get();
+        }
+    }
+    std::unique_ptr<Glyph> built = build();
+    std::lock_guard<std::mutex> lock(sGlyphLock);
+    auto& slot = cache[{ cp, height }];
+    if (!slot) {
+        slot = std::move(built);
+    }
+    return slot.get();
+}
+
+const unsigned char* FindGlyph(uint32_t cp, int height, bool pop, int* tex_width, int* draw_width, int* advance) {
+    const Glyph* g = nullptr;
+    if (pop && height > 0 && height <= 64) {
+        PopFont& font = GetPopFont();
+        int index = stbtt_FindGlyphIndex(&font.info, (int)cp);
+        if (index != 0) {
+            g = CachedGlyph(font.glyphs, cp, height, [&] { return BuildPop(font, index, height); });
+        }
+    }
+    if (g == nullptr) {
+        Font& font = GetFont();
+        auto bit = font.bitmaps.find(cp);
+        if (bit == font.bitmaps.end() || height <= 0 || height > 64) {
+            return nullptr;
+        }
+        g = CachedGlyph(font.glyphs, cp, height, [&] { return Build(bit->second, height); });
+    }
+    *tex_width = g->texWidth;
+    *draw_width = g->drawWidth;
+    *advance = g->advance;
+    return g->tex.data();
+}
+
 } // namespace
 
 extern "C" {
@@ -264,33 +331,28 @@ int Port_Font_HasGlyph(uint32_t cp) {
 }
 
 const unsigned char* Port_Font_Glyph(uint32_t cp, int height, int* tex_width, int* draw_width, int* advance) {
-    if (UsePop() && height > 0 && height <= 64) {
-        PopFont& pop = GetPopFont();
-        int index = stbtt_FindGlyphIndex(&pop.info, (int)cp);
-        if (index != 0) {
-            auto& slot = pop.glyphs[{ cp, height }];
-            if (!slot) {
-                slot = BuildPop(pop, index, height);
-            }
-            *tex_width = slot->texWidth;
-            *draw_width = slot->drawWidth;
-            *advance = slot->advance;
-            return slot->tex.data();
+    return FindGlyph(cp, height, UsePop(), tex_width, draw_width, advance);
+}
+
+void Port_Font_PrewarmAsync(const char* utf8, int height) {
+    if (utf8 == nullptr || height <= 0 || height > 64) {
+        return;
+    }
+    const bool pop = UsePop(); // (loads the fonts here, before the worker reads them)
+    GetFont();
+    std::vector<uint32_t> cps;
+    for (uint32_t cp; (cp = Port_Utf8Next(&utf8)) != 0;) {
+        if (cp != ' ' && cp != '\n' && std::find(cps.begin(), cps.end(), cp) == cps.end()) {
+            cps.push_back(cp);
         }
     }
-    Font& font = GetFont();
-    auto bit = font.bitmaps.find(cp);
-    if (bit == font.bitmaps.end() || height <= 0 || height > 64) {
-        return nullptr;
-    }
-    auto& slot = font.glyphs[{ cp, height }];
-    if (!slot) {
-        slot = Build(bit->second, height);
-    }
-    *tex_width = slot->texWidth;
-    *draw_width = slot->drawWidth;
-    *advance = slot->advance;
-    return slot->tex.data();
+    cps.push_back('?'); // the stand-in for a missing glyph
+    std::thread([cps = std::move(cps), height, pop]() {
+        int tw, dw, adv;
+        for (uint32_t cp : cps) {
+            FindGlyph(cp, height, pop, &tw, &dw, &adv);
+        }
+    }).detach();
 }
 
 uint32_t Port_Utf8Next(const char** s) {

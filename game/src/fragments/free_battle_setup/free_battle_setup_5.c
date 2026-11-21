@@ -4,6 +4,7 @@
 #include "m2c_macros.h"
 #include "free_battle_setup.h"
 #include "game_state.h"
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 
 
 
@@ -300,6 +301,8 @@ M2C_UNK FreeBattle_DrawScreen(FreeBattleScreen* screen) {
             BlinkingTextBox_Draw(&base->textBox);
             break;
     }
+    // PORT: the trainer memory screen over the cup select (enhancement, off by default; battle_enhancements.h)
+    PortEnh_MemoryScreenDraw(base->state, base->cupWindow.menu.cursor);
 }
 
 
@@ -330,6 +333,10 @@ s32 FreeBattle_UpdateScreen(FreeBattleScreen* screen) {
     s32 idx;
     s32 sel;
 
+    // PORT: while the trainer memory screen is open it takes the controller (enhancement, off by default)
+    if (PortEnh_MemoryScreenUpdate(screen->state, screen->cupWindow.menu.cursor)) {
+        return 0;
+    }
     ret = 0;
     res = screen->pendingState;
     if (res != 0) {

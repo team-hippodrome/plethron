@@ -213,6 +213,11 @@ Gfx* ModelRenderer_SetSlotModelColor(Gfx*);
 void func_80032A6C(void);
 extern Gfx D_80074410[];
 extern Gfx D_800744C0[];
+// PORT: set by the summary cards' model copies (enhancements/card_models.c) while they draw. The copies have no
+// effect slot (0xFF), so the slot model has nothing to deform; they get the fixed flame that thumbnails draw
+// (modes 2-3), read straight from the species' template, and no battle slot or counter is touched.
+u8 gPortStaticSlotModel;
+
 /**
  * Geo callback that draws the current slot model of the active side: its deformable model in modes
  * 0-1, or its segment's display list in modes 2-3, then advances to the next slot.
@@ -225,6 +230,14 @@ Gfx* ModelRenderer_DrawSlotModel(Gfx* gfx) {
 
     mode = ModelRenderer_GetActiveMode();
     if (mode >= 4) {
+        if (gPortStaticSlotModel) {
+            ModelSegment* segment = (D_8006049C->objectType == 0x92) ? &D_80075C10 : &D_80075A68;
+
+            gfx = ModelRenderer_SetSlotModelColor(gfx);
+            gSPSegment(gfx++, 0x0E, segment->vertexSegment);
+            gSPDisplayList(gfx++, segment->displayList);
+            gSPDisplayList(gfx++, D_800744C0);
+        }
         return gfx;
     }
     if (mode >= 2) {
