@@ -1605,7 +1605,7 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
 
-        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 32;
+        const float lx = x + 14, cx = x + 190, tx = x + 560, pitch = 28; // (28: room for the Small text row above the presets)
         float ry = y + 56;
         auto label = [&](const char* name, const std::string& hint) {
             Text(lx, ry + 5, name, gFonts.body);
