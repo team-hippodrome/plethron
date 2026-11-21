@@ -38,6 +38,7 @@ extern s16 D_800AFB26;
 extern s16 D_800AFB28;
 extern s16 D_800AFB2C[2];
 extern s16 D_800AFB30[2];
+extern u8 gPortStaticSlotModel; // model_renderer_callbacks.c: slot models (flames) drawn fixed, from their template
 typedef struct SlotState {
     s16 b26, b28, b2c[2], b30[2];
 } SlotState;
@@ -326,7 +327,9 @@ void PortEnh_CardModelsDraw(const hu_side sides[2], const PortEnhCardBattle batt
             GeoCamera_SetViewport((CameraNode*)c->root->children, i * PORT_ENH_CARD_CELL, 0, PORT_ENH_CARD_CELL,
                                   PORT_ENH_CARD_CELL);
             GeoCamera_SetPerspective((CameraNode*)c->root->children, 30.0f, 100.0f, 12800.0f);
+            gPortStaticSlotModel = 1; // Charizard's tail and Moltres's crest, as the battle thumbnails draw them
             Geo_RenderRootNode(c->root);
+            gPortStaticSlotModel = 0;
         }
         SetFramebuffer(0);
     }
