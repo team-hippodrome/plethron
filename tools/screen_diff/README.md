@@ -91,7 +91,9 @@ put checkpoints where the screen has settled or right after the press that start
 ## Which sounds a scene asks for
 
 `PORT_SOUNDLOG=<file>` (port, `--port-env`) and `ARES_REF_SOUNDLOG=<file>` (ares) log every call of `Audio_PlayCry`
-and `Audio_PlayCommand` as `S <frame> cry|cmd <a0> <a1>` (ares adds the caller, as a battle-engine link address).
+and `Audio_PlayCommand` as `S <frame> cry|cmd <a0> <a1>` (ares adds the caller, as a battle-engine link address), and
+every announcer line the battle asks for (`Announcer_QueueLine`) as `S <frame> ann <line> <volume>`: `<line>` is the
+JIKKYOU.WBK effect id, i.e. the `SUBTITLE_ANNOUNCER_<line as hex>` row its subtitle comes from.
 With an `@rng` route the two lists should hold the same calls in the same order, a few frames apart:
 `diff <(cut -d' ' -f3- port_sound.txt) <(cut -d' ' -f3-5 ares_sound.txt)`. This settled that Zero plays no cry when a
 Pokémon faints (only command 3, the collapse sound, and 6-8, the landing thud by size), on ares as in the port.
