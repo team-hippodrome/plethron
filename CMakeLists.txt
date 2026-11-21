@@ -72,7 +72,8 @@ set(PORT_ENH_GAME_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/battle_enhancements.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/memory_screen.c
   ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/zero_trainer_memory.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/enh_draw.c)
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/enh_draw.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/port/enhancements/card_models.c)
 
 # llvm-mingw (libc++) cannot link C++ libraries that vcpkg built with a GCC MinGW (libstdc++). vcpkg's stock
 # *-mingw-static triplets take whichever *-w64-mingw32-gcc comes first on PATH, so catch that here instead of at the

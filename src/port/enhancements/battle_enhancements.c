@@ -25,6 +25,7 @@
 #include "enhancements.h"
 #include "battle_enhancements.h"
 #include "zero_trainer_memory.h"
+#include "card_models.h"
 
 #include <hippodrome/summary_card.h>
 #include <hippodrome/trainer_memory.h>
@@ -115,6 +116,9 @@ static void InitSide(s32 s) {
         for (j = 0; j < 4; j++) moves[j] = m->moves[j];
         hu_side_set_mon(&sSides[s], i, m->species.id, m->level, m->hp, m->maxHp, moves, BaseSpeed(m->species.id),
                         s == sViewer ? m->speed : 0);
+        if (Port_Enh_SummaryBarsEnabled()) {
+            PortEnh_CardModelsLoad(s, i, &party[i]); // the card's own copy of the model
+        }
     }
     // which party Pokémon each brought one is
     for (i = 0; i < 6; i++) sCardOfPicked[s][i] = -1;
@@ -187,6 +191,7 @@ static void Init(void) {
     s32 com0 = IsCom(sActivePokemon[0]->teamRoster), com1 = IsCom(sActivePokemon[1]->teamRoster);
 
     sViewer = (!com0 && com1) ? 0 : (com0 && !com1) ? 1 : -1;
+    PortEnh_CardModelsFree();
     InitSide(0);
     InitSide(1);
     sPendingSlot[0] = sPendingSlot[1] = -1;
@@ -272,8 +277,13 @@ static void Poll(void) {
                 hu_speed_range copied = (oc >= 0) ? hu_card_shown_speed(&sSides[o].cards[oc]) : side->cards[active].speed;
                 if (oc >= 0 && o != sViewer) copied = sSides[o].cards[oc].speed;
                 hu_side_transform(side, active, (u8)sActivePokemon[s]->state.transformSpecies, copied);
+                // the card's model becomes the one it copied (the opponent's, as its own model does)
+                if (oc >= 0 && Port_Enh_SummaryBarsEnabled()) {
+                    PortEnh_CardModelsLoadFrom(s, active, o, oc);
+                }
             } else if (!transformed && sTransformed[s]) {
                 hu_side_transform(side, active, side->cards[active].species, side->cards[active].speed);
+                PortEnh_CardModelsRestore(s, active);
             }
             sTransformed[s] = transformed;
         }
@@ -407,6 +417,7 @@ static void Publish(void) {
                 }
             }
             v.speed[s][i] = sr;
+            v.modelReady[s][i] = (u8)PortEnh_CardModelReady(s, i);
         }
     }
     Port_Enh_PublishBattle(&v);
@@ -425,6 +436,9 @@ void PortEnh_BattleFrame(void) {
     Poll();
     if (bars) {
         Publish();
+        s32 active[2] = { ActiveCard(0), ActiveCard(1) };
+        DisplayObject* battle[2] = { &sActivePokemon[0]->displayObject, &sActivePokemon[1]->displayObject };
+        PortEnh_CardModelsDraw(sSides, active, battle);
     }
     if (sBattleScene.scene->winner != 0 && !sSaved) {
         Port_Enh_SaveMemory();

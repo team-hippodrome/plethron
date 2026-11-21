@@ -12,16 +12,20 @@
 
 #include <imgui.h>
 #include <libultraship/libultraship.h>
+#include <fast/Fast3dWindow.h>
+#include <fast/interpreter.h>
 #include <ship/window/gui/Gui.h>
 #include <ship/window/gui/GuiWindow.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdio>
 #include <memory>
 
 namespace Port {
 int AspectSetting(); // Engine.cpp: 0 = 4:3, 1 = 16:9
+std::shared_ptr<Fast::Fast3dWindow> GetWindow(); // Engine.cpp
 }
 ImFont* Port_Enh_CardFont(); // enhancements.cpp
 
@@ -30,15 +34,26 @@ namespace {
 // the cards need at least this much room beside the picture (a fraction of the window's height): a 4:3 picture in
 // a 16:9 window leaves 0.22, a 16:9 picture in a 21:9 window 0.29, a 4:3 picture in a 16:10 window only 0.13 (no bars)
 constexpr float kMinSide = 0.18f;
-constexpr uint16_t kFaintFrames = 40; // the placeholder's faint fade (the models' own faint length later)
+
+// the cards' model picture (card_models.c draws into it): created on the render thread, read by the game thread
+std::atomic<int> gCardFb{ 0 };
+ImTextureID gCardTexture = 0;
+
+void EnsureCardPicture() {
+    if (gCardFb.load() > 0) {
+        auto window = Port::GetWindow();
+        auto interp = window ? window->GetInterpreterWeak().lock() : nullptr;
+        if (interp) gCardTexture = (ImTextureID)interp->GetCurrentRenderingAPI()->GetFramebufferTextureId(gCardFb.load());
+        return;
+    }
+    // fixed size, no widescreen adjustment: the game's coordinates are the picture's pixels
+    int fb = gfx_create_framebuffer(PORT_ENH_CARD_ATLAS_W, PORT_ENH_CARD_ATLAS_H, PORT_ENH_CARD_ATLAS_W,
+                                    PORT_ENH_CARD_ATLAS_H, 0, false);
+    if (fb > 0) gCardFb.store(fb);
+}
 
 ImU32 Rgba(int r, int g, int b, int a) {
     return IM_COL32(std::clamp(r, 0, 255), std::clamp(g, 0, 255), std::clamp(b, 0, 255), std::clamp(a, 0, 255));
-}
-
-ImU32 Mix(hu_rgb base, hu_rgb tint, float amount, int alpha) {
-    return Rgba((int)(base.r * (1 - amount) + tint.r * amount), (int)(base.g * (1 - amount) + tint.g * amount),
-                (int)(base.b * (1 - amount) + tint.b * amount), alpha);
 }
 
 const char* Str(const char* id, const char* kana, const char* en) {
@@ -69,20 +84,25 @@ void DrawCard(ImDrawList* dl, ImFont* f, const PortEnhBattleView& v, int s, int 
     dl->AddRectFilled(p0, p1, active ? Rgba(0x28, 0x34, 0x58, 0xF0) : Rgba(0x14, 0x18, 0x28, 0xE8), h * 0.12f);
     if (active) dl->AddRect(p0, p1, Rgba(0xF8, 0xD8, 0x30, 0xFF), h * 0.12f, 0, std::max(1.0f, h * 0.025f));
 
-    // the model (a placeholder tile for now, tinted as the model will be)
+    // the model: its cell of the card picture (card_models.c), tinted as hu_card_model_look says
     const float m = std::min(h - 2 * pad, w * 0.34f);
     const ImVec2 m0(p0.x + pad, p0.y + (h - m) / 2), m1(m0.x + m, m0.y + m);
-    const hu_model_look look = hu_card_model_look(&c, kFaintFrames);
-    dl->AddRectFilled(m0, m1, Mix(hu_rgb{ 0x70, 0x88, 0xB8 }, look.tint, look.tint_amount, 0xFF), m * 0.18f);
-    if (c.flags & HU_CARD_F_SUBSTITUTE) {
-        dl->AddRect(m0, m1, Rgba(0xFF, 0xFF, 0xFF, 0xC0), m * 0.18f, 0, std::max(1.0f, m * 0.05f));
-    }
-    {
+    dl->AddRectFilled(m0, m1, Rgba(0x30, 0x3C, 0x60, 0xFF), m * 0.18f);
+    if (v.modelReady[s][i] && gCardTexture) {
+        const float cu = 1.0f / HU_SIDE_MAX, cv = 0.5f;
+        // (the framebuffer's rows come out bottom-up: the game's row 0, side 0, is the texture's lower half)
+        const ImVec2 uv0(i * cu, (1 - s) * cv), uv1((i + 1) * cu, (2 - s) * cv);
+        // (its tint is the model's own: card_models.c blends it in as the game blends a model toward a colour)
+        dl->AddImageRounded(gCardTexture, m0, m1, uv0, uv1, IM_COL32_WHITE, m * 0.18f);
+    } else {
         char dex[8];
         snprintf(dex, sizeof dex, "%u", c.model_species);
         const float ts = m * 0.32f;
         const ImVec2 d = f->CalcTextSizeA(ts, FLT_MAX, 0, dex);
         dl->AddText(f, ts, ImVec2((m0.x + m1.x - d.x) / 2, (m0.y + m1.y - d.y) / 2), Rgba(0xFF, 0xFF, 0xFF, 0xB0), dex);
+    }
+    if (c.flags & HU_CARD_F_SUBSTITUTE) {
+        dl->AddRect(m0, m1, Rgba(0xFF, 0xFF, 0xFF, 0xC0), m * 0.18f, 0, std::max(1.0f, m * 0.05f));
     }
 
     // the text column: name, HP, the moves two by two, speed
@@ -161,6 +181,7 @@ class SummaryBarsWindow : public Ship::GuiWindow {
         const float picW = std::min(W, H * aspect);
         const float side = (W - picW) / 2;
         if (side < kMinSide * H) return; // no room beside the picture: no bars
+        EnsureCardPicture();
 
         ImDrawList* dl = ImGui::GetBackgroundDrawList(); // under ImGui's own windows (menus), over the black bars
         ImFont* f = Port_Enh_CardFont();
@@ -186,6 +207,10 @@ class SummaryBarsWindow : public Ship::GuiWindow {
 };
 
 } // namespace
+
+extern "C" int Port_Enh_CardModelFramebuffer(void) {
+    return gCardFb.load();
+}
 
 void Port_Enh_InstallOverlay(void* gui) {
     static bool added = false;
