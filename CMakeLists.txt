@@ -190,6 +190,29 @@ if(WIN32 AND NOT MSVC)
   list(REMOVE_ITEM PORT_MAIN_TARGET_SOURCES src/port/generated/zero_lift_data.c)
   set_property(TARGET plethron PROPERTY SOURCES ${PORT_MAIN_TARGET_SOURCES} ${PORT_COFF_LIFT_DATA} ${PORT_COFF_ALIASES_S})
 endif()
+if(APPLE)
+  # macOS: Apple's linker reads no GNU linker scripts either, so the plain aliases go to an -alias_list file and the
+  # aliases into lifted storage are .set lines next to it (tools/gen_macho_aliases.py); the wrapper replaces
+  # zero_lift_data.c
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  set(PORT_MACHO_ALIAS_LIST ${CMAKE_BINARY_DIR}/generated/zero_aliases_macho.txt)
+  set(PORT_MACHO_LIFT_DATA ${CMAKE_BINARY_DIR}/generated/zero_lift_data_macho.c)
+  execute_process(COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_macho_aliases.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_lift_data.c ${PORT_MACHO_ALIAS_LIST} ${PORT_MACHO_LIFT_DATA}
+      RESULT_VARIABLE PORT_MACHO_ALIASES_RESULT)
+  if(NOT PORT_MACHO_ALIASES_RESULT EQUAL 0)
+    message(FATAL_ERROR "Could not generate the macOS alias list")
+  endif()
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_macho_aliases.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_aliases.ld
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/port/generated/zero_lift_data.c)
+  get_target_property(PORT_MAIN_TARGET_SOURCES plethron SOURCES)
+  list(REMOVE_ITEM PORT_MAIN_TARGET_SOURCES src/port/generated/zero_lift_data.c)
+  set_property(TARGET plethron PROPERTY SOURCES ${PORT_MAIN_TARGET_SOURCES} ${PORT_MACHO_LIFT_DATA})
+  target_link_options(plethron PRIVATE "LINKER:-alias_list,${PORT_MACHO_ALIAS_LIST}")
+  set_property(TARGET plethron APPEND PROPERTY LINK_DEPENDS ${PORT_MACHO_ALIAS_LIST})
+endif()
 if(NOT ANDROID AND NOT EMSCRIPTEN)
   # the save library's command-line driver (not shipped)
   add_executable(stadium_save_cli EXCLUDE_FROM_ALL src/port/save_editor/cli_main.cpp src/port/save_editor/stadium_save.cpp
