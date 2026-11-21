@@ -20,25 +20,36 @@ git submodule update --init --recursive   # safe to rerun; same as tools/setup.s
 
 ### Windows (PowerShell)
 
-Install [llvm-mingw](https://github.com/mstorsjo/llvm-mingw/releases) (the `ucrt-x86_64` zip) and put its `bin`
-folder on `PATH`. Also install [vcpkg](https://github.com/microsoft/vcpkg); `$env:VCPKG_ROOT` should point to it.
+Install [llvm-mingw](https://github.com/mstorsjo/llvm-mingw/releases) (the `ucrt-x86_64` zip) and
+[vcpkg](https://github.com/microsoft/vcpkg); `$env:VCPKG_ROOT` should point to vcpkg. Run these from the `plethron`
+folder (all of it is safe to rerun):
 
 ```powershell
-$env:PATH = "C:\llvm-mingw\bin;$env:PATH"   # where you unpacked llvm-mingw
+$env:PATH = "C:\llvm-mingw\bin;$env:PATH"   # change to where you unpacked llvm-mingw
+(Get-Command x86_64-w64-mingw32-gcc).Source  # must print a path inside llvm-mingw
+$deps = "$env:USERPROFILE\vcpkg-installed-plethron"
 & "$env:VCPKG_ROOT\vcpkg" install "sdl3[core,vulkan]" glew libzip nlohmann-json tinyxml2 spdlog zlib bzip2 glslang `
-    --triplet x64-mingw-static --host-triplet x64-mingw-static
+    --triplet x64-mingw-static --host-triplet x64-mingw-static `
+    --overlay-triplets="$PWD\cmake\vcpkg-triplets" --x-install-root="$deps"
 cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo `
     -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
-    -DVCPKG_TARGET_TRIPLET=x64-mingw-static `
+    -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DVCPKG_INSTALLED_DIR="$deps" `
     -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE="$PWD/cmake/toolchain-mingw-clang.cmake"
 cmake --build build-win
 ```
 
 The game is `build-win\plethron.exe`.
 
+- **The dependencies must be built with llvm-mingw too.** vcpkg's stock `x64-mingw-static` triplet uses the first
+  `x86_64-w64-mingw32-gcc` on `PATH`. If that is a GCC MinGW (Strawberry Perl, MSYS2, w64devkit, ...), spdlog and fmt
+  are built against libstdc++ and the game fails to link with hundreds of undefined `std::__cxx11`, `_Rb_tree` and
+  `spdlog::` symbols. The overlay triplets in `cmake/vcpkg-triplets` always use llvm-mingw's clang, and configure
+  stops with a clear message if it finds GCC-built libraries. The separate install folder (`$deps`) keeps them apart
+  from libraries other projects built into vcpkg's own `installed` folder under the same triplet name.
 - **Keep `RelWithDebInfo`.** Without a build type, vcpkg links its debug SDL3, and that version stops at startup
   with an assertion dialog.
-- **Windows on ARM:** set `$env:MINGW_TRIPLE = "aarch64-w64-mingw32"` and use the `arm64-mingw-static` triplet.
+- **Windows on ARM:** set `$env:MINGW_TRIPLE = "aarch64-w64-mingw32"`, check `aarch64-w64-mingw32-gcc` instead, and
+  use the `arm64-mingw-static` triplet.
 
 ### Linux
 

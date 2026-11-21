@@ -67,6 +67,25 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
 
+# llvm-mingw (libc++) cannot link C++ libraries that vcpkg built with a GCC MinGW (libstdc++). vcpkg's stock
+# *-mingw-static triplets take whichever *-w64-mingw32-gcc comes first on PATH, so catch that here instead of at the
+# final link (hundreds of undefined std::__cxx11 / _Rb_tree / spdlog symbols).
+if(WIN32 AND NOT MSVC AND CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND DEFINED VCPKG_INSTALLED_DIR
+   AND DEFINED VCPKG_TARGET_TRIPLET)
+  foreach(_lib spdlog fmt)
+    set(_archive "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/lib${_lib}.a")
+    if(EXISTS "${_archive}")
+      file(STRINGS "${_archive}" _libstdcxx LIMIT_COUNT 1 REGEX "St7__cxx11")
+      if(_libstdcxx)
+        message(FATAL_ERROR "${_archive} was built with GCC (libstdc++), but this build uses llvm-mingw's clang "
+          "and libc++, so linking would fail. Rebuild the vcpkg dependencies with the repository's overlay triplets "
+          "(vcpkg install ... --overlay-triplets=cmake/vcpkg-triplets into a fresh --x-install-root), see "
+          "docs/BUILDING.md.")
+      endif()
+    endif()
+  endforeach()
+endif()
+
 set(PORT_MAIN_SOURCES
   src/port/main.cpp
   src/port/Engine.cpp
