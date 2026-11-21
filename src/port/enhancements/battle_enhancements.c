@@ -343,6 +343,12 @@ void PortEnh_TurnOrder(s32 first_side) {
     }
 }
 
+void PortEnh_MoveNotUsed(void) {
+    if (!sReady) return;
+    // the turn's action is resolved before it is shown: the move step that follows must not reveal the move
+    sPendingSlot[sBattleScene.scene->actingSide & 1] = -1;
+}
+
 void PortEnh_MoveStart(void) {
     s32 s;
     s32 c;

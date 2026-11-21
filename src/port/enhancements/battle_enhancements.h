@@ -7,6 +7,7 @@ void PortEnh_BattleBegin(void);          // BattleScene_DispatchLifecycle(0): a 
 void PortEnh_BattleFrame(void);          // BattleScene_DispatchLifecycle(5): after the battle HUD, every frame
 void PortEnh_TurnOrder(s32 first_side);  // Battle_StartTurn, once Battle_DetermineMoveOrder picked who acts first
 void PortEnh_MoveStart(void);            // a move's presentation starts (BattleScene_ActionStepSetHitCount)
+void PortEnh_MoveNotUsed(void);          // Battle_ProcessTurn: the acting side cannot act (sleep, paralysis, flinch...)
 
 // The trainer memory screen on the tournament menus (memory_screen.c), from FreeBattle_UpdateScreen /
 // FreeBattle_DrawScreen. `state` is the battle setup screen's state (7 the Lv. 50-55 menu, 9 the Lv. 1-30 cup
