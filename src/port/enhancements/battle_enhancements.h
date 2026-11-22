@@ -26,3 +26,23 @@ void PortEnh_MemoryScreenDraw(s32 state, s32 cup_cursor);
 void PortEnh_MemoryScreenPrewarm(void);
 // A move's type as hippodrome-utils numbers it (hu_type), for the move names' colours.
 u8 PortEnh_MoveHuType(u16 move);
+
+// Hue choice (hue_picker.c). PortEnh_HueShift: the hue to build `mon`'s model and icon with, `game_shift` (the
+// game's own, from its nickname) unless the player picked one (Model_ComputeNicknameColorVariant). The picker on the
+// entry screen's Pokémon cards: Input steps the hue back / forward or resets it on those buttons of `pressed` and
+// returns 1 when it changed (the caller reloads the model and the icons); Draw puts the current hue on the bottom edge
+// of the model's panel (x, y: the panel's bottom left, w: its width); CardHint fills the card's prompt strip with the
+// colour card's buttons.
+s16 PortEnh_HueShift(BattleMon* mon, s16 game_shift);
+s32 PortEnh_HueBypassed(void);
+s32 PortEnh_HuePickerInput(BattleMon* mon, u16 pressed, u16 back, u16 forward, u16 reset);
+void PortEnh_HuePickerDraw(s32 x, s32 y, s32 w, BattleMon* mon);
+void PortEnh_HueCardHint(s32 x, s32 y, s32 w, s32 h, s32 party);
+
+// The battle command menus' enhancements (battle_menus.c): mid-battle move descriptions and order queueing.
+struct ActivePokemon;
+void PortEnh_BattleMenusBegin(void);                                 // from PortEnh_BattleBegin
+void PortEnh_BattleMenusFrame(void);                                 // from PortEnh_BattleFrame, every HUD frame
+void PortEnh_MoveMenuInput(struct ActivePokemon* a);                        // BattleMenu_UpdateMoveMenu, before its C buttons
+void PortEnh_PlayerCommandBegin(struct ActivePokemon* a, struct ActivePokemon* foe); // BattleScene_CollectPlayerAction, first
+void PortEnh_PlayerCommandEnd(struct ActivePokemon* a);                     // and last

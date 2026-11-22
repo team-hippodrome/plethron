@@ -26,6 +26,9 @@ To fix or add a translation, please see the [translation](https://github.com/tea
 - Optional enhancements from [hippodrome-utils](https://github.com/team-hippodrome/hippodrome-utils), all off by default (launcher > Graphics > Enhancements):
   - Summary bars: both parties beside the game's picture during battles (HP, status, the moves seen, the opponent's estimated Speed). They need room beside the picture: a 4:3 picture in a wide window, or 16:9 on an ultrawide screen.
   - Trainer memory: the tournament trainers' teams, moves and Speed you have seen, on a C button at the cup select.
+  - Hue choice: pick the colour of each Pokémon on the entry screen (エントリーポケモンのせんたく), on the party and rental select: L/R step the hue by 15° on a Pokémon's card (Z opens one on a party row or a rental), Z goes back to the nickname colour. Saved next to the save file as `.hue`.
+  - Move descriptions: in the fight menu, hold a D-pad direction to see the type, power, accuracy and description of the move on the C button of that direction (the C buttons still pick the move).
+  - Order queueing: press Z while a turn plays out to choose your next move or switch ahead of time; it is entered for you when the command menu comes back.
 - Cheats, all off by default (launcher: tick Debug, then Cheats under Save editor):
   - Stadium battles, ticked per player (1P-4P): Infinite HP, Infinite PP, Status always good, Your moves never miss, Opponent never hits, Always your turn first, Perfect stats, Opponent minimum stats. They change the running battle only, never the N64 save.
   - Game Boy: GameShark codes (`01VVLLHH`) for the cartridge in each Transfer Pak, written to the Game Boy's work RAM while the GB Player runs it. What they change is kept in the cartridge save if you save in the Game Boy game.

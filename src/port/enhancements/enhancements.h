@@ -1,5 +1,6 @@
 // The port's enhancements from hippodrome-utils (the team's shared library, the hippodrome-utils submodule; specs in
-// hippodrome-utils/docs/specs): side summary bars, speed stat estimates and trainer memory. All of them are options,
+// hippodrome-utils/docs/specs): side summary bars, speed stat estimates, trainer memory, hue choice, mid-battle move
+// descriptions and order queueing. All of them are options,
 // off by default, so the game plays and looks as on the N64 unless they are turned on (launcher > Enhancements).
 //
 // enhancements.cpp keeps the settings and the trainer memory file; battle_enhancements.c and memory_screen.c are
@@ -14,6 +15,7 @@ extern "C" {
 #endif
 
 struct hu_tm;
+struct hu_hue_store;
 
 // Settings (port settings gEnhancements.*, kept by the port, not in the N64 save). PORT_SUMMARY_BARS=0/1 and
 // PORT_TRAINER_MEMORY=0/1 override them (test aids).
@@ -21,6 +23,19 @@ int Port_Enh_SummaryBarsEnabled(void);
 void Port_Enh_SetSummaryBarsEnabled(int on);
 int Port_Enh_TrainerMemoryEnabled(void);
 void Port_Enh_SetTrainerMemoryEnabled(int on);
+// PORT_HUE_CHOICE, PORT_MOVE_DESCRIPTIONS and PORT_ORDER_QUEUE likewise.
+int Port_Enh_HueChoiceEnabled(void);
+void Port_Enh_SetHueChoiceEnabled(int on);
+int Port_Enh_MoveDescriptionsEnabled(void);
+void Port_Enh_SetMoveDescriptionsEnabled(int on);
+int Port_Enh_OrderQueueEnabled(void);
+void Port_Enh_SetOrderQueueEnabled(int on);
+
+// The hue choices (HUE_CHANGE), loaded from <save>.hue beside the N64 save on first use (empty if there is none yet
+// or it is damaged; a damaged file is kept as <save>.hue.bad). Never NULL.
+struct hu_hue_store* Port_Enh_Hues(void);
+// Writes the hue choices if they changed since the last load or save.
+void Port_Enh_SaveHues(void);
 
 // The trainer memory store, loaded from <save>.memory beside the N64 save on first use (an empty store if there is
 // none yet or it is damaged; a damaged file is kept as <save>.memory.bad). Never NULL.

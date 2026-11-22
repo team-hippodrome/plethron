@@ -1,6 +1,7 @@
 // Settings and the trainer memory file of the hippodrome-utils enhancements (enhancements.h).
 #include "enhancements.h"
 
+#include <hippodrome/hue_choice.h>
 #include <hippodrome/trainer_memory.h>
 #include <libultraship/libultraship.h>
 #include <imgui.h>
@@ -26,6 +27,29 @@ int EnvOverride(const char* name) {
 
 hu_tm* gMemory = nullptr;
 std::string gMemoryPath;
+hu_hue_store* gHues = nullptr;
+std::string gHuePath;
+
+// keeps a damaged side file for inspection; the next save starts a fresh one (paths are UTF-8:
+// std::filesystem::u8path keeps a non-ASCII folder working on Windows)
+void KeepDamaged(const char* path, int code) {
+    std::error_code ec;
+    const auto from = std::filesystem::u8path(path);
+    const auto to = std::filesystem::u8path(std::string(path) + ".bad");
+    std::filesystem::remove(to, ec);
+    std::filesystem::rename(from, to, ec);
+    fprintf(stderr, "[enhancements] %s could not be read (%d), kept as %s.bad\n", path, code, path);
+}
+
+int Setting(const char* env_name, const char* cvar) {
+    const int env = EnvOverride(env_name);
+    return env >= 0 ? env : CVarGetInteger(cvar, 0) != 0;
+}
+
+void SetSetting(const char* cvar, int on) {
+    CVarSetInteger(cvar, on ? 1 : 0);
+    CVarSave();
+}
 
 } // namespace
 
@@ -49,6 +73,54 @@ extern "C" void Port_Enh_SetTrainerMemoryEnabled(int on) {
     CVarSave();
 }
 
+extern "C" int Port_Enh_HueChoiceEnabled(void) {
+    return Setting("PORT_HUE_CHOICE", "gEnhancements.HueChoice");
+}
+
+extern "C" void Port_Enh_SetHueChoiceEnabled(int on) {
+    SetSetting("gEnhancements.HueChoice", on);
+}
+
+extern "C" int Port_Enh_MoveDescriptionsEnabled(void) {
+    return Setting("PORT_MOVE_DESCRIPTIONS", "gEnhancements.MoveDescriptions");
+}
+
+extern "C" void Port_Enh_SetMoveDescriptionsEnabled(int on) {
+    SetSetting("gEnhancements.MoveDescriptions", on);
+}
+
+extern "C" int Port_Enh_OrderQueueEnabled(void) {
+    return Setting("PORT_ORDER_QUEUE", "gEnhancements.OrderQueue");
+}
+
+extern "C" void Port_Enh_SetOrderQueueEnabled(int on) {
+    SetSetting("gEnhancements.OrderQueue", on);
+}
+
+extern "C" hu_hue_store* Port_Enh_Hues(void) {
+    if (gHues != nullptr) {
+        return gHues;
+    }
+    gHues = hu_hue_store_new();
+    if (gHuePath.empty()) {
+        gHuePath = std::string(Port_SramFilePath()) + ".hue";
+    }
+    hu_hue_io r = hu_hue_load(gHues, gHuePath.c_str());
+    if (r == HU_HUE_CORRUPT || r == HU_HUE_IO_ERROR) {
+        KeepDamaged(gHuePath.c_str(), (int)r);
+    }
+    return gHues;
+}
+
+extern "C" void Port_Enh_SaveHues(void) {
+    if (gHues == nullptr || !hu_hue_dirty(gHues)) {
+        return;
+    }
+    if (hu_hue_save(gHues, gHuePath.c_str()) != HU_HUE_OK) {
+        fprintf(stderr, "[enhancements] could not write %s\n", gHuePath.c_str());
+    }
+}
+
 extern "C" const char* Port_Enh_MemoryPath(void) {
     if (gMemoryPath.empty()) {
         gMemoryPath = std::string(Port_SramFilePath()) + ".memory";
@@ -64,14 +136,7 @@ extern "C" hu_tm* Port_Enh_Memory(void) {
     const char* path = Port_Enh_MemoryPath();
     hu_tm_io r = hu_tm_load(gMemory, path);
     if (r == HU_TM_CORRUPT || r == HU_TM_IO_ERROR) {
-        // keep the damaged file for inspection; the next save starts a fresh one
-        // (paths are UTF-8: std::filesystem::u8path keeps a non-ASCII folder working on Windows)
-        std::error_code ec;
-        const auto from = std::filesystem::u8path(path);
-        const auto to = std::filesystem::u8path(std::string(path) + ".bad");
-        std::filesystem::remove(to, ec);
-        std::filesystem::rename(from, to, ec);
-        fprintf(stderr, "[enhancements] %s could not be read (%d), kept as %s.bad\n", path, (int)r, path);
+        KeepDamaged(path, (int)r);
     }
     return gMemory;
 }

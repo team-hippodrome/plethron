@@ -4,6 +4,8 @@
 #include "graphics_textures.h"
 #include "input.h"
 #include "ui_graphics.h"
+#include "unicode_font.h" // PORT: Port_Font_MeasureUtf8
+#include "text_lookup.h" // PORT: Port_Text_Display, Port_Text_GetLanguage
 
 // Declared here instead of in a header: the callers of these disagree on their types.
 void Font_Printf(s32 x, s32 y, const char* fmt, ...);
@@ -381,6 +383,54 @@ void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg
     Font_Printf(arg1 + 150, arg2 + 4, D_821959DC);
     Font_EndTexturedTextRendering();
     BattleHud_DrawTranslucentShadowRect(arg1 - 2, arg2 - 2, 204, 22, 0);
+}
+
+// PORT: the order queueing enhancement's copy of the command menu without S にげる (Run can't be queued, and the queue
+// does not take Start). The bar ends after B ポケモン: where the S button's icon starts (+134) for the original text,
+// and after the label's drawn width (plus the same 6-pixel gap) for a translation.
+static s32 sCommandMenuNoRunWidth = 134;
+
+s32 BattleMenu_CommandMenuNoRunWidth(void) {
+    return sCommandMenuNoRunWidth;
+}
+
+void BattleMenu_DrawCommandMenuNoRun(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3) {
+    s32 i;
+    s32 w = 134;
+    s32 r;
+
+    if (Port_Text_GetLanguage() != PORT_LANG_ORIGINAL) {
+        Font_SetActive(1, 0);
+        w = 86 + Port_Font_MeasureUtf8(Port_Text_Display(D_821959D0)) + 6;
+        if (w < 120) {
+            w = 120;
+        }
+    }
+    sCommandMenuNoRunWidth = w;
+    r = w - 9; // the right border column, as +193 for the full menu's 202
+    Battle_DrawGradientRectWrapper(arg1 + 1, arg2 + 1, w - 4, 0x10, arg3 * 3 + &D_8218B008, arg3 * 3 + &D_8218B014);
+    gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
+    BattleHud_DrawBorderTile(arg1 - 1, arg2 - 1, 8, 8, D_030096C0);
+    BattleHud_DrawBorderTile(arg1 - 1, arg2 + 4, 8, 8, D_030095C0);
+    BattleHud_DrawBorderTile(arg1 - 1, arg2 + 11, 8, 8, D_03009640);
+    BattleHud_DrawBorderTile(arg1 + r, arg2 - 1, 8, 8, D_03009840);
+    BattleHud_DrawBorderTile(arg1 + r, arg2 + 4, 8, 8, D_03009740);
+    BattleHud_DrawBorderTile(arg1 + r, arg2 + 11, 8, 8, D_030097C0);
+    for (i = 7; i < r; i += 7) {
+        BattleHud_DrawBorderTile(arg1 + i, arg2 - 1, 8, 8, D_03009940);
+        BattleHud_DrawBorderTile(arg1 + i, arg2 + 11, 8, 8, D_030098C0);
+    }
+    gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
+    gSPDisplayList(gDisplayListHead++, D_80060308);
+    Gfx_DrawTextureRgba16Ia8(arg1 + 7, arg2 + 3, 16, 12, D_03009E40, D_03009FC0, 16, 0x100000);
+    Gfx_DrawTextureRgba16Ia8(arg1 + 70, arg2 + 3, 16, 12, D_0300A080, D_0300A200, 16, 0x100000);
+    gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
+    Font_BeginTranslucentTextRendering();
+    Font_SetActive(1, 0);
+    Font_Printf(arg1 + 22, arg2 + 4, D_821959C4);
+    Font_Printf(arg1 + 86, arg2 + 4, D_821959D0);
+    Font_EndTexturedTextRendering();
+    BattleHud_DrawTranslucentShadowRect(arg1 - 2, arg2 - 2, w + 3, 22, 0);
 }
 
 extern u8 D_03009C00[];

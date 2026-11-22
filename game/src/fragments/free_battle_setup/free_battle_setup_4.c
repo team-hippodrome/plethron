@@ -4,6 +4,8 @@
 #include "m2c_macros.h"
 #include "free_battle_setup.h"
 #include "game_state.h"
+#include "battle_enhancements.h" // PORT: hue choice enhancement
+#include "enhancements.h"
 
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
@@ -381,6 +383,7 @@ void FreeBattle_DrawShortageWarning(FreeBattleShortageWarning*);
 void FreeBattle_DrawLevelSumWarning(FreeBattleLevelSumWarning*);
 void FreeBattle_DrawEntryConfirm(FreeBattleRentalConfirm*);
 void FreeBattle_DrawMonStatusWindow(FreeBattleMonStatusWindow*);
+static void PortEnh_EntryHueDraw(FreeBattleEntryScreen* entry, s32 own_card); // PORT: hue choice enhancement
 void TextBox_Draw(TextBox*);
 /**
  * Draws the rental selection screen for its current state (choosing label, list, entry confirm, status window).
@@ -396,6 +399,7 @@ void FreeBattle_DrawRentalScreen(FreeBattleEntryScreen* entry) {
             func_800189C0(D_8200AC50, 0);
             BgStage_DrawFrame();
             ScrollList_DrawItems(&entry->teamList, entry->window.frame.x + 6, entry->window.frame.y + 22, 0xFFF, (intptr_t)entry->playerTeams);
+            PortEnh_EntryHueDraw(entry, 1); // PORT: hue choice enhancement (the colour card Z opens)
             break;
         case 2:
             func_800189C0(D_8200AC50, 0);
@@ -411,6 +415,7 @@ void FreeBattle_DrawRentalScreen(FreeBattleEntryScreen* entry) {
             FreeBattle_DrawRentalListWindow(entry, (entry->state == 6) ? 1 : 2);
             FreeBattle_DrawRentalTitleWindow(entry, (entry->state == 6) ? 0 : 1);
             FreeBattle_DrawRentalTeamPanels(entry);
+            PortEnh_EntryHueDraw(entry, 1); // PORT: hue choice enhancement (the colour card Z opens)
             break;
         case 10:
             func_800189C0(D_8200AC50, 0);
@@ -439,11 +444,13 @@ void FreeBattle_DrawRentalScreen(FreeBattleEntryScreen* entry) {
             FreeBattle_DrawRentalTitleWindow(entry, (entry->state == 7) ? 0 : 2);
             FreeBattle_DrawRentalTeamPanels(entry);
             FreeBattle_DrawMonStatusWindow(&entry->statusWindow);
+            PortEnh_EntryHueDraw(entry, 0); // PORT: hue choice enhancement
             break;
         case 3:
             FreeBattle_DrawRentalListWindow(entry, 2);
             FreeBattle_DrawTeamWindowPanels(entry);
             FreeBattle_DrawMonStatusWindow(&entry->statusWindow);
+            PortEnh_EntryHueDraw(entry, 0); // PORT: hue choice enhancement
             break;
         case 11:
             func_800189C0(D_8200AC50, 0);
@@ -570,6 +577,151 @@ s32 FreeBattle_UpdateShortageWarning(FreeBattleShortageWarning* window); // PORT
 void GridMenu_Init(GridMenu* arg0, ByteMatrix* arg1, u16* arg2, MenuDrawItemFunc arg3, s32 arg4, s32 arg5, s32 arg6); // PORT: no prototype in the decomp
 void TextBox_Init(TextBox* arg0, char* arg1, s32 arg2, s32 arg3, u32 arg4); // PORT: matches the definition
 s32 Ui_GetSelectionDirection(Controller* arg0); // PORT: no prototype in the decomp
+// PORT: the hue choice enhancement's picker. Zero picks its Pokémon here, so this is where their colours are chosen:
+// on any Pokémon card of this screen (a rental's 「レンタルしますか？」, the duplicate and replace cards) L / R step
+// the hue and Z resets it. Z on a party row or on a rental opens the same card as a colour card of the port's own
+// (sHueCard), where the D-pad goes through the party's Pokémon and A / B close it. The card's model and every icon are
+// rebuilt when the hue changes.
+#define HUE_BTN_A 0x8000
+#define HUE_BTN_B 0x4000
+#define HUE_BTN_Z 0x2000
+#define HUE_BTN_DLEFT 0x0200
+#define HUE_BTN_DRIGHT 0x0100
+#define HUE_BTN_L 0x0020
+#define HUE_BTN_R 0x0010
+static s32 sHueCard;             // 0 closed, 1 open, 2 closing (the window's shrink animation)
+static FreeBattleTeam* sHueTeam; // the party row the card goes through, NULL for a rental
+static s32 sHueSlot;
+
+static s32 sHueIconsStale;
+
+// Rebuilds the card's turning model now, and the rows' and the rental grid's icons once the card is gone (reloading
+// the icons while the card shows its model pulls the model's animation from under it).
+static void PortEnh_HueRefresh(void) {
+    D_8200AC4C = 0;
+    sHueIconsStale = 1;
+}
+
+static void PortEnh_HueOpenCard(FreeBattleEntryScreen* entry, BattleMon* mon) {
+    static char sNoPrompt[] = "";
+    FreeBattle_InitConfirmWindow(&entry->statusWindow, 0x69, 0x7D, mon, sNoPrompt, entry->controller);
+    Audio_PlaySystemSound(2);
+    sHueCard = 1;
+}
+
+// Returns 1 when the hue picker took this frame's input.
+static s32 PortEnh_EntryHue(FreeBattleEntryScreen* entry) {
+    u16 pressed;
+    s32 i;
+
+    if (!Port_Enh_HueChoiceEnabled()) {
+        sHueCard = 0;
+        return 0;
+    }
+    if (entry->state != 1 && entry->state != 8) {
+        sHueCard = 0;
+    }
+    if (sHueIconsStale && sHueCard == 0 && entry->state != 3 && entry->state != 7 && entry->state != 9) {
+        FreeBattle_ClearIndices(D_8200AC58, 0, 40);
+        sHueIconsStale = 0;
+    }
+    if (sHueCard == 2) {
+        return 1;
+    }
+    if (entry->pendingState != 0 || entry->controller == NULL) {
+        return 0;
+    }
+    pressed = entry->controller->buttonPressed;
+    if (sHueCard == 1) {
+        if (pressed & (HUE_BTN_A | HUE_BTN_B)) {
+            Audio_PlaySystemSound(3);
+            entry->statusWindow.window.animTimer = 7; // shrink it like the game's own cards
+            sHueCard = 2;
+            return 1;
+        }
+        if (sHueTeam != NULL && (pressed & (HUE_BTN_DLEFT | HUE_BTN_DRIGHT))) {
+            s32 dir = (pressed & HUE_BTN_DRIGHT) ? 1 : 5;
+            for (i = 1; i < 6; i++) {
+                s32 slot = (sHueSlot + dir * i) % 6;
+                if (slot < sHueTeam->slotCount && !(sHueTeam->slots[slot].flags & 1)) {
+                    sHueSlot = slot;
+                    entry->statusWindow.mon = &sHueTeam->slots[slot].mon;
+                    D_8200AC4C = 0;
+                    Audio_PlaySystemSound(1);
+                    break;
+                }
+            }
+            return 1;
+        }
+        if (PortEnh_HuePickerInput(entry->statusWindow.mon, pressed, HUE_BTN_L, HUE_BTN_R, HUE_BTN_Z)) {
+            PortEnh_HueRefresh();
+        }
+        return 1;
+    }
+    switch (entry->state) {
+        case 3:
+        case 7:
+        case 9:
+            if (PortEnh_HuePickerInput(entry->statusWindow.mon, pressed, HUE_BTN_L, HUE_BTN_R, HUE_BTN_Z)) {
+                PortEnh_HueRefresh();
+                return 1;
+            }
+            break;
+        case 1:
+            if (pressed & HUE_BTN_Z) {
+                FreeBattleTeam* team = (FreeBattleTeam*)entry->teams->items[entry->teamList.cursor];
+                if (team == NULL || (team->flags & 2)) {
+                    break; // the レンタルポケモン row has no Pokémon of its own
+                }
+                for (i = 0; i < team->slotCount && i < 6; i++) {
+                    if (!(team->slots[i].flags & 1)) {
+                        sHueTeam = team;
+                        sHueSlot = i;
+                        PortEnh_HueOpenCard(entry, &team->slots[i].mon);
+                        return 1;
+                    }
+                }
+            }
+            break;
+        case 8:
+            if (pressed & HUE_BTN_Z) {
+                sHueTeam = NULL;
+                PortEnh_HueOpenCard(entry, &((BattleMon*)entry->rentalGrid.items->rows)[entry->rentalGrid.cursor]);
+                return 1;
+            }
+            break;
+    }
+    return 0;
+}
+
+// Draws the colour card over the list (states 1 and 8) and the hue bar on any Pokémon card of the screen.
+static void PortEnh_EntryHueDraw(FreeBattleEntryScreen* entry, s32 own_card) {
+    FreeBattleMonStatusWindow* w = &entry->statusWindow;
+    s32 x = w->window.frame.x + 6;
+    s32 y = w->window.frame.y + 6;
+
+    if (!Port_Enh_HueChoiceEnabled()) {
+        return;
+    }
+    if (own_card) {
+        if (sHueCard == 0) {
+            return;
+        }
+        FreeBattle_DrawMonStatusWindow(w);
+        if (sHueCard == 2 && w->window.state == 4) {
+            sHueCard = 0;
+            return;
+        }
+    }
+    if (w->window.state != 1 && w->window.state != 2) {
+        return; // opening or closing: the game draws no contents either
+    }
+    PortEnh_HuePickerDraw(x, y + 32 + 120, 120, w->mon);
+    if (own_card) {
+        PortEnh_HueCardHint(x, y + 244, w->window.frame.width - 12, 36, sHueTeam != NULL);
+    }
+}
+
 /**
  * Runs the entry Pokemon list: pick, rental, confirm and warnings.
  * Seen in play: runs while 1P picks a team on 「エントリーポケモンのせんたく」.
@@ -600,6 +752,10 @@ s32 FreeBattle_UpdateEntrySelect(FreeBattleEntryScreen* entry)
     {
       return 0;
     }
+  }
+  if (PortEnh_EntryHue(entry)) // PORT: hue choice enhancement
+  {
+    return 0;
   }
   switch (entry->state)
   {

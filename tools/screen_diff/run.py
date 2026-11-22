@@ -6,6 +6,8 @@ Usage: tools/screen_diff/run.py <route file> <out dir> [--port-only | --ares-onl
 The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI frames from power-on, as tools/tour.py:
   A B Z START L R UP DOWN LEFT RIGHT CU CD CL CR, A+B ...   tap (held 6 frames, then 1 idle)
   hold:A:30                                                hold 30 frames (then 1 idle)
+  press:UP:60                                              hold 60 frames from here without moving on: the next
+                                                           tokens (taps, waits, shots) happen while it is held
   <number>                                                 wait that many frames
   shot:<label>                                             a checkpoint: capture this frame on both sides
   sync:<event>                                             a sync point: each side waits here until its game reaches
@@ -97,6 +99,10 @@ def parse_route(path):
                 if event not in SYNC_EVENTS:
                     sys.exit("%s: unknown sync event %r (known: %s)" % (path, event, " ".join(SYNC_EVENTS)))
                 r["syncs"].append((frame, event))
+            elif tok.lower().startswith("press:"):
+                _, spec, n = tok.split(":")
+                mask(spec)
+                r["presses"].append((frame, spec.upper(), int(n)))
             elif tok.lower().startswith("hold:"):
                 _, spec, n = tok.split(":")
                 mask(spec)
@@ -134,9 +140,14 @@ def run_port(r, out, extra_env):
     rec = os.path.join(out, "port.rec")
     lines = ["# pokestadium input recording v1: frame, then button stick_x stick_y for pads 1-4\n",
              "# game audio\n", "# load waits\n", "# paced logo hold\n", "# tpak timing\n"]
-    for f, spec, hold in r["presses"]:
-        lines.append("%d %d 0 0 0 0 0 0 0 0 0 0 0\n" % (f, mask(spec)))
-        lines.append("%d 0 0 0 0 0 0 0 0 0 0 0 0\n" % (f + hold))
+    # the pad at each frame where it changes: every press held then (press: tokens overlap the taps after them)
+    edges = sorted({f for f, _, _ in r["presses"]} | {f + hold for f, _, hold in r["presses"]})
+    for e in edges:
+        m = 0
+        for f, spec, hold in r["presses"]:
+            if f <= e < f + hold:
+                m |= mask(spec)
+        lines.append("%d %d 0 0 0 0 0 0 0 0 0 0 0\n" % (e, m))
     lines.append("# end %d\n" % r["end"])
     open(rec, "w").writelines(lines)
     shots = os.path.join(out, "port_raw")
@@ -151,14 +162,15 @@ def run_port(r, out, extra_env):
     home = os.path.join(out, "port_home")  # a fresh settings directory: nothing from earlier runs or the launcher
     clean_dir(home)
     # SCREEN_DIFF_PORT_WINDOW=1280x720: the window's size (the shots are the whole window: a 4:3 picture in a wide
-    # window shows what is drawn beside it, e.g. the summary bars with PORT_RESOLUTION=window)
+    # window shows what is drawn beside it, e.g. the summary bars with PORT_RESOLUTION=window); SCREEN_DIFF_PORT_ASPECT=16:9
+    # for a widescreen picture
     if os.environ.get("SCREEN_DIFF_PORT_WINDOW"):
         ww, wh = (int(v) for v in os.environ["SCREEN_DIFF_PORT_WINDOW"].split("x"))
         with open(os.path.join(home, "plethron.cfg.json"), "w") as f:
             f.write('{"Window": {"Width": %d, "Height": %d}}\n' % (ww, wh))
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT="4:3", PORT_UPSCALE="exact",
+               PORT_LANGUAGE=os.environ.get("SCREEN_DIFF_PORT_LANGUAGE", "kana"), PORT_ASPECT=os.environ.get("SCREEN_DIFF_PORT_ASPECT", "4:3"), PORT_UPSCALE="exact",
                PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")

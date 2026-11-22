@@ -4194,6 +4194,8 @@ void BattleHud_DrawCaptionBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3); /
 void BattleHud_DrawTextCentered(s32 arg0, s32 arg1, const char* arg2); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
 void BattleMenu_DrawBackConfirmBar(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
 void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
+void BattleMenu_DrawCommandMenuNoRun(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: order queueing enhancement (hud_status_boxes.c)
+s32 BattleMenu_CommandMenuNoRunWidth(void); // PORT: its width as last drawn (134 for the original text)
 void BattleMenu_DrawConfirmButton(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // PORT: signature from the definition (fragments/battle/hud_status_boxes.c)
 void BattleMessage_DrawBox(s32 arg0, s16 arg1, s16 arg2, const char* arg3); // PORT: signature from the definition (fragments/battle/menu_panels.c)
 void BattleMessage_Format(s8* arg0, s8 id, s8* arg1, ...);
