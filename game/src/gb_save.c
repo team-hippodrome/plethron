@@ -148,6 +148,12 @@ void Ui_DrawNumberZeroPadded(s32 x, s32 y, s32 value, s32 digits);
 // PORT: widescreen. The summary bar's row and left colour as last drawn (GbSave_PortDrawSummaryBarSides); y -1000: none
 static s32 sPortBarY = -1000;
 static Color_RGBA8 sPortBarColor;
+// PORT: widescreen. The tint of the menu background as last drawn (Ui_DrawTintedScreenBackground), and whether only its
+// parts beside the 4:3 frame are being drawn (GbSave_PortDrawBackgroundBeside43)
+static s32 sPortBgDrawn = 0;
+static Color_RGBA8 sPortBgTint;
+static s32 sPortBgBesideOnly = 0;
+void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b);
 
 /**
  * PORT: widescreen. The summary bar's parts beside the 4:3 frame, so the bar covers the whole width of a 16:9 picture:
@@ -175,13 +181,20 @@ static void GbSave_PortDrawSummaryBarSides(void) {
     gDPPortAnchorLeft(gDisplayListHead++);
     color = RGBA5551(sPortBarColor.r, sPortBarColor.g, sPortBarColor.b, 1);
     gDPSetFillColor(gDisplayListHead++, (color << 0x10) | color);
-    gDPFillRectangle(gDisplayListHead++, 0, y, margin - 1, y + 53);
+    // (the main menu slides the bar in from y -56: fill coordinates are unsigned, so rows above the screen are cut)
+    if (y + 53 >= 0) {
+        gDPFillRectangle(gDisplayListHead++, 0, MAX(y, 0), margin - 1, y + 53);
+    }
     gDPPipeSync(gDisplayListHead++);
     color = RGBA5551(D_800734DC.r, D_800734DC.g, D_800734DC.b, 1);
     gDPSetFillColor(gDisplayListHead++, (color << 0x10) | color);
-    gDPFillRectangle(gDisplayListHead++, 0, y + 54, margin - 1, y + 55);
+    if (y + 54 >= 0) {
+        gDPFillRectangle(gDisplayListHead++, 0, y + 54, margin - 1, y + 55);
+    }
     gDPPortNoCut(gDisplayListHead++);
-    gDPFillRectangle(gDisplayListHead++, 640, y + 54, 640 + margin - 1, y + 55);
+    if (y + 54 >= 0) {
+        gDPFillRectangle(gDisplayListHead++, 640, y + 54, 640 + margin - 1, y + 55);
+    }
 
     gDPPipeSync(gDisplayListHead++);
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
@@ -192,10 +205,27 @@ static void GbSave_PortDrawSummaryBarSides(void) {
     gDPLoadTextureBlock(gDisplayListHead++, D_0400DFB8, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 54, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, 5, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     // (the bar's texture starts at x 391 and repeats every 32 pixels)
-    gSPTextureRectangle(gDisplayListHead++, 640 << 2, y << 2, (640 + margin) << 2, (y + 54) << 2, G_TX_RENDERTILE,
-                        ((640 - 391) % 32) << 5, 0, 1 << 10, 1 << 10);
+    if (y + 54 > 0) {
+        gSPTextureRectangle(gDisplayListHead++, 640 << 2, MAX(y, 0) << 2, (640 + margin) << 2, (y + 54) << 2,
+                            G_TX_RENDERTILE, ((640 - 391) % 32) << 5, (MAX(y, 0) - y) << 5, 1 << 10, 1 << 10);
+    }
     gDPPortAnchorEnd(gDisplayListHead++);
     gDPPipeSync(gDisplayListHead++);
+}
+
+/**
+ * PORT: widescreen. The menu background's parts beside the 4:3 frame for rows start..end, in its last tint, for frames
+ * that draw only the summary bar and keep the background below it from the frame buffer (the main menu's first entry:
+ * the bar slides in over the faded-in background for 8 frames). The port clears the margins every frame, so without
+ * this the sides went black on those frames and came back after: the extensions seemed to flicker. Nothing at 4:3.
+ */
+static void GbSave_PortDrawBackgroundBeside43(s32 start, s32 end) {
+    if (!sPortBgDrawn || start >= end || Port_WideMarginN64() == 0) {
+        return;
+    }
+    sPortBgBesideOnly = 1;
+    Ui_DrawTintedScreenBackground(start, end, sPortBgTint.r, sPortBgTint.g, sPortBgTint.b);
+    sPortBgBesideOnly = 0;
 }
 
 void GbSave_DrawSummaryBar(s32 y, GbSaveSummary* summary, char* label, s32 arg3) {
@@ -206,6 +236,9 @@ void GbSave_DrawSummaryBar(s32 y, GbSaveSummary* summary, char* label, s32 arg3)
     sPortBarY = y;
     sPortBarColor = summary != NULL ? D_800734C8[GbSave_GameToCategoryIndex(summary->game)] : D_800734D8;
     GbSave_PortDrawSummaryBarSides();
+    // (and the background below it: when a screen draws its background in the same frame it comes after this, or it
+    // was drawn earlier in this frame with this same tint)
+    GbSave_PortDrawBackgroundBeside43(MAX(y + 56, 0), 480);
     if (summary != NULL) {
         gSPDisplayList(gDisplayListHead++, D_80060270);
         Ui_FillRectRgba5551(0, y, 392, 54, D_800734C8[GbSave_GameToCategoryIndex(summary->game)]);
@@ -1236,7 +1269,9 @@ void Ui_DrawScreenBackgroundRows(s32 start, s32 end) {
             n = end - start;
         }
         gDPLoadTextureBlock(gDisplayListHead++, D_04009FB0 + row * 128, G_IM_FMT_I, G_IM_SIZ_8b, 128, n, 0, G_TX_WRAP, G_TX_WRAP, 7, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-        gSPTextureRectangle(gDisplayListHead++, 0, start << 2, 640 << 2, (start + n) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        if (!sPortBgBesideOnly) { // PORT: (GbSave_PortDrawBackgroundBeside43)
+            gSPTextureRectangle(gDisplayListHead++, 0, start << 2, 640 << 2, (start + n) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        }
         Gfx_PortDrawPatternBeside43(start, n); // PORT: widescreen: the pattern on into the picture's sides (input.c)
         start += n;
     }
@@ -1249,8 +1284,14 @@ void Ui_DrawScreenBackgroundRows(s32 start, s32 end) {
  * @unverified Name and comment guessed from the code.
  */
 void Ui_DrawTintedScreenBackground(s32 start, s32 end, s32 r, s32 g, s32 b) {
-    if (start == sPortBarY + 56) { // PORT: widescreen: the summary bar above, beside the 4:3 frame
-        GbSave_PortDrawSummaryBarSides();
+    if (!sPortBgBesideOnly) {
+        if (start == sPortBarY + 56) { // PORT: widescreen: the summary bar above, beside the 4:3 frame
+            GbSave_PortDrawSummaryBarSides();
+        }
+        sPortBgDrawn = 1; // PORT: widescreen: the tint for GbSave_PortDrawBackgroundBeside43
+        sPortBgTint.r = r;
+        sPortBgTint.g = g;
+        sPortBgTint.b = b;
     }
     gDPPipeSync(gDisplayListHead++);
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
