@@ -24,20 +24,19 @@
 void Audio_PlaySystemSound(s32 id);
 arg1_func_80010CA8* Model_ComputeNicknameColorVariant(arg1_func_80010CA8* arg0, BattleMon* arg1); // model_renderer.c
 
-// The fields that make a Pokémon itself, in this order: the game, its species, its original trainer (id and name),
-// its nickname and its DVs. Experience, level, moves and HP change as it grows, so they stay out.
+// The fields that make a Pokémon itself, in this order: the game, its species, its original trainer's ID and its DVs.
+// Its names stay out: a tournament's continue record (Save_WriteContinueData) keeps a Pokémon in the Game Boy's
+// format, so a rental comes back with a blank OT name, and the bytes after a name's end are not kept either; a renamed
+// Pokémon keeps its colour too. Experience, level, moves and HP change as it grows, so they stay out as well.
 static hu_hue_id HueId(const BattleMon* mon) {
     u8 head[6];
-    hu_hue_id id;
     head[0] = HU_GAME_STADIUM_ZERO;
     head[1] = mon->species.id;
     head[2] = (u8)(mon->otId >> 8);
     head[3] = (u8)mon->otId;
     head[4] = (u8)(mon->dvs >> 8);
     head[5] = (u8)mon->dvs;
-    id = hu_hue_id_of(head, sizeof head);
-    id = hu_hue_id_add(id, mon->otName, sizeof mon->otName);
-    return hu_hue_id_add(id, mon->nickname, sizeof mon->nickname);
+    return hu_hue_id_of(head, sizeof head);
 }
 
 s16 PortEnh_HueShift(BattleMon* mon, s16 game_shift) {
