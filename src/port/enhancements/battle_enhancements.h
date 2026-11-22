@@ -36,6 +36,8 @@ u8 PortEnh_MoveHuType(u16 move);
 s16 PortEnh_HueShift(BattleMon* mon, s16 game_shift);
 s32 PortEnh_HueBypassed(void);
 s32 PortEnh_HuePickerInput(BattleMon* mon, u16 pressed, u16 back, u16 forward, u16 reset);
+// The stick's left / right tilt (Controller.stickX, 0 inside the dead zone) turns the hue finely; 1 when it changed.
+s32 PortEnh_HuePickerStick(BattleMon* mon, f32 stick_x);
 void PortEnh_HuePickerDraw(s32 x, s32 y, s32 w, BattleMon* mon);
 void PortEnh_HueCardHint(s32 x, s32 y, s32 w, s32 h, s32 party);
 
