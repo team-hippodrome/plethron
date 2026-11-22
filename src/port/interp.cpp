@@ -116,7 +116,16 @@ struct Budget {
     int dropsInRow = 0;    // game frames in a row whose last pictures were dropped
     bool overran = false;
     uint64_t overruns = 0;
+    // With the 120 fps limit, an overrun first halves the pictures (2 per retrace -> 1: Smooth motion at 60) for a
+    // hold that doubles on each new one (10 s up to 5 min) and halves after a minute of calm at 120; only an overrun
+    // at 1 per retrace goes down to one picture per game frame (above). A GPU fast enough for 60 but not 120 then
+    // shows 60, not the game's own 30.
+    int retraceCap = 2;          // pictures per retrace allowed
+    uint64_t capHold = 0;        // game frames left at 1 per retrace
+    uint64_t capBackoff = 300;   // the next such hold
+    uint64_t capCalm = 0;        // game frames at 2 per retrace without an overrun
 } gBudget;
+std::atomic<int> gPicturesPerRetrace{ 1 }; // as last planned (Port_InterpPicturesPerRetrace)
 
 bool BudgetDisabled() {
     static const bool v = getenv("PORT_INTERP_IMMEDIATE") != nullptr ||
@@ -160,6 +169,26 @@ int PicturesAllowed() {
     // showed the game's own 20 per second in the title, where v0.0.12 showed 60)
     static const bool sOld = getenv("PORT_INTERP_OLD_BUDGET") != nullptr;
     bool lagging = Port_ClockLagNs() > (sOld ? 4000000 : 16666667);
+    if (b.overran && b.maxPictures > 1 && b.retraceCap > 1 && gPicturesPerRetrace.load() > 1) {
+        b.retraceCap = 1; // (120 fps limit: first back to 60)
+        b.capHold = b.capBackoff;
+        b.capBackoff = std::min<uint64_t>(b.capBackoff * 2, 9000);
+        b.capCalm = 0;
+        b.overran = false;
+        b.dropsInRow = 0;
+        if (getenv("PORT_INTERP_LOG")) {
+            fprintf(stderr, "[interp] budget: one picture per retrace (60 per second) for %llu frames\n",
+                    (unsigned long long)b.capHold);
+        }
+        return b.maxPictures;
+    }
+    if (b.maxPictures > 1) {
+        if (b.retraceCap == 1 && b.capHold > 0 && --b.capHold == 0) b.retraceCap = 2; // try 120 again
+        if (b.retraceCap > 1 && gPicturesPerRetrace.load() > 1 && ++b.capCalm >= 1800) {
+            b.capCalm = 0;
+            b.capBackoff = std::max<uint64_t>(b.capBackoff / 2, 300);
+        }
+    }
     if (b.overran) { // (a lag alone is not ours: loading stalls the game too; dropped pictures count, FinishPending)
         if (b.maxPictures > 1) {
             b.hold = b.backoff;
@@ -502,6 +531,26 @@ void Build(const std::vector<PlanEntry>& plan, float t, Replacements& out) {
     }
 }
 
+// Smooth motion's frame rate limit: 60 or 120 pictures per second (gPort.FrameRateLimit; PORT_FPS_LIMIT=60/120
+// overrides). It sets how many pictures each retrace (1/60 s) gets: 1 or 2. Where the display's refresh clock is known
+// (pacing_mac.mm, pacing_android.cpp) the pictures also follow it, as before; elsewhere (Windows, Linux) they come on a
+// free-running 1/60 or 1/120 s clock. With VSync on, a display slower than the limit caps it (a 60 Hz display shows 60
+// pictures per second whatever the setting: more would only be dropped); 119.88 Hz counts as 120.
+int FrameRateLimit() {
+    static const char* env = getenv("PORT_FPS_LIMIT");
+    const int v = env ? atoi(env) : CVarGetInteger("gPort.FrameRateLimit", PORT_FPS_LIMIT_DEFAULT);
+    return v >= 120 ? 120 : 60;
+}
+
+int LimitPerRetrace() {
+    int n = FrameRateLimit() / 60;
+    if (n > 1 && CVarGetInteger("gVsyncEnabled", 1) != 0) {
+        const uint32_t hz = Port::GetWindow() ? Port::GetWindow()->GetCurrentRefreshRate() : 0;
+        if (hz > 0) n = std::max(1, std::min(n, (int)((hz + 1) / 60)));
+    }
+    return n;
+}
+
 bool Enabled() {
     static const char* env = getenv("PORT_INTERPOLATE");
     bool on = env ? atoi(env) != 0 : CVarGetInteger("gPort.Interpolate", 0) != 0;
@@ -648,6 +697,11 @@ extern "C" void Port_InterpTagMtx(const void* mtx, const void* site) {
     gBuilding->tags.push_back({ mtx, Mix(Mix(0, (uint64_t)(uintptr_t)site), (uint64_t)(uintptr_t)gNode) });
 }
 
+// pictures per retrace the latest game frame was planned with (Engine.cpp: libultraship's frame limiter)
+extern "C" int Port_InterpPicturesPerRetrace(void) {
+    return gPicturesPerRetrace.load(std::memory_order_relaxed);
+}
+
 extern "C" void Port_InterpMapsChanged(void) {
     gMapGen.fetch_add(1, std::memory_order_relaxed);
 }
@@ -687,7 +741,11 @@ void RunGameFrame(void* gfxCommands, bool exact) {
     uint64_t tick = Port_ViTick();
     int64_t period = 0, vblank = 0;
     bool grid = !immediate && Port_DisplayVblank(&period, &vblank) && period > 1000000;
-    int perRetrace = grid ? std::max(1, (int)std::lround(1e9 / 60.0 / period)) : 1;
+    const int allowed = on && !exact ? PicturesAllowed() : 8; // (once per game frame: the budget's clock)
+    int limit = LimitPerRetrace();
+    if (!BudgetDisabled()) limit = std::min(limit, gBudget.retraceCap);
+    int perRetrace = grid ? std::min(limit, std::max(1, (int)std::lround(1e9 / 60.0 / period))) : limit;
+    gPicturesPerRetrace.store(perRetrace, std::memory_order_relaxed);
     int k = 0;
     // The game draws every 2nd or 3rd retrace. A longer gap (a hitch, or a fast run drawing every n-th frame) is not
     // blended: over it many of a model's matrices turn too far and are cut while the ones skinned to them still blend,
@@ -698,7 +756,7 @@ void RunGameFrame(void* gfxCommands, bool exact) {
         k = (int)std::min<uint64_t>((tick - gPrevTick) * perRetrace, 8);
     }
     const uint64_t gap = tick > gPrevTick ? tick - gPrevTick : 0;
-    if (on && !exact) k = std::min(k, PicturesAllowed());
+    k = std::min(k, allowed);
     Stats st;
     Replacements r;
     std::vector<PlanEntry> plan;
@@ -728,7 +786,7 @@ void RunGameFrame(void* gfxCommands, bool exact) {
         gPending.k = k;
         gPending.next = 1;
         gPending.start = Port_SteadyNs();
-        gPending.period = grid ? period : 16666667;
+        gPending.period = grid ? period : 16666667 / perRetrace;
         gPending.vblank = vblank;
         gPending.grid = grid;
         gPending.mapGen = gMapGen.load();
