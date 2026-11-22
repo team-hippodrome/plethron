@@ -1806,8 +1806,8 @@ class LauncherWindow : public Ship::GuiWindow {
         if (c >= 0) Port_Enh_SetMoveDescriptionsEnabled(c == 0);
         c = row("Order queueing", "queue",
                 "While the turn plays out, press Z to pick your next move or Pokémon (A / B, then\n"
-                "its button). It is entered when your menu comes up, on the COM's timing; Z\n"
-                "takes it back, L goes back a step.",
+                "its button). It is entered when your menu comes up, as fast as mashing the\n"
+                "buttons; Z takes it back, L goes back a step.",
                 Port_Enh_OrderQueueEnabled() != 0);
         if (c >= 0) Port_Enh_SetOrderQueueEnabled(c == 0);
     }

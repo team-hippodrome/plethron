@@ -8,9 +8,11 @@
 // Order queueing (ORDER_QUEUEING): while the turn plays out, Z opens a copy of the command menu: A the moves, B the
 // party, then the game's own pick buttons (moves: the C buttons; party: C-Up / C-Right / C-Down with three brought,
 // C-Up C-Left B C-Right C-Down A with six) queue the order, L goes back a step and Z closes it and drops the order.
-// When the side's next command menu comes up the order is entered for it on the COM's timing: the menu opens on frame
-// 30 and the order is picked on frame 90 by pressing the same buttons the player would, so the game checks it as
-// usual. Z in that time takes it back. An order that can no longer be given (the Pokémon fainted, is asleep, frozen
+// When the side's next command menu comes up the order is entered for it by pressing the same buttons the player
+// would, so the game checks it as usual: the menu opens on the first frame and the order is picked on frame
+// kQueuePickTimer of the command timer. The COM locks its own order in at frame 90, or at frame 10 once the player
+// has picked (BattleScene_ApplyCpuChoice), so a pick by frame 9 starts the turn exactly as early as mashing the
+// buttons does, and the frames before it are the time Z has to take the order back. An order that can no longer be given (the Pokémon fainted, is asleep, frozen
 // or locked into a move, the move has no PP left or is disabled, the party member fainted) is dropped.
 #include <stdio.h>
 #include <stdlib.h>
@@ -278,10 +280,17 @@ static u16 sInjected[2];     // buttons pressed for the player this frame (taken
 static s32 sQueueInit;
 static s32 sCommandSeen;     // a command phase has come up in this battle (no queueing during the opening)
 
+// The command timer frame (D_FLT_82199EB0) on which a queued order is picked: the COM picks at frame 10 once the
+// player has (BattleScene_ApplyCpuChoice: timer >= 10 and the player's selectedCommandOption == 3, checked in side
+// order), so a pick on frame 9 lets the turn start on frame 10 whichever side the player is on, as when mashing.
+#define kQueuePickTimer 9.0f
+
 static void QueueInit(void) {
     s32 s;
     for (s = 0; s < 2; s++) {
         hu_oq_init(&sQueue[s]);
+        sQueue[s].open_frame = 1;      // the menu opens on the first frame of the command selection...
+        sQueue[s].pick_frame = 0xFFFF; // ...and the pick waits for the command timer (PortEnh_PlayerCommandBegin)
         hu_window_anim_init(&sQueueWin[s], 6, 4);
         sLive[s] = 0;
         sCommandFrame[s] = 0;
@@ -302,8 +311,8 @@ void PortEnh_BattleMenusBegin(void) {
 
 static void Log(s32 s, const char* what) {
     if (getenv("PORT_ENH_LOG") != NULL) {
-        fprintf(stderr, "[order-queue] side %d: %s (state %d slot %d, frame %u)\n", (int)s, what,
-                (int)sQueue[s].state, (int)sQueue[s].slot, (unsigned)sFrame);
+        fprintf(stderr, "[order-queue] side %d: %s (state %d slot %d, frame %u, command timer %d)\n", (int)s, what,
+                (int)sQueue[s].state, (int)sQueue[s].slot, (unsigned)sFrame, (int)D_FLT_82199EB0);
     }
 }
 
@@ -386,6 +395,9 @@ void PortEnh_PlayerCommandBegin(ActivePokemon* a, ActivePokemon* foe) {
         Log(s, "Z: taken back");
         return;
     }
+    // not the COM's 30/90 frames (hippodrome-utils' default): the COM picks early once the player has, so that
+    // timing made a queued order slower than mashing the buttons (by 80 frames of the command timer)
+    q->pick_frame = (D_FLT_82199EB0 >= kQueuePickTimer) ? (u16)(q->frame + 1) : 0xFFFF;
     act = hu_oq_command_frame(q);
     switch (act) {
         case HU_OQ_OPEN_FIGHT:
