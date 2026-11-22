@@ -424,7 +424,7 @@ void BattleMenu_DrawSwitchPanelEntry(TeamRoster* arg0, BattleMon* arg1, s32 arg2
 
     if (var_t0 != 0) {
         gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
-        Gfx_DrawTextureRgba16(arg2 + 73, arg3 + 2, 24, 11, D_8218AFDC[var_t0], 24, 0);
+        TypeSymbols_DrawStatusLabel(arg2 + 73, arg3 + 2, var_t0, D_8218AFDC[var_t0]); // PORT: symbols in the translated languages
         gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
     }
 }
@@ -468,7 +468,7 @@ void BattleMenu_DrawRosterMemberDetails(TeamRoster* roster, BattleMon* mon, s32 
 
     if (var_t0 != 0) {
         gSPDisplayList(gDisplayListHead++, gUiEnvTintTextureDL);
-        Gfx_DrawTextureRgba16(x + 73, y + 2, 24, 11, D_8218AFDC[var_t0], 24, 0);
+        TypeSymbols_DrawStatusLabel(x + 73, y + 2, var_t0, D_8218AFDC[var_t0]); // PORT: symbols in the translated languages
         gSPDisplayList(gDisplayListHead++, gUiRestoreTextureDL);
     }
 }
