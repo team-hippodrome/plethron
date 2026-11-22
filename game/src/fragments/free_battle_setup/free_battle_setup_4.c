@@ -653,7 +653,8 @@ static s32 PortEnh_EntryHue(FreeBattleEntryScreen* entry) {
             }
             return 1;
         }
-        if (PortEnh_HuePickerInput(entry->statusWindow.mon, pressed, HUE_BTN_L, HUE_BTN_R, HUE_BTN_Z)) {
+        if (PortEnh_HuePickerInput(entry->statusWindow.mon, pressed, HUE_BTN_L, HUE_BTN_R, HUE_BTN_Z) ||
+            PortEnh_HuePickerStick(entry->statusWindow.mon, entry->controller->stickX)) {
             PortEnh_HueRefresh();
         }
         return 1;
@@ -665,6 +666,10 @@ static s32 PortEnh_EntryHue(FreeBattleEntryScreen* entry) {
             if (PortEnh_HuePickerInput(entry->statusWindow.mon, pressed, HUE_BTN_L, HUE_BTN_R, HUE_BTN_Z)) {
                 PortEnh_HueRefresh();
                 return 1;
+            }
+            // the stick: the game reads no stick on this screen (its cursors and はい / いいえ go by the D-Pad)
+            if (PortEnh_HuePickerStick(entry->statusWindow.mon, entry->controller->stickX)) {
+                PortEnh_HueRefresh();
             }
             break;
         case 1:

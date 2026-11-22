@@ -45,6 +45,17 @@ void Display_SetBufferConfig(DisplayFrame* arg0, u8 arg1, u8 arg2, u8 arg3, u8 a
 
 #include "m2c_macros.h"
 
+// PORT: D_8007B7B0, D_8007B7B8 ("POKE") and D_8007B7C0 ("1P") are text the lifter took for s32 words and swapped into
+// host order, so copying their bytes gave "EKOP" and an empty name. This copies `n` bytes of such words in N64 order.
+static void Port_CopyLiftedWordText(char* dst, const void* words, s32 n) {
+    const u32* w = (const u32*)words;
+    s32 i;
+
+    for (i = 0; i < n; i++) {
+        dst[i] = (char)(w[i / 4] >> (24 - 8 * (i % 4)));
+    }
+}
+
 s32 Fragment_LoadAndCall(s32 arg0, u8* romStart, u8* romEnd, u32 arg3, uintptr_t arg4);
 void Port_FragmentFree(u8* romStart); // PORT: port_fragments.c
 void Fragment_QueueCall(s32 arg0, u8* arg1, u8* arg2, s32 arg3, uintptr_t arg4);
@@ -102,7 +113,7 @@ void Pokemon_CreateDefault(BattleMon *mon, s32 species) {
     func_800203FC(mon);
     mon->hp = mon->maxHp;
     func_8001FD8C(mon->nickname, species);
-    *(Unk5Bytes *)mon->otName = *(Unk5Bytes *)&D_8007B7B0;
+    Port_CopyLiftedWordText((char *)mon->otName, &D_8007B7B0, 5); // PORT: was a 5-byte copy of swapped words
 }
 
 typedef struct { s32 w[20]; } Unk50Bytes;
@@ -123,7 +134,7 @@ M2C_UNK Session_InitHumanTrainer(M2C_UNK port, TeamRoster *trainer, ExtendedRost
     trainer->trainerId = 0;
     trainer->rosterInfo = roster_info;
     trainer->numberOfPokemonBrought = 1;
-    *(Unk5Bytes *)trainer->trainerName = *(Unk5Bytes *)&D_8007B7B8;
+    Port_CopyLiftedWordText(trainer->trainerName, &D_8007B7B8, 5); // PORT: was a 5-byte copy of swapped words
     Pokemon_CreateDefault(&trainer->pokemonPicked[0], species);
     roster_info->unk_000 = 0;
     roster_info->numberOfPokemonCanBePicked = 1;
@@ -256,7 +267,9 @@ void Session_InitContinueTrainer(s32 is_gb_team)
   else
   {
     st->trainerSlots[0].trainerId = 0;
-    *((Unk3Bytes *) st->trainerSlots[0].trainerName) = *((Unk3Bytes *) (&D_8007B7C0));
+    // PORT: was a 3-byte copy of a swapped word, which left the name empty (blank on the VS panel and the order
+    // screen after resuming a tournament with a rental team)
+    Port_CopyLiftedWordText(st->trainerSlots[0].trainerName, &D_8007B7C0, 3);
   }
   st->rosterInfo[0].unk_000 = 0;
   st->rosterInfo[0].numberOfPokemonCanBePicked = st->trainerSlots[0].numberOfPokemonBrought;

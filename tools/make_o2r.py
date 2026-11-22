@@ -12,9 +12,17 @@ if "--c" in args:
     del args[i:i + 2]
 # --add <archive name>=<file>: include generated web fragment ranges.
 extra = [value.split("=", 1) for flag, value in zip(args[1:], args[2:]) if flag == "--add"]
-# the port's data files, at the same paths as beside the executable (CMakeLists.txt copies them there too)
-DATA_FILES = ["translations/ai.csv", "translations/human.csv", "translations/localized.csv",
-              "assets/font/unifont_subset.hex", "assets/font/pop_subset.ttf", "assets/font/text3d_subset.otf"]
+# the port's data files: archive path (the same as beside the executable; CMakeLists.txt copies them there too) ->
+# source path. The text fonts are hippodrome-utils' (shared with the other ports, text_font.h); the 3D-word outlines
+# are Plethron's own.
+DATA_FILES = {
+    "translations/ai.csv": "translations/ai.csv",
+    "translations/human.csv": "translations/human.csv",
+    "translations/localized.csv": "translations/localized.csv",
+    "assets/font/unifont_subset.hex": "hippodrome-utils/assets/font/unifont_subset.hex",
+    "assets/font/pop_subset.ttf": "hippodrome-utils/assets/font/pop_subset.ttf",
+    "assets/font/text3d_subset.otf": "assets/font/text3d_subset.otf",
+}
 out = pathlib.Path(args[0]) if args else root / "build/plethron.o2r"
 out.parent.mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
@@ -42,8 +50,8 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         z.write(p, "textures/launcher/" + p.name)
     # the translation tables and the fonts for translated text (src/port/app_file.cpp: a copy next to the executable
     # wins, so translators can edit the tables without rebuilding; a release ships only the executable)
-    for rel in DATA_FILES:
-        z.write(root / rel, rel)
+    for name, rel in DATA_FILES.items():
+        z.write(root / rel, name)
     for name, path in extra:
         z.write(path, name)
 print("wrote", out)

@@ -24,8 +24,13 @@ void Port_Enh_SetSummaryBarsEnabled(int on);
 int Port_Enh_TrainerMemoryEnabled(void);
 void Port_Enh_SetTrainerMemoryEnabled(int on);
 // PORT_HUE_CHOICE, PORT_MOVE_DESCRIPTIONS and PORT_ORDER_QUEUE likewise.
-int Port_Enh_HueChoiceEnabled(void);
-void Port_Enh_SetHueChoiceEnabled(int on);
+// Hue choice has three settings (gEnhancements.HueChoice; PORT_HUE_CHOICE=0/1/2 or off/unrestricted/restricted):
+// off, unrestricted (the whole colour wheel; 1 is the old "on") and restricted (only hues the game itself can give the
+// species: its range in the species table).
+enum { PORT_HUE_OFF = 0, PORT_HUE_UNRESTRICTED = 1, PORT_HUE_RESTRICTED = 2 };
+int Port_Enh_HueChoiceMode(void);
+void Port_Enh_SetHueChoiceMode(int mode);
+int Port_Enh_HueChoiceEnabled(void); // mode != PORT_HUE_OFF
 int Port_Enh_MoveDescriptionsEnabled(void);
 void Port_Enh_SetMoveDescriptionsEnabled(int on);
 int Port_Enh_OrderQueueEnabled(void);

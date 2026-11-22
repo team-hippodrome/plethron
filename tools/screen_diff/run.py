@@ -8,6 +8,8 @@ The route (tools/screen_diff/routes/*.route) is a list of tokens, counted in VI 
   hold:A:30                                                hold 30 frames (then 1 idle)
   press:UP:60                                              hold 60 frames from here without moving on: the next
                                                            tokens (taps, waits, shots) happen while it is held
+  stick:40:0:30                                            tilt the stick to x 40, y 0 (-128..127) for 30 frames (then
+                                                           1 idle; the port only: ares runs get no stick)
   <number>                                                 wait that many frames
   shot:<label>                                             a checkpoint: capture this frame on both sides
   sync:<event>                                             a sync point: each side waits here until its game reaches
@@ -58,7 +60,7 @@ BUTTONS = {"A": 0x8000, "B": 0x4000, "Z": 0x2000, "START": 0x1000, "UP": 0x0800,
 
 def parse_route(path):
     """-> dict(presses=[(frame, spec, hold)], shots=[(frame, label)], end, sram, gb, window)"""
-    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[], weak_com=False)
+    r = dict(presses=[], shots=[], sram=None, gb=None, gbsav=None, window=(12, 120), boot_offset=-165, rng=None, syncs=[], weak_com=False, sticks=[])
     frame = 0
     for raw in open(path, encoding="utf-8"):
         line = raw.split("#", 1)[0].strip()
@@ -103,6 +105,10 @@ def parse_route(path):
                 _, spec, n = tok.split(":")
                 mask(spec)
                 r["presses"].append((frame, spec.upper(), int(n)))
+            elif tok.lower().startswith("stick:"):
+                _, x, y, n = tok.split(":")
+                r["sticks"].append((frame, int(x), int(y), int(n)))
+                frame += int(n) + 1
             elif tok.lower().startswith("hold:"):
                 _, spec, n = tok.split(":")
                 mask(spec)
@@ -141,13 +147,18 @@ def run_port(r, out, extra_env):
     lines = ["# pokestadium input recording v1: frame, then button stick_x stick_y for pads 1-4\n",
              "# game audio\n", "# load waits\n", "# paced logo hold\n", "# tpak timing\n"]
     # the pad at each frame where it changes: every press held then (press: tokens overlap the taps after them)
-    edges = sorted({f for f, _, _ in r["presses"]} | {f + hold for f, _, hold in r["presses"]})
+    edges = sorted({f for f, _, _ in r["presses"]} | {f + hold for f, _, hold in r["presses"]} |
+                   {f for f, _, _, _ in r["sticks"]} | {f + n for f, _, _, n in r["sticks"]})
     for e in edges:
         m = 0
+        sx = sy = 0
         for f, spec, hold in r["presses"]:
             if f <= e < f + hold:
                 m |= mask(spec)
-        lines.append("%d %d 0 0 0 0 0 0 0 0 0 0 0\n" % (e, m))
+        for f, x, y, n in r["sticks"]:
+            if f <= e < f + n:
+                sx, sy = x, y
+        lines.append("%d %d %d %d 0 0 0 0 0 0 0 0 0\n" % (e, m, sx, sy))
     lines.append("# end %d\n" % r["end"])
     open(rec, "w").writelines(lines)
     shots = os.path.join(out, "port_raw")
