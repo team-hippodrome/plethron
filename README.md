@@ -17,6 +17,11 @@ To fix or add a translation, please see the [translation](https://github.com/tea
 - [**Report an issue**](https://github.com/team-hippodrome/plethron/issues/new/choose)
 - [**Building Instructions**](https://github.com/team-hippodrome/plethron/blob/main/docs/BUILDING.md)
 
+## Philosophy
+Plethron's main goal is *preservation*. Stadium Zero was essentially a training kit for the Nintendo cup tournaments and thus has very little in the way of content. By default all non-graphical enhancements are turned off and we do not plan on adding fixes for the various bits of "jank" in Zero's animations and gameplay (which is more true to gen 1 game boy mechanics than Stadium).
+
+This repo is not intended for excessive modification like our (future) ports of Stadium 1 and 2 in accordance with this mission. 
+
 ## Features
 - Full transfer pak support for all official version of the Generation 1 games.
 - Full translations for supported languages.
