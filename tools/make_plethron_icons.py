@@ -1,5 +1,5 @@
 #!/usr/bin/env python3 -I
-"""Redraws every app icon with the "Plethron" lettering (Plethron Pop, assets/font/pop_subset.ttf) on the existing sky.
+"""Redraws every app icon with the "Plethron" lettering (Plethron Pop, hippodrome-utils/assets/font/pop_subset.ttf) on the existing sky.
 
 The sky and clouds come from tools/macos/AppIcon.png and android/.../ic_launcher_background.png, which stay as they
 are apart from the lettering band; this replaces the "Pokémon STADIUM" title inherited from stadion. Writes:
@@ -12,7 +12,7 @@ import pathlib
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-FONT = ROOT / "assets/font/pop_subset.ttf"
+FONT = ROOT / "hippodrome-utils/assets/font/pop_subset.ttf"
 RES = ROOT / "android/app/src/main/res"
 TEXT = "Plethron"
 FILL, OUTLINE, SHADOW = (255, 214, 0, 255), (28, 52, 110, 255), (10, 20, 50, 150)
