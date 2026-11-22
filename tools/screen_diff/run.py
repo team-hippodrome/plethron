@@ -170,7 +170,7 @@ def run_port(r, out, extra_env):
             f.write('{"Window": {"Width": %d, "Height": %d}}\n' % (ww, wh))
     env = dict(os.environ, PORT_REPLAY=rec, PORT_STOP_AT=str(r["end"]), PORT_SCREENSHOT_DIR=shots,
                PORT_SHOT_AT=",".join(str(f) for f, _ in r["port_shots"]), PORT_SPEED="max", PORT_HIDDEN_WINDOW="1",
-               PORT_LANGUAGE="kana", PORT_ASPECT=os.environ.get("SCREEN_DIFF_PORT_ASPECT", "4:3"), PORT_UPSCALE="exact",
+               PORT_LANGUAGE=os.environ.get("SCREEN_DIFF_PORT_LANGUAGE", "kana"), PORT_ASPECT=os.environ.get("SCREEN_DIFF_PORT_ASPECT", "4:3"), PORT_UPSCALE="exact",
                PORT_RESOLUTION=os.environ.get("SCREEN_DIFF_PORT_RESOLUTION", "2x"),
                PORT_SRAM_FILE=sram, PORT_RECORD=os.path.join(out, "port_last.rec"), SHIP_HOME=home)
     env.setdefault("SDL_AUDIO_DRIVER", "dummy")

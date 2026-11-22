@@ -36,6 +36,7 @@ extern f32 D_FLT_82199EB0; // the command phase's frame timer (BattleMenu_TickCo
 #define MENU_TOP(port) ((Color_RGB8*)(&D_8218B008 + (port) * 3))
 #define MENU_BOTTOM(port) ((Color_RGB8*)(&D_8218B014 + (port) * 3))
 void BattleMenu_DrawCommandMenu(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
+void BattleMenu_DrawCommandMenuNoRun(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3); // hud_status_boxes.c
 void BattleMenu_DrawMovePanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
 void BattleMenu_DrawSwitchPanel(ActivePokemon* arg0, s16 arg1, s16 arg2, s32 arg3);
 void BattleMenu_DrawRosterPanel(TeamRoster* roster, s16 x, s16 y, s32 color_index);
@@ -539,7 +540,7 @@ static void DrawQueue(ActivePokemon* a, s32 s) {
     // bottom right, as their menus).
     s32 top = Port_WideMarginN64() >= 40;
     f32 x = (s == 0) ? 96.0f : 25.0f, y = top ? (f32)QUEUE_TOP_Y : ((s == 0) ? 56.0f : 120.0f);
-    f32 H;
+    f32 H, W;
     s32 port = ColorIndex(a);
     u8 shown = sQueueShown[s];
 
@@ -549,19 +550,20 @@ static void DrawQueue(ActivePokemon* a, s32 s) {
         case HU_OQ_SWITCH_SELECT: H = (a->side->teamMember[0]->numberOfPokemonBrought == 3) ? 50.0f : 104.0f; break;
         default: H = 18.0f; break;
     }
+    W = (shown == HU_OQ_SHOWING) ? (f32)BattleMenu_CommandMenuNoRunWidth() - 2.0f : 200.0f; // no S にげる: narrower
     if (s != 0 && !top) y = 200.0f - H;
     if (fill <= 0.0f) {
         // the window grows from its middle (then its contents fill in; closing the other way round)
-        f32 w2 = 200.0f * size, h2 = H * size;
+        f32 w2 = W * size, h2 = H * size;
         if (w2 >= 2.0f && h2 >= 2.0f) {
-            Battle_DrawGradientRectWrapper((s32)(x + (200.0f - w2) * 0.5f), (s32)(y + (H - h2) * 0.5f), (s32)w2,
+            Battle_DrawGradientRectWrapper((s32)(x + (W - w2) * 0.5f), (s32)(y + (H - h2) * 0.5f), (s32)w2,
                                            (s32)h2, MENU_TOP(port), MENU_BOTTOM(port));
         }
         return;
     }
     switch (shown) {
         case HU_OQ_SHOWING:
-            BattleMenu_DrawCommandMenu(a, (s16)x, (s16)y, port);
+            BattleMenu_DrawCommandMenuNoRun(a, (s16)x, (s16)y, port); // no S にげる: the queue takes no Start
             break;
         case HU_OQ_MOVE_SELECT:
             BattleMenu_DrawMovePanel(a, (s16)x, (s16)y, port);
@@ -581,7 +583,7 @@ static void DrawQueue(ActivePokemon* a, s32 s) {
         // filling: the game's panel shows through its own colour as it comes in
         Color_RGB8* c = MENU_TOP(port);
         Enh_Begin();
-        Enh_Rect(x, y, 200.0f, H + 1.0f, c->r, c->g, c->b, (u8)(0xFF * (1.0f - fill)));
+        Enh_Rect(x, y, W, H + 1.0f, c->r, c->g, c->b, (u8)(0xFF * (1.0f - fill)));
         Enh_End();
     }
     // a tab above the window says what it is for
