@@ -48,6 +48,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Font licences (hippodrome-utils/assets/font)
+        run: git submodule update --init --depth 1 hippodrome-utils
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
@@ -71,7 +73,7 @@ jobs:
             fi
             cp README.md LICENSE "$dir/"
             mkdir -p "$dir/licenses"
-            cp assets/font/LICENSE-*.txt "$dir/licenses/"
+            cp assets/font/LICENSE-*.txt hippodrome-utils/assets/font/LICENSE-*.txt "$dir/licenses/"
             (cd "$dir" && zip -r "../../dist/${out}-v${VERSION}.zip" .)
           done
           ls -l dist

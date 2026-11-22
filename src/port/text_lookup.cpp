@@ -908,7 +908,7 @@ int Port_Text_SelfTest(void) {
     }
     printf("%s BULBASAUR_DEX_ENTRY: %s\n", got ? "ok  " : "FAIL", got ? got : "(null)");
     failed += got == nullptr;
-    // every character of every translation has a glyph (tools/font/make_unifont_subset.py)
+    // every character of every translation has a glyph (hippodrome-utils/tools/font/make_unifont_subset.py --check)
     std::string missing;
     for (auto* table : { &T().ai, &T().human }) {
         for (auto& [id, row] : *table) {

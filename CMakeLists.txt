@@ -150,14 +150,14 @@ else()
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/translations/ai.csv
             ${CMAKE_CURRENT_SOURCE_DIR}/translations/human.csv ${CMAKE_CURRENT_SOURCE_DIR}/translations/localized.csv
             $<TARGET_FILE_DIR:plethron>/translations/
-    # the Unicode glyphs for translated text (src/port/unicode_font.cpp)
+    # the Unicode glyphs for translated text (src/port/unicode_font.cpp): hippodrome-utils' Unifont subset and the
+    # prototype Plethron Pop outlines, the "Text font" option (hippodrome-utils/tools/font), shared with the other ports
     COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:plethron>/assets/font
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/unifont_subset.hex
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-unifont.txt
-            # the prototype Plethron Pop outlines, the "Text font" option (tools/font/make_pop_font.py)
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/pop_subset.ttf
-            ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-pop.txt
-            # the outlines for translated 3D words (src/port/text3d.cpp)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${HIPPODROME_UTILS_FONT_DIR}/unifont_subset.hex
+            ${HIPPODROME_UTILS_FONT_DIR}/LICENSE-unifont.txt
+            ${HIPPODROME_UTILS_FONT_DIR}/pop_subset.ttf
+            ${HIPPODROME_UTILS_FONT_DIR}/LICENSE-pop.txt
+            # the outlines for translated 3D words (src/port/text3d.cpp), Plethron's own
             ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/text3d_subset.otf
             ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/LICENSE-noto-cjk.txt $<TARGET_FILE_DIR:plethron>/assets/font/
     COMMENT "Copying the translation tables and font")
@@ -568,7 +568,8 @@ if(EMSCRIPTEN)
        ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/fast/shaders/*
        ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png
        ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.csv
-       ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*)
+       ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*
+       ${HIPPODROME_UTILS_FONT_DIR}/*_subset.*)
   set_property(TARGET plethron APPEND PROPERTY LINK_DEPENDS
                ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_o2r.py
                ${CMAKE_CURRENT_SOURCE_DIR}/src/port/vulkan_pipeline_warmup.txt
@@ -585,7 +586,8 @@ file(GLOB_RECURSE PORT_O2R_INPUTS CONFIGURE_DEPENDS
      ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/fast/shaders/*
      ${CMAKE_CURRENT_SOURCE_DIR}/tools/launcher/assets/*.png
      ${CMAKE_CURRENT_SOURCE_DIR}/translations/*.csv
-     ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*)
+     ${CMAKE_CURRENT_SOURCE_DIR}/assets/font/*_subset.*
+     ${HIPPODROME_UTILS_FONT_DIR}/*_subset.*)
 add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/generated/plethron_o2r.c
   COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/make_o2r.py

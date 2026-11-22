@@ -11,9 +11,14 @@ at runtime by key. Nothing here contains the original game text, except the kana
 | `localized.csv` | The localized form of the name rows (see [Names](#names-localized-or-transliterated)). Edit it directly, by hand or by AI. |
 | `rom-text/` | **Gitignored.** Your own ROM's text, written by `tools/text/show_kana.py`. Never commit it. |
 
-The three tables (and the fonts in `assets/font/`) are built into the executable, so a release needs no extra
-files. A copy in a `translations/` folder next to the executable wins over the built-in one: edit that copy and
+The three tables (and the fonts: the text fonts from `hippodrome-utils/assets/font/`, shared with the other ports,
+and the 3D-word outlines in `assets/font/`) are built into the executable, so a release needs no extra files. A copy in a `translations/` folder next to the executable wins over the built-in one: edit that copy and
 restart the game to try a change without rebuilding.
+
+After adding characters, check that the shared Unifont subset has a glyph for each:
+`python3 hippodrome-utils/tools/font/make_unifont_subset.py --check --tables translations/*.csv` (U+00AD, the soft
+hyphen, has none and is never drawn). Missing glyphs are added in hippodrome-utils, with every port's tables (see its
+`docs/specs/TRANSLATION.md`, "Rendering"), and the submodule bumped here.
 
 ## Format
 
