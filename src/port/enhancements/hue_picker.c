@@ -132,6 +132,64 @@ s32 PortEnh_HuePickerInput(BattleMon* mon, u16 pressed, u16 back, u16 forward, u
     return 1;
 }
 
+// The stick turns the hue smoothly, for the hues between L / R's 15° steps: its tilt left / right sets the speed,
+// from 1/64° a game update at the edge of the dead zone to 90° a second at full tilt (squared, so a light touch is
+// fine enough to land on single degrees). The entry screen updates 30 times a second. Restricted stops at the ends of
+// the species' range. The file is written once the stick is let go.
+#define HUE_STICK_FULL 64.0f
+#define HUE_STICK_MAX_UNITS 192.0f // per update at full tilt: 3°, 90° a second
+
+static s32 sStickDirty;
+static f32 sStickCarry; // the part of a unit not applied yet
+
+s32 PortEnh_HuePickerStick(BattleMon* mon, f32 stick_x) {
+    hu_hue_store* store;
+    hu_hue_id id;
+    s16 now, next, lo, hi;
+    f32 t, d;
+    s32 units;
+
+    if (mon == NULL || mon->species.id == 0 || !Port_Enh_HueChoiceEnabled()) {
+        return 0;
+    }
+    if (stick_x == 0.0f) {
+        sStickCarry = 0.0f;
+        if (sStickDirty) {
+            sStickDirty = 0;
+            Port_Enh_SaveHues();
+        }
+        return 0;
+    }
+    t = stick_x / HUE_STICK_FULL;
+    if (t > 1.0f) t = 1.0f;
+    if (t < -1.0f) t = -1.0f;
+    d = t * (t < 0.0f ? -t : t) * HUE_STICK_MAX_UNITS;
+    if (d > -1.0f && d < 1.0f) d = (d < 0.0f) ? -1.0f : 1.0f; // never stalls inside the live range
+    sStickCarry += d;
+    units = (s32)sStickCarry;
+    sStickCarry -= (f32)units;
+    if (units == 0) {
+        return 0;
+    }
+    store = Port_Enh_Hues();
+    id = HueId(mon);
+    now = Resolve(mon, id, GameShift(mon));
+    next = (s16)(hu_hue_signed(now) + units);
+    if (HueRange(mon, &lo, &hi)) {
+        next = hu_hue_clamp(next, lo, hi);
+    }
+    if (hu_hue_signed(next) == hu_hue_signed(now)) {
+        return 0; // at an end of the species' range
+    }
+    // a tick each time it crosses one of L / R's 15° steps
+    if (hu_hue_degrees(now) / 15 != hu_hue_degrees(next) / 15) {
+        Audio_PlaySystemSound(1);
+    }
+    hu_hue_set(store, id, next);
+    sStickDirty = 1;
+    return 1;
+}
+
 // A Port string: its translation, else the original language's kana, else English (as the memory screen's).
 static const char* Str(const char* id, const char* kana, const char* en) {
     const char* t = Port_Text_LookupId(id);
@@ -213,9 +271,9 @@ void PortEnh_HuePickerDraw(s32 x, s32 y, s32 w, BattleMon* mon) {
 
 // The bottom strip of the colour card the entry screen opens with Z: what the buttons do there.
 void PortEnh_HueCardHint(s32 x, s32 y, s32 w, s32 h, s32 party) {
-    const char* hint = party ? Str("PORT_HUE_CARD_PARTY", "じゅうじキー：ポケモン　L・R：いろ　B：もどる",
-                                   "D-Pad: Pokémon  L/R: Color  B: Back")
-                             : Str("PORT_HUE_CARD", "L・R：いろ　B：もどる", "L/R: Color  B: Back");
+    const char* hint = party ? Str("PORT_HUE_CARD_PARTY", "じゅうじキー：ポケモン　L・R・スティック：いろ　B：もどる",
+                                   "D-Pad: Pokémon  L/R/Stick: Color  B: Back")
+                             : Str("PORT_HUE_CARD", "L・R・スティック：いろ　B：もどる", "L/R/Stick: Color  B: Back");
     f32 size = 16.0f;
     f32 tw = Enh_TextWidth(size, hint);
     if (tw > (f32)w - 16.0f) tw = (f32)w - 16.0f;

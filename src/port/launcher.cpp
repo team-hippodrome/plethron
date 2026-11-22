@@ -1804,8 +1804,8 @@ class LauncherWindow : public Ship::GuiWindow {
             Text(lx, ry + 5, "Hue choice", gFonts.body);
             c = Choice("hue", { "Restricted", "Unrestricted", "Off" }, chosen, cx, ry, 96);
             Text(lx, ry + 33,
-                 "Pick each Pokémon's colours on the entry screen (party and rental select): L / R on a Pokémon's card\n"
-                 "(Z opens one on a party row or a rental), Z for the game's own. Restricted: only the hues the game\n"
+                 "Pick each Pokémon's colours on the entry screen (party and rental select): L / R (15° steps) or the stick\n"
+                 "(smooth) on a Pokémon's card (Z opens one on a party row or a rental), Z for the game's own. Restricted: only the hues the game\n"
                  "can give that species (its nickname range). Kept in a file beside the save.",
                  gFonts.small, Theme::dim);
             ry += 84;
