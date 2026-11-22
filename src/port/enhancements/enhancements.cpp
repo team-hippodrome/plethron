@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <cstring>
 #include <mutex>
 #include <filesystem>
 #include <cstdlib>
@@ -73,12 +74,27 @@ extern "C" void Port_Enh_SetTrainerMemoryEnabled(int on) {
     CVarSave();
 }
 
-extern "C" int Port_Enh_HueChoiceEnabled(void) {
-    return Setting("PORT_HUE_CHOICE", "gEnhancements.HueChoice");
+extern "C" int Port_Enh_HueChoiceMode(void) {
+    const char* v = getenv("PORT_HUE_CHOICE");
+    int mode;
+    if (v != nullptr && *v != '\0') {
+        if (strcmp(v, "restricted") == 0) return PORT_HUE_RESTRICTED;
+        if (strcmp(v, "unrestricted") == 0) return PORT_HUE_UNRESTRICTED;
+        if (strcmp(v, "off") == 0) return PORT_HUE_OFF;
+        mode = atoi(v);
+    } else {
+        mode = CVarGetInteger("gEnhancements.HueChoice", PORT_HUE_OFF);
+    }
+    return (mode == PORT_HUE_UNRESTRICTED || mode == PORT_HUE_RESTRICTED) ? mode : PORT_HUE_OFF;
 }
 
-extern "C" void Port_Enh_SetHueChoiceEnabled(int on) {
-    SetSetting("gEnhancements.HueChoice", on);
+extern "C" void Port_Enh_SetHueChoiceMode(int mode) {
+    CVarSetInteger("gEnhancements.HueChoice", mode);
+    CVarSave();
+}
+
+extern "C" int Port_Enh_HueChoiceEnabled(void) {
+    return Port_Enh_HueChoiceMode() != PORT_HUE_OFF;
 }
 
 extern "C" int Port_Enh_MoveDescriptionsEnabled(void) {

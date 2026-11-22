@@ -1793,12 +1793,24 @@ class LauncherWindow : public Ship::GuiWindow {
                 "It also shows what you learned about the opponent on the summary bars.",
                 Port_Enh_TrainerMemoryEnabled() != 0);
         if (c >= 0) Port_Enh_SetTrainerMemoryEnabled(c == 0);
-        c = row("Hue choice", "hue",
-                "Pick each Pokémon's colours on the entry screen (party and rental select): L / R on\n"
-                "a Pokémon's card (Z opens one on a party row or a rental), Z for the game's own.\n"
-                "Kept in a file beside the save and used everywhere the Pokémon is shown.",
-                Port_Enh_HueChoiceEnabled() != 0);
-        if (c >= 0) Port_Enh_SetHueChoiceEnabled(c == 0);
+        {
+            // three choices, wider buttons: the hint moves down a line
+            static const int kModes[3] = { PORT_HUE_RESTRICTED, PORT_HUE_UNRESTRICTED, PORT_HUE_OFF };
+            const int mode = Port_Enh_HueChoiceMode();
+            int chosen = 2;
+            for (int i = 0; i < 3; i++) {
+                if (kModes[i] == mode) chosen = i;
+            }
+            Text(lx, ry + 5, "Hue choice", gFonts.body);
+            c = Choice("hue", { "Restricted", "Unrestricted", "Off" }, chosen, cx, ry, 96);
+            Text(lx, ry + 33,
+                 "Pick each Pokémon's colours on the entry screen (party and rental select): L / R on a Pokémon's card\n"
+                 "(Z opens one on a party row or a rental), Z for the game's own. Restricted: only the hues the game\n"
+                 "can give that species (its nickname range). Kept in a file beside the save.",
+                 gFonts.small, Theme::dim);
+            ry += 84;
+            if (c >= 0) Port_Enh_SetHueChoiceMode(kModes[c]);
+        }
         c = row("Move descriptions", "movedesc",
                 "In battle, hold a Control Pad direction in the move menu to read the move on the\n"
                 "C button of that direction: type, power, accuracy and what it does.",
