@@ -240,10 +240,15 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
             MsText(tx, ry + 15.0f, 12.0f, 0, buf, 0xE0, 0xE0, 0xE0, 0xFF);
         }
         if (own != NULL && (own->flags & HU_TM_MON_HAS_SPEED)) {
-            snprintf(buf, sizeof buf, "%s %u-%u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), own->speed.min,
-                     own->speed.max);
-            if (own->speed.min == own->speed.max) {
-                snprintf(buf, sizeof buf, "%s %u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), own->speed.min);
+            // as it stands under the current Stat Exp difficulty (the stored one is kept with its own clamp)
+            u16 se_lo, se_hi;
+            u8 sp = own->species;
+            hu_speed_range spe;
+            PortEnh_OpponentStatExpBounds(0, &se_lo, &se_hi);
+            spe = hu_tm_speed_under(own, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, se_lo, se_hi);
+            snprintf(buf, sizeof buf, "%s %u-%u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), spe.min, spe.max);
+            if (spe.min == spe.max) {
+                snprintf(buf, sizeof buf, "%s %u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), spe.min);
             }
             MsText(tx, ry + 28.0f, 12.0f, MS_ROW_MOVES_X - MS_ROW_TEXT_X - 6.0f, buf, 0x90, 0xD8, 0xFF, 0xFF);
         }

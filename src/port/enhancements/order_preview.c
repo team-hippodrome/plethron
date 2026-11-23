@@ -77,8 +77,12 @@ static void ApplyMemory(s32 hidden) {
         hu_card* c = &sSides[hidden].cards[i];
         const hu_tm_mon* m = hu_tm_find_mon(t, c->species);
         if (m == NULL) continue;
-        if (m->flags & HU_TM_MON_HAS_SPEED) {
-            c->speed = hu_speed_intersect(c->speed, m->speed);
+        if (m->flags & HU_TM_MON_HAS_SPEED) { // taken to this battle's Stat Exp clamp first
+            u16 lo, hi;
+            u8 sp = c->species;
+            PortEnh_OpponentStatExpBounds(1, &lo, &hi);
+            c->speed = hu_speed_intersect(
+                c->speed, hu_tm_speed_under(m, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, lo, hi));
             c->transform_speed = c->speed;
         }
         for (k = 0; k < 4; k++) {
@@ -101,6 +105,15 @@ static void InitSide(s32 s, const OrderSelectPanel* p) {
         for (j = 0; j < 4; j++) moves[j] = m->moves[j];
         hu_side_set_mon(&sSides[s], i, sp, m->level, m->hp, m->maxHp, moves,
                         (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, s == sViewer ? m->speed : 0);
+        if (s != sViewer) { // Stat Exp difficulty: what the opponent's stat exp can be in this battle
+            u16 lo, hi;
+            PortEnh_OpponentStatExpBounds(1, &lo, &hi);
+            if (lo != 0 || hi != 65535) {
+                sSides[s].cards[i].speed = hu_speed_initial_se(
+                    (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, m->level, lo, hi);
+                sSides[s].cards[i].transform_speed = sSides[s].cards[i].speed;
+            }
+        }
         if (sModels) {
             PortEnh_CardModelsLoad(s, i, m);
         }

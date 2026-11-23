@@ -37,11 +37,12 @@ void Port_Enh_SetMoveDescriptionsEnabled(int on);
 int Port_Enh_OrderQueueEnabled(void);
 void Port_Enh_SetOrderQueueEnabled(int on);
 
-// Stat Exp difficulty (STATEXP_DIFFICULTY): a setting for the rental Pokémon and one for the opponent (COM) Pokémon,
-// each Vanilla (the default), Casual / Easy / Medium / Hard / Kaizo (fifths of 65535) or Custom
-// (gEnhancements.StatExpDifficulty.<Rental|Opponent>.Mode / Min / Max; Mode is hu_se_mode). PORT_STATEXP_RENTAL /
-// PORT_STATEXP_OPPONENT override them for tests: a mode name (vanilla, casual, ..., kaizo) or "<min>-<max>" for
-// Custom (e.g. "65535-65535"). The game side is statexp_difficulty.c.
+// Stat Exp difficulty (STATEXP_DIFFICULTY): a Min and a Max for the rental Pokémon and for the opponent (COM)
+// Pokémon, each Vanilla (the default), Casual / Easy / Medium / Hard / Kaizo or Custom. Tournaments only: Free Battle
+// is never changed. CVars gEnhancements.StatExpDifficulty.<Rental|Opponent>.<Min|Max><Preset|Custom> (Preset is
+// hu_se_preset). PORT_STATEXP_RENTAL / PORT_STATEXP_OPPONENT override them for tests: "<min>:<max>" or one value for
+// both, each a preset name (vanilla, casual, ..., kaizo) or a number for Custom (e.g. "kaizo", "vanilla:4096").
+// The game side is statexp_difficulty.c.
 #define PORT_SE_RENTAL 0 // (also in battle_enhancements.h, for the game code)
 #define PORT_SE_OPPONENT 1
 // (pointers, not structs by value: the game side is C built with the game's flags)
