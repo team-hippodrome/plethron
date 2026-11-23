@@ -35,14 +35,14 @@ static s32 PortEnh_SeLog(void) {
     return sLog;
 }
 
-static void PortEnh_SeApply(BattleMon* mon, const hu_se_setting* setting, hu_se_side side) {
+static void PortEnh_SeApply(BattleMon* mon, const hu_se_bounds* setting, hu_se_side side) {
     u16 oldMaxHp = mon->maxHp;
     s32 species = mon->species.id;
 
     if (species == 0 || species > 151) {
         return;
     }
-    hu_se_apply(setting, side, mon->statExp);
+    hu_se_bounds_apply(setting, side, mon->statExp);
     mon->maxHp = Pokemon_CalcStat(STAT_HP, species, mon->statExp[0], mon->level, mon->dvs);
     mon->attack = Pokemon_CalcStat(STAT_ATTACK, species, mon->statExp[1], mon->level, mon->dvs);
     mon->defense = Pokemon_CalcStat(STAT_DEFENSE, species, mon->statExp[2], mon->level, mon->dvs);
@@ -64,20 +64,20 @@ static void PortEnh_SeLogMon(const char* setting, const char* what, s32 i, const
     }
 }
 
-static void PortEnh_SeName(const hu_se_setting* s, hu_se_side side, char* out, size_t n) {
+static void PortEnh_SeName(const hu_se_bounds* s, hu_se_side side, char* out, size_t n) {
     u16 lo, hi;
-    hu_se_bounds(s, side, &lo, &hi);
-    snprintf(out, n, "%s..%s (%u..%u)", hu_se_preset_name(s->min.preset), hu_se_preset_name(s->max.preset), lo, hi);
+    PortEnh_SeLoHi(s, side, &lo, &hi);
+    snprintf(out, n, "%s..%s (%u..%u)", hu_se_mode_name(s->min.mode), hu_se_mode_name(s->max.mode), lo, hi);
 }
 
 void PortEnh_StatExpDifficultyTeam(BattleMon* mons, s32 count, s32 group, const char* what) {
     hu_se_side side = group == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT;
-    hu_se_setting setting;
+    hu_se_bounds setting;
     char name[64];
     s32 i;
 
     Port_Enh_StatExpDifficulty(group, &setting);
-    if (!hu_se_active(&setting)) {
+    if (!hu_se_bounds_active(&setting)) {
         return;
     }
     PortEnh_SeName(&setting, side, name, sizeof(name));
@@ -108,7 +108,7 @@ static const BattleMon* PortEnh_VanillaRental(const BattleMon* mon) {
     return NULL;
 }
 
-static void PortEnh_SeRentals(BattleMon* mons, s32 count, const hu_se_setting* setting, const char* name,
+static void PortEnh_SeRentals(BattleMon* mons, s32 count, const hu_se_bounds* setting, const char* name,
                               const char* what) {
     s32 i;
 
@@ -134,7 +134,7 @@ static void PortEnh_SeRentals(BattleMon* mons, s32 count, const hu_se_setting* s
 }
 
 void PortEnh_StatExpDifficultyTournament(TeamRoster* com, ExtendedRosterInfo* comInfo) {
-    hu_se_setting setting;
+    hu_se_bounds setting;
     char name[64];
     TeamRoster* p1 = &gSessionContext.trainerSlots[0];
     ExtendedRosterInfo* p1Info = &gSessionContext.rosterInfo[0];
@@ -156,7 +156,7 @@ void PortEnh_StatExpDifficultyTournament(TeamRoster* com, ExtendedRosterInfo* co
 }
 
 void PortEnh_OpponentStatExpBounds(s32 forThisBattle, u16* lo, u16* hi) {
-    hu_se_setting setting;
+    hu_se_bounds setting;
     u8 m = gSessionContext.mode;
 
     *lo = 0;
@@ -165,5 +165,5 @@ void PortEnh_OpponentStatExpBounds(s32 forThisBattle, u16* lo, u16* hi) {
         return; // Free Battle and the scripted battles keep Zero's own stat exp
     }
     Port_Enh_StatExpDifficulty(PORT_SE_OPPONENT, &setting);
-    hu_se_bounds(&setting, HU_SE_OPPONENT, lo, hi);
+    PortEnh_SeLoHi(&setting, HU_SE_OPPONENT, lo, hi);
 }

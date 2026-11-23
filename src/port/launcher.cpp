@@ -1777,10 +1777,10 @@ class LauncherWindow : public Ship::GuiWindow {
             mEnhancements = mStatDifficulty = false;
         }
         {
-            hu_se_setting r[2];
+            hu_se_bounds r[2];
             Port_Enh_StatExpDifficulty(PORT_SE_RENTAL, &r[0]);
             Port_Enh_StatExpDifficulty(PORT_SE_OPPONENT, &r[1]);
-            const bool vanilla = !hu_se_active(&r[0]) && !hu_se_active(&r[1]);
+            const bool vanilla = !hu_se_bounds_active(&r[0]) && !hu_se_bounds_active(&r[1]);
             if (ColorButton(vanilla ? "Stat Exp: Vanilla" : "Stat Exp: Changed", x + w - 288, y + 9, 172, 26,
                             vanilla ? Theme::button : 0x23406B, vanilla ? Theme::buttonHover : 0x23406B)) {
                 mStatDifficulty = true;
@@ -1891,7 +1891,7 @@ class LauncherWindow : public Ship::GuiWindow {
 
     // launcher > Graphics > Enhancements > Stat Exp (STATEXP_DIFFICULTY, enhancements.h): a column per group (rental,
     // opponent) with a Min and a Max dropdown, each Vanilla, the five presets or Custom (which brings up a slider). A
-    // Min raised above the Max bumps the Max up, a Max lowered below the Min pulls the Min down (hu_se_bound_changed).
+    // Min raised above the Max bumps the Max up, a Max lowered below the Min pulls the Min down (hu_se_bounds_fix).
     void StatDifficultyPanel(float x, float y, float w, float h) {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
@@ -1913,15 +1913,15 @@ class LauncherWindow : public Ship::GuiWindow {
             const hu_se_side side = g == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT;
             const float cx = x + 14 + g * (colW + 14);
             float ry = y + 58;
-            hu_se_setting r;
+            hu_se_bounds r;
             Port_Enh_StatExpDifficulty(g, &r);
             Text(cx, ry + 5, kNames[g], gFonts.body);
             Text(cx, ry + 28, kHints[g], gFonts.small, Theme::dim);
             ry += 86;
             ImGui::PushID(g);
             std::vector<std::string> labels;
-            for (int p = 0; p < HU_SE_PRESET_COUNT; p++) {
-                std::string l = hu_se_preset_name(p);
+            for (int p = 0; p < HU_SE_MODE_COUNT; p++) {
+                std::string l = hu_se_mode_name(p);
                 if (p != HU_SE_VANILLA && p != HU_SE_CUSTOM) l += " (" + std::to_string(hu_se_preset_value(p, side)) + ")";
                 labels.push_back(l);
             }
@@ -1929,15 +1929,15 @@ class LauncherWindow : public Ship::GuiWindow {
             for (int b = 0; b < 2; b++) {
                 hu_se_bound& bound = b == 0 ? r.min : r.max;
                 Text(cx, ry + 4, b == 0 ? "Min" : "Max", gFonts.body);
-                const int pick = Dropdown(b == 0 ? "##semin" : "##semax", labels, bound.preset, cx + 60, ry, 190,
+                const int pick = Dropdown(b == 0 ? "##semin" : "##semax", labels, bound.mode, cx + 60, ry, 190,
                                           openTest && g == PORT_SE_OPPONENT && b == 0);
                 if (pick >= 0) {
-                    bound.preset = (uint8_t)pick;
-                    hu_se_bound_changed(&r, side, b == 0);
+                    bound.mode = (uint8_t)pick;
+                    hu_se_bounds_fix(&r, side, b == 0);
                     changed = true;
                 }
                 ry += 34;
-                if (bound.preset == HU_SE_CUSTOM) {
+                if (bound.mode == HU_SE_CUSTOM) {
                     ImGui::SetCursorScreenPos(P(cx + 60, ry));
                     ImGui::SetNextItemWidth((colW - 60) * mScale);
                     ImGui::PushStyleColor(ImGuiCol_SliderGrab, HexV(0x4C7BD9));
@@ -1946,7 +1946,7 @@ class LauncherWindow : public Ship::GuiWindow {
                     if (ImGui::SliderInt(b == 0 ? "##semincustom" : "##semaxcustom", &v, 0, 65535, "%d",
                                          ImGuiSliderFlags_AlwaysClamp)) {
                         bound.custom = (uint16_t)v;
-                        hu_se_bound_changed(&r, side, b == 0);
+                        hu_se_bounds_fix(&r, side, b == 0);
                         changed = true;
                     }
                     ImGui::PopStyleColor(2);
@@ -1955,8 +1955,8 @@ class LauncherWindow : public Ship::GuiWindow {
                 ry += 6;
             }
             uint16_t lo, hi;
-            hu_se_bounds(&r, side, &lo, &hi);
-            if (hu_se_active(&r)) {
+            PortEnh_SeLoHi(&r, side, &lo, &hi);
+            if (hu_se_bounds_active(&r)) {
                 Text(cx, ry, "Each Stat Exp value is kept between " + std::to_string(lo) + " and " + std::to_string(hi) +
                                  "\n(out of 65535). DVs are not changed.",
                      gFonts.small, Theme::dim);

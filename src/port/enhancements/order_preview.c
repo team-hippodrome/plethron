@@ -81,8 +81,10 @@ static void ApplyMemory(s32 hidden) {
             u16 lo, hi;
             u8 sp = c->species;
             PortEnh_OpponentStatExpBounds(1, &lo, &hi);
-            c->speed = hu_speed_intersect(
-                c->speed, hu_tm_speed_under(m, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, lo, hi));
+            hu_speed_range stored;
+            if (hu_tm_mon_speed(m, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, lo, hi, &stored)) {
+                c->speed = hu_speed_intersect(c->speed, stored);
+            }
             c->transform_speed = c->speed;
         }
         for (k = 0; k < 4; k++) {

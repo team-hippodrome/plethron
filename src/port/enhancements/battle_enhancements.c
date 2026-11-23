@@ -190,8 +190,11 @@ static void InitMemory(void) {
         if (m == NULL) continue;
         if (m->flags & HU_TM_MON_HAS_SPEED) { // taken to this battle's Stat Exp clamp first
             u16 lo, hi;
+            hu_speed_range stored;
             PortEnh_OpponentStatExpBounds(1, &lo, &hi);
-            c->speed = hu_speed_intersect(c->speed, hu_tm_speed_under(m, BaseSpeed(c->species), lo, hi));
+            if (hu_tm_mon_speed(m, BaseSpeed(c->species), lo, hi, &stored)) {
+                c->speed = hu_speed_intersect(c->speed, stored);
+            }
             c->transform_speed = c->speed;
         }
         for (k = 0; k < 4; k++) {
@@ -347,8 +350,8 @@ void PortEnh_TurnOrder(s32 first_side) {
                 if (sHasKey) {
                     u16 lo, hi; // kept with the Stat Exp clamp it was learned under
                     PortEnh_OpponentStatExpBounds(1, &lo, &hi);
-                    hu_tm_record_speed_se(Port_Enh_Memory(), sKey, card->species, card->speed,
-                                          BaseSpeed(card->species), lo, hi);
+                    hu_tm_record_speed_se(Port_Enh_Memory(), sKey, card->species, BaseSpeed(card->species),
+                                          card->speed, lo, hi);
                 }
             }
         }

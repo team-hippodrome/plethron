@@ -132,9 +132,9 @@ bool SameAscii(const char* a, const char* b, size_t n) { // the first n chars of
 
 // one bound of PORT_STATEXP_*: a preset name or a number (Custom)
 bool SeEnvBound(const char* v, size_t n, hu_se_bound* out) {
-    for (int p = 0; p < HU_SE_PRESET_COUNT; p++) {
-        if (p != HU_SE_CUSTOM && SameAscii(v, hu_se_preset_name(p), n)) {
-            out->preset = (uint8_t)p;
+    for (int p = 0; p < HU_SE_MODE_COUNT; p++) {
+        if (p != HU_SE_CUSTOM && SameAscii(v, hu_se_mode_name(p), n)) {
+            out->mode = (uint8_t)p;
             return true;
         }
     }
@@ -142,16 +142,16 @@ bool SeEnvBound(const char* v, size_t n, hu_se_bound* out) {
     const std::string s(v, n);
     const unsigned long x = strtoul(s.c_str(), &end, 10);
     if (s.empty() || end == nullptr || *end != '\0') return false;
-    out->preset = HU_SE_CUSTOM;
+    out->mode = HU_SE_CUSTOM;
     out->custom = (uint16_t)std::min(x, 65535ul);
     return true;
 }
 
 // PORT_STATEXP_*: "<min>:<max>" or one value for both; false when unset or unreadable
-bool SeEnv(int group, hu_se_setting* out) {
+bool SeEnv(int group, hu_se_bounds* out) {
     const char* v = getenv(group == PORT_SE_RENTAL ? "PORT_STATEXP_RENTAL" : "PORT_STATEXP_OPPONENT");
     if (v == nullptr || *v == '\0') return false;
-    hu_se_setting s = hu_se_vanilla();
+    hu_se_bounds s = hu_se_bounds_vanilla();
     const char* colon = strchr(v, ':');
     bool ok;
     if (colon == nullptr) {
@@ -171,28 +171,28 @@ bool SeEnv(int group, hu_se_setting* out) {
 hu_se_bound SeReadBound(int group, const char* which, uint16_t fallback) {
     hu_se_bound b;
     const int p = CVarGetInteger(SeCvar(group, (std::string(which) + "Preset").c_str()).c_str(), HU_SE_VANILLA);
-    b.preset = (uint8_t)((p >= 0 && p < HU_SE_PRESET_COUNT) ? p : HU_SE_VANILLA);
+    b.mode = (uint8_t)((p >= 0 && p < HU_SE_MODE_COUNT) ? p : HU_SE_VANILLA);
     b.custom = (uint16_t)std::clamp(CVarGetInteger(SeCvar(group, (std::string(which) + "Custom").c_str()).c_str(), fallback),
                                     0, 65535);
     return b;
 }
 
 void SeWriteBound(int group, const char* which, const hu_se_bound& b) {
-    CVarSetInteger(SeCvar(group, (std::string(which) + "Preset").c_str()).c_str(), b.preset);
+    CVarSetInteger(SeCvar(group, (std::string(which) + "Preset").c_str()).c_str(), b.mode);
     CVarSetInteger(SeCvar(group, (std::string(which) + "Custom").c_str()).c_str(), b.custom);
 }
 
 } // namespace
 
-extern "C" void Port_Enh_StatExpDifficulty(int group, hu_se_setting* out) {
-    *out = hu_se_vanilla();
+extern "C" void Port_Enh_StatExpDifficulty(int group, hu_se_bounds* out) {
+    *out = hu_se_bounds_vanilla();
     if (group != PORT_SE_RENTAL && group != PORT_SE_OPPONENT) return;
     if (SeEnv(group, out)) return;
     out->min = SeReadBound(group, "Min", 0);
     out->max = SeReadBound(group, "Max", 65535);
 }
 
-extern "C" void Port_Enh_SetStatExpDifficulty(int group, const hu_se_setting* setting) {
+extern "C" void Port_Enh_SetStatExpDifficulty(int group, const hu_se_bounds* setting) {
     if (group != PORT_SE_RENTAL && group != PORT_SE_OPPONENT) return;
     SeWriteBound(group, "Min", setting->min);
     SeWriteBound(group, "Max", setting->max);

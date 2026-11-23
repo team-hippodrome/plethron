@@ -245,7 +245,8 @@ static void DrawDetail(const ZeroTmView* v, f32 x, f32 y, f32 w) {
             u8 sp = own->species;
             hu_speed_range spe;
             PortEnh_OpponentStatExpBounds(0, &se_lo, &se_hi);
-            spe = hu_tm_speed_under(own, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, se_lo, se_hi);
+            spe = own->speed;
+            hu_tm_mon_speed(own, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, se_lo, se_hi, &spe);
             snprintf(buf, sizeof buf, "%s %u-%u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), spe.min, spe.max);
             if (spe.min == spe.max) {
                 snprintf(buf, sizeof buf, "%s %u", Str("PORT_MEMORY_SPEED", "すばやさ", "Spe"), spe.min);
