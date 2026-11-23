@@ -1851,7 +1851,8 @@ class LauncherWindow : public Ship::GuiWindow {
         dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
         dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
         Text(x + 14, y + 14, "STAT EXP DIFFICULTY", gFonts.body, Theme::text);
-        Text(x + 190, y + 15, "Vanilla keeps the game's own values.", gFonts.small, Theme::dim);
+        Text(x + 190, y + 15, "Vanilla keeps the game's own values. Harder: more Stat Exp for opponents, less for rentals.",
+             gFonts.small, Theme::dim);
         if (Button("Back", x + w - 108, y + 9, 94, 26)) {
             mStatDifficulty = false;
         }
@@ -1903,7 +1904,7 @@ class LauncherWindow : public Ship::GuiWindow {
             if (hu_se_errors(&r) != 0) {
                 Text(cx, ry, hu_se_error_text(HU_SE_ORDER), gFonts.small, Theme::red);
                 Text(cx, ry + 18, "Vanilla values are used until this is fixed.", gFonts.small, Theme::red);
-            } else if (hu_se_range(&r, &lo, &hi)) {
+            } else if (hu_se_range(&r, g == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT, &lo, &hi)) {
                 Text(cx, ry, "Stat Exp " + std::to_string(lo) + " to " + std::to_string(hi) +
                                  " (out of 65535). Values outside\nmove to the nearer end; DVs are not changed.",
                      gFonts.small, Theme::dim);

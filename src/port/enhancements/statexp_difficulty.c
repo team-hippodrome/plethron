@@ -1,6 +1,7 @@
 // Stat Exp difficulty (hippodrome-utils docs/specs/STATEXP_DIFFICULTY.md): the player sets the lowest and highest stat
 // experience of the rental Pokémon and of the opponent (COM) Pokémon, each Vanilla (the default: Zero's own values),
-// one of the five presets (Casual, Easy, Medium, Hard, Kaizo: fifths of 65535) or Custom (enhancements.h,
+// one of the five presets (Casual, Easy, Medium, Hard, Kaizo: fifths of 65535, the other way round for rentals, so
+// Kaizo rentals get the least) or Custom (enhancements.h,
 // hippodrome/statexp_difficulty.h). A range clamps each of the five stat exp values into it, then the stats are worked
 // out again with Zero's own formula (Pokemon_CalcStat) at the Pokémon's level. DVs are never changed. Compiled with
 // the game code.
@@ -34,14 +35,14 @@ static s32 PortEnh_SeLog(void) {
     return sLog;
 }
 
-static void PortEnh_SeApply(BattleMon* mon, const hu_se_setting* setting) {
+static void PortEnh_SeApply(BattleMon* mon, const hu_se_setting* setting, hu_se_side side) {
     u16 oldMaxHp = mon->maxHp;
     s32 species = mon->species.id;
 
     if (species == 0 || species > 151) {
         return;
     }
-    hu_se_apply(setting, mon->statExp);
+    hu_se_apply(setting, side, mon->statExp);
     mon->maxHp = Pokemon_CalcStat(STAT_HP, species, mon->statExp[0], mon->level, mon->dvs);
     mon->attack = Pokemon_CalcStat(STAT_ATTACK, species, mon->statExp[1], mon->level, mon->dvs);
     mon->defense = Pokemon_CalcStat(STAT_DEFENSE, species, mon->statExp[2], mon->level, mon->dvs);
@@ -62,7 +63,7 @@ void PortEnh_StatExpDifficultyTeam(BattleMon* mons, s32 count, s32 group, const 
         return;
     }
     for (i = 0; i < count; i++) {
-        PortEnh_SeApply(&mons[i], &setting);
+        PortEnh_SeApply(&mons[i], &setting, group == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT);
         if (PortEnh_SeLog()) {
             fprintf(stderr,
                     "[statexp-difficulty] %s %s %d: species %d L%d dvs %04X stat exp %u/%u/%u/%u/%u -> HP %u Atk %u "
