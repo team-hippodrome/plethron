@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <hippodrome/summary_card.h>
+#include <hippodrome/statexp_difficulty.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,17 @@ int Port_Enh_MoveDescriptionsEnabled(void);
 void Port_Enh_SetMoveDescriptionsEnabled(int on);
 int Port_Enh_OrderQueueEnabled(void);
 void Port_Enh_SetOrderQueueEnabled(int on);
+
+// Stat Exp difficulty (STATEXP_DIFFICULTY): a setting for the rental Pokémon and one for the opponent (COM) Pokémon,
+// each Vanilla (the default), Casual / Easy / Medium / Hard / Kaizo (fifths of 65535) or Custom
+// (gEnhancements.StatExpDifficulty.<Rental|Opponent>.Mode / Min / Max; Mode is hu_se_mode). PORT_STATEXP_RENTAL /
+// PORT_STATEXP_OPPONENT override them for tests: a mode name (vanilla, casual, ..., kaizo) or "<min>-<max>" for
+// Custom (e.g. "65535-65535"). The game side is statexp_difficulty.c.
+#define PORT_SE_RENTAL 0 // (also in battle_enhancements.h, for the game code)
+#define PORT_SE_OPPONENT 1
+// (pointers, not structs by value: the game side is C built with the game's flags)
+void Port_Enh_StatExpDifficulty(int group, hu_se_setting* out);
+void Port_Enh_SetStatExpDifficulty(int group, const hu_se_setting* setting);
 
 // The hue choices (HUE_CHANGE), loaded from <save>.hue beside the N64 save on first use (empty if there is none yet
 // or it is damaged; a damaged file is kept as <save>.hue.bad). Never NULL.
