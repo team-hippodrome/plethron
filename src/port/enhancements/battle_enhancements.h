@@ -49,9 +49,9 @@ void PortEnh_MoveMenuInput(struct ActivePokemon* a);                        // B
 void PortEnh_PlayerCommandBegin(struct ActivePokemon* a, struct ActivePokemon* foe); // BattleScene_CollectPlayerAction, first
 void PortEnh_PlayerCommandEnd(struct ActivePokemon* a);                     // and last
 
-// DV and Stat Exp difficulty (stat_difficulty.c): applies the rental (PORT_SD_RENTAL) or opponent (PORT_SD_OPPONENT)
-// range to `count` Pokémon and works out their stats again; nothing while that range is vanilla. `what` names them
-// in the PORT_ENH_LOG=1 log.
-#define PORT_SD_RENTAL 0 // (as in enhancements.h)
-#define PORT_SD_OPPONENT 1
-void PortEnh_StatDifficultyTeam(BattleMon* mons, s32 count, s32 group, const char* what);
+// Stat Exp difficulty (statexp_difficulty.c): applies the rental (PORT_SE_RENTAL) or opponent (PORT_SE_OPPONENT)
+// setting to `count` Pokémon's stat exp and works out their stats again; nothing while that setting is Vanilla.
+// `what` names them in the PORT_ENH_LOG=1 log.
+#define PORT_SE_RENTAL 0 // (as in enhancements.h)
+#define PORT_SE_OPPONENT 1
+void PortEnh_StatExpDifficultyTeam(BattleMon* mons, s32 count, s32 group, const char* what);

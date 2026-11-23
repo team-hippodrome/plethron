@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <cctype>
 #include <mutex>
 #include <filesystem>
 #include <cstdlib>
@@ -116,54 +117,57 @@ extern "C" void Port_Enh_SetOrderQueueEnabled(int on) {
 
 namespace {
 
-const char* const kSdGroup[2] = { "Rental", "Opponent" };
+const char* const kSeGroup[2] = { "Rental", "Opponent" };
 
-std::string SdCvar(int group, const char* field) {
-    return std::string("gEnhancements.StatDifficulty.") + kSdGroup[group] + "." + field;
+std::string SeCvar(int group, const char* field) {
+    return std::string("gEnhancements.StatExpDifficulty.") + kSeGroup[group] + "." + field;
 }
 
-// PORT_STAT_DIFFICULTY_*: "vanilla" or "<dv min>-<dv max>,<stat exp min>-<stat exp max>"; false when unset or unreadable
-bool SdEnv(int group, hu_sd_range* out) {
-    const char* v = getenv(group == PORT_SD_RENTAL ? "PORT_STAT_DIFFICULTY_RENTAL" : "PORT_STAT_DIFFICULTY_OPPONENT");
+// PORT_STATEXP_*: a mode name or "<min>-<max>" (Custom); false when unset or unreadable
+bool SeEnv(int group, hu_se_setting* out) {
+    const char* v = getenv(group == PORT_SE_RENTAL ? "PORT_STATEXP_RENTAL" : "PORT_STATEXP_OPPONENT");
     if (v == nullptr || *v == '\0') return false;
-    *out = hu_sd_vanilla();
-    if (strcmp(v, "vanilla") == 0 || strcmp(v, "off") == 0) return true;
-    unsigned a, b, c, d;
-    if (sscanf(v, "%u-%u,%u-%u", &a, &b, &c, &d) != 4) {
-        fprintf(stderr, "[enhancements] could not read %s (use vanilla or 15-15,65535-65535)\n", v);
+    *out = hu_se_vanilla();
+    auto same = [](const char* a, const char* b) { // ASCII, ignoring case
+        for (; *a && *b; a++, b++) {
+            if (tolower((unsigned char)*a) != tolower((unsigned char)*b)) return false;
+        }
+        return *a == *b;
+    };
+    for (int m = 0; m < HU_SE_MODE_COUNT; m++) {
+        if (m != HU_SE_CUSTOM && same(v, hu_se_mode_name(m))) {
+            out->mode = (uint8_t)m;
+            return true;
+        }
+    }
+    unsigned a, b;
+    if (sscanf(v, "%u-%u", &a, &b) != 2) {
+        fprintf(stderr, "[enhancements] could not read %s (use vanilla, casual ... kaizo, or 0-65535)\n", v);
         return false;
     }
-    out->custom = true;
-    out->dv_min = (uint8_t)std::min(a, 255u);
-    out->dv_max = (uint8_t)std::min(b, 255u);
-    out->stat_exp_min = (uint16_t)std::min(c, 65535u);
-    out->stat_exp_max = (uint16_t)std::min(d, 65535u);
+    out->mode = HU_SE_CUSTOM;
+    out->custom_min = (uint16_t)std::min(a, 65535u);
+    out->custom_max = (uint16_t)std::min(b, 65535u);
     return true;
 }
 
 } // namespace
 
-extern "C" void Port_Enh_StatDifficulty(int group, hu_sd_range* out) {
-    hu_sd_range r = hu_sd_vanilla();
-    *out = r;
-    if (group != PORT_SD_RENTAL && group != PORT_SD_OPPONENT) return;
-    if (SdEnv(group, out)) return;
-    r.custom = CVarGetInteger(SdCvar(group, "Custom").c_str(), 0) != 0;
-    r.dv_min = (uint8_t)std::clamp(CVarGetInteger(SdCvar(group, "DvMin").c_str(), 0), 0, 15);
-    r.dv_max = (uint8_t)std::clamp(CVarGetInteger(SdCvar(group, "DvMax").c_str(), 15), 0, 15);
-    r.stat_exp_min = (uint16_t)std::clamp(CVarGetInteger(SdCvar(group, "StatExpMin").c_str(), 0), 0, 65535);
-    r.stat_exp_max = (uint16_t)std::clamp(CVarGetInteger(SdCvar(group, "StatExpMax").c_str(), 65535), 0, 65535);
-    *out = r;
+extern "C" void Port_Enh_StatExpDifficulty(int group, hu_se_setting* out) {
+    *out = hu_se_vanilla();
+    if (group != PORT_SE_RENTAL && group != PORT_SE_OPPONENT) return;
+    if (SeEnv(group, out)) return;
+    const int mode = CVarGetInteger(SeCvar(group, "Mode").c_str(), HU_SE_VANILLA);
+    out->mode = (uint8_t)((mode >= 0 && mode < HU_SE_MODE_COUNT) ? mode : HU_SE_VANILLA);
+    out->custom_min = (uint16_t)std::clamp(CVarGetInteger(SeCvar(group, "Min").c_str(), 0), 0, 65535);
+    out->custom_max = (uint16_t)std::clamp(CVarGetInteger(SeCvar(group, "Max").c_str(), 65535), 0, 65535);
 }
 
-extern "C" void Port_Enh_SetStatDifficulty(int group, const hu_sd_range* range) {
-    if (group != PORT_SD_RENTAL && group != PORT_SD_OPPONENT) return;
-    const hu_sd_range& r = *range;
-    CVarSetInteger(SdCvar(group, "Custom").c_str(), r.custom ? 1 : 0);
-    CVarSetInteger(SdCvar(group, "DvMin").c_str(), r.dv_min);
-    CVarSetInteger(SdCvar(group, "DvMax").c_str(), r.dv_max);
-    CVarSetInteger(SdCvar(group, "StatExpMin").c_str(), r.stat_exp_min);
-    CVarSetInteger(SdCvar(group, "StatExpMax").c_str(), r.stat_exp_max);
+extern "C" void Port_Enh_SetStatExpDifficulty(int group, const hu_se_setting* setting) {
+    if (group != PORT_SE_RENTAL && group != PORT_SE_OPPONENT) return;
+    CVarSetInteger(SeCvar(group, "Mode").c_str(), setting->mode);
+    CVarSetInteger(SeCvar(group, "Min").c_str(), setting->custom_min);
+    CVarSetInteger(SeCvar(group, "Max").c_str(), setting->custom_max);
     CVarSave();
 }
 

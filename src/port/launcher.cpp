@@ -993,7 +993,7 @@ class LauncherWindow : public Ship::GuiWindow {
         if (getenv("PORT_LAUNCHER_OPEN_ENHANCEMENTS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
             mGraphicsTestOpened = mGraphics = mEnhancements = true;
         }
-        if (getenv("PORT_LAUNCHER_OPEN_STAT_DIFFICULTY") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
+        if (getenv("PORT_LAUNCHER_OPEN_STATEXP") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
             mGraphicsTestOpened = mGraphics = mEnhancements = mStatDifficulty = true;
         }
         if (getenv("PORT_LAUNCHER_OPEN_SOUND") != nullptr && !mSoundTestOpened) { // test hook (as OPEN_TOOLS)
@@ -1777,17 +1777,17 @@ class LauncherWindow : public Ship::GuiWindow {
             mEnhancements = mStatDifficulty = false;
         }
         {
-            hu_sd_range r[2];
-            Port_Enh_StatDifficulty(PORT_SD_RENTAL, &r[0]);
-            Port_Enh_StatDifficulty(PORT_SD_OPPONENT, &r[1]);
-            const bool vanilla = !r[0].custom && !r[1].custom;
-            if (ColorButton(vanilla ? "DV / Stat Exp: Vanilla" : "DV / Stat Exp: Custom", x + w - 308, y + 9, 192, 26,
+            hu_se_setting r[2];
+            Port_Enh_StatExpDifficulty(PORT_SE_RENTAL, &r[0]);
+            Port_Enh_StatExpDifficulty(PORT_SE_OPPONENT, &r[1]);
+            const bool vanilla = r[0].mode == HU_SE_VANILLA && r[1].mode == HU_SE_VANILLA;
+            if (ColorButton(vanilla ? "Stat Exp: Vanilla" : "Stat Exp: Changed", x + w - 288, y + 9, 172, 26,
                             vanilla ? Theme::button : 0x23406B, vanilla ? Theme::buttonHover : 0x23406B)) {
                 mStatDifficulty = true;
             }
             if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("DV and Stat Exp difficulty: the lowest and highest DVs and Stat Exp of the rental\n"
-                                  "and the opponent Pokémon (vanilla by default). Also in the game's Esc menu.");
+                ImGui::SetTooltip("Stat Exp difficulty: the lowest and highest Stat Exp of the rental and the opponent\n"
+                                  "Pokémon, as a preset (Casual to Kaizo) or your own range. Vanilla by default.");
             }
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
@@ -1843,15 +1843,15 @@ class LauncherWindow : public Ship::GuiWindow {
         if (c >= 0) Port_Enh_SetOrderQueueEnabled(c == 0);
     }
 
-    // launcher > Graphics > Enhancements > DV / Stat Exp (DV_STATEXP_DIFFICULTY, enhancements.h): a column per group,
-    // Vanilla / Custom, and once custom its four sliders and any error (a range with its maximum below its minimum
-    // stays vanilla until it is fixed). The same setting is in the game's Esc menu (esc_menu.cpp).
+    // launcher > Graphics > Enhancements > Stat Exp (STATEXP_DIFFICULTY, enhancements.h): a column per group with
+    // Vanilla, the five presets and Custom; the range in use, and once custom its two sliders and any error (a range
+    // with its maximum below its minimum stays vanilla until it is fixed).
     void StatDifficultyPanel(float x, float y, float w, float h) {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
         dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
-        Text(x + 14, y + 14, "DV AND STAT EXP DIFFICULTY", gFonts.body, Theme::text);
-        Text(x + 250, y + 15, "Vanilla keeps the game's own values.", gFonts.small, Theme::dim);
+        Text(x + 14, y + 14, "STAT EXP DIFFICULTY", gFonts.body, Theme::text);
+        Text(x + 190, y + 15, "Vanilla keeps the game's own values.", gFonts.small, Theme::dim);
         if (Button("Back", x + w - 108, y + 9, 94, 26)) {
             mStatDifficulty = false;
         }
@@ -1864,56 +1864,55 @@ class LauncherWindow : public Ship::GuiWindow {
         for (int g = 0; g < 2; g++) {
             const float cx = x + 14 + g * (colW + 14);
             float ry = y + 58;
-            hu_sd_range r;
-            Port_Enh_StatDifficulty(g, &r);
+            hu_se_setting r;
+            Port_Enh_StatExpDifficulty(g, &r);
             Text(cx, ry + 5, kNames[g], gFonts.body);
+            Text(cx, ry + 28, kHints[g], gFonts.small, Theme::dim);
+            ry += 66;
             ImGui::PushID(g);
-            const int c = Choice("sd", { "Vanilla", "Custom" }, r.custom ? 1 : 0, cx + 170, ry, 80);
-            ry += 34;
-            Text(cx, ry, kHints[g], gFonts.small, Theme::dim);
-            ry += 40;
             bool changed = false;
-            if (c >= 0) {
-                r.custom = c == 1;
+            // two rows of modes: Vanilla Casual Easy Medium / Hard Kaizo Custom
+            const int c1 = Choice("m1", { "Vanilla", "Casual", "Easy", "Medium" }, r.mode <= HU_SE_MEDIUM ? r.mode : -1,
+                                  cx, ry, 100);
+            const int c2 = Choice("m2", { "Hard", "Kaizo", "Custom" }, r.mode >= HU_SE_HARD ? r.mode - HU_SE_HARD : -1,
+                                  cx, ry + 30, 100);
+            if (c1 >= 0 || c2 >= 0) {
+                r.mode = (uint8_t)(c1 >= 0 ? c1 : HU_SE_HARD + c2);
                 changed = true;
             }
-            if (r.custom) {
-                auto slider = [&](const char* name, const char* id, int lo, int hi, int value) {
+            ry += 68;
+            if (r.mode == HU_SE_CUSTOM) {
+                auto slider = [&](const char* name, const char* id, int value) {
                     Text(cx, ry + 4, name, gFonts.body);
                     ImGui::SetCursorScreenPos(P(cx + 150, ry));
                     ImGui::SetNextItemWidth((colW - 150) * mScale);
                     ImGui::PushStyleColor(ImGuiCol_SliderGrab, HexV(0x4C7BD9));
                     ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, HexV(0x6E95E6));
                     int v = value;
-                    if (ImGui::SliderInt(id, &v, lo, hi, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+                    if (ImGui::SliderInt(id, &v, 0, 65535, "%d", ImGuiSliderFlags_AlwaysClamp)) {
                         changed = true;
                     }
                     ImGui::PopStyleColor(2);
                     ry += 36;
                     return v;
                 };
-                r.dv_min = (uint8_t)slider("Lowest DV", "##dvmin", 0, 15, r.dv_min);
-                r.dv_max = (uint8_t)slider("Highest DV", "##dvmax", 0, 15, r.dv_max);
-                r.stat_exp_min = (uint16_t)slider("Lowest Stat Exp", "##semin", 0, 65535, r.stat_exp_min);
-                r.stat_exp_max = (uint16_t)slider("Highest Stat Exp", "##semax", 0, 65535, r.stat_exp_max);
-                const unsigned errors = hu_sd_errors(&r);
-                for (unsigned bit = 1; bit <= HU_SD_DV_TOO_HIGH; bit <<= 1) {
-                    if (errors & bit) {
-                        Text(cx, ry, hu_sd_error_text(bit), gFonts.small, Theme::red);
-                        ry += 18;
-                    }
-                }
-                if (errors) {
-                    Text(cx, ry, "Vanilla values are used until this is fixed.", gFonts.small, Theme::red);
-                } else {
-                    Text(cx, ry,
-                         "Values outside the range move to its nearer end; the HP DV\nfollows the other four, as on the Game Boy.",
-                         gFonts.small, Theme::dim);
-                }
+                r.custom_min = (uint16_t)slider("Lowest Stat Exp", "##semin", r.custom_min);
+                r.custom_max = (uint16_t)slider("Highest Stat Exp", "##semax", r.custom_max);
+            }
+            uint16_t lo, hi;
+            if (hu_se_errors(&r) != 0) {
+                Text(cx, ry, hu_se_error_text(HU_SE_ORDER), gFonts.small, Theme::red);
+                Text(cx, ry + 18, "Vanilla values are used until this is fixed.", gFonts.small, Theme::red);
+            } else if (hu_se_range(&r, &lo, &hi)) {
+                Text(cx, ry, "Stat Exp " + std::to_string(lo) + " to " + std::to_string(hi) +
+                                 " (out of 65535). Values outside\nmove to the nearer end; DVs are not changed.",
+                     gFonts.small, Theme::dim);
+            } else {
+                Text(cx, ry, "The game's own Stat Exp.", gFonts.small, Theme::dim);
             }
             ImGui::PopID();
             if (changed) {
-                Port_Enh_SetStatDifficulty(g, &r);
+                Port_Enh_SetStatExpDifficulty(g, &r);
             }
         }
     }
@@ -2536,7 +2535,7 @@ class LauncherWindow : public Ship::GuiWindow {
     bool mGraphics = false; // the graphics panel instead of the player cards
     bool mSound = false;    // the sound panel instead of the player cards
     bool mEnhancements = false; // in the graphics panel: the enhancements page
-    bool mStatDifficulty = false; // in the enhancements page: the DV and Stat Exp difficulty page
+    bool mStatDifficulty = false; // in the enhancements page: the Stat Exp difficulty page
     bool mSoundTestOpened = false;
     bool mCheats = false;   // the cheats panel instead of the player cards
     bool mCheatsTestOpened = false;
