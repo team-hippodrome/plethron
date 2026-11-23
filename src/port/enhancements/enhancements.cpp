@@ -14,6 +14,7 @@
 #include <mutex>
 #include <filesystem>
 #include <cstdlib>
+#include <algorithm>
 #include <string>
 
 extern "C" const char* Port_SramFilePath(void); // os_devices.cpp
@@ -111,6 +112,59 @@ extern "C" int Port_Enh_OrderQueueEnabled(void) {
 
 extern "C" void Port_Enh_SetOrderQueueEnabled(int on) {
     SetSetting("gEnhancements.OrderQueue", on);
+}
+
+namespace {
+
+const char* const kSdGroup[2] = { "Rental", "Opponent" };
+
+std::string SdCvar(int group, const char* field) {
+    return std::string("gEnhancements.StatDifficulty.") + kSdGroup[group] + "." + field;
+}
+
+// PORT_STAT_DIFFICULTY_*: "vanilla" or "<dv min>-<dv max>,<stat exp min>-<stat exp max>"; false when unset or unreadable
+bool SdEnv(int group, hu_sd_range* out) {
+    const char* v = getenv(group == PORT_SD_RENTAL ? "PORT_STAT_DIFFICULTY_RENTAL" : "PORT_STAT_DIFFICULTY_OPPONENT");
+    if (v == nullptr || *v == '\0') return false;
+    *out = hu_sd_vanilla();
+    if (strcmp(v, "vanilla") == 0 || strcmp(v, "off") == 0) return true;
+    unsigned a, b, c, d;
+    if (sscanf(v, "%u-%u,%u-%u", &a, &b, &c, &d) != 4) {
+        fprintf(stderr, "[enhancements] could not read %s (use vanilla or 15-15,65535-65535)\n", v);
+        return false;
+    }
+    out->custom = true;
+    out->dv_min = (uint8_t)std::min(a, 255u);
+    out->dv_max = (uint8_t)std::min(b, 255u);
+    out->stat_exp_min = (uint16_t)std::min(c, 65535u);
+    out->stat_exp_max = (uint16_t)std::min(d, 65535u);
+    return true;
+}
+
+} // namespace
+
+extern "C" void Port_Enh_StatDifficulty(int group, hu_sd_range* out) {
+    hu_sd_range r = hu_sd_vanilla();
+    *out = r;
+    if (group != PORT_SD_RENTAL && group != PORT_SD_OPPONENT) return;
+    if (SdEnv(group, out)) return;
+    r.custom = CVarGetInteger(SdCvar(group, "Custom").c_str(), 0) != 0;
+    r.dv_min = (uint8_t)std::clamp(CVarGetInteger(SdCvar(group, "DvMin").c_str(), 0), 0, 15);
+    r.dv_max = (uint8_t)std::clamp(CVarGetInteger(SdCvar(group, "DvMax").c_str(), 15), 0, 15);
+    r.stat_exp_min = (uint16_t)std::clamp(CVarGetInteger(SdCvar(group, "StatExpMin").c_str(), 0), 0, 65535);
+    r.stat_exp_max = (uint16_t)std::clamp(CVarGetInteger(SdCvar(group, "StatExpMax").c_str(), 65535), 0, 65535);
+    *out = r;
+}
+
+extern "C" void Port_Enh_SetStatDifficulty(int group, const hu_sd_range* range) {
+    if (group != PORT_SD_RENTAL && group != PORT_SD_OPPONENT) return;
+    const hu_sd_range& r = *range;
+    CVarSetInteger(SdCvar(group, "Custom").c_str(), r.custom ? 1 : 0);
+    CVarSetInteger(SdCvar(group, "DvMin").c_str(), r.dv_min);
+    CVarSetInteger(SdCvar(group, "DvMax").c_str(), r.dv_max);
+    CVarSetInteger(SdCvar(group, "StatExpMin").c_str(), r.stat_exp_min);
+    CVarSetInteger(SdCvar(group, "StatExpMax").c_str(), r.stat_exp_max);
+    CVarSave();
 }
 
 extern "C" hu_hue_store* Port_Enh_Hues(void) {

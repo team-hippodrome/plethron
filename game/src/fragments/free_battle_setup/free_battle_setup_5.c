@@ -811,6 +811,11 @@ static void Port_SwapFreeBattleRentals(u8* segment) {
             Port_SwapBattleMon((BattleMon*)(team + 0x10 + j * 0x50));
         }
     }
+    // PORT: DV / Stat Exp difficulty (stat_difficulty.c): the rentals and preset teams as the rental cards show them
+    PortEnh_StatDifficultyTeam((BattleMon*)segment, 40 + 33, PORT_SD_RENTAL, "rental");
+    for (i = 0; i < 8; i++) {
+        PortEnh_StatDifficultyTeam((BattleMon*)(segment + 0x16D0 + i * 0x1F0 + 0x10), 6, PORT_SD_RENTAL, "preset team");
+    }
 }
 
 /**

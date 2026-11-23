@@ -6,6 +6,8 @@
 #include "launcher.h"
 #include "launcher_files.h"
 #include "launcher_reliability.h"
+#include "enhancements/enhancements.h"
+#include <fast/Fast3dWindow.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
 #ifdef ENABLE_VULKAN
@@ -515,6 +517,7 @@ static int RunGame(int argc, char** argv) {
             return 1;
         }
     }
+    Port_Enh_InstallEscMenu(Port::GetWindow()->GetGui().get()); // Esc shows the settings menu (after the launcher)
 #if defined(__EMSCRIPTEN__)
     Port::BeginShaderWarmup();
     emscripten_set_main_loop(WebLoopPass, 0, true); // does not return

@@ -6,6 +6,7 @@
 #include "matrix.h"
 #include "m2c_macros.h"
 #include "nintendo_cup_teams.h"
+#include "battle_enhancements.h" // PORT: hippodrome-utils enhancements
 
 extern Controller* D_800603C4;
 extern TournamentOpponentTemplate sTournamentOpponents[];
@@ -29,6 +30,7 @@ void TournamentOpponent_LoadTemplate(TeamRoster* roster, ExtendedRosterInfo* inf
     roster->rosterInfo = info;
     HAL_Strcpy(roster->trainerName, template->shortName);
     _bcopy(template->mons, roster->pokemonPicked, sizeof(roster->pokemonPicked));
+    PortEnh_StatDifficultyTeam(roster->pokemonPicked, 6, PORT_SD_OPPONENT, "tournament COM"); // PORT: DV / Stat Exp difficulty
     info->unk_000 = template->unk_00;
     info->numberOfPokemonCanBePicked = 6;
     info->trainerIndex = trainer_index;

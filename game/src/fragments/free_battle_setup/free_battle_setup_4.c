@@ -1069,6 +1069,9 @@ void FreeBattle_CopyTeamToRoster(TeamRoster* slot, ExtendedRosterInfo* info, s32
         }
     }
     slot->numberOfPokemonBrought = n;
+    if (player == 5) {
+        PortEnh_StatDifficultyTeam(slot->pokemonPicked, n, PORT_SD_OPPONENT, "Free Battle COM"); // PORT: DV / Stat Exp difficulty
+    }
     slot->rosterInfo = info;
     info->unk_000 = 0;
     info->numberOfPokemonCanBePicked = slot->numberOfPokemonBrought;

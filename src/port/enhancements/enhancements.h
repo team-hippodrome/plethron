@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include <hippodrome/summary_card.h>
+#include <hippodrome/stat_difficulty.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,22 @@ int Port_Enh_MoveDescriptionsEnabled(void);
 void Port_Enh_SetMoveDescriptionsEnabled(int on);
 int Port_Enh_OrderQueueEnabled(void);
 void Port_Enh_SetOrderQueueEnabled(int on);
+
+// DV and Stat Exp difficulty (DV_STATEXP_DIFFICULTY): a range for the rental Pokémon and one for the opponent (COM)
+// Pokémon, each vanilla (the default) or custom (gEnhancements.StatDifficulty.<Rental|Opponent>.Custom / DvMin / DvMax /
+// StatExpMin / StatExpMax). PORT_STAT_DIFFICULTY_RENTAL / PORT_STAT_DIFFICULTY_OPPONENT override them for tests:
+// "vanilla", or "<dv min>-<dv max>,<stat exp min>-<stat exp max>" (e.g. "15-15,65535-65535"). The game side is
+// stat_difficulty.c.
+#define PORT_SD_RENTAL 0 // (also in battle_enhancements.h, for the game code)
+#define PORT_SD_OPPONENT 1
+// (pointers, not structs by value: the game side is C built with the game's flags)
+void Port_Enh_StatDifficulty(int group, hu_sd_range* out);
+void Port_Enh_SetStatDifficulty(int group, const hu_sd_range* range);
+// The setting's controls in ImGui (the Esc menu): a Vanilla / Custom choice per group, and once custom the four
+// sliders and any error. Defined in esc_menu.cpp.
+void Port_Enh_StatDifficultyControls(void);
+// Sets the Esc menu (libultraship's Gui menu, toggled by Esc) once the game runs (Engine.cpp, after the launcher).
+void Port_Enh_InstallEscMenu(void* gui);
 
 // The hue choices (HUE_CHANGE), loaded from <save>.hue beside the N64 save on first use (empty if there is none yet
 // or it is damaged; a damaged file is kept as <save>.hue.bad). Never NULL.

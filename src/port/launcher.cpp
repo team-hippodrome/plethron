@@ -993,6 +993,9 @@ class LauncherWindow : public Ship::GuiWindow {
         if (getenv("PORT_LAUNCHER_OPEN_ENHANCEMENTS") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
             mGraphicsTestOpened = mGraphics = mEnhancements = true;
         }
+        if (getenv("PORT_LAUNCHER_OPEN_STAT_DIFFICULTY") != nullptr && !mGraphicsTestOpened) { // test hook (as OPEN_TOOLS)
+            mGraphicsTestOpened = mGraphics = mEnhancements = mStatDifficulty = true;
+        }
         if (getenv("PORT_LAUNCHER_OPEN_SOUND") != nullptr && !mSoundTestOpened) { // test hook (as OPEN_TOOLS)
             mSoundTestOpened = mSound = true;
         }
@@ -1011,6 +1014,8 @@ class LauncherWindow : public Ship::GuiWindow {
             ToolsPanel(16, 58, kW - 32, 366);
         } else if (mControls) {
             ControlsPanel(16, 58, kW - 32, 366);
+        } else if (mGraphics && mEnhancements && mStatDifficulty) {
+            StatDifficultyPanel(16, 58, kW - 32, 366);
         } else if (mGraphics && mEnhancements) {
             EnhancementsPanel(16, 58, kW - 32, 366);
         } else if (mGraphics) {
@@ -1769,7 +1774,21 @@ class LauncherWindow : public Ship::GuiWindow {
         Text(x + 14, y + 14, "ENHANCEMENTS", gFonts.body, Theme::text);
         Text(x + 140, y + 15, "Additions to the original game. All are off by default.", gFonts.small, Theme::dim);
         if (Button("Back", x + w - 108, y + 9, 94, 26)) {
-            mEnhancements = false;
+            mEnhancements = mStatDifficulty = false;
+        }
+        {
+            hu_sd_range r[2];
+            Port_Enh_StatDifficulty(PORT_SD_RENTAL, &r[0]);
+            Port_Enh_StatDifficulty(PORT_SD_OPPONENT, &r[1]);
+            const bool vanilla = !r[0].custom && !r[1].custom;
+            if (ColorButton(vanilla ? "DV / Stat Exp: Vanilla" : "DV / Stat Exp: Custom", x + w - 308, y + 9, 192, 26,
+                            vanilla ? Theme::button : 0x23406B, vanilla ? Theme::buttonHover : 0x23406B)) {
+                mStatDifficulty = true;
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("DV and Stat Exp difficulty: the lowest and highest DVs and Stat Exp of the rental\n"
+                                  "and the opponent Pokémon (vanilla by default). Also in the game's Esc menu.");
+            }
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
         const float lx = x + 14, cx = x + 190, tx = x + 340;
@@ -1822,6 +1841,81 @@ class LauncherWindow : public Ship::GuiWindow {
                 "buttons; Z takes it back, L goes back a step.",
                 Port_Enh_OrderQueueEnabled() != 0);
         if (c >= 0) Port_Enh_SetOrderQueueEnabled(c == 0);
+    }
+
+    // launcher > Graphics > Enhancements > DV / Stat Exp (DV_STATEXP_DIFFICULTY, enhancements.h): a column per group,
+    // Vanilla / Custom, and once custom its four sliders and any error (a range with its maximum below its minimum
+    // stays vanilla until it is fixed). The same setting is in the game's Esc menu (esc_menu.cpp).
+    void StatDifficultyPanel(float x, float y, float w, float h) {
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
+        dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
+        Text(x + 14, y + 14, "DV AND STAT EXP DIFFICULTY", gFonts.body, Theme::text);
+        Text(x + 250, y + 15, "Vanilla keeps the game's own values.", gFonts.small, Theme::dim);
+        if (Button("Back", x + w - 108, y + 9, 94, 26)) {
+            mStatDifficulty = false;
+        }
+        dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
+        static const char* const kNames[2] = { "Rental Pokémon", "Opponent Pokémon" };
+        static const char* const kHints[2] = {
+            "The rentals and preset teams on the entry screen (Free Battle\nand tournaments), as their cards show them.",
+            "The tournament trainers' teams and the team you give the COM\nin Free Battle." };
+        const float colW = (w - 42) / 2;
+        for (int g = 0; g < 2; g++) {
+            const float cx = x + 14 + g * (colW + 14);
+            float ry = y + 58;
+            hu_sd_range r;
+            Port_Enh_StatDifficulty(g, &r);
+            Text(cx, ry + 5, kNames[g], gFonts.body);
+            ImGui::PushID(g);
+            const int c = Choice("sd", { "Vanilla", "Custom" }, r.custom ? 1 : 0, cx + 170, ry, 80);
+            ry += 34;
+            Text(cx, ry, kHints[g], gFonts.small, Theme::dim);
+            ry += 40;
+            bool changed = false;
+            if (c >= 0) {
+                r.custom = c == 1;
+                changed = true;
+            }
+            if (r.custom) {
+                auto slider = [&](const char* name, const char* id, int lo, int hi, int value) {
+                    Text(cx, ry + 4, name, gFonts.body);
+                    ImGui::SetCursorScreenPos(P(cx + 150, ry));
+                    ImGui::SetNextItemWidth((colW - 150) * mScale);
+                    ImGui::PushStyleColor(ImGuiCol_SliderGrab, HexV(0x4C7BD9));
+                    ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, HexV(0x6E95E6));
+                    int v = value;
+                    if (ImGui::SliderInt(id, &v, lo, hi, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+                        changed = true;
+                    }
+                    ImGui::PopStyleColor(2);
+                    ry += 36;
+                    return v;
+                };
+                r.dv_min = (uint8_t)slider("Lowest DV", "##dvmin", 0, 15, r.dv_min);
+                r.dv_max = (uint8_t)slider("Highest DV", "##dvmax", 0, 15, r.dv_max);
+                r.stat_exp_min = (uint16_t)slider("Lowest Stat Exp", "##semin", 0, 65535, r.stat_exp_min);
+                r.stat_exp_max = (uint16_t)slider("Highest Stat Exp", "##semax", 0, 65535, r.stat_exp_max);
+                const unsigned errors = hu_sd_errors(&r);
+                for (unsigned bit = 1; bit <= HU_SD_DV_TOO_HIGH; bit <<= 1) {
+                    if (errors & bit) {
+                        Text(cx, ry, hu_sd_error_text(bit), gFonts.small, Theme::red);
+                        ry += 18;
+                    }
+                }
+                if (errors) {
+                    Text(cx, ry, "Vanilla values are used until this is fixed.", gFonts.small, Theme::red);
+                } else {
+                    Text(cx, ry,
+                         "Values outside the range move to its nearer end; the HP DV\nfollows the other four, as on the Game Boy.",
+                         gFonts.small, Theme::dim);
+                }
+            }
+            ImGui::PopID();
+            if (changed) {
+                Port_Enh_SetStatDifficulty(g, &r);
+            }
+        }
     }
 
     // launcher > Sound: CVars gSound.*, handed to the audio paths at once (Port::ApplySoundSettings, sound_settings.h)
@@ -2070,7 +2164,7 @@ class LauncherWindow : public Ship::GuiWindow {
         }
         if (Button(mGraphics ? "Players" : "Graphics", x + 340, y + 86, 100, 26)) {
             mGraphics = !mGraphics;
-            mEnhancements = false;
+            mEnhancements = mStatDifficulty = false;
             mControls = mTools = mSound = mCheats = false;
         }
         if (ImGui::IsItemHovered()) {
@@ -2442,6 +2536,7 @@ class LauncherWindow : public Ship::GuiWindow {
     bool mGraphics = false; // the graphics panel instead of the player cards
     bool mSound = false;    // the sound panel instead of the player cards
     bool mEnhancements = false; // in the graphics panel: the enhancements page
+    bool mStatDifficulty = false; // in the enhancements page: the DV and Stat Exp difficulty page
     bool mSoundTestOpened = false;
     bool mCheats = false;   // the cheats panel instead of the player cards
     bool mCheatsTestOpened = false;
