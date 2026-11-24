@@ -11,6 +11,7 @@ import glob, json, os, shlex, sys
 root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INCLUDES = ["src/port", "game", "src/port/sdk", "src/port/sdk/PR", "game/include", "game/src", "game/src/libnaudio",
             "game/include/audio", "game/include/libleo", "libultraship/include", "libultraship/include/libultraship",
+            "hippodrome-utils/include",
             "game/lib/ultralib/include", "game/lib/ultralib"]
 DEFINES = ["LANGUAGE_C", "_LANGUAGE_C", "F3DEX_GBI_2", "NDEBUG", "_FINALROM", "N_MICRO", "NON_MATCHING", "AVOID_UB",
            "BUILD_VERSION=VERSION_I_P", "VERSION_JP=1", "PORT_STATIC_FRAGMENTS"]

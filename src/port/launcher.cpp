@@ -1955,7 +1955,7 @@ class LauncherWindow : public Ship::GuiWindow {
                 ry += 6;
             }
             uint16_t lo, hi;
-            PortEnh_SeLoHi(&r, side, &lo, &hi);
+            hu_se_bounds_se_range(&r, side, &lo, &hi);
             if (hu_se_bounds_active(&r)) {
                 Text(cx, ry, "Each Stat Exp value is kept between " + std::to_string(lo) + " and " + std::to_string(hi) +
                                  "\n(out of 65535). DVs are not changed.",

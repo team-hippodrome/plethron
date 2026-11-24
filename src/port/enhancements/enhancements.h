@@ -11,13 +11,6 @@
 #include <hippodrome/summary_card.h>
 #include <hippodrome/statexp_difficulty.h>
 
-// A group's bounds as one clamp: lo = its Minimum (0 while Vanilla), hi = its Maximum (65535 while Vanilla); the
-// value a Pokémon ends up with is max(v, lo) then min(that, hi), as hu_se_bounds_apply does.
-static inline void PortEnh_SeLoHi(const hu_se_bounds* b, hu_se_side side, uint16_t* lo, uint16_t* hi) {
-    if (!hu_se_bound_value(&b->min, side, lo)) *lo = 0;
-    if (!hu_se_bound_value(&b->max, side, hi)) *hi = 65535;
-}
-
 #ifdef __cplusplus
 extern "C" {
 #endif

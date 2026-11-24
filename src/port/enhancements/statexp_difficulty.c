@@ -66,7 +66,7 @@ static void PortEnh_SeLogMon(const char* setting, const char* what, s32 i, const
 
 static void PortEnh_SeName(const hu_se_bounds* s, hu_se_side side, char* out, size_t n) {
     u16 lo, hi;
-    PortEnh_SeLoHi(s, side, &lo, &hi);
+    hu_se_bounds_se_range(s, side, &lo, &hi);
     snprintf(out, n, "%s..%s (%u..%u)", hu_se_mode_name(s->min.mode), hu_se_mode_name(s->max.mode), lo, hi);
 }
 
@@ -165,5 +165,5 @@ void PortEnh_OpponentStatExpBounds(s32 forThisBattle, u16* lo, u16* hi) {
         return; // Free Battle and the scripted battles keep Zero's own stat exp
     }
     Port_Enh_StatExpDifficulty(PORT_SE_OPPONENT, &setting);
-    PortEnh_SeLoHi(&setting, HU_SE_OPPONENT, lo, hi);
+    hu_se_bounds_se_range(&setting, HU_SE_OPPONENT, lo, hi);
 }
