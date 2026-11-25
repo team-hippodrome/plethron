@@ -83,7 +83,16 @@ static void ApplyMemory(s32 hidden) {
             PortEnh_OpponentStatExpBounds(1, &lo, &hi);
             hu_speed_range stored;
             if (hu_tm_mon_speed(m, (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, lo, hi, &stored)) {
-                c->speed = hu_speed_intersect(c->speed, stored);
+                hu_speed_range merged = hu_speed_intersect(c->speed, stored);
+                if (sPanel[hidden] != NULL && i < sPanel[hidden]->candidateCount) {
+                    bool was_reset = false;
+                    c->speed = hu_speed_validate(merged, sPanel[hidden]->candidates[i].speed, c->speed, &was_reset);
+                    if (was_reset) {
+                        hu_tm_clear_speed(Port_Enh_Memory(), key, c->species);
+                    }
+                } else {
+                    c->speed = merged;
+                }
             }
             c->transform_speed = c->speed;
         }
@@ -111,8 +120,9 @@ static void InitSide(s32 s, const OrderSelectPanel* p) {
             u16 lo, hi;
             PortEnh_OpponentStatExpBounds(1, &lo, &hi);
             if (lo != 0 || hi != 65535) {
-                sSides[s].cards[i].speed = hu_speed_initial_se(
+                hu_speed_range clamped = hu_speed_initial_se(
                     (sp >= 1 && sp <= 151) ? gSpeciesData[sp - 1].baseSpeed : 0, m->level, lo, hi);
+                sSides[s].cards[i].speed = hu_speed_validate(clamped, m->speed, sSides[s].cards[i].speed, NULL);
                 sSides[s].cards[i].transform_speed = sSides[s].cards[i].speed;
             }
         }

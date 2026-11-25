@@ -288,7 +288,7 @@ static s32 sCommandSeen;     // a command phase has come up in this battle (no q
 static void QueueInit(void) {
     s32 s;
     for (s = 0; s < 2; s++) {
-        hu_oq_init(&sQueue[s]);
+        hu_oq_init(&sQueue[s], 30, 90);
         sQueue[s].open_frame = 1;      // the menu opens on the first frame of the command selection...
         sQueue[s].pick_frame = 0xFFFF; // ...and the pick waits for the command timer (PortEnh_PlayerCommandBegin)
         hu_window_anim_init(&sQueueWin[s], 6, 4);
