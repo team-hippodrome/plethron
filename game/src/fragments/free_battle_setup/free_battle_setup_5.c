@@ -794,6 +794,57 @@ static void Port_SwapBattleMon(BattleMon* mon) {
 extern char D_820093EC[0x794];
 static const void* const sPortFreeBattleStrings __attribute__((used)) = D_820093EC;
 
+// PORT: Stat Exp difficulty (statexp_difficulty.c) works a tournament rental out again from Zero's own stat exp, so it
+// keeps the segment as the ROM has it (swapped): copied here each time the battle setup screen loads it, or, when a
+// tournament is continued without that screen having run (a Continue after starting the port), decompressed from the
+// ROM once (Port_FreeBattleVanillaRentals). Free Battle uses the segment itself, never changed.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+void Dma_WriteChunks(uintptr_t write_start, uintptr_t buffer_start, uintptr_t buffer_end, s32 arg3); // asset_archive.h
+void Yay0_DecompressAndRelocate(u8* in_header, u8* memory);                                    // asset_archive.h
+void Port_FixPersHeader(void* h);                                                              // StadionPort.h
+#define PORT_PERS_DECOMPRESSED_SIZE(h) (((u32*)(h))[4]) // PERSSZP.decompressed_size2
+#define PORT_RENTAL_SEGMENT_SIZE (0x16D0 + 8 * 0x1F0)
+static u8* sPortVanillaRentals;
+static void Port_SwapFreeBattleRentals(u8* segment);
+
+static void Port_RememberVanillaRentals(const u8* segment) {
+    if (sPortVanillaRentals == NULL) {
+        sPortVanillaRentals = malloc(PORT_RENTAL_SEGMENT_SIZE);
+        if (sPortVanillaRentals == NULL) {
+            return;
+        }
+    }
+    memcpy(sPortVanillaRentals, segment, PORT_RENTAL_SEGMENT_SIZE);
+}
+
+const u8* Port_FreeBattleVanillaRentals(void) {
+    if (sPortVanillaRentals == NULL) {
+        u32 size = (u32)(D_00400F70 - D_003FFD60);
+        u8* packed = malloc(ALIGN16(size));
+        u8* out = NULL;
+
+        if (packed != NULL) {
+            Dma_WriteChunks((uintptr_t)packed, (uintptr_t)D_003FFD60, (uintptr_t)D_00400F70, 0);
+            Port_FixPersHeader(packed);
+            if (memcmp(packed, "PERS-SZP", 8) == 0 && PORT_PERS_DECOMPRESSED_SIZE(packed) >= PORT_RENTAL_SEGMENT_SIZE) {
+                out = malloc(PORT_PERS_DECOMPRESSED_SIZE(packed));
+                if (out != NULL) {
+                    Yay0_DecompressAndRelocate(packed, out);
+                    Port_SwapFreeBattleRentals(out); // remembers the copy
+                    free(out);
+                    if (getenv("PORT_ENH_LOG") != NULL) {
+                        fprintf(stderr, "[statexp-difficulty] rental table read from the ROM\n");
+                    }
+                }
+            }
+            free(packed);
+        }
+    }
+    return sPortVanillaRentals;
+}
+
 static void Port_SwapFreeBattleRentals(u8* segment) {
     s32 i;
     s32 j;
@@ -811,11 +862,7 @@ static void Port_SwapFreeBattleRentals(u8* segment) {
             Port_SwapBattleMon((BattleMon*)(team + 0x10 + j * 0x50));
         }
     }
-    // PORT: Stat Exp difficulty (statexp_difficulty.c): the rentals and preset teams as the rental cards show them
-    PortEnh_StatExpDifficultyTeam((BattleMon*)segment, 40 + 33, PORT_SE_RENTAL, "rental");
-    for (i = 0; i < 8; i++) {
-        PortEnh_StatExpDifficultyTeam((BattleMon*)(segment + 0x16D0 + i * 0x1F0 + 0x10), 6, PORT_SE_RENTAL, "preset team");
-    }
+    Port_RememberVanillaRentals(segment); // PORT: Stat Exp difficulty (statexp_difficulty.c)
 }
 
 /**

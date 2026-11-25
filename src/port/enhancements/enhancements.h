@@ -11,6 +11,13 @@
 #include <hippodrome/summary_card.h>
 #include <hippodrome/statexp_difficulty.h>
 
+// A group's bounds as one clamp: lo = its Minimum (0 while Vanilla), hi = its Maximum (65535 while Vanilla); the
+// value a Pokémon ends up with is max(v, lo) then min(that, hi), as hu_se_bounds_apply does.
+static inline void PortEnh_SeLoHi(const hu_se_bounds* b, hu_se_side side, uint16_t* lo, uint16_t* hi) {
+    if (!hu_se_bound_value(&b->min, side, lo)) *lo = 0;
+    if (!hu_se_bound_value(&b->max, side, hi)) *hi = 65535;
+}
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -37,16 +44,17 @@ void Port_Enh_SetMoveDescriptionsEnabled(int on);
 int Port_Enh_OrderQueueEnabled(void);
 void Port_Enh_SetOrderQueueEnabled(int on);
 
-// Stat Exp difficulty (STATEXP_DIFFICULTY): a setting for the rental Pokémon and one for the opponent (COM) Pokémon,
-// each Vanilla (the default), Casual / Easy / Medium / Hard / Kaizo (fifths of 65535) or Custom
-// (gEnhancements.StatExpDifficulty.<Rental|Opponent>.Mode / Min / Max; Mode is hu_se_mode). PORT_STATEXP_RENTAL /
-// PORT_STATEXP_OPPONENT override them for tests: a mode name (vanilla, casual, ..., kaizo) or "<min>-<max>" for
-// Custom (e.g. "65535-65535"). The game side is statexp_difficulty.c.
+// Stat Exp difficulty (STATEXP_DIFFICULTY): a Min and a Max for the rental Pokémon and for the opponent (COM)
+// Pokémon, each Vanilla (the default), Casual / Easy / Medium / Hard / Kaizo or Custom. Tournaments only: Free Battle
+// is never changed. CVars gEnhancements.StatExpDifficulty.<Rental|Opponent>.<Min|Max><Preset|Custom> (Preset is
+// hu_se_mode). PORT_STATEXP_RENTAL / PORT_STATEXP_OPPONENT override them for tests: "<min>:<max>" or one value for
+// both, each a preset name (vanilla, casual, ..., kaizo) or a number for Custom (e.g. "kaizo", "vanilla:4096").
+// The game side is statexp_difficulty.c.
 #define PORT_SE_RENTAL 0 // (also in battle_enhancements.h, for the game code)
 #define PORT_SE_OPPONENT 1
 // (pointers, not structs by value: the game side is C built with the game's flags)
-void Port_Enh_StatExpDifficulty(int group, hu_se_setting* out);
-void Port_Enh_SetStatExpDifficulty(int group, const hu_se_setting* setting);
+void Port_Enh_StatExpDifficulty(int group, hu_se_bounds* out);
+void Port_Enh_SetStatExpDifficulty(int group, const hu_se_bounds* setting);
 
 // The hue choices (HUE_CHANGE), loaded from <save>.hue beside the N64 save on first use (empty if there is none yet
 // or it is damaged; a damaged file is kept as <save>.hue.bad). Never NULL.

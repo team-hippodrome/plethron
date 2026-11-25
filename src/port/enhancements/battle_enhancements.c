@@ -119,6 +119,14 @@ static void InitSide(s32 s) {
         sCardMon[s][i] = m;
         hu_side_set_mon(&sSides[s], i, m->species.id, m->level, m->hp, m->maxHp, moves, BaseSpeed(m->species.id),
                         s == sViewer ? m->speed : 0);
+        if (s != sViewer) { // Stat Exp difficulty: what the opponent's stat exp can be in this battle
+            u16 lo, hi;
+            PortEnh_OpponentStatExpBounds(1, &lo, &hi);
+            if (lo != 0 || hi != 65535) {
+                sSides[s].cards[i].speed = hu_speed_initial_se(BaseSpeed(m->species.id), m->level, lo, hi);
+                sSides[s].cards[i].transform_speed = sSides[s].cards[i].speed;
+            }
+        }
         if (Port_Enh_SummaryBarsEnabled()) {
             PortEnh_CardModelsLoad(s, i, &party[i]); // the card's own copy of the model
         }
@@ -180,8 +188,13 @@ static void InitMemory(void) {
         const hu_tm_mon* m = hu_tm_find_mon(t, c->species);
         s32 k;
         if (m == NULL) continue;
-        if (m->flags & HU_TM_MON_HAS_SPEED) {
-            c->speed = hu_speed_intersect(c->speed, m->speed);
+        if (m->flags & HU_TM_MON_HAS_SPEED) { // taken to this battle's Stat Exp clamp first
+            u16 lo, hi;
+            hu_speed_range stored;
+            PortEnh_OpponentStatExpBounds(1, &lo, &hi);
+            if (hu_tm_mon_speed(m, BaseSpeed(c->species), lo, hi, &stored)) {
+                c->speed = hu_speed_intersect(c->speed, stored);
+            }
             c->transform_speed = c->speed;
         }
         for (k = 0; k < 4; k++) {
@@ -335,7 +348,10 @@ void PortEnh_TurnOrder(s32 first_side) {
                                  &hu_gb_speed_rules, ModsOf(theirs))) {
                 EnhLog("speed estimate: side %d card %d now %u-%u", (int)h, (int)c, card->speed.min, card->speed.max);
                 if (sHasKey) {
-                    hu_tm_record_speed(Port_Enh_Memory(), sKey, card->species, card->speed);
+                    u16 lo, hi; // kept with the Stat Exp clamp it was learned under
+                    PortEnh_OpponentStatExpBounds(1, &lo, &hi);
+                    hu_tm_record_speed_se(Port_Enh_Memory(), sKey, card->species, BaseSpeed(card->species),
+                                          card->speed, lo, hi);
                 }
             }
         }

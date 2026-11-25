@@ -55,3 +55,11 @@ void PortEnh_PlayerCommandEnd(struct ActivePokemon* a);                     // a
 #define PORT_SE_RENTAL 0 // (as in enhancements.h)
 #define PORT_SE_OPPONENT 1
 void PortEnh_StatExpDifficultyTeam(BattleMon* mons, s32 count, s32 group, const char* what);
+// Tournaments: the COM team just loaded (opponent setting) and 1P's rentals (rental setting, from Zero's own stat exp).
+struct TeamRoster;
+struct ExtendedRosterInfo;
+void PortEnh_StatExpDifficultyTournament(struct TeamRoster* com, struct ExtendedRosterInfo* comInfo);
+// The opponent clamp as one range (hu_se_bounds; 0..65535 = Zero's own stat exp), for the Speed estimate
+// (SPEED_STAT_ESTIMATE: estimates are kept with the clamp they were learned under). `forThisBattle`: 0..65535 outside
+// tournaments (Free Battle is never changed); 0: the setting itself (trainer memory screen, tournament trainers only).
+void PortEnh_OpponentStatExpBounds(s32 forThisBattle, u16* lo, u16* hi);

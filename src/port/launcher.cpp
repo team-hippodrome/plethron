@@ -1777,17 +1777,18 @@ class LauncherWindow : public Ship::GuiWindow {
             mEnhancements = mStatDifficulty = false;
         }
         {
-            hu_se_setting r[2];
+            hu_se_bounds r[2];
             Port_Enh_StatExpDifficulty(PORT_SE_RENTAL, &r[0]);
             Port_Enh_StatExpDifficulty(PORT_SE_OPPONENT, &r[1]);
-            const bool vanilla = r[0].mode == HU_SE_VANILLA && r[1].mode == HU_SE_VANILLA;
+            const bool vanilla = !hu_se_bounds_active(&r[0]) && !hu_se_bounds_active(&r[1]);
             if (ColorButton(vanilla ? "Stat Exp: Vanilla" : "Stat Exp: Changed", x + w - 288, y + 9, 172, 26,
                             vanilla ? Theme::button : 0x23406B, vanilla ? Theme::buttonHover : 0x23406B)) {
                 mStatDifficulty = true;
             }
             if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Stat Exp difficulty: the lowest and highest Stat Exp of the rental and the opponent\n"
-                                  "Pokémon, as a preset (Casual to Kaizo) or your own range. Vanilla by default.");
+                ImGui::SetTooltip("Stat Exp difficulty: the lowest and highest Stat Exp of your rentals and of the\n"
+                                  "opponents in tournaments, each a preset (Casual to Kaizo) or your own value.\n"
+                                  "Vanilla by default.");
             }
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
@@ -1843,70 +1844,121 @@ class LauncherWindow : public Ship::GuiWindow {
         if (c >= 0) Port_Enh_SetOrderQueueEnabled(c == 0);
     }
 
-    // launcher > Graphics > Enhancements > Stat Exp (STATEXP_DIFFICULTY, enhancements.h): a column per group with
-    // Vanilla, the five presets and Custom; the range in use, and once custom its two sliders and any error (a range
-    // with its maximum below its minimum stays vanilla until it is fixed).
+    // A dropdown in the launcher's style (as ResolutionCombo): `labels[cur]` shown, the picked index returned (-1
+    // while unchanged). Left/Right on the closed list step through it.
+    int Dropdown(const char* id, const std::vector<std::string>& labels, int cur, float x, float y, float w,
+                 bool openForTest = false) {
+        ImGui::SetCursorScreenPos(P(x, y));
+        ImGui::SetWindowFontScale(mScale);
+        const float fh = ImGui::GetFontSize();
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8 * mScale, std::max(0.0f, (26 * mScale - fh) / 2)));
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, ImGui::GetStyle().FrameRounding);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, HexV(Theme::button));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, HexV(Theme::buttonHover));
+        ImGui::PushStyleColor(ImGuiCol_Button, HexV(Theme::button));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, HexV(Theme::buttonHover));
+        ImGui::PushStyleColor(ImGuiCol_PopupBg, HexV(Theme::card));
+        ImGui::PushStyleColor(ImGuiCol_Header, HexV(0x23406B));
+        ImGui::PushStyleColor(ImGuiCol_HeaderHovered, HexV(Theme::buttonHover));
+        ImGui::SetNextItemWidth(w * mScale);
+        if (openForTest) {
+            ImGui::OpenPopupEx(ImHashStr("##ComboPopup", 0, ImGui::GetID(id)));
+        }
+        const bool open =
+            ImGui::BeginCombo(id, cur >= 0 && cur < (int)labels.size() ? labels[cur].c_str() : "", ImGuiComboFlags_HeightLargest);
+        const bool focused = ImGui::IsItemFocused();
+        int pick = -1;
+        if (open) {
+            ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+            ImGui::SetWindowFontScale(mScale);
+            for (int i = 0; i < (int)labels.size(); i++) {
+                ImGui::PushID(i);
+                if (ImGui::Selectable(labels[i].c_str(), i == cur) && i != cur) pick = i;
+                if (i == cur && ImGui::IsWindowAppearing()) ImGui::SetItemDefaultFocus();
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        } else if (focused && cur >= 0) {
+            const bool left = ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft) || ImGui::IsKeyPressed(ImGuiKey_LeftArrow);
+            const bool right = ImGui::IsKeyPressed(ImGuiKey_GamepadDpadRight) || ImGui::IsKeyPressed(ImGuiKey_RightArrow);
+            if (left && cur > 0) pick = cur - 1;
+            if (right && cur + 1 < (int)labels.size()) pick = cur + 1;
+        }
+        ImGui::PopStyleColor(7);
+        ImGui::PopStyleVar(2);
+        return pick;
+    }
+
+    // launcher > Graphics > Enhancements > Stat Exp (STATEXP_DIFFICULTY, enhancements.h): a column per group (rental,
+    // opponent) with a Min and a Max dropdown, each Vanilla, the five presets or Custom (which brings up a slider). A
+    // Min raised above the Max bumps the Max up, a Max lowered below the Min pulls the Min down (hu_se_bounds_fix).
     void StatDifficultyPanel(float x, float y, float w, float h) {
         ImDrawList* dl = ImGui::GetWindowDrawList();
         dl->AddRectFilled(P(x, y), P(x + w, y + h), Hex(Theme::card), 8 * mScale);
         dl->AddRect(P(x, y), P(x + w, y + h), Hex(Theme::cardBorder), 8 * mScale);
         Text(x + 14, y + 14, "STAT EXP DIFFICULTY", gFonts.body, Theme::text);
-        Text(x + 190, y + 15, "Vanilla keeps the game's own values. Harder: more Stat Exp for opponents, less for rentals.",
-             gFonts.small, Theme::dim);
+        Text(x + 190, y + 15, "Tournaments only. Harder: more Stat Exp for opponents, less for rentals.", gFonts.small,
+             Theme::dim);
         if (Button("Back", x + w - 108, y + 9, 94, 26)) {
             mStatDifficulty = false;
         }
         dl->AddRectFilled(P(x, y + 44), P(x + w, y + 45), Hex(Theme::cardBorder));
         static const char* const kNames[2] = { "Rental Pokémon", "Opponent Pokémon" };
-        static const char* const kHints[2] = {
-            "The rentals and preset teams on the entry screen (Free Battle\nand tournaments), as their cards show them.",
-            "The tournament trainers' teams and the team you give the COM\nin Free Battle." };
+        static const char* const kHints[2] = { "Your rentals in tournaments (Free Battle keeps\nthe game's own). The entry screen's cards\nshow the game's own stats.",
+                                               "The tournament trainers' teams (Free Battle\nkeeps the game's own)." };
+        static int sOpenForTest = getenv("PORT_LAUNCHER_OPEN_STATEXP_LIST") != nullptr ? 3 : 0; // test hook
+        const bool openTest = sOpenForTest > 0 && --sOpenForTest == 0;
         const float colW = (w - 42) / 2;
         for (int g = 0; g < 2; g++) {
+            const hu_se_side side = g == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT;
             const float cx = x + 14 + g * (colW + 14);
             float ry = y + 58;
-            hu_se_setting r;
+            hu_se_bounds r;
             Port_Enh_StatExpDifficulty(g, &r);
             Text(cx, ry + 5, kNames[g], gFonts.body);
             Text(cx, ry + 28, kHints[g], gFonts.small, Theme::dim);
-            ry += 66;
+            ry += 86;
             ImGui::PushID(g);
-            bool changed = false;
-            // two rows of modes: Vanilla Casual Easy Medium / Hard Kaizo Custom
-            const int c1 = Choice("m1", { "Vanilla", "Casual", "Easy", "Medium" }, r.mode <= HU_SE_MEDIUM ? r.mode : -1,
-                                  cx, ry, 100);
-            const int c2 = Choice("m2", { "Hard", "Kaizo", "Custom" }, r.mode >= HU_SE_HARD ? r.mode - HU_SE_HARD : -1,
-                                  cx, ry + 30, 100);
-            if (c1 >= 0 || c2 >= 0) {
-                r.mode = (uint8_t)(c1 >= 0 ? c1 : HU_SE_HARD + c2);
-                changed = true;
+            std::vector<std::string> labels;
+            for (int p = 0; p < HU_SE_MODE_COUNT; p++) {
+                std::string l = hu_se_mode_name(p);
+                if (p != HU_SE_VANILLA && p != HU_SE_CUSTOM) l += " (" + std::to_string(hu_se_preset_value(p, side)) + ")";
+                labels.push_back(l);
             }
-            ry += 68;
-            if (r.mode == HU_SE_CUSTOM) {
-                auto slider = [&](const char* name, const char* id, int value) {
-                    Text(cx, ry + 4, name, gFonts.body);
-                    ImGui::SetCursorScreenPos(P(cx + 150, ry));
-                    ImGui::SetNextItemWidth((colW - 150) * mScale);
+            bool changed = false;
+            for (int b = 0; b < 2; b++) {
+                hu_se_bound& bound = b == 0 ? r.min : r.max;
+                Text(cx, ry + 4, b == 0 ? "Min" : "Max", gFonts.body);
+                const int pick = Dropdown(b == 0 ? "##semin" : "##semax", labels, bound.mode, cx + 60, ry, 190,
+                                          openTest && g == PORT_SE_OPPONENT && b == 0);
+                if (pick >= 0) {
+                    bound.mode = (uint8_t)pick;
+                    hu_se_bounds_fix(&r, side, b == 0);
+                    changed = true;
+                }
+                ry += 34;
+                if (bound.mode == HU_SE_CUSTOM) {
+                    ImGui::SetCursorScreenPos(P(cx + 60, ry));
+                    ImGui::SetNextItemWidth((colW - 60) * mScale);
                     ImGui::PushStyleColor(ImGuiCol_SliderGrab, HexV(0x4C7BD9));
                     ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, HexV(0x6E95E6));
-                    int v = value;
-                    if (ImGui::SliderInt(id, &v, 0, 65535, "%d", ImGuiSliderFlags_AlwaysClamp)) {
+                    int v = bound.custom;
+                    if (ImGui::SliderInt(b == 0 ? "##semincustom" : "##semaxcustom", &v, 0, 65535, "%d",
+                                         ImGuiSliderFlags_AlwaysClamp)) {
+                        bound.custom = (uint16_t)v;
+                        hu_se_bounds_fix(&r, side, b == 0);
                         changed = true;
                     }
                     ImGui::PopStyleColor(2);
-                    ry += 36;
-                    return v;
-                };
-                r.custom_min = (uint16_t)slider("Lowest Stat Exp", "##semin", r.custom_min);
-                r.custom_max = (uint16_t)slider("Highest Stat Exp", "##semax", r.custom_max);
+                    ry += 34;
+                }
+                ry += 6;
             }
             uint16_t lo, hi;
-            if (hu_se_errors(&r) != 0) {
-                Text(cx, ry, hu_se_error_text(HU_SE_ORDER), gFonts.small, Theme::red);
-                Text(cx, ry + 18, "Vanilla values are used until this is fixed.", gFonts.small, Theme::red);
-            } else if (hu_se_range(&r, g == PORT_SE_RENTAL ? HU_SE_RENTAL : HU_SE_OPPONENT, &lo, &hi)) {
-                Text(cx, ry, "Stat Exp " + std::to_string(lo) + " to " + std::to_string(hi) +
-                                 " (out of 65535). Values outside\nmove to the nearer end; DVs are not changed.",
+            PortEnh_SeLoHi(&r, side, &lo, &hi);
+            if (hu_se_bounds_active(&r)) {
+                Text(cx, ry, "Each Stat Exp value is kept between " + std::to_string(lo) + " and " + std::to_string(hi) +
+                                 "\n(out of 65535). DVs are not changed.",
                      gFonts.small, Theme::dim);
             } else {
                 Text(cx, ry, "The game's own Stat Exp.", gFonts.small, Theme::dim);
