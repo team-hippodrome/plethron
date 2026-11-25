@@ -80,6 +80,7 @@ void BattleMenu_DrawOrderSelectPanel(OrderSelectPanel* panel);
 void BattleMenu_FeedScriptedComOrderInput(void);
 s32 BattleMenu_IsSlotAlreadySelected(OrderSelectPanel* panel, s8 slot);
 s32 BattleMenu_OrderExceedsLevelSumLimit(OrderSelectPanel* panel);
+s32 BattleMenu_OrderPickTarget(const OrderSelectPanel* panel); // PORT: also used by the summary bars
 s32 BattleMenu_IsOrderComplete(OrderSelectPanel* panel);
 void BattleMenu_PickOrderSlot(OrderSelectPanel* panel, s8 slot);
 void BattleMenu_UndoSelections(OrderSelectPanel* panel);

@@ -2,6 +2,7 @@
 #include "battle.h"
 #include "audio_commands.h"
 #include "anim_raw.h" // PORT: ANIM_END reads raw (big-endian) animation headers
+#include "battle_enhancements.h"
 
 // PORT: the decomp called these without a prototype (IDO allows it; clang does not).
 s32 ModelAnim_SetAnimation(DisplayObject* display_object, s32 id); // PORT: signature from the definition (model_renderer.c)
@@ -1022,6 +1023,7 @@ void BattleScene_PhaseTransform(CameraNode* arg0) {
             if (sActingPokemon->side->modelFlags & 0x10) {
                 sActingPokemon->side->modelFlags &= ~0x90;
                 Battle_LoadOwnerModelForSpecies(sActingPokemon);
+                PortEnh_TransformShown(); // PORT: the summary card changes with the battle model
                 BattleThumbnail_TickOwnerCameraFraming(sActingPokemon);
                 BattleAnim_PlayMoveEffectScript(sActingPokemon, sp30->usedMove);
                 sBattleScene.scene->phaseStep++;

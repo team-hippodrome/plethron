@@ -3,7 +3,7 @@
 // (summary_bars.cpp draws them; card_models.c their models), filled from the two parties the screen shows:
 //
 // - The viewer's own side (1P against the COM) shows everything, as in battle. Its picks light up as they are made;
-//   the others keep the Unknown look until the picks are confirmed, then turn Not Picked.
+//   the others keep the Unknown look until the required number has been picked, then turn Not Picked.
 // - The other side shows what the battle would start with: no moves, the species' speed range, and, with trainer
 //   memory on, what the save remembers of this trainer (the same reveal as at the battle's start). Its picks stay
 //   hidden (Unknown), as the COM's are on the N64.
@@ -99,7 +99,8 @@ static void InitSide(s32 s, const OrderSelectPanel* p) {
 
     if (count <= 0 || count > HU_SIDE_MAX) count = 0;
     sPanel[s] = p;
-    hu_side_init(&sSides[s], count, count, s == sViewer ? HU_REVEAL_ALL : HU_REVEAL_AS_USED);
+    hu_side_init_order_select(&sSides[s], count, BattleMenu_OrderPickTarget(p),
+                              s == sViewer ? HU_REVEAL_ALL : HU_REVEAL_AS_USED);
     for (i = 0; i < count; i++) {
         BattleMon* m = &p->candidates[i];
         u8 sp = m->species.id;
@@ -122,27 +123,23 @@ static void InitSide(s32 s, const OrderSelectPanel* p) {
     }
 }
 
-// The viewer's picks as they are made: picked cards are Picked, the rest Unknown until the picks are confirmed.
+// Synchronize the viewer's picks, not the prompt state (a level-sum notice can appear before selection is complete).
 static void UpdatePicks(s32 s) {
     const OrderSelectPanel* p = sPanel[s];
     hu_side* side = &sSides[s];
     u8 mask = 0;
     s32 i;
+    s32 slot;
 
-    for (i = 0; i < p->pickCount && i < 6; i++) {
-        if (p->pickedSlots[i] >= 0 && p->pickedSlots[i] < side->count) mask |= 1 << p->pickedSlots[i];
+    for (i = 0; i < p->pickCount && i < HU_SIDE_MAX; i++) {
+        slot = p->pickedSlots[i];
+        if (slot >= 0 && slot < side->count) mask |= 1 << slot;
     }
-    if (p->state != 0 && mask != 0) { // the confirm prompt or ready: the picks are made
-        hu_side_set_picked(side, mask);
-        return;
+    for (slot = 0; slot < side->count; slot++) {
+        if (!(mask & (1 << slot))) hu_side_unpick(side, slot);
     }
-    for (i = 0; i < side->count; i++) {
-        hu_card* c = &side->cards[i];
-        if (mask & (1 << i)) {
-            c->flags |= HU_CARD_F_PICK_KNOWN | HU_CARD_F_PICKED;
-        } else {
-            c->flags &= (u8) ~(HU_CARD_F_PICK_KNOWN | HU_CARD_F_PICKED);
-        }
+    for (i = 0; i < p->pickCount && i < HU_SIDE_MAX; i++) {
+        hu_side_pick(side, p->pickedSlots[i]);
     }
 }
 

@@ -791,11 +791,11 @@ s32 BattleMenu_OrderExceedsLevelSumLimit(OrderSelectPanel* panel) {
 }
 
 /**
- * Returns whether the panel has picked enough Pokémon: 3 under tournament rules, otherwise the
+ * Returns how many Pokémon the panel has to pick: 3 under tournament rules, otherwise the
  * party size (capped by the other side's for a COM side, and at 3 for a tag-team panel).
  * Seen in play (2026-11-14, L50-55 tournament, rental team vs マサハル): the third pick opened 「これで いいですか？」.
  */
-s32 BattleMenu_IsOrderComplete(OrderSelectPanel* panel) {
+s32 BattleMenu_OrderPickTarget(const OrderSelectPanel* panel) {
     s32 var_v1;
 
     if (D_82302BD0->ruleCategory != 0) {
@@ -812,7 +812,11 @@ s32 BattleMenu_IsOrderComplete(OrderSelectPanel* panel) {
         }
     }
 
-    return panel->pickCount >= var_v1;
+    return var_v1;
+}
+
+s32 BattleMenu_IsOrderComplete(OrderSelectPanel* panel) {
+    return panel->pickCount >= BattleMenu_OrderPickTarget(panel);
 }
 
 /**

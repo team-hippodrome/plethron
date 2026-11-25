@@ -187,10 +187,10 @@ void PortEnh_CardModelsLoad(s32 side, s32 card, BattleMon* mon) {
 }
 
 void PortEnh_CardModelsLoadFrom(s32 side, s32 card, s32 from_side, s32 from_card) {
-    if (!VALID(side, card) || !VALID(from_side, from_card) || sCards[from_side][from_card].own == NULL) {
+    if (!VALID(side, card) || !VALID(from_side, from_card) || sCards[from_side][from_card].shown == NULL) {
         return;
     }
-    LoadCard(&sCards[side][card], sCards[from_side][from_card].own);
+    LoadCard(&sCards[side][card], sCards[from_side][from_card].shown);
 }
 
 void PortEnh_CardModelsRestore(s32 side, s32 card) {

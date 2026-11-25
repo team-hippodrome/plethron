@@ -7,8 +7,8 @@ void PortEnh_BattleBegin(void);          // BattleScene_DispatchLifecycle(0): a 
 void PortEnh_BattleFrame(void);          // BattleScene_DispatchLifecycle(5): after the battle HUD, every frame
 void PortEnh_TurnOrder(s32 first_side);  // Battle_StartTurn, once Battle_DetermineMoveOrder picked who acts first;
                                          // -1 from BattleScene_InitializeSwitchActions (a side switches, no order)
-void PortEnh_MoveStart(void);            // a move's presentation starts (BattleScene_ActionStepSetHitCount)
-void PortEnh_MoveNotUsed(void);          // Battle_ProcessTurn: the acting side cannot act (sleep, paralysis, flinch...)
+void PortEnh_MoveAttempted(void);        // Battle_ProcessTurn: the acting side can act, before the move resolves
+void PortEnh_TransformShown(void);       // BattleScene_PhaseTransform: the copied model is loaded
 
 // The summary bars on the order screen (order_preview.c): BattleMenu_UpdateOrderSelect calls OrderFrame every frame
 // after drawing its panels, BattleMenu_RunOrderSelectScreen calls OrderEnd when the screen closes.

@@ -2,10 +2,8 @@
 // SPEED_STAT_ESTIMATE.md), and what a tournament battle teaches the trainer memory (TRAINER_MEMORY.md).
 //
 // Compiled with the game code, since it reads the battle structs, but kept in the port, so game/ holds only decomp
-// code. The battle calls four hooks (battle_enhancements.h): PortEnh_BattleBegin when it allocates its participants,
-// PortEnh_TurnOrder once Battle_StartTurn knows who acts first, PortEnh_MoveStart when a move's presentation starts
-// (after its "X used Y" message) and PortEnh_BattleFrame each frame it draws its HUD. Everything else is read from
-// the battle's own state each frame, so nothing the game does changes.
+// code. The hooks (battle_enhancements.h) observe the battle start, turn order, attempted moves, Transform's model
+// change and the HUD. They do not change the battle.
 //
 // The cards are drawn outside the game's picture, in the window's room beside it (summary_bars.cpp): 1P's party on
 // the left, the opponent's on the right. This file publishes what they show each frame (Port_Enh_PublishBattle).
@@ -40,11 +38,10 @@ static TeamRoster* sRosters[2];
 static s32 sNeedInit;
 static s32 sReady;
 static s32 sViewer = -1;   // the side whose own Pokémon are fully known (1P against the COM), -1 in multiplayer
-static s32 sPendingSlot[2]; // the move slot each side committed this turn, revealed when the move is presented
 static s32 sSaved;
 static s32 sHasKey;
 static hu_tm_key sKey;
-static s32 sTransformed[2];
+static s32 sTransformShown[2];
 
 // PORT_ENH_LOG=1: what the enhancements learn, on stderr (tests)
 static void EnhLog(const char* fmt, ...) {
@@ -77,6 +74,7 @@ void PortEnh_BattleBegin(void) {
     sNeedInit = 1;
     sReady = 0;
     sSaved = 0;
+    sTransformShown[0] = sTransformShown[1] = 0;
 }
 
 // Same Pokémon: the fields a battle does not change.
@@ -210,8 +208,6 @@ static void Init(void) {
     PortEnh_CardModelsFree();
     InitSide(0);
     InitSide(1);
-    sPendingSlot[0] = sPendingSlot[1] = -1;
-    sTransformed[0] = sTransformed[1] = 0;
     InitMemory();
     if (sHasKey) {
         Port_Enh_SaveMemory(); // the team and name (writes only when something changed)
@@ -237,14 +233,13 @@ static s32 ActiveCard(s32 s) {
     return (p >= 0 && p < 6) ? sCardOfPicked[s][p] : -1;
 }
 
-// How many times the paralysis cut has been applied to the active Pokémon's speed since it was last recomputed: the
-// difference between its stage-applied raw stat and its live speed. Every cut happens on screen (paralysis, then each
-// stat change of the opponent: Gen 1's quirk), so this is information the player has.
+// How many times the paralysis cut has been applied since Speed was last recomputed: the difference between its
+// stage-applied raw stat and live Speed. Transform can inherit this cut with the copied Speed before any new cuts.
 static hu_speed_mods ModsOf(const BattleMonRuntime* rt) {
     hu_speed_mods m = hu_speed_mods_none();
     u16 v;
     m.stage = (s8)(rt->statStages[2] - 7);
-    if (rt->statusCondition & 0x40) {
+    if ((rt->statusCondition & 0x40) || (rt->uniqueStatusFlags & 8)) {
         v = hu_apply_stage(&hu_gb_speed_rules, rt->unmodifiedSpeed, m.stage);
         while (v > rt->speed && m.paralysis_cuts < 8) {
             v = v >> 2;
@@ -253,6 +248,12 @@ static hu_speed_mods ModsOf(const BattleMonRuntime* rt) {
         }
     }
     return m;
+}
+
+static void ApplyVisibleTransform(s32 s);
+
+void PortEnh_TransformShown(void) {
+    sTransformShown[sBattleScene.scene->actingSide & 1] = 1;
 }
 
 static void Poll(void) {
@@ -268,8 +269,14 @@ static void Poll(void) {
         // status are those of the party entries (pokemonPicked), which the battle updates as the HP bar drains and as
         // the status appears; the battle's own values change first.
         if (shown >= 0 && !(side->cards[shown].flags & HU_CARD_F_ACTIVE)) {
+            for (p = 0; p < side->count; p++) {
+                if ((side->cards[p].flags & (HU_CARD_F_ACTIVE | HU_CARD_F_TRANSFORMED)) ==
+                    (HU_CARD_F_ACTIVE | HU_CARD_F_TRANSFORMED)) {
+                    PortEnh_CardModelsRestore(s, p);
+                }
+            }
+            // This withdraws the previous card and clears its Transform flag and copied Speed.
             hu_side_send_out(side, shown);
-            sTransformed[s] = 0;
             if (sHasKey && s != sViewer) {
                 hu_tm_record_sent_out(Port_Enh_Memory(), sKey, side->cards[shown].species, side->cards[shown].level);
             }
@@ -287,27 +294,29 @@ static void Poll(void) {
                 hu_side_faint(side, c);
             }
         }
-        if (active >= 0) {
-            s32 transformed = (rt->uniqueStatusFlags & 8) != 0;
+        if (active >= 0 && active == shown) {
             hu_side_set_substitute(side, active, rt->substituteHp != 0);
-            if (transformed && !sTransformed[s]) {
-                // the copied Speed: the viewer knows its own exactly; the opponent's is its estimate
-                s32 o = !s;
-                s32 oc = ActiveCard(o);
-                hu_speed_range copied = (oc >= 0) ? hu_card_shown_speed(&sSides[o].cards[oc]) : side->cards[active].speed;
-                if (oc >= 0 && o != sViewer) copied = sSides[o].cards[oc].speed;
-                hu_side_transform(side, active, (u8)sActivePokemon[s]->state.transformSpecies, copied);
-                // the card's model becomes the one it copied (the opponent's, as its own model does)
-                if (oc >= 0 && Port_Enh_SummaryBarsEnabled()) {
-                    PortEnh_CardModelsLoadFrom(s, active, o, oc);
-                }
-            } else if (!transformed && sTransformed[s]) {
-                hu_side_transform(side, active, side->cards[active].species, side->cards[active].speed);
-                PortEnh_CardModelsRestore(s, active);
-            }
-            sTransformed[s] = transformed;
+        }
+        if (sTransformShown[s]) {
+            sTransformShown[s] = 0;
+            ApplyVisibleTransform(s);
         }
         hu_side_tick(side);
+    }
+}
+
+static void ApplyVisibleTransform(s32 s) {
+    s32 active, target, targetSide;
+    const hu_card* targetCard;
+    targetSide = !s;
+    active = ActiveCard(s);
+    target = ActiveCard(targetSide);
+    if (active < 0 || target < 0) return;
+
+    targetCard = &sSides[targetSide].cards[target];
+    hu_side_transform(&sSides[s], active, (u8)sActivePokemon[s]->state.transformSpecies, hu_card_shown_speed(targetCard));
+    if (Port_Enh_SummaryBarsEnabled()) {
+        PortEnh_CardModelsLoadFrom(s, active, targetSide, target);
     }
 }
 
@@ -319,18 +328,7 @@ static s32 MovePriority(u8 move) {
 }
 
 void PortEnh_TurnOrder(s32 first_side) {
-    s32 s;
     if (!sReady) return;
-    for (s = 0; s < 2; s++) {
-        const ActivePokemonState* st = &sActivePokemon[s]->state;
-        s32 slot = st->selectedMoveIndex;
-        sPendingSlot[s] = -1;
-        if (st->faintState == 0xF || st->faintState == 0x10) continue; // this side switches (or sends one out)
-        if (slot >= 0 && slot < 4 && st->runtime.usedMove != 0 && st->runtime.usedMove != 0xFF &&
-            st->runtime.moves[slot] == st->runtime.usedMove && !(st->runtime.uniqueStatusFlags & 8)) {
-            sPendingSlot[s] = slot;
-        }
-    }
     EnhLog("turn: side %d first (moves %u / %u, speed %u / %u)", (int)first_side,
            sActivePokemon[0]->state.runtime.usedMove, sActivePokemon[1]->state.runtime.usedMove,
            sActivePokemon[0]->state.runtime.speed, sActivePokemon[1]->state.runtime.speed);
@@ -361,27 +359,26 @@ void PortEnh_TurnOrder(s32 first_side) {
     }
 }
 
-void PortEnh_MoveNotUsed(void) {
-    if (!sReady) return;
-    // the turn's action is resolved before it is shown: the move step that follows must not reveal the move
-    sPendingSlot[sBattleScene.scene->actingSide & 1] = -1;
-}
-
-void PortEnh_MoveStart(void) {
+void PortEnh_MoveAttempted(void) {
+    const ActivePokemonState* st;
     s32 s;
     s32 c;
     s32 slot;
     if (!sReady) return;
     s = sBattleScene.scene->actingSide & 1;
-    slot = sPendingSlot[s];
+    st = &sActivePokemon[s]->state;
+    slot = st->selectedMoveIndex;
     c = ActiveCard(s);
-    if (slot < 0 || c < 0) return;
+    // A copied move or Struggle does not reveal any of the party Pokémon's own move slots.
+    if (c < 0 || slot < 0 || slot >= HU_CARD_MOVES || st->runtime.usedMove == 0 || (st->runtime.uniqueStatusFlags & 8) ||
+        sSides[s].cards[c].moves[slot] != st->runtime.usedMove) {
+        return;
+    }
     hu_side_move_used(&sSides[s], c, slot);
     EnhLog("move: side %d card %d slot %d move %u", (int)s, (int)c, (int)slot, sSides[s].cards[c].moves[slot]);
     if (sHasKey && s != sViewer) {
         hu_tm_record_move(Port_Enh_Memory(), sKey, sSides[s].cards[c].species, sSides[s].cards[c].moves[slot]);
     }
-    sPendingSlot[s] = -1;
 }
 
 // ---- the view the summary bars draw (summary_bars.cpp, on the render thread) ----
@@ -433,6 +430,7 @@ static void Publish(void) {
         for (i = 0; i < sSides[s].count; i++) {
             const hu_card* c = &sSides[s].cards[i];
             hu_speed_range sr = hu_card_shown_speed(c);
+            s32 transformed = (c->flags & HU_CARD_F_TRANSFORMED) != 0;
             // its nickname (in Gen 1 an unnamed Pokémon's nickname is its species name); it stays while transformed
             v.names[s][i] = (sCardMon[s][i] != NULL) ? Port_Text_Display((const char*)sCardMon[s][i]->nickname)
                                                      : SpeciesName(c->species);
@@ -441,12 +439,11 @@ static void Publish(void) {
                 v.moveTypes[s][i][k] = PortEnh_MoveHuType(c->moves[k]);
             }
             // speed as the turn order compares it now: stage and paralysis applied to the active one
-            if (c->flags & HU_CARD_F_ACTIVE) {
-                if (s == sViewer) {
-                    sr = hu_speed_exact(rt->speed);
-                } else if (!(rt->uniqueStatusFlags & 8)) {
-                    sr = hu_speed_shown(sr, &hu_gb_speed_rules, ModsOf(rt));
-                }
+            // Show live modifiers only once the visible card matches the active state. Transform keeps the copied
+            // range (not the exact runtime Speed of a hidden target), even on the viewer's own card.
+            if ((c->flags & HU_CARD_F_ACTIVE) && i == ActiveCard(s) && transformed == ((rt->uniqueStatusFlags & 8) != 0)) {
+                sr = (s == sViewer && !transformed) ? hu_speed_exact(rt->speed)
+                                                     : hu_speed_shown(sr, &hu_gb_speed_rules, ModsOf(rt));
             }
             v.speed[s][i] = sr;
             v.modelReady[s][i] = (u8)PortEnh_CardModelReady(s, i);
@@ -491,4 +488,3 @@ void PortEnh_BattleFrame(void) {
         sSaved = 1;
     }
 }
-

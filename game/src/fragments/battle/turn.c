@@ -480,12 +480,10 @@ void Battle_ProcessTurn(void) {
         D_82199F36 = 0;
         D_82199F3F = 0xA;
 
-        // PORT: 0 = the Pokémon does not use its move this turn (asleep, frozen, recharging, flinched, fully
-        // paralysed, hurt itself in confusion...). The presentation still runs the move step, so the summary bars
-        // are told here not to reveal the picked move (enhancements).
+        // PORT: record new attempts after status checks, before a miss or failure. Cases 4–6 continue a prior move.
         s32 canAct = Battle_CheckMonCanAct();
-        if (canAct == 0) {
-            PortEnh_MoveNotUsed();
+        if (canAct == 2 || canAct == 3) {
+            PortEnh_MoveAttempted();
         }
         switch (canAct) {
             case 2:

@@ -9,6 +9,7 @@
 -Igame/include/libleo
 -Ilibultraship/include
 -Ilibultraship/include/libultraship
+-Ihippodrome-utils/include
 -Igame/lib/ultralib/include
 -Igame/lib/ultralib
 -DLANGUAGE_C
