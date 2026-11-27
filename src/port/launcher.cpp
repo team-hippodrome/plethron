@@ -22,6 +22,7 @@
 #include "rom_check.h"
 #include "save_editor/save_editor_ui.h"
 #include "cheats.h"
+#include "interp.h" // PORT_FPS_LIMIT_DEFAULT
 
 #include <chrono>
 #include <libultraship/libultraship.h>
@@ -1694,12 +1695,23 @@ class LauncherWindow : public Ship::GuiWindow {
             if (c >= 0) CVarSetInteger("gVsyncEnabled", c == 0 ? 1 : 0);
         }
         ry += pitch;
-        // Smooth motion (frame interpolation)
+        // Smooth motion (frame interpolation) and its frame rate limit (gPort.FrameRateLimit, interp.cpp): 60 or 120
+        // pictures per second
         {
-            label("Smooth motion", "In-between frames for the 3D scenes the game\ndraws at 30 or 20 per second.");
-            int c = onOff("smooth", s.smooth);
+            const int limit = CVarGetInteger("gPort.FrameRateLimit", PORT_FPS_LIMIT_DEFAULT) >= 120 ? 120 : 60;
+            const uint32_t hz = Port::GetWindow() ? Port::GetWindow()->GetCurrentRefreshRate() : 0;
+            char hint[128];
+            if (s.smooth && limit == 120 && vsync && hz > 0 && hz + 1 < 120) {
+                snprintf(hint, sizeof hint, "This display refreshes %u times per second:\n120 needs a 120 Hz display.",
+                         (unsigned)hz);
+            } else {
+                snprintf(hint, sizeof hint, "In-between frames for the 3D scenes the game\ndraws at 30 or 20 per second.");
+            }
+            label("Smooth motion", hint);
+            int c = Choice("smooth", { "Off", "60 fps", "120 fps" }, !s.smooth ? 0 : limit == 120 ? 2 : 1, cx, ry, 72);
             if (c >= 0) {
-                s.smooth = c == 0;
+                s.smooth = c != 0;
+                if (c != 0) CVarSetInteger("gPort.FrameRateLimit", c == 2 ? 120 : 60);
                 mChanged = true;
             }
         }
@@ -2545,8 +2557,18 @@ class LauncherWindow : public Ship::GuiWindow {
             s.aspect = 1 - s.aspect;
             mChanged = true;
         }
-        if (Button(s.smooth ? "Smooth motion · on" : "Smooth motion · off", rx + bw + 14, y, bw, bh, gFonts.game)) {
-            s.smooth = !s.smooth;
+        // Smooth motion: off -> 60 fps -> 120 fps (gPort.FrameRateLimit) -> off
+        const bool smooth120 = CVarGetInteger("gPort.FrameRateLimit", PORT_FPS_LIMIT_DEFAULT) >= 120;
+        if (Button(!s.smooth ? "Smooth motion · off" : smooth120 ? "Smooth motion · 120 fps" : "Smooth motion · 60 fps",
+                   rx + bw + 14, y, bw, bh, gFonts.game)) {
+            if (!s.smooth) {
+                s.smooth = true;
+                CVarSetInteger("gPort.FrameRateLimit", 60);
+            } else if (!smooth120) {
+                CVarSetInteger("gPort.FrameRateLimit", 120);
+            } else {
+                s.smooth = false;
+            }
             mChanged = true;
         }
         y += bh + 14;

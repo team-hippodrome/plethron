@@ -55,6 +55,7 @@ extern "C" void* Port_ResolveN64Address(uintptr_t addr);
 extern "C" double Port_Speed();
 extern "C" int64_t Port_NextRetraceNs(void);
 extern "C" bool Port_DisplayPaced();
+extern "C" int Port_InterpPicturesPerRetrace(void); // interp.cpp
 extern "C" bool Port_Lockstep();
 extern "C" bool Port_FreezeCheckEnabled();
 extern "C" void Port_NotePictureHash(uint64_t hash);
@@ -740,10 +741,15 @@ bool RunFrameWith(void* gfxCommands, const void* mtxReplacements, bool subFrame,
     // display's refresh (os_devices.cpp) it must not hold presents back (a display slightly faster than 60 Hz would
     // otherwise push every frame a little later in the refresh, until one missed it), so it only caps at 64 fps there
     // (in-between frames come once per refresh: the limit then follows the display's refresh rate)
+    // (Smooth motion's in-between pictures: the display's refresh, or the frame rate limit's 60 or 120 per second)
     int targetFps = Port_DisplayPaced() ? 64 : 60;
     if (mtxReplacements != nullptr) {
         int64_t period = 0, vblank = 0;
-        if (Port_DisplayVblank(&period, &vblank) && period > 1000000) targetFps = (int)(1e9 / period) + 8;
+        if (Port_DisplayVblank(&period, &vblank) && period > 1000000) {
+            targetFps = (int)(1e9 / period) + 8;
+        } else {
+            targetFps = 60 * Port_InterpPicturesPerRetrace();
+        }
     }
     sWindow->SetTargetFps(targetFps);
     static const bool drawLog = getenv("PORT_DRAWLOG") != nullptr;
